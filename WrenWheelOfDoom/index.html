@@ -3,481 +3,279 @@
 <head>
   <title>Wren Wheel of Doom</title>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="../Favicon.png">
   <style>
     body {
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb, #a1c4fd);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      color: white;
-      text-align: center;
+      background: linear-gradient(120deg, #ff9a9e, #fad0c4, #fad0c4, #ffdde1);
       overflow: hidden;
     }
 
-    @keyframes gradientBG {
-      0%{background-position:0% 50%}
-      50%{background-position:100% 50%}
-      100%{background-position:0% 50%}
-    }
-
-    h1#wrenTitle {
-      font-family: 'Rubik', sans-serif;
-      font-size: 2em;
+    #topBar {
       position: fixed;
-      top: 10px;
-      left: 10px;
-      cursor: pointer;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.7);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      font-family: 'Rubik', sans-serif;
       z-index: 1000;
     }
 
-    #wrenDollars {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      font-size: 1.5em;
+    #wrenTitle {
       font-family: 'Rubik', sans-serif;
-      background: rgba(0,0,0,0.4);
-      padding: 10px 15px;
-      border-radius: 10px;
+      font-size: 2em;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #wrenDollars {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: purple;
     }
 
     #wheelContainer {
-      margin: 100px auto 50px;
-      width: 300px;
-      height: 400px;
-      overflow: hidden;
-      border: 5px solid white;
-      border-radius: 20px;
-      background: rgba(0,0,0,0.2);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       position: relative;
+      height: 400px;
+      width: 300px;
+      margin: 80px auto;
+      overflow: hidden;
+      border-radius: 20px;
+      border: 4px solid purple;
+      background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
     }
 
     #wheel {
-      width: 100%;
       display: flex;
       flex-direction: column;
+      transition: transform 1s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    .wheelItem {
+      height: 100px;
+      display: flex;
       align-items: center;
-    }
-
-    .wheel-item {
-      width: 90%;
-      padding: 15px 0;
-      margin: 5px 0;
-      background: rgba(255,255,255,0.2);
-      border-radius: 10px;
-      transition: all 0.2s;
-      font-family: 'Rubik', sans-serif;
-      font-size: 1.2em;
+      justify-content: center;
+      font-size: 1.5em;
+      font-weight: bold;
       color: white;
+      text-shadow: 0 0 5px black;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      background: linear-gradient(45deg, #f093fb, #f5576c);
+      transition: all 0.3s;
     }
 
-    .wheel-item.active {
-      background: purple;
+    .active {
       box-shadow: 0 0 20px purple;
       transform: scale(1.1);
     }
 
-    #spinButton {
+    #spinBtn {
+      display: block;
+      margin: 30px auto;
+      padding: 20px 40px;
+      font-size: 1.8em;
       font-family: 'Rubik', sans-serif;
-      padding: 15px 30px;
-      font-size: 1.2em;
-      border-radius: 15px;
       border: none;
-      background: white;
-      color: black;
+      border-radius: 15px;
+      background-color: purple;
+      color: white;
       cursor: pointer;
-      margin-top: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       transition: all 0.2s;
     }
 
-    #spinButton:hover {
-      transform: scale(1.05);
+    #spinBtn:active {
+      transform: scale(0.95);
     }
 
     #challengeContainer {
       display: none;
-      margin-top: 20px;
-    }
-
-    #challengeContainer button, #challengeContainer input {
-      font-size: 1.2em;
-      padding: 10px 20px;
-      margin: 10px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-    }
-
-    #challengeContainer input {
-      width: 150px;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 500px;
       text-align: center;
     }
 
-    #countdown {
-      font-size: 2em;
-      margin: 20px;
+    #challengeText {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      color: white;
+      text-shadow: 0 0 5px black;
     }
+
+    #challengeInput, #challengeButton {
+      padding: 10px 20px;
+      font-size: 1.2em;
+      margin: 5px;
+      border-radius: 10px;
+      border: none;
+    }
+
+    #challengeButton {
+      background-color: purple;
+      color: white;
+      cursor: pointer;
+    }
+
+    .hidden { display: none; }
+
+    body ::-webkit-scrollbar { display: none; }
   </style>
 </head>
 <body>
 
-<h1 id="wrenTitle">Wren.fun</h1>
-<div id="wrenDollars">WrenDollars: $<span id="money">0</span></div>
+  <div id="topBar">
+    <div id="wrenTitle">Wren.fun</div>
+    <div id="wrenDollars">WrenDollars: $0</div>
+  </div>
 
-<div id="wheelContainer">
-  <div id="wheel"></div>
-</div>
+  <div id="wheelContainer">
+    <div id="wheel"></div>
+  </div>
 
-<button id="spinButton">Spin the Wheel!</button>
+  <button id="spinBtn">Spin</button>
 
-<div id="challengeContainer"></div>
-<div id="countdown"></div>
+  <div id="challengeContainer">
+    <div id="challengeText"></div>
+    <input type="text" id="challengeInput" class="hidden">
+    <button id="challengeButton" class="hidden">Start</button>
+  </div>
 
 <script>
-const challenges = [
-  {name: "Red Light Green Light", type:"redlight"},
-  {name: "Keep Mouse Still", type:"still"},
-  {name: "Click Fast", type:"clickfast"},
-  {name: "Math Speed", type:"math"},
-  {name: "Type Word", type:"typeword"},
-  {name: "Button Mash", type:"buttonmash"},
-  {name: "Mini Wheel", type:"miniwheel"},
-  {name: "Color Memory", type:"colormemory"},
-  {name: "Reaction Test", type:"reaction"},
-  {name: "Quick Guess", type:"guess"}
+const wheelItems = [
+  {name: 'Red Light Green Light', type: 'clickGame'},
+  {name: 'Keep Mouse Still', type: 'mouseGame'},
+  {name: 'Quick Spin', type: 'moneyRandom'},
+  {name: 'Double or Nothing', type: 'moneyRandom'},
+  {name: 'Fast Click', type: 'clickGame'},
+  {name: 'Wheel of Fortune', type: 'moneyRandom'},
+  {name: 'Spin Again', type: 'spinAgain'},
+  {name: 'Lucky Win', type: 'moneyRandom'},
+  {name: 'Lose Some', type: 'moneyRandom'},
+  {name: 'Bonus Challenge', type: 'clickGame'}
 ];
 
-let money = parseInt(localStorage.getItem('wrenDollars')) || 0;
-document.getElementById('money').textContent = money;
+// Duplicate wheel for seamless wrapping
+const wheelContainer = document.getElementById('wheel');
+wheelItems.forEach(item => {
+  const div = document.createElement('div');
+  div.classList.add('wheelItem');
+  div.textContent = item.name;
+  wheelContainer.appendChild(div);
+});
+wheelItems.forEach(item => {
+  const div = document.createElement('div');
+  div.classList.add('wheelItem');
+  div.textContent = item.name;
+  wheelContainer.appendChild(div);
+});
 
-const wheel = document.getElementById('wheel');
-const spinButton = document.getElementById('spinButton');
+let wrenDollars = parseInt(localStorage.getItem('wrenDollars') || 0);
+const wrenDisplay = document.getElementById('wrenDollars');
+wrenDisplay.textContent = `WrenDollars: $${wrenDollars}`;
+
+const spinBtn = document.getElementById('spinBtn');
 const challengeContainer = document.getElementById('challengeContainer');
-const countdown = document.getElementById('countdown');
+const challengeText = document.getElementById('challengeText');
+const challengeInput = document.getElementById('challengeInput');
+const challengeButton = document.getElementById('challengeButton');
 
 let spinning = false;
+let currentIndex = 0;
 
-// create multiple repetitions of wheel for wrap-around effect
-function renderWheel(){
-  wheel.innerHTML = '';
-  for(let r=0; r<3; r++){ // repeat 3 times
-    challenges.forEach((c, i)=>{
-      const div = document.createElement('div');
-      div.classList.add('wheel-item');
-      div.textContent = c.name;
-      wheel.appendChild(div);
-    });
-  }
-}
-renderWheel();
-
-let position = 0;
-let interval;
-
-function spinWheel(){
-  if(spinning) return;
+// Spin animation
+spinBtn.addEventListener('click', () => {
+  if (spinning) return;
   spinning = true;
-  let speed = 50; // initial ms
-  const totalSpins = Math.floor(Math.random()*40 + 40);
-  let spins = 0;
-  interval = setInterval(()=>{
-    const items = document.querySelectorAll('.wheel-item');
-    items.forEach(item=>item.classList.remove('active'));
-    const activeIndex = position % challenges.length + challenges.length;
-    items[activeIndex].classList.add('active');
-    position++;
-    spins++;
-    if(spins>=totalSpins){
+  const totalItems = wheelItems.length;
+  const spinCount = Math.floor(Math.random() * 20) + 20; // fast spin
+  let steps = 0;
+
+  const interval = setInterval(() => {
+    const items = document.querySelectorAll('.wheelItem');
+    items.forEach(i => i.classList.remove('active'));
+    const displayIndex = (currentIndex + steps) % totalItems;
+    items[displayIndex].classList.add('active');
+    wheelContainer.style.transform = `translateY(-${displayIndex * 100}px)`;
+    steps++;
+    if (steps > spinCount) {
       clearInterval(interval);
-      spinning=false;
-      startChallenge(challenges[activeIndex % challenges.length]);
+      spinning = false;
+      startChallenge(wheelItems[displayIndex]);
     }
-  }, speed);
+  }, 50);
+});
+
+function updateWrenDollars(amount){
+  wrenDollars += amount;
+  wrenDisplay.textContent = `WrenDollars: $${wrenDollars}`;
+  localStorage.setItem('wrenDollars', wrenDollars);
 }
 
-spinButton.addEventListener('click', spinWheel);
-
-// Challenge handling
 function startChallenge(challenge){
-  spinButton.style.display = 'none';
-  challengeContainer.innerHTML = '';
+  spinBtn.style.display = 'none';
   challengeContainer.style.display = 'block';
+  challengeText.textContent = challenge.name;
+  challengeInput.classList.add('hidden');
+  challengeButton.classList.add('hidden');
 
-  if(challenge.type === "redlight"){
-    challengeContainer.innerHTML = `<p>Red Light Green Light! Click the button when GREEN. $1 per correct click. Don't click on red. Click Leave to stop anytime.</p>`;
-    const button = document.createElement('button');
-    button.textContent = 'Click Me!';
-    const leave = document.createElement('button');
-    leave.textContent = 'Leave';
-    challengeContainer.appendChild(button);
-    challengeContainer.appendChild(leave);
-
-    let green = true;
-    let totalClicks = 0;
-    let interval = setInterval(()=>{
-      green = !green;
-      button.style.background = green ? 'green' : 'red';
-    }, 1000);
-
-    button.addEventListener('click', ()=>{
-      if(green){
-        totalClicks++;
-        money +=1;
-      } else {
-        money -= totalClicks;
-        endChallenge();
-        alert(`Wrong click! You lost $${totalClicks}`);
-      }
-      updateMoney();
-    });
-    leave.addEventListener('click', ()=>{
-      alert(`You left with $${totalClicks}`);
-      endChallenge();
-    });
-  }
-
-  if(challenge.type === "still"){
-    challengeContainer.innerHTML = `<p>Keep your mouse still for 20 seconds to win $200. Move and you lose $200!</p>`;
-    const start = document.createElement('button');
-    start.textContent = 'Start';
-    challengeContainer.appendChild(start);
-
-    start.addEventListener('click', ()=>{
-      start.style.display='none';
-      let moved = false;
-      let startX, startY;
-      document.addEventListener('mousemove', trackMouse);
-      function trackMouse(e){
-        if(startX===undefined){
-          startX=e.clientX;
-          startY=e.clientY;
-        } else {
-          if(Math.abs(e.clientX-startX)>5 || Math.abs(e.clientY-startY)>5) moved=true;
-        }
-      }
-      countdown.textContent='20';
-      let time=20;
-      const timer = setInterval(()=>{
-        time--;
-        countdown.textContent=time;
-        if(time<=0){
-          clearInterval(timer);
-          document.removeEventListener('mousemove', trackMouse);
-          if(moved){
-            money-=200;
-            alert('You moved! Lost $200.');
-          } else {
-            money+=200;
-            alert('Success! Won $200.');
-          }
-          updateMoney();
-          endChallenge();
-        }
-      },1000);
-    });
-  }
-
-  if(challenge.type === "clickfast"){
-    challengeContainer.innerHTML = `<p>Click the button 10 times in 10 seconds to win $150!</p>`;
-    const button = document.createElement('button');
-    button.textContent = 'Click Me!';
-    challengeContainer.appendChild(button);
-    let clicks=0;
-    countdown.textContent='10';
-    let time=10;
-    const timer = setInterval(()=>{
-      time--;
-      countdown.textContent=time;
-      if(time<=0){
-        clearInterval(timer);
-        if(clicks>=10){
-          money+=150;
-          alert('You won $150!');
-        } else {
-          money-=150;
-          alert('You lost $150!');
-        }
-        updateMoney();
-        endChallenge();
-      }
-    },1000);
-
-    button.addEventListener('click', ()=>{
+  if(challenge.type === 'clickGame'){
+    challengeButton.textContent = 'Click 20 times in 10 seconds!';
+    challengeButton.classList.remove('hidden');
+    let clicks = 0;
+    let timeUp = false;
+    challengeButton.onclick = () => {
+      if(timeUp) return;
       clicks++;
-    });
-  }
-
-  if(challenge.type === "math"){
-    challengeContainer.innerHTML = `<p>Solve: 12 x 12</p>`;
-    const input = document.createElement('input');
-    input.placeholder='Answer';
-    const submit = document.createElement('button');
-    submit.textContent='Submit';
-    challengeContainer.appendChild(input);
-    challengeContainer.appendChild(submit);
-
-    submit.addEventListener('click', ()=>{
-      if(parseInt(input.value)===144){
-        money+=200;
-        alert('Correct! You won $200.');
-      } else {
-        money-=200;
-        alert('Wrong! You lost $200.');
-      }
-      updateMoney();
-      endChallenge();
-    });
-  }
-
-  if(challenge.type === "typeword"){
-    challengeContainer.innerHTML = `<p>Type the word: WRENFUN</p>`;
-    const input = document.createElement('input');
-    input.placeholder='Type here';
-    const submit = document.createElement('button');
-    submit.textContent='Submit';
-    challengeContainer.appendChild(input);
-    challengeContainer.appendChild(submit);
-
-    submit.addEventListener('click', ()=>{
-      if(input.value.toUpperCase()==='WRENFUN'){
-        money+=100;
-        alert('Correct! You won $100.');
-      } else {
-        money-=100;
-        alert('Wrong! You lost $100.');
-      }
-      updateMoney();
-      endChallenge();
-    });
-  }
-
-  if(challenge.type === "buttonmash"){
-    challengeContainer.innerHTML = `<p>Click the button 5 times to win $100!</p>`;
-    const button = document.createElement('button');
-    button.textContent='Mash Me!';
-    challengeContainer.appendChild(button);
-    let clicks=0;
-    button.addEventListener('click', ()=>{
-      clicks++;
-      if(clicks>=5){
-        money+=100;
-        alert('You won $100!');
-        updateMoney();
+      if(clicks >= 20){
+        updateWrenDollars(200);
         endChallenge();
       }
-    });
-  }
-
-  if(challenge.type === "miniwheel"){
-    challengeContainer.innerHTML = `<p>Mini Wheel Spin!</p>`;
-    const button = document.createElement('button');
-    button.textContent='Spin Mini Wheel';
-    challengeContainer.appendChild(button);
-
-    button.addEventListener('click', ()=>{
-      const amounts = [50,100,250,500,2000,-50,-100,-250,-500,-2000];
-      const result = amounts[Math.floor(Math.random()*amounts.length)];
-      if(result>0) alert(`You won $${result}!`);
-      else alert(`You lost $${-result}!`);
-      money += result;
-      updateMoney();
-      endChallenge();
-    });
-  }
-
-  if(challenge.type === "colormemory"){
-    challengeContainer.innerHTML = `<p>Click colors in order: Red → Green → Blue</p>`;
-    const sequence = ['Red','Green','Blue'];
-    let index=0;
-    sequence.forEach(color=>{
-      const b = document.createElement('button');
-      b.textContent=color;
-      b.style.background=color.toLowerCase();
-      b.style.color='white';
-      challengeContainer.appendChild(b);
-      b.addEventListener('click', ()=>{
-        if(b.textContent===sequence[index]){
-          index++;
-          if(index===sequence.length){
-            money+=150;
-            alert('Correct sequence! Won $150');
-            updateMoney();
-            endChallenge();
-          }
-        } else {
-          money-=150;
-          alert('Wrong sequence! Lost $150');
-          updateMoney();
-          endChallenge();
-        }
-      });
-    });
-  }
-
-  if(challenge.type === "reaction"){
-    challengeContainer.innerHTML = `<p>Wait until text turns green, then click!</p>`;
-    const text = document.createElement('p');
-    text.textContent='Wait...';
-    challengeContainer.appendChild(text);
-    const button = document.createElement('button');
-    button.textContent='Click!';
-    button.disabled=true;
-    challengeContainer.appendChild(button);
-
+    };
     setTimeout(()=>{
-      text.textContent='GO!';
-      text.style.color='green';
-      button.disabled=false;
-    }, Math.floor(Math.random()*3000+2000));
-
-    button.addEventListener('click', ()=>{
-      money+=100;
-      alert('Good reaction! Won $100');
-      updateMoney();
+      timeUp = true;
+      if(clicks < 20) updateWrenDollars(-200);
       endChallenge();
-    });
+    }, 10000);
   }
-
-  if(challenge.type === "guess"){
-    challengeContainer.innerHTML = `<p>Guess a number 1-5</p>`;
-    const input = document.createElement('input');
-    input.placeholder='1-5';
-    const submit = document.createElement('button');
-    submit.textContent='Submit';
-    challengeContainer.appendChild(input);
-    challengeContainer.appendChild(submit);
-    submit.addEventListener('click', ()=>{
-      const correct = Math.floor(Math.random()*5)+1;
-      if(parseInt(input.value)===correct){
-        money+=50;
-        alert('Correct! Won $50');
-      } else {
-        money-=50;
-        alert(`Wrong! The number was ${correct}. Lost $50`);
-      }
-      updateMoney();
+  else if(challenge.type === 'mouseGame'){
+    challengeText.textContent += " - Don't move your mouse for 20 seconds!";
+    let moved = false;
+    function mouseMove(){ moved = true; }
+    document.addEventListener('mousemove', mouseMove);
+    setTimeout(()=>{
+      document.removeEventListener('mousemove', mouseMove);
+      if(!moved) updateWrenDollars(200);
+      else updateWrenDollars(-200);
       endChallenge();
-    });
+    }, 20000);
+  }
+  else if(challenge.type === 'moneyRandom'){
+    const amount = Math.floor(Math.random() * 500) - 250;
+    updateWrenDollars(amount);
+    setTimeout(endChallenge, 1000);
+  }
+  else if(challenge.type === 'spinAgain'){
+    setTimeout(endChallenge, 500);
   }
 }
 
 function endChallenge(){
-  challengeContainer.style.display='none';
-  spinButton.style.display='inline-block';
-  countdown.textContent='';
-  localStorage.setItem('wrenDollars', money);
+  challengeContainer.style.display = 'none';
+  spinBtn.style.display = 'block';
 }
 
-function updateMoney(){
-  document.getElementById('money').textContent = money;
-}
-
+document.getElementById('wrenTitle').addEventListener('click', ()=>{
+  window.location.href = '../'; // go back to main menu
+});
 </script>
 </body>
 </html>
