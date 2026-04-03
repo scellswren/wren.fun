@@ -92,7 +92,6 @@
       height: 40px;
       cursor: pointer;
       z-index: 1000;
-      transition: all 0.5s;
     }
 
     #settingsMenu {
@@ -105,8 +104,8 @@
       flex-direction: column;
       gap: 15px;
       z-index: 1000;
-      transition: all 0.5s;
       font-family: 'Rubik', sans-serif;
+      transition: all 0.5s;
     }
 
     #settingsMenu label {
@@ -136,27 +135,7 @@
       100% { background-color: violet; }
     }
 
-    @keyframes neonGlow {
-      0%, 100% { box-shadow: 0 0 10px red, 0 0 20px orange; }
-      14% { box-shadow: 0 0 10px orange, 0 0 20px yellow; }
-      28% { box-shadow: 0 0 10px yellow, 0 0 20px green; }
-      42% { box-shadow: 0 0 10px green, 0 0 20px blue; }
-      56% { box-shadow: 0 0 10px blue, 0 0 20px indigo; }
-      70% { box-shadow: 0 0 10px indigo, 0 0 20px violet; }
-      84% { box-shadow: 0 0 10px violet, 0 0 20px red; }
-    }
-
-    .rainbowMode {
-      animation: rainbowBG 10s linear infinite;
-    }
-
-    .rainbowMode .btn {
-      animation: neonGlow 3s linear infinite;
-      color: black !important;
-    }
-
-    .darkMode { background-color: black; color: white; }
-    .lightMode { background-color: white; color: black; }
+    .rainbowMode { animation: rainbowBG 10s linear infinite; }
   </style>
 </head>
 <body>
@@ -221,33 +200,28 @@ const buttons = document.querySelectorAll('.btn');
 
 function applyMode(mode){
   body.classList.remove('lightMode','darkMode','rainbowMode');
+  body.style.transition='background 1s, color 0.5s';
   buttons.forEach(b => b.style.animation='');
 
   if(mode==='light'){
-    body.classList.add('lightMode');
+    body.style.background='white';
     body.style.color='black';
     footerText.style.color='black';
-    settingsMenu.style.background='rgba(255,255,255,0.9)';
-    settingsMenu.style.color='black';
-    settingsCog.style.filter='invert(0)'; // black
-    buttons.forEach(b=>b.style.color='black');
+    settingsMenu.style.background='black';
+    settingsMenu.style.color='white';
   }
   if(mode==='dark'){
-    body.classList.add('darkMode');
+    body.style.background='black';
     body.style.color='white';
     footerText.style.color='white';
-    settingsMenu.style.background='rgba(0,0,0,0.9)';
-    settingsMenu.style.color='white';
-    settingsCog.style.filter='invert(1)'; // white
-    buttons.forEach(b=>b.style.color='black');
+    settingsMenu.style.background='white';
+    settingsMenu.style.color='black';
   }
   if(mode==='rainbow'){
     body.classList.add('rainbowMode');
     footerText.style.color='black';
     settingsMenu.style.background='rgba(255,255,255,0.3)';
     settingsMenu.style.color='black';
-    settingsCog.style.animation='rainbowGlow 3s linear infinite';
-    buttons.forEach(b=>b.style.color='black');
   }
 
   localStorage.setItem('wrenMode', mode);
