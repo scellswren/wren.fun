@@ -16,20 +16,6 @@
       height: 100vh;
     }
 
-    /* HOME TEXT */
-    #homeText {
-      position: absolute;
-      top: 15px;
-      left: 20px;
-      font-family: 'Rubik', sans-serif;
-      font-size: 2em;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    #homeText:hover {
-      transform: scale(1.2);
-    }
-
     h1 {
       margin-top: 50px;
       font-size: 5em;
@@ -74,6 +60,22 @@
       font-size: 1.2em;
       color: #555;
     }
+
+    /* Wren.fun text top-left */
+    #homeText {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 2em;
+      cursor: pointer;
+      transition: transform 0.2s;
+      z-index: 1000;
+    }
+
+    #homeText:hover {
+      transform: scale(1.2);
+    }
   </style>
 </head>
 <body>
@@ -82,6 +84,7 @@
 
 <h1>Lucky Generator</h1>
 
+<!-- Image only appears after button click -->
 <img id="cat-img" alt="">
 
 <br>
@@ -101,7 +104,7 @@
     "Cat36.jpg","Cat37.jpg","Cat38.jpg","Cat39.jpg","Cat40.jpg"
   ];
 
-  // Preload all images
+  // Preload images
   const preloaded = [];
   images.forEach(src => {
     const img = new Image();
@@ -109,36 +112,27 @@
     preloaded.push(img);
   });
 
-  // Track last 5 cats to prevent duplicates
-  let recentCats = JSON.parse(localStorage.getItem("recentCats")) || [];
+  // Track last 5 drawn cats to prevent duplicates
+  let lastCats = [];
 
   function generateCat() {
-    // Filter images that are not in recentCats
-    const available = images.filter(i => !recentCats.includes(i));
-    let chosen;
+    let availableCats = images.filter((img, idx) => !lastCats.includes(idx));
+    if (availableCats.length === 0) availableCats = images; // Reset if all exhausted
 
-    if (available.length === 0) {
-      // if all are in cooldown, reset cooldown
-      recentCats = [];
-      chosen = images[Math.floor(Math.random() * images.length)];
-    } else {
-      chosen = available[Math.floor(Math.random() * available.length)];
-    }
+    const randomIdx = Math.floor(Math.random() * availableCats.length);
+    const selectedCat = availableCats[randomIdx];
 
-    // Show image
+    const catIndex = images.indexOf(selectedCat);
+    lastCats.push(catIndex);
+    if (lastCats.length > 5) lastCats.shift(); // Keep only last 5
+
     const img = document.getElementById("cat-img");
-    img.src = chosen;
+    img.src = selectedCat;
     img.style.display = 'block';
-
-    // Add to recentCats, keep max 5
-    recentCats.push(chosen);
-    if (recentCats.length > 5) recentCats.shift();
-
-    localStorage.setItem("recentCats", JSON.stringify(recentCats));
   }
 
   function goHome() {
-    window.location.href = "https://scellswren.github.io/wren.fun/";
+    window.location.href = "../index.html"; // Adjust to your main page path
   }
 </script>
 
