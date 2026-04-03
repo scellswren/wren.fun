@@ -19,11 +19,13 @@
       margin-top: 50px;
       font-size: 5em;
       font-family: 'Rubik', sans-serif;
+      transition: all 0.5s;
     }
 
     p {
       font-size: 1.5em;
       margin-bottom: 50px;
+      transition: all 0.5s;
     }
 
     .button-container {
@@ -45,11 +47,18 @@
       border: none;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
     }
 
     .btn:hover {
       transform: scale(1.08);
       box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    /* Click effect for game buttons */
+    .btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
     /* Footer links */
@@ -59,17 +68,15 @@
       width: 100%;
       text-align: center;
       font-family: 'Rubik', sans-serif;
-      color: white;
       display: flex;
       justify-content: center;
       gap: 30px;
       align-items: center;
+      transition: all 0.5s;
     }
 
-    footer a {
-      color: white;
-      text-decoration: none;
-      font-size: 1.2em;
+    footer span, footer a {
+      transition: color 0.5s;
       display: flex;
       align-items: center;
       gap: 5px;
@@ -78,6 +85,7 @@
     footer img {
       width: 24px;
       height: 24px;
+      transition: all 0.5s;
     }
 
     /* Settings cog */
@@ -114,16 +122,17 @@
       font-size: 1.2em;
     }
 
-    /* Song toggle */
     #volumeControl {
       width: 100%;
     }
 
     /* Rainbow neon mode */
-    .rainbowMode {
+    .rainbowMode h1,
+    .rainbowMode p,
+    .rainbowMode footer {
       background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
       -webkit-background-clip: text;
-      color: transparent;
+      color: transparent !important;
       animation: rainbowAnim 3s linear infinite;
     }
 
@@ -137,7 +146,7 @@
     .darkMode { background-color: #000; color: white; }
   </style>
 </head>
-<body>
+<body class="lightMode">
 
 <!-- Settings cog -->
 <img id="settingsCog" src="settings-cog.png" alt="Settings">
@@ -146,7 +155,7 @@
 <div id="settingsMenu">
   <label>
     Light Mode
-    <input type="radio" name="mode" value="light">
+    <input type="radio" name="mode" value="light" checked>
   </label>
   <label>
     Dark Mode
@@ -168,14 +177,14 @@
 <p>Vewy Cool😎</p>
 
 <div class="button-container">
-  <a href="LuckyGenerator/" class="btn">Lucky Generator</a>
-  <a href="WrenPacks/" class="btn">Wren Packs</a>
-  <a href="SmallCreators/" class="btn">Small Creators</a>
+  <a href="LuckyGenerator/" class="btn game-btn">Lucky Generator</a>
+  <a href="WrenPacks/" class="btn game-btn">Wren Packs</a>
+  <a href="SmallCreators/" class="btn game-btn">Small Creators</a>
 </div>
 
 <!-- Footer -->
 <footer>
-  <span>Thanks for visiting my website</span>
+  <span id="footerText">Thanks for visiting my website</span>
   <a href="https://www.youtube.com/@WrenIsOld" target="_blank">
     <img src="youtube.png" alt="YouTube"> YouTube
   </a>
@@ -186,7 +195,7 @@
 
 <!-- Audio element -->
 <audio id="bgSong" loop>
-  <source src="Song.mp3" type="audio/mpeg">
+  <source src="song.mp3" type="audio/mpeg">
 </audio>
 
 <script>
@@ -199,12 +208,23 @@
 
   // Mode selection
   const radios = document.querySelectorAll('input[name="mode"]');
+  const body = document.body;
+  const footerText = document.getElementById('footerText');
   radios.forEach(radio => {
     radio.addEventListener('change', () => {
-      document.body.classList.remove('lightMode','darkMode','rainbowMode');
-      if(radio.value === 'light') document.body.classList.add('lightMode');
-      if(radio.value === 'dark') document.body.classList.add('darkMode');
-      if(radio.value === 'rainbow') document.body.classList.add('rainbowMode');
+      body.classList.remove('lightMode','darkMode','rainbowMode');
+      if(radio.value === 'light'){
+        body.classList.add('lightMode');
+        footerText.style.color = 'black';
+      }
+      if(radio.value === 'dark'){
+        body.classList.add('darkMode');
+        footerText.style.color = 'white';
+      }
+      if(radio.value === 'rainbow'){
+        body.classList.add('rainbowMode');
+        footerText.style.color = 'transparent';
+      }
     });
   });
 
@@ -225,6 +245,22 @@
 
   volumeControl.addEventListener('input', () => {
     bgSong.volume = volumeControl.value;
+  });
+
+  // Add click animation for game buttons
+  const gameButtons = document.querySelectorAll('.game-btn');
+  gameButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.style.transform = 'scale(0.9)';
+      setTimeout(()=>{ btn.style.transform = ''; }, 100);
+    });
+  });
+
+  // Default light mode on load
+  window.addEventListener('load', () => {
+    document.querySelector('input[value="light"]').checked = true;
+    body.classList.add('lightMode');
+    footerText.style.color = 'black';
   });
 </script>
 
