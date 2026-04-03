@@ -17,13 +17,14 @@
 
     h1#wrenLogo {
       position: fixed;
-      top: 20px;
-      left: 20px;
+      top: 5px;
+      left: 5px;
       font-size: 2em;
       cursor: pointer;
       user-select: none;
       color: #fff;
       text-shadow: 2px 2px #000;
+      z-index: 1000;
     }
 
     #wrenDollars {
@@ -33,6 +34,7 @@
       font-size: 2em;
       font-weight: bold;
       text-shadow: 1px 1px #000;
+      z-index: 1000;
     }
 
     #wheelContainer {
@@ -52,7 +54,6 @@
       top: 0;
       left: 0;
       width: 100%;
-      transition: top 3s cubic-bezier(0.25,1,0.5,1);
     }
 
     .wheelItem {
@@ -62,7 +63,7 @@
       font-size: 1.3em;
       background: linear-gradient(90deg,#ff8c00,#ff0080);
       margin: 0;
-      transition: all 0.3s;
+      transition: all 0.2s;
     }
 
     .active {
@@ -82,6 +83,7 @@
       color: #000;
       cursor: pointer;
       transition: transform 0.2s;
+      z-index: 100;
     }
 
     #spinBtn:hover { transform: scale(1.05); }
@@ -153,7 +155,7 @@ const spinBtn = document.getElementById('spinBtn');
 const challengeArea = document.getElementById('challengeArea');
 const countdownDiv = document.getElementById('countdown');
 
-// === DEFINE CHALLENGES ===
+// === CHALLENGES ===
 const challenges = [
   {name:'Red Light Green Light', type:'rlgl'},
   {name:'Keep Mouse Still 20s', type:'still', value:200},
@@ -162,9 +164,9 @@ const challenges = [
   {name:'Type "javascript"', type:'input', value:100},
   {name:'Button Mash 5', type:'buttonClick', value:100},
   {name:'Mini Wheel', type:'miniWheel'},
-  {name:'Lucky Trivia', type:'input', value:200},
   {name:'Jackpot', type:'free', value:5000},
-  {name:'Reroll', type:'reroll'}
+  {name:'Reroll', type:'reroll'},
+  {name:'Quick Spin', type:'click', value:150}
 ];
 
 wheelItemsDiv.innerHTML = challenges.map(c => `<div class="wheelItem">${c.name}</div>`).join('');
@@ -183,42 +185,43 @@ function updateWrenDollars(amount, win=true){
   setTimeout(()=> wrenDisplay.className='', 1000);
 }
 
+// Smooth continuous spin
 function spinWheel(){
   if(spinning) return;
   spinning = true;
   challengeArea.innerHTML='';
   countdownDiv.innerHTML='';
-
-  const totalSteps = 30 + Math.floor(Math.random()*20); // random spin length
-  let step = 0;
+  spinBtn.style.display='none';
+  const totalSteps = 30 + Math.floor(Math.random()*20);
+  let step=0;
   const interval = setInterval(()=>{
-    highlightItem((currentIndex+1) % challenges.length);
+    currentIndex = (currentIndex+1) % challenges.length;
+    highlightItem(currentIndex);
     step++;
     if(step>totalSteps){
       clearInterval(interval);
-      setTimeout(()=> { executeChallenge(currentIndex); spinning=false; }, 500);
+      setTimeout(()=> { executeChallenge(currentIndex); }, 500);
     }
-  },120);
+  },50); // fast continuous spin
 }
 
-// === HIGHLIGHT CURRENT ===
 function highlightItem(index){
   const items = document.querySelectorAll('.wheelItem');
   items.forEach(i => i.classList.remove('active'));
   items[index].classList.add('active');
-  currentIndex = index;
-
-  // wrap-around effect by duplicating items
-  wheelItemsDiv.style.top = `${-(index*itemHeight % (itemHeight*challenges.length)) + 160}px`;
+  // Wrap effect
+  const offset = -(index*itemHeight) % (itemHeight*challenges.length);
+  wheelItemsDiv.style.top = `${offset + 160}px`;
 }
 
 // === EXECUTE CHALLENGE ===
 function executeChallenge(index){
   const challenge = challenges[index];
+  document.getElementById('wheelContainer').style.display='none';
   switch(challenge.type){
     case 'free': updateWrenDollars(challenge.value); challengeArea.innerHTML=`You got $${challenge.value}!`; break;
     case 'lose': updateWrenDollars(challenge.value,false); challengeArea.innerHTML=`You lost $${challenge.value}!`; break;
-    case 'reroll': challengeArea.innerHTML='Rerolling...'; setTimeout(spinWheel,1000); break;
+    case 'reroll': challengeArea.innerHTML='Rerolling...'; setTimeout(spinWheel,1000); return;
     case 'click': startClickChallenge(challenge); break;
     case 'math': startMathChallenge(challenge); break;
     case 'input': startInputChallenge(challenge); break;
@@ -244,16 +247,16 @@ function countdown(seconds, callback){
   },1000);
 }
 
-// === CHALLENGES ===
-
+// === CHALLENGE FUNCTIONS ===
 function startClickChallenge(challenge){
   countdown(3, ()=>{
     let count=0;
     challengeArea.innerHTML=`<button class="challengeBtn" id="clickBtn">Click me 0</button>`;
     const btn = document.getElementById('clickBtn');
     const timer = setTimeout(()=>{
-      if(count>=10){ updateWrenDollars(challenge.value); challengeArea.innerHTML='You did it!'; }
-      else { updateWrenDollars(challenge.value,false); challengeArea.innerHTML='Failed!'; }
+      if(count>=10) updateWrenDollars(challenge.value);
+      else updateWrenDollars(challenge.value,false);
+      finishChallenge();
     },10000);
     btn.addEventListener('click',()=>{
       count++;
@@ -268,7 +271,7 @@ function startMathChallenge(challenge){
     document.getElementById('submitMath').addEventListener('click',()=>{
       if(parseInt(document.getElementById('mathInput').value)===144) updateWrenDollars(challenge.value);
       else updateWrenDollars(challenge.value,false);
-      challengeArea.innerHTML='';
+      finishChallenge();
     });
   });
 }
@@ -279,7 +282,7 @@ function startInputChallenge(challenge){
     document.getElementById('submitInput').addEventListener('click',()=>{
       if(document.getElementById('inputAnswer').value.toLowerCase()==='javascript') updateWrenDollars(challenge.value);
       else updateWrenDollars(challenge.value,false);
-      challengeArea.innerHTML='';
+      finishChallenge();
     });
   });
 }
@@ -292,9 +295,9 @@ function startButtonClickChallenge(challenge){
     btn.addEventListener('click', ()=>{
       clicks++;
       btn.textContent=clicks;
-      if(clicks===5){ updateWrenDollars(challenge.value); challengeArea.innerHTML='Success!'; }
+      if(clicks===5){ updateWrenDollars(challenge.value); finishChallenge(); }
     });
-    setTimeout(()=>{ if(clicks<5){ updateWrenDollars(challenge.value,false); challengeArea.innerHTML='Failed!'; } },10000);
+    setTimeout(()=>{ if(clicks<5){ updateWrenDollars(challenge.value,false); finishChallenge(); } },10000);
   });
 }
 
@@ -307,6 +310,7 @@ function startMiniWheel(){
       challengeArea.innerHTML=`<p>${result}</p>`;
       if(result.includes('Win')) updateWrenDollars(parseInt(result.replace(/\D/g,'')));
       else updateWrenDollars(parseInt(result.replace(/\D/g,'')),false);
+      finishChallenge();
     },2000);
   });
 }
@@ -321,7 +325,7 @@ function startStillChallenge(challenge){
       document.removeEventListener('mousemove',mm);
       if(!moved) updateWrenDollars(challenge.value);
       else updateWrenDollars(challenge.value,false);
-      challengeArea.innerHTML='';
+      finishChallenge();
     },20000);
   });
 }
@@ -335,13 +339,19 @@ function startRLGLChallenge(){
     let green=true;
     const interval = setInterval(()=>{ green=!green; btn.style.background = green ? 'green' : 'red'; },1000);
     btn.addEventListener('click',()=>{
-      if(!green){ clearInterval(interval); updateWrenDollars(score,false); challengeArea.innerHTML='Failed!'; }
+      if(!green){ clearInterval(interval); updateWrenDollars(score,false); finishChallenge(); }
       else score++;
     });
     leaveBtn.addEventListener('click',()=>{
-      clearInterval(interval); updateWrenDollars(score); challengeArea.innerHTML='Success!'; 
+      clearInterval(interval); updateWrenDollars(score); finishChallenge();
     });
   });
+}
+
+function finishChallenge(){
+  challengeArea.innerHTML='';
+  document.getElementById('wheelContainer').style.display='block';
+  spinBtn.style.display='inline-block';
 }
 
 // === EVENTS ===
