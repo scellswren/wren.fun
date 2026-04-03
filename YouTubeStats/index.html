@@ -1,1 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Live Subs</title>
+  <link rel="icon" type="image/png" href="../Favicon.png">
 
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 50px;
+      font-size: 3em;
+    }
+
+    #subs {
+      font-size: 5em;
+      margin-top: 50px;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+<h1>My YouTube Subscribers</h1>
+
+<div id="subs">Loading...</div>
+
+<script>
+const channelId = "YOUR_CHANNEL_ID";
+
+async function getSubs() {
+  try {
+    const res = await fetch(`https://api.socialcounts.org/youtube-live-subscriber-count/${channelId}`);
+    const data = await res.json();
+    document.getElementById("subs").innerText = data.est_sub;
+  } catch {
+    document.getElementById("subs").innerText = "Error loading";
+  }
+}
+
+// update every 5 seconds
+setInterval(getSubs, 5000);
+getSubs();
+</script>
+
+</body>
+</html>
