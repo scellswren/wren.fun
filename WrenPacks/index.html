@@ -3,7 +3,7 @@
 <head>
   <title>Wren Packs</title>
 
-  <!-- FONT (same as main page) -->
+  <!-- FONT FOR WREN.FUN -->
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
 
   <link rel="icon" type="image/png" href="../Favicon.png">
@@ -17,7 +17,7 @@
       text-align: center;
     }
 
-    /* 🔥 TOP LEFT WREN.FUN */
+    /* 🔥 TOP LEFT HOME */
     #homeText {
       position: absolute;
       top: 15px;
@@ -27,14 +27,13 @@
       cursor: pointer;
       transition: transform 0.2s;
     }
-
     #homeText:hover {
       transform: scale(1.2);
     }
 
     h1 { margin-top: 20px; }
 
-    /* 🔥 BETTER BUTTONS */
+    /* 🔥 BUTTONS */
     .tabs button {
       padding: 15px 35px;
       margin: 10px;
@@ -53,12 +52,11 @@
       box-shadow: 0 0 15px white;
     }
 
-    /* different colours */
     .packBtn { background: purple; }
     .invBtn { background: green; }
     .indexBtn { background: dodgerblue; }
 
-    /* 🔴 NOTIFICATION */
+    /* 🔴 NOTIF */
     .notif {
       position: absolute;
       top: -8px;
@@ -216,7 +214,6 @@
 
 <body>
 
-<!-- 🔥 HOME BUTTON -->
 <div id="homeText" onclick="goHome()">Wren.fun</div>
 
 <h1>Wren Packs</h1>
@@ -263,7 +260,25 @@
 let canOpen = true;
 let newItems = 0;
 
-const items = [/* SAME AS YOUR ORIGINAL LIST */];
+const items = [
+  {name:"WrenIsOld", display:"WrenIsOld", rarity:"Common"},
+  {name:"TheMindOfOrin", display:"The Mind of Orin", rarity:"Common"},
+  {name:"TheRealBaldCena72", display:"Bald Cena", rarity:"Common"},
+  {name:"Edunzie", display:"Edunzie", rarity:"Common"},
+  {name:"Juju2y", display:"Juju2y", rarity:"Uncommon"},
+  {name:"Scratch", display:"Scratch", rarity:"Uncommon"},
+  {name:"BlockOfCheese", display:"Block Of Cheese", rarity:"Uncommon"},
+  {name:"Zxno", display:"Zxno", rarity:"Rare"},
+  {name:"EthansHalfTable", display:"EthansHalfTable", rarity:"Rare"},
+  {name:"TheTurtleKid2012", display:"Turtle Kid 2012", rarity:"Rare"},
+  {name:"TikiTheG", display:"Tikitheg", rarity:"Epic"},
+  {name:"Nathan8028", display:"Nathan", rarity:"Epic"},
+  {name:"Pigmaxv", display:"Pigmaxv", rarity:"Epic"},
+  {name:"Wren", display:"Wren", rarity:"Legendary"},
+  {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
+  {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
+  {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"}
+];
 
 const chances = {
   Common: 45,
@@ -286,6 +301,12 @@ function rollRarity() {
     if (r <= sum) return key;
   }
   return "Common";
+}
+
+function updateNotif() {
+  const n = document.getElementById("notif");
+  n.style.display = "inline-block";
+  n.innerText = newItems;
 }
 
 function openPack() {
@@ -324,12 +345,6 @@ function openPack() {
   }, 2000);
 }
 
-function updateNotif() {
-  const notif = document.getElementById("notif");
-  notif.style.display = "inline-block";
-  notif.innerText = newItems;
-}
-
 function showTab(tab) {
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
   document.getElementById(tab).classList.add("active");
@@ -365,7 +380,7 @@ function renderInventory() {
   });
 }
 
-/* KEEP YOUR EXPLOSION + RESET */
+/* RESET WITH EXPLOSION */
 function resetInventory() {
   const cards = document.querySelectorAll(".card");
 
