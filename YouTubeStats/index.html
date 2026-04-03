@@ -44,12 +44,13 @@ const channelId = "UCTyVdcvYql1uw6zn_J-kXlQ";
 
 async function getSubs() {
   try {
-    const res = await fetch(`https://api.socialcounts.org/youtube-live-subscriber-count/${channelId}`);
+    const res = await fetch(`https://mixerno.space/api/youtube-channel-counter/user/${channelId}`);
     const data = await res.json();
 
-    document.getElementById("subs").innerText = data.est_sub.toLocaleString();
-  } catch {
+    document.getElementById("subs").innerText = data.counts[0].count.toLocaleString();
+  } catch (e) {
     document.getElementById("subs").innerText = "Error";
+    console.error(e);
   }
 }
 
