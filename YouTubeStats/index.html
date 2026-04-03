@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>YouTube Live Subs</title>
+  <title>WIO Live Sub Count</title>
   <link rel="icon" type="image/png" href="../Favicon.png">
 
   <style>
@@ -19,28 +19,37 @@
     }
 
     #subs {
-      font-size: 5em;
-      margin-top: 50px;
+      font-size: 6em;
+      margin-top: 60px;
       color: red;
+      text-shadow: 0 0 20px red;
+    }
+
+    .label {
+      font-size: 1.5em;
+      margin-top: 10px;
+      color: #aaa;
     }
   </style>
 </head>
 <body>
 
-<h1>My YouTube Subscribers</h1>
+<h1>WIO Live Sub Count</h1>
 
 <div id="subs">Loading...</div>
+<div class="label">Subscribers</div>
 
 <script>
-const channelId = "YOUR_CHANNEL_ID";
+const channelId = "UCTyVdcvYql1uw6zn_J-kXlQ";
 
 async function getSubs() {
   try {
     const res = await fetch(`https://api.socialcounts.org/youtube-live-subscriber-count/${channelId}`);
     const data = await res.json();
-    document.getElementById("subs").innerText = data.est_sub;
+
+    document.getElementById("subs").innerText = data.est_sub.toLocaleString();
   } catch {
-    document.getElementById("subs").innerText = "Error loading";
+    document.getElementById("subs").innerText = "Error";
   }
 }
 
