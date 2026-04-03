@@ -42,7 +42,11 @@
       position: relative;
       transition: transform 0.2s, box-shadow 0.2s;
     }
-    .tabs button:hover { transform: scale(1.1); box-shadow: 0 0 15px white; }
+
+    .tabs button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px white;
+    }
 
     .packBtn { background: purple; }
     .invBtn { background: green; }
@@ -59,7 +63,12 @@
       font-size: 0.8em;
       animation: pulse 1s infinite;
     }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
 
     .section { display: none; }
     .active { display: block; }
@@ -87,19 +96,47 @@
       text-align: center;
       display: none;
       z-index: 1000;
-      font-family: 'Rubik', sans-serif;
     }
 
-    #result img { width: 200px; }
+    #result img {
+      width: 200px;
+      animation: spinIn 0.8s forwards;
+    }
+
+    @keyframes spinIn {
+      0% { transform: scale(0) rotate(-720deg); opacity: 0; }
+      50% { transform: scale(1.2) rotate(360deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
 
     /* GRID */
-    .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
-    .card { width: 130px; transition: transform 0.5s ease, opacity 0.5s ease; }
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .card {
+      width: 130px;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+
     .card img { width: 100%; }
-    .explode { transform: scale(2) rotate(25deg); opacity: 0; }
+
+    .explode {
+      transform: scale(2) rotate(25deg);
+      opacity: 0;
+    }
 
     /* RESET */
-    #resetBtn { position: absolute; top: 20px; right: 20px; padding: 10px 20px; }
+    #resetBtn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+    }
 
     /* CONFIRM */
     #confirmBox {
@@ -113,6 +150,7 @@
       display: none;
       z-index: 2000;
     }
+
     #darken {
       position: fixed;
       width: 100%;
@@ -122,19 +160,22 @@
       z-index: 1500;
     }
 
-    /* RARITY COLORS */
-    .Common { color: white; text-shadow: 0 0 10px white; }
-    .Uncommon { color: lime; text-shadow: 0 0 15px lime; }
-    .Rare { color: dodgerblue; text-shadow: 0 0 15px dodgerblue; }
-    .Epic { color: violet; text-shadow: 0 0 15px violet; }
-    .Legendary { color: gold; text-shadow: 0 0 20px gold; }
+    /* RARITY */
+    .Common { color: white; }
+    .Uncommon { color: lime; }
+    .Rare { color: dodgerblue; }
+    .Epic { color: violet; }
+    .Legendary { color: gold; }
     .Omega {
       background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
       -webkit-background-clip: text;
       color: transparent;
       animation: rainbow 3s linear infinite;
     }
-    @keyframes rainbow { 100% { filter: hue-rotate(360deg); } }
+
+    @keyframes rainbow {
+      100% { filter: hue-rotate(360deg); }
+    }
 
     /* OVERLAY */
     #overlay {
@@ -151,28 +192,23 @@
       color: gold;
       z-index: 9999;
     }
-    .fade { animation: fadeAnim 2s ease forwards; }
+
+    .fade {
+      animation: fadeAnim 2s ease forwards;
+    }
+
     @keyframes fadeAnim {
       0% { opacity: 0; transform: scale(0.5); }
       50% { opacity: 1; transform: scale(1.2); }
       100% { opacity: 0; }
     }
 
-    /* ANIMATIONS */
-    .spin-in { animation: spinIn 1s ease forwards; }
-    @keyframes spinIn {
-      0% { transform: translate(-50%, -50%) scale(0) rotate(-720deg); opacity: 0; }
-      50% { transform: translate(-50%, -50%) scale(1.2) rotate(360deg); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-    }
-    .explode-out { animation: explodeOut 0.8s forwards; }
-    @keyframes explodeOut {
-      0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(2) rotate(45deg); opacity: 0; }
-    }
-
     /* RATES */
-    .rates { margin: 30px; font-size: 1.2em; line-height: 1.8em; }
+    .rates {
+      margin: 30px;
+      font-size: 1.2em;
+      line-height: 1.8em;
+    }
   </style>
 </head>
 
@@ -213,6 +249,7 @@
   <button onclick="hideConfirm()">No</button>
 </div>
 
+<!-- INDEX -->
 <div id="index" class="section">
   <h2>All Characters</h2>
   <div id="index-list" class="grid"></div>
@@ -242,22 +279,37 @@ const items = [
   {name:"Zxno", display:"Zxno", rarity:"Rare"},
   {name:"EthansHalfTable", display:"EthansHalfTable", rarity:"Rare"},
   {name:"TheTurtleKid2012", display:"Turtle Kid 2012", rarity:"Rare"},
+  {name:"ThomasMini", display:"Thomas & Friends Minis", rarity:"Rare"},  // NEW
   {name:"TikiTheG", display:"Tikitheg", rarity:"Epic"},
   {name:"Nathan8028", display:"Nathan", rarity:"Epic"},
   {name:"Pigmaxv", display:"Pigmaxv", rarity:"Epic"},
+  {name:"AustinsHalfTable", display:"AustinsHalfTable", rarity:"Epic"},  // NEW
   {name:"Wren", display:"Wren", rarity:"Legendary"},
   {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
   {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
   {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"}
 ];
 
-const chances = { Common:45, Uncommon:30, Rare:12, Epic:7, Legendary:1, Omega:0.1 };
+const chances = {
+  Common: 45,
+  Uncommon: 30,
+  Rare: 12,
+  Epic: 7,
+  Legendary: 1,
+  Omega: 0.1
+};
 
-function goHome() { window.location.href = "https://scellswren.github.io/wren.fun/"; }
+function goHome() {
+  window.location.href = "https://scellswren.github.io/wren.fun/";
+}
 
 function rollRarity() {
-  let r = Math.random() * 100; let sum = 0;
-  for (let key in chances) { sum += chances[key]; if (r <= sum) return key; }
+  let r = Math.random() * 100;
+  let sum = 0;
+  for (let key in chances) {
+    sum += chances[key];
+    if (r <= sum) return key;
+  }
   return "Common";
 }
 
@@ -286,22 +338,19 @@ function openPack() {
     const result = document.getElementById("result");
     result.innerHTML = `<h2 class="${rarity}">${item.display} (${rarity})</h2><img src="${item.name}.jpg">`;
     result.style.display = "block";
-    result.classList.add("spin-in");
 
     let inv = JSON.parse(localStorage.getItem("inventory")) || {};
-    if (!inv[item.name]) { newItems++; updateNotif(); }
+    if (!inv[item.name]) {
+      newItems++;
+      updateNotif();
+    }
+
     addToInventory(item.name);
 
-    // Remove spin-in and do explode-out after 2.5s
     setTimeout(() => {
-      result.classList.remove("spin-in");
-      result.classList.add("explode-out");
-      setTimeout(() => {
-        result.style.display = "none";
-        result.classList.remove("explode-out");
-        canOpen = true;
-      }, 800);
-    }, 2500);
+      canOpen = true;
+      result.style.display = "none";
+    }, 3000);
 
   }, 2000);
 }
@@ -315,14 +364,24 @@ function showTab(tab) {
     document.getElementById("notif").style.display = "none";
     renderInventory();
   }
-  if (tab === "index") renderIndex();
+
+  if (tab === "index") {
+    renderIndex();
+  }
 }
 
 function renderIndex() {
   const container = document.getElementById("index-list");
   container.innerHTML = "";
+
   items.forEach(i => {
-    container.innerHTML += `<div class="card"><img src="${i.name}.jpg"><p class="${i.rarity}">${i.display}</p><p class="${i.rarity}">${i.rarity}</p></div>`;
+    container.innerHTML += `
+      <div class="card">
+        <img src="${i.name}.jpg">
+        <p class="${i.rarity}">${i.display}</p>
+        <p class="${i.rarity}">${i.rarity}</p>
+      </div>
+    `;
   });
 }
 
@@ -336,27 +395,45 @@ function renderInventory() {
   let inv = JSON.parse(localStorage.getItem("inventory")) || {};
   let container = document.getElementById("inventory-list");
   container.innerHTML = "";
+
   items.forEach(i => {
     if (inv[i.name]) {
-      container.innerHTML += `<div class="card"><img src="${i.name}.jpg"><p class="${i.rarity}">${i.display} x${inv[i.name]}</p></div>`;
+      container.innerHTML += `
+        <div class="card">
+          <img src="${i.name}.jpg">
+          <p class="${i.rarity}">${i.display} x${inv[i.name]}</p>
+        </div>
+      `;
     }
   });
 }
 
 function resetInventory() {
   const cards = document.querySelectorAll(".card");
-  cards.forEach((card, i) => { setTimeout(() => { card.classList.add("explode"); }, i*100); });
-  setTimeout(() => { localStorage.removeItem("inventory"); hideConfirm(); renderInventory(); }, 800);
+
+  cards.forEach((card, i) => {
+    setTimeout(() => {
+      card.classList.add("explode");
+    }, i * 100);
+  });
+
+  setTimeout(() => {
+    localStorage.removeItem("inventory");
+    hideConfirm();
+    renderInventory();
+  }, 800);
 }
 
 function showConfirm() {
   document.getElementById("confirmBox").style.display = "block";
   document.getElementById("darken").style.display = "block";
 }
+
 function hideConfirm() {
   document.getElementById("confirmBox").style.display = "none";
   document.getElementById("darken").style.display = "none";
 }
 </script>
+
 </body>
 </html>
