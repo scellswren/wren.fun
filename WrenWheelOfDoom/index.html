@@ -1,260 +1,246 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Wren Wheel of Doom</title>
+  <title>The Wren Wheel of Doom</title>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="../Favicon.png">
   <style>
     body {
       font-family: 'Rubik', sans-serif;
-      background: black;
-      color: white;
       text-align: center;
       margin: 0;
+      padding: 0;
+      background: #111;
+      color: #fff;
+      overflow-x: hidden;
     }
-
-    h1 { margin-top: 20px; font-size: 3em; }
-    #wrenDollars {
-      position: fixed;
-      top: 10px;
-      right: 20px;
-      font-size: 1.5em;
-      background: #222;
-      padding: 10px 15px;
-      border-radius: 15px;
-      box-shadow: 0 0 10px gold;
-    }
-
-    #wheelContainer {
-      margin: 50px auto;
-      position: relative;
-      width: 500px;
-      height: 500px;
-    }
-
-    #wheel {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 8px solid gold;
-      overflow: hidden;
-      position: relative;
-      transition: transform 5s cubic-bezier(0.33, 1, 0.68, 1);
-    }
-
-    #wheel .segment {
-      position: absolute;
-      width: 50%;
-      height: 50%;
-      top: 50%;
-      left: 50%;
-      transform-origin: 0% 0%;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-weight: bold;
-      font-size: 0.8em;
-    }
-
-    #spinBtn {
-      margin-top: 30px;
-      font-size: 1.8em;
-      padding: 20px 40px;
-      border-radius: 20px;
-      background: gold;
-      color: black;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 0 15px gold;
-      transition: transform 0.2s;
-    }
-
-    #spinBtn:hover { transform: scale(1.1); }
-
-    /* Challenge container */
-    #challengeContainer {
-      margin-top: 30px;
-    }
-
-    .challenge {
-      margin: 20px auto;
-      padding: 20px;
-      border: 2px solid white;
-      border-radius: 20px;
-      width: 400px;
-      display: none;
-    }
-
-    .duck {
-      width: 50px;
-      height: 50px;
-      position: absolute;
-      cursor: pointer;
-    }
-
-    #egg { width: 40px; position: absolute; }
-
-    input[type="text"], input[type="number"] {
-      font-size: 1.2em;
-      padding: 5px;
-      margin-top: 10px;
-    }
-
+    h1 { margin-top: 30px; font-size: 3em; }
+    #wrenDollars { position: fixed; top: 20px; right: 20px; font-size: 2em; }
+    #wheelContainer { display: flex; justify-content: center; margin-top: 50px; }
+    #wheel { border: 4px solid #fff; border-radius: 25px; width: 300px; height: 500px; overflow: hidden; position: relative; }
+    #wheelItems { position: absolute; top: 0; left: 0; width: 100%; transition: top 3s cubic-bezier(0.25, 1, 0.5, 1); }
+    .wheelItem { height: 80px; display: flex; justify-content: center; align-items: center; font-size: 1.2em; border-bottom: 1px solid #fff; background: #222; }
+    .btn { font-size: 1.5em; padding: 15px 30px; margin-top: 30px; cursor: pointer; border-radius: 15px; border: none; background: #f0f0f0; color: black; transition: transform 0.2s; }
+    .btn:hover { transform: scale(1.05); }
+    #challengeArea { margin-top: 40px; }
+    input[type="text"] { padding: 10px; font-size: 1.2em; border-radius: 10px; border: 2px solid #fff; width: 200px; }
+    .duck { width: 50px; height: 50px; background: yellow; position: absolute; border-radius: 50%; cursor: pointer; }
+    #eggSpoon { width: 40px; height: 40px; background: #f5f5f5; border-radius: 50%; position: absolute; top: 0; left: 50%; transform: translateX(-50%); }
+    #miniWheel { border: 3px solid #fff; border-radius: 15px; padding: 20px; display: inline-block; margin-top: 20px; }
+    .miniItem { margin: 5px 0; padding: 5px 0; background: #333; border-radius: 5px; }
+    .winAnim { animation: winAnim 1s ease forwards; }
+    .loseAnim { animation: loseAnim 1s ease forwards; }
+    @keyframes winAnim { 0% { transform: scale(1); color: #fff; } 50% { transform: scale(1.5); color: lime; } 100% { transform: scale(1); color: #fff; } }
+    @keyframes loseAnim { 0% { transform: scale(1); color: #fff; } 50% { transform: scale(1.5); color: red; } 100% { transform: scale(1); color: #fff; } }
   </style>
 </head>
 <body>
 
-<h1>Wren Wheel of Doom</h1>
-<div id="wrenDollars">💰 Wren Dollars: $<span id="dollars">0</span></div>
+<h1>The Wren Wheel of Doom</h1>
+<div id="wrenDollars">Wren $: 1000</div>
 
 <div id="wheelContainer">
-  <div id="wheel"></div>
+  <div id="wheel">
+    <div id="wheelItems"></div>
+  </div>
 </div>
+<button class="btn" id="spinBtn">Spin the Wheel!</button>
 
-<button id="spinBtn">Spin the Wheel!</button>
-
-<div id="challengeContainer"></div>
+<div id="challengeArea"></div>
 
 <script>
-let wrenDollars = parseInt(localStorage.getItem('wrenDollars')) || 0;
-document.getElementById('dollars').innerText = wrenDollars;
-
-const wheel = document.getElementById('wheel');
-const challengeContainer = document.getElementById('challengeContainer');
+let wrenDollars = 1000;
+const wrenDisplay = document.getElementById('wrenDollars');
+const wheelItemsDiv = document.getElementById('wheelItems');
 const spinBtn = document.getElementById('spinBtn');
+const challengeArea = document.getElementById('challengeArea');
 
-// 20 challenges
 const challenges = [
-  {text:"Click the button 20 times in 10 seconds", type:"clickButton", amount:200},
-  {text:"Free $100", type:"freeMoney", amount:100},
-  {text:"Roll again", type:"reroll"},
-  {text:"What is 10 x 13?", type:"math", answer:130, amount:300, time:7},
-  {text:"Click all 5 ducks in less than 15 seconds", type:"ducks", amount:300, time:15},
-  {text:"Lose $500", type:"loseMoney", amount:500},
-  {text:"What's the capital of France?", type:"capital", answer:"paris", amount:100},
-  {text:"Keep the egg on the spoon for 10 seconds", type:"egg", amount:750, time:10},
-  {text:"Spin another wheel", type:"secondWheel"},
-  {text:"Keep your mouse still for 20 seconds", type:"stillMouse", amount:100, time:20},
-  {text:"Red Light Green Light", type:"redGreenLight"},
-  {text:"Jackpot!", type:"freeMoney", amount:5000},
-  {text:"Lose $1000", type:"loseMoney", amount:1000},
-  {text:"Win $750", type:"freeMoney", amount:750},
-  {text:"Click 50 times in 30 seconds", type:"clickButton", amount:500, time:30},
-  {text:"Answer 5+7 in 5 seconds", type:"math", answer:12, amount:150, time:5},
-  {text:"Win $2000", type:"freeMoney", amount:2000},
-  {text:"Lose $750", type:"loseMoney", amount:750},
-  {text:"Free $500", type:"freeMoney", amount:500},
-  {text:"Roll again", type:"reroll"}
+  {name: 'Click 20 times in 10 sec', value: 200, type: 'clickChallenge'},
+  {name: 'Free $100', value: 100, type: 'free'},
+  {name: 'Roll Again', type: 'reroll'},
+  {name: '10 x 13 in 7 sec', value: 300, type: 'math'},
+  {name: 'Click 5 ducks <15 sec', value: 300, type: 'duck'},
+  {name: 'Lose $500', value: 500, type: 'lose'},
+  {name: 'Capital of France', value: 100, type: 'input'},
+  {name: 'Keep egg on spoon 10s', value: 750, type: 'egg'},
+  {name: 'Mini wheel', type: 'miniWheel'},
+  {name: 'Keep still 20 sec', value: 100, type: 'still'},
+  {name: 'Red Light Green Light', type: 'rlgl'},
+  {name: 'Jackpot $5000', value: 5000, type: 'free'}
 ];
 
-// Draw wheel segments
-for(let i=0;i<20;i++){
-  const seg = document.createElement('div');
-  seg.classList.add('segment');
-  seg.style.transform = `rotate(${i*18}deg) translate(-50%, -50%)`;
-  seg.innerText = `#${i+1}`;
-  wheel.appendChild(seg);
+const remainingChallenges = [
+  'Mystery Box $200', 'Trivia $150', 'Lose $250', 'Spin Again', 
+  'Click challenge $300', 'Math $400', 'Egg $500', 'Duck $200'
+];
+
+let wheelItems = [...challenges.map(c=>c.name), ...remainingChallenges];
+wheelItemsDiv.innerHTML = wheelItems.map(n => `<div class="wheelItem">${n}</div>`).join('');
+
+let spinning = false;
+
+function updateWrenDollars(change, win=true){
+  wrenDollars += change;
+  wrenDisplay.textContent = 'Wren $: ' + wrenDollars;
+  wrenDisplay.className = win ? 'winAnim' : 'loseAnim';
+  setTimeout(()=>{ wrenDisplay.className = ''; },1000);
 }
 
-// Spin wheel
-spinBtn.addEventListener('click', ()=>{
-  spinBtn.disabled = true;
-  const spinDeg = Math.floor(Math.random()*360) + 360*5;
-  wheel.style.transform = `rotate(${spinDeg}deg)`;
-  const chosen = Math.floor((360 - (spinDeg % 360)) / 18) % 20;
-  setTimeout(()=>{ startChallenge(challenges[chosen]); }, 5000);
-});
+function spinWheel(){
+  if(spinning) return;
+  spinning = true;
+  challengeArea.innerHTML = '';
+  const totalItems = wheelItems.length;
+  const randomIndex = Math.floor(Math.random() * totalItems);
+  const topOffset = -randomIndex * 80 + 160; 
+  wheelItemsDiv.style.transition = 'top 3s cubic-bezier(0.25, 1, 0.5, 1)';
+  wheelItemsDiv.style.top = topOffset + 'px';
+  setTimeout(()=>{ executeChallenge(randomIndex); spinning=false; }, 3200);
+}
 
-function startChallenge(ch){
-  challengeContainer.innerHTML = '';
-  const div = document.createElement('div');
-  div.classList.add('challenge');
-  div.style.display = 'block';
-  div.innerHTML = `<p>${ch.text}</p>`;
-  challengeContainer.appendChild(div);
+function executeChallenge(index){
+  const name = wheelItems[index];
+  const challenge = challenges.find(c => c.name === name);
+  if(!challenge){
+    challengeArea.textContent = 'Random Challenge: You get $200!';
+    updateWrenDollars(200);
+    return;
+  }
+  if(challenge.type === 'free'){
+    challengeArea.textContent = `You got free $${challenge.value}`;
+    updateWrenDollars(challenge.value);
+  }else if(challenge.type === 'lose'){
+    challengeArea.textContent = `You lose $${challenge.value}`;
+    updateWrenDollars(challenge.value,false);
+  }else if(challenge.type === 'clickChallenge'){
+    startClickChallenge(challenge.value);
+  }else if(challenge.type === 'math'){
+    startMathChallenge(challenge.value);
+  }else if(challenge.type === 'input'){
+    startInputChallenge(challenge.value);
+  }else if(challenge.type === 'egg'){
+    startEggChallenge(challenge.value);
+  }else if(challenge.type === 'duck'){
+    startDuckChallenge(challenge.value);
+  }else if(challenge.type === 'miniWheel'){
+    startMiniWheel();
+  }else if(challenge.type === 'still'){
+    startStillChallenge(challenge.value);
+  }else if(challenge.type === 'rlgl'){
+    startRLGLChallenge();
+  }else if(challenge.type === 'reroll'){
+    spinWheel();
+  }
+}
 
-  if(ch.type==='freeMoney'){
-    wrenDollars += ch.amount;
-    endChallenge();
-  }
-  if(ch.type==='loseMoney'){
-    wrenDollars -= ch.amount;
-    endChallenge();
-  }
-  if(ch.type==='reroll'){
-    spinBtn.disabled = false;
-    alert('Spin again!');
-  }
-  if(ch.type==='clickButton'){
-    const btn = document.createElement('button');
-    btn.innerText = 'Click me!';
-    btn.style.fontSize='1.5em';
-    div.appendChild(btn);
-    let count = 0;
-    btn.addEventListener('click', ()=> count++);
-    let time = ch.time || 10;
-    setTimeout(()=>{
-      if(count>=20){ wrenDollars += ch.amount; alert('You won!'); }
-      else { wrenDollars -= ch.amount; alert('You lost!'); }
-      endChallenge();
-    }, time*1000);
-  }
-  if(ch.type==='math'){
-    const input = document.createElement('input');
-    input.type='number';
-    div.appendChild(input);
-    let answered = false;
-    const timeLimit = ch.time || 7;
-    setTimeout(()=>{
-      if(!answered){ wrenDollars -= ch.amount; alert('Time up! You lost $'+ch.amount); endChallenge(); }
-    }, timeLimit*1000);
-    input.addEventListener('keydown', (e)=>{
-      if(e.key==='Enter'){
-        answered=true;
-        if(parseInt(input.value)===ch.answer){ wrenDollars+=ch.amount; alert('Correct! You won $'+ch.amount); }
-        else{ wrenDollars-=ch.amount; alert('Wrong! You lost $'+ch.amount); }
-        endChallenge();
-      }
+// ===== CHALLENGE FUNCTIONS =====
+
+function startClickChallenge(value){
+  let count = 0;
+  challengeArea.innerHTML = `<button id="clickBtn">Click me! 0</button>`;
+  const btn = document.getElementById('clickBtn');
+  const timer = setTimeout(()=>{ 
+    if(count>=20){ updateWrenDollars(value); } else { updateWrenDollars(value,false);}
+    challengeArea.innerHTML = '';
+  },10000);
+  btn.addEventListener('click', ()=>{
+    count++;
+    btn.textContent = `Click me! ${count}`;
+  });
+}
+
+function startMathChallenge(value){
+  const answer = 130;
+  challengeArea.innerHTML = `<p>What is 10 x 13?</p><input type="text" id="mathInput"><button id="submitMath">Submit</button>`;
+  document.getElementById('submitMath').addEventListener('click',()=>{
+    const val = parseInt(document.getElementById('mathInput').value);
+    if(val === answer){ updateWrenDollars(value); } else { updateWrenDollars(value,false);}
+    challengeArea.innerHTML = '';
+  });
+}
+
+function startInputChallenge(value){
+  challengeArea.innerHTML = `<p>What's the capital of France?</p><input type="text" id="capitalInput"><button id="submitCapital">Submit</button>`;
+  document.getElementById('submitCapital').addEventListener('click',()=>{
+    const val = document.getElementById('capitalInput').value.toLowerCase();
+    if(val==='paris'){ updateWrenDollars(value); } else { updateWrenDollars(value,false);}
+    challengeArea.innerHTML = '';
+  });
+}
+
+function startEggChallenge(value){
+  challengeArea.innerHTML = `<div id="eggSpoon"></div><p>Keep the egg on the spoon for 10 seconds!</p>`;
+  const egg = document.getElementById('eggSpoon');
+  let success = true;
+  const timer = setTimeout(()=>{
+    if(success){ updateWrenDollars(value); } else { updateWrenDollars(value,false);}
+    challengeArea.innerHTML = '';
+  },10000);
+  egg.addEventListener('mouseenter', ()=>{ success=false; });
+}
+
+function startDuckChallenge(value){
+  let clicked = 0;
+  challengeArea.innerHTML = `<p>Click all 5 ducks in 15 seconds!</p>`;
+  const container = challengeArea;
+  for(let i=0;i<5;i++){
+    const duck = document.createElement('div');
+    duck.className='duck';
+    duck.style.top = Math.random()*300+'px';
+    duck.style.left = Math.random()*250+'px';
+    container.appendChild(duck);
+    duck.addEventListener('click',()=>{
+      duck.remove();
+      clicked++;
+      if(clicked===5){ updateWrenDollars(value); challengeArea.innerHTML=''; }
     });
   }
-  if(ch.type==='capital'){
-    const input = document.createElement('input');
-    input.type='text';
-    div.appendChild(input);
-    input.addEventListener('keydown', (e)=>{
-      if(e.key==='Enter'){
-        if(input.value.toLowerCase()===ch.answer.toLowerCase()){ wrenDollars+=ch.amount; alert('Correct!'); }
-        else{ wrenDollars-=ch.amount; alert('Wrong!'); }
-        endChallenge();
-      }
-    });
-  }
-  if(ch.type==='stillMouse'){
-    const startX=window.event?.screenX || 0;
-    const startY=window.event?.screenY || 0;
-    let moved=false;
-    const mouseMove = (e)=>{
-      if(Math.abs(e.screenX-startX)>5 || Math.abs(e.screenY-startY)>5) moved=true;
-    };
-    document.addEventListener('mousemove', mouseMove);
-    setTimeout(()=>{
-      document.removeEventListener('mousemove', mouseMove);
-      if(!moved){ wrenDollars+=ch.amount; alert('Success!'); }
-      else{ wrenDollars-=ch.amount; alert('You moved! Lost $'+ch.amount); }
-      endChallenge();
-    }, (ch.time||20)*1000);
-  }
-  // TODO: duck clicking, egg on spoon, red light green light, second wheel
+  setTimeout(()=>{ if(clicked<5){ updateWrenDollars(value,false); challengeArea.innerHTML=''; } },15000);
 }
 
-function endChallenge(){
-  spinBtn.disabled=false;
-  document.getElementById('dollars').innerText=wrenDollars;
-  localStorage.setItem('wrenDollars', wrenDollars);
-  challengeContainer.innerHTML='';
+function startMiniWheel(){
+  challengeArea.innerHTML = `<p>Mini Wheel!</p><div id="miniWheel"></div>`;
+  const miniWheel = document.getElementById('miniWheel');
+  const items = ['Win $50','Win $100','Win $250','Win $500','Win $2000','Lose 50','Lose 100','Lose 250','Lose 500','Lose 2000'];
+  items.forEach(it=>{ miniWheel.innerHTML += `<div class="miniItem">${it}</div>` });
+  setTimeout(()=>{
+    const random = items[Math.floor(Math.random()*items.length)];
+    challengeArea.innerHTML = `<p>${random}</p>`;
+    if(random.includes('Win')) updateWrenDollars(parseInt(random.replace(/\D/g,'')));
+    else updateWrenDollars(parseInt(random.replace(/\D/g,'')),false);
+  },2000);
 }
+
+function startStillChallenge(value){
+  challengeArea.innerHTML = `<p>Keep your mouse still for 20 seconds!</p>`;
+  let moved=false;
+  function mouseMove(){ moved=true; }
+  document.addEventListener('mousemove', mouseMove);
+  setTimeout(()=>{
+    document.removeEventListener('mousemove', mouseMove);
+    if(!moved) updateWrenDollars(value); else updateWrenDollars(value,false);
+    challengeArea.innerHTML='';
+  },20000);
+}
+
+function startRLGLChallenge(){
+  let score=0;
+  challengeArea.innerHTML=`<p>Red Light Green Light! Click only on green</p><button id="rlBtn">Click Me!</button><button id="leaveBtn">Leave</button>`;
+  const btn = document.getElementById('rlBtn');
+  const leaveBtn = document.getElementById('leaveBtn');
+  let isGreen=true;
+  const interval = setInterval(()=>{ isGreen=!isGreen; btn.style.background = isGreen ? 'green' : 'red'; },1000);
+  btn.addEventListener('click', ()=>{
+    if(isGreen){ score++; } else { score=0; clearInterval(interval); updateWrenDollars(score,false); challengeArea.innerHTML=''; }
+  });
+  leaveBtn.addEventListener('click', ()=>{
+    clearInterval(interval); updateWrenDollars(score); challengeArea.innerHTML='';
+  });
+}
+
+spinBtn.addEventListener('click', spinWheel);
 </script>
+
 </body>
 </html>
