@@ -12,7 +12,7 @@
       text-align: center;
       margin: 0;
       padding: 0;
-      transition: background-color 0.5s, color 0.5s;
+      transition: background 1s, color 0.5s;
     }
 
     h1 {
@@ -46,7 +46,7 @@
       border-radius: 25px;
       border: none;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s, background 0.5s, color 0.5s;
       cursor: pointer;
     }
 
@@ -55,7 +55,6 @@
       box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     }
 
-    /* Click effect for game buttons */
     .btn:active {
       transform: scale(0.95);
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
@@ -126,24 +125,38 @@
       width: 100%;
     }
 
-    /* Rainbow neon mode */
-    .rainbowMode h1,
-    .rainbowMode p,
-    .rainbowMode footer {
-      background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
-      -webkit-background-clip: text;
-      color: transparent !important;
-      animation: rainbowAnim 3s linear infinite;
+    /* Rainbow neon background animation */
+    @keyframes rainbowBG {
+      0% { background-color: red; }
+      16% { background-color: orange; }
+      33% { background-color: yellow; }
+      50% { background-color: green; }
+      66% { background-color: blue; }
+      83% { background-color: indigo; }
+      100% { background-color: violet; }
     }
 
-    @keyframes rainbowAnim {
-      0% { filter: hue-rotate(0deg); }
-      100% { filter: hue-rotate(360deg); }
+    /* Neon glow for buttons in rainbow mode */
+    @keyframes neonGlow {
+      0%, 100% { box-shadow: 0 0 10px red, 0 0 20px orange; }
+      14% { box-shadow: 0 0 10px orange, 0 0 20px yellow; }
+      28% { box-shadow: 0 0 10px yellow, 0 0 20px green; }
+      42% { box-shadow: 0 0 10px green, 0 0 20px blue; }
+      56% { box-shadow: 0 0 10px blue, 0 0 20px indigo; }
+      70% { box-shadow: 0 0 10px indigo, 0 0 20px violet; }
+      84% { box-shadow: 0 0 10px violet, 0 0 20px red; }
     }
 
-    /* Light/Dark mode classes */
-    .lightMode { background-color: #fff; color: black; }
-    .darkMode { background-color: #000; color: white; }
+    .rainbowMode {
+      animation: rainbowBG 10s linear infinite;
+      color: black; /* Ensure text visible on rainbow background */
+    }
+
+    .rainbowMode .btn {
+      animation: neonGlow 3s linear infinite;
+      color: white;
+    }
+
   </style>
 </head>
 <body class="lightMode">
@@ -199,36 +212,40 @@
 </audio>
 
 <script>
-  // Settings toggle
   const settingsCog = document.getElementById('settingsCog');
   const settingsMenu = document.getElementById('settingsMenu');
   settingsCog.addEventListener('click', () => {
     settingsMenu.style.display = settingsMenu.style.display === 'flex' ? 'none' : 'flex';
   });
 
-  // Mode selection
   const radios = document.querySelectorAll('input[name="mode"]');
   const body = document.body;
   const footerText = document.getElementById('footerText');
+  const buttons = document.querySelectorAll('.btn');
+
   radios.forEach(radio => {
     radio.addEventListener('change', () => {
       body.classList.remove('lightMode','darkMode','rainbowMode');
+      buttons.forEach(b => b.style.animation = ''); // reset neon glow
+
       if(radio.value === 'light'){
         body.classList.add('lightMode');
         footerText.style.color = 'black';
+        buttons.forEach(b => { b.style.color='black'; });
       }
       if(radio.value === 'dark'){
         body.classList.add('darkMode');
         footerText.style.color = 'white';
+        buttons.forEach(b => { b.style.color='black'; });
       }
       if(radio.value === 'rainbow'){
         body.classList.add('rainbowMode');
-        footerText.style.color = 'transparent';
+        footerText.style.color = 'black';
+        buttons.forEach(b => { b.style.color='white'; });
       }
     });
   });
 
-  // Song controls
   const bgSong = document.getElementById('bgSong');
   const toggleSong = document.getElementById('toggleSong');
   const volumeControl = document.getElementById('volumeControl');
@@ -247,7 +264,7 @@
     bgSong.volume = volumeControl.value;
   });
 
-  // Add click animation for game buttons
+  // Game button click effect
   const gameButtons = document.querySelectorAll('.game-btn');
   gameButtons.forEach(btn => {
     btn.addEventListener('click', () => {
