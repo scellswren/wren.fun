@@ -41,12 +41,13 @@
     }
 
     #cat-img {
+      display: none;           /* hidden until button clicked */
       width: 400px;
       max-width: 90%;
       border-radius: 20px;
-      margin-top: 30px;
+      margin: 30px auto 0;     /* centers image */
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      display: none; /* hidden until button clicked */
+      display: block;          /* block for proper centering when shown */
     }
   </style>
 </head>
@@ -61,6 +62,14 @@
 
 <script>
   const images = ["Cat1.jpg", "Cat2.jpg", "Cat3.jpg", "Cat4.jpg"];
+
+  // Preload images for faster display
+  const preloaded = [];
+  images.forEach(src => {
+    const img = new Image();
+    img.src = src;
+    preloaded.push(img);
+  });
 
   function generateCat() {
     const random = Math.floor(Math.random() * images.length);
