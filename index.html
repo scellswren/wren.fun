@@ -7,8 +7,6 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #fff;
-      color: black;
       text-align: center;
       margin: 0;
       padding: 0;
@@ -60,7 +58,6 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    /* Footer links */
     footer {
       position: fixed;
       bottom: 10px;
@@ -87,7 +84,6 @@
       transition: all 0.5s;
     }
 
-    /* Settings cog */
     #settingsCog {
       position: fixed;
       top: 10px;
@@ -96,21 +92,20 @@
       height: 40px;
       cursor: pointer;
       z-index: 1000;
+      transition: all 0.5s;
     }
 
-    /* Settings menu */
     #settingsMenu {
       position: fixed;
       top: 60px;
       left: 10px;
-      background: rgba(0,0,0,0.9);
       padding: 20px;
       border-radius: 15px;
       display: none;
       flex-direction: column;
       gap: 15px;
       z-index: 1000;
-      color: white;
+      transition: all 0.5s;
     }
 
     #settingsMenu label {
@@ -131,7 +126,6 @@
       width: 100%;
     }
 
-    /* Rainbow neon background animation */
     @keyframes rainbowBG {
       0% { background-color: red; }
       16% { background-color: orange; }
@@ -142,7 +136,6 @@
       100% { background-color: violet; }
     }
 
-    /* Neon glow for buttons in rainbow mode */
     @keyframes neonGlow {
       0%, 100% { box-shadow: 0 0 10px red, 0 0 20px orange; }
       14% { box-shadow: 0 0 10px orange, 0 0 20px yellow; }
@@ -159,27 +152,21 @@
 
     .rainbowMode .btn {
       animation: neonGlow 3s linear infinite;
-      color: black !important; /* button text stays black */
+      color: black !important;
     }
 
-    /* Dark mode */
-    .darkMode {
-      background-color: black;
-      color: white;
-    }
-
+    .darkMode { background-color: black; color: white; }
+    .lightMode { background-color: white; color: black; }
   </style>
 </head>
-<body class="lightMode">
+<body>
 
-<!-- Settings cog -->
 <img id="settingsCog" src="settings-cog.png" alt="Settings">
 
-<!-- Settings menu -->
 <div id="settingsMenu">
   <label>
     Light Mode
-    <input type="radio" name="mode" value="light" checked>
+    <input type="radio" name="mode" value="light">
   </label>
   <label>
     Dark Mode
@@ -206,7 +193,6 @@
   <a href="SmallCreators/" class="btn game-btn">Small Creators</a>
 </div>
 
-<!-- Footer -->
 <footer>
   <span id="footerText">Thanks for visiting my website</span>
   <a href="https://www.youtube.com/@WrenIsOld" target="_blank">
@@ -217,84 +203,92 @@
   </a>
 </footer>
 
-<!-- Audio element -->
 <audio id="bgSong" loop>
   <source src="song.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-  const settingsCog = document.getElementById('settingsCog');
-  const settingsMenu = document.getElementById('settingsMenu');
-  settingsCog.addEventListener('click', () => {
-    settingsMenu.style.display = settingsMenu.style.display === 'flex' ? 'none' : 'flex';
-  });
+const settingsCog = document.getElementById('settingsCog');
+const settingsMenu = document.getElementById('settingsMenu');
+settingsCog.addEventListener('click', () => {
+  settingsMenu.style.display = settingsMenu.style.display === 'flex' ? 'none' : 'flex';
+});
 
-  const radios = document.querySelectorAll('input[name="mode"]');
-  const body = document.body;
-  const footerText = document.getElementById('footerText');
-  const buttons = document.querySelectorAll('.btn');
+const radios = document.querySelectorAll('input[name="mode"]');
+const body = document.body;
+const footerText = document.getElementById('footerText');
+const buttons = document.querySelectorAll('.btn');
 
-  radios.forEach(radio => {
-    radio.addEventListener('change', () => {
-      body.classList.remove('lightMode','darkMode','rainbowMode');
-      buttons.forEach(b => b.style.animation = ''); // reset neon glow
+function applyMode(mode){
+  body.classList.remove('lightMode','darkMode','rainbowMode');
+  buttons.forEach(b => b.style.animation='');
 
-      if(radio.value === 'light'){
-        body.classList.add('lightMode');
-        body.style.backgroundColor = '#fff';
-        body.style.color = 'black';
-        footerText.style.color = 'black';
-        buttons.forEach(b => { b.style.color='black'; });
-      }
-      if(radio.value === 'dark'){
-        body.classList.add('darkMode');
-        body.style.backgroundColor = 'black';
-        body.style.color = 'white';
-        footerText.style.color = 'white';
-        buttons.forEach(b => { b.style.color='black'; });
-      }
-      if(radio.value === 'rainbow'){
-        body.classList.add('rainbowMode');
-        footerText.style.color = 'black';
-        buttons.forEach(b => { b.style.color='black'; }); // keep button text black
-      }
-    });
-  });
-
-  const bgSong = document.getElementById('bgSong');
-  const toggleSong = document.getElementById('toggleSong');
-  const volumeControl = document.getElementById('volumeControl');
-
-  toggleSong.addEventListener('click', () => {
-    if(bgSong.paused){
-      bgSong.play();
-      toggleSong.textContent = 'Pause';
-    } else {
-      bgSong.pause();
-      toggleSong.textContent = 'Play';
-    }
-  });
-
-  volumeControl.addEventListener('input', () => {
-    bgSong.volume = volumeControl.value;
-  });
-
-  // Game button click effect
-  const gameButtons = document.querySelectorAll('.game-btn');
-  gameButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      btn.style.transform = 'scale(0.9)';
-      setTimeout(()=>{ btn.style.transform = ''; }, 100);
-    });
-  });
-
-  // Default light mode on load
-  window.addEventListener('load', () => {
-    document.querySelector('input[value="light"]').checked = true;
+  if(mode==='light'){
     body.classList.add('lightMode');
-    footerText.style.color = 'black';
-  });
-</script>
+    body.style.color='black';
+    footerText.style.color='black';
+    settingsMenu.style.background='rgba(255,255,255,0.9)';
+    settingsMenu.style.color='black';
+    buttons.forEach(b=>b.style.color='black');
+  }
+  if(mode==='dark'){
+    body.classList.add('darkMode');
+    body.style.color='white';
+    footerText.style.color='white';
+    settingsMenu.style.background='rgba(0,0,0,0.9)';
+    settingsMenu.style.color='white';
+    buttons.forEach(b=>b.style.color='black');
+  }
+  if(mode==='rainbow'){
+    body.classList.add('rainbowMode');
+    footerText.style.color='black';
+    settingsMenu.style.background='rgba(255,255,255,0.3)';
+    settingsMenu.style.color='black';
+    buttons.forEach(b=>b.style.color='black');
+  }
 
+  localStorage.setItem('wrenMode', mode);
+}
+
+// Load saved mode
+window.addEventListener('load', ()=>{
+  const savedMode = localStorage.getItem('wrenMode') || 'light';
+  document.querySelector(`input[value="${savedMode}"]`).checked = true;
+  applyMode(savedMode);
+});
+
+// Radio change event
+radios.forEach(radio=>{
+  radio.addEventListener('change', ()=>{
+    applyMode(radio.value);
+  });
+});
+
+// Song
+const bgSong = document.getElementById('bgSong');
+const toggleSong = document.getElementById('toggleSong');
+const volumeControl = document.getElementById('volumeControl');
+
+toggleSong.addEventListener('click', ()=>{
+  if(bgSong.paused){
+    bgSong.play();
+    toggleSong.textContent='Pause';
+  }else{
+    bgSong.pause();
+    toggleSong.textContent='Play';
+  }
+});
+
+volumeControl.addEventListener('input', ()=> bgSong.volume = volumeControl.value);
+
+// Game button click effect
+const gameButtons = document.querySelectorAll('.game-btn');
+gameButtons.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    btn.style.transform='scale(0.9)';
+    setTimeout(()=>{ btn.style.transform=''; },100);
+  });
+});
+</script>
 </body>
 </html>
