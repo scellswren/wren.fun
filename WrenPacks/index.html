@@ -44,7 +44,7 @@
       transform: scale(0.95);
     }
 
-    /* RESULT ANIMATION - CENTERED */
+    /* RESULT */
     #result {
       position: fixed;
       top: 50%;
@@ -75,12 +75,58 @@
       padding: 20px;
     }
 
-    .card {
+    .card { 
       width: 130px;
+      transition: transform 0.5s ease, opacity 0.5s ease; /* ✅ ADDED */
+    }
+    .card img { width: 100%; }
+
+    /* 💥 EXPLOSION */
+    .explode {
+      transform: scale(2) rotate(25deg);
+      opacity: 0;
     }
 
-    .card img {
+    /* RESET BUTTON */
+    #resetBtn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    /* POPUP */
+    #confirmBox {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #111;
+      padding: 30px;
+      border-radius: 15px;
+      display: none;
+      z-index: 2000;
+    }
+
+    #confirmBox button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    /* OVERLAY */
+    #darken {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      z-index: 1500;
     }
 
     /* RARITY COLORS */
@@ -95,17 +141,13 @@
       color: transparent;
       animation: rainbow 3s linear infinite;
     }
+
     @keyframes rainbow {
       0% { filter: hue-rotate(0deg); }
       100% { filter: hue-rotate(360deg); }
     }
 
-    .rates {
-      margin: 20px;
-      font-size: 1.2em;
-    }
-
-    /* FULLPAGE ANIMATION */
+    /* OVERLAY ANIMATION */
     #overlay {
       position: fixed;
       top: 0; left: 0;
@@ -116,7 +158,6 @@
       justify-content: center;
       font-size: 5em;
       color: gold;
-      text-shadow: 0 0 20px purple;
       z-index: 9999;
       display: none;
     }
@@ -142,30 +183,34 @@
   <button onclick="showTab('index')">Index</button>
 </div>
 
-<!-- FULL PAGE OVERLAY -->
 <div id="overlay">✨ PACK OPENING ✨</div>
 
-<!-- PACK -->
 <div id="pack" class="section active">
   <div class="pack" onclick="openPack()">OPEN</div>
 </div>
 
-<!-- RESULT - Centered -->
 <div id="result"></div>
 
 <!-- INVENTORY -->
 <div id="inventory" class="section">
+  <button id="resetBtn" onclick="showConfirm()">Reset</button>
   <h2>Your Inventory</h2>
   <div id="inventory-list" class="grid"></div>
+</div>
+
+<!-- CONFIRM POPUP -->
+<div id="darken"></div>
+
+<div id="confirmBox">
+  <h2>Are you sure?</h2>
+  <button onclick="resetInventory()">Yes</button>
+  <button onclick="hideConfirm()">No</button>
 </div>
 
 <!-- INDEX -->
 <div id="index" class="section">
   <h2>All Characters</h2>
   <div id="index-list" class="grid"></div>
-  <div class="rates">
-    Common: 45% | Uncommon: 30% | Rare: 12% | Epic: 7% | Legendary: 1% | Omega: 0.1%
-  </div>
 </div>
 
 <script>
@@ -191,7 +236,6 @@ const items = [
   {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"}
 ];
 
-// UPDATED CHANCES
 const chances = {
   Common: 45,
   Uncommon: 30,
@@ -228,10 +272,7 @@ function openPack() {
     const item = pool[Math.floor(Math.random() * pool.length)];
 
     const result = document.getElementById("result");
-    result.innerHTML = `
-      <h2 class="${rarity}">${item.display} (${rarity})</h2>
-      <img src="${item.name}.jpg">
-    `;
+    result.innerHTML = `<h2 class="${rarity}">${item.display} (${rarity})</h2><img src="${item.name}.jpg">`;
     result.style.display = "block";
 
     addToInventory(item.name);
@@ -273,20 +314,33 @@ function renderInventory() {
   });
 }
 
-function renderIndex() {
-  let container = document.getElementById("index-list");
-  items.forEach(i => {
-    container.innerHTML += `
-      <div class="card">
-        <img src="${i.name}.jpg">
-        <p class="${i.rarity}">${i.display}</p>
-        <p class="${i.rarity}">${i.rarity}</p>
-      </div>
-    `;
+/* RESET WITH EXPLOSION */
+function resetInventory() {
+  const cards = document.querySelectorAll(".card");
+
+  cards.forEach((card, i) => {
+    setTimeout(() => {
+      card.classList.add("explode");
+    }, i * 100);
   });
+
+  setTimeout(() => {
+    localStorage.removeItem("inventory");
+    hideConfirm();
+    renderInventory();
+  }, 800);
 }
 
-renderIndex();
+function showConfirm() {
+  document.getElementById("confirmBox").style.display = "block";
+  document.getElementById("darken").style.display = "block";
+}
+
+function hideConfirm() {
+  document.getElementById("confirmBox").style.display = "none";
+  document.getElementById("darken").style.display = "none";
+}
 </script>
+
 </body>
 </html>
