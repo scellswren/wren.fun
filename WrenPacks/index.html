@@ -13,11 +13,8 @@
       text-align: center;
     }
 
-    h1 {
-      margin-top: 20px;
-    }
+    h1 { margin-top: 20px; }
 
-    /* Tabs */
     .tabs button {
       padding: 15px 30px;
       margin: 10px;
@@ -25,35 +22,45 @@
       cursor: pointer;
     }
 
-    .section {
-      display: none;
-    }
+    .section { display: none; }
+    .active { display: block; }
 
-    .active {
-      display: block;
-    }
-
-    /* Pack */
+    /* PACK */
     .pack {
       width: 200px;
       height: 300px;
       margin: 100px auto;
       border: 3px solid purple;
-      box-shadow: 0 0 20px purple;
+      box-shadow: 0 0 30px purple;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 2em;
+      transition: transform 0.2s;
     }
 
-    /* Result */
+    .pack:active {
+      transform: scale(0.95);
+    }
+
+    /* RESULT ANIMATION */
+    #result {
+      margin-top: 20px;
+      animation: pop 0.5s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
     #result img {
       width: 200px;
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
-    /* Grid */
+    /* GRID */
     .grid {
       display: flex;
       flex-wrap: wrap;
@@ -63,11 +70,36 @@
     }
 
     .card {
-      width: 120px;
+      width: 130px;
     }
 
     .card img {
       width: 100%;
+    }
+
+    /* RARITY COLORS */
+    .Common { color: white; }
+    .Uncommon { color: lime; }
+    .Rare { color: dodgerblue; }
+    .Epic { color: violet; }
+    .Legendary { color: gold; }
+
+    /* OMEGA RAINBOW */
+    .Omega {
+      background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+      -webkit-background-clip: text;
+      color: transparent;
+      animation: rainbow 3s linear infinite;
+    }
+
+    @keyframes rainbow {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    .rates {
+      margin: 20px;
+      font-size: 1.2em;
     }
   </style>
 </head>
@@ -97,36 +129,36 @@
 <div id="index" class="section">
   <h2>All Characters</h2>
   <div id="index-list" class="grid"></div>
+
+  <div class="rates">
+    Common: 60% | Uncommon: 30% | Rare: 7% | Epic: 2% | Legendary: 0.5% | Omega: 0.01%
+  </div>
 </div>
 
 <script>
+let canOpen = true;
+
 const items = [
-  // Commons
   {name:"WrenIsOld", display:"WrenIsOld", rarity:"Common"},
   {name:"TheMindOfOrin", display:"The Mind of Orin", rarity:"Common"},
   {name:"TheRealBaldCena72", display:"Bald Cena", rarity:"Common"},
   {name:"Edunzie", display:"Edunzie", rarity:"Common"},
 
-  // Uncommon
   {name:"Juju2y", display:"Juju2y", rarity:"Uncommon"},
   {name:"Scratch", display:"Scratch", rarity:"Uncommon"},
   {name:"BlockOfCheese", display:"Block Of Cheese", rarity:"Uncommon"},
 
-  // Rare
   {name:"Zxno", display:"Zxno", rarity:"Rare"},
   {name:"EthansHalfTable", display:"EthansHalfTable", rarity:"Rare"},
   {name:"TheTurtleKid2012", display:"Turtle Kid 2012", rarity:"Rare"},
 
-  // Epic
   {name:"TikiTheG", display:"Tikitheg", rarity:"Epic"},
   {name:"Nathan8028", display:"Nathan", rarity:"Epic"},
   {name:"Pigmaxv", display:"Pigmaxv", rarity:"Epic"},
 
-  // Legendary
   {name:"Wren", display:"Wren", rarity:"Legendary"},
   {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
 
-  // Omega
   {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
   {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"}
 ];
@@ -151,16 +183,25 @@ function rollRarity() {
 }
 
 function openPack() {
-  const rarity = rollRarity();
-  const pool = items.filter(i => i.rarity === rarity);
-  const item = pool[Math.floor(Math.random() * pool.length)];
+  if (!canOpen) return;
 
-  document.getElementById("result").innerHTML = `
-    <h2>${item.display} (${rarity})</h2>
-    <img src="${item.name}.jpg">
-  `;
+  canOpen = false;
+  document.getElementById("result").innerHTML = "<h2>Opening...</h2>";
 
-  addToInventory(item.name);
+  setTimeout(() => {
+    const rarity = rollRarity();
+    const pool = items.filter(i => i.rarity === rarity);
+    const item = pool[Math.floor(Math.random() * pool.length)];
+
+    document.getElementById("result").innerHTML = `
+      <h2 class="${rarity}">${item.display} (${rarity})</h2>
+      <img src="${item.name}.jpg">
+    `;
+
+    addToInventory(item.name);
+
+    setTimeout(() => canOpen = true, 3000);
+  }, 1000);
 }
 
 function showTab(tab) {
@@ -185,7 +226,7 @@ function renderInventory() {
       container.innerHTML += `
         <div class="card">
           <img src="${i.name}.jpg">
-          <p>${i.display} x${inv[i.name]}</p>
+          <p class="${i.rarity}">${i.display} x${inv[i.name]}</p>
         </div>
       `;
     }
@@ -198,7 +239,8 @@ function renderIndex() {
     container.innerHTML += `
       <div class="card">
         <img src="${i.name}.jpg">
-        <p>${i.display}</p>
+        <p class="${i.rarity}">${i.display}</p>
+        <p class="${i.rarity}">${i.rarity}</p>
       </div>
     `;
   });
