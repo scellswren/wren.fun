@@ -12,6 +12,7 @@
       text-align: center;
       margin: 0;
       padding: 0;
+      transition: background-color 0.5s, color 0.5s;
     }
 
     h1 {
@@ -50,9 +51,118 @@
       transform: scale(1.08);
       box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     }
+
+    /* Footer links */
+    footer {
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-family: 'Rubik', sans-serif;
+      color: white;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      align-items: center;
+    }
+
+    footer a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    footer img {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* Settings cog */
+    #settingsCog {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    /* Settings menu */
+    #settingsMenu {
+      position: fixed;
+      top: 60px;
+      left: 10px;
+      background: rgba(0,0,0,0.9);
+      padding: 20px;
+      border-radius: 15px;
+      display: none;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 1000;
+      color: white;
+    }
+
+    #settingsMenu label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.2em;
+    }
+
+    /* Song toggle */
+    #volumeControl {
+      width: 100%;
+    }
+
+    /* Rainbow neon mode */
+    .rainbowMode {
+      background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+      -webkit-background-clip: text;
+      color: transparent;
+      animation: rainbowAnim 3s linear infinite;
+    }
+
+    @keyframes rainbowAnim {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    /* Light/Dark mode classes */
+    .lightMode { background-color: #fff; color: black; }
+    .darkMode { background-color: #000; color: white; }
   </style>
 </head>
 <body>
+
+<!-- Settings cog -->
+<img id="settingsCog" src="settings-cog.png" alt="Settings">
+
+<!-- Settings menu -->
+<div id="settingsMenu">
+  <label>
+    Light Mode
+    <input type="radio" name="mode" value="light">
+  </label>
+  <label>
+    Dark Mode
+    <input type="radio" name="mode" value="dark">
+  </label>
+  <label>
+    Rainbow Neon Mode
+    <input type="radio" name="mode" value="rainbow">
+  </label>
+  <hr>
+  <label>
+    Song:
+    <button id="toggleSong">Play</button>
+  </label>
+  <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5">
+</div>
 
 <h1>Wren.fun</h1>
 <p>Vewy Cool😎</p>
@@ -62,6 +172,61 @@
   <a href="WrenPacks/" class="btn">Wren Packs</a>
   <a href="SmallCreators/" class="btn">Small Creators</a>
 </div>
+
+<!-- Footer -->
+<footer>
+  <span>Thanks for visiting my website</span>
+  <a href="https://www.youtube.com/@WrenIsOld" target="_blank">
+    <img src="youtube.png" alt="YouTube"> YouTube
+  </a>
+  <a href="https://discord.gg/BsBbNJ4WAM" target="_blank">
+    <img src="discord.png" alt="Discord"> Discord
+  </a>
+</footer>
+
+<!-- Audio element -->
+<audio id="bgSong" loop>
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  // Settings toggle
+  const settingsCog = document.getElementById('settingsCog');
+  const settingsMenu = document.getElementById('settingsMenu');
+  settingsCog.addEventListener('click', () => {
+    settingsMenu.style.display = settingsMenu.style.display === 'flex' ? 'none' : 'flex';
+  });
+
+  // Mode selection
+  const radios = document.querySelectorAll('input[name="mode"]');
+  radios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.body.classList.remove('lightMode','darkMode','rainbowMode');
+      if(radio.value === 'light') document.body.classList.add('lightMode');
+      if(radio.value === 'dark') document.body.classList.add('darkMode');
+      if(radio.value === 'rainbow') document.body.classList.add('rainbowMode');
+    });
+  });
+
+  // Song controls
+  const bgSong = document.getElementById('bgSong');
+  const toggleSong = document.getElementById('toggleSong');
+  const volumeControl = document.getElementById('volumeControl');
+
+  toggleSong.addEventListener('click', () => {
+    if(bgSong.paused){
+      bgSong.play();
+      toggleSong.textContent = 'Pause';
+    } else {
+      bgSong.pause();
+      toggleSong.textContent = 'Play';
+    }
+  });
+
+  volumeControl.addEventListener('input', () => {
+    bgSong.volume = volumeControl.value;
+  });
+</script>
 
 </body>
 </html>
