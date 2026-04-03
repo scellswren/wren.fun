@@ -121,6 +121,12 @@
       font-size: 1.2em;
     }
 
+    #settingsMenu small {
+      font-size: 0.8em;
+      color: #ff4444;
+      margin-left: 5px;
+    }
+
     #volumeControl {
       width: 100%;
     }
@@ -149,11 +155,16 @@
 
     .rainbowMode {
       animation: rainbowBG 10s linear infinite;
-      color: black; /* Ensure text visible on rainbow background */
     }
 
     .rainbowMode .btn {
       animation: neonGlow 3s linear infinite;
+      color: black !important; /* button text stays black */
+    }
+
+    /* Dark mode */
+    .darkMode {
+      background-color: black;
       color: white;
     }
 
@@ -175,7 +186,7 @@
     <input type="radio" name="mode" value="dark">
   </label>
   <label>
-    Rainbow Neon Mode
+    Rainbow Neon Mode <small>⚠️ Epilepsy Warning</small>
     <input type="radio" name="mode" value="rainbow">
   </label>
   <hr>
@@ -230,18 +241,22 @@
 
       if(radio.value === 'light'){
         body.classList.add('lightMode');
+        body.style.backgroundColor = '#fff';
+        body.style.color = 'black';
         footerText.style.color = 'black';
         buttons.forEach(b => { b.style.color='black'; });
       }
       if(radio.value === 'dark'){
         body.classList.add('darkMode');
+        body.style.backgroundColor = 'black';
+        body.style.color = 'white';
         footerText.style.color = 'white';
         buttons.forEach(b => { b.style.color='black'; });
       }
       if(radio.value === 'rainbow'){
         body.classList.add('rainbowMode');
         footerText.style.color = 'black';
-        buttons.forEach(b => { b.style.color='white'; });
+        buttons.forEach(b => { b.style.color='black'; }); // keep button text black
       }
     });
   });
