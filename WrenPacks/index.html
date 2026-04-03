@@ -3,9 +3,7 @@
 <head>
   <title>Wren Packs</title>
 
-  <!-- FONT FOR WREN.FUN -->
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
-
   <link rel="icon" type="image/png" href="../Favicon.png">
 
   <style>
@@ -17,7 +15,7 @@
       text-align: center;
     }
 
-    /* 🔥 TOP LEFT HOME */
+    /* HOME TEXT */
     #homeText {
       position: absolute;
       top: 15px;
@@ -33,7 +31,7 @@
 
     h1 { margin-top: 20px; }
 
-    /* 🔥 BUTTONS */
+    /* BUTTONS */
     .tabs button {
       padding: 15px 35px;
       margin: 10px;
@@ -56,7 +54,7 @@
     .invBtn { background: green; }
     .indexBtn { background: dodgerblue; }
 
-    /* 🔴 NOTIF */
+    /* NOTIF */
     .notif {
       position: absolute;
       top: -8px;
@@ -77,6 +75,7 @@
     .section { display: none; }
     .active { display: block; }
 
+    /* PACK */
     .pack {
       width: 200px;
       height: 300px;
@@ -88,34 +87,24 @@
       align-items: center;
       justify-content: center;
       font-size: 2em;
-      transition: transform 0.2s;
     }
 
-    .pack:active {
-      transform: scale(0.95);
-    }
-
+    /* RESULT */
     #result {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
-      animation: pop 0.5s ease;
       display: none;
       z-index: 1000;
     }
 
     #result img {
       width: 200px;
-      margin-top: 10px;
     }
 
-    @keyframes pop {
-      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    }
-
+    /* GRID */
     .grid {
       display: flex;
       flex-wrap: wrap;
@@ -124,7 +113,7 @@
       padding: 20px;
     }
 
-    .card { 
+    .card {
       width: 130px;
       transition: transform 0.5s ease, opacity 0.5s ease;
     }
@@ -136,14 +125,15 @@
       opacity: 0;
     }
 
+    /* RESET */
     #resetBtn {
       position: absolute;
       top: 20px;
       right: 20px;
       padding: 10px 20px;
-      cursor: pointer;
     }
 
+    /* CONFIRM */
     #confirmBox {
       position: fixed;
       top: 50%;
@@ -156,11 +146,6 @@
       z-index: 2000;
     }
 
-    #confirmBox button {
-      margin: 10px;
-      padding: 10px 20px;
-    }
-
     #darken {
       position: fixed;
       width: 100%;
@@ -170,6 +155,7 @@
       z-index: 1500;
     }
 
+    /* RARITY */
     .Common { color: white; }
     .Uncommon { color: lime; }
     .Rare { color: dodgerblue; }
@@ -183,21 +169,23 @@
     }
 
     @keyframes rainbow {
-      0% { filter: hue-rotate(0deg); }
       100% { filter: hue-rotate(360deg); }
     }
 
+    /* CENTERED OVERLAY */
     #overlay {
       position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(255,255,255,0.1);
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
+      background: rgba(255,255,255,0.1);
       font-size: 5em;
       color: gold;
-      display: none;
+      z-index: 9999;
     }
 
     .fade {
@@ -207,7 +195,7 @@
     @keyframes fadeAnim {
       0% { opacity: 0; transform: scale(0.5); }
       50% { opacity: 1; transform: scale(1.2); }
-      100% { opacity: 0; transform: scale(1); }
+      100% { opacity: 0; }
     }
   </style>
 </head>
@@ -352,9 +340,27 @@ function showTab(tab) {
   if (tab === "inventory") {
     newItems = 0;
     document.getElementById("notif").style.display = "none";
+    renderInventory();
   }
 
-  renderInventory();
+  if (tab === "index") {
+    renderIndex();
+  }
+}
+
+function renderIndex() {
+  const container = document.getElementById("index-list");
+  container.innerHTML = "";
+
+  items.forEach(i => {
+    container.innerHTML += `
+      <div class="card">
+        <img src="${i.name}.jpg">
+        <p class="${i.rarity}">${i.display}</p>
+        <p class="${i.rarity}">${i.rarity}</p>
+      </div>
+    `;
+  });
 }
 
 function addToInventory(name) {
@@ -380,7 +386,6 @@ function renderInventory() {
   });
 }
 
-/* RESET WITH EXPLOSION */
 function resetInventory() {
   const cards = document.querySelectorAll(".card");
 
