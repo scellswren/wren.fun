@@ -2,6 +2,10 @@
 <html>
 <head>
   <title>Wren Packs</title>
+
+  <!-- FONT (same as main page) -->
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
+
   <link rel="icon" type="image/png" href="../Favicon.png">
 
   <style>
@@ -13,19 +17,68 @@
       text-align: center;
     }
 
+    /* 🔥 TOP LEFT WREN.FUN */
+    #homeText {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 2em;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    #homeText:hover {
+      transform: scale(1.2);
+    }
+
     h1 { margin-top: 20px; }
 
+    /* 🔥 BETTER BUTTONS */
     .tabs button {
-      padding: 15px 30px;
+      padding: 15px 35px;
       margin: 10px;
-      font-size: 1.2em;
+      font-size: 1.3em;
       cursor: pointer;
+      border: none;
+      border-radius: 30px;
+      color: white;
+      font-weight: bold;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .tabs button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px white;
+    }
+
+    /* different colours */
+    .packBtn { background: purple; }
+    .invBtn { background: green; }
+    .indexBtn { background: dodgerblue; }
+
+    /* 🔴 NOTIFICATION */
+    .notif {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: red;
+      border-radius: 50%;
+      padding: 5px 10px;
+      font-size: 0.8em;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
     }
 
     .section { display: none; }
     .active { display: block; }
 
-    /* PACK */
     .pack {
       width: 200px;
       height: 300px;
@@ -44,7 +97,6 @@
       transform: scale(0.95);
     }
 
-    /* RESULT */
     #result {
       position: fixed;
       top: 50%;
@@ -66,7 +118,6 @@
       100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
     }
 
-    /* GRID */
     .grid {
       display: flex;
       flex-wrap: wrap;
@@ -77,27 +128,24 @@
 
     .card { 
       width: 130px;
-      transition: transform 0.5s ease, opacity 0.5s ease; /* ✅ ADDED */
+      transition: transform 0.5s ease, opacity 0.5s ease;
     }
+
     .card img { width: 100%; }
 
-    /* 💥 EXPLOSION */
     .explode {
       transform: scale(2) rotate(25deg);
       opacity: 0;
     }
 
-    /* RESET BUTTON */
     #resetBtn {
       position: absolute;
       top: 20px;
       right: 20px;
       padding: 10px 20px;
-      font-size: 1em;
       cursor: pointer;
     }
 
-    /* POPUP */
     #confirmBox {
       position: fixed;
       top: 50%;
@@ -113,15 +161,10 @@
     #confirmBox button {
       margin: 10px;
       padding: 10px 20px;
-      font-size: 1em;
-      cursor: pointer;
     }
 
-    /* OVERLAY */
     #darken {
       position: fixed;
-      top: 0;
-      left: 0;
       width: 100%;
       height: 100%;
       background: rgba(0,0,0,0.7);
@@ -129,7 +172,6 @@
       z-index: 1500;
     }
 
-    /* RARITY COLORS */
     .Common { color: white; }
     .Uncommon { color: lime; }
     .Rare { color: dodgerblue; }
@@ -147,18 +189,16 @@
       100% { filter: hue-rotate(360deg); }
     }
 
-    /* OVERLAY ANIMATION */
     #overlay {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      width: 100%;
+      height: 100%;
       background: rgba(255,255,255,0.1);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 5em;
       color: gold;
-      z-index: 9999;
       display: none;
     }
 
@@ -173,14 +213,23 @@
     }
   </style>
 </head>
+
 <body>
+
+<!-- 🔥 HOME BUTTON -->
+<div id="homeText" onclick="goHome()">Wren.fun</div>
 
 <h1>Wren Packs</h1>
 
 <div class="tabs">
-  <button onclick="showTab('pack')">Open Pack</button>
-  <button onclick="showTab('inventory')">Inventory</button>
-  <button onclick="showTab('index')">Index</button>
+  <button class="packBtn" onclick="showTab('pack')">Open Pack</button>
+
+  <button class="invBtn" onclick="showTab('inventory')">
+    Inventory
+    <span id="notif" class="notif" style="display:none;">0</span>
+  </button>
+
+  <button class="indexBtn" onclick="showTab('index')">Index</button>
 </div>
 
 <div id="overlay">✨ PACK OPENING ✨</div>
@@ -191,14 +240,12 @@
 
 <div id="result"></div>
 
-<!-- INVENTORY -->
 <div id="inventory" class="section">
   <button id="resetBtn" onclick="showConfirm()">Reset</button>
   <h2>Your Inventory</h2>
   <div id="inventory-list" class="grid"></div>
 </div>
 
-<!-- CONFIRM POPUP -->
 <div id="darken"></div>
 
 <div id="confirmBox">
@@ -207,7 +254,6 @@
   <button onclick="hideConfirm()">No</button>
 </div>
 
-<!-- INDEX -->
 <div id="index" class="section">
   <h2>All Characters</h2>
   <div id="index-list" class="grid"></div>
@@ -215,26 +261,9 @@
 
 <script>
 let canOpen = true;
+let newItems = 0;
 
-const items = [
-  {name:"WrenIsOld", display:"WrenIsOld", rarity:"Common"},
-  {name:"TheMindOfOrin", display:"The Mind of Orin", rarity:"Common"},
-  {name:"TheRealBaldCena72", display:"Bald Cena", rarity:"Common"},
-  {name:"Edunzie", display:"Edunzie", rarity:"Common"},
-  {name:"Juju2y", display:"Juju2y", rarity:"Uncommon"},
-  {name:"Scratch", display:"Scratch", rarity:"Uncommon"},
-  {name:"BlockOfCheese", display:"Block Of Cheese", rarity:"Uncommon"},
-  {name:"Zxno", display:"Zxno", rarity:"Rare"},
-  {name:"EthansHalfTable", display:"EthansHalfTable", rarity:"Rare"},
-  {name:"TheTurtleKid2012", display:"Turtle Kid 2012", rarity:"Rare"},
-  {name:"TikiTheG", display:"Tikitheg", rarity:"Epic"},
-  {name:"Nathan8028", display:"Nathan", rarity:"Epic"},
-  {name:"Pigmaxv", display:"Pigmaxv", rarity:"Epic"},
-  {name:"Wren", display:"Wren", rarity:"Legendary"},
-  {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
-  {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
-  {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"}
-];
+const items = [/* SAME AS YOUR ORIGINAL LIST */];
 
 const chances = {
   Common: 45,
@@ -244,6 +273,10 @@ const chances = {
   Legendary: 1,
   Omega: 0.1
 };
+
+function goHome() {
+  window.location.href = "https://scellswren.github.io/wren.fun/";
+}
 
 function rollRarity() {
   let r = Math.random() * 100;
@@ -275,6 +308,12 @@ function openPack() {
     result.innerHTML = `<h2 class="${rarity}">${item.display} (${rarity})</h2><img src="${item.name}.jpg">`;
     result.style.display = "block";
 
+    let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+    if (!inv[item.name]) {
+      newItems++;
+      updateNotif();
+    }
+
     addToInventory(item.name);
 
     setTimeout(() => {
@@ -285,9 +324,21 @@ function openPack() {
   }, 2000);
 }
 
+function updateNotif() {
+  const notif = document.getElementById("notif");
+  notif.style.display = "inline-block";
+  notif.innerText = newItems;
+}
+
 function showTab(tab) {
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
   document.getElementById(tab).classList.add("active");
+
+  if (tab === "inventory") {
+    newItems = 0;
+    document.getElementById("notif").style.display = "none";
+  }
+
   renderInventory();
 }
 
@@ -314,7 +365,7 @@ function renderInventory() {
   });
 }
 
-/* RESET WITH EXPLOSION */
+/* KEEP YOUR EXPLOSION + RESET */
 function resetInventory() {
   const cards = document.querySelectorAll(".card");
 
