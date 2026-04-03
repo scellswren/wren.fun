@@ -2,18 +2,210 @@
 <html>
 <head>
   <title>Wren Packs</title>
-  <link rel="icon" type="image/png" href="Favicon.png">
+  <link rel="icon" type="image/png" href="../Favicon.png">
 
   <style>
     body {
       margin: 0;
-      padding: 0;
-      background-color: black;
+      background: black;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    /* Tabs */
+    .tabs button {
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 1.2em;
+      cursor: pointer;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .active {
+      display: block;
+    }
+
+    /* Pack */
+    .pack {
+      width: 200px;
+      height: 300px;
+      margin: 100px auto;
+      border: 3px solid purple;
+      box-shadow: 0 0 20px purple;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+    }
+
+    /* Result */
+    #result img {
+      width: 200px;
+      margin-top: 20px;
+    }
+
+    /* Grid */
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .card {
+      width: 120px;
+    }
+
+    .card img {
+      width: 100%;
     }
   </style>
 </head>
-
 <body>
+
+<h1>Wren Packs</h1>
+
+<div class="tabs">
+  <button onclick="showTab('pack')">Open Pack</button>
+  <button onclick="showTab('inventory')">Inventory</button>
+  <button onclick="showTab('index')">Index</button>
+</div>
+
+<!-- PACK -->
+<div id="pack" class="section active">
+  <div class="pack" onclick="openPack()">OPEN</div>
+  <div id="result"></div>
+</div>
+
+<!-- INVENTORY -->
+<div id="inventory" class="section">
+  <h2>Your Inventory</h2>
+  <div id="inventory-list" class="grid"></div>
+</div>
+
+<!-- INDEX -->
+<div id="index" class="section">
+  <h2>All Characters</h2>
+  <div id="index-list" class="grid"></div>
+</div>
+
+<script>
+const items = [
+  // Commons
+  {name:"WrenIsOld", display:"WrenIsOld", rarity:"Common"},
+  {name:"TheMindOfOrin", display:"The Mind of Orin", rarity:"Common"},
+  {name:"TheRealBaldCena72", display:"Bald Cena", rarity:"Common"},
+  {name:"Edunzie", display:"Edunzie", rarity:"Common"},
+
+  // Uncommon
+  {name:"Juju2y", display:"Juju2y", rarity:"Uncommon"},
+  {name:"Scratch", display:"Scratch", rarity:"Uncommon"},
+  {name:"BlockOfCheese", display:"Block Of Cheese", rarity:"Uncommon"},
+
+  // Rare
+  {name:"Zxno", display:"Zxno", rarity:"Rare"},
+  {name:"EthansHalfTable", display:"EthansHalfTable", rarity:"Rare"},
+  {name:"TheTurtleKid2012", display:"Turtle Kid 2012", rarity:"Rare"},
+
+  // Epic
+  {name:"TikiTheG", display:"Tikitheg", rarity:"Epic"},
+  {name:"Nathan8028", display:"Nathan", rarity:"Epic"},
+  {name:"Pigmaxv", display:"Pigmaxv", rarity:"Epic"},
+
+  // Legendary
+  {name:"Wren", display:"Wren", rarity:"Legendary"},
+  {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
+
+  // Omega
+  {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
+  {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"}
+];
+
+const chances = {
+  Common: 60,
+  Uncommon: 30,
+  Rare: 7,
+  Epic: 2,
+  Legendary: 0.5,
+  Omega: 0.01
+};
+
+function rollRarity() {
+  let r = Math.random() * 100;
+  let sum = 0;
+  for (let key in chances) {
+    sum += chances[key];
+    if (r <= sum) return key;
+  }
+  return "Common";
+}
+
+function openPack() {
+  const rarity = rollRarity();
+  const pool = items.filter(i => i.rarity === rarity);
+  const item = pool[Math.floor(Math.random() * pool.length)];
+
+  document.getElementById("result").innerHTML = `
+    <h2>${item.display} (${rarity})</h2>
+    <img src="${item.name}.jpg">
+  `;
+
+  addToInventory(item.name);
+}
+
+function showTab(tab) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(tab).classList.add("active");
+  renderInventory();
+}
+
+function addToInventory(name) {
+  let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+  inv[name] = (inv[name] || 0) + 1;
+  localStorage.setItem("inventory", JSON.stringify(inv));
+}
+
+function renderInventory() {
+  let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+  let container = document.getElementById("inventory-list");
+  container.innerHTML = "";
+
+  items.forEach(i => {
+    if (inv[i.name]) {
+      container.innerHTML += `
+        <div class="card">
+          <img src="${i.name}.jpg">
+          <p>${i.display} x${inv[i.name]}</p>
+        </div>
+      `;
+    }
+  });
+}
+
+function renderIndex() {
+  let container = document.getElementById("index-list");
+  items.forEach(i => {
+    container.innerHTML += `
+      <div class="card">
+        <img src="${i.name}.jpg">
+        <p>${i.display}</p>
+      </div>
+    `;
+  });
+}
+
+renderIndex();
+</script>
 
 </body>
 </html>
