@@ -101,6 +101,33 @@
       margin: 20px;
       font-size: 1.2em;
     }
+
+    /* FULLPAGE ANIMATION */
+    #overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5em;
+      color: gold;
+      text-shadow: 0 0 20px purple;
+      z-index: 9999;
+      display: none;
+    }
+
+    /* fade in/out animation */
+    .fade {
+      animation: fadeAnim 2s ease forwards;
+    }
+
+    @keyframes fadeAnim {
+      0% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
@@ -112,6 +139,9 @@
   <button onclick="showTab('inventory')">Inventory</button>
   <button onclick="showTab('index')">Index</button>
 </div>
+
+<!-- FULL PAGE OVERLAY -->
+<div id="overlay">✨ PACK OPENING ✨</div>
 
 <!-- PACK -->
 <div id="pack" class="section active">
@@ -143,22 +173,17 @@ const items = [
   {name:"TheMindOfOrin", display:"The Mind of Orin", rarity:"Common"},
   {name:"TheRealBaldCena72", display:"Bald Cena", rarity:"Common"},
   {name:"Edunzie", display:"Edunzie", rarity:"Common"},
-
   {name:"Juju2y", display:"Juju2y", rarity:"Uncommon"},
   {name:"Scratch", display:"Scratch", rarity:"Uncommon"},
   {name:"BlockOfCheese", display:"Block Of Cheese", rarity:"Uncommon"},
-
   {name:"Zxno", display:"Zxno", rarity:"Rare"},
   {name:"EthansHalfTable", display:"EthansHalfTable", rarity:"Rare"},
   {name:"TheTurtleKid2012", display:"Turtle Kid 2012", rarity:"Rare"},
-
   {name:"TikiTheG", display:"Tikitheg", rarity:"Epic"},
   {name:"Nathan8028", display:"Nathan", rarity:"Epic"},
   {name:"Pigmaxv", display:"Pigmaxv", rarity:"Epic"},
-
   {name:"Wren", display:"Wren", rarity:"Legendary"},
   {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
-
   {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
   {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"}
 ];
@@ -186,9 +211,17 @@ function openPack() {
   if (!canOpen) return;
 
   canOpen = false;
-  document.getElementById("result").innerHTML = "<h2>Opening...</h2>";
+  
+  // Show overlay
+  const overlay = document.getElementById("overlay");
+  overlay.style.display = "flex";
+  overlay.classList.add("fade");
 
+  // Wait 2 seconds for animation
   setTimeout(() => {
+    overlay.style.display = "none";
+    overlay.classList.remove("fade");
+
     const rarity = rollRarity();
     const pool = items.filter(i => i.rarity === rarity);
     const item = pool[Math.floor(Math.random() * pool.length)];
@@ -200,8 +233,10 @@ function openPack() {
 
     addToInventory(item.name);
 
-    setTimeout(() => canOpen = true, 3000);
-  }, 1000);
+    // Cooldown 2 seconds before next pack
+    setTimeout(() => canOpen = true, 2000);
+
+  }, 2000);
 }
 
 function showTab(tab) {
@@ -248,6 +283,5 @@ function renderIndex() {
 
 renderIndex();
 </script>
-
 </body>
 </html>
