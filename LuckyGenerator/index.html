@@ -12,6 +12,8 @@
       text-align: center;
       margin: 0;
       padding: 0;
+      position: relative; /* needed for footer positioning */
+      height: 100vh;
     }
 
     h1 {
@@ -41,7 +43,7 @@
     }
 
     #cat-img {
-      display: none;           
+      display: none;           /* hidden until button clicked */
       width: 400px;
       max-width: 90%;
       border-radius: 20px;
@@ -49,16 +51,29 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
       display: block;          
     }
+
+    /* Footer text in bottom left corner */
+    .footer {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.2em;
+      color: #555;
+    }
   </style>
 </head>
 <body>
 
 <h1>Lucky Generator</h1>
 
-<img id="cat-img" src="" alt="Lucky Cat">
+<!-- Image only appears after button click -->
+<img id="cat-img" alt="">
 
 <br>
 <button class="btn" onclick="generateCat()">Show Lucky!</button>
+
+<div class="footer">Lucky is my cat</div>
 
 <script>
   const images = [
@@ -72,7 +87,7 @@
     "Cat36.jpg", "Cat37.jpg", "Cat38.jpg", "Cat39.jpg", "Cat40.jpg"
   ];
 
-  // Preload all images
+  // Preload images
   const preloaded = [];
   images.forEach(src => {
     const img = new Image();
