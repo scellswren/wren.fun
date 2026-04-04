@@ -694,6 +694,49 @@
       100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
     }
 
+    /* Highlight Lucky — same styles as voidReveal */
+    #highlightReveal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: black;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      overflow: hidden;
+    }
+
+    #highlightReveal img {
+      width: 45vw;
+      max-width: 480px;
+      max-height: 55vh;
+      object-fit: contain;
+      animation: voidDrop 1.0s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+      filter: drop-shadow(0 0 30px #b8860b) drop-shadow(0 0 70px #ffd700);
+    }
+
+    #highlightReveal h2 {
+      font-size: 3em;
+      margin-top: 30px;
+      font-family: 'Rubik', sans-serif;
+      color: transparent;
+      background: radial-gradient(ellipse at center, #0a0a0a 30%, #1a0f00 65%, #0a0a0a 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: voidTitleSpin 3s linear infinite;
+      filter: drop-shadow(0 0 6px #ffd700) drop-shadow(0 0 18px #b8860b) drop-shadow(0 0 4px #fff8dc);
+    }
+
+    #highlightReveal .particles {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
     /* ===== SCREEN SHAKE ===== */
     @keyframes screenShake {
       0%   { transform: translate(0, 0) rotate(0deg); }
@@ -822,6 +865,13 @@
   <h2>✦ ORIN FLOWER ✦</h2>
 </div>
 
+<!-- Highlight Lucky reveal -->
+<div id="highlightReveal">
+  <div class="particles" id="highlightParticles"></div>
+  <img id="highlightImg" src="HighlightLucky.jpg">
+  <h2>✦ HIGHLIGHT LUCKY ✦</h2>
+</div>
+
 <div id="pack" class="section active">
   <div class="pack" onclick="openPack()">OPEN</div>
 </div>
@@ -904,6 +954,9 @@
 let canOpen = true;
 let newItems = 0;
 let deleteItem = null;
+let codeClickCount = 0;
+let codeClickTimer = null;
+let highlightLuckyTriggered = false;
 
 const items = [
   {name:"WrenIsOld", display:"WrenIsOld", rarity:"Common"},
@@ -922,13 +975,15 @@ const items = [
   {name:"TikiTheG", display:"Tikitheg", rarity:"Epic"},
   {name:"Nathan8028", display:"Nathan", rarity:"Epic"},
   {name:"Pigmaxv", display:"Pigmaxv", rarity:"Epic"},
-  {name:"AustinsHalfTable", display:"AustinsHalfTable", rarity:"Epic"},  
+  {name:"AustinsHalfTable", display:"AustinsHalfTable", rarity:"Epic"},
+  {name:"Switch2", display:"Nintendo Switch 2", rarity:"Epic"},
   {name:"Wren", display:"Wren", rarity:"Legendary"},
   {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
   {name:"TheFounder", display:"The Founder", rarity:"Legendary"},
   {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
   {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"},
-  {name:"OrinFlower", display:"Orin Flower", rarity:"Void"}
+  {name:"OrinFlower", display:"Orin Flower", rarity:"Void"},
+  {name:"HighlightLucky", display:"Highlight Lucky", rarity:"Void"}
 ];
 
 const chances = {
@@ -1137,6 +1192,26 @@ function hideConfirm() { document.getElementById("confirmBox").style.display = "
 function openCode() {
   document.getElementById("codeBox").style.display = "block";
   document.getElementById("darken").style.display = "block";
+
+  const usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || {};
+  if (usedCodes["HighlightLucky"]) return;
+
+  codeClickCount++;
+  if (codeClickTimer) clearTimeout(codeClickTimer);
+  codeClickTimer = setTimeout(() => { codeClickCount = 0; }, 60000);
+
+  if (codeClickCount >= 50) {
+    codeClickCount = 0;
+    clearTimeout(codeClickTimer);
+    usedCodes["HighlightLucky"] = true;
+    localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+    document.getElementById("codeBox").style.display = "none";
+    document.getElementById("darken").style.display = "none";
+    addToInventory("HighlightLucky");
+    newItems++;
+    updateNotif();
+    showHighlightLuckyReveal();
+  }
 }
 
 function closeCode() {
@@ -1244,6 +1319,41 @@ function showVoidReveal() {
     reveal.style.display = "none";
     document.getElementById("voidParticles").innerHTML = "";
   }, 10000);
+}
+
+/* ===== HIGHLIGHT LUCKY REVEAL ===== */
+function showHighlightLuckyReveal() {
+  const reveal = document.getElementById("highlightReveal");
+  reveal.style.display = "flex";
+  spawnHighlightParticles();
+
+  const shakeTimes = [900, 1500, 2100];
+  shakeTimes.forEach(t => {
+    setTimeout(() => {
+      document.body.classList.add("shaking");
+      setTimeout(() => document.body.classList.remove("shaking"), 500);
+    }, t);
+  });
+
+  setTimeout(() => {
+    reveal.style.display = "none";
+    document.getElementById("highlightParticles").innerHTML = "";
+  }, 10000);
+}
+
+function spawnHighlightParticles() {
+  const container = document.getElementById("highlightParticles");
+  container.innerHTML = "";
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement("div");
+    p.className = "voidParticle";
+    p.style.left = Math.random() * 100 + "vw";
+    p.style.top = (60 + Math.random() * 40) + "vh";
+    p.style.animationDuration = (2 + Math.random() * 4) + "s";
+    p.style.animationDelay = (Math.random() * 3) + "s";
+    p.style.width = p.style.height = (4 + Math.random() * 8) + "px";
+    container.appendChild(p);
+  }
 }
 
 function spawnVoidParticles() {
