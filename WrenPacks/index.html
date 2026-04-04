@@ -109,17 +109,6 @@
       100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
 
-    /* 💥 EXPLODE OUT ANIMATION */
-    .explodeOut {
-      animation: explodeOutAnim 0.6s forwards;
-    }
-
-    @keyframes explodeOutAnim {
-      0% { transform: scale(1) rotate(0deg); opacity: 1; }
-      50% { transform: scale(1.5) rotate(20deg); opacity: 1; }
-      100% { transform: scale(2.5) rotate(40deg); opacity: 0; }
-    }
-
     /* GRID */
     .grid {
       display: flex;
@@ -184,6 +173,13 @@
       animation: rainbow 3s linear infinite;
     }
 
+    .Void {
+      background: black;
+      color: transparent;
+      -webkit-text-stroke: 1px white;
+      animation: voidTextAnim 10s forwards;
+    }
+
     @keyframes rainbow {
       100% { filter: hue-rotate(360deg); }
     }
@@ -219,6 +215,29 @@
       margin: 30px;
       font-size: 1.2em;
       line-height: 1.8em;
+    }
+
+    /* VOID TEXT ANIMATION */
+    @keyframes voidTextAnim {
+      0% { opacity: 0; transform: scale(0) rotate(0deg); filter: blur(8px); }
+      20% { opacity: 1; transform: scale(1.5) rotate(-10deg); filter: blur(4px); }
+      50% { transform: scale(2.2) rotate(10deg); filter: blur(0); }
+      80% { transform: scale(2.5) rotate(-5deg); }
+      100% { transform: scale(2) rotate(0deg); opacity: 1; }
+    }
+
+    @keyframes shake {
+      0% { transform: translate(1px,1px) rotate(0deg); }
+      10% { transform: translate(-1px,-2px) rotate(-1deg); }
+      20% { transform: translate(-3px,0px) rotate(1deg); }
+      30% { transform: translate(3px,2px) rotate(0deg); }
+      40% { transform: translate(1px,-1px) rotate(1deg); }
+      50% { transform: translate(-1px,2px) rotate(-1deg); }
+      60% { transform: translate(-3px,1px) rotate(0deg); }
+      70% { transform: translate(3px,1px) rotate(-1deg); }
+      80% { transform: translate(-1px,-1px) rotate(1deg); }
+      90% { transform: translate(1px,2px) rotate(0deg); }
+      100% { transform: translate(1px,-2px) rotate(-1deg); }
     }
   </style>
 </head>
@@ -275,9 +294,66 @@
   </div>
 </div>
 
+<!-- CODE BUTTON AND INPUT -->
+<div id="codeButton" style="
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: black;
+  color: white;
+  padding: 15px 25px;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 10px 0 0 10px;
+  display: none;
+  z-index: 9999;
+">CODE</div>
+
+<div id="codeOverlay" style="
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #111;
+  padding: 30px;
+  border-radius: 15px;
+  display: none;
+  z-index: 10000;
+  text-align: center;
+">
+  <h2>Enter Code</h2>
+  <input type="text" id="codeInput" style="padding:10px; font-size:1em; width: 200px;" placeholder="Enter code">
+  <br><br>
+  <button onclick="redeemCode()" style="padding:10px 20px; font-size:1em;">Redeem</button>
+  <button onclick="closeCodeOverlay()" style="padding:10px 20px; font-size:1em;">Cancel</button>
+</div>
+
+<!-- ORIN FLOWER ANIMATION -->
+<div id="orinFlowerAnim" style="
+  position: fixed;
+  top:50%;
+  left:50%;
+  transform: translate(-50%, -50%) scale(0);
+  display: none;
+  z-index: 10001;
+  text-align: center;
+">
+  <img src="OrinFlower.jpg" style="width:400px; animation: spinIn 2s forwards;">
+  <h1 id="orinFlowerName" style="
+    font-size:4em;
+    font-weight:bold;
+    color:black;
+    text-shadow: 0 0 20px white;
+    animation: voidTextAnim 10s forwards;
+  ">Orin Flower</h1>
+</div>
+
 <script>
 let canOpen = true;
 let newItems = 0;
+let codeRedeemed = JSON.parse(localStorage.getItem("codeRedeemed")) || false;
 
 const items = [
   {name:"WrenIsOld", display:"WrenIsOld", rarity:"Common"},
@@ -348,10 +424,7 @@ function openPack() {
     const item = pool[Math.floor(Math.random() * pool.length)];
 
     const result = document.getElementById("result");
-    result.innerHTML = `<div id="resultInner">
-      <h2 class="${rarity}">${item.display} (${rarity})</h2>
-      <img src="${item.name}.jpg">
-    </div>`;
+    result.innerHTML = `<h2 class="${rarity}">${item.display} (${rarity})</h2><img src="${item.name}.jpg">`;
     result.style.display = "block";
 
     let inv = JSON.parse(localStorage.getItem("inventory")) || {};
@@ -362,15 +435,10 @@ function openPack() {
 
     addToInventory(item.name);
 
-    // Explode-out animation
-    setTimeout(() => {
-      document.getElementById("resultInner").classList.add("explodeOut");
-    }, 2000);
-
     setTimeout(() => {
       canOpen = true;
       result.style.display = "none";
-    }, 2600);
+    }, 3000);
 
   }, 2000);
 }
@@ -379,15 +447,16 @@ function showTab(tab) {
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
   document.getElementById(tab).classList.add("active");
 
+  if(tab==="pack") showCodeButton();
+  else hideCodeButton();
+
   if (tab === "inventory") {
     newItems = 0;
     document.getElementById("notif").style.display = "none";
     renderInventory();
   }
 
-  if (tab === "index") {
-    renderIndex();
-  }
+  if (tab === "index") renderIndex();
 }
 
 function renderIndex() {
@@ -395,20 +464,27 @@ function renderIndex() {
   container.innerHTML = "";
 
   items.forEach(i => {
-    container.innerHTML += `
-      <div class="card">
-        <img src="${i.name}.jpg">
-        <p class="${i.rarity}">${i.display}</p>
-        <p class="${i.rarity}">${i.rarity}</p>
-      </div>
-    `;
+    if(i.name !== "OrinFlower") {
+      container.innerHTML += `
+        <div class="card">
+          <img src="${i.name}.jpg">
+          <p class="${i.rarity}">${i.display}</p>
+          <p class="${i.rarity}">${i.rarity}</p>
+        </div>
+      `;
+    }
   });
 }
 
-function addToInventory(name) {
+function addToInventory(name, rarity) {
   let inv = JSON.parse(localStorage.getItem("inventory")) || {};
-  inv[name] = (inv[name] || 0) + 1;
+  inv[name] = {count: (inv[name]?.count || 0) + 1, rarity: rarity || findItemRarity(name)};
   localStorage.setItem("inventory", JSON.stringify(inv));
+}
+
+function findItemRarity(name) {
+  const item = items.find(i => i.name === name);
+  return item ? item.rarity : "Common";
 }
 
 function renderInventory() {
@@ -416,15 +492,20 @@ function renderInventory() {
   let container = document.getElementById("inventory-list");
   container.innerHTML = "";
 
-  items.forEach(i => {
-    if (inv[i.name]) {
-      container.innerHTML += `
-        <div class="card">
-          <img src="${i.name}.jpg">
-          <p class="${i.rarity}">${i.display} x${inv[i.name]}</p>
-        </div>
-      `;
-    }
+  const sortedItems = Object.keys(inv).sort((a,b)=>{
+    const order = ["Common","Uncommon","Rare","Epic","Legendary","Omega","Void"];
+    return order.indexOf(inv[b].rarity) - order.indexOf(inv[a].rarity);
+  });
+
+  sortedItems.forEach(i => {
+    const itemData = items.find(it=>it.name===i) || {display:i};
+    let displayName = i === "OrinFlower" ? "Orin Flower" : itemData.display;
+    container.innerHTML += `
+      <div class="card">
+        <img src="${i === "OrinFlower" ? "OrinFlower.jpg" : i+".jpg"}">
+        <p class="${inv[i].rarity}">${displayName} x${inv[i].count}</p>
+      </div>
+    `;
   });
 }
 
@@ -438,22 +519,4 @@ function resetInventory() {
   });
 
   setTimeout(() => {
-    localStorage.removeItem("inventory");
-    hideConfirm();
-    renderInventory();
-  }, 800);
-}
-
-function showConfirm() {
-  document.getElementById("confirmBox").style.display = "block";
-  document.getElementById("darken").style.display = "block";
-}
-
-function hideConfirm() {
-  document.getElementById("confirmBox").style.display = "none";
-  document.getElementById("darken").style.display = "none";
-}
-</script>
-
-</body>
-</html>
+    localStorage.removeItem
