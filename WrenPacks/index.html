@@ -109,6 +109,17 @@
       100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
 
+    /* 💥 EXPLODE OUT ANIMATION */
+    .explodeOut {
+      animation: explodeOutAnim 0.6s forwards;
+    }
+
+    @keyframes explodeOutAnim {
+      0% { transform: scale(1) rotate(0deg); opacity: 1; }
+      50% { transform: scale(1.5) rotate(20deg); opacity: 1; }
+      100% { transform: scale(2.5) rotate(40deg); opacity: 0; }
+    }
+
     /* GRID */
     .grid {
       display: flex;
@@ -337,7 +348,10 @@ function openPack() {
     const item = pool[Math.floor(Math.random() * pool.length)];
 
     const result = document.getElementById("result");
-    result.innerHTML = `<h2 class="${rarity}">${item.display} (${rarity})</h2><img src="${item.name}.jpg">`;
+    result.innerHTML = `<div id="resultInner">
+      <h2 class="${rarity}">${item.display} (${rarity})</h2>
+      <img src="${item.name}.jpg">
+    </div>`;
     result.style.display = "block";
 
     let inv = JSON.parse(localStorage.getItem("inventory")) || {};
@@ -348,10 +362,15 @@ function openPack() {
 
     addToInventory(item.name);
 
+    // Explode-out animation
+    setTimeout(() => {
+      document.getElementById("resultInner").classList.add("explodeOut");
+    }, 2000);
+
     setTimeout(() => {
       canOpen = true;
       result.style.display = "none";
-    }, 3000);
+    }, 2600);
 
   }, 2000);
 }
