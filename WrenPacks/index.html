@@ -195,6 +195,7 @@
       color: transparent;
       animation: rainbow 3s linear infinite;
     }
+    .Void { color: cyan; font-weight: bold; } /* ✅ Added Void rarity style */
 
     @keyframes rainbow {
       100% { filter: hue-rotate(360deg); }
@@ -258,12 +259,6 @@
       text-align: center;
     }
 
-    /* ✅ ADDED FOR ORIN FLOWER */
-    @keyframes orinFlowerAnim {
-      0% { transform: scale(0) rotate(0deg); opacity: 0; }
-      50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
-      100% { transform: scale(1) rotate(360deg); opacity: 1; }
-    }
   </style>
 </head>
 
@@ -335,6 +330,7 @@
     <p class="Epic">Epic: 7%</p>
     <p class="Legendary">Legendary: 1%</p>
     <p class="Omega">Omega: 0.1%</p>
+    <p class="Void">Void: Special</p> <!-- ✅ Added Void rarity rate -->
   </div>
 </div>
 
@@ -363,7 +359,8 @@ const items = [
   {name:"Wren", display:"Wren", rarity:"Legendary"},
   {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
   {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
-  {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"}
+  {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"},
+  {name:"OrinFlower", display:"Orin Flower", rarity:"Void"} // ✅ Added Orin Flower
 ];
 
 const chances = {
@@ -372,7 +369,8 @@ const chances = {
   Rare: 12,
   Epic: 7,
   Legendary: 1,
-  Omega: 0.1
+  Omega: 0.1,
+  Void: 0 // Void won't appear in normal packs
 };
 
 function goHome() { window.location.href = "https://scellswren.github.io/wren.fun/"; }
@@ -519,33 +517,47 @@ function resetInventory() {
 function showConfirm() { document.getElementById("confirmBox").style.display = "block"; document.getElementById("darken").style.display = "block"; }
 function hideConfirm() { document.getElementById("confirmBox").style.display = "none"; document.getElementById("darken").style.display = "none"; }
 
-function openCode() { document.getElementById("codeBox").style.display = "block"; document.getElementById("darken").style.display = "block"; }
-function closeCode() { document.getElementById("codeBox").style.display = "none"; document.getElementById("darken").style.display = "none"; }
+/* ✅ ADDED */
+function openCode() {
+  document.getElementById("codeBox").style.display = "block";
+  document.getElementById("darken").style.display = "block";
+}
+
+function closeCode() {
+  document.getElementById("codeBox").style.display = "none";
+  document.getElementById("darken").style.display = "none";
+}
 
 function redeemCode() {
   const code = document.getElementById("codeInput").value.trim();
 
   if (code === "Subscribe") {
-    // ✅ ADDED ORIN FLOWER
-    const flower = document.createElement("div");
-    flower.style.position = "fixed";
-    flower.style.top = "50%";
-    flower.style.left = "50%";
-    flower.style.transform = "translate(-50%, -50%)";
-    flower.style.zIndex = "4000";
-    flower.innerHTML = `<img src="OrinFlower.jpg" style="width:200px; animation: orinFlowerAnim 1.5s forwards;">`;
-    document.body.appendChild(flower);
+    addToInventory("OrinFlower");
+    newItems++;
+    updateNotif();
 
-    setTimeout(() => { document.body.removeChild(flower); }, 1600);
+    const result = document.getElementById("result");
+    result.innerHTML = `<div id="resultInner">
+      <h2 class="Void">Orin Flower (Void)</h2>
+      <img src="OrinFlower.jpg">
+    </div>`;
+    result.style.display = "block";
 
-    alert("You received the Orin Flower!");
-    addToInventory("OrinFlower"); // Automatically add to inventory
-  } else if (code === "test") {
-    alert("Code worked!");
+    setTimeout(() => {
+      document.getElementById("resultInner").classList.add("explodeOut");
+    }, 2000);
+
+    setTimeout(() => { result.style.display = "none"; }, 2600);
+
+    alert("Code redeemed! You received Orin Flower.");
   } else {
     alert("Invalid code");
   }
 
   closeCode();
 }
+
 </script>
+
+</body>
+</html>
