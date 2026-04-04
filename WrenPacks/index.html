@@ -195,7 +195,7 @@
       color: transparent;
       animation: rainbow 3s linear infinite;
     }
-    .Void { color: cyan; font-weight: bold; } /* ✅ Added Void rarity style */
+    .Void { color: cyan; font-weight: bold; }
 
     @keyframes rainbow {
       100% { filter: hue-rotate(360deg); }
@@ -359,7 +359,7 @@ const items = [
   {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
   {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
   {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"},
-  {name:"OrinFlower", display:"Orin Flower", rarity:"Void"} // ✅ Added Orin Flower
+  {name:"OrinFlower", display:"Orin Flower", rarity:"Void"}
 ];
 
 
@@ -370,7 +370,7 @@ const chances = {
   Epic: 7,
   Legendary: 1,
   Omega: 0.1,
-  Void: 0 // Void won't appear in normal packs
+  Void: 0
 };
 
 function goHome() { window.location.href = "https://scellswren.github.io/wren.fun/"; }
@@ -433,10 +433,11 @@ function showTab(tab) {
   if (tab === "index") { renderIndex(); }
 }
 
+// ✅ FIX 1: Filter out Void rarity items from the Index
 function renderIndex() {
   const container = document.getElementById("index-list");
   container.innerHTML = "";
-  items.forEach(i => {
+  items.filter(i => i.rarity !== "Void").forEach(i => {
     container.innerHTML += `<div class="card"><img src="${i.name}.jpg"><p class="${i.rarity}">${i.display}</p><p class="${i.rarity}">${i.rarity}</p></div>`;
   });
 }
@@ -528,10 +529,23 @@ function closeCode() {
   document.getElementById("darken").style.display = "none";
 }
 
+// ✅ FIX 2: One-time use for "Subscribe" code (stored in localStorage)
+// ✅ FIX 3: Longer animation for Orin Flower (5s display before exploding, total 5.6s)
 function redeemCode() {
   const code = document.getElementById("codeInput").value.trim();
 
   if (code === "Subscribe") {
+    const usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || {};
+
+    if (usedCodes["Subscribe"]) {
+      alert("This code has already been redeemed!");
+      closeCode();
+      return;
+    }
+
+    usedCodes["Subscribe"] = true;
+    localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+
     addToInventory("OrinFlower");
     newItems++;
     updateNotif(); 
@@ -545,9 +559,9 @@ function redeemCode() {
 
     setTimeout(() => {
       document.getElementById("resultInner").classList.add("explodeOut");
-    }, 2000);
+    }, 5000);
 
-    setTimeout(() => { result.style.display = "none"; }, 2600);
+    setTimeout(() => { result.style.display = "none"; }, 5600);
 
     alert("Code redeemed! You received Orin Flower.");
   } else {
