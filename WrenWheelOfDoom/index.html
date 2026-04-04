@@ -1,210 +1,201 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Wren Wheel of Doom</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="../Favicon.png">
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(120deg, #ff9a9e, #fad0c4, #fbc2eb);
-      overflow: hidden;
-    }
-
-    /* Top bar */
-    #topBar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 20px;
-      background: rgba(255,255,255,0.8);
-      z-index: 1000;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-
-    #wrenTitle {
-      font-family: 'Rubik', sans-serif;
-      font-size: 2em;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    #wrenDollars {
-      font-size: 1.5em;
-      font-weight: bold;
-      color: purple;
-    }
-
-    /* Wheel container */
-    #wheelContainer {
-      position: relative;
-      height: 400px;
-      width: 300px;
-      margin: 80px auto;
-      overflow: hidden;
-      border-radius: 20px;
-      border: 4px solid purple;
-      background: linear-gradient(to bottom, #f093fb, #f5576c);
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-    }
-
-    #wheel {
-      display: flex;
-      flex-direction: column;
-      transition: transform 1s cubic-bezier(0.33, 1, 0.68, 1);
-    }
-
-    .wheelItem {
-      height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5em;
-      font-weight: bold;
-      color: white;
-      text-shadow: 0 0 5px black;
-      border-bottom: 1px solid rgba(255,255,255,0.3);
-      transition: all 0.3s;
-      background: linear-gradient(45deg, #f093fb, #f5576c);
-    }
-
-    .active {
-      transform: scale(1.1);
-      box-shadow: 0 0 20px purple;
-    }
-
-    /* Spin button */
-    #spinBtn {
-      display: block;
-      margin: 30px auto;
-      padding: 20px 40px;
-      font-size: 1.8em;
-      font-family: 'Rubik', sans-serif;
-      border: none;
-      border-radius: 15px;
-      background-color: purple;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      transition: all 0.2s;
-    }
-    #spinBtn:active { transform: scale(0.95); }
-
-    /* Challenge container */
-    #challengeContainer {
-      display: none;
-      margin: 20px auto;
-      width: 90%;
-      max-width: 500px;
-      text-align: center;
-    }
-
-    #challengeText {
-      font-size: 1.5em;
-      margin-bottom: 20px;
-      color: white;
-      text-shadow: 0 0 5px black;
-    }
-
-    #challengeInput, #challengeButton {
-      padding: 10px 20px;
-      font-size: 1.2em;
-      margin: 5px;
-      border-radius: 10px;
-      border: none;
-    }
-
-    #challengeButton {
-      background-color: purple;
-      color: white;
-      cursor: pointer;
-    }
-
-    /* Win/Lose popup */
-    #popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 20px 40px;
-      background-color: rgba(0,0,0,0.8);
-      color: white;
-      font-size: 2em;
-      font-weight: bold;
-      border-radius: 20px;
-      display: none;
-      z-index: 2000;
-      text-align: center;
-      box-shadow: 0 0 30px rgba(255,0,255,0.6);
-      animation: popupAnim 3s forwards;
-    }
-
-    @keyframes popupAnim {
-      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-      10% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-      70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Wren Wheel of Doom</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../Favicon.png">
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(120deg, #ff9a9e, #fad0c4, #fbc2eb);
+    overflow: hidden;
+  }
+  /* Top Bar */
+  #topBar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+  }
+  #wrenTitle {
+    font-family: 'Rubik', sans-serif;
+    font-size: 2em;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #wrenDollars {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: purple;
+  }
+  /* Wheel Container */
+  #wheelContainer {
+    position: relative;
+    height: 400px;
+    width: 300px;
+    margin: 80px auto;
+    overflow: hidden;
+    border-radius: 20px;
+    border: 4px solid purple;
+    background: linear-gradient(to bottom, #f093fb, #f5576c);
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  }
+  #wheel {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.5s cubic-bezier(0.33,1,0.68,1);
+  }
+  .wheelItem {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 0 5px black;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    transition: all 0.3s;
+    background: linear-gradient(45deg, #f093fb, #f5576c);
+  }
+  .active {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px purple;
+  }
+  /* Spin Button */
+  #spinBtn {
+    display: block;
+    margin: 30px auto;
+    padding: 20px 40px;
+    font-size: 1.8em;
+    font-family: 'Rubik', sans-serif;
+    border: none;
+    border-radius: 15px;
+    background-color: purple;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: all 0.2s;
+  }
+  #spinBtn:active { transform: scale(0.95); }
+  /* Challenge container */
+  #challengeContainer {
+    display: none;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+  }
+  #challengeText {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: white;
+    text-shadow: 0 0 5px black;
+  }
+  #challengeInput, #challengeButton {
+    padding: 10px 20px;
+    font-size: 1.2em;
+    margin: 5px;
+    border-radius: 10px;
+    border: none;
+  }
+  #challengeButton {
+    background-color: purple;
+    color: white;
+    cursor: pointer;
+  }
+  /* Popup for win/lose */
+  #popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px 40px;
+    background-color: rgba(0,0,0,0.8);
+    color: white;
+    font-size: 2em;
+    font-weight: bold;
+    border-radius: 20px;
+    display: none;
+    z-index: 2000;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(255,0,255,0.6);
+    animation: popupAnim 3s forwards;
+  }
+  @keyframes popupAnim {
+    0% { transform: translate(-50%, -50%) scale(0); opacity:0; }
+    10% { transform: translate(-50%, -50%) scale(1.2); opacity:1; }
+    70% { transform: translate(-50%, -50%) scale(1); opacity:1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity:0; }
+  }
+</style>
 </head>
 <body>
 
-  <div id="topBar">
-    <div id="wrenTitle">Wren.fun</div>
-    <div id="wrenDollars">WrenDollars: $0</div>
-  </div>
+<div id="topBar">
+  <div id="wrenTitle">Wren.fun</div>
+  <div id="wrenDollars">WrenDollars: $0</div>
+</div>
 
-  <div id="wheelContainer">
-    <div id="wheel"></div>
-  </div>
+<div id="wheelContainer">
+  <div id="wheel"></div>
+</div>
 
-  <button id="spinBtn">Spin</button>
+<button id="spinBtn">Spin</button>
 
-  <div id="challengeContainer">
-    <div id="challengeText"></div>
-    <input type="text" id="challengeInput" class="hidden">
-    <button id="challengeButton" class="hidden">Start</button>
-  </div>
+<div id="challengeContainer">
+  <div id="challengeText"></div>
+  <input type="text" id="challengeInput" class="hidden">
+  <button id="challengeButton" class="hidden"></button>
+</div>
 
-  <div id="popup"></div>
+<div id="popup"></div>
 
 <script>
 const wheelItems = [
-  {name: 'Red Light Green Light', type: 'clickGame'},
-  {name: 'Keep Mouse Still', type: 'mouseGame'},
-  {name: 'Quick Spin', type: 'moneyRandom'},
-  {name: 'Double or Nothing', type: 'moneyRandom'},
-  {name: 'Fast Click', type: 'clickGame'},
-  {name: 'Wheel of Fortune', type: 'moneyRandom'},
-  {name: 'Spin Again', type: 'spinAgain'},
-  {name: 'Lucky Win', type: 'moneyRandom'},
-  {name: 'Lose Some', type: 'moneyRandom'},
-  {name: 'Bonus Challenge', type: 'clickGame'}
+  {name:'+10', type:'money', value:10},
+  {name:'+20', type:'money', value:20},
+  {name:'+50', type:'money', value:50},
+  {name:'+100', type:'money', value:100},
+  {name:'+500', type:'money', value:500},
+  {name:'+1000', type:'money', value:1000},
+  {name:'+5000', type:'money', value:5000},
+  {name:'-10', type:'money', value:-10},
+  {name:'-20', type:'money', value:-20},
+  {name:'-50', type:'money', value:-50},
+  {name:'-100', type:'money', value:-100},
+  {name:'-500', type:'money', value:-500},
+  {name:'-1000', type:'money', value:-1000},
+  {name:'-5000', type:'money', value:-5000},
+  {name:'Click Frenzy', type:'clickGame'},
+  {name:'Red Light Green Light', type:'clickGreen'}
 ];
 
-// Duplicate wheel for seamless wrap
+// Duplicate for wrap-around effect
 const wheelContainer = document.getElementById('wheel');
-wheelItems.forEach(item => {
+wheelItems.forEach(item=>{
   const div = document.createElement('div');
   div.classList.add('wheelItem');
-  div.textContent = item.name;
+  div.textContent=item.name;
   wheelContainer.appendChild(div);
 });
-wheelItems.forEach(item => {
+wheelItems.forEach(item=>{
   const div = document.createElement('div');
   div.classList.add('wheelItem');
-  div.textContent = item.name;
+  div.textContent=item.name;
   wheelContainer.appendChild(div);
 });
 
-let wrenDollars = parseInt(localStorage.getItem('wrenDollars') || 0);
+let wrenDollars = parseInt(localStorage.getItem('wrenDollars')||0);
 const wrenDisplay = document.getElementById('wrenDollars');
-wrenDisplay.textContent = `WrenDollars: $${wrenDollars}`;
+wrenDisplay.textContent=`WrenDollars: $${wrenDollars}`;
 
 const spinBtn = document.getElementById('spinBtn');
 const challengeContainer = document.getElementById('challengeContainer');
@@ -213,68 +204,66 @@ const challengeInput = document.getElementById('challengeInput');
 const challengeButton = document.getElementById('challengeButton');
 const popup = document.getElementById('popup');
 
-let spinning = false;
-let currentIndex = 0;
+let spinning=false;
+let currentIndex=0;
 
 function showPopup(text){
-  popup.textContent = text;
-  popup.style.display = 'block';
-  setTimeout(()=>{ popup.style.display = 'none'; }, 3000);
+  popup.textContent=text;
+  popup.style.display='block';
+  setTimeout(()=>{popup.style.display='none';},3000);
 }
 
 function updateWrenDollars(amount){
-  wrenDollars += amount;
-  wrenDisplay.textContent = `WrenDollars: $${wrenDollars}`;
-  localStorage.setItem('wrenDollars', wrenDollars);
+  wrenDollars+=amount;
+  wrenDisplay.textContent=`WrenDollars: $${wrenDollars}`;
+  localStorage.setItem('wrenDollars',wrenDollars);
   if(amount>0) showPopup(`+${amount} WrenDollars`);
   else showPopup(`${amount} WrenDollars`);
 }
 
 function startChallenge(challenge){
-  spinBtn.style.display = 'none';
-  challengeContainer.style.display = 'block';
-  challengeText.textContent = challenge.name;
+  spinBtn.style.display='none';
+  challengeContainer.style.display='block';
+  challengeText.textContent=challenge.name;
   challengeInput.classList.add('hidden');
   challengeButton.classList.add('hidden');
 
-  if(challenge.type === 'clickGame'){
-    challengeButton.textContent = 'Click 20 times in 10 seconds!';
+  if(challenge.type==='money'){
+    updateWrenDollars(challenge.value);
+    setTimeout(endChallenge,3000);
+  } else if(challenge.type==='clickGame'){
+    challengeButton.textContent='Click as fast as possible in 10s (+5 per click)';
     challengeButton.classList.remove('hidden');
-    let clicks = 0;
-    let timeUp = false;
-    challengeButton.onclick = () => {
+    let clicks=0;
+    let timeUp=false;
+    challengeButton.onclick=()=>{
       if(timeUp) return;
       clicks++;
-      if(clicks>=20){
-        updateWrenDollars(200);
-        endChallenge();
-      }
-    };
+    }
     setTimeout(()=>{
       timeUp=true;
-      if(clicks<20) updateWrenDollars(-200);
+      updateWrenDollars(clicks*5);
       endChallenge();
     },10000);
-  }
-  else if(challenge.type==='mouseGame'){
-    challengeText.textContent += " - Don't move your mouse for 20 seconds!";
-    let moved=false;
-    function mouseMove(){ moved=true; }
-    document.addEventListener('mousemove',mouseMove);
+  } else if(challenge.type==='clickGreen'){
+    challengeButton.textContent='Red Light Green Light (click when green)';
+    challengeButton.classList.remove('hidden');
+    let total=0;
+    let active=false;
+    let timeLeft=10000;
+    const interval=setInterval(()=>{
+      active=!active;
+      challengeButton.style.backgroundColor=active?'green':'red';
+    },1000);
+    challengeButton.onclick=()=>{
+      if(active) total+=1;
+      else total= -total;
+    }
     setTimeout(()=>{
-      document.removeEventListener('mousemove',mouseMove);
-      if(!moved) updateWrenDollars(200);
-      else updateWrenDollars(-200);
+      clearInterval(interval);
+      updateWrenDollars(total);
       endChallenge();
-    },20000);
-  }
-  else if(challenge.type==='moneyRandom'){
-    const amount=Math.floor(Math.random()*500)-250;
-    updateWrenDollars(amount);
-    setTimeout(endChallenge,3000);
-  }
-  else if(challenge.type==='spinAgain'){
-    setTimeout(endChallenge,1000);
+    },10000);
   }
 }
 
@@ -283,11 +272,11 @@ function endChallenge(){
   spinBtn.style.display='block';
 }
 
-spinBtn.addEventListener('click', ()=>{
+spinBtn.addEventListener('click',()=>{
   if(spinning) return;
   spinning=true;
   const totalItems=wheelItems.length;
-  const spinCount=Math.floor(Math.random()*20)+20;
+  const spinCount=Math.floor(Math.random()*40)+40;
   let steps=0;
   const interval=setInterval(()=>{
     const items=document.querySelectorAll('.wheelItem');
@@ -299,13 +288,14 @@ spinBtn.addEventListener('click', ()=>{
     if(steps>spinCount){
       clearInterval(interval);
       spinning=false;
-      startChallenge(wheelItems[(currentIndex+spinCount)%wheelItems.length]);
+      currentIndex=(currentIndex+spinCount)%totalItems;
+      startChallenge(wheelItems[currentIndex]);
     }
   },50);
 });
 
-document.getElementById('wrenTitle').addEventListener('click', ()=>{
-  window.location.href='../'; // back to main menu
+document.getElementById('wrenTitle').addEventListener('click',()=>{
+  window.location.href='../';
 });
 </script>
 </body>
