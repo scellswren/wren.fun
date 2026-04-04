@@ -172,7 +172,6 @@
       color: transparent;
       animation: rainbow 3s linear infinite;
     }
-
     .Void {
       background: black;
       color: transparent;
@@ -180,9 +179,7 @@
       animation: voidTextAnim 10s forwards;
     }
 
-    @keyframes rainbow {
-      100% { filter: hue-rotate(360deg); }
-    }
+    @keyframes rainbow { 100% { filter: hue-rotate(360deg); } }
 
     /* OVERLAY */
     #overlay {
@@ -210,14 +207,6 @@
       100% { opacity: 0; }
     }
 
-    /* RATES */
-    .rates {
-      margin: 30px;
-      font-size: 1.2em;
-      line-height: 1.8em;
-    }
-
-    /* VOID TEXT ANIMATION */
     @keyframes voidTextAnim {
       0% { opacity: 0; transform: scale(0) rotate(0deg); filter: blur(8px); }
       20% { opacity: 1; transform: scale(1.5) rotate(-10deg); filter: blur(4px); }
@@ -239,13 +228,18 @@
       90% { transform: translate(1px,2px) rotate(0deg); }
       100% { transform: translate(1px,-2px) rotate(-1deg); }
     }
+
+    /* RATES */
+    .rates {
+      margin: 30px;
+      font-size: 1.2em;
+      line-height: 1.8em;
+    }
   </style>
 </head>
 
 <body>
-
 <div id="homeText" onclick="goHome()">Wren.fun</div>
-
 <h1>Wren Packs</h1>
 
 <div class="tabs">
@@ -272,18 +266,15 @@
 </div>
 
 <div id="darken"></div>
-
 <div id="confirmBox">
   <h2>Are you sure?</h2>
   <button onclick="resetInventory()">Yes</button>
   <button onclick="hideConfirm()">No</button>
 </div>
 
-<!-- INDEX -->
 <div id="index" class="section">
   <h2>All Characters</h2>
   <div id="index-list" class="grid"></div>
-
   <div class="rates">
     <p class="Common">Common: 45%</p>
     <p class="Uncommon">Uncommon: 30%</p>
@@ -294,7 +285,7 @@
   </div>
 </div>
 
-<!-- CODE BUTTON AND INPUT -->
+<!-- CODE BUTTON -->
 <div id="codeButton" style="
   position: fixed;
   right: 0;
@@ -311,6 +302,7 @@
   z-index: 9999;
 ">CODE</div>
 
+<!-- CODE OVERLAY -->
 <div id="codeOverlay" style="
   position: fixed;
   top: 50%;
@@ -375,148 +367,46 @@ const items = [
   {name:"Wren", display:"Wren", rarity:"Legendary"},
   {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
   {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
-  {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"}
+  {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"},
+  {name:"OrinFlower", display:"Orin Flower", rarity:"Void"}
 ];
 
-const chances = {
-  Common: 45,
-  Uncommon: 30,
-  Rare: 12,
-  Epic: 7,
-  Legendary: 1,
-  Omega: 0.1
-};
+const chances = { Common: 45, Uncommon: 30, Rare: 12, Epic: 7, Legendary: 1, Omega: 0.1 };
 
-function goHome() {
-  window.location.href = "https://scellswren.github.io/wren.fun/";
-}
+function goHome(){window.location.href="https://scellswren.github.io/wren.fun/";}
+function rollRarity(){let r=Math.random()*100,sum=0;for(let key in chances){sum+=chances[key];if(r<=sum)return key;}return "Common";}
+function updateNotif(){const n=document.getElementById("notif");n.style.display="inline-block";n.innerText=newItems;}
+function openPack(){if(!canOpen)return;canOpen=false;const overlay=document.getElementById("overlay");overlay.style.display="flex";overlay.classList.add("fade");setTimeout(()=>{overlay.style.display="none";overlay.classList.remove("fade");const rarity=rollRarity();const pool=items.filter(i=>i.rarity===rarity);const item=pool[Math.floor(Math.random()*pool.length)];const result=document.getElementById("result");result.innerHTML=`<h2 class="${rarity}">${item.display} (${rarity})</h2><img src="${item.name}.jpg">`;result.style.display="block";let inv=JSON.parse(localStorage.getItem("inventory"))||{};if(!inv[item.name]){newItems++;updateNotif();}addToInventory(item.name);setTimeout(()=>{canOpen=true;result.style.display="none";},3000);},2000);}
+function showTab(tab){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(tab).classList.add("active");if(tab==="pack") showCodeButton(); else hideCodeButton();if(tab==="inventory"){newItems=0;document.getElementById("notif").style.display="none";renderInventory();}if(tab==="index") renderIndex();}
+function renderIndex(){const container=document.getElementById("index-list");container.innerHTML="";items.forEach(i=>{if(i.name!=="OrinFlower"){container.innerHTML+=`<div class="card"><img src="${i.name}.jpg"><p class="${i.rarity}">${i.display}</p><p class="${i.rarity}">${i.rarity}</p></div>`;}});}
+function addToInventory(name, rarity){let inv=JSON.parse(localStorage.getItem("inventory"))||{};inv[name]={count:(inv[name]?.count||0)+1, rarity:rarity||findItemRarity(name)};localStorage.setItem("inventory",JSON.stringify(inv));}
+function findItemRarity(name){const item=items.find(i=>i.name===name);return item?item.rarity:"Common";}
+function renderInventory(){let inv=JSON.parse(localStorage.getItem("inventory"))||{};let container=document.getElementById("inventory-list");container.innerHTML="";const sortedItems=Object.keys(inv).sort((a,b)=>{const order=["Common","Uncommon","Rare","Epic","Legendary","Omega","Void"];return order.indexOf(inv[b].rarity)-order.indexOf(inv[a].rarity);});sortedItems.forEach(i=>{const itemData=items.find(it=>it.name===i)||{display:i};let displayName=i==="OrinFlower"?"Orin Flower":itemData.display;container.innerHTML+=`<div class="card"><img src="${i==="OrinFlower"?"OrinFlower.jpg":i+".jpg"}"><p class="${inv[i].rarity}">${displayName} x${inv[i].count}</p></div>`;});}
+function resetInventory(){const cards=document.querySelectorAll(".card");cards.forEach((card,i)=>{setTimeout(()=>{card.classList.add("explode");},i*100);});setTimeout(()=>{localStorage.removeItem("inventory");hideConfirm();renderInventory();},800);}
+function showConfirm(){document.getElementById("confirmBox").style.display="block";document.getElementById("darken").style.display="block";}
+function hideConfirm(){document.getElementById("confirmBox").style.display="none";document.getElementById("darken").style.display="none";}
 
-function rollRarity() {
-  let r = Math.random() * 100;
-  let sum = 0;
-  for (let key in chances) {
-    sum += chances[key];
-    if (r <= sum) return key;
-  }
-  return "Common";
-}
+function showCodeButton(){document.getElementById("codeButton").style.display="block";}
+function hideCodeButton(){document.getElementById("codeButton").style.display="none";}
+document.getElementById("codeButton").onclick=function(){document.getElementById("codeOverlay").style.display="block";}
+function closeCodeOverlay(){document.getElementById("codeOverlay").style.display="none";document.getElementById("codeInput").value="";}
 
-function updateNotif() {
-  const n = document.getElementById("notif");
-  n.style.display = "inline-block";
-  n.innerText = newItems;
-}
-
-function openPack() {
-  if (!canOpen) return;
-  canOpen = false;
-
-  const overlay = document.getElementById("overlay");
-  overlay.style.display = "flex";
-  overlay.classList.add("fade");
-
-  setTimeout(() => {
-    overlay.style.display = "none";
-    overlay.classList.remove("fade");
-
-    const rarity = rollRarity();
-    const pool = items.filter(i => i.rarity === rarity);
-    const item = pool[Math.floor(Math.random() * pool.length)];
-
-    const result = document.getElementById("result");
-    result.innerHTML = `<h2 class="${rarity}">${item.display} (${rarity})</h2><img src="${item.name}.jpg">`;
-    result.style.display = "block";
-
-    let inv = JSON.parse(localStorage.getItem("inventory")) || {};
-    if (!inv[item.name]) {
-      newItems++;
-      updateNotif();
-    }
-
-    addToInventory(item.name);
-
-    setTimeout(() => {
-      canOpen = true;
-      result.style.display = "none";
-    }, 3000);
-
-  }, 2000);
-}
-
-function showTab(tab) {
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-  document.getElementById(tab).classList.add("active");
-
-  if(tab==="pack") showCodeButton();
-  else hideCodeButton();
-
-  if (tab === "inventory") {
-    newItems = 0;
-    document.getElementById("notif").style.display = "none";
+function redeemCode(){
+  const val=document.getElementById("codeInput").value;
+  if(val==="Subscribe" && !codeRedeemed){
+    codeRedeemed=true;
+    localStorage.setItem("codeRedeemed","true");
+    document.getElementById("orinFlowerAnim").style.display="block";
+    document.body.style.animation="shake 0.1s infinite";
+    addToInventory("OrinFlower","Void");
     renderInventory();
-  }
-
-  if (tab === "index") renderIndex();
+    setTimeout(()=>{
+      document.getElementById("orinFlowerAnim").style.display="none";
+      document.body.style.animation="";
+    },10000);
+  } else alert("Invalid code or already redeemed!");
+  closeCodeOverlay();
 }
-
-function renderIndex() {
-  const container = document.getElementById("index-list");
-  container.innerHTML = "";
-
-  items.forEach(i => {
-    if(i.name !== "OrinFlower") {
-      container.innerHTML += `
-        <div class="card">
-          <img src="${i.name}.jpg">
-          <p class="${i.rarity}">${i.display}</p>
-          <p class="${i.rarity}">${i.rarity}</p>
-        </div>
-      `;
-    }
-  });
-}
-
-function addToInventory(name, rarity) {
-  let inv = JSON.parse(localStorage.getItem("inventory")) || {};
-  inv[name] = {count: (inv[name]?.count || 0) + 1, rarity: rarity || findItemRarity(name)};
-  localStorage.setItem("inventory", JSON.stringify(inv));
-}
-
-function findItemRarity(name) {
-  const item = items.find(i => i.name === name);
-  return item ? item.rarity : "Common";
-}
-
-function renderInventory() {
-  let inv = JSON.parse(localStorage.getItem("inventory")) || {};
-  let container = document.getElementById("inventory-list");
-  container.innerHTML = "";
-
-  const sortedItems = Object.keys(inv).sort((a,b)=>{
-    const order = ["Common","Uncommon","Rare","Epic","Legendary","Omega","Void"];
-    return order.indexOf(inv[b].rarity) - order.indexOf(inv[a].rarity);
-  });
-
-  sortedItems.forEach(i => {
-    const itemData = items.find(it=>it.name===i) || {display:i};
-    let displayName = i === "OrinFlower" ? "Orin Flower" : itemData.display;
-    container.innerHTML += `
-      <div class="card">
-        <img src="${i === "OrinFlower" ? "OrinFlower.jpg" : i+".jpg"}">
-        <p class="${inv[i].rarity}">${displayName} x${inv[i].count}</p>
-      </div>
-    `;
-  });
-}
-
-function resetInventory() {
-  const cards = document.querySelectorAll(".card");
-
-  cards.forEach((card, i) => {
-    setTimeout(() => {
-      card.classList.add("explode");
-    }, i * 100);
-  });
-
-  setTimeout(() => {
-    localStorage.removeItem
+</script>
+</body>
+</html>
