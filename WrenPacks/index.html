@@ -131,6 +131,7 @@
 
     .card {
       width: 130px;
+      position: relative;
       transition: transform 0.5s ease, opacity 0.5s ease;
     }
 
@@ -139,6 +140,24 @@
     .explode {
       transform: scale(2) rotate(25deg);
       opacity: 0;
+    }
+
+    /* DELETE BUTTON */
+    .deleteBtn {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: red;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1em;
     }
 
     /* RESET */
@@ -150,7 +169,7 @@
     }
 
     /* CONFIRM */
-    #confirmBox {
+    #confirmBox, #deletePrompt {
       position: fixed;
       top: 50%;
       left: 50%;
@@ -160,6 +179,7 @@
       border-radius: 15px;
       display: none;
       z-index: 2000;
+      text-align: center;
     }
 
     #darken {
@@ -220,6 +240,20 @@
       font-size: 1.2em;
       line-height: 1.8em;
     }
+
+    #deletePrompt input {
+      width: 80px;
+      padding: 5px;
+      font-size: 1em;
+    }
+
+    #deletePrompt button {
+      margin-top: 10px;
+      padding: 5px 10px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
   </style>
 </head>
 
@@ -260,6 +294,15 @@
   <button onclick="hideConfirm()">No</button>
 </div>
 
+<!-- DELETE PROMPT -->
+<div id="deletePrompt">
+  <h3>How many to delete?</h3>
+  <input type="number" id="deleteQty" min="1">
+  <br>
+  <button onclick="confirmDelete()">Delete</button>
+  <button onclick="cancelDelete()">Cancel</button>
+</div>
+
 <!-- INDEX -->
 <div id="index" class="section">
   <h2>All Characters</h2>
@@ -278,6 +321,7 @@
 <script>
 let canOpen = true;
 let newItems = 0;
+let deleteItem = null; // current item to delete
 
 const items = [
   {name:"WrenIsOld", display:"WrenIsOld", rarity:"Common"},
@@ -311,24 +355,19 @@ const chances = {
   Omega: 0.1
 };
 
-function goHome() {
-  window.location.href = "https://scellswren.github.io/wren.fun/";
-}
+function goHome() { window.location.href = "https://scellswren.github.io/wren.fun/"; }
 
 function rollRarity() {
   let r = Math.random() * 100;
   let sum = 0;
-  for (let key in chances) {
-    sum += chances[key];
-    if (r <= sum) return key;
-  }
+  for (let key in chances) { sum += chances[key]; if (r <= sum) return key; }
   return "Common";
 }
 
 function updateNotif() {
   const n = document.getElementById("notif");
-  n.style.display = "inline-block";
-  n.innerText = newItems;
+  if (newItems > 0) { n.style.display = "inline-block"; n.innerText = newItems; } 
+  else { n.style.display = "none"; }
 }
 
 function openPack() {
@@ -355,22 +394,15 @@ function openPack() {
     result.style.display = "block";
 
     let inv = JSON.parse(localStorage.getItem("inventory")) || {};
-    if (!inv[item.name]) {
-      newItems++;
-      updateNotif();
-    }
+    if (!inv[item.name]) { newItems++; updateNotif(); }
 
     addToInventory(item.name);
 
-    // Explode-out animation
     setTimeout(() => {
       document.getElementById("resultInner").classList.add("explodeOut");
     }, 2000);
 
-    setTimeout(() => {
-      canOpen = true;
-      result.style.display = "none";
-    }, 2600);
+    setTimeout(() => { canOpen = true; result.style.display = "none"; }, 2600);
 
   }, 2000);
 }
@@ -379,29 +411,15 @@ function showTab(tab) {
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
   document.getElementById(tab).classList.add("active");
 
-  if (tab === "inventory") {
-    newItems = 0;
-    document.getElementById("notif").style.display = "none";
-    renderInventory();
-  }
-
-  if (tab === "index") {
-    renderIndex();
-  }
+  if (tab === "inventory") { newItems = 0; updateNotif(); renderInventory(); }
+  if (tab === "index") { renderIndex(); }
 }
 
 function renderIndex() {
   const container = document.getElementById("index-list");
   container.innerHTML = "";
-
   items.forEach(i => {
-    container.innerHTML += `
-      <div class="card">
-        <img src="${i.name}.jpg">
-        <p class="${i.rarity}">${i.display}</p>
-        <p class="${i.rarity}">${i.rarity}</p>
-      </div>
-    `;
+    container.innerHTML += `<div class="card"><img src="${i.name}.jpg"><p class="${i.rarity}">${i.display}</p><p class="${i.rarity}">${i.rarity}</p></div>`;
   });
 }
 
@@ -418,41 +436,69 @@ function renderInventory() {
 
   items.forEach(i => {
     if (inv[i.name]) {
-      container.innerHTML += `
-        <div class="card">
-          <img src="${i.name}.jpg">
-          <p class="${i.rarity}">${i.display} x${inv[i.name]}</p>
-        </div>
-      `;
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<img src="${i.name}.jpg"><p class="${i.rarity}">${i.display} x${inv[i.name]}</p>`;
+
+      const delBtn = document.createElement("div");
+      delBtn.className = "deleteBtn";
+      delBtn.innerText = "x";
+      delBtn.onclick = (e) => {
+        e.stopPropagation();
+        deleteItem = i;
+        openDeletePrompt(inv[i.name]);
+      };
+      card.appendChild(delBtn);
+
+      container.appendChild(card);
     }
   });
 }
 
-function resetInventory() {
-  const cards = document.querySelectorAll(".card");
-
-  cards.forEach((card, i) => {
-    setTimeout(() => {
-      card.classList.add("explode");
-    }, i * 100);
-  });
-
-  setTimeout(() => {
-    localStorage.removeItem("inventory");
-    hideConfirm();
-    renderInventory();
-  }, 800);
-}
-
-function showConfirm() {
-  document.getElementById("confirmBox").style.display = "block";
+function openDeletePrompt(maxQty) {
+  const prompt = document.getElementById("deletePrompt");
+  const qtyInput = document.getElementById("deleteQty");
+  qtyInput.value = "";
+  qtyInput.max = maxQty;
+  prompt.style.display = "block";
   document.getElementById("darken").style.display = "block";
 }
 
-function hideConfirm() {
-  document.getElementById("confirmBox").style.display = "none";
-  document.getElementById("darken").style.display = "none";
+function confirmDelete() {
+  const qty = parseInt(document.getElementById("deleteQty").value);
+  if (!qty || qty < 1) return cancelDelete();
+
+  let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+  if (!inv[deleteItem.name]) return cancelDelete();
+
+  if (qty >= inv[deleteItem.name]) {
+    delete inv[deleteItem.name];
+    localStorage.setItem("inventory", JSON.stringify(inv));
+    cancelDelete();
+    showTab("pack"); // exit inventory
+  } else {
+    inv[deleteItem.name] -= qty;
+    localStorage.setItem("inventory", JSON.stringify(inv));
+    cancelDelete();
+    renderInventory();
+  }
 }
+
+function cancelDelete() {
+  document.getElementById("deletePrompt").style.display = "none";
+  document.getElementById("darken").style.display = "none";
+  deleteItem = null;
+}
+
+function resetInventory() {
+  const cards = document.querySelectorAll(".card");
+  cards.forEach((card, i) => setTimeout(()=>{ card.classList.add("explode"); }, i*100));
+  setTimeout(()=>{ localStorage.removeItem("inventory"); hideConfirm(); renderInventory(); }, 800);
+}
+
+function showConfirm() { document.getElementById("confirmBox").style.display = "block"; document.getElementById("darken").style.display = "block"; }
+function hideConfirm() { document.getElementById("confirmBox").style.display = "none"; document.getElementById("darken").style.display = "none"; }
+
 </script>
 
 </body>
