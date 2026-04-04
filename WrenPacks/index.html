@@ -26,11 +26,47 @@
     }
     #homeText:hover { transform: scale(1.2); }
 
-    h1 { margin-top: 20px; }
+    /* ✅ Eye-catching title */
+    h1 {
+      margin-top: 30px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 3.2em;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, #cc44ff, #ff44cc, #ffaa00, #cc44ff);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: none;
+      animation: titleShimmer 4s ease infinite;
+      filter: drop-shadow(0 0 18px rgba(200, 80, 255, 0.7));
+    }
+
+    @keyframes titleShimmer {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ✅ overflow visible so notif badge isn't clipped by parent */
+    .tabs {
+      overflow: visible;
+      padding: 10px 0;
+    }
+
+    /* Wrapper so notif badge sits outside the button's overflow:hidden */
+    .invBtnWrap {
+      position: relative;
+      display: inline-block;
+      margin: 10px 16px;
+    }
+
+    .invBtnWrap .invBtn {
+      margin: 0; /* wrapper handles margin */
+    }
 
     .tabs button {
       padding: 15px 35px;
-      margin: 10px;
+      margin: 10px 16px;
       font-size: 1.3em;
       cursor: pointer;
       border: none;
@@ -38,6 +74,7 @@
       color: white;
       font-weight: bold;
       position: relative;
+      overflow: visible;
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
@@ -50,23 +87,33 @@
     .invBtn { background: green; }
     .indexBtn { background: dodgerblue; }
 
-    /* ✅ ADDED */
     .codeBtn { background: gold; color: black; }
 
+    /* ✅ Fixed notif badge — on wrapper, fully visible */
     .notif {
       position: absolute;
-      top: -8px;
-      right: -8px;
+      top: -10px;
+      right: -10px;
       background: red;
-      border-radius: 50%;
-      padding: 5px 10px;
-      font-size: 0.8em;
+      border: 2.5px solid black;
+      border-radius: 999px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      font-size: 0.75em;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px red, 0 0 20px rgba(255,0,0,0.4);
+      z-index: 10;
+      pointer-events: none;
       animation: pulse 1s infinite;
     }
 
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.3); }
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.3); }
       100% { transform: scale(1); }
     }
 
@@ -96,14 +143,39 @@
       z-index: 1000;
     }
 
+    /* ✅ Result card glow bg */
+    #resultInner {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 30px 40px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 0 60px rgba(180,80,255,0.3);
+    }
+
     #result img {
-      width: 200px;
-      animation: spinIn 0.8s forwards;
+      width: 220px;
+      animation: spinIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      filter: drop-shadow(0 0 20px rgba(255,255,255,0.4));
+    }
+
+    #result h2 {
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.6em;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+      animation: textPop 0.5s 0.6s both;
+    }
+
+    @keyframes textPop {
+      0%   { opacity: 0; transform: translateY(10px) scale(0.9); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes spinIn {
-      0% { transform: scale(0) rotate(-720deg); opacity: 0; }
-      50% { transform: scale(1.2) rotate(360deg); opacity: 1; }
+      0%   { transform: scale(0) rotate(-540deg); opacity: 0; }
+      60%  { transform: scale(1.15) rotate(20deg); opacity: 1; }
+      80%  { transform: scale(0.95) rotate(-5deg); }
       100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
 
@@ -155,11 +227,28 @@
       font-size: 1em;
     }
 
+    /* ✅ Improved reset button */
     #resetBtn {
       position: absolute;
       top: 20px;
       right: 20px;
-      padding: 10px 20px;
+      padding: 10px 22px;
+      background: transparent;
+      border: 2px solid #ff4444;
+      color: #ff4444;
+      font-size: 0.95em;
+      font-weight: bold;
+      border-radius: 25px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+
+    #resetBtn:hover {
+      background: #ff4444;
+      color: white;
+      box-shadow: 0 0 16px #ff4444;
+      transform: scale(1.07);
     }
 
     #confirmBox, #deletePrompt {
@@ -210,9 +299,11 @@
       display: none;
       align-items: center;
       justify-content: center;
-      background: rgba(255,255,255,0.1);
-      font-size: 5em;
-      color: gold;
+      background: radial-gradient(ellipse at center, rgba(160,0,255,0.3) 0%, rgba(0,0,0,0.85) 70%);
+      font-size: 4em;
+      font-family: 'Rubik', sans-serif;
+      letter-spacing: 6px;
+      color: white;
       z-index: 9999;
     }
 
@@ -221,9 +312,10 @@
     }
 
     @keyframes fadeAnim {
-      0% { opacity: 0; transform: scale(0.5); }
-      50% { opacity: 1; transform: scale(1.2); }
-      100% { opacity: 0; }
+      0%   { opacity: 0; transform: scale(0.6); letter-spacing: 2px; }
+      30%  { opacity: 1; transform: scale(1.08); letter-spacing: 8px; }
+      70%  { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.1); }
     }
 
     .rates {
@@ -342,7 +434,7 @@
       animation: screenShake 0.5s ease;
     }
 
-    /* ✅ Button click ripple effect */
+    /* ✅ Button click ripple effect — overflow hidden on button for ripple clip, notif is on wrapper so unaffected */
     .tabs button {
       overflow: hidden;
     }
@@ -382,13 +474,11 @@
 
 <div class="tabs">
   <button class="packBtn" onclick="showTab('pack'); ripple(event)">Open Pack</button>
-  <button class="invBtn" onclick="showTab('inventory'); ripple(event)">
-    Inventory
+  <div class="invBtnWrap">
+    <button class="invBtn" onclick="showTab('inventory'); ripple(event)">Inventory</button>
     <span id="notif" class="notif" style="display:none;">0</span>
-  </button>
+  </div>
   <button class="indexBtn" onclick="showTab('index'); ripple(event)">Index</button>
-
-  <!-- ✅ ADDED -->
   <button class="codeBtn" onclick="openCode(); ripple(event)">Code</button>
 </div>
 
