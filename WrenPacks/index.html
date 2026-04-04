@@ -172,14 +172,11 @@
       color: transparent;
       animation: rainbow 3s linear infinite;
     }
-    .Void {
-      background: black;
-      color: transparent;
-      -webkit-text-stroke: 1px white;
-      animation: voidTextAnim 10s forwards;
-    }
+    .Void { color: black; text-shadow: 0 0 20px white; }
 
-    @keyframes rainbow { 100% { filter: hue-rotate(360deg); } }
+    @keyframes rainbow {
+      100% { filter: hue-rotate(360deg); }
+    }
 
     /* OVERLAY */
     #overlay {
@@ -207,39 +204,33 @@
       100% { opacity: 0; }
     }
 
-    @keyframes voidTextAnim {
-      0% { opacity: 0; transform: scale(0) rotate(0deg); filter: blur(8px); }
-      20% { opacity: 1; transform: scale(1.5) rotate(-10deg); filter: blur(4px); }
-      50% { transform: scale(2.2) rotate(10deg); filter: blur(0); }
-      80% { transform: scale(2.5) rotate(-5deg); }
-      100% { transform: scale(2) rotate(0deg); opacity: 1; }
-    }
-
-    @keyframes shake {
-      0% { transform: translate(1px,1px) rotate(0deg); }
-      10% { transform: translate(-1px,-2px) rotate(-1deg); }
-      20% { transform: translate(-3px,0px) rotate(1deg); }
-      30% { transform: translate(3px,2px) rotate(0deg); }
-      40% { transform: translate(1px,-1px) rotate(1deg); }
-      50% { transform: translate(-1px,2px) rotate(-1deg); }
-      60% { transform: translate(-3px,1px) rotate(0deg); }
-      70% { transform: translate(3px,1px) rotate(-1deg); }
-      80% { transform: translate(-1px,-1px) rotate(1deg); }
-      90% { transform: translate(1px,2px) rotate(0deg); }
-      100% { transform: translate(1px,-2px) rotate(-1deg); }
-    }
-
     /* RATES */
     .rates {
       margin: 30px;
       font-size: 1.2em;
       line-height: 1.8em;
     }
+
+    @keyframes shake {
+      0% { transform: translate(0,0); }
+      25% { transform: translate(5px,0); }
+      50% { transform: translate(-5px,0); }
+      75% { transform: translate(5px,0); }
+      100% { transform: translate(0,0); }
+    }
+
+    @keyframes voidTextAnim {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(2); opacity: 1; }
+      100% { transform: scale(1.5); opacity: 1; }
+    }
   </style>
 </head>
 
 <body>
+
 <div id="homeText" onclick="goHome()">Wren.fun</div>
+
 <h1>Wren Packs</h1>
 
 <div class="tabs">
@@ -266,15 +257,18 @@
 </div>
 
 <div id="darken"></div>
+
 <div id="confirmBox">
   <h2>Are you sure?</h2>
   <button onclick="resetInventory()">Yes</button>
   <button onclick="hideConfirm()">No</button>
 </div>
 
+<!-- INDEX -->
 <div id="index" class="section">
   <h2>All Characters</h2>
   <div id="index-list" class="grid"></div>
+
   <div class="rates">
     <p class="Common">Common: 45%</p>
     <p class="Uncommon">Uncommon: 30%</p>
@@ -285,67 +279,9 @@
   </div>
 </div>
 
-<!-- CODE BUTTON -->
-<div id="codeButton" style="
-  position: fixed;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  background: black;
-  color: white;
-  padding: 15px 25px;
-  font-size: 1.2em;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 10px 0 0 10px;
-  display: none;
-  z-index: 9999;
-">CODE</div>
-
-<!-- CODE OVERLAY -->
-<div id="codeOverlay" style="
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #111;
-  padding: 30px;
-  border-radius: 15px;
-  display: none;
-  z-index: 10000;
-  text-align: center;
-">
-  <h2>Enter Code</h2>
-  <input type="text" id="codeInput" style="padding:10px; font-size:1em; width: 200px;" placeholder="Enter code">
-  <br><br>
-  <button onclick="redeemCode()" style="padding:10px 20px; font-size:1em;">Redeem</button>
-  <button onclick="closeCodeOverlay()" style="padding:10px 20px; font-size:1em;">Cancel</button>
-</div>
-
-<!-- ORIN FLOWER ANIMATION -->
-<div id="orinFlowerAnim" style="
-  position: fixed;
-  top:50%;
-  left:50%;
-  transform: translate(-50%, -50%) scale(0);
-  display: none;
-  z-index: 10001;
-  text-align: center;
-">
-  <img src="OrinFlower.jpg" style="width:400px; animation: spinIn 2s forwards;">
-  <h1 id="orinFlowerName" style="
-    font-size:4em;
-    font-weight:bold;
-    color:black;
-    text-shadow: 0 0 20px white;
-    animation: voidTextAnim 10s forwards;
-  ">Orin Flower</h1>
-</div>
-
 <script>
 let canOpen = true;
 let newItems = 0;
-let codeRedeemed = JSON.parse(localStorage.getItem("codeRedeemed")) || false;
 
 const items = [
   {name:"WrenIsOld", display:"WrenIsOld", rarity:"Common"},
@@ -371,42 +307,267 @@ const items = [
   {name:"OrinFlower", display:"Orin Flower", rarity:"Void"}
 ];
 
-const chances = { Common: 45, Uncommon: 30, Rare: 12, Epic: 7, Legendary: 1, Omega: 0.1 };
+const chances = {
+  Common: 45,
+  Uncommon: 30,
+  Rare: 12,
+  Epic: 7,
+  Legendary: 1,
+  Omega: 0.1
+};
 
-function goHome(){window.location.href="https://scellswren.github.io/wren.fun/";}
-function rollRarity(){let r=Math.random()*100,sum=0;for(let key in chances){sum+=chances[key];if(r<=sum)return key;}return "Common";}
-function updateNotif(){const n=document.getElementById("notif");n.style.display="inline-block";n.innerText=newItems;}
-function openPack(){if(!canOpen)return;canOpen=false;const overlay=document.getElementById("overlay");overlay.style.display="flex";overlay.classList.add("fade");setTimeout(()=>{overlay.style.display="none";overlay.classList.remove("fade");const rarity=rollRarity();const pool=items.filter(i=>i.rarity===rarity);const item=pool[Math.floor(Math.random()*pool.length)];const result=document.getElementById("result");result.innerHTML=`<h2 class="${rarity}">${item.display} (${rarity})</h2><img src="${item.name}.jpg">`;result.style.display="block";let inv=JSON.parse(localStorage.getItem("inventory"))||{};if(!inv[item.name]){newItems++;updateNotif();}addToInventory(item.name);setTimeout(()=>{canOpen=true;result.style.display="none";},3000);},2000);}
-function showTab(tab){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(tab).classList.add("active");if(tab==="pack") showCodeButton(); else hideCodeButton();if(tab==="inventory"){newItems=0;document.getElementById("notif").style.display="none";renderInventory();}if(tab==="index") renderIndex();}
-function renderIndex(){const container=document.getElementById("index-list");container.innerHTML="";items.forEach(i=>{if(i.name!=="OrinFlower"){container.innerHTML+=`<div class="card"><img src="${i.name}.jpg"><p class="${i.rarity}">${i.display}</p><p class="${i.rarity}">${i.rarity}</p></div>`;}});}
-function addToInventory(name, rarity){let inv=JSON.parse(localStorage.getItem("inventory"))||{};inv[name]={count:(inv[name]?.count||0)+1, rarity:rarity||findItemRarity(name)};localStorage.setItem("inventory",JSON.stringify(inv));}
-function findItemRarity(name){const item=items.find(i=>i.name===name);return item?item.rarity:"Common";}
-function renderInventory(){let inv=JSON.parse(localStorage.getItem("inventory"))||{};let container=document.getElementById("inventory-list");container.innerHTML="";const sortedItems=Object.keys(inv).sort((a,b)=>{const order=["Common","Uncommon","Rare","Epic","Legendary","Omega","Void"];return order.indexOf(inv[b].rarity)-order.indexOf(inv[a].rarity);});sortedItems.forEach(i=>{const itemData=items.find(it=>it.name===i)||{display:i};let displayName=i==="OrinFlower"?"Orin Flower":itemData.display;container.innerHTML+=`<div class="card"><img src="${i==="OrinFlower"?"OrinFlower.jpg":i+".jpg"}"><p class="${inv[i].rarity}">${displayName} x${inv[i].count}</p></div>`;});}
-function resetInventory(){const cards=document.querySelectorAll(".card");cards.forEach((card,i)=>{setTimeout(()=>{card.classList.add("explode");},i*100);});setTimeout(()=>{localStorage.removeItem("inventory");hideConfirm();renderInventory();},800);}
-function showConfirm(){document.getElementById("confirmBox").style.display="block";document.getElementById("darken").style.display="block";}
-function hideConfirm(){document.getElementById("confirmBox").style.display="none";document.getElementById("darken").style.display="none";}
+function goHome() {
+  window.location.href = "https://scellswren.github.io/wren.fun/";
+}
 
-function showCodeButton(){document.getElementById("codeButton").style.display="block";}
-function hideCodeButton(){document.getElementById("codeButton").style.display="none";}
-document.getElementById("codeButton").onclick=function(){document.getElementById("codeOverlay").style.display="block";}
-function closeCodeOverlay(){document.getElementById("codeOverlay").style.display="none";document.getElementById("codeInput").value="";}
+function rollRarity() {
+  let r = Math.random() * 100;
+  let sum = 0;
+  for (let key in chances) {
+    sum += chances[key];
+    if (r <= sum) return key;
+  }
+  return "Common";
+}
 
-function redeemCode(){
-  const val=document.getElementById("codeInput").value;
-  if(val==="Subscribe" && !codeRedeemed){
-    codeRedeemed=true;
-    localStorage.setItem("codeRedeemed","true");
-    document.getElementById("orinFlowerAnim").style.display="block";
-    document.body.style.animation="shake 0.1s infinite";
-    addToInventory("OrinFlower","Void");
+function updateNotif() {
+  const n = document.getElementById("notif");
+  n.style.display = "inline-block";
+  n.innerText = newItems;
+}
+
+function openPack() {
+  if (!canOpen) return;
+  canOpen = false;
+
+  const overlay = document.getElementById("overlay");
+  overlay.style.display = "flex";
+  overlay.classList.add("fade");
+
+  setTimeout(() => {
+    overlay.style.display = "none";
+    overlay.classList.remove("fade");
+
+    const rarity = rollRarity();
+    const pool = items.filter(i => i.rarity === rarity && rarity !== "Void");
+    const item = pool[Math.floor(Math.random() * pool.length)];
+
+    const result = document.getElementById("result");
+    result.innerHTML = `<h2 class="${rarity}">${item.display} (${rarity})</h2><img src="${item.name}.jpg">`;
+    result.style.display = "block";
+
+    let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+    if (!inv[item.name]) {
+      newItems++;
+      updateNotif();
+    }
+
+    addToInventory(item.name);
+
+    setTimeout(() => {
+      canOpen = true;
+      result.style.display = "none";
+    }, 3000);
+
+  }, 2000);
+}
+
+function showTab(tab) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(tab).classList.add("active");
+
+  if (tab === "inventory") {
+    newItems = 0;
+    document.getElementById("notif").style.display = "none";
     renderInventory();
-    setTimeout(()=>{
-      document.getElementById("orinFlowerAnim").style.display="none";
-      document.body.style.animation="";
-    },10000);
-  } else alert("Invalid code or already redeemed!");
+  }
+
+  if (tab === "index") {
+    renderIndex();
+  }
+}
+
+// --- INVENTORY & INDEX ---
+function renderIndex() {
+  const container = document.getElementById("index-list");
+  container.innerHTML = "";
+
+  items.forEach(i => {
+    if(i.rarity !== "Void"){
+      container.innerHTML += `
+        <div class="card">
+          <img src="${i.name}.jpg">
+          <p class="${i.rarity}">${i.display}</p>
+          <p class="${i.rarity}">${i.rarity}</p>
+        </div>
+      `;
+    }
+  });
+}
+
+function addToInventory(name) {
+  let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+  inv[name] = (inv[name] || 0) + 1;
+  localStorage.setItem("inventory", JSON.stringify(inv));
+}
+
+function renderInventory() {
+  let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+  let container = document.getElementById("inventory-list");
+  container.innerHTML = "";
+
+  // Show Void first, then Omega -> Common
+  const sortedItems = items.slice().sort((a,b)=>{
+    const rank = {"Void":6,"Omega":5,"Legendary":4,"Epic":3,"Rare":2,"Uncommon":1,"Common":0};
+    return (rank[b.rarity] || 0) - (rank[a.rarity] || 0);
+  });
+
+  sortedItems.forEach(i=>{
+    if(inv[i.name]){
+      container.innerHTML += `
+        <div class="card">
+          <img src="${i.name}.jpg">
+          <p class="${i.rarity}">${i.display} x${inv[i.name]}</p>
+        </div>
+      `;
+    }
+  });
+}
+
+function resetInventory() {
+  const cards = document.querySelectorAll(".card");
+
+  cards.forEach((card, i) => {
+    setTimeout(() => {
+      card.classList.add("explode");
+    }, i * 100);
+  });
+
+  setTimeout(() => {
+    localStorage.removeItem("inventory");
+    hideConfirm();
+    renderInventory();
+  }, 800);
+}
+
+function showConfirm() {
+  document.getElementById("confirmBox").style.display = "block";
+  document.getElementById("darken").style.display = "block";
+}
+
+function hideConfirm() {
+  document.getElementById("confirmBox").style.display = "none";
+  document.getElementById("darken").style.display = "none";
+}
+
+// --- CODE BUTTON FEATURE ---
+const codeButton = document.createElement("div");
+codeButton.id = "codeButton";
+codeButton.innerText = "CODE";
+codeButton.style = `
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #222;
+  color: white;
+  padding: 15px 20px;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 10px 0 0 10px;
+  display: none;
+  z-index: 9999;
+`;
+document.body.appendChild(codeButton);
+
+const codeOverlay = document.createElement("div");
+codeOverlay.id = "codeOverlay";
+codeOverlay.style = `
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #111;
+  padding: 30px;
+  border-radius: 15px;
+  display: none;
+  z-index: 10000;
+  text-align: center;
+`;
+codeOverlay.innerHTML = `
+  <h2>Enter Code</h2>
+  <input type="text" id="codeInput" style="padding:10px; font-size:1em; width:200px;" placeholder="Enter code">
+  <br><br>
+  <button onclick="redeemCode()">Redeem</button>
+  <button onclick="closeCodeOverlay()">Cancel</button>
+`;
+document.body.appendChild(codeOverlay);
+
+const orinFlowerAnim = document.createElement("div");
+orinFlowerAnim.id = "orinFlowerAnim";
+orinFlowerAnim.style = `
+  position: fixed;
+  top:50%;
+  left:50%;
+  transform: translate(-50%, -50%) scale(0);
+  display: none;
+  z-index:10001;
+  text-align: center;
+`;
+orinFlowerAnim.innerHTML = `
+  <img src="OrinFlower.jpg" style="width:400px; animation: spinIn 2s forwards;">
+  <h1 id="orinFlowerName" style="
+    font-size:4em;
+    font-weight:bold;
+    color:black;
+    text-shadow: 0 0 20px white;
+    animation: voidTextAnim 10s forwards;
+  ">Orin Flower</h1>
+`;
+document.body.appendChild(orinFlowerAnim);
+
+function showCodeButton() { codeButton.style.display = "block"; }
+function hideCodeButton() { codeButton.style.display = "none"; }
+
+codeButton.onclick = function() { codeOverlay.style.display = "block"; }
+function closeCodeOverlay() {
+  codeOverlay.style.display = "none";
+  document.getElementById("codeInput").value = "";
+}
+
+let codeRedeemed = JSON.parse(localStorage.getItem("codeRedeemed")) || false;
+function redeemCode() {
+  const val = document.getElementById("codeInput").value;
+  if(val === "Subscribe" && !codeRedeemed) {
+    codeRedeemed = true;
+    localStorage.setItem("codeRedeemed", "true");
+
+    orinFlowerAnim.style.display = "block";
+    document.body.style.animation = "shake 0.1s infinite";
+
+    addToInventory("OrinFlower");
+    renderInventory();
+
+    setTimeout(() => {
+      orinFlowerAnim.style.display = "none";
+      document.body.style.animation = "";
+    }, 10000);
+
+  } else {
+    alert("Invalid code or already redeemed!");
+  }
   closeCodeOverlay();
 }
+
+// Hook code button to tab
+const originalShowTab = showTab;
+showTab = function(tab) {
+  originalShowTab(tab);
+  if(tab === "pack") showCodeButton();
+  else hideCodeButton();
+}
 </script>
+
 </body>
 </html>
