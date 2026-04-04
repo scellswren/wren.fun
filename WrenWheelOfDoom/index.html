@@ -8,16 +8,16 @@
   <style>
     body {
       margin: 0;
-      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      background: radial-gradient(circle, #111, #000);
       color: white;
       font-family: Arial;
       text-align: center;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
-    /* HOME */
+    /* WREN.FUN */
     #homeText {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       padding: 10px 15px;
@@ -28,8 +28,8 @@
 
     /* MONEY */
     #money {
-      position: absolute;
-      top: 15px;
+      position: fixed;
+      top: 10px;
       right: 20px;
       font-size: 1.5em;
       color: gold;
@@ -51,19 +51,20 @@
 
     h1 {
       font-family: 'Rubik', sans-serif;
-      margin-top: 40px;
+      margin-top: 50px;
     }
 
     /* SPINNER */
     #spinner {
-      margin: 50px auto;
-      width: 300px;
+      margin: 40px auto;
+      width: 320px;
       height: 300px;
       overflow: hidden;
-      border: 5px solid purple;
+      border: 4px solid purple;
       border-radius: 20px;
-      box-shadow: 0 0 20px purple;
+      box-shadow: 0 0 25px purple;
       position: relative;
+      background: black;
     }
 
     #items {
@@ -77,11 +78,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5em;
+      font-size: 1.4em;
+      border-bottom: 1px solid #222;
     }
 
-    .highlight {
-      color: purple;
+    .selected {
+      background: purple;
+      box-shadow: 0 0 25px purple;
       font-weight: bold;
     }
 
@@ -96,16 +99,46 @@
     }
 
     #gameArea {
-      margin-top: 30px;
+      margin-top: 20px;
     }
 
     button {
-      padding: 15px 30px;
+      padding: 15px 25px;
       font-size: 1.2em;
-      margin: 10px;
       border-radius: 15px;
       border: none;
       cursor: pointer;
+    }
+
+    /* BIG RESULT */
+    #resultOverlay {
+      position: fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      font-size:4em;
+      font-family:'Rubik', sans-serif;
+      z-index:9999;
+    }
+
+    .win {
+      background: rgba(0,255,0,0.2);
+      color: lime;
+    }
+
+    .lose {
+      background: rgba(255,0,0,0.2);
+      color: red;
+    }
+
+    /* LIGHT TEXT */
+    #light {
+      font-size: 3em;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -125,6 +158,8 @@
 
 <div id="gameArea"></div>
 
+<div id="resultOverlay"></div>
+
 <button id="musicBtn" onclick="toggleMusic()">🔊 Music</button>
 
 <audio id="bgMusic" loop>
@@ -132,27 +167,49 @@
 </audio>
 
 <script>
+/* MONEY */
 let money = parseInt(localStorage.getItem("money")) || 0;
 const moneyDisplay = document.getElementById("money");
 
-function updateMoneyDisplay(){
+function updateMoney(){
   moneyDisplay.innerText = "WrenDollars: $" + money;
 }
-updateMoneyDisplay();
+updateMoney();
 
-/* FAST COUNT UP */
+/* BIG RESULT */
+function showBig(amount){
+  const overlay = document.getElementById("resultOverlay");
+  overlay.style.display = "flex";
+
+  if(amount >= 0){
+    overlay.className = "win";
+    overlay.innerText = "+$" + amount;
+  } else {
+    overlay.className = "lose";
+    overlay.innerText = "-$" + Math.abs(amount);
+  }
+
+  setTimeout(()=> overlay.style.display="none",2000);
+}
+
+/* MONEY CHANGE */
 function changeMoney(amount){
   let target = money + amount;
-  let step = amount / 20; // faster
+  let step = Math.max(1, Math.abs(amount)/20) * Math.sign(amount);
+
   let interval = setInterval(()=>{
     money += step;
+
     if((step > 0 && money >= target) || (step < 0 && money <= target)){
       money = target;
       clearInterval(interval);
       localStorage.setItem("money", money);
     }
-    updateMoneyDisplay();
-  },20);
+
+    updateMoney();
+  },15);
+
+  showBig(amount);
 }
 
 /* HOME */
@@ -160,33 +217,31 @@ function goHome(){
   window.location.href = "https://scellswren.github.io/wren.fun/";
 }
 
-/* SPINNER ITEMS */
-const baseItems = [
+/* ITEMS */
+const base = [
   "+10","+20","+50","+100","+500","+1000","+5000",
   "-10","-20","-50","-100","-500","-1000","-5000",
-  "Spam Click (+5 each)",
+  "Spam Click (+5)",
   "Red Light Green Light"
 ];
 
-/* RANDOMIZE + MORE POSITIVES */
-let items = [];
-for(let i=0;i<50;i++){
-  let rand = baseItems[Math.floor(Math.random()*baseItems.length)];
-  items.push(rand);
+let items=[];
+for(let i=0;i<80;i++){
+  items.push(base[Math.floor(Math.random()*base.length)]);
 }
 
 const container = document.getElementById("items");
 
-function renderItems(){
+function render(){
   container.innerHTML="";
-  items.forEach(text=>{
-    let div=document.createElement("div");
-    div.className="item";
-    div.innerText=text;
-    container.appendChild(div);
+  items.forEach(t=>{
+    let d=document.createElement("div");
+    d.className="item";
+    d.innerText=t;
+    container.appendChild(d);
   });
 }
-renderItems();
+render();
 
 let spinning=false;
 
@@ -195,110 +250,94 @@ function spin(){
   spinning=true;
 
   document.getElementById("gameArea").innerHTML="";
-  
-  let index = Math.floor(Math.random()*items.length);
-  let offset = index * 60;
+  document.querySelectorAll(".item").forEach(i=>i.classList.remove("selected"));
 
-  container.style.transition="top 3s cubic-bezier(0.2,0.8,0.2,1)";
-  container.style.top = -offset + "px";
+  let index=Math.floor(Math.random()*items.length);
+  container.style.top = -(index*60)+"px";
 
   setTimeout(()=>{
     spinning=false;
+    container.children[index].classList.add("selected");
     resolve(items[index]);
   },3000);
 }
 
-/* CHALLENGES */
-function resolve(result){
-
-  if(result.startsWith("+")){
-    changeMoney(parseInt(result));
+/* RESOLVE */
+function resolve(r){
+  if(r.startsWith("+") || r.startsWith("-")){
+    changeMoney(parseInt(r));
     return;
   }
 
-  if(result.startsWith("-")){
-    changeMoney(parseInt(result));
-    return;
-  }
-
-  if(result==="Spam Click (+5 each)"){
-    spamClickGame();
-  }
-
-  if(result==="Red Light Green Light"){
-    redLightGame();
-  }
+  if(r.includes("Spam")) spam();
+  if(r.includes("Red")) redLight();
 }
 
 /* SPAM CLICK */
-function spamClickGame(){
+function spam(){
   let area=document.getElementById("gameArea");
-  let count=0;
-  let time=10;
+  let c=0,t=10;
 
-  area.innerHTML=`<h2>CLICK FAST</h2><button id="clickBtn">CLICK</button><p id="timer">10</p>`;
+  area.innerHTML=`<h2>CLICK FAST</h2><button id="b">CLICK</button><p>${t}</p>`;
+  document.getElementById("b").onclick=()=>c++;
 
-  document.getElementById("clickBtn").onclick=()=>count++;
-
-  let interval=setInterval(()=>{
-    time--;
-    document.getElementById("timer").innerText=time;
-
-    if(time<=0){
-      clearInterval(interval);
-      changeMoney(count*5);
+  let i=setInterval(()=>{
+    t--;
+    area.querySelector("p").innerText=t;
+    if(t<=0){
+      clearInterval(i);
+      changeMoney(c*5);
       area.innerHTML="";
     }
   },1000);
 }
 
-/* RED LIGHT GREEN LIGHT */
-function redLightGame(){
+/* RED LIGHT */
+function redLight(){
   let area=document.getElementById("gameArea");
-  let moneyEarned=0;
-  let green=true;
+  let earn=0,green=true;
 
-  area.innerHTML=`<h2 id="light">GREEN</h2><button id="clickBtn">CLICK</button><button onclick="endGame()">Cash Out</button>`;
+  area.innerHTML=`<h2 id="light">GREEN</h2>
+  <button id="c">CLICK</button>
+  <button onclick="cash()">Cash Out</button>`;
 
-  const lightText=document.getElementById("light");
+  const txt=document.getElementById("light");
 
-  let interval=setInterval(()=>{
+  let i=setInterval(()=>{
     green=!green;
-    lightText.innerText = green ? "GREEN" : "RED";
-    lightText.style.color = green ? "lime" : "red";
+    txt.innerText = green?"GREEN":"RED";
+    txt.style.color = green?"lime":"red";
   },1000);
 
-  document.getElementById("clickBtn").onclick=()=>{
+  document.getElementById("c").onclick=()=>{
     if(green){
-      moneyEarned++;
+      earn+=10;
     }else{
-      clearInterval(interval);
-      changeMoney(-moneyEarned);
+      clearInterval(i);
+      changeMoney(-earn);
       area.innerHTML="";
     }
   }
 
-  window.endGame=()=>{
-    clearInterval(interval);
-    changeMoney(moneyEarned);
+  window.cash=()=>{
+    clearInterval(i);
+    changeMoney(earn);
     area.innerHTML="";
   }
 }
 
 /* MUSIC */
 const music = document.getElementById("bgMusic");
-let playing=false;
+const musicBtn = document.getElementById("musicBtn");
+
+window.addEventListener("load", ()=>{
+  music.volume = 0.5;
+  music.play().catch(()=>{});
+});
 
 function toggleMusic(){
-  if(!playing){
-    music.play();
-    playing=true;
-    document.getElementById("musicBtn").innerText="🔇 Mute";
-  }else{
-    music.pause();
-    playing=false;
-    document.getElementById("musicBtn").innerText="🔊 Music";
-  }
+  music.muted = !music.muted;
+  musicBtn.innerText = music.muted ? "🔇 Muted" : "🔊 Music";
 }
 </script>
 
