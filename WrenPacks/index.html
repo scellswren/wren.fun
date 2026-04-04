@@ -449,19 +449,24 @@
       animation: rainbow 3s linear infinite;
     }
     .Void {
+      position: relative;
+      font-weight: bold;
       color: transparent;
-      background: linear-gradient(90deg, #1a1a1a, #2a2a2a, #1a1a1a);
-      background-size: 200% auto;
+      background: radial-gradient(ellipse at center, #0a0a0a 40%, #1a0f00 70%, #0a0a0a 100%);
+      background-size: 200% 200%;
       -webkit-background-clip: text;
       background-clip: text;
-      -webkit-text-stroke: 1px #c8a400;
-      font-weight: bold;
-      animation: voidShimmer 3s linear infinite;
+      -webkit-text-stroke: 1.5px transparent;
+      animation: blackHoleSpin 4s linear infinite;
+      filter: drop-shadow(0 0 3px #b8860b) drop-shadow(0 0 8px #8b6914) drop-shadow(0 0 1px #ffd700);
     }
 
-    @keyframes voidShimmer {
-      0%   { background-position: 0% center; }
-      100% { background-position: 200% center; }
+    @keyframes blackHoleSpin {
+      0%   { background-position: 0% 50%;   filter: drop-shadow(0 0 3px #b8860b) drop-shadow(0 0 10px #8b6914) drop-shadow(0 0 2px #ffd700) hue-rotate(0deg); }
+      25%  { background-position: 100% 50%; filter: drop-shadow(0 0 5px #ffd700) drop-shadow(0 0 14px #b8860b) drop-shadow(0 0 3px #fff8dc) hue-rotate(15deg); }
+      50%  { background-position: 100% 0%;  filter: drop-shadow(0 0 3px #8b6914) drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 2px #b8860b) hue-rotate(0deg); }
+      75%  { background-position: 0% 100%;  filter: drop-shadow(0 0 6px #ffd700) drop-shadow(0 0 16px #b8860b) drop-shadow(0 0 4px #fff8dc) hue-rotate(-15deg); }
+      100% { background-position: 0% 50%;   filter: drop-shadow(0 0 3px #b8860b) drop-shadow(0 0 10px #8b6914) drop-shadow(0 0 2px #ffd700) hue-rotate(0deg); }
     }
 
     @keyframes rainbow {
@@ -524,7 +529,7 @@
       max-height: 55vh;
       object-fit: contain;
       animation: voidDrop 1.0s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
-      filter: drop-shadow(0 0 40px cyan) drop-shadow(0 0 80px cyan);
+      filter: drop-shadow(0 0 30px #b8860b) drop-shadow(0 0 70px #ffd700);
     }
 
     @keyframes voidDrop {
@@ -537,17 +542,25 @@
     #voidReveal h2 {
       font-size: 3em;
       margin-top: 30px;
-      color: cyan;
-      text-shadow: 0 0 20px cyan, 0 0 50px cyan;
-      animation: voidTextPulse 1.5s ease infinite alternate;
+      font-family: 'Rubik', sans-serif;
+      color: transparent;
+      background: radial-gradient(ellipse at center, #0a0a0a 30%, #1a0f00 65%, #0a0a0a 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: voidTitleSpin 3s linear infinite;
+      filter: drop-shadow(0 0 6px #ffd700) drop-shadow(0 0 18px #b8860b) drop-shadow(0 0 4px #fff8dc);
     }
 
-    @keyframes voidTextPulse {
-      from { text-shadow: 0 0 20px cyan, 0 0 50px cyan; letter-spacing: 2px; }
-      to   { text-shadow: 0 0 40px cyan, 0 0 100px white; letter-spacing: 6px; }
+    @keyframes voidTitleSpin {
+      0%   { background-position: 0% 50%;   filter: drop-shadow(0 0 4px #b8860b) drop-shadow(0 0 14px #ffd700) hue-rotate(0deg); letter-spacing: 3px; }
+      25%  { background-position: 100% 50%; filter: drop-shadow(0 0 8px #ffd700) drop-shadow(0 0 20px #b8860b) hue-rotate(10deg); letter-spacing: 6px; }
+      50%  { background-position: 100% 0%;  filter: drop-shadow(0 0 4px #8b6914) drop-shadow(0 0 14px #ffd700) hue-rotate(0deg); letter-spacing: 3px; }
+      75%  { background-position: 0% 100%;  filter: drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 22px #b8860b) hue-rotate(-10deg); letter-spacing: 6px; }
+      100% { background-position: 0% 50%;   filter: drop-shadow(0 0 4px #b8860b) drop-shadow(0 0 14px #ffd700) hue-rotate(0deg); letter-spacing: 3px; }
     }
 
-    /* Cyan particles in background */
+    /* Gold particles in background */
     #voidReveal .particles {
       position: absolute;
       top: 0; left: 0;
@@ -559,8 +572,8 @@
       position: absolute;
       width: 6px; height: 6px;
       border-radius: 50%;
-      background: cyan;
-      box-shadow: 0 0 10px cyan;
+      background: #ffd700;
+      box-shadow: 0 0 10px #b8860b;
       animation: floatUp linear infinite;
       opacity: 0;
     }
