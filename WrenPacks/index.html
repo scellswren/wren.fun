@@ -259,6 +259,118 @@
       text-align: center;
     }
 
+    /* ✅ Orin Flower fullscreen reveal */
+    #voidReveal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: black;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      overflow: hidden;
+    }
+
+    #voidReveal img {
+      width: 55vw;
+      max-width: 600px;
+      animation: voidDrop 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      filter: drop-shadow(0 0 40px cyan) drop-shadow(0 0 80px cyan);
+    }
+
+    @keyframes voidDrop {
+      0%   { transform: translateY(-120vh) rotate(-15deg) scale(1.3); opacity: 0; }
+      60%  { transform: translateY(8vh) rotate(4deg) scale(1.05); opacity: 1; }
+      80%  { transform: translateY(-3vh) rotate(-2deg) scale(1); }
+      100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+    }
+
+    #voidReveal h2 {
+      font-size: 3em;
+      margin-top: 30px;
+      color: cyan;
+      text-shadow: 0 0 20px cyan, 0 0 50px cyan;
+      animation: voidTextPulse 1.5s ease infinite alternate;
+    }
+
+    @keyframes voidTextPulse {
+      from { text-shadow: 0 0 20px cyan, 0 0 50px cyan; letter-spacing: 2px; }
+      to   { text-shadow: 0 0 40px cyan, 0 0 100px white; letter-spacing: 6px; }
+    }
+
+    /* Cyan particles in background */
+    #voidReveal .particles {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    .voidParticle {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: cyan;
+      box-shadow: 0 0 10px cyan;
+      animation: floatUp linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+    }
+
+    /* ✅ Screen shake */
+    @keyframes screenShake {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      10%  { transform: translate(-12px, -8px) rotate(-1deg); }
+      20%  { transform: translate(14px, 6px) rotate(1deg); }
+      30%  { transform: translate(-10px, 10px) rotate(-0.8deg); }
+      40%  { transform: translate(12px, -8px) rotate(0.8deg); }
+      50%  { transform: translate(-14px, 6px) rotate(-1deg); }
+      60%  { transform: translate(10px, 10px) rotate(0.5deg); }
+      70%  { transform: translate(-8px, -6px) rotate(-0.5deg); }
+      80%  { transform: translate(8px, 4px) rotate(0.3deg); }
+      90%  { transform: translate(-4px, -2px) rotate(0deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+
+    body.shaking {
+      animation: screenShake 0.5s ease;
+    }
+
+    /* ✅ Button click ripple effect */
+    .tabs button {
+      overflow: hidden;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      transform: scale(0);
+      animation: rippleAnim 0.6s linear;
+      pointer-events: none;
+    }
+
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* ✅ Button click punch */
+    .btnPunch {
+      animation: btnPunchAnim 0.2s ease forwards;
+    }
+
+    @keyframes btnPunchAnim {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(0.88); }
+      100% { transform: scale(1); }
+    }
+
   </style>
 </head>
 
@@ -269,18 +381,25 @@
 <h1>Wren Packs</h1>
 
 <div class="tabs">
-  <button class="packBtn" onclick="showTab('pack')">Open Pack</button>
-  <button class="invBtn" onclick="showTab('inventory')">
+  <button class="packBtn" onclick="showTab('pack'); ripple(event)">Open Pack</button>
+  <button class="invBtn" onclick="showTab('inventory'); ripple(event)">
     Inventory
     <span id="notif" class="notif" style="display:none;">0</span>
   </button>
-  <button class="indexBtn" onclick="showTab('index')">Index</button>
+  <button class="indexBtn" onclick="showTab('index'); ripple(event)">Index</button>
 
   <!-- ✅ ADDED -->
-  <button class="codeBtn" onclick="openCode()">Code</button>
+  <button class="codeBtn" onclick="openCode(); ripple(event)">Code</button>
 </div>
 
 <div id="overlay">✨ PACK OPENING ✨</div>
+
+<!-- ✅ Orin Flower fullscreen reveal -->
+<div id="voidReveal">
+  <div class="particles" id="voidParticles"></div>
+  <img id="voidImg" src="OrinFlower.jpg">
+  <h2>✦ ORIN FLOWER ✦</h2>
+</div>
 
 <div id="pack" class="section active">
   <div class="pack" onclick="openPack()">OPEN</div>
@@ -530,7 +649,7 @@ function closeCode() {
 }
 
 // ✅ FIX 2: One-time use for "Subscribe" code (stored in localStorage)
-// ✅ FIX 3: Longer animation for Orin Flower (5s display before exploding, total 5.6s)
+// ✅ FIX 3: 10s fullscreen Orin Flower animation with screen shake
 function redeemCode() {
   const code = document.getElementById("codeInput").value.trim();
 
@@ -548,27 +667,77 @@ function redeemCode() {
 
     addToInventory("OrinFlower");
     newItems++;
-    updateNotif(); 
+    updateNotif();
 
-    const result = document.getElementById("result");
-    result.innerHTML = `<div id="resultInner">
-      <h2 class="Void">Orin Flower (Void)</h2>
-      <img src="OrinFlower.jpg">
-    </div>`;
-    result.style.display = "block";
+    closeCode();
+    showVoidReveal();
 
-    setTimeout(() => {
-      document.getElementById("resultInner").classList.add("explodeOut");
-    }, 5000);
-
-    setTimeout(() => { result.style.display = "none"; }, 5600);
-
-    alert("Code redeemed! You received Orin Flower.");
   } else {
     alert("Invalid code");
+    closeCode();
   }
+}
 
-  closeCode();
+function showVoidReveal() {
+  const reveal = document.getElementById("voidReveal");
+  reveal.style.display = "flex";
+
+  // Spawn particles
+  spawnVoidParticles();
+
+  // Shake screen violently on impact (after drop lands ~0.9s in)
+  setTimeout(() => {
+    document.body.classList.add("shaking");
+    setTimeout(() => document.body.classList.remove("shaking"), 500);
+  }, 900);
+
+  // Second shake for drama
+  setTimeout(() => {
+    document.body.classList.add("shaking");
+    setTimeout(() => document.body.classList.remove("shaking"), 500);
+  }, 1500);
+
+  // Third shake
+  setTimeout(() => {
+    document.body.classList.add("shaking");
+    setTimeout(() => document.body.classList.remove("shaking"), 500);
+  }, 2100);
+
+  // Hide after 10 seconds
+  setTimeout(() => {
+    reveal.style.display = "none";
+    document.getElementById("voidParticles").innerHTML = "";
+  }, 10000);
+}
+
+function spawnVoidParticles() {
+  const container = document.getElementById("voidParticles");
+  container.innerHTML = "";
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement("div");
+    p.className = "voidParticle";
+    p.style.left = Math.random() * 100 + "vw";
+    p.style.top = (60 + Math.random() * 40) + "vh";
+    p.style.animationDuration = (2 + Math.random() * 4) + "s";
+    p.style.animationDelay = (Math.random() * 3) + "s";
+    p.style.width = p.style.height = (4 + Math.random() * 8) + "px";
+    container.appendChild(p);
+  }
+}
+
+// ✅ Ripple + punch effect for tab buttons
+function ripple(e) {
+  const btn = e.currentTarget;
+  const circle = document.createElement("span");
+  const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+  const rect = btn.getBoundingClientRect();
+  circle.classList.add("ripple");
+  circle.style.width = circle.style.height = diameter + "px";
+  circle.style.left = (e.clientX - rect.left - diameter / 2) + "px";
+  circle.style.top = (e.clientY - rect.top - diameter / 2) + "px";
+  btn.appendChild(circle);
+  btn.classList.add("btnPunch");
+  setTimeout(() => { circle.remove(); btn.classList.remove("btnPunch"); }, 600);
 }
 
 </script>
