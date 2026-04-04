@@ -15,7 +15,6 @@
       overflow: hidden;
     }
 
-    /* WREN.FUN */
     #homeText {
       position: fixed;
       top: 0;
@@ -26,7 +25,6 @@
       cursor: pointer;
     }
 
-    /* MONEY */
     #money {
       position: fixed;
       top: 10px;
@@ -36,7 +34,6 @@
       font-family: 'Rubik', sans-serif;
     }
 
-    /* MUSIC BUTTON */
     #musicBtn {
       position: fixed;
       bottom: 15px;
@@ -54,7 +51,6 @@
       margin-top: 50px;
     }
 
-    /* SPINNER */
     #spinner {
       margin: 40px auto;
       width: 320px;
@@ -110,7 +106,6 @@
       cursor: pointer;
     }
 
-    /* BIG RESULT */
     #resultOverlay {
       position: fixed;
       top:0;
@@ -135,7 +130,6 @@
       color: red;
     }
 
-    /* LIGHT TEXT */
     #light {
       font-size: 3em;
       margin-bottom: 10px;
@@ -167,7 +161,6 @@
 </audio>
 
 <script>
-/* MONEY */
 let money = parseInt(localStorage.getItem("money")) || 0;
 const moneyDisplay = document.getElementById("money");
 
@@ -176,7 +169,6 @@ function updateMoney(){
 }
 updateMoney();
 
-/* BIG RESULT */
 function showBig(amount){
   const overlay = document.getElementById("resultOverlay");
   overlay.style.display = "flex";
@@ -192,7 +184,6 @@ function showBig(amount){
   setTimeout(()=> overlay.style.display="none",2000);
 }
 
-/* MONEY CHANGE */
 function changeMoney(amount){
   let target = money + amount;
   let step = Math.max(1, Math.abs(amount)/20) * Math.sign(amount);
@@ -212,12 +203,10 @@ function changeMoney(amount){
   showBig(amount);
 }
 
-/* HOME */
 function goHome(){
   window.location.href = "https://scellswren.github.io/wren.fun/";
 }
 
-/* ITEMS */
 const base = [
   "+10","+20","+50","+100","+500","+1000","+5000",
   "-10","-20","-50","-100","-500","-1000","-5000",
@@ -262,7 +251,6 @@ function spin(){
   },3000);
 }
 
-/* RESOLVE */
 function resolve(r){
   if(r.startsWith("+") || r.startsWith("-")){
     changeMoney(parseInt(r));
@@ -273,7 +261,6 @@ function resolve(r){
   if(r.includes("Red")) redLight();
 }
 
-/* SPAM CLICK */
 function spam(){
   let area=document.getElementById("gameArea");
   let c=0,t=10;
@@ -292,7 +279,6 @@ function spam(){
   },1000);
 }
 
-/* RED LIGHT */
 function redLight(){
   let area=document.getElementById("gameArea");
   let earn=0,green=true;
@@ -326,14 +312,26 @@ function redLight(){
   }
 }
 
-/* MUSIC */
+/* ✅ FIXED MUSIC */
 const music = document.getElementById("bgMusic");
 const musicBtn = document.getElementById("musicBtn");
 
-window.addEventListener("load", ()=>{
+window.addEventListener("load", () => {
   music.volume = 0.5;
-  music.play().catch(()=>{});
+
+  const playPromise = music.play();
+
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      document.addEventListener("click", startMusicOnce);
+    });
+  }
 });
+
+function startMusicOnce() {
+  music.play();
+  document.removeEventListener("click", startMusicOnce);
+}
 
 function toggleMusic(){
   music.muted = !music.muted;
