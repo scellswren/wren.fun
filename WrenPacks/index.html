@@ -260,7 +260,7 @@
       border-radius: 16px;
       padding: 12px 10px 10px;
       transition: transform 0.3s ease, opacity 0.5s ease, box-shadow 0.3s ease;
-      cursor: default;
+      cursor: pointer;
     }
 
     .card:hover {
@@ -478,7 +478,6 @@
       color: transparent;
       animation: rainbow 3s linear infinite;
     }
-    /* Void text: DO NOT CHANGE */
     .Void {
       position: relative;
       font-weight: bold;
@@ -606,7 +605,6 @@
       100% { opacity: 1; transform: scale(1) translateY(0); letter-spacing: 4px; }
     }
 
-    /* Background flash pulses for omega */
     @keyframes omegaBgPulse {
       0%, 100% { background: black; }
       10%       { background: rgba(255,0,200,0.15); }
@@ -694,7 +692,6 @@
       100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
     }
 
-    /* Highlight Lucky — same styles as voidReveal */
     #highlightReveal {
       position: fixed;
       top: 0; left: 0;
@@ -823,11 +820,90 @@
       letter-spacing: 0.5px;
     }
 
-    /* muted text in modals */
     .modal-muted {
       color: var(--muted);
       margin: 0;
       font-size: 0.9em;
+    }
+
+    /* ===== CARD ZOOM VIEWER ===== */
+    #cardViewer {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 5000;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      animation: viewerFadeIn 0.2s ease forwards;
+    }
+
+    @keyframes viewerFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    #cardViewer img {
+      max-width: 80vw;
+      max-height: 65vh;
+      object-fit: contain;
+      border-radius: 18px;
+      box-shadow: 0 0 60px rgba(0,0,0,0.8);
+      animation: viewerImgPop 0.3s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+    }
+
+    @keyframes viewerImgPop {
+      0%   { transform: scale(0.7); opacity: 0; }
+      100% { transform: scale(1);   opacity: 1; }
+    }
+
+    #cardViewerName {
+      margin-top: 22px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.8em;
+      letter-spacing: 2px;
+    }
+
+    #cardViewerRarity {
+      margin-top: 6px;
+      font-size: 1em;
+      letter-spacing: 1px;
+      opacity: 0.8;
+    }
+
+    #cardViewerClose {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      color: white;
+      font-size: 1.3em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    #cardViewerClose:hover {
+      background: rgba(255,255,255,0.2);
+      transform: scale(1.1);
+    }
+
+    #cardViewerHint {
+      position: absolute;
+      bottom: 24px;
+      font-size: 0.85em;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.5px;
     }
 
   </style>
@@ -835,18 +911,18 @@
 
 <body>
 
-<div id="homeText" onclick="goHome()">Wren.fun</div>
+<div id="homeText" onclick="playSound(); goHome()">Wren.fun</div>
 
 <h1>Wren Packs</h1>
 
 <div class="tabs">
-  <button class="packBtn" onclick="showTab('pack'); ripple(event)">Open Pack</button>
+  <button class="packBtn" onclick="showTab('pack'); ripple(event); playSound()">Open Pack</button>
   <div class="invBtnWrap">
-    <button class="invBtn" onclick="showTab('inventory'); ripple(event)">Inventory</button>
+    <button class="invBtn" onclick="showTab('inventory'); ripple(event); playSound()">Inventory</button>
     <span id="notif" class="notif" style="display:none;">0</span>
   </div>
-  <button class="indexBtn" onclick="showTab('index'); ripple(event)">Index</button>
-  <button class="codeBtn" onclick="openCode(); ripple(event)">Code</button>
+  <button class="indexBtn" onclick="showTab('index'); ripple(event); playSound()">Index</button>
+  <button class="codeBtn" onclick="openCode(); ripple(event); playSound()">Code</button>
 </div>
 
 <div id="overlay">✨ PACK OPENING ✨</div>
@@ -872,6 +948,15 @@
   <h2>✦ HIGHLIGHT LUCKY ✦</h2>
 </div>
 
+<!-- Card zoom viewer -->
+<div id="cardViewer" onclick="closeCardViewer()">
+  <div id="cardViewerClose" onclick="closeCardViewer()">✕</div>
+  <img id="cardViewerImg" src="">
+  <p id="cardViewerName" class="Common"></p>
+  <p id="cardViewerRarity" class="Common"></p>
+  <p id="cardViewerHint">Click anywhere to close</p>
+</div>
+
 <div id="pack" class="section active">
   <div class="pack" onclick="openPack()">OPEN</div>
 </div>
@@ -881,7 +966,7 @@
 <div id="inventory" class="section">
   <div style="position:relative; padding: 30px 20px 0; display:flex; align-items:center; justify-content:center;">
     <h2 style="margin:0; font-family:'Rubik',sans-serif; letter-spacing:2px; font-size:1.8em;">Your Inventory</h2>
-    <button id="resetBtn" onclick="showConfirm()">⟳ Reset</button>
+    <button id="resetBtn" onclick="showConfirm(); playSound()">⟳ Reset</button>
   </div>
   <div id="inventory-list" class="grid"></div>
 </div>
@@ -896,8 +981,8 @@
     <p class="modal-muted">This will permanently delete all your cards.</p>
   </div>
   <div class="modal-footer">
-    <button class="danger" onclick="resetInventory()">Reset</button>
-    <button class="neutral" onclick="hideConfirm()">Cancel</button>
+    <button class="danger" onclick="resetInventory(); playSound()">Reset</button>
+    <button class="neutral" onclick="hideConfirm(); playSound()">Cancel</button>
   </div>
 </div>
 
@@ -910,8 +995,8 @@
     <input type="number" id="deleteQty" min="1" placeholder="0">
   </div>
   <div class="modal-footer">
-    <button class="danger" onclick="confirmDelete()">Delete</button>
-    <button class="neutral" onclick="cancelDelete()">Cancel</button>
+    <button class="danger" onclick="confirmDelete(); playSound()">Delete</button>
+    <button class="neutral" onclick="cancelDelete(); playSound()">Cancel</button>
   </div>
 </div>
 
@@ -924,8 +1009,8 @@
     <input type="text" id="codeInput" placeholder="Enter code...">
   </div>
   <div class="modal-footer">
-    <button class="confirm" onclick="redeemCode()">Redeem</button>
-    <button class="neutral" onclick="closeCode()">Close</button>
+    <button class="confirm" onclick="redeemCode(); playSound()">Redeem</button>
+    <button class="neutral" onclick="closeCode(); playSound()">Close</button>
   </div>
 </div>
 
@@ -943,10 +1028,9 @@
   </div>
 </div>
 
-<!-- Theme toggle — always visible at bottom -->
 <div id="themeToggle">
-  <button class="themeBtn" id="btnDark" onclick="setTheme('dark')">🌙 Dark</button>
-  <button class="themeBtn" id="btnLight" onclick="setTheme('light')">☀️ Light</button>
+  <button class="themeBtn" id="btnDark" onclick="setTheme('dark'); playSound()">🌙 Dark</button>
+  <button class="themeBtn" id="btnLight" onclick="setTheme('light'); playSound()">☀️ Light</button>
 </div>
 <p id="themeLabel">Theme preference is saved</p>
 
@@ -956,45 +1040,42 @@ let newItems = 0;
 let deleteItem = null;
 let codeClickCount = 0;
 let codeClickTimer = null;
-let highlightLuckyTriggered = false;
 
-const items = [
-  {name:"WrenIsOld", display:"WrenIsOld", rarity:"Common"},
-  {name:"TheMindOfOrin", display:"The Mind of Orin", rarity:"Common"},
-  {name:"TheRealBaldCena72", display:"Bald Cena", rarity:"Common"},
-  {name:"Edunzie", display:"Edunzie", rarity:"Common"},
-  {name:"Wren.fun", display:"Wren.fun", rarity:"Common"},
-  {name:"Juju2y", display:"Juju2y", rarity:"Uncommon"},
-  {name:"Scratch", display:"Scratch", rarity:"Uncommon"},
-  {name:"BlockOfCheese", display:"Block Of Cheese", rarity:"Uncommon"},
-  {name:"TheDairyKing", display:"The Dairy King", rarity:"Uncommon"},
-  {name:"Zxno", display:"Zxno", rarity:"Rare"},
-  {name:"EthansHalfTable", display:"EthansHalfTable", rarity:"Rare"},
-  {name:"TheTurtleKid2012", display:"Turtle Kid 2012", rarity:"Rare"},
-  {name:"ThomasMini", display:"Thomas & Friends Minis", rarity:"Rare"},  
-  {name:"TikiTheG", display:"Tikitheg", rarity:"Epic"},
-  {name:"Nathan8028", display:"Nathan", rarity:"Epic"},
-  {name:"Pigmaxv", display:"Pigmaxv", rarity:"Epic"},
-  {name:"AustinsHalfTable", display:"AustinsHalfTable", rarity:"Epic"},
-  {name:"Switch2", display:"Nintendo Switch 2", rarity:"Epic"},
-  {name:"Wren", display:"Wren", rarity:"Legendary"},
-  {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
-  {name:"TheFounder", display:"The Founder", rarity:"Legendary"},
-  {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
-  {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"},
-  {name:"OrinFlower", display:"Orin Flower", rarity:"Void"},
-  {name:"HighlightLucky", display:"Highlight Lucky", rarity:"Void"}
-];
+/* ===== SOUND ===== */
+const sfx = new Audio("SoundEffectButton.mp3");
+sfx.preload = "auto";
 
-const chances = {
-  Common: 45,
-  Uncommon: 30,
-  Rare: 12,
-  Epic: 7,
-  Legendary: 1,
-  Omega: 0.1,
-  Void: 0
-};
+function playSound() {
+  const s = sfx.cloneNode();
+  s.volume = 0.5;
+  s.play().catch(() => {});
+}
+
+/* ===== CARD VIEWER ===== */
+function openCardViewer(name, display, rarity) {
+  playSound();
+  const viewer = document.getElementById("cardViewer");
+  document.getElementById("cardViewerImg").src = name + ".jpg";
+
+  const nameEl = document.getElementById("cardViewerName");
+  nameEl.textContent = display;
+  nameEl.className = rarity;
+
+  const rarityEl = document.getElementById("cardViewerRarity");
+  rarityEl.textContent = rarity;
+  rarityEl.className = rarity;
+
+  viewer.style.display = "flex";
+}
+
+function closeCardViewer() {
+  document.getElementById("cardViewer").style.display = "none";
+}
+
+// Close on Escape key
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeCardViewer();
+});
 
 /* ===== THEME ===== */
 function setTheme(mode) {
@@ -1027,13 +1108,14 @@ function rollRarity() {
 
 function updateNotif() {
   const n = document.getElementById("notif");
-  if (newItems > 0) { n.style.display = "inline-block"; n.innerText = newItems; } 
+  if (newItems > 0) { n.style.display = "inline-block"; n.innerText = newItems; }
   else { n.style.display = "none"; }
 }
 
 function openPack() {
   if (!canOpen) return;
   canOpen = false;
+  playSound();
 
   const overlay = document.getElementById("overlay");
   overlay.style.display = "flex";
@@ -1085,7 +1167,11 @@ function renderIndex() {
   const container = document.getElementById("index-list");
   container.innerHTML = "";
   items.filter(i => i.rarity !== "Void").forEach(i => {
-    container.innerHTML += `<div class="card"><img src="${i.name}.jpg"><p class="${i.rarity}">${i.display}</p><p class="${i.rarity}">${i.rarity}</p></div>`;
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<img src="${i.name}.jpg"><p class="${i.rarity}">${i.display}</p><p class="${i.rarity}">${i.rarity}</p>`;
+    card.onclick = () => openCardViewer(i.name, i.display, i.rarity);
+    container.appendChild(card);
   });
 }
 
@@ -1103,6 +1189,44 @@ const rarityGlow = {
   Legendary: "rgba(255,200,0,0.14)",
   Omega:     "rgba(255,100,200,0.14)",
   Void:      "rgba(200,164,0,0.14)"
+};
+
+const items = [
+  {name:"WrenIsOld", display:"WrenIsOld", rarity:"Common"},
+  {name:"TheMindOfOrin", display:"The Mind of Orin", rarity:"Common"},
+  {name:"TheRealBaldCena72", display:"Bald Cena", rarity:"Common"},
+  {name:"Edunzie", display:"Edunzie", rarity:"Common"},
+  {name:"Wren.fun", display:"Wren.fun", rarity:"Common"},
+  {name:"Juju2y", display:"Juju2y", rarity:"Uncommon"},
+  {name:"Scratch", display:"Scratch", rarity:"Uncommon"},
+  {name:"BlockOfCheese", display:"Block Of Cheese", rarity:"Uncommon"},
+  {name:"TheDairyKing", display:"The Dairy King", rarity:"Uncommon"},
+  {name:"Zxno", display:"Zxno", rarity:"Rare"},
+  {name:"EthansHalfTable", display:"EthansHalfTable", rarity:"Rare"},
+  {name:"TheTurtleKid2012", display:"Turtle Kid 2012", rarity:"Rare"},
+  {name:"ThomasMini", display:"Thomas & Friends Minis", rarity:"Rare"},
+  {name:"TikiTheG", display:"Tikitheg", rarity:"Epic"},
+  {name:"Nathan8028", display:"Nathan", rarity:"Epic"},
+  {name:"Pigmaxv", display:"Pigmaxv", rarity:"Epic"},
+  {name:"AustinsHalfTable", display:"AustinsHalfTable", rarity:"Epic"},
+  {name:"Switch2", display:"Nintendo Switch 2", rarity:"Epic"},
+  {name:"Wren", display:"Wren", rarity:"Legendary"},
+  {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
+  {name:"TheFounder", display:"The Founder", rarity:"Legendary"},
+  {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
+  {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"},
+  {name:"OrinFlower", display:"Orin Flower", rarity:"Void"},
+  {name:"HighlightLucky", display:"Highlight Lucky", rarity:"Void"}
+];
+
+const chances = {
+  Common: 45,
+  Uncommon: 30,
+  Rare: 12,
+  Epic: 7,
+  Legendary: 1,
+  Omega: 0.1,
+  Void: 0
 };
 
 function renderInventory() {
@@ -1128,11 +1252,18 @@ function renderInventory() {
       <span class="qtyBadge">x${qty}</span>
     `;
 
+    // Card click opens viewer (but not if clicking the delete button)
+    card.onclick = (e) => {
+      if (e.target.classList.contains("deleteBtn")) return;
+      openCardViewer(i.name, i.display, i.rarity);
+    };
+
     const delBtn = document.createElement("div");
     delBtn.className = "deleteBtn";
     delBtn.innerText = "×";
     delBtn.onclick = (e) => {
       e.stopPropagation();
+      playSound();
       deleteItem = i;
       openDeletePrompt(qty);
     };
@@ -1264,7 +1395,6 @@ function showOmegaReveal(item) {
 
   spawnOmegaParticles();
 
-  // Multiple screen shakes for drama
   const shakeTimes = [900, 1400, 2000, 2800, 4000];
   shakeTimes.forEach(t => {
     setTimeout(() => {
