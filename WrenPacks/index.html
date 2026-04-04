@@ -70,6 +70,7 @@
       transition: background 0.3s, color 0.3s;
     }
 
+    /* Wren.fun text — clickable area is only the text itself */
     #homeText {
       position: absolute;
       top: 15px;
@@ -78,17 +79,17 @@
       font-size: 2em;
       cursor: pointer;
       display: inline-block;
-      width: fit-content;
-      height: fit-content;
       line-height: 1;
       padding: 0;
       margin: 0;
       border-radius: 0;
       transition: transform 0.2s;
       user-select: none;
-      white-space: nowrap;
-      transform-origin: left top;
+      z-index: 1000;
+      width: fit-content;
+      height: fit-content;
     }
+
     #homeText:hover { transform: scale(1.2); }
 
     h1 {
@@ -142,7 +143,6 @@
       transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
     }
 
-    /* Shine sweep overlay on all tab buttons */
     .tabs button::before {
       content: '';
       position: absolute;
@@ -161,7 +161,6 @@
       100% { left: 130%; }
     }
 
-    /* Top highlight edge */
     .tabs button::after {
       content: '';
       position: absolute;
@@ -180,7 +179,6 @@
       transform: scale(0.96);
     }
 
-    /* Pack — purple */
     .packBtn {
       background: linear-gradient(145deg, #9b30ff, #6a0dad);
       box-shadow: 0 4px 18px rgba(130,0,255,0.5), 0 0 0 1px rgba(180,80,255,0.3) inset;
@@ -190,7 +188,6 @@
       filter: brightness(1.12);
     }
 
-    /* Inventory — green */
     .invBtn {
       background: linear-gradient(145deg, #2ecc5a, #198a38);
       box-shadow: 0 4px 18px rgba(0,180,60,0.5), 0 0 0 1px rgba(80,255,120,0.3) inset;
@@ -200,7 +197,6 @@
       filter: brightness(1.12);
     }
 
-    /* Index — blue */
     .indexBtn {
       background: linear-gradient(145deg, #1e9fff, #0e6bbf);
       box-shadow: 0 4px 18px rgba(0,140,255,0.5), 0 0 0 1px rgba(80,180,255,0.3) inset;
@@ -210,7 +206,6 @@
       filter: brightness(1.12);
     }
 
-    /* Code — gold */
     .codeBtn {
       background: linear-gradient(145deg, #ffd700, #c8960c);
       color: #2a1800;
@@ -221,12 +216,10 @@
       filter: brightness(1.1);
     }
 
-    /* Tone down shine a bit in light mode */
     body.light-mode .tabs button::before {
       background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
     }
 
-    /* ===== CLASSIC BUTTON STYLE (toggle) ===== */
     body.classic-buttons .tabs button {
       background: unset !important;
       box-shadow: none !important;
@@ -250,7 +243,6 @@
     body.classic-buttons .indexBtn { background: dodgerblue !important; }
     body.classic-buttons .codeBtn  { background: gold !important; color: black !important; }
 
-    /* ===== SETTINGS COG ===== */
     #settingsBtn {
       position: absolute;
       top: 16px;
@@ -278,7 +270,6 @@
       opacity: 1;
     }
 
-    /* ===== SETTINGS PANEL ===== */
     #settingsPanel {
       position: fixed;
       top: 0; right: -340px;
@@ -360,7 +351,6 @@
       margin: 0 0 14px;
     }
 
-    /* Volume slider row */
     .vol-row {
       display: flex;
       align-items: center;
@@ -410,7 +400,6 @@
       text-align: right;
     }
 
-    /* Mute toggle */
     .toggle-row {
       display: flex;
       align-items: center;
@@ -456,7 +445,6 @@
 
     .switch input:checked + .switch-track::after { transform: translateX(20px); }
 
-    /* Theme picker in settings */
     .theme-picker {
       display: flex;
       gap: 10px;
@@ -807,7 +795,6 @@
       z-index: 1500;
     }
 
-    /* ===== RARITY TEXT ===== */
     .Common { color: var(--text); }
     .Uncommon { color: lime; }
     .Rare { color: dodgerblue; }
@@ -844,7 +831,6 @@
       100% { filter: hue-rotate(360deg); }
     }
 
-    /* ===== OVERLAYS ===== */
     #overlay {
       position: fixed;
       top: 0; left: 0;
@@ -871,7 +857,6 @@
       100% { opacity: 0; transform: scale(1.1); }
     }
 
-    /* ===== OMEGA REVEAL ===== */
     #omegaReveal {
       position: fixed;
       top: 0; left: 0;
@@ -960,7 +945,6 @@
       animation: omegaBgPulse 3s ease forwards;
     }
 
-    /* ===== VOID REVEAL ===== */
     #voidReveal {
       position: fixed;
       top: 0; left: 0;
@@ -1075,7 +1059,6 @@
       pointer-events: none;
     }
 
-    /* ===== SCREEN SHAKE ===== */
     @keyframes screenShake {
       0%   { transform: translate(0, 0) rotate(0deg); }
       10%  { transform: translate(-12px, -8px) rotate(-1deg); }
@@ -1127,7 +1110,6 @@
       font-size: 0.9em;
     }
 
-    /* ===== CARD ZOOM VIEWER ===== */
     #cardViewer {
       position: fixed;
       top: 0; left: 0;
@@ -1206,7 +1188,6 @@
       color: rgba(255,255,255,0.35);
       letter-spacing: 0.5px;
     }
-
   </style>
 </head>
 
@@ -1229,28 +1210,24 @@
 
 <div id="overlay">✨ PACK OPENING ✨</div>
 
-<!-- Omega fullscreen reveal -->
 <div id="omegaReveal">
   <div class="omegaParticles" id="omegaParticles"></div>
   <img id="omegaImg" src="">
   <h2 id="omegaName">★ OMEGA ★</h2>
 </div>
 
-<!-- Void fullscreen reveal -->
 <div id="voidReveal">
   <div class="particles" id="voidParticles"></div>
   <img id="voidImg" src="OrinFlower.jpg">
   <h2>✦ ORIN FLOWER ✦</h2>
 </div>
 
-<!-- Highlight Lucky reveal -->
 <div id="highlightReveal">
   <div class="particles" id="highlightParticles"></div>
   <img id="highlightImg" src="HighlightLucky.jpg">
   <h2>✦ HIGHLIGHT LUCKY ✦</h2>
 </div>
 
-<!-- Card zoom viewer -->
 <div id="cardViewer" onclick="closeCardViewer()">
   <div id="cardViewerClose" onclick="closeCardViewer()">✕</div>
   <img id="cardViewerImg" src="">
@@ -1316,10 +1293,8 @@
   </div>
 </div>
 
-<!-- Settings darken -->
 <div id="settingsDarken" onclick="closeSettings()"></div>
 
-<!-- Settings panel -->
 <div id="settingsPanel">
   <div class="settings-header">
     <h2>⚙️ Settings</h2>
@@ -1397,7 +1372,6 @@ sfx.preload = "auto";
 let sfxVolume = parseFloat(localStorage.getItem("sfxVolume") ?? "0.5");
 let sfxMuted  = localStorage.getItem("sfxMuted") === "true";
 
-// Unlock audio context on first any user interaction
 let audioUnlocked = false;
 document.addEventListener("click", function unlockAudio() {
   if (audioUnlocked) return;
@@ -1477,7 +1451,6 @@ function closeCardViewer() {
   document.getElementById("cardViewer").style.display = "none";
 }
 
-// Close on Escape key
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") closeCardViewer();
 });
@@ -1497,21 +1470,17 @@ function setTheme(mode) {
 }
 
 (function initSettings() {
-  // Theme
   const savedTheme = localStorage.getItem('theme') || 'dark';
   setTheme(savedTheme);
 
-  // Volume
   const volPct = Math.round(sfxVolume * 100);
   const slider = document.getElementById("volSlider");
   slider.value = volPct;
   slider.style.setProperty("--vol-pct", volPct + "%");
   document.getElementById("volValue").textContent = volPct + "%";
 
-  // Mute
   document.getElementById("muteToggle").checked = sfxMuted;
 
-  // Classic buttons
   const classic = localStorage.getItem("classicButtons") === "true";
   document.getElementById("classicBtnToggle").checked = classic;
   if (classic) document.body.classList.add("classic-buttons");
@@ -1673,7 +1642,6 @@ function renderInventory() {
       <span class="qtyBadge">x${qty}</span>
     `;
 
-    // Card click opens viewer (but not if clicking the delete button)
     card.onclick = (e) => {
       if (e.target.classList.contains("deleteBtn")) return;
       openCardViewer(i.name, i.display, i.rarity);
