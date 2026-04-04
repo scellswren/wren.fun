@@ -258,6 +258,12 @@
       text-align: center;
     }
 
+    /* ✅ ADDED FOR ORIN FLOWER */
+    @keyframes orinFlowerAnim {
+      0% { transform: scale(0) rotate(0deg); opacity: 0; }
+      50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+      100% { transform: scale(1) rotate(360deg); opacity: 1; }
+    }
   </style>
 </head>
 
@@ -513,21 +519,28 @@ function resetInventory() {
 function showConfirm() { document.getElementById("confirmBox").style.display = "block"; document.getElementById("darken").style.display = "block"; }
 function hideConfirm() { document.getElementById("confirmBox").style.display = "none"; document.getElementById("darken").style.display = "none"; }
 
-/* ✅ ADDED */
-function openCode() {
-  document.getElementById("codeBox").style.display = "block";
-  document.getElementById("darken").style.display = "block";
-}
-
-function closeCode() {
-  document.getElementById("codeBox").style.display = "none";
-  document.getElementById("darken").style.display = "none";
-}
+function openCode() { document.getElementById("codeBox").style.display = "block"; document.getElementById("darken").style.display = "block"; }
+function closeCode() { document.getElementById("codeBox").style.display = "none"; document.getElementById("darken").style.display = "none"; }
 
 function redeemCode() {
   const code = document.getElementById("codeInput").value.trim();
 
-  if (code === "test") {
+  if (code === "Subscribe") {
+    // ✅ ADDED ORIN FLOWER
+    const flower = document.createElement("div");
+    flower.style.position = "fixed";
+    flower.style.top = "50%";
+    flower.style.left = "50%";
+    flower.style.transform = "translate(-50%, -50%)";
+    flower.style.zIndex = "4000";
+    flower.innerHTML = `<img src="OrinFlower.jpg" style="width:200px; animation: orinFlowerAnim 1.5s forwards;">`;
+    document.body.appendChild(flower);
+
+    setTimeout(() => { document.body.removeChild(flower); }, 1600);
+
+    alert("You received the Orin Flower!");
+    addToInventory("OrinFlower"); // Automatically add to inventory
+  } else if (code === "test") {
     alert("Code worked!");
   } else {
     alert("Invalid code");
@@ -536,6 +549,3 @@ function redeemCode() {
   closeCode();
 }
 </script>
-
-</body>
-</html>
