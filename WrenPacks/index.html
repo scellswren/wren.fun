@@ -22,7 +22,12 @@
       font-family: 'Rubik', sans-serif;
       font-size: 2em;
       cursor: pointer;
+      display: inline-block;
+      line-height: 1;
+      padding: 4px 8px;
+      border-radius: 8px;
       transition: transform 0.2s;
+      user-select: none;
     }
     #homeText:hover { transform: scale(1.2); }
 
@@ -251,17 +256,116 @@
       transform: scale(1.07);
     }
 
-    #confirmBox, #deletePrompt {
+    /* ✅ Polished modal shared styles */
+    #confirmBox, #deletePrompt, #codeBox {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       background: #111;
-      padding: 30px;
-      border-radius: 15px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 1px rgba(255,255,255,0.15);
       display: none;
       z-index: 2000;
       text-align: center;
+      min-width: 280px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* Modal header strip */
+    .modal-header {
+      padding: 18px 30px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .modal-header h2, .modal-header h3 {
+      margin: 0;
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.3em;
+      letter-spacing: 1px;
+      color: white;
+    }
+
+    /* Modal body */
+    .modal-body {
+      padding: 22px 30px;
+    }
+
+    /* Modal footer with action buttons */
+    .modal-footer {
+      display: flex;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .modal-footer button {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      background: transparent;
+      color: white;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .modal-footer button:not(:last-child) {
+      border-right: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .modal-footer button.danger {
+      color: #ff5555;
+    }
+    .modal-footer button.danger:hover { background: #ff5555; color: white; }
+
+    .modal-footer button.confirm {
+      color: #55cc55;
+    }
+    .modal-footer button.confirm:hover { background: #55cc55; color: white; }
+
+    .modal-footer button.neutral:hover { background: rgba(255,255,255,0.08); }
+
+    /* Code input styling */
+    #codeInput {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      color: white;
+      font-size: 1.05em;
+      letter-spacing: 1px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #codeInput:focus {
+      border-color: gold;
+      box-shadow: 0 0 10px rgba(255, 200, 0, 0.3);
+    }
+
+    /* Delete qty input */
+    #deleteQty {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      color: white;
+      font-size: 1.1em;
+      outline: none;
+      text-align: center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #deleteQty:focus {
+      border-color: #ff4444;
+      box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
     }
 
     #darken {
@@ -324,32 +428,7 @@
       line-height: 1.8em;
     }
 
-    #deletePrompt input {
-      width: 80px;
-      padding: 5px;
-      font-size: 1em;
-    }
-
-    #deletePrompt button {
-      margin-top: 10px;
-      padding: 5px 10px;
-      font-size: 1em;
-      cursor: pointer;
-    }
-
-    /* ✅ ADDED */
-    #codeBox {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #111;
-      padding: 30px;
-      border-radius: 15px;
-      display: none;
-      z-index: 3000;
-      text-align: center;
-    }
+    /* deletePrompt input/button styles handled by modal-* classes above */
 
     /* ✅ Orin Flower fullscreen reveal */
     #voidReveal {
@@ -366,17 +445,19 @@
     }
 
     #voidReveal img {
-      width: 55vw;
-      max-width: 600px;
-      animation: voidDrop 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      width: 45vw;
+      max-width: 480px;
+      max-height: 55vh;
+      object-fit: contain;
+      animation: voidDrop 1.0s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
       filter: drop-shadow(0 0 40px cyan) drop-shadow(0 0 80px cyan);
     }
 
     @keyframes voidDrop {
-      0%   { transform: translateY(-120vh) rotate(-15deg) scale(1.3); opacity: 0; }
-      60%  { transform: translateY(8vh) rotate(4deg) scale(1.05); opacity: 1; }
-      80%  { transform: translateY(-3vh) rotate(-2deg) scale(1); }
-      100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+      0%   { transform: translateY(-60vh) scale(0.8); opacity: 0; }
+      70%  { transform: translateY(4%) scale(1.04); opacity: 1; }
+      85%  { transform: translateY(-2%) scale(0.98); }
+      100% { transform: translateY(0%) scale(1); opacity: 1; }
     }
 
     #voidReveal h2 {
@@ -506,26 +587,44 @@
 <div id="darken"></div>
 
 <div id="confirmBox">
-  <h2>Are you sure?</h2>
-  <button onclick="resetInventory()">Yes</button>
-  <button onclick="hideConfirm()">No</button>
+  <div class="modal-header">
+    <h2>Reset Inventory?</h2>
+  </div>
+  <div class="modal-body">
+    <p style="color:rgba(255,255,255,0.5); margin:0; font-size:0.9em;">This will permanently delete all your cards.</p>
+  </div>
+  <div class="modal-footer">
+    <button class="danger" onclick="resetInventory()">Reset</button>
+    <button class="neutral" onclick="hideConfirm()">Cancel</button>
+  </div>
 </div>
 
 <div id="deletePrompt">
-  <h3>How many to delete?</h3>
-  <input type="number" id="deleteQty" min="1">
-  <br>
-  <button onclick="confirmDelete()">Delete</button>
-  <button onclick="cancelDelete()">Cancel</button>
+  <div class="modal-header">
+    <h3>Delete Cards</h3>
+  </div>
+  <div class="modal-body">
+    <p style="color:rgba(255,255,255,0.5); margin:0 0 14px; font-size:0.9em;">How many would you like to remove?</p>
+    <input type="number" id="deleteQty" min="1" placeholder="0">
+  </div>
+  <div class="modal-footer">
+    <button class="danger" onclick="confirmDelete()">Delete</button>
+    <button class="neutral" onclick="cancelDelete()">Cancel</button>
+  </div>
 </div>
 
-<!-- ✅ ADDED -->
 <div id="codeBox">
-  <h3>Enter Code</h3>
-  <input type="text" id="codeInput">
-  <br><br>
-  <button onclick="redeemCode()">Redeem</button>
-  <button onclick="closeCode()">Close</button>
+  <div class="modal-header">
+    <h3 style="color: gold;">🎟 Redeem a Code</h3>
+  </div>
+  <div class="modal-body">
+    <p style="color:rgba(255,255,255,0.5); margin:0 0 14px; font-size:0.9em;">Enter your code below to claim a reward.</p>
+    <input type="text" id="codeInput" placeholder="Enter code...">
+  </div>
+  <div class="modal-footer">
+    <button class="confirm" onclick="redeemCode()">Redeem</button>
+    <button class="neutral" onclick="closeCode()">Close</button>
+  </div>
 </div>
 
 <div id="index" class="section">
