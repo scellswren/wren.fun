@@ -221,6 +221,30 @@
       background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
     }
 
+    /* ===== CLASSIC BUTTON STYLE (toggle) ===== */
+    body.classic-buttons .tabs button {
+      background: unset !important;
+      box-shadow: none !important;
+      filter: none !important;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    body.classic-buttons .tabs button::before,
+    body.classic-buttons .tabs button::after {
+      display: none;
+    }
+
+    body.classic-buttons .tabs button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px white !important;
+      filter: none !important;
+    }
+
+    body.classic-buttons .packBtn  { background: purple !important; }
+    body.classic-buttons .invBtn   { background: green !important; }
+    body.classic-buttons .indexBtn { background: dodgerblue !important; }
+    body.classic-buttons .codeBtn  { background: gold !important; color: black !important; }
+
     /* ===== SETTINGS COG ===== */
     #settingsBtn {
       position: absolute;
@@ -231,19 +255,21 @@
       cursor: pointer;
       border-radius: 50%;
       padding: 6px;
-      transition: transform 0.35s ease, filter 0.2s;
-      filter: var(--cog-filter, invert(1) opacity(0.7));
       box-sizing: border-box;
+      transition: transform 0.35s ease, opacity 0.2s;
+      filter: invert(1);
+      opacity: 0.7;
     }
 
-    body.light-mode { --cog-filter: invert(0) opacity(0.55); }
+    body.light-mode #settingsBtn {
+      filter: invert(0);
+      opacity: 0.55;
+    }
 
     #settingsBtn:hover {
       transform: rotate(60deg) scale(1.15);
-      filter: var(--cog-filter-hover, invert(1) opacity(1));
+      opacity: 1;
     }
-
-    body.light-mode #settingsBtn:hover { filter: invert(0) opacity(0.85); }
 
     /* ===== SETTINGS PANEL ===== */
     #settingsPanel {
@@ -1322,6 +1348,18 @@
       </div>
     </div>
   </div>
+
+  <div class="settings-section">
+    <p class="settings-label">Buttons</p>
+    <div class="toggle-row">
+      <span>Classic button style</span>
+      <label class="switch">
+        <input type="checkbox" id="classicBtnToggle" onchange="updateClassicButtons(this.checked); playSound()">
+        <div class="switch-track"></div>
+      </label>
+    </div>
+    <p style="font-size:0.78em; color:var(--muted); margin:10px 0 0;">Turns off the shiny gradient look</p>
+  </div>
 </div>
 
 <div id="index" class="section">
@@ -1352,6 +1390,16 @@ sfx.preload = "auto";
 let sfxVolume = parseFloat(localStorage.getItem("sfxVolume") ?? "0.5");
 let sfxMuted  = localStorage.getItem("sfxMuted") === "true";
 
+// Unlock audio context on first any user interaction
+let audioUnlocked = false;
+document.addEventListener("click", function unlockAudio() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  const tmp = sfx.cloneNode();
+  tmp.volume = 0;
+  tmp.play().catch(() => {});
+}, { once: true });
+
 function playSound() {
   if (sfxMuted) return;
   const s = sfx.cloneNode();
@@ -1363,9 +1411,7 @@ function updateVolume(val) {
   sfxVolume = val / 100;
   localStorage.setItem("sfxVolume", sfxVolume);
   document.getElementById("volValue").textContent = val + "%";
-  // Update slider track fill
   document.getElementById("volSlider").style.setProperty("--vol-pct", val + "%");
-  // Auto-unmute if they slide up
   if (sfxVolume > 0 && sfxMuted) {
     sfxMuted = false;
     localStorage.setItem("sfxMuted", "false");
@@ -1381,6 +1427,15 @@ function updateVolume(val) {
 function updateMute(checked) {
   sfxMuted = checked;
   localStorage.setItem("sfxMuted", checked);
+}
+
+function updateClassicButtons(checked) {
+  if (checked) {
+    document.body.classList.add("classic-buttons");
+  } else {
+    document.body.classList.remove("classic-buttons");
+  }
+  localStorage.setItem("classicButtons", checked);
 }
 
 /* ===== SETTINGS ===== */
@@ -1448,6 +1503,11 @@ function setTheme(mode) {
 
   // Mute
   document.getElementById("muteToggle").checked = sfxMuted;
+
+  // Classic buttons
+  const classic = localStorage.getItem("classicButtons") === "true";
+  document.getElementById("classicBtnToggle").checked = classic;
+  if (classic) document.body.classList.add("classic-buttons");
 })();
 
 /* ===== CORE ===== */
