@@ -15,6 +15,7 @@
       text-align: center;
     }
 
+    /* HOME TEXT */
     #homeText {
       position: absolute;
       top: 15px;
@@ -28,6 +29,7 @@
 
     h1 { margin-top: 20px; }
 
+    /* BUTTONS */
     .tabs button {
       padding: 15px 35px;
       margin: 10px;
@@ -50,6 +52,7 @@
     .invBtn { background: green; }
     .indexBtn { background: dodgerblue; }
 
+    /* NOTIF */
     .notif {
       position: absolute;
       top: -8px;
@@ -70,6 +73,7 @@
     .section { display: none; }
     .active { display: block; }
 
+    /* PACK */
     .pack {
       width: 200px;
       height: 300px;
@@ -83,52 +87,7 @@
       font-size: 2em;
     }
 
-    #codeBtn {
-      position: fixed;
-      top: 50%;
-      right: 10px;
-      transform: translateY(-50%);
-      padding: 15px 25px;
-      font-size: 1.3em;
-      background: gold;
-      color: black;
-      font-weight: bold;
-      border-radius: 15px;
-      cursor: pointer;
-      z-index: 2000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    #codeBtn:hover {
-      transform: translateY(-50%) scale(1.1);
-      box-shadow: 0 0 15px gold;
-    }
-
-    #codeInputBox {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #111;
-      padding: 30px;
-      border-radius: 15px;
-      display: none;
-      z-index: 3000;
-    }
-    #codeInputBox input {
-      padding: 10px;
-      font-size: 1.2em;
-      width: 250px;
-    }
-    #codeInputBox button {
-      padding: 10px 20px;
-      font-size: 1.2em;
-      margin-left: 10px;
-      cursor: pointer;
-    }
-
+    /* RESULT */
     #result {
       position: fixed;
       top: 50%;
@@ -138,76 +97,153 @@
       display: none;
       z-index: 1000;
     }
-    #result img { width: 200px; animation: spinIn 0.8s forwards; }
+
+    #result img {
+      width: 200px;
+      animation: spinIn 0.8s forwards;
+    }
+
     @keyframes spinIn {
       0% { transform: scale(0) rotate(-720deg); opacity: 0; }
       50% { transform: scale(1.2) rotate(360deg); opacity: 1; }
       100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
 
-    .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
-    .card { width: 130px; transition: transform 0.5s ease, opacity 0.5s ease; position: relative; }
+    /* 💥 EXPLODE OUT ANIMATION */
+    .explodeOut {
+      animation: explodeOutAnim 0.6s forwards;
+    }
+
+    @keyframes explodeOutAnim {
+      0% { transform: scale(1) rotate(0deg); opacity: 1; }
+      50% { transform: scale(1.5) rotate(20deg); opacity: 1; }
+      100% { transform: scale(2.5) rotate(40deg); opacity: 0; }
+    }
+
+    /* GRID */
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .card {
+      width: 130px;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+
     .card img { width: 100%; }
-    .explode { transform: scale(2) rotate(25deg); opacity: 0; }
-    .deleteBtn {
-      position: absolute; top: -5px; right: -5px; background: red; border-radius: 50%;
-      width: 25px; height: 25px; color: white; cursor: pointer; font-weight: bold;
-      display: flex; align-items: center; justify-content: center; font-size: 1em;
+
+    .explode {
+      transform: scale(2) rotate(25deg);
+      opacity: 0;
     }
 
-    #resetBtn { position: absolute; top: 20px; right: 20px; padding: 10px 20px; }
+    /* RESET */
+    #resetBtn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+    }
 
+    /* CONFIRM */
     #confirmBox {
-      position: fixed; top: 50%; left: 50%;
+      position: fixed;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
-      background: #111; padding: 30px; border-radius: 15px;
-      display: none; z-index: 2000;
+      background: #111;
+      padding: 30px;
+      border-radius: 15px;
+      display: none;
+      z-index: 2000;
     }
 
-    #darken { position: fixed; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; z-index: 1500; }
+    #darken {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      z-index: 1500;
+    }
 
+    /* RARITY */
     .Common { color: white; }
     .Uncommon { color: lime; }
     .Rare { color: dodgerblue; }
     .Epic { color: violet; }
     .Legendary { color: gold; }
-    .Omega { background: linear-gradient(90deg, red,orange,yellow,green,blue,indigo,violet); -webkit-background-clip:text; color:transparent; animation: rainbow 3s linear infinite; }
-    .Void { color: black; font-size: 2em; text-shadow:0 0 10px black; }
-
-    @keyframes rainbow { 100% { filter: hue-rotate(360deg); } }
-
-    #overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      display: none; align-items: center; justify-content: center;
-      background: rgba(255,255,255,0.1); font-size: 5em; color: gold; z-index: 9999;
+    .Omega {
+      background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+      -webkit-background-clip: text;
+      color: transparent;
+      animation: rainbow 3s linear infinite;
     }
-    .fade { animation: fadeAnim 2s ease forwards; }
-    @keyframes fadeAnim { 0% {opacity:0; transform:scale(0.5);} 50% {opacity:1; transform:scale(1.2);} 100%{opacity:0;} }
 
-    .rates { margin:30px; font-size:1.2em; line-height:1.8em; }
+    @keyframes rainbow {
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    /* OVERLAY */
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.1);
+      font-size: 5em;
+      color: gold;
+      z-index: 9999;
+    }
+
+    .fade {
+      animation: fadeAnim 2s ease forwards;
+    }
+
+    @keyframes fadeAnim {
+      0% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0; }
+    }
+
+    /* RATES */
+    .rates {
+      margin: 30px;
+      font-size: 1.2em;
+      line-height: 1.8em;
+    }
   </style>
 </head>
 
 <body>
+
 <div id="homeText" onclick="goHome()">Wren.fun</div>
+
 <h1>Wren Packs</h1>
 
 <div class="tabs">
   <button class="packBtn" onclick="showTab('pack')">Open Pack</button>
-  <button class="invBtn" onclick="showTab('inventory')">Inventory <span id="notif" class="notif" style="display:none;">0</span></button>
+  <button class="invBtn" onclick="showTab('inventory')">
+    Inventory
+    <span id="notif" class="notif" style="display:none;">0</span>
+  </button>
   <button class="indexBtn" onclick="showTab('index')">Index</button>
-</div>
-
-<div id="codeBtn" onclick="openCodeInput()">Code</div>
-<div id="codeInputBox">
-  <input id="codeInput" type="text" placeholder="Enter code">
-  <button onclick="redeemCode()">Redeem</button>
-  <button onclick="closeCodeInput()">Exit</button>
 </div>
 
 <div id="overlay">✨ PACK OPENING ✨</div>
 
-<div id="pack" class="section active"><div class="pack" onclick="openPack()">OPEN</div></div>
+<div id="pack" class="section active">
+  <div class="pack" onclick="openPack()">OPEN</div>
+</div>
+
 <div id="result"></div>
 
 <div id="inventory" class="section">
@@ -217,14 +253,18 @@
 </div>
 
 <div id="darken"></div>
-<div id="confirmBox"><h2>Are you sure?</h2>
+
+<div id="confirmBox">
+  <h2>Are you sure?</h2>
   <button onclick="resetInventory()">Yes</button>
   <button onclick="hideConfirm()">No</button>
 </div>
 
+<!-- INDEX -->
 <div id="index" class="section">
   <h2>All Characters</h2>
   <div id="index-list" class="grid"></div>
+
   <div class="rates">
     <p class="Common">Common: 45%</p>
     <p class="Uncommon">Uncommon: 30%</p>
@@ -238,7 +278,6 @@
 <script>
 let canOpen = true;
 let newItems = 0;
-let codeRedeemed = false;
 
 const items = [
   {name:"WrenIsOld", display:"WrenIsOld", rarity:"Common"},
@@ -260,8 +299,7 @@ const items = [
   {name:"Wren", display:"Wren", rarity:"Legendary"},
   {name:"LuckyCat", display:"Lucky", rarity:"Legendary"},
   {name:"FatWren", display:"Fat Wren", rarity:"Omega"},
-  {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"},
-  {name:"OrinFlower", display:"Orin Flower", rarity:"Void"}
+  {name:"KSIWithBigHead", display:"KSI Drawing", rarity:"Omega"}
 ];
 
 const chances = {
@@ -273,52 +311,149 @@ const chances = {
   Omega: 0.1
 };
 
-// --- all existing functions plus fixes
-function goHome(){ window.location.href = "https://scellswren.github.io/wren.fun/"; }
-function rollRarity(){ let r=Math.random()*100,sum=0; for(let k in chances){sum+=chances[k];if(r<=sum) return k;} return "Common"; }
-function updateNotif(){ const n=document.getElementById("notif"); if(newItems>0){n.style.display="inline-block"; n.innerText=newItems;} else { n.style.display="none";} }
-function addToInventory(name,qty=1){let inv=JSON.parse(localStorage.getItem("inventory"))||{}; inv[name]=(inv[name]||0)+qty; localStorage.setItem("inventory",JSON.stringify(inv)); }
+function goHome() {
+  window.location.href = "https://scellswren.github.io/wren.fun/";
+}
 
-function renderInventory(){
-  let inv=JSON.parse(localStorage.getItem("inventory"))||{};
-  let container=document.getElementById("inventory-list"); container.innerHTML="";
-  let rarityOrder=["Common","Uncommon","Rare","Epic","Legendary","Omega","Void"];
-  let sortedItems=items.filter(i=>inv[i.name]).sort((a,b)=>rarityOrder.indexOf(a.rarity)-rarityOrder.indexOf(b.rarity));
-  sortedItems.forEach(i=>{
-    let count=inv[i.name]; let card=document.createElement("div"); card.className="card";
-    card.innerHTML=`<img src="${i.name}.jpg"><p class="${i.rarity}">${i.display} x${count}</p>`;
-    let delBtn=document.createElement("div"); delBtn.className="deleteBtn"; delBtn.innerText="x";
-    delBtn.onclick=()=>{
-      let qty=parseInt(prompt(`How many ${i.display} do you want to delete? (0=all)`,count));
-      if(qty===0||qty>=count){ delete inv[i.name]; card.remove(); if(i.name==="OrinFlower") codeRedeemed=false; }
-      else if(qty>0){ inv[i.name]-=qty; card.querySelector("p").innerText=`${i.display} x${inv[i.name]}`; }
-      localStorage.setItem("inventory",JSON.stringify(inv));
-    };
-    card.appendChild(delBtn);
-    container.appendChild(card);
+function rollRarity() {
+  let r = Math.random() * 100;
+  let sum = 0;
+  for (let key in chances) {
+    sum += chances[key];
+    if (r <= sum) return key;
+  }
+  return "Common";
+}
+
+function updateNotif() {
+  const n = document.getElementById("notif");
+  n.style.display = "inline-block";
+  n.innerText = newItems;
+}
+
+function openPack() {
+  if (!canOpen) return;
+  canOpen = false;
+
+  const overlay = document.getElementById("overlay");
+  overlay.style.display = "flex";
+  overlay.classList.add("fade");
+
+  setTimeout(() => {
+    overlay.style.display = "none";
+    overlay.classList.remove("fade");
+
+    const rarity = rollRarity();
+    const pool = items.filter(i => i.rarity === rarity);
+    const item = pool[Math.floor(Math.random() * pool.length)];
+
+    const result = document.getElementById("result");
+    result.innerHTML = `<div id="resultInner">
+      <h2 class="${rarity}">${item.display} (${rarity})</h2>
+      <img src="${item.name}.jpg">
+    </div>`;
+    result.style.display = "block";
+
+    let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+    if (!inv[item.name]) {
+      newItems++;
+      updateNotif();
+    }
+
+    addToInventory(item.name);
+
+    // Explode-out animation
+    setTimeout(() => {
+      document.getElementById("resultInner").classList.add("explodeOut");
+    }, 2000);
+
+    setTimeout(() => {
+      canOpen = true;
+      result.style.display = "none";
+    }, 2600);
+
+  }, 2000);
+}
+
+function showTab(tab) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(tab).classList.add("active");
+
+  if (tab === "inventory") {
+    newItems = 0;
+    document.getElementById("notif").style.display = "none";
+    renderInventory();
+  }
+
+  if (tab === "index") {
+    renderIndex();
+  }
+}
+
+function renderIndex() {
+  const container = document.getElementById("index-list");
+  container.innerHTML = "";
+
+  items.forEach(i => {
+    container.innerHTML += `
+      <div class="card">
+        <img src="${i.name}.jpg">
+        <p class="${i.rarity}">${i.display}</p>
+        <p class="${i.rarity}">${i.rarity}</p>
+      </div>
+    `;
   });
 }
 
-// --- openPack, showTab, renderIndex, resetInventory, showConfirm, hideConfirm remain unchanged
-// --- code input now has exit button and Orin Flower shows image + shake page
-function openCodeInput(){ document.getElementById("codeInputBox").style.display="block"; }
-function closeCodeInput(){ document.getElementById("codeInputBox").style.display="none"; }
-function redeemCode(){
-  const code=document.getElementById("codeInput").value.trim();
-  if(code==="Subscribe" && !codeRedeemed){
-    codeRedeemed=true;
-    addToInventory("OrinFlower"); renderInventory();
-    const overlay=document.createElement("div");
-    overlay.style.position="fixed"; overlay.style.top=0; overlay.style.left=0; overlay.style.width="100%"; overlay.style.height="100%";
-    overlay.style.background="rgba(0,0,0,0.9)"; overlay.style.display="flex"; overlay.style.alignItems="center"; overlay.style.justifyContent="center";
-    overlay.style.zIndex="5000"; overlay.innerHTML=`✨ <span class="Void">Orin Flower</span> ✨<br><img src="OrinFlower.jpg" style="width:300px">`;
-    document.body.appendChild(overlay);
-    // shake page
-    let t=0; const interval=setInterval(()=>{document.body.style.transform=`translate(${Math.sin(t*0.5)*10}px,${Math.cos(t*0.5)*10}px)`; t++;},16);
-    setTimeout(()=>{clearInterval(interval); document.body.style.transform=""; overlay.remove();},10000);
-  }
-  closeCodeInput();
+function addToInventory(name) {
+  let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+  inv[name] = (inv[name] || 0) + 1;
+  localStorage.setItem("inventory", JSON.stringify(inv));
+}
+
+function renderInventory() {
+  let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+  let container = document.getElementById("inventory-list");
+  container.innerHTML = "";
+
+  items.forEach(i => {
+    if (inv[i.name]) {
+      container.innerHTML += `
+        <div class="card">
+          <img src="${i.name}.jpg">
+          <p class="${i.rarity}">${i.display} x${inv[i.name]}</p>
+        </div>
+      `;
+    }
+  });
+}
+
+function resetInventory() {
+  const cards = document.querySelectorAll(".card");
+
+  cards.forEach((card, i) => {
+    setTimeout(() => {
+      card.classList.add("explode");
+    }, i * 100);
+  });
+
+  setTimeout(() => {
+    localStorage.removeItem("inventory");
+    hideConfirm();
+    renderInventory();
+  }, 800);
+}
+
+function showConfirm() {
+  document.getElementById("confirmBox").style.display = "block";
+  document.getElementById("darken").style.display = "block";
+}
+
+function hideConfirm() {
+  document.getElementById("confirmBox").style.display = "none";
+  document.getElementById("darken").style.display = "none";
 }
 </script>
+
 </body>
 </html>
