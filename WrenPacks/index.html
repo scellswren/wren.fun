@@ -15,7 +15,6 @@
       text-align: center;
     }
 
-    /* HOME TEXT */
     #homeText {
       position: absolute;
       top: 15px;
@@ -29,7 +28,6 @@
 
     h1 { margin-top: 20px; }
 
-    /* BUTTONS */
     .tabs button {
       padding: 15px 35px;
       margin: 10px;
@@ -52,7 +50,9 @@
     .invBtn { background: green; }
     .indexBtn { background: dodgerblue; }
 
-    /* NOTIF */
+    /* ✅ ADDED */
+    .codeBtn { background: gold; color: black; }
+
     .notif {
       position: absolute;
       top: -8px;
@@ -73,7 +73,6 @@
     .section { display: none; }
     .active { display: block; }
 
-    /* PACK */
     .pack {
       width: 200px;
       height: 300px;
@@ -87,7 +86,6 @@
       font-size: 2em;
     }
 
-    /* RESULT */
     #result {
       position: fixed;
       top: 50%;
@@ -109,7 +107,6 @@
       100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
 
-    /* 💥 EXPLODE OUT ANIMATION */
     .explodeOut {
       animation: explodeOutAnim 0.6s forwards;
     }
@@ -120,7 +117,6 @@
       100% { transform: scale(2.5) rotate(40deg); opacity: 0; }
     }
 
-    /* GRID */
     .grid {
       display: flex;
       flex-wrap: wrap;
@@ -142,7 +138,6 @@
       opacity: 0;
     }
 
-    /* DELETE BUTTON */
     .deleteBtn {
       position: absolute;
       top: -5px;
@@ -160,7 +155,6 @@
       font-size: 1em;
     }
 
-    /* RESET */
     #resetBtn {
       position: absolute;
       top: 20px;
@@ -168,7 +162,6 @@
       padding: 10px 20px;
     }
 
-    /* CONFIRM */
     #confirmBox, #deletePrompt {
       position: fixed;
       top: 50%;
@@ -191,7 +184,6 @@
       z-index: 1500;
     }
 
-    /* RARITY */
     .Common { color: white; }
     .Uncommon { color: lime; }
     .Rare { color: dodgerblue; }
@@ -208,7 +200,6 @@
       100% { filter: hue-rotate(360deg); }
     }
 
-    /* OVERLAY */
     #overlay {
       position: fixed;
       top: 0;
@@ -234,7 +225,6 @@
       100% { opacity: 0; }
     }
 
-    /* RATES */
     .rates {
       margin: 30px;
       font-size: 1.2em;
@@ -254,6 +244,20 @@
       cursor: pointer;
     }
 
+    /* ✅ ADDED */
+    #codeBox {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #111;
+      padding: 30px;
+      border-radius: 15px;
+      display: none;
+      z-index: 3000;
+      text-align: center;
+    }
+
   </style>
 </head>
 
@@ -270,6 +274,9 @@
     <span id="notif" class="notif" style="display:none;">0</span>
   </button>
   <button class="indexBtn" onclick="showTab('index')">Index</button>
+
+  <!-- ✅ ADDED -->
+  <button class="codeBtn" onclick="openCode()">Code</button>
 </div>
 
 <div id="overlay">✨ PACK OPENING ✨</div>
@@ -294,7 +301,6 @@
   <button onclick="hideConfirm()">No</button>
 </div>
 
-<!-- DELETE PROMPT -->
 <div id="deletePrompt">
   <h3>How many to delete?</h3>
   <input type="number" id="deleteQty" min="1">
@@ -303,7 +309,15 @@
   <button onclick="cancelDelete()">Cancel</button>
 </div>
 
-<!-- INDEX -->
+<!-- ✅ ADDED -->
+<div id="codeBox">
+  <h3>Enter Code</h3>
+  <input type="text" id="codeInput">
+  <br><br>
+  <button onclick="redeemCode()">Redeem</button>
+  <button onclick="closeCode()">Close</button>
+</div>
+
 <div id="index" class="section">
   <h2>All Characters</h2>
   <div id="index-list" class="grid"></div>
@@ -321,7 +335,7 @@
 <script>
 let canOpen = true;
 let newItems = 0;
-let deleteItem = null; // current item to delete
+let deleteItem = null;
 
 const items = [
   {name:"WrenIsOld", display:"WrenIsOld", rarity:"Common"},
@@ -475,7 +489,7 @@ function confirmDelete() {
     delete inv[deleteItem.name];
     localStorage.setItem("inventory", JSON.stringify(inv));
     cancelDelete();
-    showTab("pack"); // exit inventory
+    showTab("pack");
   } else {
     inv[deleteItem.name] -= qty;
     localStorage.setItem("inventory", JSON.stringify(inv));
@@ -499,6 +513,28 @@ function resetInventory() {
 function showConfirm() { document.getElementById("confirmBox").style.display = "block"; document.getElementById("darken").style.display = "block"; }
 function hideConfirm() { document.getElementById("confirmBox").style.display = "none"; document.getElementById("darken").style.display = "none"; }
 
+/* ✅ ADDED */
+function openCode() {
+  document.getElementById("codeBox").style.display = "block";
+  document.getElementById("darken").style.display = "block";
+}
+
+function closeCode() {
+  document.getElementById("codeBox").style.display = "none";
+  document.getElementById("darken").style.display = "none";
+}
+
+function redeemCode() {
+  const code = document.getElementById("codeInput").value.trim();
+
+  if (code === "test") {
+    alert("Code worked!");
+  } else {
+    alert("Invalid code");
+  }
+
+  closeCode();
+}
 </script>
 
 </body>
