@@ -70,7 +70,6 @@
       transition: background 0.3s, color 0.3s;
     }
 
-    /* Wren.fun text — clickable area is only the text itself */
     #homeText {
       position: absolute;
       top: 15px;
@@ -127,7 +126,6 @@
       margin: 0;
     }
 
-    /* ===== SHINY TAB BUTTONS ===== */
     .tabs button {
       padding: 15px 35px;
       margin: 10px 16px;
@@ -247,21 +245,33 @@
       position: absolute;
       top: 16px;
       right: 20px;
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-      border-radius: 50%;
       padding: 0;
-      box-sizing: border-box;
+      margin: 0;
+      border: none;
+      background: transparent;
+      width: fit-content;
+      height: fit-content;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+      cursor: pointer;
+      z-index: 1000;
+      user-select: none;
       transition: transform 0.35s ease, opacity 0.2s;
       opacity: 0.7;
-      object-fit: contain;
+    }
+
+    #settingsBtn img {
+      width: 40px;
+      height: 40px;
       display: block;
-      filter: none;
+      object-fit: contain;
+      pointer-events: none;
+      border-radius: 50%;
     }
 
     body.light-mode #settingsBtn {
-      filter: none;
       opacity: 0.55;
     }
 
@@ -1193,8 +1203,10 @@
 
 <body>
 
-<div id="homeText" onclick="playSound(); goHome()">Wren.fun</div>
-<img id="settingsBtn" src="settings-cog.png" alt="Settings" onclick="openSettings(); playSound()" title="Settings">
+<button id="homeText" onclick="playSound(); goHome()">Wren.fun</button>
+<button id="settingsBtn" onclick="openSettings(); playSound()" title="Settings" aria-label="Settings">
+  <img src="settings-cog.png" alt="">
+</button>
 
 <h1>Wren Packs</h1>
 
