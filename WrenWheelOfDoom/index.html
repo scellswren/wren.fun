@@ -1,268 +1,306 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Wren Wheel of Doom</title>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
-<link rel="icon" type="image/png" href="../Favicon.png">
-<style>
-body {
-    font-family: 'Rubik', sans-serif;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
-    overflow: hidden;
-    color: black;
-}
-#wrenHeader {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    font-size: 2.5em;
-    cursor: pointer;
-    z-index: 1000;
-}
-#wrenDollars {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    font-size: 2em;
-    background: rgba(255,255,255,0.8);
-    padding: 5px 15px;
-    border-radius: 10px;
-    font-weight: bold;
-    color: #333;
-}
-#wheelContainer {
-    position: relative;
-    margin: 100px auto 0;
-    width: 300px;
-    height: 400px;
-    overflow: hidden;
-    border: 5px solid #444;
-    border-radius: 20px;
-    background: linear-gradient(180deg,#fff1,#f0f0f0);
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-}
-#wheel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: absolute;
-    top: 0;
-    width: 100%;
-}
-.wheelItem {
-    width: 90%;
-    margin: 10px 0;
-    padding: 20px 0;
-    text-align: center;
-    border-radius: 15px;
-    font-size: 1.5em;
-    font-weight: bold;
-    background: linear-gradient(90deg,#ffd700,#ff6347);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    transition: all 0.3s;
-}
-.wheelItem.active {
-    box-shadow: 0 0 20px 5px purple;
-    transform: scale(1.1);
-    background: linear-gradient(90deg,#9b59b6,#8e44ad);
-    color: white;
-}
-#spinButton {
-    margin: 20px auto;
-    display: block;
-    font-size: 1.8em;
-    padding: 15px 50px;
-    border-radius: 25px;
-    cursor: pointer;
-    border: none;
-    background: linear-gradient(45deg,#ff6b6b,#f7d794);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-#spinButton:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
-}
-#challengeContainer {
-    display: none;
-    margin-top: 20px;
-    text-align: center;
-}
-#challengeButton {
-    font-size: 1.5em;
-    padding: 15px 40px;
-    border-radius: 20px;
-    cursor: pointer;
-    border: none;
-    background: #4cd137;
-    color: white;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-#challengeInput {
-    font-size: 1.5em;
-    padding: 10px;
-    border-radius: 15px;
-    border: 2px solid #333;
-    width: 200px;
-    text-align: center;
-    margin-top: 10px;
-}
-@keyframes spinAnim {
-    0% { top: 0; }
-    100% { top: -2000px; }
-}
-</style>
+  <title>Wren Wheel of Doom</title>
+  <link rel="icon" type="image/png" href="../Favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      color: white;
+      font-family: Arial;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    /* HOME */
+    #homeText {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 10px 15px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 2em;
+      cursor: pointer;
+    }
+
+    /* MONEY */
+    #money {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.5em;
+      color: gold;
+      font-family: 'Rubik', sans-serif;
+    }
+
+    /* MUSIC BUTTON */
+    #musicBtn {
+      position: fixed;
+      bottom: 15px;
+      left: 15px;
+      background: #222;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+
+    h1 {
+      font-family: 'Rubik', sans-serif;
+      margin-top: 40px;
+    }
+
+    /* SPINNER */
+    #spinner {
+      margin: 50px auto;
+      width: 300px;
+      height: 300px;
+      overflow: hidden;
+      border: 5px solid purple;
+      border-radius: 20px;
+      box-shadow: 0 0 20px purple;
+      position: relative;
+    }
+
+    #items {
+      position: absolute;
+      width: 100%;
+      transition: top 3s cubic-bezier(0.2,0.8,0.2,1);
+    }
+
+    .item {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5em;
+    }
+
+    .highlight {
+      color: purple;
+      font-weight: bold;
+    }
+
+    #spinBtn {
+      padding: 15px 40px;
+      font-size: 1.5em;
+      border-radius: 20px;
+      border: none;
+      background: purple;
+      color: white;
+      cursor: pointer;
+    }
+
+    #gameArea {
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      margin: 10px;
+      border-radius: 15px;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
-<div id="wrenHeader">Wren.fun</div>
-<div id="wrenDollars">$0 WrenDollars</div>
 
-<div id="wheelContainer">
-    <div id="wheel"></div>
-</div>
-<button id="spinButton">SPIN</button>
+<div id="homeText" onclick="goHome()">Wren.fun</div>
+<div id="money">WrenDollars: $0</div>
 
-<div id="challengeContainer">
-    <div id="challengeText"></div>
-    <button id="challengeButton"></button>
-    <input type="text" id="challengeInput" placeholder="">
+<h1>Wren Wheel of Doom</h1>
+
+<div id="spinner">
+  <div id="items"></div>
 </div>
+
+<button id="spinBtn" onclick="spin()">SPIN</button>
+
+<div id="gameArea"></div>
+
+<button id="musicBtn" onclick="toggleMusic()">🔊 Music</button>
+
+<audio id="bgMusic" loop>
+  <source src="CoolBoySong.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-// ================== DATA ====================
-let wrenDollars = parseInt(localStorage.getItem("wrenDollars")||"0");
-const updateDollars = () => {document.getElementById("wrenDollars").textContent = wrenDollars + " WrenDollars";}
-updateDollars();
+let money = parseInt(localStorage.getItem("money")) || 0;
+const moneyDisplay = document.getElementById("money");
 
-const wheelOptions = [];
-// Add multiple copies and random + / - values
-for(let i=0;i<3;i++){wheelOptions.push("+10");wheelOptions.push("+20");wheelOptions.push("+50");wheelOptions.push("+100");}
-for(let i=0;i<2;i++){wheelOptions.push("-10");wheelOptions.push("-20");wheelOptions.push("-50");}
-wheelOptions.push("+500","+1000","+5000","-100","-500");
-wheelOptions.push("Click Frenzy");
-wheelOptions.push("Red Light Green Light");
-
-// Duplicate wheel so wrap-around looks natural
-const fullWheel = [...wheelOptions,...wheelOptions,...wheelOptions];
-
-const wheel = document.getElementById("wheel");
-fullWheel.forEach(text=>{
-    const div = document.createElement("div");
-    div.className="wheelItem";
-    div.textContent=text;
-    wheel.appendChild(div);
-});
-
-// ================== SPIN LOGIC ====================
-let spinning = false;
-const spinButton = document.getElementById("spinButton");
-const challengeContainer = document.getElementById("challengeContainer");
-const challengeText = document.getElementById("challengeText");
-const challengeButton = document.getElementById("challengeButton");
-const challengeInput = document.getElementById("challengeInput");
-let activeIndex = 0;
-
-const highlightItem = index=>{
-    document.querySelectorAll(".wheelItem").forEach((el,i)=>{
-        el.classList.toggle("active",i===index);
-    });
-};
-
-function spinWheel(){
-    if(spinning) return;
-    spinning=true;
-    spinButton.style.display="none";
-    challengeContainer.style.display="none";
-
-    let steps = Math.floor(Math.random()*30)+60; // total steps to scroll
-    let current = activeIndex;
-    const items = document.querySelectorAll(".wheelItem");
-    const spinInterval = setInterval(()=>{
-        current=(current+1)%items.length;
-        wheel.style.top = -current*60+"px";
-        highlightItem(current);
-        steps--;
-        if(steps<=0){
-            clearInterval(spinInterval);
-            spinning=false;
-            activeIndex=current;
-            triggerChallenge(items[current].textContent);
-        }
-    },50);
+function updateMoneyDisplay(){
+  moneyDisplay.innerText = "WrenDollars: $" + money;
 }
-spinButton.addEventListener("click",spinWheel);
+updateMoneyDisplay();
 
-// ================== CHALLENGES ====================
-function triggerChallenge(option){
-    challengeContainer.style.display="block";
-    challengeButton.style.display="none";
-    challengeInput.style.display="none";
-    challengeText.style.color="#000";
-
-    if(option.startsWith("+")||option.startsWith("-")){
-        let val = parseInt(option);
-        challengeText.textContent = (val>0?"You won ":"You lost ")+Math.abs(val)+" WrenDollars!";
-        animateMoney(val);
-    }else if(option==="Click Frenzy"){
-        challengeText.textContent = "Click the button as many times as you can in 10 seconds!";
-        challengeButton.style.display="inline-block";
-        let clicks=0;
-        challengeButton.textContent="CLICK ME!";
-        let timeLeft=10;
-        const interval = setInterval(()=>{
-            challengeText.textContent="Click the button as many times as you can in "+timeLeft+" seconds!";
-            timeLeft--;
-            if(timeLeft<0){
-                clearInterval(interval);
-                let earned = clicks*5;
-                challengeText.textContent="Time's up! You earned "+earned+" WrenDollars!";
-                animateMoney(earned);
-                setTimeout(()=>{challengeContainer.style.display="none";spinButton.style.display="block";},3000);
-            }
-        },1000);
-        challengeButton.onclick = ()=>{clicks++;};
-    }else if(option==="Red Light Green Light"){
-        challengeText.textContent="Wait for green, click when green! Each click +$1, if red you lose total clicks!";
-        challengeButton.style.display="inline-block";
-        challengeButton.textContent="WAIT";
-        let totalClicks=0;
-        let isGreen=false;
-        let interval = setInterval(()=>{ 
-            isGreen=Math.random()>0.5;
-            challengeButton.style.background=isGreen?"green":"red";
-            challengeButton.textContent=isGreen?"CLICK NOW!":"WAIT";
-        },1000);
-        challengeButton.onclick=()=>{
-            if(isGreen){
-                totalClicks++;
-                challengeText.textContent="Clicks: "+totalClicks+" WrenDollars";
-            }else{
-                clearInterval(interval);
-                challengeText.textContent="You clicked on red! Lost "+totalClicks+" WrenDollars";
-                animateMoney(-totalClicks);
-                setTimeout(()=>{challengeContainer.style.display="none";spinButton.style.display="block";},3000);
-            }
-        };
-        setTimeout(()=>{clearInterval(interval); challengeText.textContent="Finished! You earned "+totalClicks+" WrenDollars"; animateMoney(totalClicks); setTimeout(()=>{challengeContainer.style.display="none";spinButton.style.display="block";},3000);},15000);
+/* FAST COUNT UP */
+function changeMoney(amount){
+  let target = money + amount;
+  let step = amount / 20; // faster
+  let interval = setInterval(()=>{
+    money += step;
+    if((step > 0 && money >= target) || (step < 0 && money <= target)){
+      money = target;
+      clearInterval(interval);
+      localStorage.setItem("money", money);
     }
+    updateMoneyDisplay();
+  },20);
 }
 
-// ================== MONEY ANIMATION ====================
-function animateMoney(val){
-    let step = val>0?1:-1;
-    let steps = Math.abs(val);
-    let counter = 0;
-    let anim = setInterval(()=>{
-        wrenDollars+=step;
-        updateDollars();
-        counter++;
-        if(counter>=steps) clearInterval(anim);
-        localStorage.setItem("wrenDollars",wrenDollars);
-    },30);
+/* HOME */
+function goHome(){
+  window.location.href = "https://scellswren.github.io/wren.fun/";
+}
+
+/* SPINNER ITEMS */
+const baseItems = [
+  "+10","+20","+50","+100","+500","+1000","+5000",
+  "-10","-20","-50","-100","-500","-1000","-5000",
+  "Spam Click (+5 each)",
+  "Red Light Green Light"
+];
+
+/* RANDOMIZE + MORE POSITIVES */
+let items = [];
+for(let i=0;i<50;i++){
+  let rand = baseItems[Math.floor(Math.random()*baseItems.length)];
+  items.push(rand);
+}
+
+const container = document.getElementById("items");
+
+function renderItems(){
+  container.innerHTML="";
+  items.forEach(text=>{
+    let div=document.createElement("div");
+    div.className="item";
+    div.innerText=text;
+    container.appendChild(div);
+  });
+}
+renderItems();
+
+let spinning=false;
+
+function spin(){
+  if(spinning) return;
+  spinning=true;
+
+  document.getElementById("gameArea").innerHTML="";
+  
+  let index = Math.floor(Math.random()*items.length);
+  let offset = index * 60;
+
+  container.style.transition="top 3s cubic-bezier(0.2,0.8,0.2,1)";
+  container.style.top = -offset + "px";
+
+  setTimeout(()=>{
+    spinning=false;
+    resolve(items[index]);
+  },3000);
+}
+
+/* CHALLENGES */
+function resolve(result){
+
+  if(result.startsWith("+")){
+    changeMoney(parseInt(result));
+    return;
+  }
+
+  if(result.startsWith("-")){
+    changeMoney(parseInt(result));
+    return;
+  }
+
+  if(result==="Spam Click (+5 each)"){
+    spamClickGame();
+  }
+
+  if(result==="Red Light Green Light"){
+    redLightGame();
+  }
+}
+
+/* SPAM CLICK */
+function spamClickGame(){
+  let area=document.getElementById("gameArea");
+  let count=0;
+  let time=10;
+
+  area.innerHTML=`<h2>CLICK FAST</h2><button id="clickBtn">CLICK</button><p id="timer">10</p>`;
+
+  document.getElementById("clickBtn").onclick=()=>count++;
+
+  let interval=setInterval(()=>{
+    time--;
+    document.getElementById("timer").innerText=time;
+
+    if(time<=0){
+      clearInterval(interval);
+      changeMoney(count*5);
+      area.innerHTML="";
+    }
+  },1000);
+}
+
+/* RED LIGHT GREEN LIGHT */
+function redLightGame(){
+  let area=document.getElementById("gameArea");
+  let moneyEarned=0;
+  let green=true;
+
+  area.innerHTML=`<h2 id="light">GREEN</h2><button id="clickBtn">CLICK</button><button onclick="endGame()">Cash Out</button>`;
+
+  const lightText=document.getElementById("light");
+
+  let interval=setInterval(()=>{
+    green=!green;
+    lightText.innerText = green ? "GREEN" : "RED";
+    lightText.style.color = green ? "lime" : "red";
+  },1000);
+
+  document.getElementById("clickBtn").onclick=()=>{
+    if(green){
+      moneyEarned++;
+    }else{
+      clearInterval(interval);
+      changeMoney(-moneyEarned);
+      area.innerHTML="";
+    }
+  }
+
+  window.endGame=()=>{
+    clearInterval(interval);
+    changeMoney(moneyEarned);
+    area.innerHTML="";
+  }
+}
+
+/* MUSIC */
+const music = document.getElementById("bgMusic");
+let playing=false;
+
+function toggleMusic(){
+  if(!playing){
+    music.play();
+    playing=true;
+    document.getElementById("musicBtn").innerText="🔇 Mute";
+  }else{
+    music.pause();
+    playing=false;
+    document.getElementById("musicBtn").innerText="🔊 Music";
+  }
 }
 </script>
+
 </body>
 </html>
