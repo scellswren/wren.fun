@@ -30,13 +30,8 @@
       font-size: 2em;
       color: #ffffff;
       text-decoration: none;
-      transition: all 1.5s ease;
-    }
-
-    #homeText.centered {
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(2.5);
+      /* transition handled by JS for the end sequence */
+      transition: top 1.8s ease, left 1.8s ease, transform 1.8s ease, font-size 1.8s ease, opacity 0.8s ease;
     }
 
     #watchCounter {
@@ -64,34 +59,51 @@
       background: #000;
     }
 
+    /* Fade masks at top and bottom so lines fade in/out cleanly */
+    .scene::before,
+    .scene::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      height: 160px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .scene::before {
+      top: 0;
+      background: linear-gradient(to bottom, #000 30%, transparent);
+    }
+    .scene::after {
+      bottom: 0;
+      background: linear-gradient(to top, #000 30%, transparent);
+    }
+
     .track {
       position: absolute;
       left: 50%;
-      bottom: -100%;
+      top: 100vh;
       width: min(900px, 88vw);
       transform: translateX(-50%);
       text-align: center;
-      animation: creditsRise 120s linear forwards;
-      animation-delay: 2s;
+      animation: creditsRise 150s linear forwards;
+      animation-delay: 0.3s;
     }
 
     @keyframes creditsRise {
-      0% {
-        bottom: -100%;
-      }
-      100% {
-        bottom: 100%;
-      }
+      0%   { top: 100vh; }
+      100% { top: -100%; }
     }
 
-    .spacer {
-      height: 100vh; /* IMPORTANT: pushes first line off screen */
+    /* The bottom spacer just adds breathing room after the last line */
+    .spacer-end {
+      height: 110vh;
     }
 
     .credit-line {
-      margin: 24px 0;
+      margin: 28px 0;
       font-size: clamp(1.25rem, 2.15vw, 2.2rem);
       color: #ffffff;
+      line-height: 1.3;
     }
 
     .credit-line.small {
@@ -99,7 +111,7 @@
     }
 
     .credit-line.section {
-      margin-top: 42px;
+      margin-top: 50px;
       margin-bottom: 10px;
       text-transform: uppercase;
       letter-spacing: 3px;
@@ -111,15 +123,49 @@
     .credit-line.rule {
       height: 1px;
       width: 120px;
-      margin: 20px auto 34px;
+      margin: 26px auto 38px;
       background: linear-gradient(90deg, transparent, var(--soft), transparent);
     }
 
     .credit-line.end {
-      margin-top: 54px;
+      margin-top: 60px;
       letter-spacing: 2px;
       color: #ffffff;
     }
+
+    /* End screen — Wren.fun centred and big */
+    #endScreen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 900;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+
+    #endScreen.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #endLogo {
+      font-family: 'Rubik', sans-serif;
+      font-size: clamp(3em, 10vw, 8em);
+      color: white;
+      text-decoration: none;
+      transform: scale(0.6);
+      transition: transform 1.6s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 1.2s ease;
+      opacity: 0;
+    }
+
+    #endScreen.visible #endLogo {
+      transform: scale(1);
+      opacity: 1;
+    }
+
   </style>
 </head>
 <body>
@@ -127,18 +173,20 @@
 <a id="homeText" href="https://scellswren.github.io/wren.fun/">Wren.fun</a>
 <div id="watchCounter">0</div>
 
+<!-- End screen shown after credits finish -->
+<div id="endScreen">
+  <a id="endLogo" href="https://scellswren.github.io/wren.fun/">Wren.fun</a>
+</div>
+
 <div class="scene">
   <div class="track" id="creditsTrack">
-
-    <!-- THIS spacer makes "Created by Wren" start OFF SCREEN -->
-    <div class="spacer"></div>
 
     <div class="credit-line">Created by Wren</div>
     <div class="credit-line">Designed by Wren</div>
     <div class="credit-line">Ideas by Wren</div>
     <div class="credit-line">Help by Wren</div>
     <div class="credit-line">Code by ChatGPT, Claude and Wren</div>
-    <div class="credit-line">Came up by Wren</div>
+    <div class="credit-line">Came up with by Wren</div>
     <div class="credit-line">Made on Github</div>
 
     <div class="credit-line rule"></div>
@@ -177,15 +225,23 @@
 
     <div class="credit-line end">Thanks for watching</div>
 
-    <div class="spacer"></div>
+    <!-- Breathing room after last line before counter triggers -->
+    <div class="spacer-end"></div>
+
   </div>
 </div>
+
+<!-- Music — plays on load, loops -->
+<audio id="bgMusic" src="SongLong.MP3" loop preload="auto"></audio>
 
 <script>
 const watchCounter = document.getElementById("watchCounter");
 const creditsTrack = document.getElementById("creditsTrack");
-const homeText = document.getElementById("homeText");
+const homeText     = document.getElementById("homeText");
+const endScreen    = document.getElementById("endScreen");
+const bgMusic      = document.getElementById("bgMusic");
 
+/* ── Watch count ── */
 function loadWatchCount() {
   const saved = parseInt(localStorage.getItem("creditsWatchCount") || "0", 10);
   watchCounter.textContent = Number.isFinite(saved) ? saved : 0;
@@ -200,13 +256,39 @@ function addWatch() {
 
 loadWatchCount();
 
+/* ── Music: browsers require a user gesture before playing audio.
+   We try immediately; if blocked we wait for the first click/tap. ── */
+function startMusic() {
+  bgMusic.volume = 0.7;
+  bgMusic.play().catch(() => {
+    // Blocked — wait for first interaction
+    const unlock = () => {
+      bgMusic.play().catch(() => {});
+      document.removeEventListener("click",   unlock);
+      document.removeEventListener("keydown", unlock);
+      document.removeEventListener("touchstart", unlock);
+    };
+    document.addEventListener("click",      unlock, { once: true });
+    document.addEventListener("keydown",    unlock, { once: true });
+    document.addEventListener("touchstart", unlock, { once: true });
+  });
+}
+
+startMusic();
+
+/* ── End sequence: fires when the track animation finishes ── */
 creditsTrack.addEventListener("animationend", () => {
+  // 1. Increment counter
   addWatch();
 
-  // move + grow Wren.fun to center
+  // 2. Fade out the original homeText link in the corner
+  homeText.style.opacity = "0";
+  homeText.style.pointerEvents = "none";
+
+  // 3. Show the big centred end screen after a short pause
   setTimeout(() => {
-    homeText.classList.add("centered");
-  }, 500);
+    endScreen.classList.add("visible");
+  }, 600);
 });
 </script>
 
