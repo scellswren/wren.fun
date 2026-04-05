@@ -8,7 +8,7 @@
     :root {
       --bg: #000000;
       --text: #ffffff;
-      --muted: rgba(255,255,255,0.7);
+      --muted: #ffffff;
       --soft: rgba(255,255,255,0.18);
     }
 
@@ -84,32 +84,27 @@
     .track {
       position: absolute;
       left: 50%;
-      bottom: -130vh;
+      bottom: -140vh;
       width: min(900px, 88vw);
       transform: translateX(-50%);
       text-align: center;
-      opacity: 0;
-      will-change: transform, opacity, bottom;
+      opacity: 1;
+      will-change: bottom;
       animation: creditsRise 120s linear forwards;
       animation-delay: 2s;
     }
 
     @keyframes creditsRise {
       0% {
-        bottom: -130vh;
-        opacity: 0;
-      }
-      1% {
-        opacity: 1;
+        bottom: -140vh;
       }
       100% {
-        bottom: 130vh;
-        opacity: 1;
+        bottom: 140vh;
       }
     }
 
     .spacer {
-      height: 18vh;
+      height: 100vh;
     }
 
     .credit-line {
@@ -119,37 +114,21 @@
       letter-spacing: 1px;
       color: var(--text);
       text-shadow: 0 0 10px rgba(255,255,255,0.08);
-
-      opacity: 0;
-      transform: translateY(28px);
-      animation: lineRise 0.9s ease forwards;
-      animation-delay: calc(2s + (var(--i) * 1.35s));
-    }
-
-    @keyframes lineRise {
-      0% {
-        opacity: 0;
-        transform: translateY(28px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
     }
 
     .credit-line.small {
       font-size: clamp(1rem, 1.6vw, 1.5rem);
-      color: var(--muted);
+      color: var(--text);
     }
 
     .credit-line.section {
       margin-top: 42px;
       margin-bottom: 10px;
-      color: rgba(255,255,255,0.92);
+      color: var(--text);
       text-transform: uppercase;
       letter-spacing: 3px;
       font-size: clamp(0.95rem, 1.4vw, 1.3rem);
-      opacity: 0.85;
+      opacity: 1;
     }
 
     .credit-line.rule {
@@ -162,7 +141,7 @@
 
     .credit-line.end {
       margin-top: 54px;
-      color: rgba(255,255,255,0.85);
+      color: var(--text);
       letter-spacing: 2px;
     }
   </style>
@@ -240,21 +219,6 @@
       watchCounter.textContent = String(next);
     }
 
-    function assignLineDelays() {
-      const lines = creditsTrack.querySelectorAll(".credit-line");
-      let n = 0;
-      lines.forEach((line) => {
-        if (line.classList.contains("rule")) {
-          line.style.setProperty("--i", n);
-          n += 1;
-          return;
-        }
-        line.style.setProperty("--i", n);
-        n += 1;
-      });
-    }
-
-    assignLineDelays();
     loadWatchCount();
 
     creditsTrack.addEventListener("animationend", (event) => {
