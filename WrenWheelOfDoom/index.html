@@ -561,8 +561,7 @@ const goodItems = [
   { label: "+$5000", type: "good", action: () => animateMoney(5000) },
   { label: "×1.1",  type: "mult", action: () => applyMultiplier(1.1,  money < 0 ? "÷1.1 🧯"  : "×1.1!") },
   { label: "×1.25", type: "mult", action: () => applyMultiplier(1.25, money < 0 ? "÷1.25 🧯" : "×1.25!") },
-  { label: "×1.5",  type: "mult", action: () => applyMultiplier(1.5,  money < 0 ? "÷1.5 🧯"  : "×1.5!") },
-  { label: "×2",    type: "mult", action: () => applyMultiplier(2,    money < 0 ? "÷2 🔥"    : "×2!! 🔥") },
+  { label: "×1.5",  type: "mult", action: () => applyMultiplier(1.5,  money < 0 ? "÷1.5 🧯"  : "×1.5!") }
 ];
 
 const badItems = [
@@ -680,15 +679,54 @@ function spin(e) {
 let clickRushActive = false;
 let clickRushCount  = 0;
 let clickRushTimer  = null;
-let clickRushPerClick = 1;
+let clickRushPrepTimer = null;
+let clickRushClickTimes = [];
+let clickRushClickValue = 1;
 
 function startClickRush() {
   const area = document.getElementById("gameArea");
   clickRushCount  = 0;
-  clickRushActive = true;
-  let timeLeft = 10;
+  clickRushActive = false;
+  clickRushClickTimes = [];
+  let timeLeft = 3;
 
-  clickRushPerClick = money > 0 ? Math.max(1, Math.floor(money * 0.01)) : 1;
+  area.innerHTML = `
+    <div class="game-card">
+      <div class="game-title" style="color:var(--cyan)">🖱 CLICK RUSH</div>
+      <div id="clickTimer" class="countdown">${timeLeft}</div>
+      <div id="clickCount">Heads up... get ready!</div>
+      <div id="clickTarget" style="opacity:0.45; pointer-events:none;">WAIT</div>
+      <p style="color:rgba(255,255,255,0.4); font-size:0.8em; margin-top:14px;">
+        Each click = +1% of your balance
+      </p>
+    </div>`;
+
+  const timerEl = document.getElementById("clickTimer");
+
+  clickRushPrepTimer = setInterval(() => {
+    timeLeft--;
+    if (timerEl) {
+      timerEl.textContent = timeLeft;
+      timerEl.style.animation = "none";
+      void timerEl.offsetWidth;
+      timerEl.style.animation = "cntPop 0.4s cubic-bezier(0.34,1.4,0.64,1) both";
+    }
+
+    if (timeLeft <= 0) {
+      clearInterval(clickRushPrepTimer);
+      beginClickRush();
+    }
+  }, 1000);
+}
+
+function beginClickRush() {
+  const area = document.getElementById("gameArea");
+  clickRushCount = 0;
+  clickRushActive = true;
+  clickRushClickTimes = [];
+  clickRushClickValue = money > 0 ? Math.max(1, Math.floor(money * 0.01)) : 1;
+
+  let timeLeft = 10;
 
   area.innerHTML = `
     <div class="game-card">
@@ -697,7 +735,7 @@ function startClickRush() {
       <div id="clickCount">Clicks: 0 — Earnings: +$0</div>
       <div id="clickTarget">CLICK</div>
       <p style="color:rgba(255,255,255,0.4); font-size:0.8em; margin-top:14px;">
-        ${money > 0 ? 'Each click = +1% of your balance' : 'Each click = +$1 (in debt mode)'}
+        Each click = +1% of your balance
       </p>
     </div>`;
 
@@ -711,19 +749,43 @@ function startClickRush() {
       timerEl.textContent = timeLeft;
       if (timeLeft <= 3) timerEl.style.color = "var(--red)";
     }
+
     if (timeLeft <= 0) {
       clearInterval(clickRushTimer);
       clickRushActive = false;
       target.removeEventListener("click", onClickRush);
-      const earned = clickRushPerClick * clickRushCount;
+      const earned = clickRushClickValue * clickRushCount;
       animateMoney(earned);
       area.innerHTML = "";
     }
   }, 1000);
 }
 
+function endClickRushForAutoclick() {
+  if (!clickRushActive) return;
+  clickRushActive = false;
+  clearInterval(clickRushTimer);
+  clearInterval(clickRushPrepTimer);
+
+  const target = document.getElementById("clickTarget");
+  if (target) target.removeEventListener("click", onClickRush);
+
+  document.getElementById("gameArea").innerHTML = "";
+  applyMultiplier(0.8, money < 0 ? "+20% debt 💀" : "-20% AUTOCLICK!");
+}
+
 function onClickRush(e) {
   if (!clickRushActive) return;
+
+  const now = Date.now();
+  clickRushClickTimes = clickRushClickTimes.filter(t => now - t < 1000);
+  clickRushClickTimes.push(now);
+
+  if (clickRushClickTimes.length >= 10) {
+    endClickRushForAutoclick();
+    return;
+  }
+
   clickRushCount++;
 
   const target = document.getElementById("clickTarget");
@@ -733,7 +795,7 @@ function onClickRush(e) {
 
   const el = document.createElement("div");
   el.className = "click-float";
-  el.textContent = "+$" + clickRushPerClick;
+  el.textContent = "+$" + clickRushClickValue;
   el.style.left = (e.clientX - 20) + "px";
   el.style.top  = (e.clientY - 20) + "px";
   document.body.appendChild(el);
@@ -741,7 +803,7 @@ function onClickRush(e) {
 
   const countEl = document.getElementById("clickCount");
   if (countEl) {
-    countEl.textContent = `Clicks: ${clickRushCount} — Earnings: +$${(clickRushPerClick * clickRushCount).toLocaleString()}`;
+    countEl.textContent = `Clicks: ${clickRushCount} — Earnings: +$${(clickRushClickValue * clickRushCount).toLocaleString()}`;
   }
 }
 
@@ -770,7 +832,7 @@ function startRedLight() {
         <button class="game-btn btn-purple" id="rlglClick">TAP!</button>
         <button class="game-btn btn-gold"   id="rlglCash">CASH OUT</button>
       </div>
-      <p style="color:rgba(255,255,255,0.35); font-size:0.78em; margin-top:14px;">Tap on green → +$25 · Tap on red → lose all earnings</p>
+      <p style="color:rgba(255,255,255,0.35); font-size:0.78em; margin-top:14px;">Tap on green → +1% of your balance · Tap on red → lose all earnings</p>
     </div>`;
 
   function setLight(g) {
@@ -778,7 +840,7 @@ function startRedLight() {
     const light  = document.getElementById("rlglLight");
     const status = document.getElementById("rlglStatus");
     if (!light) return;
-    light.className    = g ? "green" : "red";
+    light.className   = g ? "green" : "red";
     status.textContent = g ? "GREEN LIGHT" : "RED LIGHT";
     status.style.color = g ? "var(--green)" : "var(--red)";
     rlglTimeout = setTimeout(() => setLight(!isGreen), getDelay(g));
@@ -789,7 +851,8 @@ function startRedLight() {
   document.getElementById("rlglClick").onclick = () => {
     if (failed) return;
     if (isGreen) {
-      earn += 25;
+      const gain = money > 0 ? Math.max(1, Math.floor(money * 0.01)) : 1;
+      earn += gain;
       const el = document.getElementById("rlglEarn");
       if (el) el.textContent = "Earned: $" + earn.toLocaleString();
       const l = document.getElementById("rlglLight");
@@ -819,7 +882,7 @@ let mmInterval = null;
 function startDontMove() {
   const area = document.getElementById("gameArea");
   let cntDown = 3;
-  const rewardLabel = money < 0 ? "÷1.25 your debt 💰" : "×1.25 your total 💰";
+  const rewardLabel = money < 0 ? "×2 your debt 💀" : "×2 your total 💰";
 
   area.innerHTML = `
     <div class="game-card">
@@ -850,7 +913,7 @@ function beginDontMove() {
   const TOTAL = 50;
   let timeLeft = TOTAL;
   mmActive = true;
-  const rewardLabel = money < 0 ? "÷1.25 your debt" : "×1.25 your total";
+  const rewardLabel = money < 0 ? "×2 your debt" : "×2 your total";
 
   area.innerHTML = `
     <div class="game-card">
@@ -868,7 +931,7 @@ function beginDontMove() {
     document.removeEventListener("mousemove", onMove);
     const status = document.getElementById("mmStatus");
     if (status) { status.textContent = "YOU MOVED! 💀"; status.style.color = "var(--red)"; }
-    showResult(-1, "YOU MOVED!");
+    applyMultiplier(0.5, money < 0 ? "+50% debt 💀" : "-50% 💸");
     setTimeout(() => { area.innerHTML = ""; }, 1800);
   };
 
@@ -886,7 +949,7 @@ function beginDontMove() {
       mmActive = false;
       clearInterval(mmInterval);
       document.removeEventListener("mousemove", onMove);
-      applyMultiplier(1.25, money < 0 ? "÷1.25 🧊" : "×1.25 🧊");
+      applyMultiplier(2, money < 0 ? "×2 debt 💀" : "×2!! 🔥");
       area.innerHTML = "";
     }
   }, 1000);
