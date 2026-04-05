@@ -63,7 +63,6 @@
       background: #000;
     }
 
-    /* Fade masks at top and bottom so lines fade in/out cleanly */
     .scene::before,
     .scene::after {
       content: '';
@@ -89,10 +88,8 @@
       width: min(900px, 88vw);
       transform: translateX(-50%);
       text-align: center;
-      /* animation removed — JS drives the scroll so it never stops */
     }
 
-    /* The bottom spacer just adds breathing room after the last line */
     .spacer-end {
       height: 110vh;
     }
@@ -131,7 +128,6 @@
       color: #ffffff;
     }
 
-    /* End screen — Wren.fun centred and big */
     #endScreen {
       position: fixed;
       inset: 0;
@@ -141,7 +137,6 @@
       z-index: 900;
       pointer-events: none;
       opacity: 0;
-      /* Hidden until JS shows it */
       visibility: hidden;
       transition: opacity 1.2s ease;
     }
@@ -180,7 +175,6 @@
 <a id="homeText" href="https://scellswren.github.io/wren.fun/">Wren.fun</a>
 <div id="watchCounter">0</div>
 
-<!-- End screen shown after credits finish -->
 <div id="endScreen">
   <a id="endLogo" href="https://scellswren.github.io/wren.fun/">Wren.fun</a>
 </div>
@@ -233,11 +227,11 @@
     <div class="credit-line end">Thanks for visiting</div>
 
     <div id="sentinel"></div>
+    <div class="spacer-end"></div>
 
   </div>
 </div>
 
-<!-- Music — plays on load, loops -->
 <audio id="bgMusic" loop preload="auto">
   <source src="SongLong.mp3" type="audio/mpeg">
 </audio>
@@ -263,28 +257,28 @@ function addWatch() {
 loadWatchCount();
 
 /* ── Music ── */
-function startMusic() {
-  bgMusic.volume = 0.7;
-  bgMusic.onerror = () => console.warn("SongLong.mp3 failed to load — check the filename and that it's in the same folder.");
-  bgMusic.play().catch(() => {
-    const unlock = () => {
-      bgMusic.play().catch(() => {});
-      document.removeEventListener("click",      unlock);
-      document.removeEventListener("keydown",    unlock);
-      document.removeEventListener("touchstart", unlock);
-    };
-    document.addEventListener("click",      unlock, { once: true });
-    document.addEventListener("keydown",    unlock, { once: true });
-    document.addEventListener("touchstart", unlock, { once: true });
-  });
+bgMusic.volume = 0.7;
+
+function tryPlay() {
+  bgMusic.play().catch(() => {});
 }
-startMusic();
 
-/* ── JS-driven scroll — never stops, exact sentinel detection ──
-   px per second — tweak this one number to change speed          */
-const SPEED = 22; // pixels per second
+// Try immediately on load
+tryPlay();
 
-let topPos = window.innerHeight; // start just below screen
+// If autoplay was blocked, unlock on the very first interaction of any kind
+function unlockAudio() {
+  tryPlay();
+}
+document.addEventListener("click",      unlockAudio, { once: true });
+document.addEventListener("keydown",    unlockAudio, { once: true });
+document.addEventListener("touchstart", unlockAudio, { once: true });
+document.addEventListener("mousemove",  unlockAudio, { once: true });
+
+/* ── JS-driven scroll ── */
+const SPEED = 22;
+
+let topPos = window.innerHeight;
 let lastTime = null;
 let ended = false;
 
@@ -295,15 +289,13 @@ track.style.top = topPos + "px";
 
 function frame(ts) {
   if (lastTime === null) lastTime = ts;
-  const delta = (ts - lastTime) / 1000; // seconds since last frame
+  const delta = (ts - lastTime) / 1000;
   lastTime = ts;
 
   topPos -= SPEED * delta;
   track.style.top = topPos + "px";
 
   if (!ended) {
-    // getBoundingClientRect works here because WE are setting top directly,
-    // not a CSS animation — the browser always returns the real position.
     const rect = sentinel.getBoundingClientRect();
     if (rect.bottom <= 0) {
       ended = true;
@@ -311,7 +303,6 @@ function frame(ts) {
       homeText.style.opacity = "0";
       homeText.style.pointerEvents = "none";
       setTimeout(() => endScreen.classList.add("visible"), 600);
-      // Keep scrolling — don't return
     }
   }
 
