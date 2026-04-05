@@ -85,13 +85,7 @@
       width: min(900px, 88vw);
       transform: translateX(-50%);
       text-align: center;
-      animation: creditsRise 150s linear forwards;
-      animation-delay: 0.3s;
-    }
-
-    @keyframes creditsRise {
-      0%   { top: 100vh; }
-      100% { top: -100%; }
+      /* animation removed — JS drives the scroll so it never stops */
     }
 
     /* The bottom spacer just adds breathing room after the last line */
@@ -143,11 +137,14 @@
       z-index: 900;
       pointer-events: none;
       opacity: 0;
+      /* Hidden until JS shows it */
+      visibility: hidden;
       transition: opacity 1.2s ease;
     }
 
     #endScreen.visible {
       opacity: 1;
+      visibility: visible;
       pointer-events: auto;
     }
 
@@ -225,8 +222,7 @@
 
     <div class="credit-line end">Thanks for watching</div>
 
-    <!-- Breathing room after last line before counter triggers -->
-    <div class="spacer-end"></div>
+    <div id="sentinel"></div>
 
   </div>
 </div>
@@ -236,36 +232,32 @@
 
 <script>
 const watchCounter = document.getElementById("watchCounter");
-const creditsTrack = document.getElementById("creditsTrack");
 const homeText     = document.getElementById("homeText");
 const endScreen    = document.getElementById("endScreen");
 const bgMusic      = document.getElementById("bgMusic");
+const track        = document.getElementById("creditsTrack");
+const sentinel     = document.getElementById("sentinel");
 
-/* ── Watch count ── */
 function loadWatchCount() {
   const saved = parseInt(localStorage.getItem("creditsWatchCount") || "0", 10);
   watchCounter.textContent = Number.isFinite(saved) ? saved : 0;
 }
-
 function addWatch() {
   const current = parseInt(localStorage.getItem("creditsWatchCount") || "0", 10) || 0;
   const next = current + 1;
   localStorage.setItem("creditsWatchCount", String(next));
   watchCounter.textContent = String(next);
 }
-
 loadWatchCount();
 
-/* ── Music: browsers require a user gesture before playing audio.
-   We try immediately; if blocked we wait for the first click/tap. ── */
+/* ── Music ── */
 function startMusic() {
   bgMusic.volume = 0.7;
   bgMusic.play().catch(() => {
-    // Blocked — wait for first interaction
     const unlock = () => {
       bgMusic.play().catch(() => {});
-      document.removeEventListener("click",   unlock);
-      document.removeEventListener("keydown", unlock);
+      document.removeEventListener("click",      unlock);
+      document.removeEventListener("keydown",    unlock);
       document.removeEventListener("touchstart", unlock);
     };
     document.addEventListener("click",      unlock, { once: true });
@@ -273,23 +265,47 @@ function startMusic() {
     document.addEventListener("touchstart", unlock, { once: true });
   });
 }
-
 startMusic();
 
-/* ── End sequence: fires when the track animation finishes ── */
-creditsTrack.addEventListener("animationend", () => {
-  // 1. Increment counter
-  addWatch();
+/* ── JS-driven scroll — never stops, exact sentinel detection ──
+   px per second — tweak this one number to change speed          */
+const SPEED = 80; // pixels per second
 
-  // 2. Fade out the original homeText link in the corner
-  homeText.style.opacity = "0";
-  homeText.style.pointerEvents = "none";
+let topPos = window.innerHeight; // start just below screen
+let lastTime = null;
+let ended = false;
 
-  // 3. Show the big centred end screen after a short pause
-  setTimeout(() => {
-    endScreen.classList.add("visible");
-  }, 600);
-});
+track.style.position = "absolute";
+track.style.left = "50%";
+track.style.transform = "translateX(-50%)";
+track.style.top = topPos + "px";
+
+function frame(ts) {
+  if (lastTime === null) lastTime = ts;
+  const delta = (ts - lastTime) / 1000; // seconds since last frame
+  lastTime = ts;
+
+  topPos -= SPEED * delta;
+  track.style.top = topPos + "px";
+
+  if (!ended) {
+    // getBoundingClientRect works here because WE are setting top directly,
+    // not a CSS animation — the browser always returns the real position.
+    const rect = sentinel.getBoundingClientRect();
+    if (rect.bottom <= 0) {
+      ended = true;
+      addWatch();
+      homeText.style.opacity = "0";
+      homeText.style.pointerEvents = "none";
+      setTimeout(() => endScreen.classList.add("visible"), 600);
+      // Keep scrolling — don't return
+    }
+  }
+
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);
 </script>
 
 </body>
