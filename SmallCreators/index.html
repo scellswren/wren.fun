@@ -4,52 +4,86 @@
   <title>Small Creators</title>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="../Favicon.png">
+
   <style>
+
     body {
       margin: 0;
-      background-color: black;
-      color: white;
       font-family: Arial, sans-serif;
       text-align: center;
       display: flex;
       flex-direction: column;
       justify-content: center;
       height: 100vh;
-      position: relative;
+      color: white;
+      overflow: hidden;
+
+      background: linear-gradient(-45deg,#0f0c29,#302b63,#24243e,#3a0ca3);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% {background-position:0% 50%;}
+      50% {background-position:100% 50%;}
+      100% {background-position:0% 50%;}
     }
 
     h1 {
       font-size: 4em;
-      margin-bottom: 50px;
+      margin-bottom: 40px;
       color: yellow;
+      font-family: 'Rubik', sans-serif;
     }
 
+    /* WHAT BUTTON (smaller) */
+
     #what-btn {
-      font-size: 5em;
-      padding: 40px 80px;
-      background: purple;
+      font-size: 2.5em;
+      padding: 20px 40px;
+      background: linear-gradient(45deg,#8a2be2,#b517ff);
       color: white;
       border: none;
       border-radius: 25px;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
       font-family: 'Rubik', sans-serif;
+
+      box-shadow:
+        0 10px 25px rgba(0,0,0,0.5),
+        0 0 25px rgba(181,23,255,0.6);
+
+      transition:
+        transform 0.15s,
+        box-shadow 0.15s,
+        filter 0.2s;
     }
 
     #what-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(255,255,255,0.3);
+      transform: scale(1.08);
+      filter: brightness(1.2);
+      box-shadow:
+        0 12px 30px rgba(0,0,0,0.6),
+        0 0 35px rgba(200,80,255,0.9);
+    }
+
+    #what-btn:active {
+      transform: scale(0.92);
+      box-shadow:
+        0 5px 10px rgba(0,0,0,0.6),
+        inset 0 0 15px rgba(0,0,0,0.5);
     }
 
     .label {
       position: absolute;
-      bottom: 20px;
-      left: 20px;
+      bottom: 25px;
+      left: 25px;
       font-size: 1.2em;
-      color: #aaa;
+      color: #ccc;
+      opacity: 0.9;
     }
 
-    /* Wren.fun text top-left */
+    /* Wren.fun text */
+
     #homeText {
       position: fixed;
       top: 10px;
@@ -66,8 +100,10 @@
     #homeText:hover {
       transform: scale(1.2);
     }
+
   </style>
 </head>
+
 <body>
 
 <div id="homeText" onclick="goHome()">Wren.fun</div>
@@ -79,7 +115,7 @@
 <div class="label">Click to discover a random small creator!</div>
 
 <script>
-  // Add your full creator URLs here
+
   const creators = [
     "https://www.youtube.com/@WrenIsOld",
     "https://www.youtube.com/@Tikitheg",
@@ -95,14 +131,27 @@
   ];
 
   document.getElementById("what-btn").addEventListener("click", () => {
+
+    const btn = document.getElementById("what-btn");
+
+    btn.style.transform = "scale(0.9)";
+    setTimeout(() => {
+      btn.style.transform = "";
+    }, 120);
+
     const randomIndex = Math.floor(Math.random() * creators.length);
     const url = creators[randomIndex];
-    window.location.href = url; // Redirect to random creator
+
+    setTimeout(() => {
+      window.location.href = url;
+    }, 150);
+
   });
 
   function goHome() {
-    window.location.href = "../index.html"; // Adjust path to main page
+    window.location.href = "../index.html";
   }
+
 </script>
 
 </body>
