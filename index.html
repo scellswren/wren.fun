@@ -2,78 +2,495 @@
 <html>
 <head>
   <title>Wren.fun</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="Favicon.png">
   <style>
+    :root {
+      --accent: #7c3aed;
+      --transition: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Rubik', sans-serif;
       text-align: center;
-      margin: 0;
-      padding: 0;
-      transition: background 1s, color 0.5s;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+      overflow-x: hidden;
     }
 
+    /* ── LIGHT MODE (default) ── */
+    body.mode-light {
+      background: #f5f5f7;
+      color: #1d1d1f;
+    }
+
+    /* ── DARK MODE ── */
+    body.mode-dark {
+      background: #0a0a0f;
+      color: #f0f0f0;
+    }
+
+    /* ── RAINBOW MODE ── */
+    body.mode-rainbow {
+      animation: rainbowBG 10s linear infinite;
+      color: #111;
+    }
+    @keyframes rainbowBG {
+      0%   { background-color: #ff6b6b; }
+      16%  { background-color: #ffa94d; }
+      33%  { background-color: #ffe066; }
+      50%  { background-color: #69db7c; }
+      66%  { background-color: #4dabf7; }
+      83%  { background-color: #9775fa; }
+      100% { background-color: #ff6b6b; }
+    }
+
+    /* ── LIQUID GLASS MODE ── */
+    body.mode-glass {
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(120, 80, 255, 0.35) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 20%, rgba(0, 200, 255, 0.3) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 60% at 60% 80%, rgba(255, 100, 180, 0.25) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 10% 80%, rgba(0, 255, 180, 0.2) 0%, transparent 55%),
+        linear-gradient(135deg, #e8f4fd 0%, #f0e8ff 30%, #fde8f4 60%, #e8fff4 100%);
+      color: #1a1a2e;
+    }
+    body.mode-glass::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 25% 35%, rgba(255,255,255,0.6) 0%, transparent 50%),
+        radial-gradient(circle at 75% 65%, rgba(255,255,255,0.4) 0%, transparent 45%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glass shimmer orbs */
+    .glass-orb {
+      display: none;
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(60px);
+      pointer-events: none;
+      z-index: 0;
+      animation: orbFloat ease-in-out infinite;
+    }
+    body.mode-glass .glass-orb { display: block; }
+    .glass-orb.g1 { width:350px; height:350px; background: rgba(120,80,255,0.25); top:-80px; left:-80px; animation-duration:12s; }
+    .glass-orb.g2 { width:280px; height:280px; background: rgba(0,200,255,0.22); top:40%; right:-60px; animation-duration:15s; animation-delay:-5s; }
+    .glass-orb.g3 { width:240px; height:240px; background: rgba(255,100,180,0.2); bottom:10%; left:15%; animation-duration:10s; animation-delay:-3s; }
+    @keyframes orbFloat {
+      0%,100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-30px) scale(1.06); }
+    }
+
+    /* ── CONTENT WRAPPER ── */
+    #content {
+      position: relative;
+      z-index: 1;
+      padding: 50px 20px 100px;
+    }
+
+    /* ── H1 ── */
     h1 {
+      font-size: clamp(2.5em, 8vw, 5em);
+      font-weight: 900;
       margin-top: 50px;
-      font-size: 5em;
-      font-family: 'Rubik', sans-serif;
-      transition: all 0.5s;
       margin-bottom: 0;
-    }
-
-    p {
-      font-size: 1.5em;
-      margin-bottom: 50px;
+      font-family: 'Rubik', sans-serif;
       transition: all 0.5s;
     }
 
-    .wheel-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    /* Plain text for light / dark / rainbow */
+    body.mode-light h1,
+    body.mode-dark h1,
+    body.mode-rainbow h1 {
+      background: none;
+      -webkit-background-clip: unset;
+      -webkit-text-fill-color: unset;
+      color: inherit;
+      filter: none;
     }
 
-    .wheel-warning {
-      font-size: 0.7em;
-      color: red;
-      margin-top: 5px;
-      font-family: 'Rubik', sans-serif;
-      text-align: center;
+    /* Gradient only for glass */
+    body.mode-glass h1 {
+      background: linear-gradient(135deg, #6a3de8, #0099cc, #cc3399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 12px rgba(100,60,220,0.3));
     }
 
+    p.tagline {
+      font-size: 1.5em;
+      margin: 10px 0 50px;
+      transition: all 0.5s;
+    }
+
+    /* ── BUTTONS ── */
     .button-container {
       display: flex;
       justify-content: center;
-      gap: 25px;
+      gap: 22px;
       margin-bottom: 50px;
       flex-wrap: wrap;
-      align-items: flex-start; /* ✅ FIX: keeps all buttons same height */
+      align-items: flex-start;
     }
 
     .btn {
-      background-color: #f0f0f0;
-      color: black;
       padding: 30px 60px;
       font-size: 2.5em;
       font-family: 'Rubik', sans-serif;
+      font-weight: 700;
       text-decoration: none;
       border-radius: 25px;
       border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, background var(--transition), color var(--transition);
+      display: inline-block;
+    }
+    .btn:hover  { transform: scale(1.08); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+    .btn:active { transform: scale(0.95); }
+
+    body.mode-light .btn {
+      background: #f0f0f0;
+      color: black;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transition: transform 0.2s, box-shadow 0.2s, background 0.5s, color 0.5s;
+    }
+    body.mode-dark .btn {
+      background: #1c1c2e;
+      color: #f0f0f0;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    body.mode-rainbow .btn {
+      background: rgba(255,255,255,0.55);
+      color: #111;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      backdrop-filter: blur(8px);
+    }
+    body.mode-glass .btn {
+      background: rgba(255,255,255,0.38);
+      color: #1a1a2e;
+      box-shadow:
+        0 8px 32px rgba(100,60,220,0.13),
+        0 1.5px 0 rgba(255,255,255,0.7) inset,
+        0 -1px 0 rgba(100,60,220,0.08) inset;
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.55);
+    }
+    body.mode-glass .btn:hover {
+      background: rgba(255,255,255,0.52);
+      box-shadow: 0 12px 40px rgba(100,60,220,0.2), 0 1.5px 0 rgba(255,255,255,0.8) inset;
+    }
+
+    /* ── SETTINGS COG (top-left) ── */
+    #settingsCog {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      width: 38px;
+      height: 38px;
+      cursor: pointer;
+      z-index: 1000;
+      transition: transform 0.4s cubic-bezier(0.34,1.4,0.64,1), filter 0.3s;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+    }
+    #settingsCog:hover { transform: rotate(60deg) scale(1.12); }
+    #settingsCog.open  { transform: rotate(120deg); }
+
+    /* ── SETTINGS PANEL ── */
+    #settingsMenu {
+      position: fixed;
+      top: 62px;
+      left: 14px;
+      width: 260px;
+      padding: 0;
+      border-radius: 20px;
+      z-index: 1000;
+      font-family: 'Rubik', sans-serif;
+      overflow: hidden;
+      transform-origin: top left;
+      transform: scale(0.85) translateY(-10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s ease;
+    }
+    #settingsMenu.open {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    body.mode-light   #settingsMenu { background: #fff; box-shadow: 0 8px 40px rgba(0,0,0,0.13); border: 1px solid rgba(0,0,0,0.07); color: #1d1d1f; }
+    body.mode-dark    #settingsMenu { background: #1c1c2e; box-shadow: 0 8px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); color: #f0f0f0; }
+    body.mode-rainbow #settingsMenu { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.5); color: #111; }
+    body.mode-glass   #settingsMenu {
+      background: rgba(255,255,255,0.45);
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      box-shadow: 0 12px 48px rgba(100,60,220,0.18), 0 1px 0 rgba(255,255,255,0.8) inset;
+      border: 1px solid rgba(255,255,255,0.6);
+      color: #1a1a2e;
+    }
+
+    .settings-header {
+      padding: 16px 18px 12px;
+      font-size: 0.78em;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0.45;
+      border-bottom: 1px solid rgba(128,128,128,0.12);
+    }
+
+    .settings-section-label {
+      padding: 10px 18px 4px;
+      font-size: 0.7em;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      opacity: 0.4;
+    }
+
+    .mode-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 18px;
+      cursor: pointer;
+      font-size: 0.95em;
+      font-weight: 700;
+      transition: background 0.15s;
+      gap: 10px;
+    }
+    .mode-option:hover { background: rgba(128,128,128,0.09); }
+    .mode-option.active-mode { color: var(--accent); }
+
+    .mode-dot {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 2px solid rgba(128,128,128,0.2);
+      transition: all 0.2s;
+      position: relative;
+    }
+    .mode-option.active-mode .mode-dot {
+      border-color: var(--accent);
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.2);
+    }
+    .mode-dot::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: white;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .mode-option.active-mode .mode-dot::after { opacity: 1; }
+
+    .mode-dot.rainbow-dot {
+      background: linear-gradient(135deg, #f03, #f90, #ff0, #0d0, #06f, #90f);
+      border: none;
+    }
+    .mode-dot.glass-dot {
+      background: linear-gradient(135deg, rgba(120,80,255,0.5), rgba(0,200,255,0.5), rgba(255,100,180,0.4));
+      border: 1px solid rgba(255,255,255,0.7);
+      box-shadow: 0 2px 8px rgba(100,60,220,0.2);
+    }
+    .mode-option.active-mode .mode-dot.glass-dot {
+      box-shadow: 0 0 0 3px rgba(100,60,220,0.25), 0 2px 8px rgba(100,60,220,0.3);
+    }
+
+    .settings-divider { height: 1px; background: rgba(128,128,128,0.12); margin: 4px 0; }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 18px;
+      gap: 10px;
+      font-size: 0.9em;
+      font-weight: 700;
+    }
+
+    .settings-row .mini-btn {
+      padding: 6px 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Rubik', sans-serif;
+      font-weight: 700;
+      font-size: 0.85em;
+      transition: transform 0.15s, background 0.2s;
+      background: rgba(128,128,128,0.13);
+      color: inherit;
+    }
+    .settings-row .mini-btn:hover  { transform: scale(1.05); background: rgba(128,128,128,0.22); }
+    .settings-row .mini-btn:active { transform: scale(0.93); }
+    .settings-row .mini-btn.playing { background: rgba(124,58,237,0.15); color: var(--accent); }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      height: 4px;
       cursor: pointer;
     }
+    .volume-row {
+      padding: 4px 18px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .vol-icon { font-size: 1em; opacity: 0.5; }
 
-    .btn:hover {
-      transform: scale(1.08);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    /* ── CODE BUTTON (top-right) ── */
+    #codeBtn {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 1000;
+      padding: 9px 20px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Rubik', sans-serif;
+      font-weight: 700;
+      font-size: 0.9em;
+      letter-spacing: 0.5px;
+      transition: transform 0.2s, box-shadow 0.2s, background var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    #codeBtn:hover  { transform: scale(1.07); }
+    #codeBtn:active { transform: scale(0.94); }
+
+    body.mode-light   #codeBtn { background: white; color: #1d1d1f; box-shadow: 0 3px 14px rgba(0,0,0,0.1); }
+    body.mode-dark    #codeBtn { background: #1c1c2e; color: #f0f0f0; box-shadow: 0 3px 14px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); }
+    body.mode-rainbow #codeBtn { background: rgba(255,255,255,0.6); color: #111; backdrop-filter: blur(8px); box-shadow: 0 3px 14px rgba(0,0,0,0.1); }
+    body.mode-glass   #codeBtn {
+      background: rgba(255,255,255,0.42);
+      color: #1a1a2e;
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.6);
+      box-shadow: 0 4px 20px rgba(100,60,220,0.13), 0 1px 0 rgba(255,255,255,0.8) inset;
     }
 
-    .btn:active {
-      transform: scale(0.95);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    /* ── CODE MODAL OVERLAY ── */
+    #codeOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #codeOverlay.open { opacity: 1; pointer-events: auto; }
+
+    #codeModal {
+      width: min(420px, 92vw);
+      border-radius: 26px;
+      overflow: hidden;
+      transform: scale(0.88) translateY(20px);
+      transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1);
+    }
+    #codeOverlay.open #codeModal { transform: scale(1) translateY(0); }
+
+    body.mode-light   #codeModal { background: #fff; box-shadow: 0 20px 60px rgba(0,0,0,0.18); border: 1px solid rgba(0,0,0,0.06); color: #1d1d1f; }
+    body.mode-dark    #codeModal { background: #1c1c2e; box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.08); color: #f0f0f0; }
+    body.mode-rainbow #codeModal { background: rgba(255,255,255,0.75); backdrop-filter: blur(20px); box-shadow: 0 20px 60px rgba(0,0,0,0.15); color: #111; }
+    body.mode-glass   #codeModal {
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(32px) saturate(200%);
+      -webkit-backdrop-filter: blur(32px) saturate(200%);
+      box-shadow: 0 20px 60px rgba(100,60,220,0.2), 0 1px 0 rgba(255,255,255,0.9) inset;
+      border: 1px solid rgba(255,255,255,0.65);
+      color: #1a1a2e;
     }
 
+    .code-modal-top { padding: 32px 28px 20px; text-align: center; }
+    .code-modal-icon {
+      font-size: 2.8em;
+      margin-bottom: 12px;
+      display: block;
+      animation: iconBob 2s ease-in-out infinite;
+    }
+    @keyframes iconBob {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-5px); }
+    }
+    .code-modal-title { font-size: 1.5em; font-weight: 900; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .code-modal-sub   { font-size: 0.88em; opacity: 0.5; font-weight: 400; }
+
+    .code-input-wrap { padding: 0 28px 8px; }
+    #codeInput {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 2px solid rgba(128,128,128,0.18);
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.1em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: transparent;
+      color: inherit;
+    }
+    #codeInput:focus   { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(124,58,237,0.12); }
+    #codeInput.error   { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239,68,68,0.12); animation: shake 0.4s ease; }
+    #codeInput.success { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16,185,129,0.15); }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%     { transform: translateX(-8px); }
+      40%     { transform: translateX(8px); }
+      60%     { transform: translateX(-6px); }
+      80%     { transform: translateX(6px); }
+    }
+
+    #codeFeedback {
+      min-height: 22px;
+      padding: 6px 28px 2px;
+      font-size: 0.85em;
+      font-weight: 700;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    #codeFeedback.err { color: #ef4444; }
+    #codeFeedback.ok  { color: #10b981; }
+
+    .code-modal-footer { display: flex; border-top: 1px solid rgba(128,128,128,0.1); margin-top: 14px; }
+    .code-modal-footer button {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      background: transparent;
+      font-family: 'Rubik', sans-serif;
+      font-size: 1em;
+      font-weight: 700;
+      cursor: pointer;
+      color: inherit;
+      transition: background 0.15s;
+      letter-spacing: 0.3px;
+    }
+    .code-modal-footer button:not(:last-child) { border-right: 1px solid rgba(128,128,128,0.1); }
+    .code-modal-footer .btn-submit { color: var(--accent); }
+    .code-modal-footer .btn-submit:hover { background: rgba(124,58,237,0.08); }
+    .code-modal-footer .btn-cancel:hover { background: rgba(128,128,128,0.08); }
+
+    /* ── FOOTER ── */
     footer {
       position: fixed;
       bottom: 10px;
@@ -82,117 +499,134 @@
       font-family: 'Rubik', sans-serif;
       display: flex;
       justify-content: center;
-      gap: 30px;
+      gap: 28px;
       align-items: center;
-      transition: all 0.5s;
+      font-size: 0.95em;
+      z-index: 10;
     }
-
     footer span, footer a {
-      transition: color 0.5s;
+      transition: color 0.5s, opacity 0.3s;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
+      text-decoration: none;
+      opacity: 0.7;
+      font-weight: 700;
     }
+    footer a:hover { opacity: 1; }
+    footer img { width: 22px; height: 22px; }
 
-    footer img {
-      width: 24px;
-      height: 24px;
-      transition: all 0.5s;
-    }
+    /* ── LOCKED GLASS OPTION ── */
+    .mode-option.locked { opacity: 0.45; cursor: default; }
+    .mode-option.locked:hover { background: rgba(128,128,128,0.05); }
 
-    #settingsCog {
+    /* ── SUCCESS TOAST ── */
+    #toast {
       position: fixed;
-      top: 10px;
-      left: 10px;
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-      z-index: 1000;
-    }
-
-    #settingsMenu {
-      position: fixed;
-      top: 60px;
-      left: 10px;
-      padding: 20px;
-      border-radius: 15px;
-      display: none;
-      flex-direction: column;
-      gap: 15px;
-      z-index: 1000;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #10b981;
+      color: white;
+      padding: 12px 26px;
+      border-radius: 40px;
       font-family: 'Rubik', sans-serif;
-      transition: all 0.5s;
+      font-weight: 700;
+      font-size: 0.95em;
+      box-shadow: 0 6px 24px rgba(16,185,129,0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 9999;
+      white-space: nowrap;
     }
-
-    #settingsMenu label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 1.2em;
-    }
-
-    #settingsMenu small {
-      font-size: 0.8em;
-      color: #ff4444;
-      margin-left: 5px;
-    }
-
-    #volumeControl {
-      width: 100%;
-    }
-
-    @keyframes rainbowBG {
-      0% { background-color: red; }
-      16% { background-color: orange; }
-      33% { background-color: yellow; }
-      50% { background-color: green; }
-      66% { background-color: blue; }
-      83% { background-color: indigo; }
-      100% { background-color: violet; }
-    }
-
-    .rainbowMode { animation: rainbowBG 10s linear infinite; }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
-<body>
+<body class="mode-light">
 
+<!-- Glass background orbs (only visible in glass mode) -->
+<div class="glass-orb g1"></div>
+<div class="glass-orb g2"></div>
+<div class="glass-orb g3"></div>
+
+<!-- Settings cog -->
 <img id="settingsCog" src="settings-cog.png" alt="Settings">
 
+<!-- Settings panel -->
 <div id="settingsMenu">
-  <label>
-    Light Mode
-    <input type="radio" name="mode" value="light">
-  </label>
-  <label>
-    Dark Mode
-    <input type="radio" name="mode" value="dark">
-  </label>
-  <label>
-    Rainbow Neon Mode <small>⚠️ Epilepsy Warning</small>
-    <input type="radio" name="mode" value="rainbow">
-  </label>
-  <hr>
-  <label>
-    Song:
-    <button id="toggleSong">Play</button>
-  </label>
-  <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5">
-</div>
+  <div class="settings-header">⚙ Settings</div>
 
-<h1>Wren.fun</h1>
-<p>Vewy Cool😎</p>
+  <div class="settings-section-label">Appearance</div>
 
-<div class="button-container">
-  <a href="LuckyGenerator/" class="btn game-btn">Lucky Generator</a>
-  <a href="WrenPacks/" class="btn game-btn">Wren Packs</a>
-  <a href="SmallCreators/" class="btn game-btn">Small Creators</a>
-
-  <div class="wheel-wrapper">
-    <a href="WrenWheelOfDoom/" class="btn game-btn">The Wren Wheel of Doom</a>
-    <div class="wheel-warning">Wheel of Doom in progress loads of bugs</div>
+  <div class="mode-option" data-mode="light" onclick="selectMode('light')">
+    ☀️ Light Mode
+    <div class="mode-dot"></div>
+  </div>
+  <div class="mode-option" data-mode="dark" onclick="selectMode('dark')">
+    🌙 Dark Mode
+    <div class="mode-dot"></div>
+  </div>
+  <div class="mode-option" data-mode="rainbow" onclick="selectMode('rainbow')">
+    🌈 Rainbow Neon <span style="font-size:0.6em;color:#ef4444;font-weight:400;">⚠️ epilepsy</span>
+    <div class="mode-dot rainbow-dot"></div>
+  </div>
+  <div class="mode-option locked" id="glassModeOption" data-mode="glass">
+    <span>✨ Liquid Glass <span class="lock-icon" id="glassLock">🔒</span></span>
+    <div class="mode-dot glass-dot"></div>
   </div>
 
-  <a href="Credits/" class="btn game-btn">Credits</a>
+  <div class="settings-divider"></div>
+  <div class="settings-section-label">Music</div>
+
+  <div class="settings-row">
+    <span>🎵 Song</span>
+    <button class="mini-btn" id="toggleSong">Play</button>
+  </div>
+  <div class="volume-row">
+    <span class="vol-icon">🔈</span>
+    <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5">
+    <span class="vol-icon">🔊</span>
+  </div>
+</div>
+
+<!-- Code button (top-right) -->
+<button id="codeBtn" onclick="openCodeModal()">🔑 Enter Code</button>
+
+<!-- Code modal -->
+<div id="codeOverlay">
+  <div id="codeModal">
+    <div class="code-modal-top">
+      <span class="code-modal-icon">🔐</span>
+      <div class="code-modal-title">Enter a Code</div>
+      <div class="code-modal-sub">Got a secret code? Enter it below to unlock something special.</div>
+    </div>
+    <div class="code-input-wrap">
+      <input type="text" id="codeInput" placeholder="e.g. ABC123..." autocomplete="off" spellcheck="false">
+    </div>
+    <div id="codeFeedback"></div>
+    <div class="code-modal-footer">
+      <button class="btn-submit" onclick="submitCode()">Unlock</button>
+      <button class="btn-cancel" onclick="closeCodeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Main content -->
+<div id="content">
+  <h1>Wren.fun</h1>
+  <p class="tagline">Vewy Cool 😎</p>
+
+  <div class="button-container">
+    <a href="LuckyGenerator/"    class="btn game-btn">Lucky Generator</a>
+    <a href="WrenPacks/"         class="btn game-btn">Wren Packs</a>
+    <a href="SmallCreators/"     class="btn game-btn">Small Creators</a>
+    <a href="WrenWheelOfDoom/"   class="btn game-btn">The Wren Wheel of Doom</a>
+    <a href="Credits/"           class="btn game-btn">Credits</a>
+  </div>
 </div>
 
 <footer>
@@ -210,80 +644,155 @@
 </audio>
 
 <script>
-const settingsCog = document.getElementById('settingsCog');
+// ── STATE ──
+const CODES      = { 'WrenIsOld123': 'glass' };
+const UNLOCK_KEY = 'wren_unlocked';
+const MODE_KEY   = 'wrenMode';
+
+let unlockedFeatures = JSON.parse(localStorage.getItem(UNLOCK_KEY) || '[]');
+
+// ── SETTINGS PANEL ──
+const cog          = document.getElementById('settingsCog');
 const settingsMenu = document.getElementById('settingsMenu');
-settingsCog.addEventListener('click', () => {
-  settingsMenu.style.display = settingsMenu.style.display === 'flex' ? 'none' : 'flex';
+
+cog.addEventListener('click', () => {
+  const isOpen = settingsMenu.classList.contains('open');
+  settingsMenu.classList.toggle('open', !isOpen);
+  cog.classList.toggle('open', !isOpen);
 });
 
-const radios = document.querySelectorAll('input[name="mode"]');
-const body = document.body;
-const footerText = document.getElementById('footerText');
-const buttons = document.querySelectorAll('.btn');
-
-function applyMode(mode){
-  body.classList.remove('lightMode','darkMode','rainbowMode');
-  body.style.transition='background 1s, color 0.5s';
-  buttons.forEach(b => b.style.animation='');
-
-  if(mode==='light'){
-    body.style.background='white';
-    body.style.color='black';
-    footerText.style.color='black';
-    settingsMenu.style.background='black';
-    settingsMenu.style.color='white';
+document.addEventListener('click', e => {
+  if (!settingsMenu.contains(e.target) && e.target !== cog) {
+    settingsMenu.classList.remove('open');
+    cog.classList.remove('open');
   }
-  if(mode==='dark'){
-    body.style.background='black';
-    body.style.color='white';
-    footerText.style.color='white';
-    settingsMenu.style.background='white';
-    settingsMenu.style.color='black';
-  }
-  if(mode==='rainbow'){
-    body.classList.add('rainbowMode');
-    footerText.style.color='black';
-    settingsMenu.style.background='rgba(255,255,255,0.3)';
-    settingsMenu.style.color='black';
-  }
+});
 
-  localStorage.setItem('wrenMode', mode);
+// ── MODES ──
+function selectMode(mode) {
+  if (mode === 'glass' && !unlockedFeatures.includes('glass')) return;
+  applyMode(mode);
+  localStorage.setItem(MODE_KEY, mode);
 }
 
-window.addEventListener('load', ()=>{
-  const savedMode = localStorage.getItem('wrenMode') || 'light';
-  document.querySelector(`input[value="${savedMode}"]`).checked = true;
-  applyMode(savedMode);
-});
-
-radios.forEach(radio=>{
-  radio.addEventListener('change', ()=>{
-    applyMode(radio.value);
+function applyMode(mode) {
+  document.body.className = 'mode-' + mode;
+  document.querySelectorAll('.mode-option').forEach(opt => {
+    opt.classList.toggle('active-mode', opt.dataset.mode === mode);
   });
+}
+
+// ── GLASS LOCK/UNLOCK UI ──
+function refreshGlassOption() {
+  const opt  = document.getElementById('glassModeOption');
+  const lock = document.getElementById('glassLock');
+  if (unlockedFeatures.includes('glass')) {
+    opt.classList.remove('locked');
+    opt.onclick = () => selectMode('glass');
+    if (lock) lock.textContent = '';
+  } else {
+    opt.classList.add('locked');
+    opt.onclick = null;
+    if (lock) lock.textContent = '🔒';
+  }
+}
+
+// ── INIT ──
+window.addEventListener('load', () => {
+  refreshGlassOption();
+  const savedMode = localStorage.getItem(MODE_KEY) || 'light';
+  const safeMode  = (savedMode === 'glass' && !unlockedFeatures.includes('glass')) ? 'light' : savedMode;
+  applyMode(safeMode);
 });
 
-const bgSong = document.getElementById('bgSong');
-const toggleSong = document.getElementById('toggleSong');
+// ── CODE MODAL ──
+function openCodeModal() {
+  const input = document.getElementById('codeInput');
+  const fb    = document.getElementById('codeFeedback');
+  input.value     = '';
+  input.className = '';
+  fb.textContent  = '';
+  fb.className    = '';
+  document.getElementById('codeOverlay').classList.add('open');
+  setTimeout(() => input.focus(), 350);
+}
+
+function closeCodeModal() {
+  document.getElementById('codeOverlay').classList.remove('open');
+}
+
+document.getElementById('codeOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('codeOverlay')) closeCodeModal();
+});
+
+document.getElementById('codeInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitCode();
+});
+
+function submitCode() {
+  const input    = document.getElementById('codeInput');
+  const fb       = document.getElementById('codeFeedback');
+  const val      = input.value.trim();
+  const unlockId = CODES[val];
+
+  if (!unlockId) {
+    input.className = 'error';
+    fb.textContent  = "That code isn't valid. Try again!";
+    fb.className    = 'err';
+    setTimeout(() => { input.className = ''; }, 600);
+    return;
+  }
+
+  if (unlockedFeatures.includes(unlockId)) {
+    fb.textContent  = '✓ You already have this unlocked!';
+    fb.className    = 'ok';
+    input.className = 'success';
+    setTimeout(closeCodeModal, 1400);
+    return;
+  }
+
+  // Unlock!
+  unlockedFeatures.push(unlockId);
+  localStorage.setItem(UNLOCK_KEY, JSON.stringify(unlockedFeatures));
+
+  input.className = 'success';
+  fb.textContent  = '✨ Liquid Glass Mode unlocked!';
+  fb.className    = 'ok';
+
+  refreshGlassOption();
+
+  setTimeout(() => {
+    closeCodeModal();
+    showToast('✨ Liquid Glass Mode unlocked! Find it in Settings.');
+  }, 1200);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── MUSIC ──
+const bgSong        = document.getElementById('bgSong');
+const toggleSong    = document.getElementById('toggleSong');
 const volumeControl = document.getElementById('volumeControl');
 
-toggleSong.addEventListener('click', ()=>{
-  if(bgSong.paused){
+toggleSong.addEventListener('click', () => {
+  if (bgSong.paused) {
     bgSong.play();
-    toggleSong.textContent='Pause';
-  }else{
+    toggleSong.textContent = 'Pause';
+    toggleSong.classList.add('playing');
+  } else {
     bgSong.pause();
-    toggleSong.textContent='Play';
+    toggleSong.textContent = 'Play';
+    toggleSong.classList.remove('playing');
   }
 });
 
-volumeControl.addEventListener('input', ()=> bgSong.volume = volumeControl.value);
-
-const gameButtons = document.querySelectorAll('.game-btn');
-gameButtons.forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    btn.style.transform='scale(0.9)';
-    setTimeout(()=>{ btn.style.transform=''; },100);
-  });
+volumeControl.addEventListener('input', () => {
+  bgSong.volume = volumeControl.value;
 });
 </script>
 
