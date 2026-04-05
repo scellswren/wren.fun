@@ -36,13 +36,21 @@
       text-decoration: none;
       cursor: pointer;
       user-select: none;
-      transition: transform 0.2s ease, opacity 0.2s ease;
+      transition: transform 0.2s ease, opacity 0.2s ease, top 1.2s ease, left 1.2s ease, font-size 1.2s ease;
       line-height: 1;
+      transform-origin: center center;
     }
 
     #homeText:hover {
       transform: scale(1.12);
       opacity: 0.9;
+    }
+
+    #homeText.finish {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(2.8);
+      font-size: 3.2em;
     }
 
     #watchCounter {
@@ -81,7 +89,7 @@
       transform: translateX(-50%);
       text-align: center;
       opacity: 0;
-      will-change: transform, opacity;
+      will-change: transform, opacity, bottom;
       animation: creditsRise 120s linear forwards;
       animation-delay: 2s;
     }
@@ -111,6 +119,22 @@
       letter-spacing: 1px;
       color: var(--text);
       text-shadow: 0 0 10px rgba(255,255,255,0.08);
+
+      opacity: 0;
+      transform: translateY(28px);
+      animation: lineRise 0.9s ease forwards;
+      animation-delay: calc(2s + (var(--i) * 1.35s));
+    }
+
+    @keyframes lineRise {
+      0% {
+        opacity: 0;
+        transform: translateY(28px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .credit-line.small {
@@ -133,6 +157,7 @@
       width: 120px;
       margin: 20px auto 34px;
       background: linear-gradient(90deg, transparent, var(--soft), transparent);
+      border-radius: 999px;
     }
 
     .credit-line.end {
@@ -201,6 +226,7 @@
   <script>
     const watchCounter = document.getElementById("watchCounter");
     const creditsTrack = document.getElementById("creditsTrack");
+    const homeText = document.getElementById("homeText");
 
     function loadWatchCount() {
       const saved = parseInt(localStorage.getItem("creditsWatchCount") || "0", 10);
@@ -214,11 +240,27 @@
       watchCounter.textContent = String(next);
     }
 
+    function assignLineDelays() {
+      const lines = creditsTrack.querySelectorAll(".credit-line");
+      let n = 0;
+      lines.forEach((line) => {
+        if (line.classList.contains("rule")) {
+          line.style.setProperty("--i", n);
+          n += 1;
+          return;
+        }
+        line.style.setProperty("--i", n);
+        n += 1;
+      });
+    }
+
+    assignLineDelays();
     loadWatchCount();
 
     creditsTrack.addEventListener("animationend", (event) => {
       if (event.animationName === "creditsRise") {
         addWatch();
+        homeText.classList.add("finish");
       }
     });
   </script>
