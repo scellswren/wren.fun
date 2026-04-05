@@ -237,7 +237,6 @@
     body.triangle-mode .tabs .codeBtn  { background: #e6b800 !important; color: #1a0e00 !important; }
     body.triangle-mode .tabs button:hover { transform: scale(1.15) translateY(-3px) !important; filter: brightness(1.2) !important; }
 
-    /* Triangle mode: notification badge tight against the triangle */
     body.triangle-mode .invBtnWrap { margin: 10px 20px !important; }
     body.triangle-mode .notif {
       top:   -6px !important;
@@ -449,7 +448,6 @@
       100% { border-color: red;    box-shadow: 0 0 30px red; }
     }
     body.pack-maroon .pack { animation: packMaroonBorder 2.5s ease infinite; }
-    /* Darker, richer maroon */
     @keyframes packMaroonBorder {
       0%   { border-color: #3d0000; box-shadow: 0 0 20px #3d0000, 0 0 50px rgba(61,0,0,0.4); }
       50%  { border-color: #6b0000; box-shadow: 0 0 35px #6b0000, 0 0 70px rgba(100,0,0,0.6); }
@@ -480,7 +478,7 @@
     .explodeOut { animation: explodeOutAnim 0.6s forwards; }
     @keyframes explodeOutAnim { 0% { transform: scale(1) rotate(0deg); opacity: 1; } 50% { transform: scale(1.5) rotate(20deg); opacity: 1; } 100% { transform: scale(2.5) rotate(40deg); opacity: 0; } }
 
-    /* ── Legendary card reveal (like normal but with gold glow + spin + confetti) ── */
+    /* ── Legendary card reveal ── */
     #legendaryCardResult {
       position:  fixed;
       top:       50%;
@@ -514,7 +512,6 @@
     .legendaryCardExplode { animation: legendaryCardExplodeAnim 0.6s forwards; }
     @keyframes legendaryCardExplodeAnim { 0% { transform: scale(1) rotate(0deg); opacity: 1; } 50% { transform: scale(1.5) rotate(15deg); opacity: 1; } 100% { transform: scale(2.5) rotate(30deg); opacity: 0; } }
 
-    /* Gold confetti pieces */
     .gold-confetti-piece {
       position: fixed;
       width:    8px;
@@ -530,21 +527,231 @@
       100% { transform: translateY(var(--fall)) rotate(var(--spin)) scale(0.5); opacity: 0; }
     }
 
-    .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; padding: 30px 24px; }
+    /* ── Improved grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+      padding: 24px 28px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
 
-    .character { width: 140px; position: relative; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px 10px 28px; transition: transform 0.3s ease, opacity 0.5s ease, box-shadow 0.3s ease; cursor: pointer; }
-    .character:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); border-color: var(--card-border-hover); }
+    /* ── Improved character cards ── */
+    .character {
+      position: relative;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .character:hover {
+      transform: translateY(-5px) scale(1.02);
+      border-color: var(--card-border-hover);
+      box-shadow: 0 10px 32px rgba(0,0,0,0.45);
+    }
     .character:hover .characterRarityGlow { opacity: 1; }
-    .characterRarityGlow { position: absolute; inset: 0; border-radius: 16px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-    .character img { width: 100%; border-radius: 10px; display: block; }
-    .character p { margin: 8px 0 0; font-size: 0.78em; font-weight: bold; letter-spacing: 0.5px; }
-    .qtyBadge { position: absolute; bottom: 6px; right: 8px; background: var(--qty-bg); border: 1px solid var(--qty-border); border-radius: 20px; padding: 2px 8px; font-size: 0.72em; font-weight: bold; color: var(--qty-text); letter-spacing: 0.5px; }
-    .explode { transform: scale(2) rotate(25deg); opacity: 0; }
-    .deleteBtn { position: absolute; top: -8px; right: -8px; background: #cc0000; border: 2px solid #111; border-radius: 50%; width: 24px; height: 24px; color: white; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8em; opacity: 0; transition: opacity 0.2s, transform 0.2s; z-index: 5; }
-    .character:hover .deleteBtn { opacity: 1; }
-    .deleteBtn:hover { transform: scale(1.2); background: #ff2222; }
+    .characterRarityGlow {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
 
-    #resetBtn { position: absolute; right: 20px; padding: 9px 20px; background: transparent; border: 2px solid var(--reset-color); color: var(--reset-color); font-size: 0.85em; font-weight: bold; border-radius: 25px; cursor: pointer; letter-spacing: 1px; transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s; }
+    /* Rarity colour bar at the top of each card */
+    .character .rarity-bar {
+      height: 3px;
+      width: 100%;
+      flex-shrink: 0;
+    }
+    .rarity-bar.Common    { background: rgba(255,255,255,0.18); }
+    .rarity-bar.Uncommon  { background: lime; }
+    .rarity-bar.Rare      { background: dodgerblue; }
+    .rarity-bar.Epic      { background: violet; }
+    .rarity-bar.Legendary { background: linear-gradient(90deg, #b8860b, gold, #b8860b); }
+    .rarity-bar.Omega     { background: linear-gradient(90deg, red, orange, yellow, green, blue, violet); animation: rainbow 3s linear infinite; }
+    .rarity-bar.Void      { background: radial-gradient(ellipse at center, #ffd700 0%, #8b6914 60%, #3a2900 100%); }
+
+    .char-img-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+    }
+    .char-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    .character:hover .char-img-wrap img { transform: scale(1.06); }
+
+    .char-info {
+      padding: 10px 12px 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .char-name {
+      font-size: 0.82em;
+      font-weight: bold;
+      letter-spacing: 0.4px;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .char-rarity-label {
+      font-size: 0.68em;
+      opacity: 0.6;
+      margin: 0;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .qtyBadge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.72);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 0.72em;
+      font-weight: bold;
+      color: rgba(255,255,255,0.9);
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Owned checkmark badge for index */
+    .ownedBadge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0,180,60,0.85);
+      border: 1px solid rgba(100,255,140,0.4);
+      border-radius: 20px;
+      padding: 2px 7px;
+      font-size: 0.65em;
+      font-weight: bold;
+      color: white;
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(4px);
+    }
+
+    .explode { transform: scale(2) rotate(25deg); opacity: 0; }
+    .deleteBtn {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(180,0,0,0.85);
+      border: 1px solid rgba(255,80,80,0.3);
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9em;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s, background 0.2s;
+      z-index: 5;
+      backdrop-filter: blur(4px);
+    }
+    .character:hover .deleteBtn { opacity: 1; }
+    .deleteBtn:hover { transform: scale(1.2); background: rgba(255,30,30,0.95); }
+
+    /* ── Section headers ── */
+    .section-header {
+      position: relative;
+      padding: 28px 28px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-header h2 {
+      margin: 0;
+      font-family: 'Rubik', sans-serif;
+      letter-spacing: 2px;
+      font-size: 1.8em;
+    }
+
+    /* Inventory stats bar */
+    .inv-stats {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 14px 28px 0;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .inv-stat {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.78em;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    /* Index rarity filter pills */
+    .rarity-filters {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 14px 28px 0;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .rarity-pill {
+      padding: 5px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      font-size: 0.78em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      letter-spacing: 0.5px;
+    }
+    .rarity-pill:hover { transform: scale(1.06); }
+    .rarity-pill.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+    .rarity-pill.pill-All    { color: var(--text); }
+    .rarity-pill.pill-Common { color: var(--text); }
+    .rarity-pill.pill-Uncommon { color: lime; border-color: rgba(0,255,80,0.25); }
+    .rarity-pill.pill-Uncommon.active { background: rgba(0,255,80,0.08); border-color: rgba(0,255,80,0.5); }
+    .rarity-pill.pill-Rare { color: dodgerblue; border-color: rgba(30,144,255,0.25); }
+    .rarity-pill.pill-Rare.active { background: rgba(30,144,255,0.08); border-color: rgba(30,144,255,0.5); }
+    .rarity-pill.pill-Epic { color: violet; border-color: rgba(180,80,255,0.25); }
+    .rarity-pill.pill-Epic.active { background: rgba(180,80,255,0.08); border-color: rgba(180,80,255,0.5); }
+    .rarity-pill.pill-Legendary { color: gold; border-color: rgba(255,200,0,0.25); }
+    .rarity-pill.pill-Legendary.active { background: rgba(255,200,0,0.08); border-color: rgba(255,200,0,0.5); }
+    .rarity-pill.pill-Omega { color: #ff88cc; border-color: rgba(255,100,200,0.25); }
+    .rarity-pill.pill-Omega.active { background: rgba(255,100,200,0.08); border-color: rgba(255,100,200,0.5); }
+
+    body.light-mode .rarity-pill.pill-Uncommon { color: #009900; }
+    body.light-mode .rarity-pill.pill-Rare     { color: #0066cc; }
+    body.light-mode .rarity-pill.pill-Epic     { color: #8800cc; }
+    body.light-mode .rarity-pill.pill-Legendary { color: #b8860b; }
+
+    #resetBtn { padding: 9px 20px; background: transparent; border: 2px solid var(--reset-color); color: var(--reset-color); font-size: 0.85em; font-weight: bold; border-radius: 25px; cursor: pointer; letter-spacing: 1px; transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s; position: absolute; right: 0; }
     #resetBtn:hover { background: var(--reset-color); color: white; box-shadow: 0 0 16px var(--reset-color); transform: scale(1.07); }
 
     #confirmBox, #deletePrompt, #codeBox {
@@ -640,7 +847,6 @@
       100% { opacity: 0; transform: scale(1.1); }
     }
 
-    /* Legendary reveal (kept for admin / future use if needed) */
     #legendaryReveal {
       position:        fixed;
       top:             0; left: 0;
@@ -711,21 +917,6 @@
     .voidParticle { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #ffd700; box-shadow: 0 0 10px #b8860b; animation: floatUp linear infinite; opacity: 0; }
     @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-100vh) scale(0.3); opacity: 0; } }
 
-    @keyframes screenShake {
-      0%   { transform: translate(0, 0) rotate(0deg); }
-      10%  { transform: translate(-12px, -8px) rotate(-1deg); }
-      20%  { transform: translate(14px, 6px) rotate(1deg); }
-      30%  { transform: translate(-10px, 10px) rotate(-0.8deg); }
-      40%  { transform: translate(12px, -8px) rotate(0.8deg); }
-      50%  { transform: translate(-14px, 6px) rotate(-1deg); }
-      60%  { transform: translate(10px, 10px) rotate(0.5deg); }
-      70%  { transform: translate(-8px, -6px) rotate(-0.5deg); }
-      80%  { transform: translate(8px, 4px) rotate(0.3deg); }
-      90%  { transform: translate(-4px, -2px) rotate(0deg); }
-      100% { transform: translate(0, 0) rotate(0deg); }
-    }
-    body.shaking { animation: screenShake 0.5s ease; }
-
     .tabs button { overflow: hidden; }
     .ripple { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.5); transform: scale(0); animation: rippleAnim 0.6s linear; pointer-events: none; }
     @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
@@ -772,7 +963,6 @@
 
   <div id="overlay">✨ PACK OPENING ✨</div>
 
-  <!-- Legendary full-screen reveal (kept for admin) -->
   <div id="legendaryReveal">
     <div class="legendaryParticles" id="legendaryParticles"></div>
     <img id="legendaryImg" src="" alt="">
@@ -809,10 +999,8 @@
     <div class="pack" onclick="openPack()">OPEN</div>
   </div>
 
-  <!-- Standard result card -->
   <div id="result"></div>
 
-  <!-- Legendary card result (gold spin + confetti) -->
   <div id="legendaryCardResult">
     <div id="legendaryCardInner">
       <h2 id="legendaryCardName" class="Legendary"></h2>
@@ -820,11 +1008,13 @@
     </div>
   </div>
 
+  <!-- INVENTORY -->
   <div id="inventory" class="section">
-    <div style="position:relative; padding:30px 20px 0; display:flex; align-items:center; justify-content:center;">
-      <h2 style="margin:0; font-family:'Rubik',sans-serif; letter-spacing:2px; font-size:1.8em;">Your Inventory</h2>
+    <div class="section-header">
+      <h2>Your Inventory</h2>
       <button id="resetBtn" onclick="showConfirm(); playSound()">⟳ Reset</button>
     </div>
+    <div class="inv-stats" id="invStats"></div>
     <div id="inventory-list" class="grid"></div>
   </div>
 
@@ -947,8 +1137,12 @@
     </div>
   </div>
 
+  <!-- INDEX -->
   <div id="index" class="section">
-    <h2>All Characters</h2>
+    <div class="section-header" style="justify-content:center;">
+      <h2>All Characters</h2>
+    </div>
+    <div class="rarity-filters" id="rarityFilters"></div>
     <div id="index-list" class="grid"></div>
     <div class="rates">
       <p class="Common">Common: 45%</p>
@@ -972,6 +1166,7 @@
     let deleteItem     = null;
     let codeClickCount = 0;
     let codeClickTimer = null;
+    let activeFilter   = 'All';
 
     const sfx         = new Audio("SoundEffectButton.MP3");
     sfx.preload       = "auto";
@@ -1180,6 +1375,8 @@
       } else {
         setPackColour("purple", document.querySelector('.pack-colour-swatch[data-colour="purple"]'));
       }
+
+      buildRarityFilters();
     })();
 
     function goHome() {
@@ -1242,7 +1439,6 @@
           return;
         }
 
-        // Standard result card
         const result = document.getElementById("result");
         result.innerHTML = `
           <div id="resultInner">
@@ -1263,7 +1459,6 @@
       }, 2000);
     }
 
-    // ── New legendary card reveal: card spin + gold confetti ──
     function showLegendaryCardReveal(item) {
       const el    = document.getElementById("legendaryCardResult");
       const img   = document.getElementById("legendaryCardImg");
@@ -1273,16 +1468,8 @@
       name.textContent = item.display + " (Legendary)";
       el.style.display = "block";
 
-      // Single shake on card impact
-      setTimeout(() => {
-        document.body.classList.add("shaking");
-        setTimeout(() => document.body.classList.remove("shaking"), 500);
-      }, 900);
-
-      // Burst gold confetti
       setTimeout(() => spawnGoldConfetti(), 400);
 
-      // Explode out after ~3s
       setTimeout(() => {
         const inner = document.getElementById("legendaryCardInner");
         if (inner) inner.classList.add("legendaryCardExplode");
@@ -1291,7 +1478,6 @@
         el.style.display = "none";
         const inner = document.getElementById("legendaryCardInner");
         if (inner) inner.classList.remove("legendaryCardExplode");
-        // Clear any leftover confetti
         document.querySelectorAll(".gold-confetti-piece").forEach(p => p.remove());
       }, 3800);
     }
@@ -1339,21 +1525,59 @@
       if (tab === "index") renderIndex();
     }
 
+    function buildRarityFilters() {
+      const container = document.getElementById("rarityFilters");
+      const rarities = ['All', 'Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Omega'];
+      container.innerHTML = '';
+      rarities.forEach(r => {
+        const pill = document.createElement('button');
+        pill.className = `rarity-pill pill-${r}${r === activeFilter ? ' active' : ''}`;
+        pill.textContent = r;
+        pill.onclick = () => {
+          activeFilter = r;
+          document.querySelectorAll('.rarity-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          renderIndex();
+          playSound();
+        };
+        container.appendChild(pill);
+      });
+    }
+
     function renderIndex() {
       const container = document.getElementById("index-list");
       container.innerHTML = "";
       const inv = JSON.parse(localStorage.getItem("inventory")) || {};
-      items.forEach(item => {
-        if (item.rarity === "Void" && !inv[item.name]) return;
-        const ch = document.createElement("div");
-        ch.className = "character";
-        ch.innerHTML = `
-          <img src="${item.name}.jpg" alt="${item.display}">
-          <p class="${item.rarity}">${item.display}</p>
-          <p class="${item.rarity}">${item.rarity}</p>`;
-        ch.onclick = () => openCharacterViewer(item.name, item.display, item.rarity);
-        container.appendChild(ch);
+      const filtered = items.filter(i => {
+        if (i.rarity === "Void" && !inv[i.name]) return false;
+        if (activeFilter !== 'All' && i.rarity !== activeFilter) return false;
+        return true;
       });
+
+      filtered.forEach(item => {
+        const owned = !!inv[item.name];
+        const card = document.createElement("div");
+        card.className = "character";
+
+        const glowColor = rarityGlow[item.rarity] || 'transparent';
+        card.innerHTML = `
+          <div class="characterRarityGlow" style="box-shadow: inset 0 0 20px ${glowColor};"></div>
+          <div class="rarity-bar ${item.rarity}"></div>
+          <div class="char-img-wrap">
+            <img src="${item.name}.jpg" alt="${item.display}">
+            ${owned ? '<span class="ownedBadge">✓ Owned</span>' : ''}
+          </div>
+          <div class="char-info">
+            <p class="char-name ${item.rarity}">${item.display}</p>
+            <p class="char-rarity-label ${item.rarity}">${item.rarity}</p>
+          </div>`;
+        card.onclick = () => openCharacterViewer(item.name, item.display, item.rarity);
+        container.appendChild(card);
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<p style="color:var(--muted2); font-size:1.1em; margin-top:60px; width:100%;">No characters in this category yet.</p>`;
+      }
     }
 
     function addToInventory(name) {
@@ -1421,16 +1645,34 @@
         .filter(i => inv[i.name])
         .sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
 
+      // Stats bar
+      const statsEl = document.getElementById("invStats");
+      if (statsEl) {
+        const totalCards = Object.values(inv).reduce((a, b) => a + b, 0);
+        const uniqueCount = sorted.length;
+        const totalPossible = items.filter(i => i.rarity !== 'Void').length;
+        statsEl.innerHTML = `
+          <span class="inv-stat">🃏 ${totalCards} card${totalCards !== 1 ? 's' : ''}</span>
+          <span class="inv-stat">✨ ${uniqueCount} / ${totalPossible} unique</span>
+        `;
+      }
+
       sorted.forEach(i => {
         const qty  = inv[i.name];
         const card = document.createElement("div");
         card.className = "character";
+        const glowColor = rarityGlow[i.rarity] || 'transparent';
         card.innerHTML = `
-          <div class="characterRarityGlow" style="box-shadow: inset 0 0 20px ${rarityGlow[i.rarity] || 'transparent'};"></div>
-          <img src="${i.name}.jpg" alt="${i.display}">
-          <p class="${i.rarity}">${i.display}</p>
-          <p class="${i.rarity}" style="font-size:0.7em; opacity:0.7; margin-top:2px;">${i.rarity}</p>
-          <span class="qtyBadge">x${qty}</span>`;
+          <div class="characterRarityGlow" style="box-shadow: inset 0 0 20px ${glowColor};"></div>
+          <div class="rarity-bar ${i.rarity}"></div>
+          <div class="char-img-wrap">
+            <img src="${i.name}.jpg" alt="${i.display}">
+            <span class="qtyBadge">×${qty}</span>
+          </div>
+          <div class="char-info">
+            <p class="char-name ${i.rarity}">${i.display}</p>
+            <p class="char-rarity-label ${i.rarity}">${i.rarity}</p>
+          </div>`;
         card.onclick = (e) => {
           if (e.target.classList.contains("deleteBtn")) return;
           openCharacterViewer(i.name, i.display, i.rarity);
@@ -1581,7 +1823,6 @@
         return;
       }
 
-      // ── Admin preview codes (now use TheMindOfOrin.jpg) ──
       if (code === "Void69Admin") {
         closeCode();
         showAdminVoidReveal();
@@ -1602,12 +1843,10 @@
       closeCode();
     }
 
-    // ── Legendary admin reveal — uses TheMindOfOrin.jpg ──
     function showAdminLegendaryReveal() {
       showLegendaryCardReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin" });
     }
 
-    // ── Omega admin reveal — uses TheMindOfOrin.jpg ──
     function showAdminOmegaReveal() {
       const reveal = document.getElementById("omegaReveal");
       const imgEl  = document.getElementById("omegaImg");
@@ -1618,12 +1857,6 @@
       reveal.style.display = "flex";
       reveal.classList.add("active-reveal");
       spawnOmegaParticles();
-      [900, 1400, 2000, 2800, 4000].forEach(t => {
-        setTimeout(() => {
-          document.body.classList.add("shaking");
-          setTimeout(() => document.body.classList.remove("shaking"), 500);
-        }, t);
-      });
       setTimeout(() => {
         reveal.style.display = "none";
         reveal.classList.remove("active-reveal");
@@ -1631,7 +1864,6 @@
       }, 8000);
     }
 
-    // ── Void admin reveal — uses TheMindOfOrin.jpg ──
     function showAdminVoidReveal() {
       const reveal = document.getElementById("voidReveal");
       const imgEl  = document.getElementById("voidImg");
@@ -1641,12 +1873,6 @@
       title.textContent  = "✦ THE MIND OF ORIN ✦";
       reveal.style.display = "flex";
       spawnParticles("voidParticles");
-      [900, 1500, 2100].forEach(t => {
-        setTimeout(() => {
-          document.body.classList.add("shaking");
-          setTimeout(() => document.body.classList.remove("shaking"), 500);
-        }, t);
-      });
       setTimeout(() => {
         reveal.style.display = "none";
         imgEl.src            = "OrinFlower.jpg";
@@ -1655,7 +1881,6 @@
       }, 10000);
     }
 
-    // ── Legendary full-screen reveal (kept for legacy/future use) ──
     function showLegendaryReveal(item) {
       const reveal  = document.getElementById("legendaryReveal");
       const imgEl   = document.getElementById("legendaryImg");
@@ -1664,29 +1889,6 @@
       nameEl.textContent = "★ " + item.display.toUpperCase() + " ★";
       reveal.style.display = "flex";
       spawnLegendaryParticles();
-      setTimeout(() => {
-        document.body.classList.add("shaking");
-        setTimeout(() => document.body.classList.remove("shaking"), 500);
-      }, 1100);
-      setTimeout(() => {
-        reveal.style.display = "none";
-        document.getElementById("legendaryParticles").innerHTML = "";
-      }, 5000);
-    }
-
-    function showAdminLegendaryRevealFull() {
-      const reveal  = document.getElementById("legendaryReveal");
-      const imgEl   = document.getElementById("legendaryImg");
-      const nameEl  = document.getElementById("legendaryName");
-      imgEl.src          = "TheMindOfOrin.jpg";
-      imgEl.style.display = "block";
-      nameEl.textContent = "★ THE MIND OF ORIN ★";
-      reveal.style.display = "flex";
-      spawnLegendaryParticles();
-      setTimeout(() => {
-        document.body.classList.add("shaking");
-        setTimeout(() => document.body.classList.remove("shaking"), 500);
-      }, 1100);
       setTimeout(() => {
         reveal.style.display = "none";
         document.getElementById("legendaryParticles").innerHTML = "";
@@ -1719,12 +1921,6 @@
       reveal.style.display = "flex";
       reveal.classList.add("active-reveal");
       spawnOmegaParticles();
-      [900, 1400, 2000, 2800, 4000].forEach(t => {
-        setTimeout(() => {
-          document.body.classList.add("shaking");
-          setTimeout(() => document.body.classList.remove("shaking"), 500);
-        }, t);
-      });
       setTimeout(() => {
         reveal.style.display = "none";
         reveal.classList.remove("active-reveal");
@@ -1757,12 +1953,6 @@
       const reveal = document.getElementById("voidReveal");
       reveal.style.display = "flex";
       spawnParticles("voidParticles");
-      [900, 1500, 2100].forEach(t => {
-        setTimeout(() => {
-          document.body.classList.add("shaking");
-          setTimeout(() => document.body.classList.remove("shaking"), 500);
-        }, t);
-      });
       setTimeout(() => {
         reveal.style.display = "none";
         document.getElementById("voidParticles").innerHTML = "";
@@ -1773,12 +1963,6 @@
       const reveal = document.getElementById("highlightReveal");
       reveal.style.display = "flex";
       spawnParticles("highlightParticles");
-      [900, 1500, 2100].forEach(t => {
-        setTimeout(() => {
-          document.body.classList.add("shaking");
-          setTimeout(() => document.body.classList.remove("shaking"), 500);
-        }, t);
-      });
       setTimeout(() => {
         reveal.style.display = "none";
         document.getElementById("highlightParticles").innerHTML = "";
@@ -1813,7 +1997,6 @@
       circle.style.top    = (e.clientY - rect.top  - diam / 2) + "px";
       btn.appendChild(circle);
 
-      // Slime wobble if slime mode on
       if (document.body.classList.contains("slime-buttons")) {
         btn.classList.remove("slime-punch");
         void btn.offsetWidth;
