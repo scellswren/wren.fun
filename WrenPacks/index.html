@@ -605,7 +605,7 @@
       padding: 30px 24px;
     }
 
-    .card {
+    .character {
       width: 140px;
       position: relative;
       background: var(--card-bg);
@@ -616,14 +616,14 @@
       cursor: pointer;
     }
 
-    .card:hover {
+    .character:hover {
       transform: translateY(-6px) scale(1.03);
       box-shadow: 0 8px 30px rgba(0,0,0,0.5);
       border-color: var(--card-border-hover);
     }
 
-    .card:hover .cardRarityGlow { opacity: 1; }
-    .cardRarityGlow {
+    .character:hover .characterRarityGlow { opacity: 1; }
+    .characterRarityGlow {
       position: absolute;
       inset: 0;
       border-radius: 16px;
@@ -632,13 +632,13 @@
       pointer-events: none;
     }
 
-    .card img {
+    .character img {
       width: 100%;
       border-radius: 10px;
       display: block;
     }
 
-    .card p {
+    .character p {
       margin: 8px 0 0;
       font-size: 0.78em;
       font-weight: bold;
@@ -685,7 +685,7 @@
       z-index: 5;
     }
 
-    .card:hover .deleteBtn { opacity: 1; }
+    .character:hover .deleteBtn { opacity: 1; }
     .deleteBtn:hover { transform: scale(1.2); background: #ff2222; }
 
     #resetBtn {
@@ -1139,8 +1139,8 @@
       font-size: 0.9em;
     }
 
-    /* ===== CARD ZOOM VIEWER ===== */
-    #cardViewer {
+    /* ===== CHARACTER ZOOM VIEWER ===== */
+    #characterViewer {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
@@ -1160,7 +1160,7 @@
       to   { opacity: 1; }
     }
 
-    #cardViewer img {
+    #characterViewer img {
       max-width: 80vw;
       max-height: 65vh;
       object-fit: contain;
@@ -1174,21 +1174,21 @@
       100% { transform: scale(1);   opacity: 1; }
     }
 
-    #cardViewerName {
+    #characterViewerName {
       margin-top: 22px;
       font-family: 'Rubik', sans-serif;
       font-size: 1.8em;
       letter-spacing: 2px;
     }
 
-    #cardViewerRarity {
+    #characterViewerRarity {
       margin-top: 6px;
       font-size: 1em;
       letter-spacing: 1px;
       opacity: 0.8;
     }
 
-    #cardViewerClose {
+    #characterViewerClose {
       position: absolute;
       top: 20px;
       right: 24px;
@@ -1206,12 +1206,12 @@
       transition: background 0.2s, transform 0.2s;
     }
 
-    #cardViewerClose:hover {
+    #characterViewerClose:hover {
       background: rgba(255,255,255,0.2);
       transform: scale(1.1);
     }
 
-    #cardViewerHint {
+    #characterViewerHint {
       position: absolute;
       bottom: 24px;
       font-size: 0.85em;
@@ -1264,13 +1264,13 @@
   <h2>✦ HIGHLIGHT LUCKY ✦</h2>
 </div>
 
-<!-- Card zoom viewer -->
-<div id="cardViewer" onclick="closeCardViewer()">
-  <div id="cardViewerClose" onclick="closeCardViewer()">✕</div>
-  <img id="cardViewerImg" src="">
-  <p id="cardViewerName" class="Common"></p>
-  <p id="cardViewerRarity" class="Common"></p>
-  <p id="cardViewerHint">Click anywhere to close</p>
+<!-- Character zoom viewer -->
+<div id="characterViewer" onclick="closeCharacterViewer()">
+  <div id="characterViewerClose" onclick="closeCharacterViewer()">✕</div>
+  <img id="characterViewerImg" src="">
+  <p id="characterViewerName" class="Common"></p>
+  <p id="characterViewerRarity" class="Common"></p>
+  <p id="characterViewerHint">Click anywhere to close</p>
 </div>
 
 <div id="pack" class="section active">
@@ -1294,7 +1294,7 @@
     <h2>Reset Inventory?</h2>
   </div>
   <div class="modal-body">
-    <p class="modal-muted">This will permanently delete all your cards.</p>
+    <p class="modal-muted">This will permanently delete all your characters.</p>
   </div>
   <div class="modal-footer">
     <button class="danger" onclick="resetInventory(); playSound()">Reset</button>
@@ -1304,7 +1304,7 @@
 
 <div id="deletePrompt">
   <div class="modal-header">
-    <h3>Delete Cards</h3>
+    <h3>Delete Characters</h3>
   </div>
   <div class="modal-body">
     <p class="modal-muted" style="margin-bottom:14px;">How many would you like to remove?</p>
@@ -1470,30 +1470,30 @@ function closeSettings() {
   document.getElementById("settingsDarken").classList.remove("visible");
 }
 
-/* ===== CARD VIEWER ===== */
-function openCardViewer(name, display, rarity) {
+/* ===== CHARACTER VIEWER ===== */
+function openCharacterViewer(name, display, rarity) {
   playSound();
-  const viewer = document.getElementById("cardViewer");
-  document.getElementById("cardViewerImg").src = name + ".jpg";
+  const viewer = document.getElementById("characterViewer");
+  document.getElementById("characterViewerImg").src = name + ".jpg";
 
-  const nameEl = document.getElementById("cardViewerName");
+  const nameEl = document.getElementById("characterViewerName");
   nameEl.textContent = display;
   nameEl.className = rarity;
 
-  const rarityEl = document.getElementById("cardViewerRarity");
+  const rarityEl = document.getElementById("characterViewerRarity");
   rarityEl.textContent = rarity;
   rarityEl.className = rarity;
 
   viewer.style.display = "flex";
 }
 
-function closeCardViewer() {
-  document.getElementById("cardViewer").style.display = "none";
+function closeCharacterViewer() {
+  document.getElementById("characterViewer").style.display = "none";
 }
 
 // Close on Escape key
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape") closeCardViewer();
+  if (e.key === "Escape") closeCharacterViewer();
 });
 
 /* ===== THEME ===== */
@@ -1602,11 +1602,11 @@ function renderIndex() {
   const container = document.getElementById("index-list");
   container.innerHTML = "";
   items.filter(i => i.rarity !== "Void").forEach(i => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `<img src="${i.name}.jpg"><p class="${i.rarity}">${i.display}</p><p class="${i.rarity}">${i.rarity}</p>`;
-    card.onclick = () => openCardViewer(i.name, i.display, i.rarity);
-    container.appendChild(card);
+    const character = document.createElement("div");
+    character.className = "character";
+    character.innerHTML = `<img src="${i.name}.jpg"><p class="${i.rarity}">${i.display}</p><p class="${i.rarity}">${i.rarity}</p>`;
+    character.onclick = () => openCharacterViewer(i.name, i.display, i.rarity);
+    container.appendChild(character);
   });
 }
 
@@ -1676,21 +1676,21 @@ function renderInventory() {
 
   sorted.forEach(i => {
     const qty = inv[i.name];
-    const card = document.createElement("div");
-    card.className = "card";
+    const character = document.createElement("div");
+    character.className = "character";
 
-    card.innerHTML = `
-      <div class="cardRarityGlow" style="box-shadow: inset 0 0 20px ${rarityGlow[i.rarity] || 'transparent'};"></div>
+    character.innerHTML = `
+      <div class="characterRarityGlow" style="box-shadow: inset 0 0 20px ${rarityGlow[i.rarity] || 'transparent'};"></div>
       <img src="${i.name}.jpg" alt="${i.display}">
       <p class="${i.rarity}">${i.display}</p>
       <p class="${i.rarity}" style="font-size:0.7em; opacity:0.7; margin-top:2px;">${i.rarity}</p>
       <span class="qtyBadge">x${qty}</span>
     `;
 
-    // Card click opens viewer (but not if clicking the delete button)
-    card.onclick = (e) => {
+    // Character click opens viewer (but not if clicking the delete button)
+    character.onclick = (e) => {
       if (e.target.classList.contains("deleteBtn")) return;
-      openCardViewer(i.name, i.display, i.rarity);
+      openCharacterViewer(i.name, i.display, i.rarity);
     };
 
     const delBtn = document.createElement("div");
@@ -1702,12 +1702,12 @@ function renderInventory() {
       deleteItem = i;
       openDeletePrompt(qty);
     };
-    card.appendChild(delBtn);
-    container.appendChild(card);
+    character.appendChild(delBtn);
+    container.appendChild(character);
   });
 
   if (sorted.length === 0) {
-    container.innerHTML = `<p style="color:var(--muted2); font-size:1.1em; margin-top:60px; width:100%;">No cards yet — open some packs!</p>`;
+    container.innerHTML = `<p style="color:var(--muted2); font-size:1.1em; margin-top:60px; width:100%;">No characters yet — open some packs!</p>`;
   }
 }
 
@@ -1747,8 +1747,8 @@ function cancelDelete() {
 }
 
 function resetInventory() {
-  const cards = document.querySelectorAll(".card");
-  cards.forEach((card, i) => setTimeout(()=>{ card.classList.add("explode"); }, i*100));
+  const characters = document.querySelectorAll(".character");
+  characters.forEach((character, i) => setTimeout(()=>{ character.classList.add("explode"); }, i*100));
   setTimeout(()=>{ localStorage.removeItem("inventory"); hideConfirm(); renderInventory(); }, 800);
 }
 
