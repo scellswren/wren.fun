@@ -30,8 +30,12 @@
       font-size: 2em;
       color: #ffffff;
       text-decoration: none;
-      /* transition handled by JS for the end sequence */
-      transition: top 1.8s ease, left 1.8s ease, transform 1.8s ease, font-size 1.8s ease, opacity 0.8s ease;
+      transition: opacity 0.8s ease, transform 0.2s ease;
+      display: inline-block;
+    }
+
+    #homeText:hover {
+      transform: scale(1.15);
     }
 
     #watchCounter {
@@ -156,11 +160,17 @@
       transform: scale(0.6);
       transition: transform 1.6s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 1.2s ease;
       opacity: 0;
+      display: inline-block;
     }
 
     #endScreen.visible #endLogo {
       transform: scale(1);
       opacity: 1;
+    }
+
+    #endScreen.visible #endLogo:hover {
+      transform: scale(1.1);
+      transition: transform 0.2s ease;
     }
 
   </style>
@@ -228,7 +238,9 @@
 </div>
 
 <!-- Music — plays on load, loops -->
-<audio id="bgMusic" src="SongLong.MP3" loop preload="auto"></audio>
+<audio id="bgMusic" loop preload="auto">
+  <source src="SongLong.MP3" type="audio/mpeg">
+</audio>
 
 <script>
 const watchCounter = document.getElementById("watchCounter");
@@ -253,6 +265,7 @@ loadWatchCount();
 /* ── Music ── */
 function startMusic() {
   bgMusic.volume = 0.7;
+  bgMusic.onerror = () => console.warn("SongLong.MP3 failed to load — check the filename and that it's in the same folder.");
   bgMusic.play().catch(() => {
     const unlock = () => {
       bgMusic.play().catch(() => {});
