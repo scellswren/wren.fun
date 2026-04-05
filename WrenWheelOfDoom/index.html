@@ -3,162 +3,685 @@
 <head>
   <title>Wren Wheel of Doom</title>
   <link rel="icon" type="image/png" href="../Favicon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      background: radial-gradient(circle, #111, #000);
-      color: white;
-      font-family: Arial;
-      text-align: center;
-      overflow: hidden;
+    :root {
+      --gold: #FFD700;
+      --purple: #9D4EDD;
+      --pink: #FF006E;
+      --cyan: #00F5FF;
+      --green: #06FFA5;
+      --red: #FF3A3A;
+      --orange: #FF7700;
+      --bg: #0a0a0f;
+      --surface: #13131f;
+      --surface2: #1c1c2e;
+      --border: rgba(255,255,255,0.08);
     }
 
-    /* ✅ WREN.FUN (UPDATED WITH HOVER) */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: white;
+      font-family: 'Rubik', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated bg grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(157,78,221,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(157,78,221,0.06) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
     #homeText {
+      position: fixed;
+      top: 14px;
+      left: 18px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.7em;
+      font-weight: 900;
+      cursor: pointer;
+      z-index: 100;
+      transition: transform 0.2s;
+      text-shadow: 0 0 20px rgba(157,78,221,0.6);
+    }
+    #homeText:hover { transform: scale(1.15); }
+
+    /* Money display — centered top */
+    #moneyBar {
       position: fixed;
       top: 0;
       left: 0;
-      padding: 10px 15px;
-      font-family: 'Rubik', sans-serif;
-      font-size: 2em;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    #homeText:hover {
-      transform: scale(1.2);
+      right: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 14px;
+      z-index: 99;
+      pointer-events: none;
     }
 
     #money {
-      position: fixed;
-      top: 10px;
-      right: 20px;
-      font-size: 1.5em;
-      color: gold;
-      font-family: 'Rubik', sans-serif;
+      font-family: 'Space Mono', monospace;
+      font-size: 1.4em;
+      font-weight: 700;
+      color: var(--gold);
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 30px;
+      padding: 8px 24px;
+      text-shadow: 0 0 12px rgba(255,215,0,0.5);
+      letter-spacing: 1px;
+      pointer-events: auto;
     }
 
-    #musicBtn {
+    #resetBtn {
       position: fixed;
-      bottom: 15px;
-      left: 15px;
-      background: #222;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 15px;
+      top: 14px;
+      right: 18px;
+      z-index: 100;
+      background: transparent;
+      border: 1.5px solid rgba(255,58,58,0.4);
+      color: rgba(255,58,58,0.7);
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.82em;
+      font-weight: 700;
+      padding: 7px 16px;
+      border-radius: 20px;
       cursor: pointer;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+    #resetBtn:hover {
+      background: rgba(255,58,58,0.15);
+      border-color: var(--red);
+      color: var(--red);
+      box-shadow: 0 0 14px rgba(255,58,58,0.3);
+    }
+
+    /* Main layout */
+    #app {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 20px 40px;
+      min-height: 100vh;
     }
 
     h1 {
       font-family: 'Rubik', sans-serif;
-      margin-top: 50px;
+      font-weight: 900;
+      font-size: clamp(1.8em, 5vw, 3em);
+      letter-spacing: 3px;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, var(--purple), var(--pink), var(--cyan));
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      color: transparent;
+      animation: titleShimmer 4s ease infinite;
+      filter: drop-shadow(0 0 20px rgba(157,78,221,0.5));
+    }
+
+    @keyframes titleShimmer {
+      0%,100% { background-position: 0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+
+    /* ===== SPINNER ===== */
+    #spinnerWrap {
+      position: relative;
+      width: min(380px, 92vw);
+      margin-bottom: 24px;
+    }
+
+    /* Pointer arrow */
+    #spinnerWrap::after {
+      content: '▶';
+      position: absolute;
+      left: -28px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.6em;
+      color: var(--cyan);
+      text-shadow: 0 0 12px var(--cyan);
+      z-index: 10;
+      animation: pulsePt 1s ease infinite;
+    }
+
+    @keyframes pulsePt {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.4; }
     }
 
     #spinner {
-      margin: 40px auto;
-      width: 320px;
-      height: 300px;
+      width: 100%;
+      height: 320px;
       overflow: hidden;
-      border: 4px solid purple;
       border-radius: 20px;
-      box-shadow: 0 0 25px purple;
+      border: 2px solid var(--purple);
+      box-shadow: 0 0 40px rgba(157,78,221,0.4), inset 0 0 30px rgba(0,0,0,0.5);
+      background: var(--surface);
       position: relative;
-      background: black;
+    }
+
+    /* highlight band in center */
+    #spinner::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 64px;
+      border-top: 2px solid var(--cyan);
+      border-bottom: 2px solid var(--cyan);
+      background: rgba(0,245,255,0.05);
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    /* fade masks */
+    #spinner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        var(--surface) 0%,
+        transparent 30%,
+        transparent 70%,
+        var(--surface) 100%
+      );
+      z-index: 6;
+      pointer-events: none;
     }
 
     #items {
       position: absolute;
       width: 100%;
-      transition: top 3s cubic-bezier(0.2,0.8,0.2,1);
+      transition: top 3.2s cubic-bezier(0.12, 0.9, 0.15, 1);
     }
 
     .item {
-      height: 60px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 1.3em;
+      font-weight: 700;
+      font-family: 'Space Mono', monospace;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+
+    .item.good { color: var(--green); }
+    .item.bad  { color: var(--red); }
+    .item.special { color: var(--cyan); }
+    .item.mult { color: var(--gold); }
+
+    .item.selected {
+      background: rgba(157,78,221,0.25) !important;
+      color: white !important;
       font-size: 1.4em;
-      border-bottom: 1px solid #222;
     }
 
-    .selected {
-      background: purple;
-      box-shadow: 0 0 25px purple;
-      font-weight: bold;
-    }
-
+    /* ===== SPIN BUTTON ===== */
     #spinBtn {
-      padding: 15px 40px;
-      font-size: 1.5em;
-      border-radius: 20px;
+      position: relative;
+      padding: 16px 60px;
+      font-size: 1.4em;
+      font-family: 'Rubik', sans-serif;
+      font-weight: 900;
+      letter-spacing: 3px;
+      border-radius: 50px;
       border: none;
-      background: purple;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
       color: white;
-      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 30px rgba(157,78,221,0.5);
+      margin-bottom: 28px;
     }
 
+    #spinBtn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    }
+
+    #spinBtn:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 8px 40px rgba(157,78,221,0.7);
+    }
+
+    #spinBtn:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+
+    #spinBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Ripple */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      transform: scale(0);
+      animation: rippleOut 0.6s linear;
+      pointer-events: none;
+    }
+    @keyframes rippleOut { to { transform: scale(4); opacity: 0; } }
+
+    /* ===== GAME AREA ===== */
     #gameArea {
-      margin-top: 20px;
+      width: min(480px, 94vw);
+      margin-top: 6px;
     }
 
-    button {
-      padding: 15px 25px;
-      font-size: 1.2em;
-      border-radius: 15px;
+    .game-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 24px;
+      text-align: center;
+      animation: slideUp 0.4s cubic-bezier(0.34,1.4,0.64,1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .game-title {
+      font-size: 1.5em;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin-bottom: 18px;
+    }
+
+    /* Click game */
+    #clickTarget {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      font-weight: 900;
+      font-family: 'Space Mono', monospace;
+      background: radial-gradient(circle at 35% 35%, #7B2FBE, #4a0e8f);
+      border: 3px solid var(--purple);
+      box-shadow: 0 0 30px rgba(157,78,221,0.5);
+      user-select: none;
+      transition: transform 0.08s, box-shadow 0.08s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #clickTarget:active {
+      transform: scale(0.91);
+      box-shadow: 0 0 50px rgba(157,78,221,0.9);
+    }
+
+    #clickTarget.pulse {
+      animation: clickPulse 0.12s ease;
+    }
+
+    @keyframes clickPulse {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(0.88); box-shadow: 0 0 60px rgba(157,78,221,1); }
+      100% { transform: scale(1); }
+    }
+
+    .click-float {
+      position: fixed;
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 1.1em;
+      color: var(--green);
+      text-shadow: 0 0 10px var(--green);
+      pointer-events: none;
+      z-index: 9999;
+      animation: floatUp 0.9s ease forwards;
+    }
+
+    @keyframes floatUp {
+      0%   { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-80px) scale(0.8); }
+    }
+
+    #clickTimer {
+      font-family: 'Space Mono', monospace;
+      font-size: 2.5em;
+      color: var(--cyan);
+      text-shadow: 0 0 12px var(--cyan);
+      margin-bottom: 8px;
+    }
+
+    #clickCount {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.1em;
+      color: var(--gold);
+      margin-bottom: 18px;
+    }
+
+    /* Red light green light */
+    #rlglLight {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      transition: background 0.15s, box-shadow 0.15s;
+      border: 3px solid rgba(255,255,255,0.2);
+    }
+
+    #rlglLight.green {
+      background: radial-gradient(circle at 35% 35%, #00ff88, #00aa55);
+      box-shadow: 0 0 40px var(--green), 0 0 80px rgba(0,255,133,0.3);
+    }
+
+    #rlglLight.red {
+      background: radial-gradient(circle at 35% 35%, #ff5555, #cc0000);
+      box-shadow: 0 0 40px var(--red), 0 0 80px rgba(255,58,58,0.3);
+    }
+
+    #rlglStatus {
+      font-size: 1.8em;
+      font-weight: 900;
+      letter-spacing: 3px;
+      margin-bottom: 14px;
+    }
+
+    #rlglEarn {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.1em;
+      color: var(--gold);
+      margin-bottom: 18px;
+    }
+
+    .game-btn {
+      padding: 12px 28px;
+      font-size: 1em;
+      font-family: 'Rubik', sans-serif;
+      font-weight: 700;
+      border-radius: 14px;
       border: none;
       cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.15s;
+      letter-spacing: 1px;
+      margin: 5px;
     }
 
+    .game-btn:active { transform: scale(0.93); }
+
+    .btn-green {
+      background: linear-gradient(135deg, #00aa55, #00ff88);
+      color: #001a0d;
+      box-shadow: 0 4px 20px rgba(0,255,133,0.3);
+    }
+    .btn-green:hover { box-shadow: 0 6px 28px rgba(0,255,133,0.5); transform: translateY(-1px); }
+
+    .btn-red {
+      background: linear-gradient(135deg, #cc0000, #ff3a3a);
+      color: white;
+      box-shadow: 0 4px 20px rgba(255,58,58,0.3);
+    }
+    .btn-red:hover { box-shadow: 0 6px 28px rgba(255,58,58,0.5); transform: translateY(-1px); }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #cc8800, var(--gold));
+      color: #1a0e00;
+      box-shadow: 0 4px 20px rgba(255,215,0,0.3);
+    }
+    .btn-gold:hover { box-shadow: 0 6px 28px rgba(255,215,0,0.5); transform: translateY(-1px); }
+
+    .btn-purple {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: white;
+      box-shadow: 0 4px 20px rgba(157,78,221,0.3);
+    }
+    .btn-purple:hover { box-shadow: 0 6px 28px rgba(157,78,221,0.5); transform: translateY(-1px); }
+
+    /* Don't move mouse */
+    #mouseMoveWrap {
+      text-align: center;
+    }
+
+    #mmCountdown {
+      font-family: 'Space Mono', monospace;
+      font-size: 4em;
+      color: var(--cyan);
+      text-shadow: 0 0 20px var(--cyan);
+      margin: 10px 0;
+    }
+
+    #mmBar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+
+    #mmBarFill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      border-radius: 4px;
+      transition: width 0.5s linear;
+      box-shadow: 0 0 10px var(--cyan);
+    }
+
+    #mmStatus {
+      font-size: 1em;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 12px;
+    }
+
+    /* ===== WIN/LOSE OVERLAY ===== */
     #resultOverlay {
       position: fixed;
-      top:0;
-      left:0;
-      width:100%;
-      height:100%;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      font-size:4em;
-      font-family:'Rubik', sans-serif;
-      z-index:9999;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9000;
+      pointer-events: none;
     }
 
-    .win {
-      background: rgba(0,255,0,0.2);
-      color: lime;
+    #resultBubble {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: clamp(2.5em, 8vw, 5em);
+      padding: 20px 50px;
+      border-radius: 30px;
+      animation: resultPop 0.5s cubic-bezier(0.34,1.4,0.64,1) both;
+      letter-spacing: 2px;
     }
 
-    .lose {
-      background: rgba(255,0,0,0.2);
-      color: red;
+    @keyframes resultPop {
+      from { opacity: 0; transform: scale(0.3) rotate(-8deg); }
+      to   { opacity: 1; transform: scale(1) rotate(0deg); }
     }
 
-    #light {
-      font-size: 3em;
-      margin-bottom: 10px;
+    .result-win {
+      background: rgba(6,255,165,0.12);
+      border: 2px solid var(--green);
+      color: var(--green);
+      text-shadow: 0 0 20px var(--green);
+      box-shadow: 0 0 60px rgba(6,255,165,0.3);
+    }
+
+    .result-lose {
+      background: rgba(255,58,58,0.12);
+      border: 2px solid var(--red);
+      color: var(--red);
+      text-shadow: 0 0 20px var(--red);
+      box-shadow: 0 0 60px rgba(255,58,58,0.3);
+    }
+
+    /* ===== MODAL ===== */
+    #modalOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 8000;
+    }
+
+    #modal {
+      background: var(--surface2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 0;
+      overflow: hidden;
+      min-width: 300px;
+      max-width: 380px;
+      width: 90vw;
+      animation: modalIn 0.3s cubic-bezier(0.34,1.4,0.64,1) both;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.8) translateY(20px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-hd {
+      padding: 22px 24px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-hd h3 {
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.3em;
+      letter-spacing: 1px;
+      margin: 0;
+    }
+
+    .modal-body {
+      padding: 16px 24px 20px;
+      color: rgba(255,255,255,0.55);
+      font-size: 0.92em;
+      line-height: 1.5;
+    }
+
+    .modal-footer {
+      display: flex;
+      border-top: 1px solid var(--border);
+    }
+
+    .modal-footer button {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      background: transparent;
+      color: white;
+      font-family: 'Rubik', sans-serif;
+      font-size: 1em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      letter-spacing: 0.5px;
+    }
+
+    .modal-footer button:not(:last-child) {
+      border-right: 1px solid var(--border);
+    }
+
+    .modal-footer button.m-danger { color: var(--red); }
+    .modal-footer button.m-danger:hover { background: rgba(255,58,58,0.15); }
+    .modal-footer button.m-cancel:hover { background: rgba(255,255,255,0.06); }
+
+    /* Music btn */
+    #musicBtn {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      background: var(--surface2);
+      color: rgba(255,255,255,0.7);
+      border: 1px solid var(--border);
+      padding: 9px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.85em;
+      font-weight: 700;
+      transition: background 0.2s, color 0.2s;
+      z-index: 100;
+    }
+    #musicBtn:hover { background: var(--surface); color: white; }
+
+    /* Countdown pre-game */
+    #countdown {
+      font-family: 'Space Mono', monospace;
+      font-size: 5em;
+      color: var(--gold);
+      text-shadow: 0 0 30px var(--gold);
+      animation: cntPop 0.4s cubic-bezier(0.34,1.4,0.64,1) both;
+    }
+    @keyframes cntPop {
+      from { opacity:0; transform: scale(0.5); }
+      to   { opacity:1; transform: scale(1); }
     }
   </style>
 </head>
-
 <body>
 
 <div id="homeText" onclick="goHome()">Wren.fun</div>
-<div id="money">WrenDollars: $0</div>
 
-<h1>Wren Wheel of Doom</h1>
-
-<div id="spinner">
-  <div id="items"></div>
+<div id="moneyBar">
+  <div id="money">💰 $0</div>
 </div>
 
-<button id="spinBtn" onclick="spin()">SPIN</button>
+<button id="resetBtn" onclick="askReset()">⟳ RESET</button>
 
-<div id="gameArea"></div>
+<div id="app">
+  <h1>WHEEL OF DOOM</h1>
 
-<div id="resultOverlay"></div>
+  <div id="spinnerWrap">
+    <div id="spinner">
+      <div id="items"></div>
+    </div>
+  </div>
+
+  <button id="spinBtn" onclick="spin(event)">SPIN</button>
+
+  <div id="gameArea"></div>
+</div>
+
+<div id="resultOverlay">
+  <div id="resultBubble"></div>
+</div>
+
+<div id="modalOverlay">
+  <div id="modal">
+    <div class="modal-hd"><h3 id="modalTitle">Are you sure?</h3></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="m-danger" id="modalConfirm">Yes</button>
+      <button class="m-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <button id="musicBtn" onclick="toggleMusic()">🔊 Music</button>
 
@@ -167,184 +690,471 @@
 </audio>
 
 <script>
-let money = parseInt(localStorage.getItem("money")) || 0;
+// ── Money ──
+let money = parseInt(localStorage.getItem("wren_money")) || 0;
 const moneyDisplay = document.getElementById("money");
 
-function updateMoney(){
-  moneyDisplay.innerText = "WrenDollars: $" + money;
+function saveMoney() { localStorage.setItem("wren_money", money); }
+
+function updateMoney() {
+  moneyDisplay.textContent = "💰 $" + Math.floor(money).toLocaleString();
 }
 updateMoney();
 
-function showBig(amount){
-  const overlay = document.getElementById("resultOverlay");
-  overlay.style.display = "flex";
-
-  if(amount >= 0){
-    overlay.className = "win";
-    overlay.innerText = "+$" + amount;
-  } else {
-    overlay.className = "lose";
-    overlay.innerText = "-$" + Math.abs(amount);
-  }
-
-  setTimeout(()=> overlay.style.display="none",2000);
-}
-
-function changeMoney(amount){
+function animateMoney(amount) {
   let target = money + amount;
-  let step = Math.max(1, Math.abs(amount)/20) * Math.sign(amount);
-
-  let interval = setInterval(()=>{
-    money += step;
-
-    if((step > 0 && money >= target) || (step < 0 && money <= target)){
-      money = target;
-      clearInterval(interval);
-      localStorage.setItem("money", money);
-    }
-
+  if (target < 0) target = 0;
+  const steps = 30;
+  const diff = (target - money) / steps;
+  let step = 0;
+  const iv = setInterval(() => {
+    money += diff;
+    step++;
+    if (step >= steps) { money = target; clearInterval(iv); saveMoney(); }
     updateMoney();
-  },15);
-
-  showBig(amount);
+  }, 16);
+  showResult(amount);
 }
 
-function goHome(){
-  window.location.href = "https://scellswren.github.io/wren.fun/";
+function applyMultiplier(mult, label) {
+  const gain = money * (mult - 1);
+  const target = money * mult;
+  const steps = 30;
+  const diff = (target - money) / steps;
+  let step = 0;
+  const iv = setInterval(() => {
+    money += diff;
+    step++;
+    if (step >= steps) { money = target; clearInterval(iv); saveMoney(); }
+    updateMoney();
+  }, 16);
+  showResult(gain, label);
 }
 
-const base = [
-  "+10","+10","+20","+20","+50","+50","+100","+100",
-  "+500","+500","+1000","+5000",
-  "-10","-20","-50","-100","-500",
-  "Spam Click (+5)","Spam Click (+5)",
-  "Red Light Green Light","Red Light Green Light"
+// ── Result overlay ──
+function showResult(amount, customLabel) {
+  const overlay = document.getElementById("resultOverlay");
+  const bubble  = document.getElementById("resultBubble");
+  let label = customLabel;
+  if (!label) {
+    label = (amount >= 0 ? "+" : "") + "$" + Math.floor(Math.abs(amount)).toLocaleString();
+  }
+  bubble.textContent = label;
+  bubble.className = amount >= 0 ? "result-win" : "result-lose";
+  overlay.style.display = "flex";
+  bubble.style.animation = "none";
+  void bubble.offsetWidth;
+  bubble.style.animation = "resultPop 0.5s cubic-bezier(0.34,1.4,0.64,1) both";
+  setTimeout(() => overlay.style.display = "none", 2200);
+}
+
+// ── Go home ──
+function goHome() { window.location.href = "https://scellswren.github.io/wren.fun/"; }
+
+// ── Spinner items (65% good, 35% bad) ──
+const goodItems = [
+  { label: "+$10",   type: "good",  action: () => animateMoney(10) },
+  { label: "+$10",   type: "good",  action: () => animateMoney(10) },
+  { label: "+$50",   type: "good",  action: () => animateMoney(50) },
+  { label: "+$50",   type: "good",  action: () => animateMoney(50) },
+  { label: "+$100",  type: "good",  action: () => animateMoney(100) },
+  { label: "+$100",  type: "good",  action: () => animateMoney(100) },
+  { label: "+$1000", type: "good",  action: () => animateMoney(1000) },
+  { label: "+$3000", type: "good",  action: () => animateMoney(3000) },
+  { label: "+$5000", type: "good",  action: () => animateMoney(5000) },
+  { label: "×1.1",   type: "mult",  action: () => applyMultiplier(1.1, "×1.1!") },
+  { label: "×1.25",  type: "mult",  action: () => applyMultiplier(1.25, "×1.25!") },
+  { label: "×1.5",   type: "mult",  action: () => applyMultiplier(1.5, "×1.5!") },
+  { label: "×2",     type: "mult",  action: () => applyMultiplier(2, "×2!! 🔥") },
 ];
 
-let items=[];
-for(let i=0;i<80;i++){
-  items.push(base[Math.floor(Math.random()*base.length)]);
+const badItems = [
+  { label: "-$10",   type: "bad",   action: () => animateMoney(-10) },
+  { label: "-$50",   type: "bad",   action: () => animateMoney(-50) },
+  { label: "-$100",  type: "bad",   action: () => animateMoney(-100) },
+  { label: "-$1000", type: "bad",   action: () => animateMoney(-1000) },
+  { label: "-$3000", type: "bad",   action: () => animateMoney(-3000) },
+  { label: "-$5000", type: "bad",   action: () => animateMoney(-5000) },
+  { label: "Lose 5%",  type: "bad", action: () => applyMultiplier(0.95, "-5%") },
+  { label: "Lose 10%", type: "bad", action: () => applyMultiplier(0.90, "-10%") },
+  { label: "Lose 20%", type: "bad", action: () => applyMultiplier(0.80, "-20%") },
+  { label: "Lose 30%", type: "bad", action: () => applyMultiplier(0.70, "-30%") },
+];
+
+const specialItems = [
+  { label: "🔴🟢 Red/Green", type: "special", action: () => startRedLight() },
+  { label: "🖱 Click Rush",   type: "special", action: () => startClickRush() },
+  { label: "🖱 Don't Move",   type: "special", action: () => startDontMove() },
+];
+
+// Build a long strip with correct probabilities
+function buildStrip(length) {
+  const pool = [];
+  // Good: 65%, Bad: 35%, but specials are neutral 50/50
+  // Keep specials rare — 1 of each as good, nothing as bad
+  const goodPool = [...goodItems, ...goodItems, ...specialItems]; // slightly diluted
+  const badPool  = [...badItems,  ...badItems];
+
+  for (let i = 0; i < length; i++) {
+    const isGood = Math.random() < 0.65;
+    const src = isGood ? goodPool : badPool;
+    pool.push(src[Math.floor(Math.random() * src.length)]);
+  }
+  return pool;
 }
 
-const container = document.getElementById("items");
+let strip = buildStrip(120);
+let spinning = false;
 
-function render(){
-  container.innerHTML="";
-  items.forEach(t=>{
-    let d=document.createElement("div");
-    d.className="item";
-    d.innerText=t;
+const container = document.getElementById("items");
+function renderStrip() {
+  container.innerHTML = "";
+  strip.forEach(item => {
+    const d = document.createElement("div");
+    d.className = "item " + item.type;
+    d.textContent = item.label;
     container.appendChild(d);
   });
 }
-render();
+renderStrip();
 
-let spinning=false;
+let currentTop = 0;
 
-function spin(){
-  if(spinning) return;
-  spinning=true;
+function spin(e) {
+  if (spinning) return;
+  spinning = true;
 
-  document.getElementById("gameArea").innerHTML="";
-  document.querySelectorAll(".item").forEach(i=>i.classList.remove("selected"));
+  document.getElementById("spinBtn").disabled = true;
+  document.getElementById("gameArea").innerHTML = "";
+  document.querySelectorAll(".item").forEach(i => i.classList.remove("selected"));
 
-  let index=Math.floor(Math.random()*items.length);
-  container.style.top = -(index*60)+"px";
+  // Ripple on button
+  if (e) {
+    const btn = document.getElementById("spinBtn");
+    const r = document.createElement("span");
+    r.className = "ripple";
+    const d = Math.max(btn.clientWidth, btn.clientHeight);
+    r.style.width = r.style.height = d + "px";
+    r.style.left = (e.clientX - btn.getBoundingClientRect().left - d/2) + "px";
+    r.style.top  = (e.clientY - btn.getBoundingClientRect().top  - d/2) + "px";
+    btn.appendChild(r);
+    setTimeout(() => r.remove(), 700);
+  }
 
-  setTimeout(()=>{
-    spinning=false;
+  // Target: centre item in viewport = top of strip + 128 (half of 320 minus 32)
+  const ITEM_H = 64;
+  const VISIBLE_H = 320;
+  const centerOffset = Math.floor(VISIBLE_H / 2) - Math.floor(ITEM_H / 2); // 128
+
+  // Pick a random index well into the strip (avoid edges)
+  const index = 20 + Math.floor(Math.random() * 70);
+  const targetTop = -(index * ITEM_H) + centerOffset;
+
+  container.style.transition = "top 3.2s cubic-bezier(0.12, 0.9, 0.15, 1)";
+  container.style.top = targetTop + "px";
+
+  setTimeout(() => {
+    spinning = false;
+    document.getElementById("spinBtn").disabled = false;
     container.children[index].classList.add("selected");
-    resolve(items[index]);
-  },3000);
+    // Rebuild strip for next time to keep it fresh
+    strip = buildStrip(120);
+    renderStrip();
+    container.style.transition = "none";
+    container.style.top = "0px";
+    strip[index].action();
+  }, 3300);
 }
 
-function resolve(r){
-  if(r.startsWith("+") || r.startsWith("-")){
-    changeMoney(parseInt(r));
-    return;
-  }
+// ── CLICK RUSH ──
+let clickRushActive = false;
+let clickRushCount = 0;
+let clickRushTimer = null;
 
-  if(r.includes("Spam")) spam();
-  if(r.includes("Red")) redLight();
-}
+function startClickRush() {
+  const area = document.getElementById("gameArea");
+  clickRushCount = 0;
+  clickRushActive = true;
+  let timeLeft = 10;
 
-function spam(){
-  let area=document.getElementById("gameArea");
-  let c=0,t=10;
+  area.innerHTML = `
+    <div class="game-card">
+      <div class="game-title" style="color:var(--cyan)">🖱 CLICK RUSH</div>
+      <div id="clickTimer">10</div>
+      <div id="clickCount">Clicks: 0 — Earnings: +$0</div>
+      <div id="clickTarget">CLICK</div>
+      <p style="color:rgba(255,255,255,0.4); font-size:0.8em; margin-top:14px;">Each click = +1% of your total</p>
+    </div>`;
 
-  area.innerHTML=`<h2>CLICK FAST</h2><button id="b">CLICK</button><p>${t}</p>`;
-  document.getElementById("b").onclick=()=>c++;
+  const target = document.getElementById("clickTarget");
 
-  let i=setInterval(()=>{
-    t--;
-    area.querySelector("p").innerText=t;
-    if(t<=0){
-      clearInterval(i);
-      changeMoney(c*5);
-      area.innerHTML="";
+  target.addEventListener("click", onClickRush);
+
+  clickRushTimer = setInterval(() => {
+    timeLeft--;
+    const timerEl = document.getElementById("clickTimer");
+    if (timerEl) {
+      timerEl.textContent = timeLeft;
+      if (timeLeft <= 3) timerEl.style.color = "var(--red)";
     }
-  },1000);
-}
-
-function redLight(){
-  let area=document.getElementById("gameArea");
-  let earn=0,green=true;
-
-  area.innerHTML=`<h2 id="light">GREEN</h2>
-  <button id="c">CLICK</button>
-  <button onclick="cash()">Cash Out</button>`;
-
-  const txt=document.getElementById("light");
-
-  let i=setInterval(()=>{
-    green=!green;
-    txt.innerText = green?"GREEN":"RED";
-    txt.style.color = green?"lime":"red";
-  },1000);
-
-  document.getElementById("c").onclick=()=>{
-    if(green){
-      earn+=10;
-    }else{
-      clearInterval(i);
-      changeMoney(-earn);
-      area.innerHTML="";
+    if (timeLeft <= 0) {
+      clearInterval(clickRushTimer);
+      clickRushActive = false;
+      target.removeEventListener("click", onClickRush);
+      const earned = Math.floor(money * 0.01 * clickRushCount);
+      animateMoney(earned);
+      area.innerHTML = "";
     }
-  }
+  }, 1000);
+}
 
-  window.cash=()=>{
-    clearInterval(i);
-    changeMoney(earn);
-    area.innerHTML="";
+function onClickRush(e) {
+  if (!clickRushActive) return;
+  clickRushCount++;
+
+  // Pulse animation
+  const target = document.getElementById("clickTarget");
+  target.classList.remove("pulse");
+  void target.offsetWidth;
+  target.classList.add("pulse");
+
+  // Float number
+  const earned = Math.floor(money * 0.01);
+  const el = document.createElement("div");
+  el.className = "click-float";
+  el.textContent = "+$" + (earned || 1);
+  el.style.left = (e.clientX - 20) + "px";
+  el.style.top  = (e.clientY - 20) + "px";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+
+  const countEl = document.getElementById("clickCount");
+  if (countEl) {
+    const totalEarned = Math.floor(money * 0.01 * clickRushCount);
+    countEl.textContent = `Clicks: ${clickRushCount} — Earnings: +$${totalEarned.toLocaleString()}`;
   }
 }
 
-/* MUSIC */
-const music = document.getElementById("bgMusic");
+// ── RED LIGHT GREEN LIGHT ──
+let rlglInterval = null;
+
+function startRedLight() {
+  const area = document.getElementById("gameArea");
+  let earn = 0;
+  let isGreen = true;
+  let failed = false;
+
+  // Random intervals: green 0.6–2s, red 0.4–1.5s
+  function getDelay(g) {
+    return g ? (600 + Math.random() * 1400) : (400 + Math.random() * 1100);
+  }
+
+  area.innerHTML = `
+    <div class="game-card">
+      <div class="game-title" style="color:var(--cyan)">🔴🟢 RED LIGHT GREEN LIGHT</div>
+      <div id="rlglLight" class="green"></div>
+      <div id="rlglStatus" style="color:var(--green)">GREEN LIGHT</div>
+      <div id="rlglEarn">Earned: $0</div>
+      <div>
+        <button class="game-btn btn-purple" id="rlglClick">TAP!</button>
+        <button class="game-btn btn-gold" id="rlglCash">CASH OUT</button>
+      </div>
+      <p style="color:rgba(255,255,255,0.35); font-size:0.78em; margin-top:14px;">Click on green → +$25 · Click on red → lose all earnings</p>
+    </div>`;
+
+  function setLight(g) {
+    isGreen = g;
+    const light  = document.getElementById("rlglLight");
+    const status = document.getElementById("rlglStatus");
+    if (!light) return;
+    if (g) {
+      light.className = "green";
+      status.textContent = "GREEN LIGHT";
+      status.style.color = "var(--green)";
+    } else {
+      light.className = "red";
+      status.textContent = "RED LIGHT";
+      status.style.color = "var(--red)";
+    }
+    // Schedule next switch
+    rlglInterval = setTimeout(() => setLight(!isGreen), getDelay(g));
+  }
+
+  setLight(true);
+
+  document.getElementById("rlglClick").onclick = () => {
+    if (failed) return;
+    if (isGreen) {
+      earn += 25;
+      const el = document.getElementById("rlglEarn");
+      if (el) el.textContent = "Earned: $" + earn.toLocaleString();
+      // flash the light brighter
+      const l = document.getElementById("rlglLight");
+      if (l) { l.style.transform = "scale(1.15)"; setTimeout(() => l.style.transform = "", 120); }
+    } else {
+      failed = true;
+      clearTimeout(rlglInterval);
+      const light = document.getElementById("rlglLight");
+      if (light) {
+        light.className = "red";
+        light.style.animation = "none";
+      }
+      showResult(-earn, earn > 0 ? `-$${earn.toLocaleString()} 💀` : "NOTHING LOST");
+      animateMoney(-earn);
+      setTimeout(() => { area.innerHTML = ""; }, 400);
+    }
+  };
+
+  document.getElementById("rlglCash").onclick = () => {
+    if (failed) return;
+    clearTimeout(rlglInterval);
+    animateMoney(earn);
+    area.innerHTML = "";
+  };
+}
+
+// ── DON'T MOVE YOUR MOUSE ──
+let mmActive = false;
+let mmMoved = false;
+let mmInterval = null;
+
+function startDontMove() {
+  const area = document.getElementById("gameArea");
+  const TOTAL = 50;
+  let timeLeft = TOTAL;
+  mmActive = false;
+  mmMoved = false;
+
+  // 3 second countdown first
+  let cntDown = 3;
+
+  area.innerHTML = `
+    <div class="game-card">
+      <div class="game-title" style="color:var(--cyan)">🖱 DON'T MOVE YOUR MOUSE</div>
+      <div id="mmCountdown" class="countdown">${cntDown}</div>
+      <p style="color:rgba(255,255,255,0.5); font-size:0.9em;">Get ready... don't move your mouse for 50 seconds!</p>
+      <p style="color:var(--gold); font-size:0.85em; margin-top:6px;">Reward: ×1.25 your total 💰</p>
+    </div>`;
+
+  const cntInterval = setInterval(() => {
+    cntDown--;
+    const el = document.getElementById("mmCountdown");
+    if (!el) { clearInterval(cntInterval); return; }
+    if (cntDown > 0) {
+      el.textContent = cntDown;
+      el.style.animation = "none";
+      void el.offsetWidth;
+      el.style.animation = "cntPop 0.4s cubic-bezier(0.34,1.4,0.64,1) both";
+    } else {
+      clearInterval(cntInterval);
+      beginDontMove();
+    }
+  }, 1000);
+}
+
+function beginDontMove() {
+  const area = document.getElementById("gameArea");
+  const TOTAL = 50;
+  let timeLeft = TOTAL;
+  mmActive = true;
+  mmMoved = false;
+
+  area.innerHTML = `
+    <div class="game-card" id="mmCard">
+      <div class="game-title" style="color:var(--cyan)">🖱 DON'T MOVE YOUR MOUSE</div>
+      <div id="mmCountdown">${TOTAL}</div>
+      <div id="mmBar"><div id="mmBarFill" style="width:100%"></div></div>
+      <div id="mmStatus">Hold still... 🧊</div>
+      <p style="color:var(--gold); font-size:0.85em; margin-top:8px;">Reward: ×1.25 your total</p>
+    </div>`;
+
+  const onMove = () => {
+    if (!mmActive) return;
+    mmMoved = true;
+    mmActive = false;
+    clearInterval(mmInterval);
+    document.removeEventListener("mousemove", onMove);
+
+    const status = document.getElementById("mmStatus");
+    if (status) status.textContent = "YOU MOVED! 💀";
+    if (status) status.style.color = "var(--red)";
+    showResult(-1, "YOU MOVED!");
+    setTimeout(() => { area.innerHTML = ""; }, 1800);
+  };
+
+  document.addEventListener("mousemove", onMove);
+
+  mmInterval = setInterval(() => {
+    if (!mmActive) { clearInterval(mmInterval); return; }
+    timeLeft--;
+    const cntEl = document.getElementById("mmCountdown");
+    const fillEl = document.getElementById("mmBarFill");
+    if (cntEl) cntEl.textContent = timeLeft;
+    if (fillEl) fillEl.style.width = ((timeLeft / TOTAL) * 100) + "%";
+
+    if (timeLeft <= 0) {
+      mmActive = false;
+      clearInterval(mmInterval);
+      document.removeEventListener("mousemove", onMove);
+      applyMultiplier(1.25, "×1.25 🧊");
+      area.innerHTML = "";
+    }
+  }, 1000);
+}
+
+// ── RESET ──
+let resetStage = 0;
+
+function askReset() {
+  resetStage = 1;
+  showModal(
+    "Reset Balance?",
+    "This will wipe all your WrenDollars. Are you sure?",
+    "Yes, reset",
+    () => {
+      resetStage = 2;
+      showModal(
+        "Are you VERY VERY sure?",
+        "You will lose every single dollar. This cannot be undone. Really?",
+        "YES, I'm sure",
+        () => {
+          money = 0;
+          saveMoney();
+          updateMoney();
+          closeModal();
+        }
+      );
+    }
+  );
+}
+
+function showModal(title, body, confirmText, onConfirm) {
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalBody").textContent  = body;
+  document.getElementById("modalConfirm").textContent = confirmText;
+  document.getElementById("modalConfirm").onclick = onConfirm;
+  document.getElementById("modalOverlay").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modalOverlay").style.display = "none";
+}
+
+// ── MUSIC ──
+const music   = document.getElementById("bgMusic");
 const musicBtn = document.getElementById("musicBtn");
+music.volume = 0.5;
 
-window.addEventListener("load", () => {
-  music.volume = 0.5;
+function tryPlay() { music.play().catch(() => {}); }
+tryPlay();
+["click","keydown","touchstart","mousemove"].forEach(ev =>
+  document.addEventListener(ev, tryPlay, { once: true })
+);
 
-  const playPromise = music.play();
-
-  if (playPromise !== undefined) {
-    playPromise.catch(() => {
-      document.addEventListener("click", startMusicOnce);
-    });
-  }
-});
-
-function startMusicOnce() {
-  music.play();
-  document.removeEventListener("click", startMusicOnce);
-}
-
-function toggleMusic(){
+function toggleMusic() {
   music.muted = !music.muted;
-  musicBtn.innerText = music.muted ? "🔇 Muted" : "🔊 Music";
+  musicBtn.textContent = music.muted ? "🔇 Muted" : "🔊 Music";
 }
 </script>
-
 </body>
 </html>
