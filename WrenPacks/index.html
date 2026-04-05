@@ -4,608 +4,2835 @@
   <title>Wren Packs</title>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="../Favicon.png">
+
   <style>
+
+    /* ============================================================
+       CSS CUSTOM PROPERTIES — DARK MODE (default)
+    ============================================================ */
+
     :root {
-      --bg: #000000; --text: #ffffff;
-      --card-bg: rgba(255,255,255,0.04); --card-border: rgba(255,255,255,0.08); --card-border-hover: rgba(255,255,255,0.18);
-      --modal-bg: #111; --modal-border: rgba(255,255,255,0.1); --modal-divider: rgba(255,255,255,0.07);
-      --input-bg: rgba(255,255,255,0.06); --input-border: rgba(255,255,255,0.15);
-      --muted: rgba(255,255,255,0.5); --muted2: rgba(255,255,255,0.3);
-      --qty-bg: rgba(0,0,0,0.7); --qty-border: rgba(255,255,255,0.15); --qty-text: rgba(255,255,255,0.8);
-      --reset-color: #ff4444; --result-bg: rgba(255,255,255,0.05); --result-border: rgba(255,255,255,0.15);
-      --darken-bg: rgba(0,0,0,0.7); --pack-color: purple;
+      --bg:               #000000;
+      --text:             #ffffff;
+      --card-bg:          rgba(255, 255, 255, 0.04);
+      --card-border:      rgba(255, 255, 255, 0.08);
+      --card-border-hover:rgba(255, 255, 255, 0.18);
+      --modal-bg:         #111111;
+      --modal-border:     rgba(255, 255, 255, 0.10);
+      --modal-divider:    rgba(255, 255, 255, 0.07);
+      --input-bg:         rgba(255, 255, 255, 0.06);
+      --input-border:     rgba(255, 255, 255, 0.15);
+      --muted:            rgba(255, 255, 255, 0.50);
+      --muted2:           rgba(255, 255, 255, 0.30);
+      --qty-bg:           rgba(0,   0,   0,   0.70);
+      --qty-border:       rgba(255, 255, 255, 0.15);
+      --qty-text:         rgba(255, 255, 255, 0.80);
+      --reset-color:      #ff4444;
+      --result-bg:        rgba(255, 255, 255, 0.05);
+      --result-border:    rgba(255, 255, 255, 0.15);
+      --darken-bg:        rgba(0,   0,   0,   0.70);
+      --pack-color:       purple;
     }
+
+    /* ============================================================
+       CSS CUSTOM PROPERTIES — LIGHT MODE
+    ============================================================ */
+
     body.light-mode {
-      --bg: #f0f0f0; --text: #111111;
-      --card-bg: rgba(0,0,0,0.03); --card-border: rgba(0,0,0,0.1); --card-border-hover: rgba(0,0,0,0.25);
-      --modal-bg: #ffffff; --modal-border: rgba(0,0,0,0.12); --modal-divider: rgba(0,0,0,0.08);
-      --input-bg: rgba(0,0,0,0.04); --input-border: rgba(0,0,0,0.18);
-      --muted: rgba(0,0,0,0.45); --muted2: rgba(0,0,0,0.25);
-      --qty-bg: rgba(255,255,255,0.85); --qty-border: rgba(0,0,0,0.12); --qty-text: rgba(0,0,0,0.7);
-      --reset-color: #cc0000; --result-bg: rgba(0,0,0,0.04); --result-border: rgba(0,0,0,0.12);
-      --darken-bg: rgba(0,0,0,0.5);
+      --bg:               #f0f0f0;
+      --text:             #111111;
+      --card-bg:          rgba(0,   0,   0,   0.03);
+      --card-border:      rgba(0,   0,   0,   0.10);
+      --card-border-hover:rgba(0,   0,   0,   0.25);
+      --modal-bg:         #ffffff;
+      --modal-border:     rgba(0,   0,   0,   0.12);
+      --modal-divider:    rgba(0,   0,   0,   0.08);
+      --input-bg:         rgba(0,   0,   0,   0.04);
+      --input-border:     rgba(0,   0,   0,   0.18);
+      --muted:            rgba(0,   0,   0,   0.45);
+      --muted2:           rgba(0,   0,   0,   0.25);
+      --qty-bg:           rgba(255, 255, 255, 0.85);
+      --qty-border:       rgba(0,   0,   0,   0.12);
+      --qty-text:         rgba(0,   0,   0,   0.70);
+      --reset-color:      #cc0000;
+      --result-bg:        rgba(0,   0,   0,   0.04);
+      --result-border:    rgba(0,   0,   0,   0.12);
+      --darken-bg:        rgba(0,   0,   0,   0.50);
     }
-    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial; text-align:center; transition:background 0.3s,color 0.3s; }
 
-    #homeText { position:absolute; top:15px; left:20px; font-family:'Rubik',sans-serif; font-size:2em; cursor:pointer; display:inline-block; line-height:1; padding:0; margin:0; border-radius:0; transition:transform 0.2s; user-select:none; z-index:1000; width:fit-content; height:fit-content; }
-    #homeText:hover { transform:scale(1.2); }
+    /* ============================================================
+       BASE BODY
+    ============================================================ */
 
-    /* Triangle mode — logo becomes a white triangle */
-    body.triangle-mode #homeText { font-size:0; width:0; height:0; border-left:18px solid transparent; border-right:18px solid transparent; border-bottom:32px solid white; top:18px; background:transparent; }
-    body.triangle-mode #homeText:hover { transform:scale(1.25); }
+    body {
+      margin:      0;
+      background:  var(--bg);
+      color:       var(--text);
+      font-family: Arial, sans-serif;
+      text-align:  center;
+      transition:  background 0.3s, color 0.3s;
+    }
 
-    h1 { margin-top:30px; font-family:'Rubik',sans-serif; font-size:3.2em; letter-spacing:4px; background:linear-gradient(135deg,#cc44ff,#ff44cc,#ffaa00,#cc44ff); background-size:300% 300%; -webkit-background-clip:text; color:transparent; animation:titleShimmer 4s ease infinite; filter:drop-shadow(0 0 18px rgba(200,80,255,0.7)); }
-    @keyframes titleShimmer { 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%} }
+    /* ============================================================
+       HOME TEXT (top-left logo)
+    ============================================================ */
 
-    .tabs { overflow:visible; padding:10px 0; }
-    .invBtnWrap { position:relative; display:inline-block; margin:10px 16px; }
-    .invBtnWrap .invBtn { margin:0; }
+    #homeText {
+      position:    absolute;
+      top:         15px;
+      left:        20px;
+      font-family: 'Rubik', sans-serif;
+      font-size:   2em;
+      cursor:      pointer;
+      display:     inline-block;
+      line-height: 1;
+      padding:     0;
+      margin:      0;
+      border-radius: 0;
+      transition:  transform 0.2s;
+      user-select: none;
+      z-index:     1000;
+      width:       fit-content;
+      height:      fit-content;
+    }
 
-    .tabs button { padding:15px 35px; margin:10px 16px; font-size:1.3em; cursor:pointer; border:none; border-radius:30px; color:white; font-weight:bold; position:relative; overflow:hidden; letter-spacing:0.5px; transition:transform 0.2s,box-shadow 0.2s,filter 0.2s; }
-    .tabs button::before { content:''; position:absolute; top:0; left:-75%; width:50%; height:100%; background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,0.35) 50%,transparent 100%); transform:skewX(-20deg); animation:btnShine 3.5s ease infinite; pointer-events:none; }
-    @keyframes btnShine { 0%{left:-75%}40%{left:130%}100%{left:130%} }
-    .tabs button::after { content:''; position:absolute; top:0; left:0; right:0; height:40%; background:linear-gradient(to bottom,rgba(255,255,255,0.18),transparent); border-radius:30px 30px 0 0; pointer-events:none; }
-    .tabs button:hover { transform:scale(1.08) translateY(-2px); }
-    .tabs button:active { transform:scale(0.96); }
+    #homeText:hover {
+      transform: scale(1.2);
+    }
 
-    .packBtn  { background:linear-gradient(145deg,#9b30ff,#6a0dad); box-shadow:0 4px 18px rgba(130,0,255,0.5),0 0 0 1px rgba(180,80,255,0.3) inset; }
-    .packBtn:hover  { box-shadow:0 6px 28px rgba(160,0,255,0.75),0 0 0 1px rgba(200,100,255,0.4) inset; filter:brightness(1.12); }
-    .invBtn   { background:linear-gradient(145deg,#2ecc5a,#198a38); box-shadow:0 4px 18px rgba(0,180,60,0.5),0 0 0 1px rgba(80,255,120,0.3) inset; }
-    .invBtn:hover   { box-shadow:0 6px 28px rgba(0,220,80,0.75),0 0 0 1px rgba(100,255,140,0.4) inset; filter:brightness(1.12); }
-    .indexBtn { background:linear-gradient(145deg,#1e9fff,#0e6bbf); box-shadow:0 4px 18px rgba(0,140,255,0.5),0 0 0 1px rgba(80,180,255,0.3) inset; }
-    .indexBtn:hover { box-shadow:0 6px 28px rgba(0,170,255,0.75),0 0 0 1px rgba(100,200,255,0.4) inset; filter:brightness(1.12); }
-    .codeBtn  { background:linear-gradient(145deg,#ffd700,#c8960c); color:#2a1800; box-shadow:0 4px 18px rgba(200,150,0,0.5),0 0 0 1px rgba(255,220,80,0.4) inset; }
-    .codeBtn:hover  { box-shadow:0 6px 28px rgba(220,170,0,0.75),0 0 0 1px rgba(255,230,100,0.5) inset; filter:brightness(1.1); }
+    /* ============================================================
+       TRIANGLE MODE — logo becomes a white triangle
+    ============================================================ */
 
-    body.light-mode .tabs button::before { background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,0.25) 50%,transparent 100%); }
+    body.triangle-mode #homeText {
+      font-size:    0;
+      width:        0;
+      height:       0;
+      border-left:  18px solid transparent;
+      border-right: 18px solid transparent;
+      border-bottom: 32px solid white;
+      top:          18px;
+      background:   transparent;
+    }
 
-    /* Classic buttons */
-    body.classic-buttons .tabs button { box-shadow:none!important; filter:none!important; transition:transform 0.2s,box-shadow 0.2s; }
-    body.classic-buttons .tabs button::before, body.classic-buttons .tabs button::after { display:none; }
-    body.classic-buttons .tabs button:hover { transform:scale(1.1); box-shadow:0 0 15px white!important; }
-    body.classic-buttons .packBtn  { background:purple!important; }
-    body.classic-buttons .invBtn   { background:green!important; }
-    body.classic-buttons .indexBtn { background:dodgerblue!important; }
-    body.classic-buttons .codeBtn  { background:gold!important; color:black!important; }
+    body.triangle-mode #homeText:hover {
+      transform: scale(1.25);
+    }
 
-    /* Triangle buttons */
-    body.triangle-mode .tabs button { background:transparent!important; box-shadow:none!important; filter:none!important; border:none!important; border-radius:0!important; overflow:visible!important; width:0!important; height:0!important; padding:0!important; font-size:0!important; margin:10px 28px!important; }
-    body.triangle-mode .tabs button::before, body.triangle-mode .tabs button::after { display:none!important; }
-    body.triangle-mode .tabs .packBtn  { border-left:28px solid transparent!important; border-right:28px solid transparent!important; border-bottom:48px solid #9b30ff!important; }
-    body.triangle-mode .tabs .invBtn   { border-left:28px solid transparent!important; border-right:28px solid transparent!important; border-bottom:48px solid #2ecc5a!important; }
-    body.triangle-mode .tabs .indexBtn { border-left:28px solid transparent!important; border-right:28px solid transparent!important; border-bottom:48px solid #1e9fff!important; }
-    body.triangle-mode .tabs .codeBtn  { border-left:28px solid transparent!important; border-right:28px solid transparent!important; border-bottom:48px solid #ffd700!important; }
-    body.triangle-mode .tabs button:hover { transform:scale(1.15) translateY(-3px)!important; filter:brightness(1.2)!important; }
+    /* ============================================================
+       PAGE TITLE
+    ============================================================ */
 
-    /* Settings cog */
-    #settingsBtn { position:absolute; top:16px; right:20px; padding:0; margin:0; border:none; background:transparent; width:fit-content; height:fit-content; display:inline-flex; align-items:center; justify-content:center; line-height:0; cursor:pointer; z-index:1000; user-select:none; transition:transform 0.35s ease,opacity 0.2s; opacity:0.7; }
-    #settingsBtn img { width:40px; height:40px; display:block; object-fit:contain; pointer-events:none; border-radius:50%; }
-    body.light-mode #settingsBtn { opacity:0.55; }
-    #settingsBtn:hover { transform:rotate(60deg) scale(1.15); opacity:1; }
+    h1 {
+      margin-top:  30px;
+      font-family: 'Rubik', sans-serif;
+      font-size:   3.2em;
+      letter-spacing: 4px;
+      background:  linear-gradient(135deg, #cc44ff, #ff44cc, #ffaa00, #cc44ff);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      color:       transparent;
+      animation:   titleShimmer 4s ease infinite;
+      filter:      drop-shadow(0 0 18px rgba(200, 80, 255, 0.7));
+    }
 
-    /* Settings panel */
-    #settingsPanel { position:fixed; top:0; right:-340px; width:320px; height:100%; background:var(--modal-bg); border-left:1px solid var(--modal-border); box-shadow:-8px 0 40px rgba(0,0,0,0.5); z-index:6000; transition:right 0.35s cubic-bezier(0.4,0,0.2,1); display:flex; flex-direction:column; text-align:left; overflow-y:auto; }
-    #settingsPanel.open { right:0; }
-    #settingsDarken { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; z-index:5999; backdrop-filter:blur(2px); }
-    #settingsDarken.visible { display:block; }
-    .settings-header { display:flex; align-items:center; justify-content:space-between; padding:22px 24px 18px; border-bottom:1px solid var(--modal-divider); }
-    .settings-header h2 { margin:0; font-family:'Rubik',sans-serif; font-size:1.3em; letter-spacing:1px; color:var(--text); }
-    .settings-close { background:rgba(128,128,128,0.15); border:none; border-radius:50%; width:34px; height:34px; color:var(--text); font-size:1.1em; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s,transform 0.2s; }
-    .settings-close:hover { background:rgba(128,128,128,0.28); transform:scale(1.1); }
-    .settings-section { padding:20px 24px; border-bottom:1px solid var(--modal-divider); }
-    .settings-section:last-child { border-bottom:none; }
-    .settings-label { font-size:0.72em; font-weight:bold; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin:0 0 14px; }
-    .vol-row { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
-    .vol-icon { font-size:1.3em; flex-shrink:0; }
-    #volSlider { flex:1; -webkit-appearance:none; height:6px; border-radius:3px; background:linear-gradient(to right,#7c3aed 0%,#7c3aed var(--vol-pct,50%),rgba(128,128,128,0.25) var(--vol-pct,50%),rgba(128,128,128,0.25) 100%); outline:none; cursor:pointer; }
-    #volSlider::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:white; box-shadow:0 1px 6px rgba(0,0,0,0.4); cursor:pointer; }
-    #volSlider::-moz-range-thumb { width:18px; height:18px; border-radius:50%; background:white; border:none; cursor:pointer; }
-    #volValue { font-size:0.9em; font-weight:bold; color:var(--text); min-width:34px; text-align:right; }
-    .toggle-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    .toggle-row span { font-size:0.95em; color:var(--text); }
-    .switch { position:relative; width:46px; height:26px; flex-shrink:0; }
-    .switch input { display:none; }
-    .switch-track { position:absolute; inset:0; background:rgba(128,128,128,0.3); border-radius:999px; cursor:pointer; transition:background 0.2s; }
-    .switch input:checked + .switch-track { background:#7c3aed; }
-    .switch-track::after { content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:white; box-shadow:0 1px 4px rgba(0,0,0,0.3); transition:transform 0.2s; }
-    .switch input:checked + .switch-track::after { transform:translateX(20px); }
-    .theme-picker { display:flex; gap:10px; }
-    .theme-option { flex:1; padding:10px; border-radius:12px; border:2px solid var(--modal-divider); background:var(--card-bg); cursor:pointer; font-size:0.9em; font-weight:bold; color:var(--text); transition:border-color 0.2s,background 0.2s; display:flex; flex-direction:column; align-items:center; gap:6px; }
-    .theme-option.active { border-color:#7c3aed; background:rgba(124,58,237,0.12); }
-    .theme-option:hover { border-color:rgba(124,58,237,0.5); }
+    @keyframes titleShimmer {
+      0%   { background-position: 0%   50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0%   50%; }
+    }
 
-    /* Pack colour swatches */
-    .pack-colour-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
-    .pack-colour-swatch { width:32px; height:32px; border-radius:8px; cursor:pointer; border:2px solid transparent; transition:transform 0.15s,border-color 0.15s; flex-shrink:0; }
-    .pack-colour-swatch:hover { transform:scale(1.15); }
-    .pack-colour-swatch.active { border-color:white; transform:scale(1.1); }
-    .pack-colour-swatch.rainbow-swatch { background:linear-gradient(135deg,red,orange,yellow,green,blue,indigo,violet)!important; animation:swatchRainbow 3s linear infinite; }
-    @keyframes swatchRainbow { 100%{filter:hue-rotate(360deg)} }
-    .pack-colour-swatch.locked { background:#333!important; cursor:not-allowed; opacity:0.5; position:relative; }
-    .pack-colour-swatch.locked::after { content:'🔒'; font-size:0.75em; display:flex; align-items:center; justify-content:center; width:100%; height:100%; }
+    /* ============================================================
+       TABS CONTAINER
+    ============================================================ */
 
-    .notif { position:absolute; top:-10px; right:-10px; background:red; border:2.5px solid black; border-radius:999px; min-width:22px; height:22px; padding:0 6px; font-size:0.75em; font-weight:bold; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px red,0 0 20px rgba(255,0,0,0.4); z-index:10; pointer-events:none; animation:pulse 1s infinite; }
-    @keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)} }
+    .tabs {
+      overflow: visible;
+      padding:  10px 0;
+    }
 
-    .section { display:none; }
-    .active { display:block; }
+    .invBtnWrap {
+      position: relative;
+      display:  inline-block;
+      margin:   10px 16px;
+    }
 
-    /* Pack box */
-    .pack { width:200px; height:300px; margin:100px auto; border:3px solid var(--pack-color); box-shadow:0 0 30px var(--pack-color); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:2em; color:var(--text); transition:border-color 0.4s,box-shadow 0.4s; }
-    body.pack-rainbow .pack { animation:packRainbowBorder 3s linear infinite; }
+    .invBtnWrap .invBtn {
+      margin: 0;
+    }
+
+    /* ============================================================
+       SHARED TAB BUTTON BASE STYLES
+    ============================================================ */
+
+    .tabs button {
+      padding:       15px 35px;
+      margin:        10px 16px;
+      font-size:     1.3em;
+      cursor:        pointer;
+      border:        none;
+      border-radius: 30px;
+      color:         white;
+      font-weight:   bold;
+      position:      relative;
+      overflow:      hidden;
+      letter-spacing: 0.5px;
+      transition:    transform 0.2s, box-shadow 0.2s, filter 0.2s;
+    }
+
+    /* Shine sweep */
+    .tabs button::before {
+      content:    '';
+      position:   absolute;
+      top:        0;
+      left:       -75%;
+      width:      50%;
+      height:     100%;
+      background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+      transform:  skewX(-20deg);
+      animation:  btnShine 3.5s ease infinite;
+      pointer-events: none;
+    }
+
+    @keyframes btnShine {
+      0%   { left: -75%; }
+      40%  { left:  130%; }
+      100% { left:  130%; }
+    }
+
+    /* Top gloss */
+    .tabs button::after {
+      content:    '';
+      position:   absolute;
+      top:        0;
+      left:       0;
+      right:      0;
+      height:     40%;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.18), transparent);
+      border-radius: 30px 30px 0 0;
+      pointer-events: none;
+    }
+
+    .tabs button:hover  { transform: scale(1.08) translateY(-2px); }
+    .tabs button:active { transform: scale(0.96); }
+
+    /* ============================================================
+       INDIVIDUAL BUTTON COLOURS — gradient style
+    ============================================================ */
+
+    .packBtn {
+      background:  linear-gradient(145deg, #9b30ff, #6a0dad);
+      box-shadow:  0 4px 18px rgba(130, 0, 255, 0.5), 0 0 0 1px rgba(180, 80, 255, 0.3) inset;
+    }
+    .packBtn:hover {
+      box-shadow:  0 6px 28px rgba(160, 0, 255, 0.75), 0 0 0 1px rgba(200, 100, 255, 0.4) inset;
+      filter:      brightness(1.12);
+    }
+
+    .invBtn {
+      background:  linear-gradient(145deg, #2ecc5a, #198a38);
+      box-shadow:  0 4px 18px rgba(0, 180, 60, 0.5), 0 0 0 1px rgba(80, 255, 120, 0.3) inset;
+    }
+    .invBtn:hover {
+      box-shadow:  0 6px 28px rgba(0, 220, 80, 0.75), 0 0 0 1px rgba(100, 255, 140, 0.4) inset;
+      filter:      brightness(1.12);
+    }
+
+    .indexBtn {
+      background:  linear-gradient(145deg, #1e9fff, #0e6bbf);
+      box-shadow:  0 4px 18px rgba(0, 140, 255, 0.5), 0 0 0 1px rgba(80, 180, 255, 0.3) inset;
+    }
+    .indexBtn:hover {
+      box-shadow:  0 6px 28px rgba(0, 170, 255, 0.75), 0 0 0 1px rgba(100, 200, 255, 0.4) inset;
+      filter:      brightness(1.12);
+    }
+
+    .codeBtn {
+      background:  linear-gradient(145deg, #ffd700, #c8960c);
+      color:       #2a1800;
+      box-shadow:  0 4px 18px rgba(200, 150, 0, 0.5), 0 0 0 1px rgba(255, 220, 80, 0.4) inset;
+    }
+    .codeBtn:hover {
+      box-shadow:  0 6px 28px rgba(220, 170, 0, 0.75), 0 0 0 1px rgba(255, 230, 100, 0.5) inset;
+      filter:      brightness(1.1);
+    }
+
+    body.light-mode .tabs button::before {
+      background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.25) 50%, transparent 100%);
+    }
+
+    /* ============================================================
+       CLASSIC BUTTON STYLE (toggle in settings)
+    ============================================================ */
+
+    body.classic-buttons .tabs button {
+      box-shadow: none  !important;
+      filter:     none  !important;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    body.classic-buttons .tabs button::before,
+    body.classic-buttons .tabs button::after {
+      display: none;
+    }
+
+    body.classic-buttons .tabs button:hover {
+      transform:  scale(1.1);
+      box-shadow: 0 0 15px white !important;
+    }
+
+    body.classic-buttons .packBtn  { background: purple     !important; }
+    body.classic-buttons .invBtn   { background: green      !important; }
+    body.classic-buttons .indexBtn { background: dodgerblue !important; }
+    body.classic-buttons .codeBtn  { background: gold       !important; color: black !important; }
+
+    /* ============================================================
+       TRIANGLE MODE — buttons become big coloured triangles with text
+    ============================================================ */
+
+    body.triangle-mode .tabs button {
+      background:    transparent !important;
+      box-shadow:    none        !important;
+      filter:        none        !important;
+      border:        none        !important;
+      border-radius: 0           !important;
+      overflow:      visible     !important;
+      padding:       0           !important;
+      margin:        10px 20px   !important;
+      width:         90px        !important;
+      height:        90px        !important;
+      font-size:     0.72em      !important;
+      font-weight:   bold        !important;
+      color:         white       !important;
+      display:       inline-flex !important;
+      align-items:   flex-end    !important;
+      justify-content: center    !important;
+      padding-bottom: 6px        !important;
+      clip-path:     polygon(50% 0%, 0% 100%, 100% 100%) !important;
+      position:      relative    !important;
+      letter-spacing: 0.5px     !important;
+    }
+
+    body.triangle-mode .tabs button::before,
+    body.triangle-mode .tabs button::after {
+      display: none !important;
+    }
+
+    body.triangle-mode .tabs .packBtn  { background: #9b30ff !important; }
+    body.triangle-mode .tabs .invBtn   { background: #2ecc5a !important; }
+    body.triangle-mode .tabs .indexBtn { background: #1e9fff !important; }
+    body.triangle-mode .tabs .codeBtn  { background: #e6b800 !important; color: #1a0e00 !important; }
+
+    body.triangle-mode .tabs button:hover {
+      transform: scale(1.15) translateY(-3px) !important;
+      filter:    brightness(1.2)              !important;
+    }
+
+    /* ============================================================
+       SETTINGS COG BUTTON
+    ============================================================ */
+
+    #settingsBtn {
+      position:   absolute;
+      top:        16px;
+      right:      20px;
+      padding:    0;
+      margin:     0;
+      border:     none;
+      background: transparent;
+      width:      fit-content;
+      height:     fit-content;
+      display:    inline-flex;
+      align-items:     center;
+      justify-content: center;
+      line-height: 0;
+      cursor:     pointer;
+      z-index:    1000;
+      user-select: none;
+      transition: transform 0.35s ease, opacity 0.2s;
+      opacity:    0.7;
+    }
+
+    #settingsBtn img {
+      width:         40px;
+      height:        40px;
+      display:       block;
+      object-fit:    contain;
+      pointer-events: none;
+      border-radius: 50%;
+    }
+
+    body.light-mode #settingsBtn { opacity: 0.55; }
+
+    #settingsBtn:hover {
+      transform: rotate(60deg) scale(1.15);
+      opacity:   1;
+    }
+
+    /* ============================================================
+       SETTINGS PANEL (slide-in drawer)
+    ============================================================ */
+
+    #settingsPanel {
+      position:   fixed;
+      top:        0;
+      right:      -340px;
+      width:      320px;
+      height:     100%;
+      background: var(--modal-bg);
+      border-left: 1px solid var(--modal-border);
+      box-shadow: -8px 0 40px rgba(0, 0, 0, 0.5);
+      z-index:    6000;
+      transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      display:    flex;
+      flex-direction: column;
+      text-align: left;
+      overflow-y: auto;
+    }
+
+    #settingsPanel.open { right: 0; }
+
+    #settingsDarken {
+      position:   fixed;
+      inset:      0;
+      background: rgba(0, 0, 0, 0.5);
+      display:    none;
+      z-index:    5999;
+      backdrop-filter: blur(2px);
+    }
+
+    #settingsDarken.visible { display: block; }
+
+    .settings-header {
+      display:     flex;
+      align-items: center;
+      justify-content: space-between;
+      padding:     22px 24px 18px;
+      border-bottom: 1px solid var(--modal-divider);
+    }
+
+    .settings-header h2 {
+      margin:      0;
+      font-family: 'Rubik', sans-serif;
+      font-size:   1.3em;
+      letter-spacing: 1px;
+      color:       var(--text);
+    }
+
+    .settings-close {
+      background:  rgba(128, 128, 128, 0.15);
+      border:      none;
+      border-radius: 50%;
+      width:       34px;
+      height:      34px;
+      color:       var(--text);
+      font-size:   1.1em;
+      cursor:      pointer;
+      display:     flex;
+      align-items: center;
+      justify-content: center;
+      transition:  background 0.2s, transform 0.2s;
+    }
+
+    .settings-close:hover {
+      background: rgba(128, 128, 128, 0.28);
+      transform:  scale(1.1);
+    }
+
+    .settings-section {
+      padding:      20px 24px;
+      border-bottom: 1px solid var(--modal-divider);
+    }
+
+    .settings-section:last-child { border-bottom: none; }
+
+    .settings-label {
+      font-size:      0.72em;
+      font-weight:    bold;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color:          var(--muted);
+      margin:         0 0 14px;
+    }
+
+    /* Volume slider */
+    .vol-row {
+      display:     flex;
+      align-items: center;
+      gap:         12px;
+      margin-bottom: 12px;
+    }
+
+    .vol-icon { font-size: 1.3em; flex-shrink: 0; }
+
+    #volSlider {
+      flex:              1;
+      -webkit-appearance: none;
+      height:            6px;
+      border-radius:     3px;
+      background:        linear-gradient(
+                           to right,
+                           #7c3aed 0%,
+                           #7c3aed var(--vol-pct, 50%),
+                           rgba(128, 128, 128, 0.25) var(--vol-pct, 50%),
+                           rgba(128, 128, 128, 0.25) 100%
+                         );
+      outline:           none;
+      cursor:            pointer;
+    }
+
+    #volSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width:       18px;
+      height:      18px;
+      border-radius: 50%;
+      background:  white;
+      box-shadow:  0 1px 6px rgba(0, 0, 0, 0.4);
+      cursor:      pointer;
+    }
+
+    #volSlider::-moz-range-thumb {
+      width:       18px;
+      height:      18px;
+      border-radius: 50%;
+      background:  white;
+      border:      none;
+      cursor:      pointer;
+    }
+
+    #volValue {
+      font-size:  0.9em;
+      font-weight: bold;
+      color:      var(--text);
+      min-width:  34px;
+      text-align: right;
+    }
+
+    /* Toggle switch */
+    .toggle-row {
+      display:     flex;
+      align-items: center;
+      justify-content: space-between;
+      gap:         10px;
+    }
+
+    .toggle-row span { font-size: 0.95em; color: var(--text); }
+
+    .switch {
+      position:   relative;
+      width:      46px;
+      height:     26px;
+      flex-shrink: 0;
+    }
+
+    .switch input { display: none; }
+
+    .switch-track {
+      position:      absolute;
+      inset:         0;
+      background:    rgba(128, 128, 128, 0.3);
+      border-radius: 999px;
+      cursor:        pointer;
+      transition:    background 0.2s;
+    }
+
+    .switch input:checked + .switch-track { background: #7c3aed; }
+
+    .switch-track::after {
+      content:       '';
+      position:      absolute;
+      top:           3px;
+      left:          3px;
+      width:         20px;
+      height:        20px;
+      border-radius: 50%;
+      background:    white;
+      box-shadow:    0 1px 4px rgba(0, 0, 0, 0.3);
+      transition:    transform 0.2s;
+    }
+
+    .switch input:checked + .switch-track::after { transform: translateX(20px); }
+
+    /* Theme picker */
+    .theme-picker { display: flex; gap: 10px; }
+
+    .theme-option {
+      flex:          1;
+      padding:       10px;
+      border-radius: 12px;
+      border:        2px solid var(--modal-divider);
+      background:    var(--card-bg);
+      cursor:        pointer;
+      font-size:     0.9em;
+      font-weight:   bold;
+      color:         var(--text);
+      transition:    border-color 0.2s, background 0.2s;
+      display:       flex;
+      flex-direction: column;
+      align-items:   center;
+      gap:           6px;
+    }
+
+    .theme-option.active {
+      border-color: #7c3aed;
+      background:   rgba(124, 58, 237, 0.12);
+    }
+
+    .theme-option:hover { border-color: rgba(124, 58, 237, 0.5); }
+
+    /* ============================================================
+       PACK COLOUR SWATCHES
+    ============================================================ */
+
+    .pack-colour-grid {
+      display:     flex;
+      flex-wrap:   wrap;
+      gap:         8px;
+      margin-top:  4px;
+    }
+
+    .pack-colour-swatch {
+      width:         32px;
+      height:        32px;
+      border-radius: 8px;
+      cursor:        pointer;
+      border:        2px solid transparent;
+      transition:    transform 0.15s, border-color 0.15s;
+      flex-shrink:   0;
+    }
+
+    .pack-colour-swatch:hover { transform: scale(1.15); }
+
+    .pack-colour-swatch.active {
+      border-color: white;
+      transform:    scale(1.1);
+    }
+
+    .pack-colour-swatch.rainbow-swatch {
+      background: linear-gradient(135deg, red, orange, yellow, green, blue, indigo, violet) !important;
+      animation:  swatchRainbow 3s linear infinite;
+    }
+
+    @keyframes swatchRainbow { 100% { filter: hue-rotate(360deg); } }
+
+    .pack-colour-swatch.locked {
+      background:     #333 !important;
+      cursor:         not-allowed;
+      opacity:        0.5;
+      position:       relative;
+    }
+
+    .pack-colour-swatch.locked::after {
+      content:         '🔒';
+      font-size:       0.75em;
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      width:           100%;
+      height:          100%;
+    }
+
+    /* ============================================================
+       NOTIFICATION BADGE
+    ============================================================ */
+
+    .notif {
+      position:      absolute;
+      top:           -10px;
+      right:         -10px;
+      background:    red;
+      border:        2.5px solid black;
+      border-radius: 999px;
+      min-width:     22px;
+      height:        22px;
+      padding:       0 6px;
+      font-size:     0.75em;
+      font-weight:   bold;
+      display:       flex;
+      align-items:   center;
+      justify-content: center;
+      box-shadow:    0 0 10px red, 0 0 20px rgba(255, 0, 0, 0.4);
+      z-index:       10;
+      pointer-events: none;
+      animation:     pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%   { transform: scale(1);   }
+      50%  { transform: scale(1.3); }
+      100% { transform: scale(1);   }
+    }
+
+    /* ============================================================
+       SECTION VISIBILITY
+    ============================================================ */
+
+    .section  { display: none;  }
+    .active   { display: block; }
+
+    /* ============================================================
+       PACK BOX (open pack section)
+    ============================================================ */
+
+    .pack {
+      width:      200px;
+      height:     300px;
+      margin:     100px auto;
+      border:     3px solid var(--pack-color);
+      box-shadow: 0 0 30px var(--pack-color);
+      cursor:     pointer;
+      display:    flex;
+      align-items:     center;
+      justify-content: center;
+      font-size:  2em;
+      color:      var(--text);
+      transition: border-color 0.4s, box-shadow 0.4s;
+    }
+
+    body.pack-rainbow .pack {
+      animation: packRainbowBorder 3s linear infinite;
+    }
+
     @keyframes packRainbowBorder {
-      0%{border-color:red;box-shadow:0 0 30px red}14%{border-color:orange;box-shadow:0 0 30px orange}
-      28%{border-color:yellow;box-shadow:0 0 30px yellow}42%{border-color:green;box-shadow:0 0 30px green}
-      57%{border-color:blue;box-shadow:0 0 30px blue}71%{border-color:indigo;box-shadow:0 0 30px indigo}
-      85%{border-color:violet;box-shadow:0 0 30px violet}100%{border-color:red;box-shadow:0 0 30px red}
+      0%   { border-color: red;    box-shadow: 0 0 30px red;    }
+      14%  { border-color: orange; box-shadow: 0 0 30px orange; }
+      28%  { border-color: yellow; box-shadow: 0 0 30px yellow; }
+      42%  { border-color: green;  box-shadow: 0 0 30px green;  }
+      57%  { border-color: blue;   box-shadow: 0 0 30px blue;   }
+      71%  { border-color: indigo; box-shadow: 0 0 30px indigo; }
+      85%  { border-color: violet; box-shadow: 0 0 30px violet; }
+      100% { border-color: red;    box-shadow: 0 0 30px red;    }
     }
 
-    #result { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; display:none; z-index:1000; }
-    #resultInner { background:var(--result-bg); border:1px solid var(--result-border); border-radius:20px; padding:30px 40px; backdrop-filter:blur(6px); box-shadow:0 0 60px rgba(180,80,255,0.3); }
-    #result img { width:220px; animation:spinIn 0.8s cubic-bezier(0.22,1,0.36,1) forwards; filter:drop-shadow(0 0 20px rgba(255,255,255,0.4)); }
-    #result h2 { font-family:'Rubik',sans-serif; font-size:1.6em; letter-spacing:2px; margin-bottom:15px; animation:textPop 0.5s 0.6s both; }
-    @keyframes textPop { 0%{opacity:0;transform:translateY(10px) scale(0.9)}100%{opacity:1;transform:translateY(0) scale(1)} }
-    @keyframes spinIn { 0%{transform:scale(0) rotate(-540deg);opacity:0}60%{transform:scale(1.15) rotate(20deg);opacity:1}80%{transform:scale(0.95) rotate(-5deg)}100%{transform:scale(1) rotate(0deg);opacity:1} }
-    .explodeOut { animation:explodeOutAnim 0.6s forwards; }
-    @keyframes explodeOutAnim { 0%{transform:scale(1) rotate(0deg);opacity:1}50%{transform:scale(1.5) rotate(20deg);opacity:1}100%{transform:scale(2.5) rotate(40deg);opacity:0} }
+    body.pack-maroon .pack {
+      animation: packMaroonBorder 2.5s ease infinite;
+    }
 
-    .grid { display:flex; flex-wrap:wrap; justify-content:center; gap:24px; padding:30px 24px; }
+    @keyframes packMaroonBorder {
+      0%   { border-color: #800000; box-shadow: 0 0 20px #800000, 0 0 50px rgba(128,0,0,0.3); }
+      50%  { border-color: #cc2200; box-shadow: 0 0 35px #cc2200, 0 0 70px rgba(180,0,0,0.5); }
+      100% { border-color: #800000; box-shadow: 0 0 20px #800000, 0 0 50px rgba(128,0,0,0.3); }
+    }
 
-    /* Character card — extra bottom padding so qty badge has room */
-    .character { width:140px; position:relative; background:var(--card-bg); border:1px solid var(--card-border); border-radius:16px; padding:12px 10px 28px; transition:transform 0.3s ease,opacity 0.5s ease,box-shadow 0.3s ease; cursor:pointer; }
-    .character:hover { transform:translateY(-6px) scale(1.03); box-shadow:0 8px 30px rgba(0,0,0,0.5); border-color:var(--card-border-hover); }
-    .character:hover .characterRarityGlow { opacity:1; }
-    .characterRarityGlow { position:absolute; inset:0; border-radius:16px; opacity:0; transition:opacity 0.3s; pointer-events:none; }
-    .character img { width:100%; border-radius:10px; display:block; }
-    .character p { margin:8px 0 0; font-size:0.78em; font-weight:bold; letter-spacing:0.5px; }
+    /* ============================================================
+       RESULT CARD (after pack open)
+    ============================================================ */
 
-    /* Qty badge — moved to bottom-right so it doesn't overlap text */
-    .qtyBadge { position:absolute; bottom:6px; right:8px; background:var(--qty-bg); border:1px solid var(--qty-border); border-radius:20px; padding:2px 8px; font-size:0.72em; font-weight:bold; color:var(--qty-text); letter-spacing:0.5px; }
+    #result {
+      position:  fixed;
+      top:       50%;
+      left:      50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      display:   none;
+      z-index:   1000;
+    }
 
-    .explode { transform:scale(2) rotate(25deg); opacity:0; }
-    .deleteBtn { position:absolute; top:-8px; right:-8px; background:#cc0000; border:2px solid #111; border-radius:50%; width:24px; height:24px; color:white; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.8em; opacity:0; transition:opacity 0.2s,transform 0.2s; z-index:5; }
-    .character:hover .deleteBtn { opacity:1; }
-    .deleteBtn:hover { transform:scale(1.2); background:#ff2222; }
+    #resultInner {
+      background:    var(--result-bg);
+      border:        1px solid var(--result-border);
+      border-radius: 20px;
+      padding:       30px 40px;
+      backdrop-filter: blur(6px);
+      box-shadow:    0 0 60px rgba(180, 80, 255, 0.3);
+    }
 
-    #resetBtn { position:absolute; right:20px; padding:9px 20px; background:transparent; border:2px solid var(--reset-color); color:var(--reset-color); font-size:0.85em; font-weight:bold; border-radius:25px; cursor:pointer; letter-spacing:1px; transition:background 0.2s,color 0.2s,box-shadow 0.2s,transform 0.15s; }
-    #resetBtn:hover { background:var(--reset-color); color:white; box-shadow:0 0 16px var(--reset-color); transform:scale(1.07); }
+    #result img {
+      width:     220px;
+      animation: spinIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      filter:    drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+    }
 
-    #confirmBox,#deletePrompt,#codeBox { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--modal-bg); border:1px solid var(--modal-border); border-radius:20px; box-shadow:0 0 40px rgba(0,0,0,0.8); display:none; z-index:2000; text-align:center; min-width:280px; padding:0; overflow:hidden; }
-    .modal-header { padding:18px 30px 14px; border-bottom:1px solid var(--modal-divider); }
-    .modal-header h2,.modal-header h3 { margin:0; font-family:'Rubik',sans-serif; font-size:1.3em; letter-spacing:1px; color:var(--text); }
-    .modal-body { padding:22px 30px; }
-    .modal-footer { display:flex; border-top:1px solid var(--modal-divider); }
-    .modal-footer button { flex:1; padding:14px; border:none; background:transparent; color:var(--text); font-size:1em; font-weight:bold; cursor:pointer; letter-spacing:0.5px; transition:background 0.2s,color 0.2s; }
-    .modal-footer button:not(:last-child) { border-right:1px solid var(--modal-divider); }
-    .modal-footer button.danger { color:#ff5555; } .modal-footer button.danger:hover { background:#ff5555; color:white; }
-    .modal-footer button.confirm { color:#55cc55; } .modal-footer button.confirm:hover { background:#55cc55; color:white; }
-    .modal-footer button.neutral:hover { background:rgba(128,128,128,0.12); }
-    #codeInput { width:100%; box-sizing:border-box; padding:12px 16px; background:var(--input-bg); border:1px solid var(--input-border); border-radius:10px; color:var(--text); font-size:1.05em; letter-spacing:1px; outline:none; transition:border-color 0.2s,box-shadow 0.2s; }
-    #codeInput:focus { border-color:gold; box-shadow:0 0 10px rgba(255,200,0,0.3); }
-    #deleteQty { width:100%; box-sizing:border-box; padding:12px 16px; background:var(--input-bg); border:1px solid var(--input-border); border-radius:10px; color:var(--text); font-size:1.1em; outline:none; text-align:center; transition:border-color 0.2s,box-shadow 0.2s; }
-    #deleteQty:focus { border-color:#ff4444; box-shadow:0 0 10px rgba(255,68,68,0.3); }
-    #darken { position:fixed; width:100%; height:100%; background:var(--darken-bg); display:none; z-index:1500; }
+    #result h2 {
+      font-family: 'Rubik', sans-serif;
+      font-size:   1.6em;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+      animation:   textPop 0.5s 0.6s both;
+    }
 
-    /* Rarity colours — darkened in light mode */
-    .Common { color:var(--text); }
-    .Uncommon { color:lime; }
-    .Rare { color:dodgerblue; }
-    .Epic { color:violet; }
-    .Legendary { color:gold; }
-    body.light-mode .Uncommon { color:#009900; }
-    body.light-mode .Rare     { color:#0066cc; }
-    body.light-mode .Epic     { color:#8800cc; }
-    body.light-mode .Legendary{ color:#b8860b; }
-    .Omega { background:linear-gradient(90deg,red,orange,yellow,green,blue,indigo,violet); -webkit-background-clip:text; color:transparent; animation:rainbow 3s linear infinite; }
-    .Void { position:relative; font-weight:bold; color:transparent; background:radial-gradient(ellipse at center,#0a0a0a 40%,#1a0f00 70%,#0a0a0a 100%); background-size:200% 200%; -webkit-background-clip:text; background-clip:text; animation:blackHoleSpin 4s linear infinite; filter:drop-shadow(0 0 3px #b8860b) drop-shadow(0 0 8px #8b6914) drop-shadow(0 0 1px #ffd700); }
+    @keyframes textPop {
+      0%   { opacity: 0; transform: translateY(10px)  scale(0.9); }
+      100% { opacity: 1; transform: translateY(0)     scale(1);   }
+    }
+
+    @keyframes spinIn {
+      0%   { transform: scale(0)    rotate(-540deg); opacity: 0; }
+      60%  { transform: scale(1.15) rotate(20deg);  opacity: 1; }
+      80%  { transform: scale(0.95) rotate(-5deg);              }
+      100% { transform: scale(1)    rotate(0deg);   opacity: 1; }
+    }
+
+    .explodeOut { animation: explodeOutAnim 0.6s forwards; }
+
+    @keyframes explodeOutAnim {
+      0%   { transform: scale(1)   rotate(0deg);  opacity: 1; }
+      50%  { transform: scale(1.5) rotate(20deg); opacity: 1; }
+      100% { transform: scale(2.5) rotate(40deg); opacity: 0; }
+    }
+
+    /* ============================================================
+       CARD GRID (inventory & index)
+    ============================================================ */
+
+    .grid {
+      display:         flex;
+      flex-wrap:       wrap;
+      justify-content: center;
+      gap:             24px;
+      padding:         30px 24px;
+    }
+
+    /* ============================================================
+       CHARACTER CARDS
+    ============================================================ */
+
+    .character {
+      width:         140px;
+      position:      relative;
+      background:    var(--card-bg);
+      border:        1px solid var(--card-border);
+      border-radius: 16px;
+      padding:       12px 10px 28px;
+      transition:    transform 0.3s ease, opacity 0.5s ease, box-shadow 0.3s ease;
+      cursor:        pointer;
+    }
+
+    .character:hover {
+      transform:   translateY(-6px) scale(1.03);
+      box-shadow:  0 8px 30px rgba(0, 0, 0, 0.5);
+      border-color: var(--card-border-hover);
+    }
+
+    .character:hover .characterRarityGlow { opacity: 1; }
+
+    .characterRarityGlow {
+      position:   absolute;
+      inset:      0;
+      border-radius: 16px;
+      opacity:    0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .character img {
+      width:         100%;
+      border-radius: 10px;
+      display:       block;
+    }
+
+    .character p {
+      margin:         8px 0 0;
+      font-size:      0.78em;
+      font-weight:    bold;
+      letter-spacing: 0.5px;
+    }
+
+    .qtyBadge {
+      position:      absolute;
+      bottom:        6px;
+      right:         8px;
+      background:    var(--qty-bg);
+      border:        1px solid var(--qty-border);
+      border-radius: 20px;
+      padding:       2px 8px;
+      font-size:     0.72em;
+      font-weight:   bold;
+      color:         var(--qty-text);
+      letter-spacing: 0.5px;
+    }
+
+    .explode { transform: scale(2) rotate(25deg); opacity: 0; }
+
+    .deleteBtn {
+      position:      absolute;
+      top:           -8px;
+      right:         -8px;
+      background:    #cc0000;
+      border:        2px solid #111;
+      border-radius: 50%;
+      width:         24px;
+      height:        24px;
+      color:         white;
+      font-weight:   bold;
+      cursor:        pointer;
+      display:       flex;
+      align-items:   center;
+      justify-content: center;
+      font-size:     0.8em;
+      opacity:       0;
+      transition:    opacity 0.2s, transform 0.2s;
+      z-index:       5;
+    }
+
+    .character:hover .deleteBtn { opacity: 1; }
+    .deleteBtn:hover { transform: scale(1.2); background: #ff2222; }
+
+    /* ============================================================
+       INVENTORY RESET BUTTON
+    ============================================================ */
+
+    #resetBtn {
+      position:       absolute;
+      right:          20px;
+      padding:        9px 20px;
+      background:     transparent;
+      border:         2px solid var(--reset-color);
+      color:          var(--reset-color);
+      font-size:      0.85em;
+      font-weight:    bold;
+      border-radius:  25px;
+      cursor:         pointer;
+      letter-spacing: 1px;
+      transition:     background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+
+    #resetBtn:hover {
+      background:  var(--reset-color);
+      color:       white;
+      box-shadow:  0 0 16px var(--reset-color);
+      transform:   scale(1.07);
+    }
+
+    /* ============================================================
+       MODALS (confirm, delete, code)
+    ============================================================ */
+
+    #confirmBox,
+    #deletePrompt,
+    #codeBox {
+      position:      fixed;
+      top:           50%;
+      left:          50%;
+      transform:     translate(-50%, -50%);
+      background:    var(--modal-bg);
+      border:        1px solid var(--modal-border);
+      border-radius: 20px;
+      box-shadow:    0 0 40px rgba(0, 0, 0, 0.8);
+      display:       none;
+      z-index:       2000;
+      text-align:    center;
+      min-width:     280px;
+      padding:       0;
+      overflow:      hidden;
+    }
+
+    .modal-header {
+      padding:        18px 30px 14px;
+      border-bottom:  1px solid var(--modal-divider);
+    }
+
+    .modal-header h2,
+    .modal-header h3 {
+      margin:         0;
+      font-family:    'Rubik', sans-serif;
+      font-size:      1.3em;
+      letter-spacing: 1px;
+      color:          var(--text);
+    }
+
+    .modal-body { padding: 22px 30px; }
+
+    .modal-footer {
+      display:     flex;
+      border-top:  1px solid var(--modal-divider);
+    }
+
+    .modal-footer button {
+      flex:           1;
+      padding:        14px;
+      border:         none;
+      background:     transparent;
+      color:          var(--text);
+      font-size:      1em;
+      font-weight:    bold;
+      cursor:         pointer;
+      letter-spacing: 0.5px;
+      transition:     background 0.2s, color 0.2s;
+    }
+
+    .modal-footer button:not(:last-child) {
+      border-right: 1px solid var(--modal-divider);
+    }
+
+    .modal-footer button.danger  { color: #ff5555; }
+    .modal-footer button.danger:hover  { background: #ff5555; color: white; }
+    .modal-footer button.confirm { color: #55cc55; }
+    .modal-footer button.confirm:hover { background: #55cc55; color: white; }
+    .modal-footer button.neutral:hover { background: rgba(128, 128, 128, 0.12); }
+
+    /* Code and delete inputs */
+    #codeInput {
+      width:          100%;
+      box-sizing:     border-box;
+      padding:        12px 16px;
+      background:     var(--input-bg);
+      border:         1px solid var(--input-border);
+      border-radius:  10px;
+      color:          var(--text);
+      font-size:      1.05em;
+      letter-spacing: 1px;
+      outline:        none;
+      transition:     border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #codeInput:focus {
+      border-color: gold;
+      box-shadow:   0 0 10px rgba(255, 200, 0, 0.3);
+    }
+
+    #deleteQty {
+      width:         100%;
+      box-sizing:    border-box;
+      padding:       12px 16px;
+      background:    var(--input-bg);
+      border:        1px solid var(--input-border);
+      border-radius: 10px;
+      color:         var(--text);
+      font-size:     1.1em;
+      outline:       none;
+      text-align:    center;
+      transition:    border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #deleteQty:focus {
+      border-color: #ff4444;
+      box-shadow:   0 0 10px rgba(255, 68, 68, 0.3);
+    }
+
+    /* Darkening overlay behind modals */
+    #darken {
+      position:   fixed;
+      width:      100%;
+      height:     100%;
+      background: var(--darken-bg);
+      display:    none;
+      z-index:    1500;
+    }
+
+    /* ============================================================
+       RARITY TEXT COLOURS
+    ============================================================ */
+
+    .Common    { color: var(--text); }
+    .Uncommon  { color: lime; }
+    .Rare      { color: dodgerblue; }
+    .Epic      { color: violet; }
+    .Legendary { color: gold; }
+
+    /* Darkened versions for light mode readability */
+    body.light-mode .Uncommon  { color: #009900; }
+    body.light-mode .Rare      { color: #0066cc; }
+    body.light-mode .Epic      { color: #8800cc; }
+    body.light-mode .Legendary { color: #b8860b; }
+
+    /* Omega — animated rainbow */
+    .Omega {
+      background:             linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+      -webkit-background-clip: text;
+      color:                  transparent;
+      animation:              rainbow 3s linear infinite;
+    }
+
+    /* Void — DO NOT CHANGE */
+    .Void {
+      position:               relative;
+      font-weight:            bold;
+      color:                  transparent;
+      background:             radial-gradient(ellipse at center, #0a0a0a 40%, #1a0f00 70%, #0a0a0a 100%);
+      background-size:        200% 200%;
+      -webkit-background-clip: text;
+      background-clip:        text;
+      -webkit-text-stroke:    1.5px transparent;
+      animation:              blackHoleSpin 4s linear infinite;
+      filter:                 drop-shadow(0 0 3px #b8860b) drop-shadow(0 0 8px #8b6914) drop-shadow(0 0 1px #ffd700);
+    }
+
     @keyframes blackHoleSpin {
-      0%{background-position:0% 50%;filter:drop-shadow(0 0 3px #b8860b) drop-shadow(0 0 10px #8b6914) drop-shadow(0 0 2px #ffd700) hue-rotate(0deg)}
-      25%{background-position:100% 50%;filter:drop-shadow(0 0 5px #ffd700) drop-shadow(0 0 14px #b8860b) drop-shadow(0 0 3px #fff8dc) hue-rotate(15deg)}
-      50%{background-position:100% 0%;filter:drop-shadow(0 0 3px #8b6914) drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 2px #b8860b) hue-rotate(0deg)}
-      75%{background-position:0% 100%;filter:drop-shadow(0 0 6px #ffd700) drop-shadow(0 0 16px #b8860b) drop-shadow(0 0 4px #fff8dc) hue-rotate(-15deg)}
-      100%{background-position:0% 50%;filter:drop-shadow(0 0 3px #b8860b) drop-shadow(0 0 10px #8b6914) drop-shadow(0 0 2px #ffd700) hue-rotate(0deg)}
+      0%   { background-position: 0%   50%; filter: drop-shadow(0 0 3px #b8860b) drop-shadow(0 0 10px #8b6914) drop-shadow(0 0 2px #ffd700) hue-rotate(0deg);   }
+      25%  { background-position: 100% 50%; filter: drop-shadow(0 0 5px #ffd700) drop-shadow(0 0 14px #b8860b) drop-shadow(0 0 3px #fff8dc) hue-rotate(15deg);  }
+      50%  { background-position: 100% 0%;  filter: drop-shadow(0 0 3px #8b6914) drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 2px #b8860b) hue-rotate(0deg);   }
+      75%  { background-position: 0%   100%; filter: drop-shadow(0 0 6px #ffd700) drop-shadow(0 0 16px #b8860b) drop-shadow(0 0 4px #fff8dc) hue-rotate(-15deg); }
+      100% { background-position: 0%   50%; filter: drop-shadow(0 0 3px #b8860b) drop-shadow(0 0 10px #8b6914) drop-shadow(0 0 2px #ffd700) hue-rotate(0deg);   }
     }
-    @keyframes rainbow { 100%{filter:hue-rotate(360deg)} }
 
-    #overlay { position:fixed; top:0; left:0; width:100%; height:100%; display:none; align-items:center; justify-content:center; background:radial-gradient(ellipse at center,rgba(160,0,255,0.3) 0%,rgba(0,0,0,0.85) 70%); font-size:4em; font-family:'Rubik',sans-serif; letter-spacing:6px; color:white; z-index:9999; }
-    .fade { animation:fadeAnim 2s ease forwards; }
-    @keyframes fadeAnim { 0%{opacity:0;transform:scale(0.6);letter-spacing:2px}30%{opacity:1;transform:scale(1.08);letter-spacing:8px}70%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.1)} }
+    @keyframes rainbow { 100% { filter: hue-rotate(360deg); } }
 
-    #omegaReveal,#voidReveal,#highlightReveal { position:fixed; top:0; left:0; width:100%; height:100%; background:black; display:none; flex-direction:column; align-items:center; justify-content:center; z-index:9998; overflow:hidden; }
-    #omegaReveal .omegaParticles,#voidReveal .particles,#highlightReveal .particles { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
-    .omegaParticle { position:absolute; border-radius:50%; animation:omegaFloat linear infinite; opacity:0; }
-    @keyframes omegaFloat { 0%{transform:translateY(0) scale(1);opacity:0.9}100%{transform:translateY(-100vh) scale(0.3);opacity:0} }
-    #omegaReveal img { width:40vw; max-width:420px; max-height:50vh; object-fit:contain; animation:omegaDrop 0.9s cubic-bezier(0.34,1.4,0.64,1) forwards; filter:drop-shadow(0 0 40px rgba(255,100,200,0.9)) drop-shadow(0 0 80px rgba(255,0,255,0.5)); z-index:1; }
-    @keyframes omegaDrop { 0%{transform:translateY(-60vh) scale(0.8) rotate(-10deg);opacity:0}60%{transform:translateY(4%) scale(1.06) rotate(4deg);opacity:1}80%{transform:translateY(-2%) scale(0.97) rotate(-2deg)}100%{transform:translateY(0) scale(1) rotate(0deg);opacity:1} }
-    #omegaReveal h2 { font-family:'Rubik',sans-serif; font-size:2.8em; margin-top:24px; letter-spacing:4px; background:linear-gradient(90deg,red,orange,yellow,green,blue,indigo,violet); background-size:200% 100%; -webkit-background-clip:text; color:transparent; animation:omegaTitleRainbow 1.5s linear infinite,omegaTitlePop 0.6s 0.5s both; filter:drop-shadow(0 0 10px rgba(255,100,200,0.8)); z-index:1; }
-    @keyframes omegaTitleRainbow { 0%{background-position:0% 50%;filter:hue-rotate(0deg) drop-shadow(0 0 10px rgba(255,100,200,0.8))}100%{background-position:200% 50%;filter:hue-rotate(360deg) drop-shadow(0 0 10px rgba(255,100,200,0.8))} }
-    @keyframes omegaTitlePop { 0%{opacity:0;transform:scale(0.7) translateY(20px);letter-spacing:1px}60%{opacity:1;transform:scale(1.08) translateY(-4px);letter-spacing:6px}100%{opacity:1;transform:scale(1) translateY(0);letter-spacing:4px} }
-    @keyframes omegaBgPulse { 0%,100%{background:black}10%{background:rgba(255,0,200,0.15)}20%{background:black}35%{background:rgba(100,0,255,0.12)}45%{background:black}60%{background:rgba(255,150,0,0.1)}70%{background:black} }
-    #omegaReveal.active-reveal { animation:omegaBgPulse 3s ease forwards; }
-    #voidReveal img,#highlightReveal img { width:45vw; max-width:480px; max-height:55vh; object-fit:contain; animation:voidDrop 1.0s cubic-bezier(0.34,1.4,0.64,1) forwards; filter:drop-shadow(0 0 30px #b8860b) drop-shadow(0 0 70px #ffd700); }
-    @keyframes voidDrop { 0%{transform:translateY(-60vh) scale(0.8);opacity:0}70%{transform:translateY(4%) scale(1.04);opacity:1}85%{transform:translateY(-2%) scale(0.98)}100%{transform:translateY(0%) scale(1);opacity:1} }
-    #voidReveal h2,#highlightReveal h2 { font-size:3em; margin-top:30px; font-family:'Rubik',sans-serif; color:transparent; background:radial-gradient(ellipse at center,#0a0a0a 30%,#1a0f00 65%,#0a0a0a 100%); background-size:200% 200%; -webkit-background-clip:text; background-clip:text; animation:voidTitleSpin 3s linear infinite; filter:drop-shadow(0 0 6px #ffd700) drop-shadow(0 0 18px #b8860b) drop-shadow(0 0 4px #fff8dc); }
-    @keyframes voidTitleSpin { 0%{background-position:0% 50%;filter:drop-shadow(0 0 4px #b8860b) drop-shadow(0 0 14px #ffd700) hue-rotate(0deg);letter-spacing:3px}25%{background-position:100% 50%;filter:drop-shadow(0 0 8px #ffd700) drop-shadow(0 0 20px #b8860b) hue-rotate(10deg);letter-spacing:6px}50%{background-position:100% 0%;filter:drop-shadow(0 0 4px #8b6914) drop-shadow(0 0 14px #ffd700) hue-rotate(0deg);letter-spacing:3px}75%{background-position:0% 100%;filter:drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 22px #b8860b) hue-rotate(-10deg);letter-spacing:6px}100%{background-position:0% 50%;filter:drop-shadow(0 0 4px #b8860b) drop-shadow(0 0 14px #ffd700) hue-rotate(0deg);letter-spacing:3px} }
-    .voidParticle { position:absolute; width:6px; height:6px; border-radius:50%; background:#ffd700; box-shadow:0 0 10px #b8860b; animation:floatUp linear infinite; opacity:0; }
-    @keyframes floatUp { 0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-100vh) scale(0.3);opacity:0} }
+    /* ============================================================
+       PACK OPENING OVERLAY (flash screen)
+    ============================================================ */
 
-    @keyframes screenShake { 0%{transform:translate(0,0) rotate(0deg)}10%{transform:translate(-12px,-8px) rotate(-1deg)}20%{transform:translate(14px,6px) rotate(1deg)}30%{transform:translate(-10px,10px) rotate(-0.8deg)}40%{transform:translate(12px,-8px) rotate(0.8deg)}50%{transform:translate(-14px,6px) rotate(-1deg)}60%{transform:translate(10px,10px) rotate(0.5deg)}70%{transform:translate(-8px,-6px) rotate(-0.5deg)}80%{transform:translate(8px,4px) rotate(0.3deg)}90%{transform:translate(-4px,-2px) rotate(0deg)}100%{transform:translate(0,0) rotate(0deg)} }
-    body.shaking { animation:screenShake 0.5s ease; }
+    #overlay {
+      position:   fixed;
+      top:        0;
+      left:       0;
+      width:      100%;
+      height:     100%;
+      display:    none;
+      align-items:     center;
+      justify-content: center;
+      background: radial-gradient(ellipse at center, rgba(160, 0, 255, 0.3) 0%, rgba(0, 0, 0, 0.85) 70%);
+      font-size:  4em;
+      font-family: 'Rubik', sans-serif;
+      letter-spacing: 6px;
+      color:      white;
+      z-index:    9999;
+    }
 
-    .tabs button { overflow:hidden; }
-    .ripple { position:absolute; border-radius:50%; background:rgba(255,255,255,0.5); transform:scale(0); animation:rippleAnim 0.6s linear; pointer-events:none; }
-    @keyframes rippleAnim { to{transform:scale(4);opacity:0} }
-    .btnPunch { animation:btnPunchAnim 0.2s ease forwards; }
-    @keyframes btnPunchAnim { 0%{transform:scale(1)}50%{transform:scale(0.88)}100%{transform:scale(1)} }
+    .fade { animation: fadeAnim 2s ease forwards; }
 
-    .rates { margin:30px; font-size:1.2em; line-height:1.8em; }
-    .modal-muted { color:var(--muted); margin:0; font-size:0.9em; }
+    @keyframes fadeAnim {
+      0%   { opacity: 0; transform: scale(0.6); letter-spacing: 2px;  }
+      30%  { opacity: 1; transform: scale(1.08); letter-spacing: 8px; }
+      70%  { opacity: 1; transform: scale(1);                         }
+      100% { opacity: 0; transform: scale(1.1);                       }
+    }
 
-    #characterViewer { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.88); display:none; align-items:center; justify-content:center; flex-direction:column; z-index:5000; cursor:pointer; backdrop-filter:blur(8px); }
-    #characterViewer img { max-width:80vw; max-height:65vh; object-fit:contain; border-radius:18px; box-shadow:0 0 60px rgba(0,0,0,0.8); animation:viewerImgPop 0.3s cubic-bezier(0.34,1.4,0.64,1) forwards; }
-    @keyframes viewerImgPop { 0%{transform:scale(0.7);opacity:0}100%{transform:scale(1);opacity:1} }
-    #characterViewerName { margin-top:22px; font-family:'Rubik',sans-serif; font-size:1.8em; letter-spacing:2px; }
-    #characterViewerRarity { margin-top:6px; font-size:1em; letter-spacing:1px; opacity:0.8; }
-    #characterViewerClose { position:absolute; top:20px; right:24px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:50%; width:40px; height:40px; color:white; font-size:1.3em; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.2s,transform 0.2s; }
-    #characterViewerClose:hover { background:rgba(255,255,255,0.2); transform:scale(1.1); }
-    #characterViewerHint { position:absolute; bottom:24px; font-size:0.85em; color:rgba(255,255,255,0.35); letter-spacing:0.5px; }
+    /* ============================================================
+       LEGENDARY REVEAL — 5 second gentle animation
+    ============================================================ */
+
+    #legendaryReveal {
+      position:        fixed;
+      top:             0;
+      left:            0;
+      width:           100%;
+      height:          100%;
+      background:      radial-gradient(ellipse at center, rgba(40, 30, 0, 0.95) 0%, rgba(0, 0, 0, 0.97) 100%);
+      display:         none;
+      flex-direction:  column;
+      align-items:     center;
+      justify-content: center;
+      z-index:         9997;
+      overflow:        hidden;
+    }
+
+    /* Soft golden particle ring */
+    .legendaryParticle {
+      position:         absolute;
+      border-radius:    50%;
+      background:       gold;
+      box-shadow:       0 0 6px gold;
+      opacity:          0;
+      animation:        legendaryFloat linear infinite;
+    }
+
+    @keyframes legendaryFloat {
+      0%   { transform: translateY(0)      scale(1);   opacity: 0.8; }
+      100% { transform: translateY(-70vh)  scale(0.4); opacity: 0;   }
+    }
+
+    #legendaryReveal img {
+      width:       35vw;
+      max-width:   380px;
+      max-height:  48vh;
+      object-fit:  contain;
+      animation:   legendaryDrop 1.1s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+      filter:      drop-shadow(0 0 20px rgba(255, 215, 0, 0.7)) drop-shadow(0 0 50px rgba(255, 200, 0, 0.3));
+      z-index:     1;
+    }
+
+    @keyframes legendaryDrop {
+      0%   { transform: translateY(-40vh) scale(0.85); opacity: 0; }
+      65%  { transform: translateY(3%)    scale(1.03); opacity: 1; }
+      82%  { transform: translateY(-1%)   scale(0.98);             }
+      100% { transform: translateY(0)     scale(1);    opacity: 1; }
+    }
+
+    #legendaryReveal h2 {
+      font-family:    'Rubik', sans-serif;
+      font-size:      2.2em;
+      margin-top:     22px;
+      letter-spacing: 4px;
+      color:          gold;
+      animation:      legendaryTitleFade 0.8s 0.7s both;
+      filter:         drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+      z-index:        1;
+    }
+
+    @keyframes legendaryTitleFade {
+      from { opacity: 0; transform: translateY(12px); letter-spacing: 2px; }
+      to   { opacity: 1; transform: translateY(0);    letter-spacing: 4px; }
+    }
+
+    #legendaryReveal .legendaryParticles {
+      position:       absolute;
+      top:            0;
+      left:           0;
+      width:          100%;
+      height:         100%;
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       OMEGA REVEAL — 8 second dramatic animation
+    ============================================================ */
+
+    #omegaReveal {
+      position:        fixed;
+      top:             0;
+      left:            0;
+      width:           100%;
+      height:          100%;
+      background:      black;
+      display:         none;
+      flex-direction:  column;
+      align-items:     center;
+      justify-content: center;
+      z-index:         9998;
+      overflow:        hidden;
+    }
+
+    #omegaReveal .omegaParticles {
+      position:       absolute;
+      top:            0;
+      left:           0;
+      width:          100%;
+      height:         100%;
+      pointer-events: none;
+    }
+
+    .omegaParticle {
+      position:      absolute;
+      border-radius: 50%;
+      animation:     omegaFloat linear infinite;
+      opacity:       0;
+    }
+
+    @keyframes omegaFloat {
+      0%   { transform: translateY(0)      scale(1);   opacity: 0.9; }
+      100% { transform: translateY(-100vh) scale(0.3); opacity: 0;   }
+    }
+
+    #omegaReveal img {
+      width:       40vw;
+      max-width:   420px;
+      max-height:  50vh;
+      object-fit:  contain;
+      animation:   omegaDrop 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+      filter:      drop-shadow(0 0 40px rgba(255, 100, 200, 0.9)) drop-shadow(0 0 80px rgba(255, 0, 255, 0.5));
+      z-index:     1;
+    }
+
+    @keyframes omegaDrop {
+      0%   { transform: translateY(-60vh) scale(0.8) rotate(-10deg); opacity: 0; }
+      60%  { transform: translateY(4%)    scale(1.06) rotate(4deg);  opacity: 1; }
+      80%  { transform: translateY(-2%)   scale(0.97) rotate(-2deg);              }
+      100% { transform: translateY(0)     scale(1)    rotate(0deg);  opacity: 1; }
+    }
+
+    #omegaReveal h2 {
+      font-family:     'Rubik', sans-serif;
+      font-size:       2.8em;
+      margin-top:      24px;
+      letter-spacing:  4px;
+      background:      linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      color:           transparent;
+      animation:       omegaTitleRainbow 1.5s linear infinite, omegaTitlePop 0.6s 0.5s both;
+      filter:          drop-shadow(0 0 10px rgba(255, 100, 200, 0.8));
+      z-index:         1;
+    }
+
+    @keyframes omegaTitleRainbow {
+      0%   { background-position: 0%   50%; filter: hue-rotate(0deg)   drop-shadow(0 0 10px rgba(255, 100, 200, 0.8)); }
+      100% { background-position: 200% 50%; filter: hue-rotate(360deg) drop-shadow(0 0 10px rgba(255, 100, 200, 0.8)); }
+    }
+
+    @keyframes omegaTitlePop {
+      0%   { opacity: 0; transform: scale(0.7) translateY(20px); letter-spacing: 1px; }
+      60%  { opacity: 1; transform: scale(1.08) translateY(-4px); letter-spacing: 6px; }
+      100% { opacity: 1; transform: scale(1) translateY(0);       letter-spacing: 4px; }
+    }
+
+    @keyframes omegaBgPulse {
+      0%,100% { background: black; }
+      10%     { background: rgba(255,   0, 200, 0.15); }
+      20%     { background: black; }
+      35%     { background: rgba(100,   0, 255, 0.12); }
+      45%     { background: black; }
+      60%     { background: rgba(255, 150,   0, 0.10); }
+      70%     { background: black; }
+    }
+
+    #omegaReveal.active-reveal { animation: omegaBgPulse 3s ease forwards; }
+
+    /* ============================================================
+       VOID REVEAL — 10 second golden animation
+    ============================================================ */
+
+    #voidReveal,
+    #highlightReveal {
+      position:        fixed;
+      top:             0;
+      left:            0;
+      width:           100%;
+      height:          100%;
+      background:      black;
+      display:         none;
+      flex-direction:  column;
+      align-items:     center;
+      justify-content: center;
+      z-index:         9998;
+      overflow:        hidden;
+    }
+
+    #voidReveal .particles,
+    #highlightReveal .particles {
+      position:       absolute;
+      top:            0;
+      left:           0;
+      width:          100%;
+      height:         100%;
+      pointer-events: none;
+    }
+
+    #voidReveal img,
+    #highlightReveal img {
+      width:       45vw;
+      max-width:   480px;
+      max-height:  55vh;
+      object-fit:  contain;
+      animation:   voidDrop 1.0s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+      filter:      drop-shadow(0 0 30px #b8860b) drop-shadow(0 0 70px #ffd700);
+    }
+
+    /* Admin fake void image */
+    #adminVoidImg {
+      width:         45vw;
+      max-width:     480px;
+      max-height:    55vh;
+      background:    #000000;
+      border:        2px solid rgba(255, 215, 0, 0.3);
+      border-radius: 12px;
+      display:       flex;
+      align-items:   center;
+      justify-content: center;
+      color:         rgba(255, 255, 255, 0.15);
+      font-size:     1.2em;
+      filter:        drop-shadow(0 0 30px #b8860b) drop-shadow(0 0 70px #ffd700);
+    }
+
+    @keyframes voidDrop {
+      0%   { transform: translateY(-60vh) scale(0.8); opacity: 0; }
+      70%  { transform: translateY(4%)    scale(1.04); opacity: 1; }
+      85%  { transform: translateY(-2%)   scale(0.98);             }
+      100% { transform: translateY(0%)    scale(1);    opacity: 1; }
+    }
+
+    #voidReveal h2,
+    #highlightReveal h2 {
+      font-size:       3em;
+      margin-top:      30px;
+      font-family:     'Rubik', sans-serif;
+      color:           transparent;
+      background:      radial-gradient(ellipse at center, #0a0a0a 30%, #1a0f00 65%, #0a0a0a 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation:       voidTitleSpin 3s linear infinite;
+      filter:          drop-shadow(0 0 6px #ffd700) drop-shadow(0 0 18px #b8860b) drop-shadow(0 0 4px #fff8dc);
+    }
+
+    @keyframes voidTitleSpin {
+      0%   { background-position: 0%   50%;  filter: drop-shadow(0 0 4px #b8860b) drop-shadow(0 0 14px #ffd700) hue-rotate(0deg);   letter-spacing: 3px; }
+      25%  { background-position: 100% 50%;  filter: drop-shadow(0 0 8px #ffd700) drop-shadow(0 0 20px #b8860b) hue-rotate(10deg);  letter-spacing: 6px; }
+      50%  { background-position: 100% 0%;   filter: drop-shadow(0 0 4px #8b6914) drop-shadow(0 0 14px #ffd700) hue-rotate(0deg);   letter-spacing: 3px; }
+      75%  { background-position: 0%   100%; filter: drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 22px #b8860b) hue-rotate(-10deg); letter-spacing: 6px; }
+      100% { background-position: 0%   50%;  filter: drop-shadow(0 0 4px #b8860b) drop-shadow(0 0 14px #ffd700) hue-rotate(0deg);   letter-spacing: 3px; }
+    }
+
+    .voidParticle {
+      position:       absolute;
+      width:          6px;
+      height:         6px;
+      border-radius:  50%;
+      background:     #ffd700;
+      box-shadow:     0 0 10px #b8860b;
+      animation:      floatUp linear infinite;
+      opacity:        0;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(0)      scale(1);   opacity: 1; }
+      100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+    }
+
+    /* ============================================================
+       SCREEN SHAKE
+    ============================================================ */
+
+    @keyframes screenShake {
+      0%   { transform: translate(0,    0)    rotate(0deg);    }
+      10%  { transform: translate(-12px, -8px) rotate(-1deg);   }
+      20%  { transform: translate(14px,   6px) rotate(1deg);    }
+      30%  { transform: translate(-10px, 10px) rotate(-0.8deg); }
+      40%  { transform: translate(12px,  -8px) rotate(0.8deg);  }
+      50%  { transform: translate(-14px,  6px) rotate(-1deg);   }
+      60%  { transform: translate(10px,  10px) rotate(0.5deg);  }
+      70%  { transform: translate(-8px,  -6px) rotate(-0.5deg); }
+      80%  { transform: translate(8px,    4px) rotate(0.3deg);  }
+      90%  { transform: translate(-4px,  -2px) rotate(0deg);    }
+      100% { transform: translate(0,      0)   rotate(0deg);    }
+    }
+
+    body.shaking { animation: screenShake 0.5s ease; }
+
+    /* ============================================================
+       RIPPLE AND BUTTON PUNCH EFFECTS
+    ============================================================ */
+
+    .tabs button { overflow: hidden; }
+
+    .ripple {
+      position:      absolute;
+      border-radius: 50%;
+      background:    rgba(255, 255, 255, 0.5);
+      transform:     scale(0);
+      animation:     rippleAnim 0.6s linear;
+      pointer-events: none;
+    }
+
+    @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+    .btnPunch { animation: btnPunchAnim 0.2s ease forwards; }
+
+    @keyframes btnPunchAnim {
+      0%   { transform: scale(1);    }
+      50%  { transform: scale(0.88); }
+      100% { transform: scale(1);    }
+    }
+
+    /* ============================================================
+       INDEX RATES TABLE
+    ============================================================ */
+
+    .rates {
+      margin:      30px;
+      font-size:   1.2em;
+      line-height: 1.8em;
+    }
+
+    /* ============================================================
+       THEME TOGGLE (bottom of page)
+    ============================================================ */
+
+    #themeToggle {
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      gap:             0;
+      margin:          40px auto 20px;
+      width:           fit-content;
+      background:      var(--card-bg);
+      border:          1px solid var(--card-border);
+      border-radius:   40px;
+      padding:         4px;
+      transition:      background 0.3s, border-color 0.3s;
+    }
+
+    .themeBtn {
+      padding:        8px 22px;
+      border:         none;
+      background:     transparent;
+      color:          var(--muted);
+      font-size:      0.95em;
+      font-weight:    bold;
+      border-radius:  36px;
+      cursor:         pointer;
+      transition:     background 0.2s, color 0.2s;
+      letter-spacing: 0.5px;
+    }
+
+    .themeBtn.active {
+      background: var(--card-border-hover);
+      color:      var(--text);
+    }
+
+    #themeLabel {
+      font-size:      0.85em;
+      color:          var(--muted);
+      margin-bottom:  60px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Modal muted helper */
+    .modal-muted {
+      color:     var(--muted);
+      margin:    0;
+      font-size: 0.9em;
+    }
+
+    /* ============================================================
+       CHARACTER VIEWER (fullscreen card zoom)
+    ============================================================ */
+
+    #characterViewer {
+      position:        fixed;
+      top:             0;
+      left:            0;
+      width:           100%;
+      height:          100%;
+      background:      rgba(0, 0, 0, 0.88);
+      display:         none;
+      align-items:     center;
+      justify-content: center;
+      flex-direction:  column;
+      z-index:         5000;
+      cursor:          pointer;
+      backdrop-filter: blur(8px);
+    }
+
+    #characterViewer img {
+      max-width:     80vw;
+      max-height:    65vh;
+      object-fit:    contain;
+      border-radius: 18px;
+      box-shadow:    0 0 60px rgba(0, 0, 0, 0.8);
+      animation:     viewerImgPop 0.3s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+    }
+
+    @keyframes viewerImgPop {
+      0%   { transform: scale(0.7); opacity: 0; }
+      100% { transform: scale(1);   opacity: 1; }
+    }
+
+    #characterViewerName {
+      margin-top:     22px;
+      font-family:    'Rubik', sans-serif;
+      font-size:      1.8em;
+      letter-spacing: 2px;
+    }
+
+    #characterViewerRarity {
+      margin-top:     6px;
+      font-size:      1em;
+      letter-spacing: 1px;
+      opacity:        0.8;
+    }
+
+    #characterViewerClose {
+      position:        absolute;
+      top:             20px;
+      right:           24px;
+      background:      rgba(255, 255, 255, 0.1);
+      border:          1px solid rgba(255, 255, 255, 0.2);
+      border-radius:   50%;
+      width:           40px;
+      height:          40px;
+      color:           white;
+      font-size:       1.3em;
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      cursor:          pointer;
+      transition:      background 0.2s, transform 0.2s;
+    }
+
+    #characterViewerClose:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform:  scale(1.1);
+    }
+
+    #characterViewerHint {
+      position:   absolute;
+      bottom:     24px;
+      font-size:  0.85em;
+      color:      rgba(255, 255, 255, 0.35);
+      letter-spacing: 0.5px;
+    }
+
   </style>
 </head>
+
 <body>
 
-<div id="homeText" onclick="playSound(); goHome()">Wren.fun</div>
-<button id="settingsBtn" onclick="openSettings(); playSound()" title="Settings" aria-label="Settings">
-  <img src="settings-cog.png" alt="">
-</button>
+  <!-- Top-left home link -->
+  <div id="homeText" onclick="playSound(); goHome()">Wren.fun</div>
 
-<h1>Wren Packs</h1>
+  <!-- Settings cog (top-right) -->
+  <button id="settingsBtn" onclick="openSettings(); playSound()" title="Settings" aria-label="Settings">
+    <img src="settings-cog.png" alt="">
+  </button>
 
-<div class="tabs">
-  <button class="packBtn" onclick="showTab('pack'); ripple(event); playSound()">Open Pack</button>
-  <div class="invBtnWrap">
-    <button class="invBtn" onclick="showTab('inventory'); ripple(event); playSound()">Inventory</button>
-    <span id="notif" class="notif" style="display:none;">0</span>
-  </div>
-  <button class="indexBtn" onclick="showTab('index'); ripple(event); playSound()">Index</button>
-  <button class="codeBtn" onclick="openCode(); ripple(event); playSound()">Code</button>
-</div>
+  <!-- Page title -->
+  <h1>Wren Packs</h1>
 
-<div id="overlay">✨ PACK OPENING ✨</div>
-<div id="omegaReveal"><div class="omegaParticles" id="omegaParticles"></div><img id="omegaImg" src=""><h2 id="omegaName">★ OMEGA ★</h2></div>
-<div id="voidReveal"><div class="particles" id="voidParticles"></div><img id="voidImg" src="OrinFlower.jpg"><h2>✦ ORIN FLOWER ✦</h2></div>
-<div id="highlightReveal"><div class="particles" id="highlightParticles"></div><img id="highlightImg" src="HighlightLucky.jpg"><h2>✦ HIGHLIGHT LUCKY ✦</h2></div>
+  <!-- Navigation tabs -->
+  <div class="tabs">
 
-<div id="characterViewer" onclick="closeCharacterViewer()">
-  <div id="characterViewerClose" onclick="closeCharacterViewer()">✕</div>
-  <img id="characterViewerImg" src=""><p id="characterViewerName" class="Common"></p>
-  <p id="characterViewerRarity" class="Common"></p><p id="characterViewerHint">Click anywhere to close</p>
-</div>
+    <button class="packBtn" onclick="showTab('pack'); ripple(event); playSound()">
+      Open Pack
+    </button>
 
-<div id="pack" class="section active"><div class="pack" onclick="openPack()">OPEN</div></div>
-<div id="result"></div>
-
-<div id="inventory" class="section">
-  <div style="position:relative;padding:30px 20px 0;display:flex;align-items:center;justify-content:center;">
-    <h2 style="margin:0;font-family:'Rubik',sans-serif;letter-spacing:2px;font-size:1.8em;">Your Inventory</h2>
-    <button id="resetBtn" onclick="showConfirm(); playSound()">⟳ Reset</button>
-  </div>
-  <div id="inventory-list" class="grid"></div>
-</div>
-
-<div id="darken"></div>
-<div id="confirmBox">
-  <div class="modal-header"><h2>Reset Inventory?</h2></div>
-  <div class="modal-body"><p class="modal-muted">This will permanently delete all your characters.</p></div>
-  <div class="modal-footer">
-    <button class="danger" onclick="resetInventory(); playSound()">Reset</button>
-    <button class="neutral" onclick="hideConfirm(); playSound()">Cancel</button>
-  </div>
-</div>
-<div id="deletePrompt">
-  <div class="modal-header"><h3>Delete Characters</h3></div>
-  <div class="modal-body"><p class="modal-muted" style="margin-bottom:14px;">How many would you like to remove?</p><input type="number" id="deleteQty" min="1" placeholder="0"></div>
-  <div class="modal-footer">
-    <button class="danger" onclick="confirmDelete(); playSound()">Delete</button>
-    <button class="neutral" onclick="cancelDelete(); playSound()">Cancel</button>
-  </div>
-</div>
-<div id="codeBox">
-  <div class="modal-header"><h3 style="color:gold;">🎟 Redeem a Code</h3></div>
-  <div class="modal-body"><p class="modal-muted" style="margin-bottom:14px;">Enter your code below to claim a reward.</p><input type="text" id="codeInput" placeholder="Enter code..."></div>
-  <div class="modal-footer">
-    <button class="confirm" onclick="redeemCode(); playSound()">Redeem</button>
-    <button class="neutral" onclick="closeCode(); playSound()">Close</button>
-  </div>
-</div>
-
-<div id="settingsDarken" onclick="closeSettings()"></div>
-<div id="settingsPanel">
-  <div class="settings-header">
-    <h2>⚙️ Settings</h2>
-    <button class="settings-close" onclick="closeSettings(); playSound()">✕</button>
-  </div>
-  <div class="settings-section">
-    <p class="settings-label">Sound Effects</p>
-    <div class="vol-row">
-      <span class="vol-icon">🔊</span>
-      <input type="range" id="volSlider" min="0" max="100" value="50" oninput="updateVolume(this.value)">
-      <span id="volValue">50%</span>
+    <div class="invBtnWrap">
+      <button class="invBtn" onclick="showTab('inventory'); ripple(event); playSound()">
+        Inventory
+      </button>
+      <span id="notif" class="notif" style="display:none;">0</span>
     </div>
-    <div class="toggle-row">
-      <span>Mute sounds</span>
-      <label class="switch"><input type="checkbox" id="muteToggle" onchange="updateMute(this.checked)"><div class="switch-track"></div></label>
+
+    <button class="indexBtn" onclick="showTab('index'); ripple(event); playSound()">
+      Index
+    </button>
+
+    <button class="codeBtn" onclick="openCode(); ripple(event); playSound()">
+      Code
+    </button>
+
+  </div>
+
+  <!-- Pack opening flash overlay -->
+  <div id="overlay">✨ PACK OPENING ✨</div>
+
+  <!-- Legendary reveal -->
+  <div id="legendaryReveal">
+    <div class="legendaryParticles" id="legendaryParticles"></div>
+    <img id="legendaryImg" src="" alt="">
+    <h2 id="legendaryName">★ LEGENDARY ★</h2>
+  </div>
+
+  <!-- Omega reveal -->
+  <div id="omegaReveal">
+    <div class="omegaParticles" id="omegaParticles"></div>
+    <img id="omegaImg" src="" alt="">
+    <h2 id="omegaName">★ OMEGA ★</h2>
+  </div>
+
+  <!-- Void reveal -->
+  <div id="voidReveal">
+    <div class="particles" id="voidParticles"></div>
+    <img id="voidImg" src="OrinFlower.jpg" alt="">
+    <h2>✦ ORIN FLOWER ✦</h2>
+  </div>
+
+  <!-- Highlight Lucky reveal -->
+  <div id="highlightReveal">
+    <div class="particles" id="highlightParticles"></div>
+    <img id="highlightImg" src="HighlightLucky.jpg" alt="">
+    <h2>✦ HIGHLIGHT LUCKY ✦</h2>
+  </div>
+
+  <!-- Character full-screen viewer -->
+  <div id="characterViewer" onclick="closeCharacterViewer()">
+    <div id="characterViewerClose" onclick="closeCharacterViewer()">✕</div>
+    <img   id="characterViewerImg"    src=""       alt="">
+    <p     id="characterViewerName"   class="Common"></p>
+    <p     id="characterViewerRarity" class="Common"></p>
+    <p     id="characterViewerHint">Click anywhere to close</p>
+  </div>
+
+  <!-- Pack opening section -->
+  <div id="pack" class="section active">
+    <div class="pack" onclick="openPack()">OPEN</div>
+  </div>
+
+  <!-- Result card (appears after opening) -->
+  <div id="result"></div>
+
+  <!-- Inventory section -->
+  <div id="inventory" class="section">
+    <div style="position:relative; padding:30px 20px 0; display:flex; align-items:center; justify-content:center;">
+      <h2 style="margin:0; font-family:'Rubik',sans-serif; letter-spacing:2px; font-size:1.8em;">
+        Your Inventory
+      </h2>
+      <button id="resetBtn" onclick="showConfirm(); playSound()">⟳ Reset</button>
+    </div>
+    <div id="inventory-list" class="grid"></div>
+  </div>
+
+  <!-- Darkening overlay behind modals -->
+  <div id="darken"></div>
+
+  <!-- Confirm reset modal -->
+  <div id="confirmBox">
+    <div class="modal-header">
+      <h2>Reset Inventory?</h2>
+    </div>
+    <div class="modal-body">
+      <p class="modal-muted">This will permanently delete all your characters.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="danger"  onclick="resetInventory(); playSound()">Reset</button>
+      <button class="neutral" onclick="hideConfirm();    playSound()">Cancel</button>
     </div>
   </div>
-  <div class="settings-section">
-    <p class="settings-label">Appearance</p>
-    <div class="theme-picker">
-      <div class="theme-option" id="themeOptDark" onclick="setTheme('dark'); playSound()"><span style="font-size:1.6em">🌙</span><span>Dark</span></div>
-      <div class="theme-option" id="themeOptLight" onclick="setTheme('light'); playSound()"><span style="font-size:1.6em">☀️</span><span>Light</span></div>
+
+  <!-- Delete quantity modal -->
+  <div id="deletePrompt">
+    <div class="modal-header">
+      <h3>Delete Characters</h3>
+    </div>
+    <div class="modal-body">
+      <p class="modal-muted" style="margin-bottom:14px;">How many would you like to remove?</p>
+      <input type="number" id="deleteQty" min="1" placeholder="0">
+    </div>
+    <div class="modal-footer">
+      <button class="danger"  onclick="confirmDelete(); playSound()">Delete</button>
+      <button class="neutral" onclick="cancelDelete();  playSound()">Cancel</button>
     </div>
   </div>
-  <div class="settings-section">
-    <p class="settings-label">Pack Outline Colour</p>
-    <div class="pack-colour-grid">
-      <div class="pack-colour-swatch active" data-colour="purple"  style="background:purple"     onclick="setPackColour('purple',this);playSound()"></div>
-      <div class="pack-colour-swatch"        data-colour="green"   style="background:green"      onclick="setPackColour('green',this);playSound()"></div>
-      <div class="pack-colour-swatch"        data-colour="orange"  style="background:orange"     onclick="setPackColour('orange',this);playSound()"></div>
-      <div class="pack-colour-swatch"        data-colour="blue"    style="background:dodgerblue" onclick="setPackColour('blue',this);playSound()"></div>
-      <div class="pack-colour-swatch"        data-colour="pink"    style="background:#ff69b4"    onclick="setPackColour('pink',this);playSound()"></div>
-      <div class="pack-colour-swatch"        data-colour="yellow"  style="background:gold"       onclick="setPackColour('yellow',this);playSound()"></div>
-      <div class="pack-colour-swatch"        data-colour="red"     style="background:red"        onclick="setPackColour('red',this);playSound()"></div>
-      <div class="pack-colour-swatch"        data-colour="white"   style="background:white"      onclick="setPackColour('white',this);playSound()"></div>
-      <div class="pack-colour-swatch"        data-colour="black"   style="background:#222;border-color:rgba(255,255,255,0.3)" onclick="setPackColour('black',this);playSound()"></div>
-      <div class="pack-colour-swatch locked" data-colour="rainbow" id="rainbowSwatch" title="Enter code CoolLemons to unlock"></div>
+
+  <!-- Code redemption modal -->
+  <div id="codeBox">
+    <div class="modal-header">
+      <h3 style="color:gold;">🎟 Redeem a Code</h3>
     </div>
-    <p id="rainbowHint" style="font-size:0.75em;color:var(--muted);margin:8px 0 0;">🔒 Rainbow unlocks with a special code</p>
-  </div>
-  <div class="settings-section">
-    <p class="settings-label">Buttons</p>
-    <div class="toggle-row" style="margin-bottom:12px;">
-      <span>Classic button style</span>
-      <label class="switch"><input type="checkbox" id="classicBtnToggle" onchange="updateClassicButtons(this.checked);playSound()"><div class="switch-track"></div></label>
+    <div class="modal-body">
+      <p class="modal-muted" style="margin-bottom:14px;">Enter your code below to claim a reward.</p>
+      <input type="text" id="codeInput" placeholder="Enter code...">
     </div>
-    <p style="font-size:0.78em;color:var(--muted);margin:0 0 14px;">Turns off the shiny gradient look</p>
-    <div class="toggle-row">
-      <span>Triangle mode 🔺</span>
-      <label class="switch"><input type="checkbox" id="triangleBtnToggle" onchange="updateTriangleMode(this.checked);playSound()"><div class="switch-track"></div></label>
+    <div class="modal-footer">
+      <button class="confirm" onclick="redeemCode(); playSound()">Redeem</button>
+      <button class="neutral" onclick="closeCode();  playSound()">Close</button>
     </div>
-    <p style="font-size:0.78em;color:var(--muted);margin:8px 0 0;">Turns buttons &amp; logo into triangles</p>
   </div>
-</div>
 
-<div id="index" class="section">
-  <h2>All Characters</h2>
-  <div id="index-list" class="grid"></div>
-  <div class="rates">
-    <p class="Common">Common: 45%</p><p class="Uncommon">Uncommon: 30%</p><p class="Rare">Rare: 12%</p>
-    <p class="Epic">Epic: 7%</p><p class="Legendary">Legendary: 1%</p><p class="Omega">Omega: 0.1%</p>
+  <!-- Settings overlay + panel -->
+  <div id="settingsDarken" onclick="closeSettings()"></div>
+  <div id="settingsPanel">
+
+    <div class="settings-header">
+      <h2>⚙️ Settings</h2>
+      <button class="settings-close" onclick="closeSettings(); playSound()">✕</button>
+    </div>
+
+    <!-- Sound section -->
+    <div class="settings-section">
+      <p class="settings-label">Sound Effects</p>
+      <div class="vol-row">
+        <span class="vol-icon">🔊</span>
+        <input type="range" id="volSlider" min="0" max="100" value="50" oninput="updateVolume(this.value)">
+        <span id="volValue">50%</span>
+      </div>
+      <div class="toggle-row">
+        <span>Mute sounds</span>
+        <label class="switch">
+          <input type="checkbox" id="muteToggle" onchange="updateMute(this.checked)">
+          <div class="switch-track"></div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Appearance section -->
+    <div class="settings-section">
+      <p class="settings-label">Appearance</p>
+      <div class="theme-picker">
+        <div class="theme-option" id="themeOptDark"  onclick="setTheme('dark');  playSound()">
+          <span style="font-size:1.6em">🌙</span><span>Dark</span>
+        </div>
+        <div class="theme-option" id="themeOptLight" onclick="setTheme('light'); playSound()">
+          <span style="font-size:1.6em">☀️</span><span>Light</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pack colour section -->
+    <div class="settings-section">
+      <p class="settings-label">Pack Outline Colour</p>
+      <div class="pack-colour-grid">
+
+        <div class="pack-colour-swatch active"
+             data-colour="purple"
+             style="background:purple"
+             onclick="setPackColour('purple', this); playSound()">
+        </div>
+
+        <div class="pack-colour-swatch"
+             data-colour="green"
+             style="background:green"
+             onclick="setPackColour('green', this); playSound()">
+        </div>
+
+        <div class="pack-colour-swatch"
+             data-colour="orange"
+             style="background:orange"
+             onclick="setPackColour('orange', this); playSound()">
+        </div>
+
+        <div class="pack-colour-swatch"
+             data-colour="blue"
+             style="background:dodgerblue"
+             onclick="setPackColour('blue', this); playSound()">
+        </div>
+
+        <div class="pack-colour-swatch"
+             data-colour="pink"
+             style="background:#ff69b4"
+             onclick="setPackColour('pink', this); playSound()">
+        </div>
+
+        <div class="pack-colour-swatch"
+             data-colour="yellow"
+             style="background:gold"
+             onclick="setPackColour('yellow', this); playSound()">
+        </div>
+
+        <div class="pack-colour-swatch"
+             data-colour="red"
+             style="background:red"
+             onclick="setPackColour('red', this); playSound()">
+        </div>
+
+        <div class="pack-colour-swatch"
+             data-colour="white"
+             style="background:white"
+             onclick="setPackColour('white', this); playSound()">
+        </div>
+
+        <div class="pack-colour-swatch"
+             data-colour="black"
+             style="background:#222; border-color:rgba(255,255,255,0.3)"
+             onclick="setPackColour('black', this); playSound()">
+        </div>
+
+        <div class="pack-colour-swatch"
+             data-colour="brown"
+             style="background:#7B3F00"
+             onclick="setPackColour('brown', this); playSound()">
+        </div>
+
+        <div class="pack-colour-swatch locked"
+             data-colour="rainbow"
+             id="rainbowSwatch"
+             title="Enter code CoolLemons to unlock">
+        </div>
+
+        <div class="pack-colour-swatch locked"
+             data-colour="maroon"
+             id="maroonSwatch"
+             title="Enter code ColourPPP to unlock">
+        </div>
+
+      </div>
+      <p id="rainbowHint" style="font-size:0.75em; color:var(--muted); margin:8px 0 0;">
+        🔒 Rainbow unlocks with a special code
+      </p>
+      <p id="maroonHint"  style="font-size:0.75em; color:var(--muted); margin:4px 0 0;">
+        🔒 Maroon unlocks with a special code
+      </p>
+    </div>
+
+    <!-- Button style section -->
+    <div class="settings-section">
+      <p class="settings-label">Buttons</p>
+      <div class="toggle-row" style="margin-bottom:12px;">
+        <span>Classic button style</span>
+        <label class="switch">
+          <input type="checkbox" id="classicBtnToggle" onchange="updateClassicButtons(this.checked); playSound()">
+          <div class="switch-track"></div>
+        </label>
+      </div>
+      <p style="font-size:0.78em; color:var(--muted); margin:0 0 14px;">
+        Turns off the shiny gradient look
+      </p>
+      <div class="toggle-row">
+        <span>Triangle mode 🔺</span>
+        <label class="switch">
+          <input type="checkbox" id="triangleBtnToggle" onchange="updateTriangleMode(this.checked); playSound()">
+          <div class="switch-track"></div>
+        </label>
+      </div>
+      <p style="font-size:0.78em; color:var(--muted); margin:8px 0 0;">
+        Turns buttons &amp; logo into triangles
+      </p>
+    </div>
+
   </div>
-</div>
 
-<script>
-let canOpen=true,newItems=0,deleteItem=null,codeClickCount=0,codeClickTimer=null;
+  <!-- Index section -->
+  <div id="index" class="section">
+    <h2>All Characters</h2>
+    <div id="index-list" class="grid"></div>
+    <div class="rates">
+      <p class="Common">Common: 45%</p>
+      <p class="Uncommon">Uncommon: 30%</p>
+      <p class="Rare">Rare: 12%</p>
+      <p class="Epic">Epic: 7%</p>
+      <p class="Legendary">Legendary: 1%</p>
+      <p class="Omega">Omega: 0.1%</p>
+    </div>
+  </div>
 
-/* SOUND */
-const sfx=new Audio("SoundEffectButton.MP3"); sfx.preload="auto";
-let sfxVolume=parseFloat(localStorage.getItem("sfxVolume")??"0.5");
-let sfxMuted=localStorage.getItem("sfxMuted")==="true";
-let audioUnlocked=false;
-document.addEventListener("click",function unlockAudio(){if(audioUnlocked)return;audioUnlocked=true;const t=sfx.cloneNode();t.volume=0;t.play().catch(()=>{});},{once:true});
-function playSound(){if(sfxMuted)return;const s=sfx.cloneNode();s.volume=sfxVolume;s.play().catch(()=>{});}
-function updateVolume(val){sfxVolume=val/100;localStorage.setItem("sfxVolume",sfxVolume);document.getElementById("volValue").textContent=val+"%";document.getElementById("volSlider").style.setProperty("--vol-pct",val+"%");if(sfxVolume>0&&sfxMuted){sfxMuted=false;localStorage.setItem("sfxMuted","false");document.getElementById("muteToggle").checked=false;}if(sfxVolume===0){sfxMuted=true;localStorage.setItem("sfxMuted","true");document.getElementById("muteToggle").checked=true;}}
-function updateMute(c){sfxMuted=c;localStorage.setItem("sfxMuted",c);}
+  <!-- Theme toggle at the bottom -->
+  <div id="themeToggle">
+    <button class="themeBtn" id="btnDark"  onclick="setTheme('dark')">🌙 Dark</button>
+    <button class="themeBtn" id="btnLight" onclick="setTheme('light')">☀️ Light</button>
+  </div>
+  <p id="themeLabel">Theme preference is saved</p>
 
-/* CLASSIC BUTTONS */
-function updateClassicButtons(checked){
-  if(checked){document.getElementById("triangleBtnToggle").checked=false;updateTriangleMode(false);document.body.classList.add("classic-buttons");}
-  else{document.body.classList.remove("classic-buttons");}
-  localStorage.setItem("classicButtons",checked);
-}
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+  <script>
 
-/* TRIANGLE MODE */
-function updateTriangleMode(checked){
-  if(checked){document.getElementById("classicBtnToggle").checked=false;document.body.classList.remove("classic-buttons");localStorage.setItem("classicButtons",false);document.body.classList.add("triangle-mode");}
-  else{document.body.classList.remove("triangle-mode");}
-  localStorage.setItem("triangleMode",checked);
-}
+    // ── State variables ──────────────────────────────────────────
+    let canOpen        = true;
+    let newItems       = 0;
+    let deleteItem     = null;
+    let codeClickCount = 0;
+    let codeClickTimer = null;
 
-/* PACK COLOUR */
-const packColourMap={purple:"purple",green:"green",orange:"orange",blue:"dodgerblue",pink:"#ff69b4",yellow:"gold",red:"red",white:"white",black:"#111",rainbow:"rainbow"};
-function setPackColour(key,el){
-  const usedCodes=JSON.parse(localStorage.getItem("usedCodes"))||{};
-  if(key==="rainbow"&&!usedCodes["CoolLemons"])return;
-  document.querySelectorAll(".pack-colour-swatch").forEach(s=>s.classList.remove("active"));
-  if(el)el.classList.add("active");
-  if(key==="rainbow"){document.body.classList.add("pack-rainbow");document.documentElement.style.setProperty("--pack-color","purple");}
-  else{document.body.classList.remove("pack-rainbow");document.documentElement.style.setProperty("--pack-color",packColourMap[key]);}
-  localStorage.setItem("packColour",key);
-}
-function unlockRainbow(){
-  const s=document.getElementById("rainbowSwatch");
-  s.classList.remove("locked");s.classList.add("rainbow-swatch");
-  s.title="Rainbow";s.style.cursor="pointer";
-  s.setAttribute("onclick","setPackColour('rainbow',this);playSound()");
-  const hint=document.getElementById("rainbowHint");
-  if(hint)hint.style.display="none";
-}
+    // ── Sound effect setup ───────────────────────────────────────
+    const sfx         = new Audio("SoundEffectButton.MP3");
+    sfx.preload       = "auto";
+    let sfxVolume     = parseFloat(localStorage.getItem("sfxVolume") ?? "0.5");
+    let sfxMuted      = localStorage.getItem("sfxMuted") === "true";
+    let audioUnlocked = false;
 
-/* SETTINGS */
-function openSettings(){document.getElementById("settingsPanel").classList.add("open");document.getElementById("settingsDarken").classList.add("visible");}
-function closeSettings(){document.getElementById("settingsPanel").classList.remove("open");document.getElementById("settingsDarken").classList.remove("visible");}
+    // Unlock audio context on first interaction
+    document.addEventListener("click", function unlockAudio() {
+      if (audioUnlocked) return;
+      audioUnlocked = true;
+      const t = sfx.cloneNode();
+      t.volume = 0;
+      t.play().catch(() => {});
+    }, { once: true });
 
-/* CHARACTER VIEWER */
-function openCharacterViewer(name,display,rarity){
-  playSound();
-  document.getElementById("characterViewerImg").src=name+".jpg";
-  const n=document.getElementById("characterViewerName");n.textContent=display;n.className=rarity;
-  const r=document.getElementById("characterViewerRarity");r.textContent=rarity;r.className=rarity;
-  document.getElementById("characterViewer").style.display="flex";
-}
-function closeCharacterViewer(){document.getElementById("characterViewer").style.display="none";}
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeCharacterViewer();});
+    // Play a sound effect clone
+    function playSound() {
+      if (sfxMuted) return;
+      const s = sfx.cloneNode();
+      s.volume = sfxVolume;
+      s.play().catch(() => {});
+    }
 
-/* THEME */
-function setTheme(mode){
-  if(mode==="light"){document.body.classList.add("light-mode");document.getElementById("themeOptLight").classList.add("active");document.getElementById("themeOptDark").classList.remove("active");}
-  else{document.body.classList.remove("light-mode");document.getElementById("themeOptDark").classList.add("active");document.getElementById("themeOptLight").classList.remove("active");}
-  localStorage.setItem("theme",mode);
-}
+    // Update volume from slider
+    function updateVolume(val) {
+      sfxVolume = val / 100;
+      localStorage.setItem("sfxVolume", sfxVolume);
+      document.getElementById("volValue").textContent = val + "%";
+      document.getElementById("volSlider").style.setProperty("--vol-pct", val + "%");
+      if (sfxVolume > 0 && sfxMuted) {
+        sfxMuted = false;
+        localStorage.setItem("sfxMuted", "false");
+        document.getElementById("muteToggle").checked = false;
+      }
+      if (sfxVolume === 0) {
+        sfxMuted = true;
+        localStorage.setItem("sfxMuted", "true");
+        document.getElementById("muteToggle").checked = true;
+      }
+    }
 
-/* INIT */
-(function init(){
-  setTheme(localStorage.getItem("theme")||"dark");
-  const vp=Math.round(sfxVolume*100),sl=document.getElementById("volSlider");
-  sl.value=vp;sl.style.setProperty("--vol-pct",vp+"%");
-  document.getElementById("volValue").textContent=vp+"%";
-  document.getElementById("muteToggle").checked=sfxMuted;
-  const classic=localStorage.getItem("classicButtons")==="true";
-  document.getElementById("classicBtnToggle").checked=classic;
-  if(classic)document.body.classList.add("classic-buttons");
-  const tri=localStorage.getItem("triangleMode")==="true";
-  document.getElementById("triangleBtnToggle").checked=tri;
-  if(tri)document.body.classList.add("triangle-mode");
-  const usedCodes=JSON.parse(localStorage.getItem("usedCodes"))||{};
-  if(usedCodes["CoolLemons"])unlockRainbow();
-  const savedColour=localStorage.getItem("packColour")||"purple";
-  const sw=document.querySelector(`.pack-colour-swatch[data-colour="${savedColour}"]`);
-  if(sw&&!sw.classList.contains("locked"))setPackColour(savedColour,sw);
-  else setPackColour("purple",document.querySelector('.pack-colour-swatch[data-colour="purple"]'));
-})();
+    // Toggle mute
+    function updateMute(checked) {
+      sfxMuted = checked;
+      localStorage.setItem("sfxMuted", checked);
+    }
 
-/* CORE */
-function goHome(){window.location.href="https://scellswren.github.io/wren.fun/";}
-function rollRarity(){let r=Math.random()*100,s=0;for(let k in chances){s+=chances[k];if(r<=s)return k;}return"Common";}
-function updateNotif(){const n=document.getElementById("notif");if(newItems>0){n.style.display="inline-block";n.innerText=newItems;}else n.style.display="none";}
+    // ── Classic button style toggle ──────────────────────────────
+    function updateClassicButtons(checked) {
+      if (checked) {
+        document.getElementById("triangleBtnToggle").checked = false;
+        updateTriangleMode(false);
+        document.body.classList.add("classic-buttons");
+      } else {
+        document.body.classList.remove("classic-buttons");
+      }
+      localStorage.setItem("classicButtons", checked);
+    }
 
-function openPack(){
-  if(!canOpen)return;canOpen=false;playSound();
-  const ov=document.getElementById("overlay");ov.style.display="flex";ov.classList.add("fade");
-  setTimeout(()=>{
-    ov.style.display="none";ov.classList.remove("fade");
-    const rarity=rollRarity(),pool=items.filter(i=>i.rarity===rarity),item=pool[Math.floor(Math.random()*pool.length)];
-    let inv=JSON.parse(localStorage.getItem("inventory"))||{};
-    if(!inv[item.name]){newItems++;updateNotif();}
-    addToInventory(item.name);
-    if(item.rarity==="Omega"){showOmegaReveal(item);setTimeout(()=>{canOpen=true;},8600);return;}
-    const res=document.getElementById("result");
-    res.innerHTML=`<div id="resultInner"><h2 class="${rarity}">${item.display} (${rarity})</h2><img src="${item.name}.jpg"></div>`;
-    res.style.display="block";
-    setTimeout(()=>{document.getElementById("resultInner").classList.add("explodeOut");},2000);
-    setTimeout(()=>{canOpen=true;res.style.display="none";},2600);
-  },2000);
-}
+    // ── Triangle mode toggle ─────────────────────────────────────
+    function updateTriangleMode(checked) {
+      if (checked) {
+        document.getElementById("classicBtnToggle").checked = false;
+        document.body.classList.remove("classic-buttons");
+        localStorage.setItem("classicButtons", false);
+        document.body.classList.add("triangle-mode");
+      } else {
+        document.body.classList.remove("triangle-mode");
+      }
+      localStorage.setItem("triangleMode", checked);
+    }
 
-function showTab(tab){
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  document.getElementById(tab).classList.add("active");
-  if(tab==="inventory"){newItems=0;updateNotif();renderInventory();}
-  if(tab==="index")renderIndex();
-}
+    // ── Pack colour map ──────────────────────────────────────────
+    const packColourMap = {
+      purple:  "purple",
+      green:   "green",
+      orange:  "orange",
+      blue:    "dodgerblue",
+      pink:    "#ff69b4",
+      yellow:  "gold",
+      red:     "red",
+      white:   "white",
+      black:   "#111",
+      brown:   "#7B3F00",
+      rainbow: "rainbow",
+      maroon:  "maroon"
+    };
 
-/* INDEX — Void characters now included */
-function renderIndex(){
-  const c=document.getElementById("index-list");c.innerHTML="";
-  items.forEach(i=>{
-    const ch=document.createElement("div");ch.className="character";
-    ch.innerHTML=`<img src="${i.name}.jpg"><p class="${i.rarity}">${i.display}</p><p class="${i.rarity}">${i.rarity}</p>`;
-    ch.onclick=()=>openCharacterViewer(i.name,i.display,i.rarity);
-    c.appendChild(ch);
-  });
-}
+    function setPackColour(key, el) {
+      const usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || {};
 
-function addToInventory(name){let inv=JSON.parse(localStorage.getItem("inventory"))||{};inv[name]=(inv[name]||0)+1;localStorage.setItem("inventory",JSON.stringify(inv));}
+      // Guard locked swatches
+      if (key === "rainbow" && !usedCodes["CoolLemons"]) return;
+      if (key === "maroon"  && !usedCodes["ColourPPP"])  return;
 
-const rarityGlow={Common:"rgba(255,255,255,0.06)",Uncommon:"rgba(0,255,80,0.08)",Rare:"rgba(30,144,255,0.12)",Epic:"rgba(180,80,255,0.14)",Legendary:"rgba(255,200,0,0.14)",Omega:"rgba(255,100,200,0.14)",Void:"rgba(200,164,0,0.14)"};
+      // Remove active from all swatches
+      document.querySelectorAll(".pack-colour-swatch").forEach(s => s.classList.remove("active"));
+      if (el) el.classList.add("active");
 
-const items=[
-  {name:"WrenIsOld",display:"WrenIsOld",rarity:"Common"},
-  {name:"TheMindOfOrin",display:"The Mind of Orin",rarity:"Common"},
-  {name:"TheRealBaldCena72",display:"Bald Cena",rarity:"Common"},
-  {name:"Edunzie",display:"Edunzie",rarity:"Common"},
-  {name:"Wren.fun",display:"Wren.fun",rarity:"Common"},
-  {name:"Juju2y",display:"Juju2y",rarity:"Uncommon"},
-  {name:"Scratch",display:"Scratch",rarity:"Uncommon"},
-  {name:"BlockOfCheese",display:"Block Of Cheese",rarity:"Uncommon"},
-  {name:"TheDairyKing",display:"The Dairy King",rarity:"Uncommon"},
-  {name:"TheSack",display:"The Sack With Children",rarity:"Uncommon"},
-  {name:"MouldyBready",display:"Mouldy Bready",rarity:"Uncommon"},
-  {name:"Zxno",display:"Zxno",rarity:"Rare"},
-  {name:"EthansHalfTable",display:"EthansHalfTable",rarity:"Rare"},
-  {name:"TheTurtleKid2012",display:"Turtle Kid 2012",rarity:"Rare"},
-  {name:"ThomasMini",display:"Thomas & Friends Minis",rarity:"Rare"},
-  {name:"TikiTheG",display:"Tikitheg",rarity:"Epic"},
-  {name:"Nathan8028",display:"Nathan",rarity:"Epic"},
-  {name:"Pigmaxv",display:"Pigmaxv",rarity:"Epic"},
-  {name:"AustinsHalfTable",display:"AustinsHalfTable",rarity:"Epic"},
-  {name:"Switch2",display:"Nintendo Switch 2",rarity:"Epic"},
-  {name:"Wren",display:"Wren",rarity:"Legendary"},
-  {name:"LuckyCat",display:"Lucky",rarity:"Legendary"},
-  {name:"TheFounder",display:"The Founder",rarity:"Legendary"},
-  {name:"FatWren",display:"Fat Wren",rarity:"Omega"},
-  {name:"KSIWithBigHead",display:"KSI Drawing",rarity:"Omega"},
-  {name:"OrinFlower",display:"Orin Flower",rarity:"Void"},
-  {name:"HighlightLucky",display:"Highlight Lucky",rarity:"Void"}
-];
-const chances={Common:45,Uncommon:30,Rare:12,Epic:7,Legendary:1,Omega:0.1,Void:0};
+      // Remove any special pack body classes
+      document.body.classList.remove("pack-rainbow", "pack-maroon");
 
-function renderInventory(){
-  let inv=JSON.parse(localStorage.getItem("inventory"))||{};
-  let con=document.getElementById("inventory-list");con.innerHTML="";
-  const rarityOrder=["Common","Uncommon","Rare","Epic","Legendary","Omega","Void"];
-  const sorted=items.filter(i=>inv[i.name]).sort((a,b)=>rarityOrder.indexOf(a.rarity)-rarityOrder.indexOf(b.rarity));
-  sorted.forEach(i=>{
-    const qty=inv[i.name],ch=document.createElement("div");ch.className="character";
-    ch.innerHTML=`<div class="characterRarityGlow" style="box-shadow:inset 0 0 20px ${rarityGlow[i.rarity]||'transparent'};"></div><img src="${i.name}.jpg" alt="${i.display}"><p class="${i.rarity}">${i.display}</p><p class="${i.rarity}" style="font-size:0.7em;opacity:0.7;margin-top:2px;">${i.rarity}</p><span class="qtyBadge">x${qty}</span>`;
-    ch.onclick=(e)=>{if(e.target.classList.contains("deleteBtn"))return;openCharacterViewer(i.name,i.display,i.rarity);};
-    const db=document.createElement("div");db.className="deleteBtn";db.innerText="×";
-    db.onclick=(e)=>{e.stopPropagation();playSound();deleteItem=i;openDeletePrompt(qty);};
-    ch.appendChild(db);con.appendChild(ch);
-  });
-  if(sorted.length===0)con.innerHTML=`<p style="color:var(--muted2);font-size:1.1em;margin-top:60px;width:100%;">No characters yet — open some packs!</p>`;
-}
+      if (key === "rainbow") {
+        document.body.classList.add("pack-rainbow");
+        document.documentElement.style.setProperty("--pack-color", "purple");
+      } else if (key === "maroon") {
+        document.body.classList.add("pack-maroon");
+        document.documentElement.style.setProperty("--pack-color", "#800000");
+      } else {
+        document.documentElement.style.setProperty("--pack-color", packColourMap[key]);
+      }
 
-function openDeletePrompt(m){document.getElementById("deleteQty").value="";document.getElementById("deleteQty").max=m;document.getElementById("deletePrompt").style.display="block";document.getElementById("darken").style.display="block";}
-function confirmDelete(){
-  const qty=parseInt(document.getElementById("deleteQty").value);if(!qty||qty<1)return cancelDelete();
-  let inv=JSON.parse(localStorage.getItem("inventory"))||{};if(!inv[deleteItem.name])return cancelDelete();
-  if(qty>=inv[deleteItem.name])delete inv[deleteItem.name];else inv[deleteItem.name]-=qty;
-  localStorage.setItem("inventory",JSON.stringify(inv));cancelDelete();
-  if(!inv[deleteItem?.name])showTab("pack");else renderInventory();
-}
-function cancelDelete(){document.getElementById("deletePrompt").style.display="none";document.getElementById("darken").style.display="none";deleteItem=null;}
-function resetInventory(){document.querySelectorAll(".character").forEach((c,i)=>setTimeout(()=>{c.classList.add("explode");},i*100));setTimeout(()=>{localStorage.removeItem("inventory");hideConfirm();renderInventory();},800);}
-function showConfirm(){document.getElementById("confirmBox").style.display="block";document.getElementById("darken").style.display="block";}
-function hideConfirm(){document.getElementById("confirmBox").style.display="none";document.getElementById("darken").style.display="none";}
+      localStorage.setItem("packColour", key);
+    }
 
-function openCode(){
-  document.getElementById("codeBox").style.display="block";document.getElementById("darken").style.display="block";
-  const uc=JSON.parse(localStorage.getItem("usedCodes"))||{};if(uc["HighlightLucky"])return;
-  codeClickCount++;if(codeClickTimer)clearTimeout(codeClickTimer);
-  codeClickTimer=setTimeout(()=>{codeClickCount=0;},60000);
-  if(codeClickCount>=50){codeClickCount=0;clearTimeout(codeClickTimer);uc["HighlightLucky"]=true;localStorage.setItem("usedCodes",JSON.stringify(uc));document.getElementById("codeBox").style.display="none";document.getElementById("darken").style.display="none";addToInventory("HighlightLucky");newItems++;updateNotif();showHighlightLuckyReveal();}
-}
-function closeCode(){document.getElementById("codeBox").style.display="none";document.getElementById("darken").style.display="none";}
+    // Unlock rainbow swatch in the UI
+    function unlockRainbow() {
+      const s = document.getElementById("rainbowSwatch");
+      s.classList.remove("locked");
+      s.classList.add("rainbow-swatch");
+      s.title  = "Rainbow";
+      s.style.cursor = "pointer";
+      s.setAttribute("onclick", "setPackColour('rainbow', this); playSound()");
+      const hint = document.getElementById("rainbowHint");
+      if (hint) hint.style.display = "none";
+    }
 
-function redeemCode(){
-  const code=document.getElementById("codeInput").value.trim();
-  const uc=JSON.parse(localStorage.getItem("usedCodes"))||{};
-  if(code==="Subscribe"){if(uc["Subscribe"]){alert("Already redeemed!");closeCode();return;}uc["Subscribe"]=true;localStorage.setItem("usedCodes",JSON.stringify(uc));addToInventory("OrinFlower");newItems++;updateNotif();closeCode();showVoidReveal();}
-  else if(code==="Tiki500"){if(uc["Tiki500"]){alert("Already redeemed!");closeCode();return;}uc["Tiki500"]=true;localStorage.setItem("usedCodes",JSON.stringify(uc));for(let i=0;i<10;i++)addToInventory("TikiTheG");newItems++;updateNotif();closeCode();alert("Code redeemed! You received 10× Tikitheg!");}
-  else if(code==="Bigjuicy#1"){if(uc["Bigjuicy#1"]){alert("Already redeemed!");closeCode();return;}uc["Bigjuicy#1"]=true;localStorage.setItem("usedCodes",JSON.stringify(uc));addToInventory("Wren");addToInventory("LuckyCat");addToInventory("LuckyCat");newItems++;updateNotif();closeCode();alert("Code redeemed! You received 1× Wren and 2× Lucky!");}
-  else if(code==="CoolLemons"){if(uc["CoolLemons"]){alert("Already redeemed!");closeCode();return;}uc["CoolLemons"]=true;localStorage.setItem("usedCodes",JSON.stringify(uc));unlockRainbow();closeCode();alert("🌈 Rainbow pack outline unlocked! Find it in Settings → Pack Outline Colour.");}
-  else{alert("Invalid code");closeCode();}
-}
+    // Unlock maroon swatch in the UI
+    function unlockMaroon() {
+      const s = document.getElementById("maroonSwatch");
+      s.classList.remove("locked");
+      s.style.background = "linear-gradient(135deg, #800000, #cc2200)";
+      s.title  = "Maroon Glow";
+      s.style.cursor = "pointer";
+      s.setAttribute("onclick", "setPackColour('maroon', this); playSound()");
+      const hint = document.getElementById("maroonHint");
+      if (hint) hint.style.display = "none";
+    }
 
-/* REVEALS */
-function showOmegaReveal(item){const r=document.getElementById("omegaReveal");document.getElementById("omegaImg").src=item.name+".jpg";document.getElementById("omegaName").textContent="★ "+item.display.toUpperCase()+" ★";r.style.display="flex";r.classList.add("active-reveal");spawnOmegaParticles();[900,1400,2000,2800,4000].forEach(t=>setTimeout(()=>{document.body.classList.add("shaking");setTimeout(()=>document.body.classList.remove("shaking"),500);},t));setTimeout(()=>{r.style.display="none";r.classList.remove("active-reveal");document.getElementById("omegaParticles").innerHTML="";},8000);}
-function spawnOmegaParticles(){const c=document.getElementById("omegaParticles");c.innerHTML="";const cols=["#ff00ff","#ff44cc","#ff0088","#cc00ff","#ff6600","#ffcc00","#00ffff","#ff0000"];for(let i=0;i<60;i++){const p=document.createElement("div");p.className="omegaParticle";const col=cols[Math.floor(Math.random()*cols.length)],sz=4+Math.random()*10;p.style.left=Math.random()*100+"vw";p.style.top=(50+Math.random()*50)+"vh";p.style.width=sz+"px";p.style.height=sz+"px";p.style.background=col;p.style.boxShadow=`0 0 ${sz*2}px ${col}`;p.style.animationDuration=(1.5+Math.random()*4)+"s";p.style.animationDelay=(Math.random()*2)+"s";c.appendChild(p);}}
-function showVoidReveal(){const r=document.getElementById("voidReveal");r.style.display="flex";spawnParticles("voidParticles");[900,1500,2100].forEach(t=>setTimeout(()=>{document.body.classList.add("shaking");setTimeout(()=>document.body.classList.remove("shaking"),500);},t));setTimeout(()=>{r.style.display="none";document.getElementById("voidParticles").innerHTML="";},10000);}
-function showHighlightLuckyReveal(){const r=document.getElementById("highlightReveal");r.style.display="flex";spawnParticles("highlightParticles");[900,1500,2100].forEach(t=>setTimeout(()=>{document.body.classList.add("shaking");setTimeout(()=>document.body.classList.remove("shaking"),500);},t));setTimeout(()=>{r.style.display="none";document.getElementById("highlightParticles").innerHTML="";},10000);}
-function spawnParticles(id){const c=document.getElementById(id);c.innerHTML="";for(let i=0;i<40;i++){const p=document.createElement("div");p.className="voidParticle";p.style.left=Math.random()*100+"vw";p.style.top=(60+Math.random()*40)+"vh";p.style.animationDuration=(2+Math.random()*4)+"s";p.style.animationDelay=(Math.random()*3)+"s";p.style.width=p.style.height=(4+Math.random()*8)+"px";c.appendChild(p);}}
+    // ── Settings panel open/close ─────────────────────────────────
+    function openSettings() {
+      document.getElementById("settingsPanel").classList.add("open");
+      document.getElementById("settingsDarken").classList.add("visible");
+    }
 
-/* RIPPLE */
-function ripple(e){const btn=e.currentTarget,circle=document.createElement("span"),d=Math.max(btn.clientWidth,btn.clientHeight),rect=btn.getBoundingClientRect();circle.classList.add("ripple");circle.style.width=circle.style.height=d+"px";circle.style.left=(e.clientX-rect.left-d/2)+"px";circle.style.top=(e.clientY-rect.top-d/2)+"px";btn.appendChild(circle);btn.classList.add("btnPunch");setTimeout(()=>{circle.remove();btn.classList.remove("btnPunch");},600);}
-</script>
+    function closeSettings() {
+      document.getElementById("settingsPanel").classList.remove("open");
+      document.getElementById("settingsDarken").classList.remove("visible");
+    }
+
+    // ── Character viewer open/close ───────────────────────────────
+    function openCharacterViewer(name, display, rarity) {
+      playSound();
+      document.getElementById("characterViewerImg").src    = name + ".jpg";
+      const nameEl   = document.getElementById("characterViewerName");
+      nameEl.textContent = display;
+      nameEl.className   = rarity;
+      const rarityEl = document.getElementById("characterViewerRarity");
+      rarityEl.textContent = rarity;
+      rarityEl.className   = rarity;
+      document.getElementById("characterViewer").style.display = "flex";
+    }
+
+    function closeCharacterViewer() {
+      document.getElementById("characterViewer").style.display = "none";
+    }
+
+    // Close viewer with Escape key
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") closeCharacterViewer();
+    });
+
+    // ── Theme (dark / light) ──────────────────────────────────────
+    function setTheme(mode) {
+      if (mode === "light") {
+        document.body.classList.add("light-mode");
+        document.getElementById("themeOptLight").classList.add("active");
+        document.getElementById("themeOptDark").classList.remove("active");
+        document.getElementById("btnLight").classList.add("active");
+        document.getElementById("btnDark").classList.remove("active");
+      } else {
+        document.body.classList.remove("light-mode");
+        document.getElementById("themeOptDark").classList.add("active");
+        document.getElementById("themeOptLight").classList.remove("active");
+        document.getElementById("btnDark").classList.add("active");
+        document.getElementById("btnLight").classList.remove("active");
+      }
+      localStorage.setItem("theme", mode);
+    }
+
+    // ── Init (runs on page load) ──────────────────────────────────
+    (function init() {
+
+      // Apply saved theme
+      setTheme(localStorage.getItem("theme") || "dark");
+
+      // Apply saved volume
+      const vp = Math.round(sfxVolume * 100);
+      const sl = document.getElementById("volSlider");
+      sl.value = vp;
+      sl.style.setProperty("--vol-pct", vp + "%");
+      document.getElementById("volValue").textContent = vp + "%";
+      document.getElementById("muteToggle").checked   = sfxMuted;
+
+      // Apply saved button style
+      const classic = localStorage.getItem("classicButtons") === "true";
+      document.getElementById("classicBtnToggle").checked = classic;
+      if (classic) document.body.classList.add("classic-buttons");
+
+      // Apply saved triangle mode
+      const tri = localStorage.getItem("triangleMode") === "true";
+      document.getElementById("triangleBtnToggle").checked = tri;
+      if (tri) document.body.classList.add("triangle-mode");
+
+      // Unlock rainbow and/or maroon if already redeemed
+      const usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || {};
+      if (usedCodes["CoolLemons"]) unlockRainbow();
+      if (usedCodes["ColourPPP"])  unlockMaroon();
+
+      // Apply saved pack colour
+      const savedColour = localStorage.getItem("packColour") || "purple";
+      const sw = document.querySelector(`.pack-colour-swatch[data-colour="${savedColour}"]`);
+      if (sw && !sw.classList.contains("locked")) {
+        setPackColour(savedColour, sw);
+      } else {
+        setPackColour("purple", document.querySelector('.pack-colour-swatch[data-colour="purple"]'));
+      }
+
+    })();
+
+    // ── Utility: go home ─────────────────────────────────────────
+    function goHome() {
+      window.location.href = "https://scellswren.github.io/wren.fun/";
+    }
+
+    // ── Rarity roll ───────────────────────────────────────────────
+    function rollRarity() {
+      let r   = Math.random() * 100;
+      let sum = 0;
+      for (let key in chances) {
+        sum += chances[key];
+        if (r <= sum) return key;
+      }
+      return "Common";
+    }
+
+    // ── Notification badge ────────────────────────────────────────
+    function updateNotif() {
+      const n = document.getElementById("notif");
+      if (newItems > 0) {
+        n.style.display = "inline-block";
+        n.innerText     = newItems;
+      } else {
+        n.style.display = "none";
+      }
+    }
+
+    // ── Open a pack ───────────────────────────────────────────────
+    function openPack() {
+      if (!canOpen) return;
+      canOpen = false;
+      playSound();
+
+      const overlay = document.getElementById("overlay");
+      overlay.style.display = "flex";
+      overlay.classList.add("fade");
+
+      setTimeout(() => {
+        overlay.style.display = "none";
+        overlay.classList.remove("fade");
+
+        const rarity = rollRarity();
+        const pool   = items.filter(i => i.rarity === rarity);
+        const item   = pool[Math.floor(Math.random() * pool.length)];
+
+        // Track new items for notification
+        let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+        if (!inv[item.name]) {
+          newItems++;
+          updateNotif();
+        }
+        addToInventory(item.name);
+
+        // Route to special reveals
+        if (item.rarity === "Omega") {
+          showOmegaReveal(item);
+          setTimeout(() => { canOpen = true; }, 8600);
+          return;
+        }
+
+        if (item.rarity === "Legendary") {
+          showLegendaryReveal(item);
+          setTimeout(() => { canOpen = true; }, 5600);
+          return;
+        }
+
+        // Standard result card for all other rarities
+        const result = document.getElementById("result");
+        result.innerHTML = `
+          <div id="resultInner">
+            <h2 class="${rarity}">${item.display} (${rarity})</h2>
+            <img src="${item.name}.jpg" alt="${item.display}">
+          </div>`;
+        result.style.display = "block";
+
+        setTimeout(() => {
+          const inner = document.getElementById("resultInner");
+          if (inner) inner.classList.add("explodeOut");
+        }, 2000);
+
+        setTimeout(() => {
+          canOpen = false;
+          result.style.display = "none";
+          canOpen = true;
+        }, 2600);
+
+      }, 2000);
+    }
+
+    // ── Show / hide tab sections ─────────────────────────────────
+    function showTab(tab) {
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.getElementById(tab).classList.add("active");
+
+      if (tab === "inventory") {
+        newItems = 0;
+        updateNotif();
+        renderInventory();
+      }
+
+      if (tab === "index") {
+        renderIndex();
+      }
+    }
+
+    // ── Render the index section ─────────────────────────────────
+    // Void characters only appear if the player owns them
+    function renderIndex() {
+      const container = document.getElementById("index-list");
+      container.innerHTML = "";
+
+      // Get current inventory to check void ownership
+      const inv = JSON.parse(localStorage.getItem("inventory")) || {};
+
+      items.forEach(item => {
+
+        // Skip Void characters unless the player owns at least one
+        if (item.rarity === "Void" && !inv[item.name]) return;
+
+        const ch = document.createElement("div");
+        ch.className = "character";
+        ch.innerHTML = `
+          <img src="${item.name}.jpg" alt="${item.display}">
+          <p class="${item.rarity}">${item.display}</p>
+          <p class="${item.rarity}">${item.rarity}</p>`;
+        ch.onclick = () => openCharacterViewer(item.name, item.display, item.rarity);
+        container.appendChild(ch);
+      });
+    }
+
+    // ── Add one copy of a card to localStorage inventory ─────────
+    function addToInventory(name) {
+      let inv   = JSON.parse(localStorage.getItem("inventory")) || {};
+      inv[name] = (inv[name] || 0) + 1;
+      localStorage.setItem("inventory", JSON.stringify(inv));
+    }
+
+    // ── Rarity glow colours for inventory cards ──────────────────
+    const rarityGlow = {
+      Common:    "rgba(255, 255, 255, 0.06)",
+      Uncommon:  "rgba(0,   255,  80, 0.08)",
+      Rare:      "rgba(30,  144, 255, 0.12)",
+      Epic:      "rgba(180,  80, 255, 0.14)",
+      Legendary: "rgba(255, 200,   0, 0.14)",
+      Omega:     "rgba(255, 100, 200, 0.14)",
+      Void:      "rgba(200, 164,   0, 0.14)"
+    };
+
+    // ── All game items ────────────────────────────────────────────
+    const items = [
+      { name: "WrenIsOld",        display: "WrenIsOld",                rarity: "Common"    },
+      { name: "TheMindOfOrin",    display: "The Mind of Orin",         rarity: "Common"    },
+      { name: "TheRealBaldCena72",display: "Bald Cena",                rarity: "Common"    },
+      { name: "Edunzie",          display: "Edunzie",                  rarity: "Common"    },
+      { name: "Wren.fun",         display: "Wren.fun",                 rarity: "Common"    },
+      { name: "Juju2y",           display: "Juju2y",                   rarity: "Uncommon"  },
+      { name: "Scratch",          display: "Scratch",                  rarity: "Uncommon"  },
+      { name: "BlockOfCheese",    display: "Block Of Cheese",          rarity: "Uncommon"  },
+      { name: "TheDairyKing",     display: "The Dairy King",           rarity: "Uncommon"  },
+      { name: "TheSack",          display: "The Sack With Children",   rarity: "Uncommon"  },
+      { name: "MouldyBready",     display: "Mouldy Bready",            rarity: "Uncommon"  },
+      { name: "Zxno",             display: "Zxno",                     rarity: "Rare"      },
+      { name: "EthansHalfTable",  display: "EthansHalfTable",          rarity: "Rare"      },
+      { name: "TheTurtleKid2012", display: "Turtle Kid 2012",          rarity: "Rare"      },
+      { name: "ThomasMini",       display: "Thomas & Friends Minis",   rarity: "Rare"      },
+      { name: "TikiTheG",         display: "Tikitheg",                 rarity: "Epic"      },
+      { name: "Nathan8028",       display: "Nathan",                   rarity: "Epic"      },
+      { name: "Pigmaxv",          display: "Pigmaxv",                  rarity: "Epic"      },
+      { name: "AustinsHalfTable", display: "AustinsHalfTable",         rarity: "Epic"      },
+      { name: "Switch2",          display: "Nintendo Switch 2",        rarity: "Epic"      },
+      { name: "Wren",             display: "Wren",                     rarity: "Legendary" },
+      { name: "LuckyCat",         display: "Lucky",                    rarity: "Legendary" },
+      { name: "TheFounder",       display: "The Founder",              rarity: "Legendary" },
+      { name: "FatWren",          display: "Fat Wren",                 rarity: "Omega"     },
+      { name: "KSIWithBigHead",   display: "KSI Drawing",              rarity: "Omega"     },
+      { name: "OrinFlower",       display: "Orin Flower",              rarity: "Void"      },
+      { name: "HighlightLucky",   display: "Highlight Lucky",          rarity: "Void"      }
+    ];
+
+    // ── Drop chances per rarity ───────────────────────────────────
+    const chances = {
+      Common:    45,
+      Uncommon:  30,
+      Rare:      12,
+      Epic:       7,
+      Legendary:  1,
+      Omega:      0.1,
+      Void:       0
+    };
+
+    // ── Render inventory grid ─────────────────────────────────────
+    function renderInventory() {
+      let inv       = JSON.parse(localStorage.getItem("inventory")) || {};
+      let container = document.getElementById("inventory-list");
+      container.innerHTML = "";
+
+      const rarityOrder = ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Omega", "Void"];
+
+      const sorted = items
+        .filter(i => inv[i.name])
+        .sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
+
+      sorted.forEach(i => {
+        const qty  = inv[i.name];
+        const card = document.createElement("div");
+        card.className = "character";
+
+        card.innerHTML = `
+          <div class="characterRarityGlow"
+               style="box-shadow: inset 0 0 20px ${rarityGlow[i.rarity] || 'transparent'};">
+          </div>
+          <img src="${i.name}.jpg" alt="${i.display}">
+          <p class="${i.rarity}">${i.display}</p>
+          <p class="${i.rarity}" style="font-size:0.7em; opacity:0.7; margin-top:2px;">${i.rarity}</p>
+          <span class="qtyBadge">x${qty}</span>`;
+
+        card.onclick = (e) => {
+          if (e.target.classList.contains("deleteBtn")) return;
+          openCharacterViewer(i.name, i.display, i.rarity);
+        };
+
+        const delBtn       = document.createElement("div");
+        delBtn.className   = "deleteBtn";
+        delBtn.innerText   = "×";
+        delBtn.onclick     = (e) => {
+          e.stopPropagation();
+          playSound();
+          deleteItem = i;
+          openDeletePrompt(qty);
+        };
+
+        card.appendChild(delBtn);
+        container.appendChild(card);
+      });
+
+      // Empty state message
+      if (sorted.length === 0) {
+        container.innerHTML = `
+          <p style="color:var(--muted2); font-size:1.1em; margin-top:60px; width:100%;">
+            No characters yet — open some packs!
+          </p>`;
+      }
+    }
+
+    // ── Delete prompt helpers ─────────────────────────────────────
+    function openDeletePrompt(maxQty) {
+      document.getElementById("deleteQty").value = "";
+      document.getElementById("deleteQty").max   = maxQty;
+      document.getElementById("deletePrompt").style.display = "block";
+      document.getElementById("darken").style.display       = "block";
+    }
+
+    function confirmDelete() {
+      const qty = parseInt(document.getElementById("deleteQty").value);
+      if (!qty || qty < 1) return cancelDelete();
+
+      let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+      if (!inv[deleteItem.name]) return cancelDelete();
+
+      if (qty >= inv[deleteItem.name]) {
+        delete inv[deleteItem.name];
+      } else {
+        inv[deleteItem.name] -= qty;
+      }
+
+      localStorage.setItem("inventory", JSON.stringify(inv));
+      cancelDelete();
+
+      if (!inv[deleteItem?.name]) {
+        showTab("pack");
+      } else {
+        renderInventory();
+      }
+    }
+
+    function cancelDelete() {
+      document.getElementById("deletePrompt").style.display = "none";
+      document.getElementById("darken").style.display       = "none";
+      deleteItem = null;
+    }
+
+    // ── Reset inventory helpers ───────────────────────────────────
+    function resetInventory() {
+      const cards = document.querySelectorAll(".character");
+      cards.forEach((card, i) => {
+        setTimeout(() => { card.classList.add("explode"); }, i * 100);
+      });
+      setTimeout(() => {
+        localStorage.removeItem("inventory");
+        hideConfirm();
+        renderInventory();
+      }, 800);
+    }
+
+    function showConfirm() {
+      document.getElementById("confirmBox").style.display = "block";
+      document.getElementById("darken").style.display     = "block";
+    }
+
+    function hideConfirm() {
+      document.getElementById("confirmBox").style.display = "none";
+      document.getElementById("darken").style.display     = "none";
+    }
+
+    // ── Code modal open/close ─────────────────────────────────────
+    function openCode() {
+      document.getElementById("codeBox").style.display = "block";
+      document.getElementById("darken").style.display  = "block";
+
+      // Secret: click Code button 50 times in 60s to unlock Highlight Lucky
+      const usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || {};
+      if (usedCodes["HighlightLucky"]) return;
+
+      codeClickCount++;
+      if (codeClickTimer) clearTimeout(codeClickTimer);
+      codeClickTimer = setTimeout(() => { codeClickCount = 0; }, 60000);
+
+      if (codeClickCount >= 50) {
+        codeClickCount = 0;
+        clearTimeout(codeClickTimer);
+        usedCodes["HighlightLucky"] = true;
+        localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+        document.getElementById("codeBox").style.display = "none";
+        document.getElementById("darken").style.display  = "none";
+        addToInventory("HighlightLucky");
+        newItems++;
+        updateNotif();
+        showHighlightLuckyReveal();
+      }
+    }
+
+    function closeCode() {
+      document.getElementById("codeBox").style.display = "none";
+      document.getElementById("darken").style.display  = "none";
+    }
+
+    // ── Code redemption logic ─────────────────────────────────────
+    function redeemCode() {
+      const code     = document.getElementById("codeInput").value.trim();
+      const usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || {};
+
+      // ── One-time codes ────────────────────────────────────────
+
+      if (code === "Subscribe") {
+        if (usedCodes["Subscribe"]) { alert("Already redeemed!"); closeCode(); return; }
+        usedCodes["Subscribe"] = true;
+        localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+        addToInventory("OrinFlower");
+        newItems++;
+        updateNotif();
+        closeCode();
+        showVoidReveal();
+        return;
+      }
+
+      if (code === "Tiki500") {
+        if (usedCodes["Tiki500"]) { alert("Already redeemed!"); closeCode(); return; }
+        usedCodes["Tiki500"] = true;
+        localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+        for (let i = 0; i < 10; i++) addToInventory("TikiTheG");
+        newItems++;
+        updateNotif();
+        closeCode();
+        alert("Code redeemed! You received 10× Tikitheg!");
+        return;
+      }
+
+      if (code === "Bigjuicy#1") {
+        if (usedCodes["Bigjuicy#1"]) { alert("Already redeemed!"); closeCode(); return; }
+        usedCodes["Bigjuicy#1"] = true;
+        localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+        addToInventory("Wren");
+        addToInventory("LuckyCat");
+        addToInventory("LuckyCat");
+        newItems++;
+        updateNotif();
+        closeCode();
+        alert("Code redeemed! You received 1× Wren and 2× Lucky!");
+        return;
+      }
+
+      if (code === "CoolLemons") {
+        if (usedCodes["CoolLemons"]) { alert("Already redeemed!"); closeCode(); return; }
+        usedCodes["CoolLemons"] = true;
+        localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+        unlockRainbow();
+        closeCode();
+        alert("🌈 Rainbow pack outline unlocked! Find it in Settings → Pack Outline Colour.");
+        return;
+      }
+
+      if (code === "ColourPPP") {
+        if (usedCodes["ColourPPP"]) { alert("Already redeemed!"); closeCode(); return; }
+        usedCodes["ColourPPP"] = true;
+        localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+        unlockMaroon();
+        closeCode();
+        alert("🟥 Maroon Glow pack outline unlocked! Find it in Settings → Pack Outline Colour.");
+        return;
+      }
+
+      // ── Infinite-use admin preview codes ─────────────────────
+
+      if (code === "Void69Admin") {
+        closeCode();
+        showAdminVoidReveal();
+        return;
+      }
+
+      if (code === "Omega69Admin") {
+        closeCode();
+        showAdminOmegaReveal();
+        return;
+      }
+
+      if (code === "Legendary69Admin") {
+        closeCode();
+        showAdminLegendaryReveal();
+        return;
+      }
+
+      // ── Fallback ──────────────────────────────────────────────
+      alert("Invalid code");
+      closeCode();
+    }
+
+    // ── LEGENDARY REVEAL ─────────────────────────────────────────
+    function showLegendaryReveal(item) {
+      const reveal  = document.getElementById("legendaryReveal");
+      const imgEl   = document.getElementById("legendaryImg");
+      const nameEl  = document.getElementById("legendaryName");
+
+      imgEl.src         = item.name + ".jpg";
+      nameEl.textContent = "★ " + item.display.toUpperCase() + " ★";
+
+      reveal.style.display = "flex";
+      spawnLegendaryParticles();
+
+      // Single shake on impact
+      setTimeout(() => {
+        document.body.classList.add("shaking");
+        setTimeout(() => document.body.classList.remove("shaking"), 500);
+      }, 1100);
+
+      // Hide after 5 seconds
+      setTimeout(() => {
+        reveal.style.display = "none";
+        document.getElementById("legendaryParticles").innerHTML = "";
+      }, 5000);
+    }
+
+    // Admin version — show black box + ??? instead of real card
+    function showAdminLegendaryReveal() {
+      const reveal  = document.getElementById("legendaryReveal");
+      const imgEl   = document.getElementById("legendaryImg");
+      const nameEl  = document.getElementById("legendaryName");
+
+      // Replace image with a styled black box
+      imgEl.style.display = "none";
+      nameEl.textContent   = "★ ??? ★";
+
+      // Insert a black placeholder box before the title
+      let placeholder = document.getElementById("adminLegendaryBox");
+      if (!placeholder) {
+        placeholder    = document.createElement("div");
+        placeholder.id = "adminLegendaryBox";
+        placeholder.style.cssText =
+          "width:35vw; max-width:380px; height:280px; background:#000; " +
+          "border:2px solid rgba(255,215,0,0.3); border-radius:12px; " +
+          "display:flex; align-items:center; justify-content:center; " +
+          "color:rgba(255,255,255,0.15); font-size:1.2em; z-index:1; " +
+          "filter: drop-shadow(0 0 20px rgba(255,215,0,0.7));";
+        placeholder.textContent = "???";
+        reveal.insertBefore(placeholder, nameEl);
+      }
+      placeholder.style.display = "flex";
+
+      reveal.style.display = "flex";
+      spawnLegendaryParticles();
+
+      setTimeout(() => {
+        document.body.classList.add("shaking");
+        setTimeout(() => document.body.classList.remove("shaking"), 500);
+      }, 1100);
+
+      setTimeout(() => {
+        reveal.style.display      = "none";
+        imgEl.style.display       = "block";
+        placeholder.style.display = "none";
+        document.getElementById("legendaryParticles").innerHTML = "";
+      }, 5000);
+    }
+
+    function spawnLegendaryParticles() {
+      const container = document.getElementById("legendaryParticles");
+      container.innerHTML = "";
+
+      // Soft golden particles — fewer and slower than omega
+      for (let i = 0; i < 25; i++) {
+        const p          = document.createElement("div");
+        p.className      = "legendaryParticle";
+        const size       = 3 + Math.random() * 6;
+        p.style.left     = Math.random() * 100 + "vw";
+        p.style.top      = (55 + Math.random() * 45) + "vh";
+        p.style.width    = size + "px";
+        p.style.height   = size + "px";
+        p.style.animationDuration = (3 + Math.random() * 4) + "s";
+        p.style.animationDelay   = (Math.random() * 2) + "s";
+        container.appendChild(p);
+      }
+    }
+
+    // ── OMEGA REVEAL ──────────────────────────────────────────────
+    function showOmegaReveal(item) {
+      const reveal = document.getElementById("omegaReveal");
+      const imgEl  = document.getElementById("omegaImg");
+      const nameEl = document.getElementById("omegaName");
+
+      imgEl.src          = item.name + ".jpg";
+      nameEl.textContent = "★ " + item.display.toUpperCase() + " ★";
+
+      reveal.style.display = "flex";
+      reveal.classList.add("active-reveal");
+      spawnOmegaParticles();
+
+      // Multiple dramatic shakes
+      [900, 1400, 2000, 2800, 4000].forEach(t => {
+        setTimeout(() => {
+          document.body.classList.add("shaking");
+          setTimeout(() => document.body.classList.remove("shaking"), 500);
+        }, t);
+      });
+
+      // Hide after 8 seconds
+      setTimeout(() => {
+        reveal.style.display = "none";
+        reveal.classList.remove("active-reveal");
+        document.getElementById("omegaParticles").innerHTML = "";
+      }, 8000);
+    }
+
+    // Admin version — black box + ??? for omega
+    function showAdminOmegaReveal() {
+      const reveal = document.getElementById("omegaReveal");
+      const imgEl  = document.getElementById("omegaImg");
+      const nameEl = document.getElementById("omegaName");
+
+      imgEl.style.display = "none";
+      nameEl.textContent  = "★ ??? ★";
+
+      let placeholder = document.getElementById("adminOmegaBox");
+      if (!placeholder) {
+        placeholder    = document.createElement("div");
+        placeholder.id = "adminOmegaBox";
+        placeholder.style.cssText =
+          "width:40vw; max-width:420px; height:300px; background:#000; " +
+          "border:2px solid rgba(255,0,200,0.3); border-radius:12px; " +
+          "display:flex; align-items:center; justify-content:center; " +
+          "color:rgba(255,255,255,0.15); font-size:1.2em; z-index:1; " +
+          "filter: drop-shadow(0 0 40px rgba(255,100,200,0.5));";
+        placeholder.textContent = "???";
+        reveal.insertBefore(placeholder, nameEl);
+      }
+      placeholder.style.display = "flex";
+
+      reveal.style.display = "flex";
+      reveal.classList.add("active-reveal");
+      spawnOmegaParticles();
+
+      [900, 1400, 2000, 2800, 4000].forEach(t => {
+        setTimeout(() => {
+          document.body.classList.add("shaking");
+          setTimeout(() => document.body.classList.remove("shaking"), 500);
+        }, t);
+      });
+
+      setTimeout(() => {
+        reveal.style.display      = "none";
+        reveal.classList.remove("active-reveal");
+        imgEl.style.display       = "block";
+        placeholder.style.display = "none";
+        document.getElementById("omegaParticles").innerHTML = "";
+      }, 8000);
+    }
+
+    function spawnOmegaParticles() {
+      const container = document.getElementById("omegaParticles");
+      container.innerHTML = "";
+      const cols = ["#ff00ff", "#ff44cc", "#ff0088", "#cc00ff", "#ff6600", "#ffcc00", "#00ffff", "#ff0000"];
+      for (let i = 0; i < 60; i++) {
+        const p   = document.createElement("div");
+        p.className = "omegaParticle";
+        const col = cols[Math.floor(Math.random() * cols.length)];
+        const sz  = 4 + Math.random() * 10;
+        p.style.left             = Math.random() * 100 + "vw";
+        p.style.top              = (50 + Math.random() * 50) + "vh";
+        p.style.width            = sz + "px";
+        p.style.height           = sz + "px";
+        p.style.background       = col;
+        p.style.boxShadow        = `0 0 ${sz * 2}px ${col}`;
+        p.style.animationDuration = (1.5 + Math.random() * 4) + "s";
+        p.style.animationDelay   = (Math.random() * 2) + "s";
+        container.appendChild(p);
+      }
+    }
+
+    // ── VOID REVEAL ───────────────────────────────────────────────
+    function showVoidReveal() {
+      const reveal = document.getElementById("voidReveal");
+      reveal.style.display = "flex";
+      spawnParticles("voidParticles");
+
+      [900, 1500, 2100].forEach(t => {
+        setTimeout(() => {
+          document.body.classList.add("shaking");
+          setTimeout(() => document.body.classList.remove("shaking"), 500);
+        }, t);
+      });
+
+      // Hide after 10 seconds
+      setTimeout(() => {
+        reveal.style.display = "none";
+        document.getElementById("voidParticles").innerHTML = "";
+      }, 10000);
+    }
+
+    // Admin version — black box + ??? for void
+    function showAdminVoidReveal() {
+      const reveal = document.getElementById("voidReveal");
+      const imgEl  = document.getElementById("voidImg");
+      const title  = reveal.querySelector("h2");
+
+      imgEl.style.display   = "none";
+      title.textContent     = "✦ ??? ✦";
+
+      let placeholder = document.getElementById("adminVoidBox");
+      if (!placeholder) {
+        placeholder    = document.createElement("div");
+        placeholder.id = "adminVoidBox";
+        placeholder.style.cssText =
+          "width:45vw; max-width:480px; height:330px; background:#000; " +
+          "border:2px solid rgba(255,215,0,0.25); border-radius:12px; " +
+          "display:flex; align-items:center; justify-content:center; " +
+          "color:rgba(255,255,255,0.12); font-size:1.2em; z-index:1; " +
+          "filter: drop-shadow(0 0 30px #b8860b) drop-shadow(0 0 70px #ffd700);";
+        placeholder.textContent = "???";
+        reveal.insertBefore(placeholder, title);
+      }
+      placeholder.style.display = "flex";
+
+      reveal.style.display = "flex";
+      spawnParticles("voidParticles");
+
+      [900, 1500, 2100].forEach(t => {
+        setTimeout(() => {
+          document.body.classList.add("shaking");
+          setTimeout(() => document.body.classList.remove("shaking"), 500);
+        }, t);
+      });
+
+      setTimeout(() => {
+        reveal.style.display      = "none";
+        imgEl.style.display       = "block";
+        placeholder.style.display = "none";
+        title.textContent         = "✦ ORIN FLOWER ✦";
+        document.getElementById("voidParticles").innerHTML = "";
+      }, 10000);
+    }
+
+    // ── HIGHLIGHT LUCKY REVEAL ────────────────────────────────────
+    function showHighlightLuckyReveal() {
+      const reveal = document.getElementById("highlightReveal");
+      reveal.style.display = "flex";
+      spawnParticles("highlightParticles");
+
+      [900, 1500, 2100].forEach(t => {
+        setTimeout(() => {
+          document.body.classList.add("shaking");
+          setTimeout(() => document.body.classList.remove("shaking"), 500);
+        }, t);
+      });
+
+      setTimeout(() => {
+        reveal.style.display = "none";
+        document.getElementById("highlightParticles").innerHTML = "";
+      }, 10000);
+    }
+
+    // ── Shared gold particle spawner (void / highlight) ───────────
+    function spawnParticles(containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      for (let i = 0; i < 40; i++) {
+        const p = document.createElement("div");
+        p.className = "voidParticle";
+        p.style.left             = Math.random() * 100 + "vw";
+        p.style.top              = (60 + Math.random() * 40) + "vh";
+        p.style.animationDuration = (2 + Math.random() * 4) + "s";
+        p.style.animationDelay   = (Math.random() * 3) + "s";
+        p.style.width            = (4 + Math.random() * 8) + "px";
+        p.style.height           = p.style.width;
+        container.appendChild(p);
+      }
+    }
+
+    // ── Ripple + punch effect on tab buttons ──────────────────────
+    function ripple(e) {
+      const btn  = e.currentTarget;
+      const circle = document.createElement("span");
+      const diam   = Math.max(btn.clientWidth, btn.clientHeight);
+      const rect   = btn.getBoundingClientRect();
+
+      circle.classList.add("ripple");
+      circle.style.width  = diam + "px";
+      circle.style.height = diam + "px";
+      circle.style.left   = (e.clientX - rect.left - diam / 2) + "px";
+      circle.style.top    = (e.clientY - rect.top  - diam / 2) + "px";
+
+      btn.appendChild(circle);
+      btn.classList.add("btnPunch");
+
+      setTimeout(() => {
+        circle.remove();
+        btn.classList.remove("btnPunch");
+      }, 600);
+    }
+
+  </script>
+
 </body>
 </html>
