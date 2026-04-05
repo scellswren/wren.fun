@@ -8,7 +8,7 @@
     :root {
       --bg: #000000;
       --text: #ffffff;
-      --muted: rgba(255,255,255,0.7);
+      --muted: #ffffff;
       --soft: rgba(255,255,255,0.18);
     }
 
@@ -22,21 +22,35 @@
       font-family: 'Rubik', sans-serif;
     }
 
+    body {
+      position: relative;
+    }
+
     #homeText {
       position: fixed;
       top: 14px;
       left: 20px;
       z-index: 1000;
       font-size: 2em;
-      color: #ffffff;
+      color: var(--text);
       text-decoration: none;
-      transition: all 1.5s ease;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.2s ease, opacity 0.2s ease, top 1.2s ease, left 1.2s ease, font-size 1.2s ease;
+      line-height: 1;
+      transform-origin: center center;
     }
 
-    #homeText.centered {
+    #homeText:hover {
+      transform: scale(1.12);
+      opacity: 0.9;
+    }
+
+    #homeText.finish {
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%) scale(2.5);
+      transform: translate(-50%, -50%) scale(2.8);
+      font-size: 3.2em;
     }
 
     #watchCounter {
@@ -54,7 +68,10 @@
       align-items: center;
       justify-content: center;
       font-size: 0.95em;
-      color: #ffffff;
+      color: var(--text);
+      box-shadow: 0 0 12px rgba(255,255,255,0.08);
+      user-select: none;
+      pointer-events: none;
     }
 
     .scene {
@@ -67,45 +84,51 @@
     .track {
       position: absolute;
       left: 50%;
-      bottom: -100%;
+      bottom: -120vh; /* adjusted so first line starts off-screen properly */
       width: min(900px, 88vw);
       transform: translateX(-50%);
       text-align: center;
+      opacity: 1;
+      will-change: bottom;
       animation: creditsRise 120s linear forwards;
       animation-delay: 2s;
     }
 
     @keyframes creditsRise {
       0% {
-        bottom: -100%;
+        bottom: -120vh;
       }
       100% {
-        bottom: 100%;
+        bottom: 140vh;
       }
     }
 
     .spacer {
-      height: 100vh; /* IMPORTANT: pushes first line off screen */
+      height: 0; /* FIX: remove top push so first line rises naturally */
     }
 
     .credit-line {
       margin: 24px 0;
       font-size: clamp(1.25rem, 2.15vw, 2.2rem);
-      color: #ffffff;
+      line-height: 1.45;
+      letter-spacing: 1px;
+      color: var(--text);
+      text-shadow: 0 0 10px rgba(255,255,255,0.08);
     }
 
     .credit-line.small {
-      color: var(--muted);
+      font-size: clamp(1rem, 1.6vw, 1.5rem);
+      color: var(--text);
     }
 
     .credit-line.section {
       margin-top: 42px;
       margin-bottom: 10px;
+      color: var(--text);
       text-transform: uppercase;
       letter-spacing: 3px;
       font-size: clamp(0.95rem, 1.4vw, 1.3rem);
-      opacity: 0.85;
-      color: #ffffff;
+      opacity: 1;
     }
 
     .credit-line.rule {
@@ -113,102 +136,97 @@
       width: 120px;
       margin: 20px auto 34px;
       background: linear-gradient(90deg, transparent, var(--soft), transparent);
+      border-radius: 999px;
     }
 
     .credit-line.end {
       margin-top: 54px;
+      color: var(--text);
       letter-spacing: 2px;
-      color: #ffffff;
     }
   </style>
 </head>
 <body>
+  <a id="homeText" href="https://scellswren.github.io/wren.fun/">Wren.fun</a>
+  <div id="watchCounter">0</div>
 
-<a id="homeText" href="https://scellswren.github.io/wren.fun/">Wren.fun</a>
-<div id="watchCounter">0</div>
+  <div class="scene">
+    <div class="track" id="creditsTrack">
+      <div class="spacer"></div>
 
-<div class="scene">
-  <div class="track" id="creditsTrack">
+      <div class="credit-line">Created by Wren</div>
+      <div class="credit-line">Designed by Wren</div>
+      <div class="credit-line">Ideas by Wren</div>
+      <div class="credit-line">Help by Wren</div>
+      <div class="credit-line">Code by ChatGPT, Claude and Wren</div>
+      <div class="credit-line">Came up by Wren</div>
+      <div class="credit-line">Made on Github</div>
 
-    <!-- THIS spacer makes "Created by Wren" start OFF SCREEN -->
-    <div class="spacer"></div>
+      <div class="credit-line rule"></div>
 
-    <div class="credit-line">Created by Wren</div>
-    <div class="credit-line">Designed by Wren</div>
-    <div class="credit-line">Ideas by Wren</div>
-    <div class="credit-line">Help by Wren</div>
-    <div class="credit-line">Code by ChatGPT, Claude and Wren</div>
-    <div class="credit-line">Came up by Wren</div>
-    <div class="credit-line">Made on Github</div>
+      <div class="credit-line section">Project Work</div>
+      <div class="credit-line">Main menu layout by Wren</div>
+      <div class="credit-line">Credits page layout by Wren</div>
+      <div class="credit-line">Button styling by Wren</div>
+      <div class="credit-line">Page navigation by Wren</div>
+      <div class="credit-line">Scrollable credits by Wren</div>
+      <div class="credit-line">Black-and-white credit theme by Wren</div>
+      <div class="credit-line">Top-left home link by Wren</div>
+      <div class="credit-line">Top-right watch counter by Wren</div>
+      <div class="credit-line">Font choice by Wren</div>
+      <div class="credit-line">Icon placement by Wren</div>
+      <div class="credit-line">Local storage saving by Wren</div>
+      <div class="credit-line">Wren Dollars decided by Wren</div>
+      <div class="credit-line">Animation timing by Wren</div>
+      <div class="credit-line">Page structure by Wren</div>
+      <div class="credit-line">Spacing and alignment by Wren</div>
+      <div class="credit-line">Text sizing by Wren</div>
+      <div class="credit-line">Accessibility choices by Wren</div>
+      <div class="credit-line">Visual polish by Wren</div>
+      <div class="credit-line">Menu consistency by Wren</div>
+      <div class="credit-line">Website styling by Wren</div>
+      <div class="credit-line">Github Pages setup by Wren</div>
+      <div class="credit-line">Folder organization by Wren</div>
+      <div class="credit-line">Pack idea by Wren</div>
+      <div class="credit-line">Final page checks by Wren</div>
+      <div class="credit-line">Small fixes by Wren</div>
+      <div class="credit-line">Extra details by Wren</div>
+      <div class="credit-line">More extra details by Wren</div>
+      <div class="credit-line">Even more extra details by Wren</div>
 
-    <div class="credit-line rule"></div>
+      <div class="credit-line rule"></div>
 
-    <div class="credit-line section">Project Work</div>
-    <div class="credit-line">Main menu layout by Wren</div>
-    <div class="credit-line">Credits page layout by Wren</div>
-    <div class="credit-line">Button styling by Wren</div>
-    <div class="credit-line">Page navigation by Wren</div>
-    <div class="credit-line">Scrollable credits by Wren</div>
-    <div class="credit-line">Black-and-white credit theme by Wren</div>
-    <div class="credit-line">Top-left home link by Wren</div>
-    <div class="credit-line">Top-right watch counter by Wren</div>
-    <div class="credit-line">Font choice by Wren</div>
-    <div class="credit-line">Icon placement by Wren</div>
-    <div class="credit-line">Local storage saving by Wren</div>
-    <div class="credit-line">Wren Dollars decided by Wren</div>
-    <div class="credit-line">Animation timing by Wren</div>
-    <div class="credit-line">Page structure by Wren</div>
-    <div class="credit-line">Spacing and alignment by Wren</div>
-    <div class="credit-line">Text sizing by Wren</div>
-    <div class="credit-line">Accessibility choices by Wren</div>
-    <div class="credit-line">Visual polish by Wren</div>
-    <div class="credit-line">Menu consistency by Wren</div>
-    <div class="credit-line">Website styling by Wren</div>
-    <div class="credit-line">Github Pages setup by Wren</div>
-    <div class="credit-line">Folder organization by Wren</div>
-    <div class="credit-line">Pack idea by Wren</div>
-    <div class="credit-line">Final page checks by Wren</div>
-    <div class="credit-line">Small fixes by Wren</div>
-    <div class="credit-line">Extra details by Wren</div>
-    <div class="credit-line">More extra details by Wren</div>
-    <div class="credit-line">Even more extra details by Wren</div>
+      <div class="credit-line end">Thanks for watching</div>
 
-    <div class="credit-line rule"></div>
-
-    <div class="credit-line end">Thanks for watching</div>
-
-    <div class="spacer"></div>
+      <div class="spacer"></div>
+    </div>
   </div>
-</div>
 
-<script>
-const watchCounter = document.getElementById("watchCounter");
-const creditsTrack = document.getElementById("creditsTrack");
-const homeText = document.getElementById("homeText");
+  <script>
+    const watchCounter = document.getElementById("watchCounter");
+    const creditsTrack = document.getElementById("creditsTrack");
+    const homeText = document.getElementById("homeText");
 
-function loadWatchCount() {
-  const saved = parseInt(localStorage.getItem("creditsWatchCount") || "0", 10);
-  watchCounter.textContent = Number.isFinite(saved) ? saved : 0;
-}
+    function loadWatchCount() {
+      const saved = parseInt(localStorage.getItem("creditsWatchCount") || "0", 10);
+      watchCounter.textContent = Number.isFinite(saved) ? saved : 0;
+    }
 
-function addWatch() {
-  const current = parseInt(localStorage.getItem("creditsWatchCount") || "0", 10) || 0;
-  const next = current + 1;
-  localStorage.setItem("creditsWatchCount", String(next));
-  watchCounter.textContent = String(next);
-}
+    function addWatch() {
+      const current = parseInt(localStorage.getItem("creditsWatchCount") || "0", 10) || 0;
+      const next = current + 1;
+      localStorage.setItem("creditsWatchCount", String(next));
+      watchCounter.textContent = String(next);
+    }
 
-loadWatchCount();
+    loadWatchCount();
 
-creditsTrack.addEventListener("animationend", () => {
-  addWatch();
-
-  // move + grow Wren.fun to center
-  setTimeout(() => {
-    homeText.classList.add("centered");
-  }, 500);
-});
-</script>
-
+    creditsTrack.addEventListener("animationend", (event) => {
+      if (event.animationName === "creditsRise") {
+        addWatch();
+        homeText.classList.add("finish");
+      }
+    });
+  </script>
 </body>
 </html>
