@@ -355,78 +355,111 @@
       display:     flex;
       align-items: center;
       justify-content: space-between;
-      padding:     22px 24px 18px;
+      padding:     20px 20px 16px;
       border-bottom: 1px solid var(--modal-divider);
+      position:    sticky;
+      top:         0;
+      background:  var(--modal-bg);
+      z-index:     1;
     }
-    .settings-header h2 { margin: 0; font-family: 'Rubik', sans-serif; font-size: 1.3em; letter-spacing: 1px; color: var(--text); }
 
     .settings-close {
-      background:  rgba(128, 128, 128, 0.15);
-      border:      none;
+      background:  rgba(128, 128, 128, 0.12);
+      border:      1px solid var(--modal-divider);
       border-radius: 50%;
-      width:       34px;
-      height:      34px;
-      color:       var(--text);
-      font-size:   1.1em;
+      width:       32px;
+      height:      32px;
+      color:       var(--muted);
+      font-size:   1em;
       cursor:      pointer;
       display:     flex;
       align-items: center;
       justify-content: center;
-      transition:  background 0.2s, transform 0.2s;
+      transition:  background 0.2s, color 0.2s, transform 0.2s;
     }
-    .settings-close:hover { background: rgba(128, 128, 128, 0.28); transform: scale(1.1); }
+    .settings-close:hover { background: rgba(128, 128, 128, 0.22); color: var(--text); transform: scale(1.1) rotate(90deg); }
 
-    .settings-section { padding: 20px 24px; border-bottom: 1px solid var(--modal-divider); }
-    .settings-section:last-child { border-bottom: none; }
+    .settings-section {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--modal-divider);
+    }
+    .settings-section:last-child { border-bottom: none; padding-bottom: 30px; }
 
     .settings-label {
-      font-size:      0.72em;
-      font-weight:    bold;
-      letter-spacing: 1.5px;
+      font-size:      0.68em;
+      font-weight:    700;
+      letter-spacing: 1.8px;
       text-transform: uppercase;
       color:          var(--muted);
       margin:         0 0 14px;
     }
 
-    .vol-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .vol-icon { font-size: 1.3em; flex-shrink: 0; }
+    /* Settings rows with title + subtitle + control */
+    .settings-row {
+      display:     flex;
+      align-items: center;
+      justify-content: space-between;
+      gap:         12px;
+      margin-bottom: 14px;
+      padding:     10px 12px;
+      background:  var(--card-bg);
+      border:      1px solid var(--card-border);
+      border-radius: 10px;
+      transition:  background 0.2s;
+    }
+    .settings-row:hover { background: rgba(255,255,255,0.06); }
+    body.light-mode .settings-row:hover { background: rgba(0,0,0,0.04); }
+    .settings-row-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .settings-row-title { font-size: 0.9em; font-weight: 600; color: var(--text); }
+    .settings-row-sub   { font-size: 0.72em; color: var(--muted); line-height: 1.3; }
+
+    .vol-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 
     #volSlider {
       flex:              1;
       -webkit-appearance: none;
-      height:            6px;
+      height:            5px;
       border-radius:     3px;
-      background:        linear-gradient(to right, #7c3aed 0%, #7c3aed var(--vol-pct, 50%), rgba(128, 128, 128, 0.25) var(--vol-pct, 50%), rgba(128, 128, 128, 0.25) 100%);
+      background:        linear-gradient(to right, #7c3aed 0%, #7c3aed var(--vol-pct, 50%), rgba(128, 128, 128, 0.2) var(--vol-pct, 50%), rgba(128, 128, 128, 0.2) 100%);
       outline:           none;
       cursor:            pointer;
     }
-    #volSlider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: white; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4); cursor: pointer; }
-    #volSlider::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: white; border: none; cursor: pointer; }
-    #volValue { font-size: 0.9em; font-weight: bold; color: var(--text); min-width: 34px; text-align: right; }
+    #volSlider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: white; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4); cursor: pointer; }
+    #volSlider::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: white; border: none; cursor: pointer; }
 
     .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .toggle-row span { font-size: 0.95em; color: var(--text); }
 
-    .switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+    .switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
     .switch input { display: none; }
-    .switch-track { position: absolute; inset: 0; background: rgba(128, 128, 128, 0.3); border-radius: 999px; cursor: pointer; transition: background 0.2s; }
-    .switch input:checked + .switch-track { background: #7c3aed; }
-    .switch-track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: white; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3); transition: transform 0.2s; }
+    .switch-track { position: absolute; inset: 0; background: rgba(128, 128, 128, 0.25); border-radius: 999px; cursor: pointer; transition: background 0.2s; border: 1px solid rgba(255,255,255,0.08); }
+    .switch input:checked + .switch-track { background: #7c3aed; border-color: transparent; }
+    .switch-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: white; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3); transition: transform 0.2s; }
     .switch input:checked + .switch-track::after { transform: translateX(20px); }
 
-    .theme-picker { display: flex; gap: 10px; }
-    .theme-option { flex: 1; padding: 10px; border-radius: 12px; border: 2px solid var(--modal-divider); background: var(--card-bg); cursor: pointer; font-size: 0.9em; font-weight: bold; color: var(--text); transition: border-color 0.2s, background 0.2s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .theme-option.active { border-color: #7c3aed; background: rgba(124, 58, 237, 0.12); }
-    .theme-option:hover { border-color: rgba(124, 58, 237, 0.5); }
+    .theme-picker { display: flex; gap: 8px; }
+    .theme-option {
+      flex: 1; padding: 12px 8px; border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      cursor: pointer; font-weight: bold; color: var(--text);
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .theme-option:hover { transform: translateY(-1px); border-color: rgba(124, 58, 237, 0.4); }
+    .theme-option.active { border-color: #7c3aed; background: rgba(124, 58, 237, 0.12); box-shadow: 0 0 0 1px rgba(124,58,237,0.3); }
 
     .pack-colour-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-    .pack-colour-swatch { width: 32px; height: 32px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s; flex-shrink: 0; }
-    .pack-colour-swatch:hover { transform: scale(1.15); }
-    .pack-colour-swatch.active { border-color: white; transform: scale(1.1); }
+    .pack-colour-swatch { width: 30px; height: 30px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s; flex-shrink: 0; }
+    .pack-colour-swatch:hover { transform: scale(1.18); box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    .pack-colour-swatch.active { border-color: white; transform: scale(1.12); box-shadow: 0 0 10px rgba(255,255,255,0.3); }
     .pack-colour-swatch.rainbow-swatch { background: linear-gradient(135deg, red, orange, yellow, green, blue, indigo, violet) !important; animation: swatchRainbow 3s linear infinite; }
     @keyframes swatchRainbow { 100% { filter: hue-rotate(360deg); } }
-    .pack-colour-swatch.locked { background: #333 !important; cursor: not-allowed; opacity: 0.5; position: relative; }
-    .pack-colour-swatch.locked::after { content: '🔒'; font-size: 0.75em; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+    .pack-colour-swatch.locked { background: rgba(128,128,128,0.15) !important; cursor: not-allowed; opacity: 0.5; position: relative; border-color: rgba(255,255,255,0.1) !important; }
+    .pack-colour-swatch.locked::after { content: '🔒'; font-size: 0.7em; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+
+    .settings-locked-hints { margin-top: 10px; display: flex; flex-direction: column; gap: 3px; }
+    .locked-hint { font-size: 0.72em; color: var(--muted2); margin: 0; letter-spacing: 0.3px; }
 
     .section  { display: none; }
     .active   { display: block; }
@@ -520,6 +553,47 @@
     }
     .legendaryCardExplode { animation: legendaryCardExplodeAnim 0.6s forwards; }
     @keyframes legendaryCardExplodeAnim { 0% { transform: scale(1) rotate(0deg); opacity: 1; } 50% { transform: scale(1.5) rotate(15deg); opacity: 1; } 100% { transform: scale(2.5) rotate(30deg); opacity: 0; } }
+
+    /* ── Epic card reveal ── */
+    #epicCardResult {
+      position:  fixed;
+      top:       50%;
+      left:      50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      display:   none;
+      z-index:   1000;
+    }
+    #epicCardInner {
+      background:    rgba(160, 0, 255, 0.08);
+      border:        1px solid rgba(180, 80, 255, 0.4);
+      border-radius: 20px;
+      padding:       30px 40px;
+      backdrop-filter: blur(8px);
+      box-shadow:    0 0 50px rgba(160, 0, 255, 0.3);
+    }
+    #epicCardInner img {
+      width:     200px;
+      animation: epicCardSpin 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      filter:    drop-shadow(0 0 18px rgba(180, 80, 255, 0.65));
+    }
+    #epicCardInner h2 { font-family: 'Rubik', sans-serif; font-size: 1.5em; letter-spacing: 2px; margin-bottom: 15px; animation: textPop 0.5s 0.5s both; color: violet; text-shadow: 0 0 10px rgba(180,80,255,0.5); }
+    @keyframes epicCardSpin {
+      0%   { transform: scale(0) rotate(-360deg); opacity: 0; }
+      60%  { transform: scale(1.12) rotate(10deg); opacity: 1; }
+      78%  { transform: scale(0.94) rotate(-4deg); }
+      90%  { transform: scale(1.04) rotate(2deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .epicCardExplode { animation: epicCardExplodeAnim 0.55s forwards; }
+    @keyframes epicCardExplodeAnim { 0% { transform: scale(1) rotate(0deg); opacity: 1; } 50% { transform: scale(1.45) rotate(12deg); opacity: 1; } 100% { transform: scale(2.2) rotate(25deg); opacity: 0; } }
+
+    .violet-confetti-piece {
+      position: fixed;
+      pointer-events: none;
+      z-index:  1001;
+      animation: confettiFall linear forwards;
+    }
 
     .gold-confetti-piece {
       position: fixed;
@@ -1017,6 +1091,13 @@
     </div>
   </div>
 
+  <div id="epicCardResult">
+    <div id="epicCardInner">
+      <h2 id="epicCardName" class="Epic"></h2>
+      <img id="epicCardImg" src="" alt="">
+    </div>
+  </div>
+
   <!-- INVENTORY -->
   <div id="inventory" class="section">
     <div class="section-header">
@@ -1065,19 +1146,24 @@
   <div id="settingsDarken" onclick="closeSettings()"></div>
   <div id="settingsPanel">
     <div class="settings-header">
-      <h2>⚙️ Settings</h2>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.3em;">⚙️</span>
+        <h2 style="margin:0;font-family:'Rubik',sans-serif;font-size:1.2em;letter-spacing:1px;">Settings</h2>
+      </div>
       <button class="settings-close" onclick="closeSettings(); playSound()">✕</button>
     </div>
 
+    <!-- SOUND -->
     <div class="settings-section">
-      <p class="settings-label">Sound Effects</p>
+      <p class="settings-label">🔊 Sound</p>
       <div class="vol-row">
-        <span class="vol-icon">🔊</span>
         <input type="range" id="volSlider" min="0" max="100" value="50" oninput="updateVolume(this.value)">
-        <span id="volValue">50%</span>
+        <span id="volValue" style="font-size:0.82em;font-weight:700;color:var(--text);min-width:36px;text-align:right;">50%</span>
       </div>
-      <div class="toggle-row">
-        <span>Mute sounds</span>
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <span class="settings-row-title">Mute all sounds</span>
+        </div>
         <label class="switch">
           <input type="checkbox" id="muteToggle" onchange="updateMute(this.checked)">
           <div class="switch-track"></div>
@@ -1085,20 +1171,24 @@
       </div>
     </div>
 
+    <!-- APPEARANCE -->
     <div class="settings-section">
-      <p class="settings-label">Appearance</p>
+      <p class="settings-label">🎨 Appearance</p>
       <div class="theme-picker">
-        <div class="theme-option" id="themeOptDark"  onclick="setTheme('dark');  playSound()">
-          <span style="font-size:1.6em">🌙</span><span>Dark</span>
+        <div class="theme-option" id="themeOptDark" onclick="setTheme('dark'); playSound()">
+          <span style="font-size:1.5em;line-height:1;">🌙</span>
+          <span style="font-size:0.88em;font-weight:700;">Dark</span>
         </div>
         <div class="theme-option" id="themeOptLight" onclick="setTheme('light'); playSound()">
-          <span style="font-size:1.6em">☀️</span><span>Light</span>
+          <span style="font-size:1.5em;line-height:1;">☀️</span>
+          <span style="font-size:0.88em;font-weight:700;">Light</span>
         </div>
       </div>
     </div>
 
+    <!-- PACK COLOUR -->
     <div class="settings-section">
-      <p class="settings-label">Pack Outline Colour</p>
+      <p class="settings-label">📦 Pack Outline Colour</p>
       <div class="pack-colour-grid">
         <div class="pack-colour-swatch active" data-colour="purple" style="background:purple" onclick="setPackColour('purple', this); playSound()"></div>
         <div class="pack-colour-swatch" data-colour="green" style="background:green" onclick="setPackColour('green', this); playSound()"></div>
@@ -1108,41 +1198,53 @@
         <div class="pack-colour-swatch" data-colour="yellow" style="background:gold" onclick="setPackColour('yellow', this); playSound()"></div>
         <div class="pack-colour-swatch" data-colour="red" style="background:red" onclick="setPackColour('red', this); playSound()"></div>
         <div class="pack-colour-swatch" data-colour="white" style="background:white" onclick="setPackColour('white', this); playSound()"></div>
-        <div class="pack-colour-swatch" data-colour="black" style="background:#222; border-color:rgba(255,255,255,0.3)" onclick="setPackColour('black', this); playSound()"></div>
+        <div class="pack-colour-swatch" data-colour="black" style="background:#222;border-color:rgba(255,255,255,0.3)" onclick="setPackColour('black', this); playSound()"></div>
         <div class="pack-colour-swatch" data-colour="brown" style="background:#7B3F00" onclick="setPackColour('brown', this); playSound()"></div>
         <div class="pack-colour-swatch locked" data-colour="rainbow" id="rainbowSwatch" title="Enter code CoolLemons to unlock"></div>
-        <div class="pack-colour-swatch locked" data-colour="maroon"  id="maroonSwatch"  title="Enter code ColourPPP to unlock"></div>
+        <div class="pack-colour-swatch locked" data-colour="maroon" id="maroonSwatch" title="Enter code ColourPPP to unlock"></div>
       </div>
-      <p id="rainbowHint" style="font-size:0.75em; color:var(--muted); margin:8px 0 0;">🔒 Rainbow unlocks with a special code</p>
-      <p id="maroonHint"  style="font-size:0.75em; color:var(--muted); margin:4px 0 0;">🔒 Maroon unlocks with a special code</p>
+      <div class="settings-locked-hints">
+        <p id="rainbowHint" class="locked-hint">🔒 Rainbow — unlock with a code</p>
+        <p id="maroonHint"  class="locked-hint">🔒 Maroon — unlock with a code</p>
+      </div>
     </div>
 
+    <!-- BUTTONS -->
     <div class="settings-section">
-      <p class="settings-label">Buttons</p>
-      <div class="toggle-row" style="margin-bottom:12px;">
-        <span>Classic button style</span>
+      <p class="settings-label">🖱️ Buttons</p>
+
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <span class="settings-row-title">Classic style</span>
+          <span class="settings-row-sub">Turns off the shiny gradient look</span>
+        </div>
         <label class="switch">
           <input type="checkbox" id="classicBtnToggle" onchange="updateClassicButtons(this.checked); playSound()">
           <div class="switch-track"></div>
         </label>
       </div>
-      <p style="font-size:0.78em; color:var(--muted); margin:0 0 14px;">Turns off the shiny gradient look</p>
-      <div class="toggle-row" style="margin-bottom:12px;">
-        <span>Triangle mode 🔺</span>
+
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <span class="settings-row-title">Triangle mode 🔺</span>
+          <span class="settings-row-sub">Turns buttons &amp; logo into triangles</span>
+        </div>
         <label class="switch">
           <input type="checkbox" id="triangleBtnToggle" onchange="updateTriangleMode(this.checked); playSound()">
           <div class="switch-track"></div>
         </label>
       </div>
-      <p style="font-size:0.78em; color:var(--muted); margin:0 0 14px;">Turns buttons &amp; logo into triangles</p>
-      <div class="toggle-row" style="margin-bottom:12px;">
-        <span>Slime buttons 🟢</span>
+
+      <div class="settings-row" style="margin-bottom:0;">
+        <div class="settings-row-info">
+          <span class="settings-row-title">Slime buttons 🟢</span>
+          <span class="settings-row-sub">Makes buttons slimy and bouncy</span>
+        </div>
         <label class="switch">
           <input type="checkbox" id="slimeBtnToggle" onchange="updateSlimeButtons(this.checked); playSound()">
           <div class="switch-track"></div>
         </label>
       </div>
-      <p style="font-size:0.78em; color:var(--muted); margin:0;">Makes buttons slimy and bouncy</p>
     </div>
   </div>
 
@@ -1445,6 +1547,12 @@
         if (item.rarity === "Legendary") {
           showLegendaryCardReveal(item);
           setTimeout(() => { canOpen = true; }, 4500);
+          return;
+        }
+
+        if (item.rarity === "Epic") {
+          showEpicCardReveal(item);
+          setTimeout(() => { canOpen = true; }, 3500);
           return;
         }
 
@@ -1850,6 +1958,11 @@
         showAdminLegendaryReveal();
         return;
       }
+      if (code === "Epic69Admin") {
+        closeCode();
+        showAdminEpicReveal();
+        return;
+      }
 
       alert("Invalid code");
       closeCode();
@@ -1857,6 +1970,59 @@
 
     function showAdminLegendaryReveal() {
       showLegendaryCardReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin" });
+    }
+
+    function showAdminEpicReveal() {
+      showEpicCardReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin" });
+    }
+
+    function showEpicCardReveal(item) {
+      const el   = document.getElementById("epicCardResult");
+      const img  = document.getElementById("epicCardImg");
+      const name = document.getElementById("epicCardName");
+      img.src          = item.name + ".jpg";
+      name.textContent = item.display + " (Epic)";
+      el.style.display = "block";
+      setTimeout(() => spawnVioletConfetti(), 350);
+      setTimeout(() => {
+        const inner = document.getElementById("epicCardInner");
+        if (inner) inner.classList.add("epicCardExplode");
+      }, 2400);
+      setTimeout(() => {
+        el.style.display = "none";
+        const inner = document.getElementById("epicCardInner");
+        if (inner) inner.classList.remove("epicCardExplode");
+        document.querySelectorAll(".violet-confetti-piece").forEach(p => p.remove());
+      }, 3000);
+    }
+
+    function spawnVioletConfetti() {
+      const colors = ["#cc44ff", "#aa00ff", "#dd88ff", "#9900cc", "#ee66ff", "#7700bb"];
+      const centerX = window.innerWidth  / 2;
+      const centerY = window.innerHeight / 2;
+      for (let i = 0; i < 38; i++) {
+        const p   = document.createElement("div");
+        p.className = "violet-confetti-piece";
+        const col = colors[Math.floor(Math.random() * colors.length)];
+        const angle   = Math.random() * 360;
+        const dist    = 60 + Math.random() * 170;
+        const fallY   = (150 + Math.random() * 280) + "px";
+        const spinDeg = (Math.random() > 0.5 ? 1 : -1) * (120 + Math.random() * 400) + "deg";
+        const dur     = 0.7 + Math.random() * 0.6;
+        p.style.background  = col;
+        p.style.left        = (centerX + Math.cos(angle * Math.PI / 180) * dist) + "px";
+        p.style.top         = (centerY + Math.sin(angle * Math.PI / 180) * dist) + "px";
+        p.style.setProperty("--fall", fallY);
+        p.style.setProperty("--spin", spinDeg);
+        p.style.animationDuration = dur + "s";
+        p.style.animationDelay   = (Math.random() * 0.2) + "s";
+        p.style.width  = (4 + Math.random() * 5) + "px";
+        p.style.height = (4 + Math.random() * 9) + "px";
+        p.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+        p.style.boxShadow   = `0 0 4px ${col}`;
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), (dur + 0.3) * 1000);
+      }
     }
 
     function showAdminOmegaReveal() {
