@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cheese's Art</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --transition: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Rubik', sans-serif;
+      text-align: center;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* SAME MODES */
+    body.mode-light { background: #f5f5f7; color: #1d1d1f; }
+    body.mode-dark { background: #0a0a0f; color: #f0f0f0; }
+    body.mode-rainbow { animation: rainbowBG 10s linear infinite; color: #111; }
+
+    @keyframes rainbowBG {
+      0%{background:#ff6b6b;}16%{background:#ffa94d;}33%{background:#ffe066;}
+      50%{background:#69db7c;}66%{background:#4dabf7;}83%{background:#9775fa;}
+      100%{background:#ff6b6b;}
+    }
+
+    h1 {
+      font-size: 3em;
+      margin: 30px 0;
+      font-weight: 900;
+    }
+
+    /* GRID */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .art {
+      width: 100%;
+      border-radius: 15px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .art:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    /* BACK BUTTON */
+    .back-btn {
+      display: inline-block;
+      margin: 20px;
+      padding: 12px 25px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      background: #ccc;
+      color: black;
+    }
+
+  </style>
+</head>
+<body>
+
+<h1>Cheese's Art 🧀</h1>
+
+<a href="../" class="back-btn">← Back</a>
+
+<div class="gallery">
+  <!-- AUTO LOAD 36 IMAGES -->
+  <script>
+    for (let i = 1; i <= 36; i++) {
+      document.write(`<img src="CheeseArt${i}.png" class="art">`);
+    }
+  </script>
+</div>
+
+<script>
+  // APPLY SAME MODE FROM MAIN MENU
+  const MODE_KEY = 'wrenMode';
+  const savedMode = localStorage.getItem(MODE_KEY) || 'light';
+  document.body.className = 'mode-' + savedMode;
+</script>
+
+</body>
+</html>
