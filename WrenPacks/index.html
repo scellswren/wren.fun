@@ -188,6 +188,13 @@
     }
     .codeBtn:hover { box-shadow: 0 6px 28px rgba(220, 170, 0, 0.75), 0 0 0 1px rgba(255, 230, 100, 0.5) inset; filter: brightness(1.1); }
 
+    .infoBtn {
+      background:  linear-gradient(145deg, #8B4513, #5C2C0A);
+      color:       #ffe4c4;
+      box-shadow:  0 4px 18px rgba(100, 50, 0, 0.5), 0 0 0 1px rgba(180, 100, 40, 0.3) inset;
+    }
+    .infoBtn:hover { box-shadow: 0 6px 28px rgba(140, 70, 10, 0.75), 0 0 0 1px rgba(200, 120, 60, 0.4) inset; filter: brightness(1.12); }
+
     body.light-mode .tabs button::before {
       background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.25) 50%, transparent 100%);
     }
@@ -205,6 +212,7 @@
     body.classic-buttons .invBtn   { background: green      !important; }
     body.classic-buttons .indexBtn { background: dodgerblue !important; }
     body.classic-buttons .codeBtn  { background: gold       !important; color: black !important; }
+    body.classic-buttons .infoBtn  { background: #7B3F00    !important; color: #ffe4c4 !important; }
 
     /* ── Triangle mode ── */
     body.triangle-mode .tabs button {
@@ -235,6 +243,7 @@
     body.triangle-mode .tabs .invBtn   { background: #2ecc5a !important; }
     body.triangle-mode .tabs .indexBtn { background: #1e9fff !important; }
     body.triangle-mode .tabs .codeBtn  { background: #e6b800 !important; color: #1a0e00 !important; }
+    body.triangle-mode .tabs .infoBtn  { background: #8B4513 !important; color: #ffe4c4 !important; }
     body.triangle-mode .tabs button:hover { transform: scale(1.15) translateY(-3px) !important; filter: brightness(1.2) !important; }
 
     body.triangle-mode .invBtnWrap { margin: 10px 20px !important; }
@@ -268,7 +277,6 @@
       50%       { transform: scale(1.12); box-shadow: 0 2px 14px rgba(220, 0, 0, 0.65); }
     }
 
-    /* Triangle mode notif — sit at the top-right of the triangle footprint */
     body.triangle-mode .notif {
       top:   -4px  !important;
       right: -4px  !important;
@@ -394,7 +402,6 @@
       margin:         0 0 14px;
     }
 
-    /* Settings rows with title + subtitle + control */
     .settings-row {
       display:     flex;
       align-items: center;
@@ -647,20 +654,6 @@
       pointer-events: none;
     }
 
-    /* Rarity colour bar at the top of each card */
-    .character .rarity-bar {
-      height: 3px;
-      width: 100%;
-      flex-shrink: 0;
-    }
-    .rarity-bar.Common    { background: rgba(255,255,255,0.18); }
-    .rarity-bar.Uncommon  { background: lime; }
-    .rarity-bar.Rare      { background: dodgerblue; }
-    .rarity-bar.Epic      { background: violet; }
-    .rarity-bar.Legendary { background: linear-gradient(90deg, #b8860b, gold, #b8860b); }
-    .rarity-bar.Omega     { background: linear-gradient(90deg, red, orange, yellow, green, blue, violet); animation: rainbow 3s linear infinite; }
-    .rarity-bar.Void      { background: radial-gradient(ellipse at center, #ffd700 0%, #8b6914 60%, #3a2900 100%); }
-
     .char-img-wrap {
       position: relative;
       width: 100%;
@@ -730,6 +723,36 @@
       letter-spacing: 0.5px;
       backdrop-filter: blur(4px);
     }
+
+    /* Star badge on inventory cards */
+    .starBtn {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      color: rgba(255,255,255,0.35);
+      font-size: 0.85em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s, color 0.2s, background 0.2s;
+      z-index: 5;
+      backdrop-filter: blur(4px);
+    }
+    .character:hover .starBtn { opacity: 1; }
+    .starBtn.starred {
+      opacity: 1;
+      color: gold;
+      background: rgba(0,0,0,0.7);
+      border-color: rgba(255,200,0,0.4);
+    }
+    .starBtn:hover { transform: scale(1.2); }
 
     .explode { transform: scale(2) rotate(25deg); opacity: 0; }
     .deleteBtn {
@@ -837,7 +860,7 @@
     #resetBtn { padding: 9px 20px; background: transparent; border: 2px solid var(--reset-color); color: var(--reset-color); font-size: 0.85em; font-weight: bold; border-radius: 25px; cursor: pointer; letter-spacing: 1px; transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s; position: absolute; right: 0; }
     #resetBtn:hover { background: var(--reset-color); color: white; box-shadow: 0 0 16px var(--reset-color); transform: scale(1.07); }
 
-    #confirmBox, #deletePrompt, #codeBox {
+    #confirmBox, #deletePrompt, #codeBox, #infoBox {
       position:      fixed;
       top:           50%;
       left:          50%;
@@ -853,6 +876,14 @@
       padding:       0;
       overflow:      hidden;
     }
+    #infoBox {
+      min-width: 340px;
+      max-width: 420px;
+      width: 90vw;
+      max-height: 85vh;
+      overflow-y: auto;
+      text-align: left;
+    }
     .modal-header { padding: 18px 30px 14px; border-bottom: 1px solid var(--modal-divider); }
     .modal-header h2, .modal-header h3 { margin: 0; font-family: 'Rubik', sans-serif; font-size: 1.3em; letter-spacing: 1px; color: var(--text); }
     .modal-body { padding: 22px 30px; }
@@ -864,6 +895,133 @@
     .modal-footer button.confirm { color: #55cc55; }
     .modal-footer button.confirm:hover { background: #55cc55; color: white; }
     .modal-footer button.neutral:hover { background: rgba(128, 128, 128, 0.12); }
+
+    /* Info box sections */
+    .info-section {
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--modal-divider);
+    }
+    .info-section:last-child { border-bottom: none; }
+    .info-section-label {
+      font-size: 0.65em;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 10px;
+    }
+    .info-stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .info-stat-item {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .info-stat-label { font-size: 0.68em; color: var(--muted); letter-spacing: 0.5px; }
+    .info-stat-value { font-size: 1.1em; font-weight: bold; color: var(--text); }
+    .info-stat-value.Common    { color: var(--text); }
+    .info-stat-value.Uncommon  { color: lime; }
+    .info-stat-value.Rare      { color: dodgerblue; }
+    .info-stat-value.Epic      { color: violet; }
+    .info-stat-value.Legendary { color: gold; }
+    .info-stat-value.Omega     {
+      background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+      -webkit-background-clip: text;
+      color: transparent;
+      animation: rainbow 3s linear infinite;
+      display: inline-block;
+    }
+    body.light-mode .info-stat-value.Uncommon  { color: #009900; }
+    body.light-mode .info-stat-value.Rare      { color: #0066cc; }
+    body.light-mode .info-stat-value.Epic      { color: #8800cc; }
+    body.light-mode .info-stat-value.Legendary { color: #b8860b; }
+
+    .info-playtime {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .info-playtime-icon { font-size: 1.4em; line-height: 1; }
+    .info-playtime-val  { font-size: 1.2em; font-weight: bold; color: var(--text); }
+    .info-playtime-sub  { font-size: 0.72em; color: var(--muted); }
+
+    /* Username input in info */
+    .info-username-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    #infoUsernameInput {
+      flex: 1;
+      padding: 9px 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 0.95em;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    #infoUsernameInput:focus { border-color: #8B4513; box-shadow: 0 0 10px rgba(139, 69, 19, 0.3); }
+    #infoUsernameSave {
+      padding: 9px 16px;
+      background: #7B3F00;
+      border: none;
+      border-radius: 10px;
+      color: #ffe4c4;
+      font-size: 0.9em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    #infoUsernameSave:hover { background: #9a5000; transform: scale(1.05); }
+
+    /* Starred characters in info */
+    .info-starred-grid {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .info-starred-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: 68px;
+    }
+    .info-starred-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 2px solid rgba(255,200,0,0.5);
+    }
+    .info-starred-name {
+      font-size: 0.58em;
+      font-weight: bold;
+      color: var(--muted);
+      text-align: center;
+      max-width: 68px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .info-starred-empty {
+      font-size: 0.82em;
+      color: var(--muted2);
+      font-style: italic;
+    }
 
     #codeInput { width: 100%; box-sizing: border-box; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 10px; color: var(--text); font-size: 1.05em; letter-spacing: 1px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
     #codeInput:focus { border-color: gold; box-shadow: 0 0 10px rgba(255, 200, 0, 0.3); }
@@ -1042,6 +1200,7 @@
     </div>
     <button class="indexBtn" onclick="showTab('index'); ripple(event); playSound()">Index</button>
     <button class="codeBtn" onclick="openCode(); ripple(event); playSound()">Code</button>
+    <button class="infoBtn" onclick="openInfo(); ripple(event); playSound()">📖 Info</button>
   </div>
 
   <div id="overlay">✨ PACK OPENING ✨</div>
@@ -1140,6 +1299,86 @@
     <div class="modal-footer">
       <button class="confirm" onclick="redeemCode(); playSound()">Redeem</button>
       <button class="neutral" onclick="closeCode();  playSound()">Close</button>
+    </div>
+  </div>
+
+  <!-- INFO BOX -->
+  <div id="infoBox">
+    <div class="modal-header" style="text-align:center;">
+      <h3 style="color:#c8863c;">📖 Your Stats</h3>
+    </div>
+
+    <!-- Username -->
+    <div class="info-section">
+      <p class="info-section-label">👤 Username</p>
+      <div class="info-username-wrap">
+        <input type="text" id="infoUsernameInput" placeholder="Set your username..." maxlength="24">
+        <button id="infoUsernameSave" onclick="saveUsername()">Save</button>
+      </div>
+      <p id="infoUsernameDisplay" style="font-size:0.8em;color:var(--muted);margin:6px 0 0;"></p>
+    </div>
+
+    <!-- Collection -->
+    <div class="info-section">
+      <p class="info-section-label">🎴 Collection</p>
+      <div class="info-stat-grid">
+        <div class="info-stat-item">
+          <span class="info-stat-label">Total characters</span>
+          <span class="info-stat-value" id="infoTotal">0</span>
+        </div>
+        <div class="info-stat-item">
+          <span class="info-stat-label">Unique collected</span>
+          <span class="info-stat-value" id="infoUnique">0 / 0</span>
+        </div>
+        <div class="info-stat-item">
+          <span class="info-stat-label">Commons</span>
+          <span class="info-stat-value Common" id="infoCommon">0</span>
+        </div>
+        <div class="info-stat-item">
+          <span class="info-stat-label">Uncommons</span>
+          <span class="info-stat-value Uncommon" id="infoUncommon">0</span>
+        </div>
+        <div class="info-stat-item">
+          <span class="info-stat-label">Rares</span>
+          <span class="info-stat-value Rare" id="infoRare">0</span>
+        </div>
+        <div class="info-stat-item">
+          <span class="info-stat-label">Epics</span>
+          <span class="info-stat-value Epic" id="infoEpic">0</span>
+        </div>
+        <div class="info-stat-item">
+          <span class="info-stat-label">Legendaries</span>
+          <span class="info-stat-value Legendary" id="infoLegendary">0</span>
+        </div>
+        <div class="info-stat-item">
+          <span class="info-stat-label">Omegas</span>
+          <span class="info-stat-value Omega" id="infoOmega">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Playtime -->
+    <div class="info-section">
+      <p class="info-section-label">⏱ Total Play Time</p>
+      <div class="info-playtime">
+        <span class="info-playtime-icon">🕐</span>
+        <div>
+          <div class="info-playtime-val" id="infoPlaytime">0h 0m</div>
+          <div class="info-playtime-sub">Tracked since you first visited</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Starred -->
+    <div class="info-section">
+      <p class="info-section-label">⭐ Starred Characters <span style="color:var(--muted2);font-size:0.85em;">(star in Inventory, up to 5)</span></p>
+      <div class="info-starred-grid" id="infoStarredGrid">
+        <span class="info-starred-empty">No starred characters yet.</span>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="neutral" onclick="closeInfo(); playSound()">Close</button>
     </div>
   </div>
 
@@ -1300,6 +1539,52 @@
       s.play().catch(() => {});
     }
 
+    // ── Playtime tracker ──
+    const SESSION_START = Date.now();
+    function getTotalPlaytime() {
+      const stored = parseInt(localStorage.getItem("totalPlaytimeMs") || "0");
+      const sessionMs = Date.now() - SESSION_START;
+      return stored + sessionMs;
+    }
+    function savePlaytime() {
+      localStorage.setItem("totalPlaytimeMs", getTotalPlaytime());
+    }
+    window.addEventListener("beforeunload", savePlaytime);
+    setInterval(savePlaytime, 30000);
+
+    function formatPlaytime(ms) {
+      const totalMinutes = Math.floor(ms / 60000);
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return hours + "h " + minutes + "m";
+    }
+
+    // ── Starred characters ──
+    function getStarred() {
+      return JSON.parse(localStorage.getItem("starredChars") || "[]");
+    }
+    function setStarred(arr) {
+      localStorage.setItem("starredChars", JSON.stringify(arr));
+    }
+    function toggleStar(itemName, btn) {
+      let starred = getStarred();
+      const idx = starred.indexOf(itemName);
+      if (idx >= 0) {
+        starred.splice(idx, 1);
+        btn.classList.remove("starred");
+        btn.title = "Star this character";
+      } else {
+        if (starred.length >= 5) {
+          alert("You can only star up to 5 characters!");
+          return;
+        }
+        starred.push(itemName);
+        btn.classList.add("starred");
+        btn.title = "Unstar this character";
+      }
+      setStarred(starred);
+    }
+
     function updateVolume(val) {
       sfxVolume = val / 100;
       localStorage.setItem("sfxVolume", sfxVolume);
@@ -1419,6 +1704,76 @@
       document.getElementById("settingsDarken").classList.remove("visible");
     }
 
+    // ── Info box ──
+    function openInfo() {
+      const inv = JSON.parse(localStorage.getItem("inventory")) || {};
+
+      // collection counts
+      const totalChars = Object.values(inv).reduce((a, b) => a + b, 0);
+      const uniqueOwned = items.filter(i => inv[i.name]).length;
+      const totalPossible = items.length;
+
+      // rarity counts (total copies, not unique)
+      let counts = { Common: 0, Uncommon: 0, Rare: 0, Epic: 0, Legendary: 0, Omega: 0 };
+      items.forEach(i => {
+        if (inv[i.name] && counts[i.rarity] !== undefined) {
+          counts[i.rarity] += inv[i.name];
+        }
+      });
+
+      document.getElementById("infoTotal").textContent     = totalChars;
+      document.getElementById("infoUnique").textContent    = uniqueOwned + " / " + totalPossible;
+      document.getElementById("infoCommon").textContent    = counts.Common;
+      document.getElementById("infoUncommon").textContent  = counts.Uncommon;
+      document.getElementById("infoRare").textContent      = counts.Rare;
+      document.getElementById("infoEpic").textContent      = counts.Epic;
+      document.getElementById("infoLegendary").textContent = counts.Legendary;
+      document.getElementById("infoOmega").textContent     = counts.Omega;
+
+      // playtime
+      document.getElementById("infoPlaytime").textContent = formatPlaytime(getTotalPlaytime());
+
+      // username
+      const savedUser = localStorage.getItem("username") || "";
+      document.getElementById("infoUsernameInput").value = savedUser;
+      document.getElementById("infoUsernameDisplay").textContent = savedUser ? "Hello, " + savedUser + "!" : "";
+
+      // starred
+      const starred = getStarred();
+      const grid = document.getElementById("infoStarredGrid");
+      grid.innerHTML = "";
+      if (starred.length === 0) {
+        grid.innerHTML = '<span class="info-starred-empty">No starred characters yet.</span>';
+      } else {
+        starred.forEach(name => {
+          const itemData = items.find(i => i.name === name);
+          if (!itemData) return;
+          const card = document.createElement("div");
+          card.className = "info-starred-card";
+          card.innerHTML = `
+            <img class="info-starred-img" src="${name}.jpg" alt="${itemData.display}">
+            <span class="info-starred-name ${itemData.rarity}">${itemData.display}</span>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      document.getElementById("infoBox").style.display = "block";
+      document.getElementById("darken").style.display  = "block";
+    }
+
+    function closeInfo() {
+      document.getElementById("infoBox").style.display = "none";
+      document.getElementById("darken").style.display  = "none";
+    }
+
+    function saveUsername() {
+      const val = document.getElementById("infoUsernameInput").value.trim();
+      localStorage.setItem("username", val);
+      document.getElementById("infoUsernameDisplay").textContent = val ? "Hello, " + val + "!" : "";
+      playSound();
+    }
+
     function openCharacterViewer(name, display, rarity) {
       playSound();
       document.getElementById("characterViewerImg").src = name + ".jpg";
@@ -1434,7 +1789,10 @@
       document.getElementById("characterViewer").style.display = "none";
     }
     document.addEventListener("keydown", function(e) {
-      if (e.key === "Escape") closeCharacterViewer();
+      if (e.key === "Escape") {
+        closeCharacterViewer();
+        closeInfo();
+      }
     });
 
     function setTheme(mode) {
@@ -1679,7 +2037,6 @@
         const glowColor = rarityGlow[item.rarity] || 'transparent';
         card.innerHTML = `
           <div class="characterRarityGlow" style="box-shadow: inset 0 0 20px ${glowColor};"></div>
-          <div class="rarity-bar ${item.rarity}"></div>
           <div class="char-img-wrap">
             <img src="${item.name}.jpg" alt="${item.display}">
             ${owned ? '<span class="ownedBadge">✓ Owned</span>' : ''}
@@ -1761,6 +2118,7 @@
       let inv       = JSON.parse(localStorage.getItem("inventory")) || {};
       let container = document.getElementById("inventory-list");
       container.innerHTML = "";
+      const starred = getStarred();
       const rarityOrder = ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Omega", "Void"];
       const sorted = items
         .filter(i => inv[i.name])
@@ -1779,12 +2137,12 @@
 
       sorted.forEach(i => {
         const qty  = inv[i.name];
+        const isStarred = starred.includes(i.name);
         const card = document.createElement("div");
         card.className = "character";
         const glowColor = rarityGlow[i.rarity] || 'transparent';
         card.innerHTML = `
           <div class="characterRarityGlow" style="box-shadow: inset 0 0 20px ${glowColor};"></div>
-          <div class="rarity-bar ${i.rarity}"></div>
           <div class="char-img-wrap">
             <img src="${i.name}.jpg" alt="${i.display}">
             <span class="qtyBadge">×${qty}</span>
@@ -1793,8 +2151,22 @@
             <p class="char-name ${i.rarity}">${i.display}</p>
             <p class="char-rarity-label ${i.rarity}">${i.rarity}</p>
           </div>`;
+
+        // Star button
+        const starBtn = document.createElement("div");
+        starBtn.className = "starBtn" + (isStarred ? " starred" : "");
+        starBtn.innerHTML = "★";
+        starBtn.title = isStarred ? "Unstar this character" : "Star this character";
+        starBtn.onclick = (e) => {
+          e.stopPropagation();
+          playSound();
+          toggleStar(i.name, starBtn);
+        };
+        card.appendChild(starBtn);
+
+        // Delete button
         card.onclick = (e) => {
-          if (e.target.classList.contains("deleteBtn")) return;
+          if (e.target.classList.contains("deleteBtn") || e.target.classList.contains("starBtn")) return;
           openCharacterViewer(i.name, i.display, i.rarity);
         };
         const delBtn     = document.createElement("div");
