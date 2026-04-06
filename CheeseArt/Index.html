@@ -2,6 +2,8 @@
 <html>
 <head>
   <title>Cheese's Art</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -15,79 +17,202 @@
       text-align: center;
       min-height: 100vh;
       transition: background var(--transition), color var(--transition);
+      overflow-x: hidden;
     }
 
-    /* SAME MODES */
     body.mode-light { background: #f5f5f7; color: #1d1d1f; }
     body.mode-dark { background: #0a0a0f; color: #f0f0f0; }
     body.mode-rainbow { animation: rainbowBG 10s linear infinite; color: #111; }
 
     @keyframes rainbowBG {
-      0%{background:#ff6b6b;}16%{background:#ffa94d;}33%{background:#ffe066;}
-      50%{background:#69db7c;}66%{background:#4dabf7;}83%{background:#9775fa;}
-      100%{background:#ff6b6b;}
+      0%   { background-color: #ff6b6b; }
+      16%  { background-color: #ffa94d; }
+      33%  { background-color: #ffe066; }
+      50%  { background-color: #69db7c; }
+      66%  { background-color: #4dabf7; }
+      83%  { background-color: #9775fa; }
+      100% { background-color: #ff6b6b; }
+    }
+
+    body.mode-glass {
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(120, 80, 255, 0.35) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 20%, rgba(0, 200, 255, 0.3) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 60% at 60% 80%, rgba(255, 100, 180, 0.25) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 10% 80%, rgba(0, 255, 180, 0.2) 0%, transparent 55%),
+        linear-gradient(135deg, #e8f4fd 0%, #f0e8ff 30%, #fde8f4 60%, #e8fff4 100%);
+      color: #1a1a2e;
+    }
+
+    body.mode-lava {
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255, 140, 0, 0.45) 0%, transparent 35%),
+        radial-gradient(circle at 80% 65%, rgba(255, 42, 0, 0.5) 0%, transparent 38%),
+        radial-gradient(circle at 50% 15%, rgba(255, 190, 0, 0.25) 0%, transparent 35%),
+        linear-gradient(180deg, #1a0000 0%, #3b0000 45%, #000000 100%);
+      color: #ffe5cc;
+    }
+
+    body.mode-rose {
+      background:
+        radial-gradient(circle at 20% 25%, rgba(255, 132, 196, 0.38) 0%, transparent 34%),
+        radial-gradient(circle at 80% 68%, rgba(255, 64, 160, 0.36) 0%, transparent 38%),
+        radial-gradient(circle at 50% 15%, rgba(255, 189, 221, 0.26) 0%, transparent 32%),
+        linear-gradient(180deg, #2b001c 0%, #5b0d3c 45%, #16000e 100%);
+      color: #fff1f7;
+    }
+
+    #content {
+      position: relative;
+      z-index: 1;
+      padding: 40px 18px 70px;
     }
 
     h1 {
-      font-size: 3em;
-      margin: 30px 0;
+      font-size: clamp(2.2em, 6vw, 4.5em);
       font-weight: 900;
+      margin: 20px 0 12px;
     }
 
-    /* GRID */
+    .subtext {
+      font-size: 1.1em;
+      opacity: 0.75;
+      margin-bottom: 24px;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin: 0 0 24px;
+      padding: 12px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 0.2s, box-shadow 0.2s, background var(--transition), color var(--transition);
+    }
+
+    .back-btn:hover {
+      transform: scale(1.05);
+    }
+
+    body.mode-light .back-btn {
+      background: #e7e7eb;
+      color: #1d1d1f;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    body.mode-dark .back-btn {
+      background: #1c1c2e;
+      color: #f0f0f0;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+    }
+
+    body.mode-rainbow .back-btn {
+      background: rgba(255,255,255,0.6);
+      color: #111;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      backdrop-filter: blur(8px);
+    }
+
+    body.mode-glass .back-btn,
+    body.mode-lava .back-btn,
+    body.mode-rose .back-btn {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    body.mode-glass .back-btn {
+      background: rgba(255,255,255,0.42);
+      color: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.55);
+    }
+
+    body.mode-lava .back-btn {
+      background: rgba(60,0,0,0.78);
+      color: #ffe5cc;
+      border: 1px solid rgba(255,140,0,0.18);
+    }
+
+    body.mode-rose .back-btn {
+      background: rgba(72,0,38,0.8);
+      color: #fff1f7;
+      border: 1px solid rgba(255,120,190,0.18);
+    }
+
     .gallery {
+      width: min(1200px, calc(100% - 24px));
+      margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      padding: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 18px;
+      padding-bottom: 20px;
+    }
+
+    .art-card {
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .art-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
     }
 
     .art {
       width: 100%;
-      border-radius: 15px;
-      transition: transform 0.2s, box-shadow 0.2s;
+      height: auto;
+      display: block;
+      background: rgba(128,128,128,0.08);
     }
 
-    .art:hover {
-      transform: scale(1.05);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    }
-
-    /* BACK BUTTON */
-    .back-btn {
-      display: inline-block;
-      margin: 20px;
-      padding: 12px 25px;
-      border-radius: 12px;
-      text-decoration: none;
+    .fallback {
+      padding: 18px;
       font-weight: 700;
-      background: #ccc;
-      color: black;
+      font-size: 0.95em;
+      opacity: 0.7;
     }
-
   </style>
 </head>
-<body>
+<body class="mode-light">
+  <div id="content">
+    <h1>Cheese's Art 🧀</h1>
+    <div class="subtext">Scroll down to see all 36 pieces.</div>
 
-<h1>Cheese's Art 🧀</h1>
+    <a href="../index.html" class="back-btn">← Back</a>
 
-<a href="../" class="back-btn">← Back</a>
+    <div class="gallery" id="gallery"></div>
+  </div>
 
-<div class="gallery">
-  <!-- AUTO LOAD 36 IMAGES -->
   <script>
+    const MODE_KEY = 'wrenMode';
+    const savedMode = localStorage.getItem(MODE_KEY) || 'light';
+    document.body.className = 'mode-' + savedMode;
+
+    const gallery = document.getElementById('gallery');
+
+    const EXT = 'png';
+
     for (let i = 1; i <= 36; i++) {
-      document.write(`<img src="CheeseArt${i}.png" class="art">`);
+      const wrap = document.createElement('div');
+      wrap.className = 'art-card';
+
+      const img = document.createElement('img');
+      img.className = 'art';
+      img.loading = 'lazy';
+      img.alt = `Cheese Art ${i}`;
+      img.src = `./CheeseArt${i}.${EXT}`;
+
+      img.onerror = () => {
+        img.replaceWith(Object.assign(document.createElement('div'), {
+          className: 'fallback',
+          textContent: `Missing file: CheeseArt${i}.${EXT}`
+        }));
+      };
+
+      wrap.appendChild(img);
+      gallery.appendChild(wrap);
     }
   </script>
-</div>
-
-<script>
-  // APPLY SAME MODE FROM MAIN MENU
-  const MODE_KEY = 'wrenMode';
-  const savedMode = localStorage.getItem(MODE_KEY) || 'light';
-  document.body.className = 'mode-' + savedMode;
-</script>
-
 </body>
 </html>
