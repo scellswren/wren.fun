@@ -7,32 +7,50 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #fff;
-      color: black;
+      background: linear-gradient(180deg, #f4f6fa 0%, #dde2e8 50%, #bfc6d0 100%);
+      color: #20242b;
       text-align: center;
       margin: 0;
       padding: 0;
       position: relative;
-      height: 100vh;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255,255,255,0.6) 0%, transparent 24%),
+        radial-gradient(circle at 82% 24%, rgba(0,0,0,0.08) 0%, transparent 20%),
+        radial-gradient(circle at 75% 72%, rgba(255,255,255,0.22) 0%, transparent 26%);
+      pointer-events: none;
+      z-index: 0;
     }
 
     h1 {
+      position: relative;
+      z-index: 1;
       margin-top: 50px;
       font-size: 5em;
       font-family: 'Rubik', sans-serif;
+      color: #1f2328;
     }
 
     .btn {
-      background-color: #f0f0f0;
-      color: black;
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(145deg, #ffffff, #e8ebf0);
+      color: #1f2328;
       padding: 30px 60px;
       font-size: 2.5em;
       font-family: 'Rubik', sans-serif;
       text-decoration: none;
       border-radius: 25px;
-      border: none;
+      border: 1px solid rgba(90, 96, 104, 0.15);
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
       cursor: pointer;
       margin-top: 20px;
     }
@@ -40,18 +58,62 @@
     .btn:hover {
       transform: scale(1.08);
       box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      background: linear-gradient(145deg, #ffffff, #f5f7fa);
     }
 
     #cat-img {
+      position: relative;
+      z-index: 1;
       display: none;
       width: 400px;
       max-width: 90%;
       border-radius: 20px;
       margin: 30px auto 0;
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      border: 1px solid rgba(0,0,0,0.08);
     }
 
-    /* Footer text in bottom-right corner */
+    #counter {
+      position: relative;
+      z-index: 1;
+      margin-top: 18px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.3em;
+      font-weight: 700;
+      color: #3e4650;
+    }
+
+    #progressWrap {
+      position: relative;
+      z-index: 1;
+      width: min(480px, 90vw);
+      height: 16px;
+      margin: 18px auto 0;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.08);
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    #progressFill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #bfc6d0 0%, #ff6b6b 50%, #b8bec7 72%, #6d7580 100%);
+      transition: width 0.2s ease;
+    }
+
+    #message {
+      position: relative;
+      z-index: 1;
+      margin-top: 18px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.15em;
+      font-weight: 700;
+      color: #4a5562;
+      min-height: 1.5em;
+    }
+
     .footer {
       position: absolute;
       bottom: 10px;
@@ -59,9 +121,9 @@
       font-family: 'Rubik', sans-serif;
       font-size: 1.2em;
       color: #555;
+      z-index: 1;
     }
 
-    /* Wren.fun text top-left */
     #homeText {
       position: fixed;
       top: 10px;
@@ -71,6 +133,8 @@
       cursor: pointer;
       transition: transform 0.2s;
       z-index: 1000;
+      color: #1f2328;
+      text-decoration: none;
     }
 
     #homeText:hover {
@@ -80,15 +144,18 @@
 </head>
 <body>
 
-<div id="homeText" onclick="goHome()">Wren.fun</div>
+<a id="homeText" href="../index.html">Wren.fun</a>
 
 <h1>Lucky Generator</h1>
 
-<!-- Image only appears after button click -->
-<img id="cat-img" alt="">
+<img id="cat-img" alt="Lucky cat">
 
 <br>
 <button class="btn" onclick="generateCat()">Show Lucky!</button>
+
+<div id="counter">Clicks: 0 / 50</div>
+<div id="progressWrap"><div id="progressFill"></div></div>
+<div id="message">Click Show Lucky 50 times to unlock Lucky in the main menu.</div>
 
 <div class="footer">LUCKY IS MY CAT :)</div>
 
@@ -104,7 +171,9 @@
     "Cat36.jpg","Cat37.jpg","Cat38.jpg","Cat39.jpg","Cat40.jpg"
   ];
 
-  // Preload images
+  const LUCKY_CLICK_COUNT_KEY = 'wren_lucky_click_count';
+  const LUCKY_THEME_UNLOCK_KEY = 'wren_theme_lucky_unlocked';
+
   const preloaded = [];
   images.forEach(src => {
     const img = new Image();
@@ -112,28 +181,64 @@
     preloaded.push(img);
   });
 
-  // Track last 5 drawn cats to prevent duplicates
   let lastCats = [];
+  let clickCount = Number(localStorage.getItem(LUCKY_CLICK_COUNT_KEY) || '0');
+  let luckyUnlocked = localStorage.getItem(LUCKY_THEME_UNLOCK_KEY) === '1';
+
+  const counterEl = document.getElementById('counter');
+  const progressFill = document.getElementById('progressFill');
+  const messageEl = document.getElementById('message');
+
+  function updateUI() {
+    const shown = Math.min(clickCount, 50);
+    counterEl.textContent = `Clicks: ${shown} / 50`;
+    progressFill.style.width = `${Math.min((clickCount / 50) * 100, 100)}%`;
+
+    if (clickCount >= 50) {
+      messageEl.textContent = luckyUnlocked
+        ? 'Lucky is already unlocked in the main menu.'
+        : 'Lucky theme unlocked!';
+    } else {
+      messageEl.textContent = 'Click Show Lucky 50 times to unlock Lucky in the main menu.';
+    }
+  }
+
+  function unlockLuckyTheme() {
+    if (!luckyUnlocked && clickCount >= 50) {
+      luckyUnlocked = true;
+      localStorage.setItem(LUCKY_THEME_UNLOCK_KEY, '1');
+      messageEl.textContent = '🐈 Lucky theme unlocked! Go back to the main menu.';
+    }
+  }
 
   function generateCat() {
+    clickCount += 1;
+    localStorage.setItem(LUCKY_CLICK_COUNT_KEY, String(clickCount));
+
     let availableCats = images.filter((img, idx) => !lastCats.includes(idx));
-    if (availableCats.length === 0) availableCats = images; // Reset if all exhausted
+    if (availableCats.length === 0) availableCats = images;
 
     const randomIdx = Math.floor(Math.random() * availableCats.length);
     const selectedCat = availableCats[randomIdx];
 
     const catIndex = images.indexOf(selectedCat);
     lastCats.push(catIndex);
-    if (lastCats.length > 5) lastCats.shift(); // Keep only last 5
+    if (lastCats.length > 5) lastCats.shift();
 
     const img = document.getElementById("cat-img");
     img.src = selectedCat;
     img.style.display = 'block';
+
+    updateUI();
+    unlockLuckyTheme();
   }
 
-  function goHome() {
-    window.location.href = "../index.html"; // Adjust to your main page path
-  }
+  window.addEventListener('load', () => {
+    updateUI();
+    if (clickCount >= 50) {
+      unlockLuckyTheme();
+    }
+  });
 </script>
 
 </body>
