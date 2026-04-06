@@ -222,6 +222,25 @@
       z-index: 0;
     }
 
+    body.mode-toothpaste {
+      background:
+        radial-gradient(circle at 16% 18%, rgba(255,255,255,0.36) 0%, transparent 26%),
+        radial-gradient(circle at 82% 20%, rgba(255,72,72,0.24) 0%, transparent 22%),
+        radial-gradient(circle at 76% 72%, rgba(26,168,74,0.24) 0%, transparent 24%),
+        linear-gradient(180deg, #ffffff 0%, #f7f7f7 45%, #e9f9ee 100%);
+      color: #1f2a24;
+    }
+    body.mode-toothpaste::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(255,72,72,0.08) 0 18%, transparent 18% 100%),
+        linear-gradient(315deg, rgba(26,168,74,0.08) 0 18%, transparent 18% 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
     .glass-orb {
       display: none;
       position: fixed;
@@ -326,6 +345,13 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       filter: drop-shadow(0 2px 12px rgba(120, 75, 20, 0.38));
+    }
+
+    body.mode-toothpaste h1 {
+      background: linear-gradient(135deg, #ffffff 0%, #ff5d5d 38%, #ffffff 62%, #1fb35c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 12px rgba(0,0,0,0.12));
     }
 
     p.tagline {
@@ -500,32 +526,6 @@
     body.mode-cheese .btn:hover {
       background: linear-gradient(145deg, #ffe878, #e88a1f);
       box-shadow: 0 14px 42px rgba(150, 90, 20, 0.40), 0 0 24px rgba(255, 230, 120, 0.14);
-    }
-
-    body.mode-toothpaste {
-      background:
-        radial-gradient(circle at 16% 18%, rgba(255,255,255,0.36) 0%, transparent 26%),
-        radial-gradient(circle at 82% 20%, rgba(255,72,72,0.24) 0%, transparent 22%),
-        radial-gradient(circle at 76% 72%, rgba(26,168,74,0.24) 0%, transparent 24%),
-        linear-gradient(180deg, #ffffff 0%, #f7f7f7 45%, #e9f9ee 100%);
-      color: #1f2a24;
-    }
-    body.mode-toothpaste::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        linear-gradient(135deg, rgba(255,72,72,0.08) 0 18%, transparent 18% 100%),
-        linear-gradient(315deg, rgba(26,168,74,0.08) 0 18%, transparent 18% 100%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    body.mode-toothpaste h1 {
-      background: linear-gradient(135deg, #ffffff 0%, #ff5d5d 38%, #ffffff 62%, #1fb35c 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 2px 10px rgba(0,0,0,0.12));
     }
 
     body.mode-toothpaste .btn {
@@ -827,6 +827,15 @@
     }
     .mode-option.active-mode .mode-dot.toothpaste-dot {
       box-shadow: 0 0 0 3px rgba(26,168,74,0.20), 0 2px 8px rgba(0,0,0,0.18);
+    }
+
+    .mode-dot.lucky-dot {
+      background: linear-gradient(135deg, #f4f6fa, #b8bec7, #6d7580);
+      border: 1px solid rgba(255,255,255,0.55);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+    .mode-option.active-mode .mode-dot.lucky-dot {
+      box-shadow: 0 0 0 3px rgba(180,190,205,0.20), 0 2px 8px rgba(0,0,0,0.24);
     }
 
     .settings-divider { height: 1px; background: rgba(128,128,128,0.12); margin: 4px 0; }
@@ -1271,6 +1280,10 @@
       <span>🪥 Toothpaste <span class="lock-icon" id="toothpasteLock">🔒</span></span>
       <div class="mode-dot toothpaste-dot"></div>
     </div>
+    <div class="mode-option locked" id="luckyModeOption" data-mode="lucky">
+      <span>🐈 Lucky <span class="lock-icon" id="luckyLock">🔒</span></span>
+      <div class="mode-dot lucky-dot"></div>
+    </div>
 
     <div class="settings-divider"></div>
     <div class="settings-section-label">Music</div>
@@ -1351,6 +1364,9 @@ const VISIT_SMALLCREATORS_KEY = 'wren_visited_smallcreators';
 const VISIT_WHEEL_KEY = 'wren_visited_wheel';
 const VISIT_CHEESE_KEY = 'wren_visited_cheese';
 
+const LUCKY_CLICK_COUNT_KEY = 'wren_lucky_click_count';
+const LUCKY_THEME_UNLOCK_KEY = 'wren_theme_lucky_unlocked';
+
 let unlockedFeatures = JSON.parse(localStorage.getItem(UNLOCK_KEY) || '[]');
 
 const cog          = document.getElementById('settingsCog');
@@ -1380,6 +1396,7 @@ function selectMode(mode) {
   if (mode === 'shadow' && !unlockedFeatures.includes('shadow')) return;
   if (mode === 'cheese' && !unlockedFeatures.includes('cheese')) return;
   if (mode === 'toothpaste' && !unlockedFeatures.includes('toothpaste')) return;
+  if (mode === 'lucky' && !unlockedFeatures.includes('lucky')) return;
   applyMode(mode);
   localStorage.setItem(MODE_KEY, mode);
 }
@@ -1416,6 +1433,7 @@ function refreshSunOption()        { refreshOption('sunModeOption',        'sunL
 function refreshShadowOption()     { refreshOption('shadowModeOption',     'shadowLock',     'shadow'); }
 function refreshCheeseOption()     { refreshOption('cheeseModeOption',     'cheeseLock',     'cheese'); }
 function refreshToothpasteOption() { refreshOption('toothpasteModeOption', 'toothpasteLock', 'toothpaste'); }
+function refreshLuckyOption()      { refreshOption('luckyModeOption',      'luckyLock',      'lucky'); }
 
 function hasVisitedBothLinks() {
   return localStorage.getItem(VISIT_YT_KEY) === '1' && localStorage.getItem(VISIT_DISCORD_KEY) === '1';
@@ -1437,6 +1455,9 @@ function hasVisitedWheel() {
 }
 function hasVisitedCheese() {
   return localStorage.getItem(VISIT_CHEESE_KEY) === '1';
+}
+function hasLuckyClicksUnlocked() {
+  return localStorage.getItem(LUCKY_THEME_UNLOCK_KEY) === '1' || Number(localStorage.getItem(LUCKY_CLICK_COUNT_KEY) || '0') >= 50;
 }
 function hasVisitedAllPages() {
   return hasVisitedLucky() &&
@@ -1481,6 +1502,9 @@ function unlockCheeseIfEligible() {
 function unlockToothpasteIfEligible() {
   return unlockIfEligible('toothpaste', hasVisitedAllPages, '🪥 Toothpaste unlocked! You visited all the pages.', refreshToothpasteOption);
 }
+function unlockLuckyIfEligible() {
+  return unlockIfEligible('lucky', hasLuckyClicksUnlocked, '🐈 Lucky unlocked! You clicked Show Lucky 50 times.', refreshLuckyOption);
+}
 
 function markVisit(which) {
   if (which === 'youtube') {
@@ -1509,6 +1533,7 @@ function markVisit(which) {
   unlockShadowIfEligible();
   unlockCheeseIfEligible();
   unlockToothpasteIfEligible();
+  unlockLuckyIfEligible();
 }
 
 window.addEventListener('load', () => {
@@ -1522,6 +1547,7 @@ window.addEventListener('load', () => {
   refreshShadowOption();
   refreshCheeseOption();
   refreshToothpasteOption();
+  refreshLuckyOption();
 
   unlockRoseIfEligible();
   unlockWaterIfEligible();
@@ -1531,6 +1557,7 @@ window.addEventListener('load', () => {
   unlockShadowIfEligible();
   unlockCheeseIfEligible();
   unlockToothpasteIfEligible();
+  unlockLuckyIfEligible();
 
   const savedMode = localStorage.getItem(MODE_KEY) || 'light';
   const safeMode  = (
@@ -1543,7 +1570,8 @@ window.addEventListener('load', () => {
     (savedMode === 'sun' && !unlockedFeatures.includes('sun')) ||
     (savedMode === 'shadow' && !unlockedFeatures.includes('shadow')) ||
     (savedMode === 'cheese' && !unlockedFeatures.includes('cheese')) ||
-    (savedMode === 'toothpaste' && !unlockedFeatures.includes('toothpaste'))
+    (savedMode === 'toothpaste' && !unlockedFeatures.includes('toothpaste')) ||
+    (savedMode === 'lucky' && !unlockedFeatures.includes('lucky'))
   ) ? 'light' : savedMode;
 
   applyMode(safeMode);
