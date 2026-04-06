@@ -14,12 +14,9 @@
       --text: #fff4ea;
       --muted: rgba(255, 244, 234, 0.72);
       --accent: #ff9a3d;
-      --accent-2: #ff6f00;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -147,6 +144,7 @@
       align-items: center;
       justify-content: center;
       padding: 10px;
+      cursor: pointer;
     }
 
     .art-card:hover {
@@ -219,6 +217,37 @@
       display: block;
     }
 
+    /* Fullscreen preview */
+    #previewOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 5000;
+      padding: 18px;
+    }
+
+    #previewOverlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #previewImage {
+      max-width: 96vw;
+      max-height: 96vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 18px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.5);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
     @media (max-width: 520px) {
       #homeText {
         font-size: 1.7em;
@@ -258,9 +287,13 @@
 <footer>
   <a class="footer-link" href="https://www.youtube.com/@cyatr9" target="_blank" rel="noopener noreferrer">
     <img src="youtube.png" alt="YouTube">
-    YouTube
+    Cheese's Youtube
   </a>
 </footer>
+
+<div id="previewOverlay" onclick="closePreview()">
+  <img id="previewImage" alt="Art Preview">
+</div>
 
 <script>
   const MODE_KEY = 'wrenMode';
@@ -272,6 +305,19 @@
   }
 
   const gallery = document.getElementById('gallery');
+  const previewOverlay = document.getElementById('previewOverlay');
+  const previewImage = document.getElementById('previewImage');
+
+  function openPreview(src, alt) {
+    previewImage.src = src;
+    previewImage.alt = alt || 'Art Preview';
+    previewOverlay.classList.add('show');
+  }
+
+  function closePreview() {
+    previewOverlay.classList.remove('show');
+    previewImage.src = '';
+  }
 
   for (let i = 1; i <= 36; i++) {
     const wrap = document.createElement('div');
@@ -296,6 +342,10 @@
         wrap.replaceWith(missing);
       }
     };
+
+    wrap.addEventListener('click', () => {
+      openPreview(img.currentSrc || img.src, img.alt);
+    });
 
     wrap.appendChild(img);
     gallery.appendChild(wrap);
