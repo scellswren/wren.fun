@@ -1645,14 +1645,15 @@
         .filter(i => inv[i.name])
         .sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity));
 
-      // Stats bar
+      // Stats bar — "characters" label, Void counted in unique total
       const statsEl = document.getElementById("invStats");
       if (statsEl) {
-        const totalCards = Object.values(inv).reduce((a, b) => a + b, 0);
+        const totalCharacters = Object.values(inv).reduce((a, b) => a + b, 0);
         const uniqueCount = sorted.length;
-        const totalPossible = items.filter(i => i.rarity !== 'Void').length;
+        // Total possible includes ALL rarities (including Void)
+        const totalPossible = items.length;
         statsEl.innerHTML = `
-          <span class="inv-stat">🃏 ${totalCards} card${totalCards !== 1 ? 's' : ''}</span>
+          <span class="inv-stat">🎴 ${totalCharacters} character${totalCharacters !== 1 ? 's' : ''}</span>
           <span class="inv-stat">✨ ${uniqueCount} / ${totalPossible} unique</span>
         `;
       }
