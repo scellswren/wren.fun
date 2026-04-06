@@ -2,25 +2,19 @@
 <html>
 <head>
   <title>Cheese's Art</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="../Favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    :root {
-      --transition: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    * {
-      box-sizing: border-box;
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      color: black;
+      text-align: center;
       margin: 0;
       padding: 0;
-    }
-
-    body {
-      font-family: 'Rubik', sans-serif;
+      position: relative;
       min-height: 100vh;
-      text-align: center;
-      transition: background var(--transition), color var(--transition);
       overflow-x: hidden;
     }
 
@@ -100,88 +94,30 @@
     }
 
     h1 {
-      font-size: clamp(2.2em, 6vw, 4.5em);
+      margin-top: 40px;
+      font-size: clamp(2.5em, 8vw, 5em);
       font-weight: 900;
-      margin: 10px 0 10px;
+      font-family: 'Rubik', sans-serif;
     }
 
     .subtext {
-      font-size: 1.1em;
+      font-size: 1.2em;
       opacity: 0.75;
-      margin-bottom: 20px;
-    }
-
-    .back-btn {
-      display: inline-block;
       margin: 10px 0 28px;
-      padding: 12px 22px;
-      border-radius: 14px;
-      text-decoration: none;
-      font-weight: 700;
-      transition: transform 0.2s, box-shadow 0.2s, background var(--transition), color var(--transition);
-    }
-
-    .back-btn:hover {
-      transform: scale(1.05);
-    }
-
-    body.mode-light .back-btn {
-      background: #e7e7eb;
-      color: #1d1d1f;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
-
-    body.mode-dark .back-btn {
-      background: #1c1c2e;
-      color: #f0f0f0;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.35);
-    }
-
-    body.mode-rainbow .back-btn {
-      background: rgba(255,255,255,0.6);
-      color: #111;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      backdrop-filter: blur(8px);
-    }
-
-    body.mode-glass .back-btn,
-    body.mode-lava .back-btn,
-    body.mode-rose .back-btn {
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-
-    body.mode-glass .back-btn {
-      background: rgba(255,255,255,0.42);
-      color: #1a1a2e;
-      border: 1px solid rgba(255,255,255,0.55);
-    }
-
-    body.mode-lava .back-btn {
-      background: rgba(60,0,0,0.78);
-      color: #ffe5cc;
-      border: 1px solid rgba(255,140,0,0.18);
-    }
-
-    body.mode-rose .back-btn {
-      background: rgba(72,0,38,0.8);
-      color: #fff1f7;
-      border: 1px solid rgba(255,120,190,0.18);
     }
 
     .gallery {
-      width: min(1200px, calc(100% - 24px));
-      margin: 0 auto;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 18px;
+      width: min(1200px, calc(100% - 24px));
+      margin: 0 auto;
       padding-bottom: 30px;
     }
 
     .art-card {
       border-radius: 18px;
       overflow: hidden;
-      position: relative;
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
@@ -205,57 +141,55 @@
     }
   </style>
 </head>
-<body class="mode-light">
+<body>
 
-  <div id="homeText" onclick="goHome()">Wren.fun</div>
+<div id="homeText" onclick="goHome()">Wren.fun</div>
 
-  <div id="content">
-    <h1>Cheese's Art 🧀</h1>
-    <div class="subtext">Scroll down to see all 36 pieces.</div>
+<div id="content">
+  <h1>Cheese's Art 🧀</h1>
+  <div class="subtext">Scroll down to see all 36 pieces.</div>
+  <div class="gallery" id="gallery"></div>
+</div>
 
-    <a href="#" class="back-btn" onclick="goHome(); return false;">← Back</a>
+<script>
+  const MODE_KEY = 'wrenMode';
+  const savedMode = localStorage.getItem(MODE_KEY) || 'light';
+  document.body.className = 'mode-' + savedMode;
 
-    <div class="gallery" id="gallery"></div>
-  </div>
+  function goHome() {
+    window.location.href = "../index.html";
+  }
 
-  <script>
-    const MODE_KEY = 'wrenMode';
-    const savedMode = localStorage.getItem(MODE_KEY) || 'light';
-    document.body.className = 'mode-' + savedMode;
+  const gallery = document.getElementById('gallery');
 
-    function goHome() {
-      window.location.href = "../index.html";
-    }
+  for (let i = 1; i <= 36; i++) {
+    const wrap = document.createElement('div');
+    wrap.className = 'art-card';
 
-    const gallery = document.getElementById('gallery');
+    const img = document.createElement('img');
+    img.className = 'art';
+    img.loading = 'lazy';
+    img.alt = `Cheese Art ${i}`;
 
-    for (let i = 1; i <= 36; i++) {
-      const wrap = document.createElement('div');
-      wrap.className = 'art-card';
+    const pngSrc = `CheeseArt${i}.png`;
+    const jpgSrc = `CheeseArt${i}.jpg`;
 
-      const img = document.createElement('img');
-      img.className = 'art';
-      img.loading = 'lazy';
-      img.alt = `Cheese Art ${i}`;
+    img.src = pngSrc;
+    img.onerror = () => {
+      if (img.src.endsWith('.png')) {
+        img.src = jpgSrc;
+      } else {
+        const missing = document.createElement('div');
+        missing.className = 'fallback';
+        missing.textContent = `Missing file: CheeseArt${i}.png / .jpg`;
+        wrap.replaceWith(missing);
+      }
+    };
 
-      const pngSrc = `CheeseArt${i}.png`;
-      const jpgSrc = `CheeseArt${i}.jpg`;
+    wrap.appendChild(img);
+    gallery.appendChild(wrap);
+  }
+</script>
 
-      img.src = pngSrc;
-      img.onerror = () => {
-        if (img.src.endsWith('.png')) {
-          img.src = jpgSrc;
-        } else {
-          const missing = document.createElement('div');
-          missing.className = 'fallback';
-          missing.textContent = `Missing file: CheeseArt${i}.png / .jpg`;
-          wrap.replaceWith(missing);
-        }
-      };
-
-      wrap.appendChild(img);
-      gallery.appendChild(wrap);
-    }
-  </script>
 </body>
 </html>
