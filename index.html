@@ -338,6 +338,61 @@
       50% { opacity: 1; transform: translateY(6px); }
     }
 
+    body.mode-galaxy {
+      background:
+        radial-gradient(circle at 18% 20%, rgba(140, 88, 255, 0.38) 0%, transparent 22%),
+        radial-gradient(circle at 76% 24%, rgba(76, 181, 255, 0.30) 0%, transparent 24%),
+        radial-gradient(circle at 70% 76%, rgba(255, 90, 200, 0.18) 0%, transparent 28%),
+        linear-gradient(180deg, #040011 0%, #0a0630 42%, #02040b 100%);
+      color: #f7f4ff;
+      overflow-x: hidden;
+      animation: galaxyShift 16s ease-in-out infinite;
+    }
+    body.mode-galaxy::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 26%, rgba(255,255,255,0.18) 0 1px, transparent 2px),
+        radial-gradient(circle at 34% 64%, rgba(255,255,255,0.12) 0 1px, transparent 2px),
+        radial-gradient(circle at 52% 18%, rgba(255,255,255,0.20) 0 1px, transparent 2px),
+        radial-gradient(circle at 72% 38%, rgba(255,255,255,0.14) 0 1px, transparent 2px),
+        radial-gradient(circle at 84% 72%, rgba(255,255,255,0.16) 0 1px, transparent 2px),
+        radial-gradient(circle at 12% 82%, rgba(255,255,255,0.12) 0 1px, transparent 2px),
+        radial-gradient(circle at 60% 82%, rgba(255,255,255,0.14) 0 1px, transparent 2px);
+      background-size: 240px 240px, 320px 320px, 380px 380px, 460px 460px, 520px 520px, 610px 610px, 700px 700px;
+      opacity: 0.9;
+      pointer-events: none;
+      z-index: 0;
+      animation: starDrift 90s linear infinite;
+    }
+    body.mode-galaxy::after {
+      content: '';
+      position: fixed;
+      inset: -20%;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(110, 60, 255, 0.26) 0%, transparent 16%),
+        radial-gradient(circle at 74% 28%, rgba(0, 190, 255, 0.18) 0%, transparent 18%),
+        radial-gradient(circle at 48% 72%, rgba(255, 70, 190, 0.16) 0%, transparent 18%),
+        radial-gradient(circle at 62% 48%, rgba(160, 110, 255, 0.18) 0%, transparent 22%);
+      filter: blur(26px);
+      pointer-events: none;
+      z-index: 0;
+      animation: nebulaPulse 10s ease-in-out infinite;
+    }
+    @keyframes galaxyShift {
+      0%, 100% { background-position: 0 0; }
+      50% { background-position: 0 -18px; }
+    }
+    @keyframes starDrift {
+      from { transform: translateY(0); }
+      to { transform: translateY(-1200px); }
+    }
+    @keyframes nebulaPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+      50% { transform: scale(1.06) rotate(4deg); opacity: 1; }
+    }
+
     .glass-orb {
       display: none;
       position: fixed;
@@ -481,6 +536,20 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       filter: drop-shadow(0 2px 12px rgba(100, 255, 80, 0.35));
+    }
+
+    body.mode-galaxy h1 {
+      background: linear-gradient(135deg, #ffffff, #c7b0ff, #69d9ff, #ff8ee7, #ffffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter:
+        drop-shadow(0 0 12px rgba(155, 120, 255, 0.40))
+        drop-shadow(0 0 18px rgba(65, 170, 255, 0.25));
+      animation: galaxyTitleGlow 4s ease-in-out infinite;
+    }
+    @keyframes galaxyTitleGlow {
+      0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 12px rgba(155, 120, 255, 0.40)) drop-shadow(0 0 18px rgba(65, 170, 255, 0.25)); }
+      50% { transform: translateY(-1px) scale(1.01); filter: drop-shadow(0 0 18px rgba(190, 150, 255, 0.58)) drop-shadow(0 0 28px rgba(90, 200, 255, 0.34)); }
     }
 
     p.tagline {
@@ -712,6 +781,23 @@
       box-shadow: 0 14px 42px rgba(90, 180, 30, 0.38), 0 0 24px rgba(180,255,120,0.16);
     }
 
+    body.mode-galaxy .btn {
+      background: linear-gradient(145deg, #5b2cff, #1a0f5f);
+      color: #f9f7ff;
+      box-shadow:
+        0 8px 28px rgba(128, 92, 255, 0.26),
+        0 1.5px 0 rgba(255,255,255,0.14) inset,
+        0 -1px 0 rgba(0,0,0,0.22) inset,
+        0 0 28px rgba(79, 182, 255, 0.12);
+      border: 1px solid rgba(215, 200, 255, 0.18);
+    }
+    body.mode-galaxy .btn:hover {
+      background: linear-gradient(145deg, #7d58ff, #24136f);
+      box-shadow:
+        0 14px 42px rgba(128, 92, 255, 0.42),
+        0 0 30px rgba(90, 200, 255, 0.18);
+    }
+
     #settingsCog {
       position: fixed;
       top: 14px;
@@ -871,6 +957,14 @@
       border: 1px solid rgba(180,255,120,0.18);
       color: #efffdf;
     }
+    body.mode-galaxy #settingsPanel {
+      background: rgba(4, 7, 20, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 14px 52px rgba(80, 120, 255, 0.22), 0 1px 0 rgba(255,255,255,0.08) inset;
+      border: 1px solid rgba(170, 140, 255, 0.20);
+      color: #f7f4ff;
+    }
 
     .settings-header {
       padding: 16px 18px 12px;
@@ -929,7 +1023,10 @@
     }
     .mode-option.active-mode .mode-dot::after { opacity: 1; }
 
-    .mode-dot.rainbow-dot { background: linear-gradient(135deg, #f03, #f90, #ff0, #0d0, #06f, #90f); border: none; }
+    .mode-dot.rainbow-dot {
+      background: linear-gradient(135deg, #f03, #f90, #ff0, #0d0, #06f, #90f);
+      border: none;
+    }
     .mode-dot.glass-dot {
       background: linear-gradient(135deg, rgba(120,80,255,0.5), rgba(0,200,255,0.5), rgba(255,100,180,0.4));
       border: 1px solid rgba(255,255,255,0.7);
@@ -1020,6 +1117,13 @@
       box-shadow: 0 2px 8px rgba(110,255,40,0.2);
     }
     .mode-option.active-mode .mode-dot.slime-dot { box-shadow: 0 0 0 3px rgba(160,255,100,0.22), 0 2px 8px rgba(110,255,40,0.26); }
+
+    .mode-dot.galaxy-dot {
+      background: linear-gradient(135deg, #ffffff, #9d7dff, #47d8ff, #ff8de6);
+      border: 1px solid rgba(230,220,255,0.60);
+      box-shadow: 0 2px 8px rgba(120,80,255,0.22);
+    }
+    .mode-option.active-mode .mode-dot.galaxy-dot { box-shadow: 0 0 0 3px rgba(170,140,255,0.22), 0 2px 8px rgba(120,80,255,0.28); }
 
     .settings-divider { height: 1px; background: rgba(128,128,128,0.12); margin: 4px 0; }
 
@@ -1192,6 +1296,14 @@
       border: 1px solid rgba(180,255,120,0.18);
       box-shadow: 0 4px 20px rgba(110,255,40,0.16), 0 1px 0 rgba(220,255,170,0.10) inset;
     }
+    body.mode-galaxy #codeBtn {
+      background: rgba(12, 10, 38, 0.86);
+      color: #f7f4ff;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(190,170,255,0.18);
+      box-shadow: 0 4px 20px rgba(120,80,255,0.16), 0 1px 0 rgba(255,255,255,0.08) inset;
+    }
 
     #codeOverlay {
       position: fixed;
@@ -1325,6 +1437,14 @@
       border: 1px solid rgba(180,255,120,0.22);
       color: #efffdf;
     }
+    body.mode-galaxy #codeModal {
+      background: rgba(6, 8, 28, 0.96);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      box-shadow: 0 20px 60px rgba(120,80,255,0.22), 0 1px 0 rgba(255,255,255,0.08) inset;
+      border: 1px solid rgba(190,170,255,0.24);
+      color: #f7f4ff;
+    }
 
     .code-modal-top { padding: 32px 28px 20px; text-align: center; }
     .code-modal-icon {
@@ -1335,7 +1455,7 @@
     }
     @keyframes iconBob {
       0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
+      50%      { transform: translateY(-5px); }
     }
     .code-modal-title { font-size: 1.5em; font-weight: 900; letter-spacing: 0.5px; margin-bottom: 6px; }
     .code-modal-sub   { font-size: 0.88em; opacity: 0.5; font-weight: 400; }
@@ -1524,6 +1644,10 @@
       <span>🟢 Slime <span class="lock-icon" id="slimeLock">🔒</span></span>
       <div class="mode-dot slime-dot"></div>
     </div>
+    <div class="mode-option locked" id="galaxyModeOption" data-mode="galaxy">
+      <span>🌌 Galaxy <span class="lock-icon" id="galaxyLock">🔒</span></span>
+      <div class="mode-dot galaxy-dot"></div>
+    </div>
 
     <div class="settings-divider"></div>
     <div class="settings-section-label">Music</div>
@@ -1591,7 +1715,7 @@
 </audio>
 
 <script>
-const CODES = { 'WrenIsOld123': 'glass', 'Hotbeans78': 'lava' };
+const CODES = { 'WrenIsOld123': 'glass', 'Hotbeans78': 'lava', 'GooGooGaGa': 'galaxy' };
 const UNLOCK_KEY = 'wren_unlocked';
 const MODE_KEY = 'wrenMode';
 
@@ -1613,6 +1737,8 @@ const GLITCH_TARGET = 10000;
 
 const SLIME_THEME_UNLOCK_KEY = 'wren_theme_slime_unlocked';
 const SLIME_USED_KEY = 'wren_slime_used';
+
+const GALAXY_THEME_UNLOCK_KEY = 'wren_theme_galaxy_unlocked';
 
 let unlockedFeatures = JSON.parse(localStorage.getItem(UNLOCK_KEY) || '[]');
 
@@ -1694,6 +1820,7 @@ function selectMode(mode) {
   if (mode === 'lucky' && !unlockedFeatures.includes('lucky')) return;
   if (mode === 'glitch' && !unlockedFeatures.includes('glitch')) return;
   if (mode === 'slime' && !unlockedFeatures.includes('slime')) return;
+  if (mode === 'galaxy' && !unlockedFeatures.includes('galaxy')) return;
   applyMode(mode);
   localStorage.setItem(MODE_KEY, mode);
 }
@@ -1734,6 +1861,7 @@ function refreshToothpasteOption() { refreshOption('toothpasteModeOption', 'toot
 function refreshLuckyOption()      { refreshOption('luckyModeOption', 'luckyLock', 'lucky'); }
 function refreshGlitchOption()     { refreshOption('glitchModeOption', 'glitchLock', 'glitch'); }
 function refreshSlimeOption()      { refreshOption('slimeModeOption', 'slimeLock', 'slime'); }
+function refreshGalaxyOption()     { refreshOption('galaxyModeOption', 'galaxyLock', 'galaxy'); }
 
 function hasVisitedBothLinks() {
   return localStorage.getItem(VISIT_YT_KEY) === '1' && localStorage.getItem(VISIT_DISCORD_KEY) === '1';
@@ -1798,6 +1926,9 @@ function unlockGlitchIfEligible() {
 function unlockSlimeIfEligible() {
   return unlockIfEligible('slime', () => localStorage.getItem(SLIME_THEME_UNLOCK_KEY) === '1', '🟢 Slime unlocked!', refreshSlimeOption);
 }
+function unlockGalaxyIfEligible() {
+  return unlockIfEligible('galaxy', () => localStorage.getItem(GALAXY_THEME_UNLOCK_KEY) === '1', '🌌 Galaxy unlocked!', refreshGalaxyOption);
+}
 
 function markVisit(which) {
   if (which === 'youtube') localStorage.setItem(VISIT_YT_KEY, '1');
@@ -1835,6 +1966,7 @@ window.addEventListener('load', () => {
   refreshLuckyOption();
   refreshGlitchOption();
   refreshSlimeOption();
+  refreshGalaxyOption();
 
   unlockRoseIfEligible();
   unlockWaterIfEligible();
@@ -1847,6 +1979,7 @@ window.addEventListener('load', () => {
   unlockLuckyIfEligible();
   unlockGlitchIfEligible();
   unlockSlimeIfEligible();
+  unlockGalaxyIfEligible();
 
   const savedMode = localStorage.getItem(MODE_KEY) || 'light';
   const safeMode = (
@@ -1862,7 +1995,8 @@ window.addEventListener('load', () => {
     (savedMode === 'toothpaste' && !unlockedFeatures.includes('toothpaste')) ||
     (savedMode === 'lucky' && !unlockedFeatures.includes('lucky')) ||
     (savedMode === 'glitch' && !unlockedFeatures.includes('glitch')) ||
-    (savedMode === 'slime' && !unlockedFeatures.includes('slime'))
+    (savedMode === 'slime' && !unlockedFeatures.includes('slime')) ||
+    (savedMode === 'galaxy' && !unlockedFeatures.includes('galaxy'))
   ) ? 'light' : savedMode;
 
   applyMode(safeMode);
@@ -1932,10 +2066,15 @@ function submitCode() {
     fb.textContent = '🌋 Lava unlocked!';
     showToast('🌋 Lava unlocked! Find it in Settings.');
     refreshLavaOption();
-  } else {
+  } else if (unlockId === 'glass') {
     fb.textContent = '✨ Liquid Glass Mode unlocked!';
     showToast('✨ Liquid Glass Mode unlocked! Find it in Settings.');
     refreshGlassOption();
+  } else if (unlockId === 'galaxy') {
+    fb.textContent = '🌌 Galaxy unlocked!';
+    showToast('🌌 Galaxy unlocked! Find it in Settings.');
+    localStorage.setItem(GALAXY_THEME_UNLOCK_KEY, '1');
+    refreshGalaxyOption();
   }
 
   fb.className = 'ok';
