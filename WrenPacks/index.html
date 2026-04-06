@@ -471,6 +471,7 @@
     .section  { display: none; }
     .active   { display: block; }
 
+    /* ── Pack with shiny click effect ── */
     .pack {
       width:      200px;
       height:     300px;
@@ -483,8 +484,72 @@
       justify-content: center;
       font-size:  2em;
       color:      var(--text);
-      transition: border-color 0.4s, box-shadow 0.4s;
+      transition: border-color 0.4s, box-shadow 0.4s, transform 0.15s;
+      position:   relative;
+      overflow:   hidden;
+      border-radius: 8px;
+      user-select: none;
     }
+    .pack:hover {
+      transform: scale(1.03);
+    }
+    /* Idle shimmer on pack */
+    .pack::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+      transform: skewX(-15deg);
+      animation: packIdleShimmer 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes packIdleShimmer {
+      0%   { left: -120%; }
+      45%  { left: 160%; }
+      100% { left: 160%; }
+    }
+    /* Click flash overlay */
+    .pack-shine {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: 6px;
+      background: linear-gradient(135deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.65) 40%,
+        rgba(255,255,255,0.9) 50%,
+        rgba(255,255,255,0.65) 60%,
+        rgba(255,255,255,0) 100%
+      );
+      opacity: 0;
+      transform: translateX(-100%) skewX(-15deg);
+    }
+    .pack-shine.animate {
+      animation: packShineSlide 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+    @keyframes packShineSlide {
+      0%   { opacity: 0; transform: translateX(-100%) skewX(-15deg); }
+      15%  { opacity: 1; }
+      70%  { opacity: 1; }
+      100% { opacity: 0; transform: translateX(200%) skewX(-15deg); }
+    }
+    /* Pack click burst particles */
+    .pack-spark {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: packSparkBurst 0.5s ease-out forwards;
+    }
+    @keyframes packSparkBurst {
+      0%   { transform: translate(0,0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--sx), var(--sy)) scale(0); opacity: 0; }
+    }
+
     body.pack-rainbow .pack { animation: packRainbowBorder 3s linear infinite; }
     @keyframes packRainbowBorder {
       0%   { border-color: red;    box-shadow: 0 0 30px red; }
@@ -501,6 +566,27 @@
       0%   { border-color: #3d0000; box-shadow: 0 0 20px #3d0000, 0 0 50px rgba(61,0,0,0.4); }
       50%  { border-color: #6b0000; box-shadow: 0 0 35px #6b0000, 0 0 70px rgba(100,0,0,0.6); }
       100% { border-color: #3d0000; box-shadow: 0 0 20px #3d0000, 0 0 50px rgba(61,0,0,0.4); }
+    }
+
+    /* ── NEW badge on result ── */
+    .new-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #ff4400, #ff9900);
+      color: white;
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.55em;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-left: 8px;
+      vertical-align: middle;
+      box-shadow: 0 0 12px rgba(255, 100, 0, 0.7);
+      animation: newBadgePop 0.4s 0.6s cubic-bezier(0.34, 1.6, 0.64, 1) both;
+    }
+    @keyframes newBadgePop {
+      0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0deg);   opacity: 1; }
     }
 
     #result {
@@ -943,19 +1029,6 @@
     body.light-mode .info-stat-value.Epic      { color: #8800cc; }
     body.light-mode .info-stat-value.Legendary { color: #b8860b; }
 
-    .info-playtime {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .info-playtime-icon { font-size: 1.4em; line-height: 1; }
-    .info-playtime-val  { font-size: 1.2em; font-weight: bold; color: var(--text); }
-    .info-playtime-sub  { font-size: 0.72em; color: var(--muted); }
-
     /* Username input in info */
     .info-username-wrap {
       display: flex;
@@ -1238,7 +1311,10 @@
   </div>
 
   <div id="pack" class="section active">
-    <div class="pack" onclick="openPack()">OPEN</div>
+    <div class="pack" onclick="triggerPackShine(); openPack()">
+      OPEN
+      <div class="pack-shine" id="packShine"></div>
+    </div>
   </div>
 
   <div id="result"></div>
@@ -1357,21 +1433,9 @@
       </div>
     </div>
 
-    <!-- Playtime -->
-    <div class="info-section">
-      <p class="info-section-label">⏱ Total Play Time</p>
-      <div class="info-playtime">
-        <span class="info-playtime-icon">🕐</span>
-        <div>
-          <div class="info-playtime-val" id="infoPlaytime">0h 0m</div>
-          <div class="info-playtime-sub">Tracked since you first visited</div>
-        </div>
-      </div>
-    </div>
-
     <!-- Starred -->
     <div class="info-section">
-      <p class="info-section-label">⭐ Starred Characters <span style="color:var(--muted2);font-size:0.85em;">(star in Inventory, up to 5)</span></p>
+      <p class="info-section-label">⭐ Starred Characters <span style="color:var(--muted2);font-size:0.85em;">(star in Inventory, up to 4)</span></p>
       <div class="info-starred-grid" id="infoStarredGrid">
         <span class="info-starred-empty">No starred characters yet.</span>
       </div>
@@ -1539,24 +1603,40 @@
       s.play().catch(() => {});
     }
 
-    // ── Playtime tracker ──
-    const SESSION_START = Date.now();
-    function getTotalPlaytime() {
-      const stored = parseInt(localStorage.getItem("totalPlaytimeMs") || "0");
-      const sessionMs = Date.now() - SESSION_START;
-      return stored + sessionMs;
-    }
-    function savePlaytime() {
-      localStorage.setItem("totalPlaytimeMs", getTotalPlaytime());
-    }
-    window.addEventListener("beforeunload", savePlaytime);
-    setInterval(savePlaytime, 30000);
+    // ── Pack shiny click effect ──
+    function triggerPackShine() {
+      const shine = document.getElementById("packShine");
+      const pack  = shine.parentElement;
 
-    function formatPlaytime(ms) {
-      const totalMinutes = Math.floor(ms / 60000);
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      return hours + "h " + minutes + "m";
+      // Restart animation
+      shine.classList.remove("animate");
+      void shine.offsetWidth; // reflow
+      shine.classList.add("animate");
+
+      // Spawn sparks from pack center
+      const rect    = pack.getBoundingClientRect();
+      const cx      = rect.left + rect.width  / 2;
+      const cy      = rect.top  + rect.height / 2;
+      const sparkColors = ["#ffffff", "#ddaaff", "#ffccff", "#cc88ff", "#ffeeaa"];
+      for (let i = 0; i < 14; i++) {
+        const spark = document.createElement("div");
+        spark.className = "pack-spark";
+        const angle   = (Math.random() * 360) * Math.PI / 180;
+        const dist    = 40 + Math.random() * 80;
+        const col     = sparkColors[Math.floor(Math.random() * sparkColors.length)];
+        spark.style.left      = cx + "px";
+        spark.style.top       = cy + "px";
+        spark.style.background = col;
+        spark.style.boxShadow  = `0 0 6px ${col}`;
+        spark.style.setProperty("--sx", Math.cos(angle) * dist + "px");
+        spark.style.setProperty("--sy", Math.sin(angle) * dist + "px");
+        spark.style.animationDuration = (0.3 + Math.random() * 0.25) + "s";
+        spark.style.animationDelay    = (Math.random() * 0.08) + "s";
+        document.body.appendChild(spark);
+        setTimeout(() => spark.remove(), 700);
+      }
+
+      setTimeout(() => shine.classList.remove("animate"), 600);
     }
 
     // ── Starred characters ──
@@ -1574,8 +1654,8 @@
         btn.classList.remove("starred");
         btn.title = "Star this character";
       } else {
-        if (starred.length >= 5) {
-          alert("You can only star up to 5 characters!");
+        if (starred.length >= 4) {
+          alert("You can only star up to 4 characters!");
           return;
         }
         starred.push(itemName);
@@ -1729,9 +1809,6 @@
       document.getElementById("infoEpic").textContent      = counts.Epic;
       document.getElementById("infoLegendary").textContent = counts.Legendary;
       document.getElementById("infoOmega").textContent     = counts.Omega;
-
-      // playtime
-      document.getElementById("infoPlaytime").textContent = formatPlaytime(getTotalPlaytime());
 
       // username
       const savedUser = localStorage.getItem("username") || "";
@@ -1890,34 +1967,36 @@
         const item   = pool[Math.floor(Math.random() * pool.length)];
 
         let inv = JSON.parse(localStorage.getItem("inventory")) || {};
-        if (!inv[item.name]) {
+        const isNew = !inv[item.name]; // check BEFORE adding
+        if (isNew) {
           newItems++;
           updateNotif();
         }
         addToInventory(item.name);
 
         if (item.rarity === "Omega") {
-          showOmegaReveal(item);
+          showOmegaReveal(item, isNew);
           setTimeout(() => { canOpen = true; }, 8600);
           return;
         }
 
         if (item.rarity === "Legendary") {
-          showLegendaryCardReveal(item);
+          showLegendaryCardReveal(item, isNew);
           setTimeout(() => { canOpen = true; }, 4500);
           return;
         }
 
         if (item.rarity === "Epic") {
-          showEpicCardReveal(item);
+          showEpicCardReveal(item, isNew);
           setTimeout(() => { canOpen = true; }, 3500);
           return;
         }
 
+        const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
         const result = document.getElementById("result");
         result.innerHTML = `
           <div id="resultInner">
-            <h2 class="${rarity}">${item.display} (${rarity})</h2>
+            <h2 class="${rarity}">${item.display} (${rarity})${newBadge}</h2>
             <img src="${item.name}.jpg" alt="${item.display}">
           </div>`;
         result.style.display = "block";
@@ -1934,13 +2013,14 @@
       }, 2000);
     }
 
-    function showLegendaryCardReveal(item) {
+    function showLegendaryCardReveal(item, isNew) {
       const el    = document.getElementById("legendaryCardResult");
       const img   = document.getElementById("legendaryCardImg");
       const name  = document.getElementById("legendaryCardName");
 
-      img.src          = item.name + ".jpg";
-      name.textContent = item.display + " (Legendary)";
+      img.src = item.name + ".jpg";
+      const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
+      name.innerHTML = item.display + " (Legendary)" + newBadge;
       el.style.display = "block";
 
       setTimeout(() => spawnGoldConfetti(), 400);
@@ -2341,19 +2421,20 @@
     }
 
     function showAdminLegendaryReveal() {
-      showLegendaryCardReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin" });
+      showLegendaryCardReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin" }, false);
     }
 
     function showAdminEpicReveal() {
-      showEpicCardReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin" });
+      showEpicCardReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin" }, false);
     }
 
-    function showEpicCardReveal(item) {
+    function showEpicCardReveal(item, isNew) {
       const el   = document.getElementById("epicCardResult");
       const img  = document.getElementById("epicCardImg");
       const name = document.getElementById("epicCardName");
-      img.src          = item.name + ".jpg";
-      name.textContent = item.display + " (Epic)";
+      img.src = item.name + ".jpg";
+      const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
+      name.innerHTML = item.display + " (Epic)" + newBadge;
       el.style.display = "block";
       setTimeout(() => spawnVioletConfetti(), 350);
       setTimeout(() => {
@@ -2462,12 +2543,12 @@
       }
     }
 
-    function showOmegaReveal(item) {
+    function showOmegaReveal(item, isNew) {
       const reveal = document.getElementById("omegaReveal");
       const imgEl  = document.getElementById("omegaImg");
       const nameEl = document.getElementById("omegaName");
-      imgEl.src          = item.name + ".jpg";
-      nameEl.textContent = "★ " + item.display.toUpperCase() + " ★";
+      imgEl.src = item.name + ".jpg";
+      nameEl.textContent = "★ " + item.display.toUpperCase() + (isNew ? " ★  ✦ NEW" : " ★");
       reveal.style.display = "flex";
       reveal.classList.add("active-reveal");
       spawnOmegaParticles();
