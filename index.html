@@ -716,7 +716,7 @@
     body.mode-light   #settingsPanel { background: #fff; box-shadow: 0 8px 40px rgba(0,0,0,0.13); border: 1px solid rgba(0,0,0,0.07); color: #1d1d1f; }
     body.mode-dark    #settingsPanel { background: #1c1c2e; box-shadow: 0 8px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); color: #f0f0f0; }
     body.mode-rainbow #settingsPanel { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.5); color: #111; }
-    body.mode-glass #settingsPanel {
+    body.mode-glass   #settingsPanel {
       background: rgba(255,255,255,0.45);
       backdrop-filter: blur(28px) saturate(200%);
       -webkit-backdrop-filter: blur(28px) saturate(200%);
@@ -1158,7 +1158,7 @@
       border: 1px solid rgba(255,255,255,0.65);
       color: #1a1a2e;
     }
-    body.mode-lava #codeModal {
+    body.mode-lava   #codeModal {
       background: rgba(35, 0, 0, 0.9);
       backdrop-filter: blur(22px);
       -webkit-backdrop-filter: blur(22px);
@@ -1166,7 +1166,7 @@
       border: 1px solid rgba(255,140,0,0.22);
       color: #ffe5cc;
     }
-    body.mode-rose #codeModal {
+    body.mode-rose   #codeModal {
       background: rgba(46, 0, 28, 0.92);
       backdrop-filter: blur(22px);
       -webkit-backdrop-filter: blur(22px);
@@ -1174,7 +1174,7 @@
       border: 1px solid rgba(255,120,190,0.22);
       color: #fff1f7;
     }
-    body.mode-water #codeModal {
+    body.mode-water  #codeModal {
       background: rgba(0, 35, 60, 0.92);
       backdrop-filter: blur(22px);
       -webkit-backdrop-filter: blur(22px);
@@ -1276,8 +1276,8 @@
       background: transparent;
       color: inherit;
     }
-    #codeInput:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(124,58,237,0.12); }
-    #codeInput.error { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239,68,68,0.12); animation: shake 0.4s ease; }
+    #codeInput:focus   { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(124,58,237,0.12); }
+    #codeInput.error   { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239,68,68,0.12); animation: shake 0.4s ease; }
     #codeInput.success { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16,185,129,0.15); }
     @keyframes shake {
       0%,100% { transform: translateX(0); }
@@ -1533,22 +1533,45 @@ let unlockedFeatures = JSON.parse(localStorage.getItem(UNLOCK_KEY) || '[]');
 const cog = document.getElementById('settingsCog');
 const settingsMenu = document.getElementById('settingsMenu');
 
-function setUnlocked(theme) {
+function persistUnlocked(theme) {
   if (!unlockedFeatures.includes(theme)) {
     unlockedFeatures.push(theme);
     localStorage.setItem(UNLOCK_KEY, JSON.stringify(unlockedFeatures));
   }
 }
 
-function incrementGlitchCounter() {
-  const current = Number(localStorage.getItem(GLITCH_COG_COUNT_KEY) || '0') + 1;
-  localStorage.setItem(GLITCH_COG_COUNT_KEY, String(current));
+function getGlitchClicks() {
+  return Number(localStorage.getItem(GLITCH_COG_COUNT_KEY) || '0');
+}
 
-  if (current >= GLITCH_TARGET && localStorage.getItem(GLITCH_THEME_UNLOCK_KEY) !== '1') {
+function setGlitchClicks(value) {
+  localStorage.setItem(GLITCH_COG_COUNT_KEY, String(value));
+}
+
+function checkGlitchUnlock(showToastNow = false) {
+  const count = getGlitchClicks();
+
+  if (count < GLITCH_TARGET) return false;
+
+  if (localStorage.getItem(GLITCH_THEME_UNLOCK_KEY) !== '1') {
     localStorage.setItem(GLITCH_THEME_UNLOCK_KEY, '1');
-    setUnlocked('glitch');
+    persistUnlocked('glitch');
     refreshGlitchOption();
-    showToast('🟩 Glitch unlocked! Find it in Settings.');
+    if (showToastNow) showToast('🟩 Glitch unlocked! Find it in Settings.');
+  } else {
+    persistUnlocked('glitch');
+    refreshGlitchOption();
+  }
+
+  return true;
+}
+
+function incrementGlitchCounter() {
+  const next = getGlitchClicks() + 1;
+  setGlitchClicks(next);
+
+  if (next >= GLITCH_TARGET) {
+    checkGlitchUnlock(true);
   }
 }
 
@@ -1559,8 +1582,8 @@ cog.addEventListener('click', () => {
   settingsMenu.classList.toggle('open', !isOpen);
   cog.classList.toggle('open', !isOpen);
 
-  if (localStorage.getItem(GLITCH_THEME_UNLOCK_KEY) === '1') {
-    refreshGlitchOption();
+  if (getGlitchClicks() >= GLITCH_TARGET) {
+    checkGlitchUnlock(false);
   }
 });
 
@@ -1599,6 +1622,7 @@ function refreshOption(id, lockId, theme) {
   const opt = document.getElementById(id);
   const lock = document.getElementById(lockId);
   if (!opt) return;
+
   if (unlockedFeatures.includes(theme)) {
     opt.classList.remove('locked');
     opt.onclick = () => selectMode(theme);
@@ -1646,7 +1670,7 @@ function hasVisitedAllPages() {
 function unlockIfEligible(theme, conditionFn, toastMsg, refreshFn) {
   if (!conditionFn()) return false;
   if (!unlockedFeatures.includes(theme)) {
-    setUnlocked(theme);
+    persistUnlocked(theme);
     refreshFn();
     if (toastMsg) showToast(toastMsg);
   }
@@ -1681,7 +1705,7 @@ function unlockLuckyIfEligible() {
   return unlockIfEligible('lucky', hasLuckyClicksUnlocked, '🐈 Lucky unlocked! You clicked Show Lucky 50 times.', refreshLuckyOption);
 }
 function unlockGlitchIfEligible() {
-  return unlockIfEligible('glitch', () => localStorage.getItem(GLITCH_THEME_UNLOCK_KEY) === '1', '🟩 Glitch unlocked! Find it in Settings.', refreshGlitchOption);
+  return unlockIfEligible('glitch', () => localStorage.getItem(GLITCH_THEME_UNLOCK_KEY) === '1' || getGlitchClicks() >= GLITCH_TARGET, '🟩 Glitch unlocked! Find it in Settings.', refreshGlitchOption);
 }
 
 function markVisit(which) {
@@ -1703,7 +1727,6 @@ function markVisit(which) {
   unlockCheeseIfEligible();
   unlockToothpasteIfEligible();
   unlockLuckyIfEligible();
-  unlockGlitchIfEligible();
 }
 
 window.addEventListener('load', () => {
@@ -1798,7 +1821,7 @@ function submitCode() {
     return;
   }
 
-  setUnlocked(unlockId);
+  persistUnlocked(unlockId);
   input.className = 'success';
 
   if (unlockId === 'lava') {
