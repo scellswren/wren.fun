@@ -281,38 +281,37 @@
       background: rgba(0,0,0,0.28);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
-      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
     }
     #settingsMenu.open {
       opacity: 1;
       pointer-events: auto;
     }
 
-    #settingsMenu .settings-panel {
-      position: absolute;
-      top: 62px;
-      left: 14px;
-      width: 260px;
+    #settingsPanel {
+      width: min(960px, calc(100vw - 32px));
+      height: calc(100vh - 32px);
       padding: 0;
-      border-radius: 20px;
+      border-radius: 26px;
       overflow: hidden;
-      transform-origin: top left;
-      transform: scale(0.85) translateY(-10px);
+      transform-origin: center center;
+      transform: scale(0.96);
       opacity: 0;
-      pointer-events: auto;
       transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1), opacity 0.25s ease;
-      max-height: calc(100vh - 78px);
       overflow-y: auto;
     }
-    #settingsMenu.open .settings-panel {
-      transform: scale(1) translateY(0);
+    #settingsMenu.open #settingsPanel {
+      transform: scale(1);
       opacity: 1;
     }
 
-    body.mode-light   #settingsMenu .settings-panel { background: #fff; box-shadow: 0 8px 40px rgba(0,0,0,0.13); border: 1px solid rgba(0,0,0,0.07); color: #1d1d1f; }
-    body.mode-dark    #settingsMenu .settings-panel { background: #1c1c2e; box-shadow: 0 8px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); color: #f0f0f0; }
-    body.mode-rainbow #settingsMenu .settings-panel { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.5); color: #111; }
-    body.mode-glass   #settingsMenu .settings-panel {
+    body.mode-light   #settingsPanel { background: #fff; box-shadow: 0 8px 40px rgba(0,0,0,0.13); border: 1px solid rgba(0,0,0,0.07); color: #1d1d1f; }
+    body.mode-dark    #settingsPanel { background: #1c1c2e; box-shadow: 0 8px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); color: #f0f0f0; }
+    body.mode-rainbow #settingsPanel { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.5); color: #111; }
+    body.mode-glass   #settingsPanel {
       background: rgba(255,255,255,0.45);
       backdrop-filter: blur(28px) saturate(200%);
       -webkit-backdrop-filter: blur(28px) saturate(200%);
@@ -320,7 +319,7 @@
       border: 1px solid rgba(255,255,255,0.6);
       color: #1a1a2e;
     }
-    body.mode-lava   #settingsMenu .settings-panel {
+    body.mode-lava   #settingsPanel {
       background: rgba(40, 0, 0, 0.72);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -328,7 +327,7 @@
       border: 1px solid rgba(255, 140, 0, 0.22);
       color: #ffe5cc;
     }
-    body.mode-rose   #settingsMenu .settings-panel {
+    body.mode-rose   #settingsPanel {
       background: rgba(56, 0, 34, 0.74);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -342,14 +341,14 @@
       top: 14px;
       right: 14px;
       z-index: 1003;
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border: none;
       border-radius: 999px;
       cursor: pointer;
       font-family: 'Rubik', sans-serif;
       font-weight: 900;
-      font-size: 1.5em;
+      font-size: 1.6em;
       line-height: 1;
       color: #ff3b30;
       background: rgba(255,255,255,0.18);
@@ -728,8 +727,7 @@
 <img id="settingsCog" src="settings-cog.png" alt="Settings">
 
 <div id="settingsMenu">
-  <button id="settingsClose" aria-label="Close settings">✕</button>
-  <div class="settings-panel">
+  <div id="settingsPanel">
     <div class="settings-header">⚙ Settings</div>
 
     <div class="settings-section-label">Appearance</div>
@@ -835,7 +833,12 @@ let unlockedFeatures = JSON.parse(localStorage.getItem(UNLOCK_KEY) || '[]');
 
 const cog          = document.getElementById('settingsCog');
 const settingsMenu = document.getElementById('settingsMenu');
-const settingsClose = document.getElementById('settingsClose');
+const settingsClose = document.createElement('button');
+
+settingsClose.id = 'settingsClose';
+settingsClose.textContent = '✕';
+settingsClose.setAttribute('aria-label', 'Close settings');
+settingsMenu.appendChild(settingsClose);
 
 function openSettings() {
   settingsMenu.classList.add('open');
@@ -858,8 +861,13 @@ cog.addEventListener('click', () => {
 
 settingsClose.addEventListener('click', closeSettings);
 
-settingsMenu.addEventListener('click', e => {
-  if (e.target === settingsMenu) closeSettings();
+document.addEventListener('click', e => {
+  if (settingsMenu.classList.contains('open')) {
+    const panel = document.getElementById('settingsPanel');
+    if (!panel.contains(e.target) && e.target !== cog && e.target !== settingsClose) {
+      closeSettings();
+    }
+  }
 });
 
 function selectMode(mode) {
