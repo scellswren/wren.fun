@@ -336,36 +336,6 @@
       color: #fff1f7;
     }
 
-    #settingsClose {
-      position: fixed;
-      top: 14px;
-      right: 14px;
-      z-index: 1003;
-      width: 44px;
-      height: 44px;
-      border: none;
-      border-radius: 999px;
-      cursor: pointer;
-      font-family: 'Rubik', sans-serif;
-      font-weight: 900;
-      font-size: 1.6em;
-      line-height: 1;
-      color: #ff3b30;
-      background: rgba(255,255,255,0.18);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-      transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
-    }
-    #settingsClose:hover {
-      transform: scale(1.08);
-      background: rgba(255,59,48,0.14);
-      box-shadow: 0 8px 22px rgba(0,0,0,0.24);
-    }
-    #settingsClose:active {
-      transform: scale(0.94);
-    }
-
     .settings-header {
       padding: 16px 18px 12px;
       font-size: 0.78em;
@@ -833,40 +803,17 @@ let unlockedFeatures = JSON.parse(localStorage.getItem(UNLOCK_KEY) || '[]');
 
 const cog          = document.getElementById('settingsCog');
 const settingsMenu = document.getElementById('settingsMenu');
-const settingsClose = document.createElement('button');
-
-settingsClose.id = 'settingsClose';
-settingsClose.textContent = '✕';
-settingsClose.setAttribute('aria-label', 'Close settings');
-settingsMenu.appendChild(settingsClose);
-
-function openSettings() {
-  settingsMenu.classList.add('open');
-  cog.classList.add('open');
-}
-
-function closeSettings() {
-  settingsMenu.classList.remove('open');
-  cog.classList.remove('open');
-}
 
 cog.addEventListener('click', () => {
   const isOpen = settingsMenu.classList.contains('open');
-  if (isOpen) {
-    closeSettings();
-  } else {
-    openSettings();
-  }
+  settingsMenu.classList.toggle('open', !isOpen);
+  cog.classList.toggle('open', !isOpen);
 });
 
-settingsClose.addEventListener('click', closeSettings);
-
 document.addEventListener('click', e => {
-  if (settingsMenu.classList.contains('open')) {
-    const panel = document.getElementById('settingsPanel');
-    if (!panel.contains(e.target) && e.target !== cog && e.target !== settingsClose) {
-      closeSettings();
-    }
+  if (!settingsMenu.contains(e.target) && e.target !== cog) {
+    settingsMenu.classList.remove('open');
+    cog.classList.remove('open');
   }
 });
 
