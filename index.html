@@ -915,7 +915,8 @@ const CODES = {
   'WrenIsOld123': 'glass',
   'Hotbeans78':   'lava',
   'GooGooGaGa':   'galaxy',
-  'Juke229N':     'cheatCounter'
+  'Juke229N':     'cheatCounter',
+  'HHH2sksdne23': 'oneBillionCheat'
 };
 
 // ── Storage keys ───────────────────────────────────────────────────────────
@@ -934,7 +935,7 @@ const VISIT_CHEESE_KEY        = 'wren_visited_cheese';
 const LUCKY_CLICK_COUNT_KEY   = 'wren_lucky_click_count';
 const LUCKY_THEME_UNLOCK_KEY  = 'wren_theme_lucky_unlocked';
 const GLITCH_COG_COUNT_KEY    = 'wren_glitch_cog_clicks';
-const GLITCH_THEME_UNLOCK_KEY = 'wren_theme_glitch_unlocked';
+const GLITCH_THEME_UNLOCK_KEY = 'wren_glitch_theme_unlocked';
 const GLITCH_TARGET           = 10000;
 const SLIME_THEME_UNLOCK_KEY  = 'wren_theme_slime_unlocked';
 const SLIME_USED_KEY          = 'wren_slime_used';
@@ -953,6 +954,7 @@ const RADIOACTIVE_UNLOCK_KEY = 'wren_theme_radioactive_unlocked';
 const MONEY_UNLOCK_KEY       = 'wren_theme_money_unlocked';
 // Set by Wheel of Doom when player reaches $1,000,000,000
 const SNOW_UNLOCK_KEY        = 'wren_theme_snow_unlocked';
+const WHEEL_MONEY_KEY        = 'wren_money';
 
 let unlockedFeatures = JSON.parse(localStorage.getItem(UNLOCK_KEY) || '[]');
 
@@ -1291,6 +1293,20 @@ function submitCode() {
     setTimeout(closeCodeModal, 1400);
     return;
   }
+
+  // Cheat code: set Wheel of Doom money to $1 Billion
+  if (val === 'HHH2sksdne23') {
+    localStorage.setItem(WHEEL_MONEY_KEY, String(1000000000));
+    localStorage.setItem(MONEY_UNLOCK_KEY, '1');
+    localStorage.setItem(SNOW_UNLOCK_KEY, '1');
+    input.className = 'success';
+    fb.textContent  = '💵 Set Wheel of Doom money to $1,000,000,000!';
+    fb.className    = 'ok';
+    showToast('💵 Cheat applied! Wheel of Doom set to $1 Billion.');
+    setTimeout(closeCodeModal, 1400);
+    return;
+  }
+
 
   if (!unlockId) {
     input.className = 'error';
