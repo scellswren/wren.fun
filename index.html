@@ -308,6 +308,44 @@
       100% { transform: translateX(0); opacity: 0.45; }
     }
 
+    body.mode-slime {
+      background:
+        radial-gradient(circle at 20% 20%, rgba(180, 255, 120, 0.44) 0%, transparent 30%),
+        radial-gradient(circle at 75% 68%, rgba(80, 180, 40, 0.42) 0%, transparent 34%),
+        radial-gradient(circle at 50% 12%, rgba(230, 255, 190, 0.24) 0%, transparent 28%),
+        linear-gradient(180deg, #0d1b0e 0%, #1f3d16 45%, #081007 100%);
+      color: #efffdf;
+      animation: slimeBGMove 7s ease-in-out infinite;
+    }
+    body.mode-slime::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 25%, rgba(160,255,80,0.20) 0%, transparent 18%),
+        radial-gradient(circle at 70% 60%, rgba(120,255,90,0.18) 0%, transparent 22%),
+        radial-gradient(circle at 45% 80%, rgba(255,255,255,0.05) 0%, transparent 25%),
+        repeating-linear-gradient(
+          135deg,
+          rgba(120,255,80,0.05) 0px,
+          rgba(120,255,80,0.05) 3px,
+          rgba(0,0,0,0.00) 7px,
+          rgba(0,0,0,0.00) 12px
+        );
+      pointer-events: none;
+      z-index: 0;
+      animation: slimeDrift 6s linear infinite;
+    }
+    @keyframes slimeBGMove {
+      0%, 100% { background-position: 0 0; filter: hue-rotate(0deg); }
+      50% { background-position: 0 -24px; filter: hue-rotate(10deg); }
+    }
+    @keyframes slimeDrift {
+      0% { transform: translateY(0); opacity: 0.85; }
+      50% { transform: translateY(6px); opacity: 1; }
+      100% { transform: translateY(0); opacity: 0.85; }
+    }
+
     .glass-orb {
       display: none;
       position: fixed;
@@ -446,6 +484,13 @@
       80% { transform: translate(-1px, 1px); }
     }
 
+    body.mode-slime h1 {
+      background: linear-gradient(135deg, #f3ffd8, #b7ff57, #6ad01f, #f5ffe9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 12px rgba(100, 255, 80, 0.35));
+    }
+
     p.tagline {
       font-size: 1.5em;
       margin: 10px 0 50px;
@@ -473,7 +518,7 @@
       transition: transform 0.2s, box-shadow 0.2s, background var(--transition), color var(--transition);
       display: inline-block;
     }
-    .btn:hover { transform: scale(1.08); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+    .btn:hover  { transform: scale(1.08); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
     .btn:active { transform: scale(0.95); }
 
     body.mode-light .btn { background: #f0f0f0; color: black; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
@@ -661,6 +706,20 @@
       80% { transform: translateX(-2px); }
     }
 
+    body.mode-slime .btn {
+      background: linear-gradient(145deg, #d9ff94, #64c81d);
+      color: #17310d;
+      box-shadow:
+        0 8px 28px rgba(90, 180, 30, 0.26),
+        0 1.5px 0 rgba(255,255,255,0.18) inset,
+        0 -1px 0 rgba(0,0,0,0.10) inset;
+      border: 1px solid rgba(230,255,180,0.22);
+    }
+    body.mode-slime .btn:hover {
+      background: linear-gradient(145deg, #e6ffab, #71d425);
+      box-shadow: 0 14px 42px rgba(90, 180, 30, 0.38), 0 0 24px rgba(180,255,120,0.16);
+    }
+
     #settingsCog {
       position: fixed;
       top: 14px;
@@ -716,7 +775,7 @@
     body.mode-light   #settingsPanel { background: #fff; box-shadow: 0 8px 40px rgba(0,0,0,0.13); border: 1px solid rgba(0,0,0,0.07); color: #1d1d1f; }
     body.mode-dark    #settingsPanel { background: #1c1c2e; box-shadow: 0 8px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); color: #f0f0f0; }
     body.mode-rainbow #settingsPanel { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.5); color: #111; }
-    body.mode-glass   #settingsPanel {
+    body.mode-glass #settingsPanel {
       background: rgba(255,255,255,0.45);
       backdrop-filter: blur(28px) saturate(200%);
       -webkit-backdrop-filter: blur(28px) saturate(200%);
@@ -812,6 +871,14 @@
       border: 1px solid rgba(0,255,80,0.18);
       color: #b8ffb8;
     }
+    body.mode-slime #settingsPanel {
+      background: rgba(17, 39, 11, 0.86);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 12px 48px rgba(110,255,40,0.18), 0 1px 0 rgba(220,255,170,0.10) inset;
+      border: 1px solid rgba(180,255,120,0.18);
+      color: #efffdf;
+    }
 
     .settings-header {
       padding: 16px 18px 12px;
@@ -870,10 +937,7 @@
     }
     .mode-option.active-mode .mode-dot::after { opacity: 1; }
 
-    .mode-dot.rainbow-dot {
-      background: linear-gradient(135deg, #f03, #f90, #ff0, #0d0, #06f, #90f);
-      border: none;
-    }
+    .mode-dot.rainbow-dot { background: linear-gradient(135deg, #f03, #f90, #ff0, #0d0, #06f, #90f); border: none; }
     .mode-dot.glass-dot {
       background: linear-gradient(135deg, rgba(120,80,255,0.5), rgba(0,200,255,0.5), rgba(255,100,180,0.4));
       border: 1px solid rgba(255,255,255,0.7);
@@ -958,6 +1022,13 @@
     }
     .mode-option.active-mode .mode-dot.glitch-dot { box-shadow: 0 0 0 3px rgba(0,255,80,0.22), 0 2px 8px rgba(0,255,80,0.26); }
 
+    .mode-dot.slime-dot {
+      background: linear-gradient(135deg, #efffbe, #b7ff57, #69c520);
+      border: 1px solid rgba(220,255,170,0.55);
+      box-shadow: 0 2px 8px rgba(110,255,40,0.2);
+    }
+    .mode-option.active-mode .mode-dot.slime-dot { box-shadow: 0 0 0 3px rgba(160,255,100,0.22), 0 2px 8px rgba(110,255,40,0.26); }
+
     .settings-divider { height: 1px; background: rgba(128,128,128,0.12); margin: 4px 0; }
 
     .settings-row {
@@ -982,7 +1053,7 @@
       background: rgba(128,128,128,0.13);
       color: inherit;
     }
-    .settings-row .mini-btn:hover { transform: scale(1.05); background: rgba(128,128,128,0.22); }
+    .settings-row .mini-btn:hover  { transform: scale(1.05); background: rgba(128,128,128,0.22); }
     .settings-row .mini-btn:active { transform: scale(0.93); }
     .settings-row .mini-btn.playing { background: rgba(124,58,237,0.15); color: var(--accent); }
 
@@ -1018,7 +1089,7 @@
       align-items: center;
       gap: 7px;
     }
-    #codeBtn:hover { transform: scale(1.07); }
+    #codeBtn:hover  { transform: scale(1.07); }
     #codeBtn:active { transform: scale(0.94); }
 
     body.mode-light   #codeBtn { background: white; color: #1d1d1f; box-shadow: 0 3px 14px rgba(0,0,0,0.1); }
@@ -1120,6 +1191,14 @@
       border: 1px solid rgba(0,255,80,0.18);
       box-shadow: 0 4px 20px rgba(0,255,80,0.16), 0 1px 0 rgba(0,255,80,0.10) inset;
       text-shadow: 1px 0 0 rgba(0,255,80,0.3);
+    }
+    body.mode-slime #codeBtn {
+      background: rgba(24, 54, 14, 0.86);
+      color: #efffdf;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(180,255,120,0.18);
+      box-shadow: 0 4px 20px rgba(110,255,40,0.16), 0 1px 0 rgba(220,255,170,0.10) inset;
     }
 
     #codeOverlay {
@@ -1246,6 +1325,14 @@
       border: 1px solid rgba(0,255,80,0.22);
       color: #b8ffb8;
     }
+    body.mode-slime #codeModal {
+      background: rgba(17, 39, 11, 0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(110,255,40,0.18), 0 1px 0 rgba(220,255,170,0.12) inset;
+      border: 1px solid rgba(180,255,120,0.22);
+      color: #efffdf;
+    }
 
     .code-modal-top { padding: 32px 28px 20px; text-align: center; }
     .code-modal-icon {
@@ -1276,8 +1363,8 @@
       background: transparent;
       color: inherit;
     }
-    #codeInput:focus   { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(124,58,237,0.12); }
-    #codeInput.error   { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239,68,68,0.12); animation: shake 0.4s ease; }
+    #codeInput:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(124,58,237,0.12); }
+    #codeInput.error { border-color: #ef4444; box-shadow: 0 0 0 4px rgba(239,68,68,0.12); animation: shake 0.4s ease; }
     #codeInput.success { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16,185,129,0.15); }
     @keyframes shake {
       0%,100% { transform: translateX(0); }
@@ -1296,7 +1383,7 @@
       transition: all 0.2s;
     }
     #codeFeedback.err { color: #ef4444; }
-    #codeFeedback.ok { color: #10b981; }
+    #codeFeedback.ok  { color: #10b981; }
 
     .code-modal-footer { display: flex; border-top: 1px solid rgba(128,128,128,0.1); margin-top: 14px; }
     .code-modal-footer button {
@@ -1441,6 +1528,10 @@
       <span>🟩 Glitch <span class="lock-icon" id="glitchLock">🔒</span></span>
       <div class="mode-dot glitch-dot"></div>
     </div>
+    <div class="mode-option locked" id="slimeModeOption" data-mode="slime">
+      <span>🟢 Slime <span class="lock-icon" id="slimeLock">🔒</span></span>
+      <div class="mode-dot slime-dot"></div>
+    </div>
 
     <div class="settings-divider"></div>
     <div class="settings-section-label">Music</div>
@@ -1528,6 +1619,9 @@ const GLITCH_COG_COUNT_KEY = 'wren_glitch_cog_clicks';
 const GLITCH_THEME_UNLOCK_KEY = 'wren_theme_glitch_unlocked';
 const GLITCH_TARGET = 10000;
 
+const SLIME_THEME_UNLOCK_KEY = 'wren_theme_slime_unlocked';
+const SLIME_USED_KEY = 'wren_slime_used';
+
 let unlockedFeatures = JSON.parse(localStorage.getItem(UNLOCK_KEY) || '[]');
 
 const cog = document.getElementById('settingsCog');
@@ -1607,6 +1701,7 @@ function selectMode(mode) {
   if (mode === 'toothpaste' && !unlockedFeatures.includes('toothpaste')) return;
   if (mode === 'lucky' && !unlockedFeatures.includes('lucky')) return;
   if (mode === 'glitch' && !unlockedFeatures.includes('glitch')) return;
+  if (mode === 'slime' && !unlockedFeatures.includes('slime')) return;
   applyMode(mode);
   localStorage.setItem(MODE_KEY, mode);
 }
@@ -1646,6 +1741,7 @@ function refreshCheeseOption()     { refreshOption('cheeseModeOption', 'cheeseLo
 function refreshToothpasteOption() { refreshOption('toothpasteModeOption', 'toothpasteLock', 'toothpaste'); }
 function refreshLuckyOption()      { refreshOption('luckyModeOption', 'luckyLock', 'lucky'); }
 function refreshGlitchOption()     { refreshOption('glitchModeOption', 'glitchLock', 'glitch'); }
+function refreshSlimeOption()      { refreshOption('slimeModeOption', 'slimeLock', 'slime'); }
 
 function hasVisitedBothLinks() {
   return localStorage.getItem(VISIT_YT_KEY) === '1' && localStorage.getItem(VISIT_DISCORD_KEY) === '1';
@@ -1707,6 +1803,9 @@ function unlockLuckyIfEligible() {
 function unlockGlitchIfEligible() {
   return unlockIfEligible('glitch', () => localStorage.getItem(GLITCH_THEME_UNLOCK_KEY) === '1' || getGlitchClicks() >= GLITCH_TARGET, '🟩 Glitch unlocked! Find it in Settings.', refreshGlitchOption);
 }
+function unlockSlimeIfEligible() {
+  return unlockIfEligible('slime', () => localStorage.getItem(SLIME_THEME_UNLOCK_KEY) === '1', '🟢 Slime unlocked!', refreshSlimeOption);
+}
 
 function markVisit(which) {
   if (which === 'youtube') localStorage.setItem(VISIT_YT_KEY, '1');
@@ -1727,6 +1826,7 @@ function markVisit(which) {
   unlockCheeseIfEligible();
   unlockToothpasteIfEligible();
   unlockLuckyIfEligible();
+  unlockGlitchIfEligible();
 }
 
 window.addEventListener('load', () => {
@@ -1742,6 +1842,7 @@ window.addEventListener('load', () => {
   refreshToothpasteOption();
   refreshLuckyOption();
   refreshGlitchOption();
+  refreshSlimeOption();
 
   unlockRoseIfEligible();
   unlockWaterIfEligible();
@@ -1753,6 +1854,7 @@ window.addEventListener('load', () => {
   unlockToothpasteIfEligible();
   unlockLuckyIfEligible();
   unlockGlitchIfEligible();
+  unlockSlimeIfEligible();
 
   const savedMode = localStorage.getItem(MODE_KEY) || 'light';
   const safeMode = (
@@ -1767,7 +1869,8 @@ window.addEventListener('load', () => {
     (savedMode === 'cheese' && !unlockedFeatures.includes('cheese')) ||
     (savedMode === 'toothpaste' && !unlockedFeatures.includes('toothpaste')) ||
     (savedMode === 'lucky' && !unlockedFeatures.includes('lucky')) ||
-    (savedMode === 'glitch' && !unlockedFeatures.includes('glitch'))
+    (savedMode === 'glitch' && !unlockedFeatures.includes('glitch')) ||
+    (savedMode === 'slime' && !unlockedFeatures.includes('slime'))
   ) ? 'light' : savedMode;
 
   applyMode(safeMode);
@@ -1806,6 +1909,15 @@ function submitCode() {
     input.className = 'error';
     fb.textContent = "That code isn't valid. Try again!";
     fb.className = 'err';
+
+    if (localStorage.getItem(SLIME_USED_KEY) !== '1') {
+      localStorage.setItem(SLIME_USED_KEY, '1');
+      localStorage.setItem(SLIME_THEME_UNLOCK_KEY, '1');
+      persistUnlocked('slime');
+      refreshSlimeOption();
+      showToast('🟢 Slime unlocked! Find it in Settings.');
+    }
+
     setTimeout(() => { input.className = ''; }, 600);
     return;
   }
