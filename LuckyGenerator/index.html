@@ -73,26 +73,45 @@
       border: 1px solid rgba(0,0,0,0.08);
     }
 
+    #statusWrap {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 1001;
+      width: 170px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    #statusWrap.hidden {
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+    }
+
     #counter {
-      position: relative;
-      z-index: 1;
-      margin-top: 18px;
       font-family: 'Rubik', sans-serif;
-      font-size: 1.3em;
+      font-size: 0.88em;
       font-weight: 700;
       color: #3e4650;
+      margin-bottom: 8px;
+      line-height: 1.1;
     }
 
     #progressWrap {
-      position: relative;
-      z-index: 1;
-      width: min(480px, 90vw);
-      height: 16px;
-      margin: 18px auto 0;
+      width: 100%;
+      height: 10px;
       border-radius: 999px;
       background: rgba(0,0,0,0.08);
       overflow: hidden;
       box-shadow: inset 0 1px 3px rgba(0,0,0,0.12);
+      margin-bottom: 8px;
     }
 
     #progressFill {
@@ -104,14 +123,12 @@
     }
 
     #message {
-      position: relative;
-      z-index: 1;
-      margin-top: 18px;
       font-family: 'Rubik', sans-serif;
-      font-size: 1.15em;
+      font-size: 0.72em;
       font-weight: 700;
       color: #4a5562;
-      min-height: 1.5em;
+      line-height: 1.2;
+      min-height: 1.2em;
     }
 
     .footer {
@@ -146,16 +163,18 @@
 
 <a id="homeText" href="../index.html">Wren.fun</a>
 
+<div id="statusWrap">
+  <div id="counter">Clicks: 0 / 50</div>
+  <div id="progressWrap"><div id="progressFill"></div></div>
+  <div id="message">Click Show Lucky 50 times to unlock Lucky in the main menu.</div>
+</div>
+
 <h1>Lucky Generator</h1>
 
 <img id="cat-img" alt="Lucky cat">
 
 <br>
 <button class="btn" onclick="generateCat()">Show Lucky!</button>
-
-<div id="counter">Clicks: 0 / 50</div>
-<div id="progressWrap"><div id="progressFill"></div></div>
-<div id="message">Click Show Lucky 50 times to unlock Lucky in the main menu.</div>
 
 <div class="footer">LUCKY IS MY CAT :)</div>
 
@@ -186,6 +205,7 @@
   let clickCount = Number(localStorage.getItem(LUCKY_CLICK_COUNT_KEY) || '0');
   let luckyUnlocked = localStorage.getItem(LUCKY_THEME_UNLOCK_KEY) === '1';
 
+  const statusWrap = document.getElementById('statusWrap');
   const counterEl = document.getElementById('counter');
   const progressFill = document.getElementById('progressFill');
   const messageEl = document.getElementById('message');
@@ -196,10 +216,16 @@
     progressFill.style.width = `${Math.min((clickCount / 50) * 100, 100)}%`;
 
     if (clickCount >= 50) {
-      messageEl.textContent = luckyUnlocked
-        ? 'Lucky is already unlocked in the main menu.'
-        : 'Lucky theme unlocked!';
+      if (!luckyUnlocked) {
+        messageEl.textContent = 'Lucky theme unlocked!';
+      } else {
+        messageEl.textContent = 'Lucky is already unlocked.';
+      }
+      setTimeout(() => {
+        statusWrap.classList.add('hidden');
+      }, 300);
     } else {
+      statusWrap.classList.remove('hidden');
       messageEl.textContent = 'Click Show Lucky 50 times to unlock Lucky in the main menu.';
     }
   }
@@ -209,6 +235,9 @@
       luckyUnlocked = true;
       localStorage.setItem(LUCKY_THEME_UNLOCK_KEY, '1');
       messageEl.textContent = '🐈 Lucky theme unlocked! Go back to the main menu.';
+      setTimeout(() => {
+        statusWrap.classList.add('hidden');
+      }, 300);
     }
   }
 
@@ -239,6 +268,7 @@
     updateUI();
     if (clickCount >= 50) {
       unlockLuckyTheme();
+      statusWrap.classList.add('hidden');
     }
   });
 </script>
