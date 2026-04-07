@@ -456,8 +456,39 @@
     display: flex; align-items: center; justify-content: center;
   }
   #modeToggle:hover { transform: scale(1.1); background: var(--surface); }
-
   footer { display: none; }
+
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 3000;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    backdrop-filter: blur(8px);
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal-box {
+    width: min(420px, 100%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    animation: modalPop 0.2s ease-out;
+  }
+  @keyframes modalPop { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-title { font-family: 'Rubik Mono One', monospace; font-size: 1.05em; margin-bottom: 10px; }
+  .modal-text { color: var(--muted); line-height: 1.6; font-size: 0.95em; margin-bottom: 18px; }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-btn {
+    flex: 1; border: none; border-radius: 14px; padding: 12px 14px;
+    font-family: 'Rubik', sans-serif; font-weight: 900; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .modal-btn:hover { transform: translateY(-1px); }
+  .modal-btn.danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 6px 18px rgba(239,68,68,0.25); }
+  .modal-btn.ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -532,7 +563,7 @@
       Roll to get a ball. Better balls = higher catch rates.<br>
       <b style="color:var(--normal-ball)">Normal</b> = base rate &nbsp;·&nbsp;
       <b style="color:var(--super-ball)">Super</b> = 1.5× &nbsp;·&nbsp;
-      <b style="color:var(--omega-ball)">Omega</b> = 4× &nbsp;·&nbsp;
+      <b style="color:var(--omega-ball)">Omega</b> = 3× &nbsp;·&nbsp;
       <b style="color:var(--god-ball)">God Light</b> = 100% catch<br>
       You get 3 throws per encounter. If all miss, it runs off!
     </div>
@@ -550,7 +581,7 @@
         <div class="inv-stat inv-stat-impossible"><div class="inv-stat-num" id="inv-cnt-impossible">0</div><div class="inv-stat-label">Impossible</div></div>
       </div>
       <div id="inventoryList"></div>
-      <button class="clear-btn" onclick="clearInventory()">🗑 Clear Inventory</button>
+      <button class="clear-btn" onclick="openClearModal()">🗑 Clear Inventory</button>
     </div>
   </div>
 
@@ -564,22 +595,33 @@
     </div>
     <div class="card" style="font-size:0.85em; color:var(--muted); line-height:1.7;">
       <div class="card-title">Ball Multipliers</div>
-      Normal = 1× · Super = 1.5× · Omega = 4× · God Light = guaranteed
+      Normal = 1× · Super = 1.5× · Omega = 3× · God Light = guaranteed
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="clearModal" aria-hidden="true">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="clearModalTitle">
+    <div class="modal-title" id="clearModalTitle">Clear inventory?</div>
+    <div class="modal-text">Are you sure you want to clear your entire inventory? This cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="modal-btn ghost" onclick="closeClearModal()">Cancel</button>
+      <button class="modal-btn danger" onclick="confirmClearInventory()">Yes, clear it</button>
     </div>
   </div>
 </div>
 
 <script>
 const THINGS = {
-  easy: { rate: 0.80, weight: 60, items: ['Chair','Worm','Cat','Dog','Steven Hawking','Ipad','Toad','Minecraft Goat','Minecraft Pig','Dart Monkey','Salmon','Crab','Bottle','Pak\'nsave Stick Man','Minecraft Llama','Troll','Success Kid','Jamal Watkins','Hasbulla','The Rizzler','Caterpie','Old Woman','Peter Wisdom','Infant','Pig','Sheep','Cow','Deer','Rat','Plate','Toothpick','Pencil'] },
-  normal: { rate: 0.60, weight: 30, items: ['Pikachu','Bulbasaur','WrenIsOld','Tikitheg','Juju2y','The Mind of Orin','Cyatr9 (Block of Cheese)','Edunzie','The Dairy King','Bletelsnort','Zxno','Nikocado Avocado','JiDion','Nolan (MrBeast)','MrBeast','Markiplier','Drax','Gamora','Black Widow','Hawkeye','Elephant','Lion','Pringles Man','Bear','Windows 7','Windows 11','Dwayne The Rock','Kevin Hart','Chris Pratt','Tom Hanks','Tom Holland','Eminem','Tupac','Biggie','Taylor Swift','The Weeknd','Kanye West','IShowSpeed','John Cena','Kanye East','Iron Golem','Villager','Human'] },
+  easy: { rate: 0.60, weight: 60, items: ['Chair','Worm','Cat','Dog','Steven Hawking','Ipad','Toad','Minecraft Goat','Minecraft Pig','Dart Monkey','Salmon','Crab','Bottle','Pak\'nsave Stick Man','Minecraft Llama','Troll','Success Kid','Jamal Watkins','Hasbulla','The Rizzler','Caterpie','Old Woman','Peter Wisdom','Infant','Pig','Sheep','Cow','Deer','Rat','Plate','Toothpick','Pencil'] },
+  normal: { rate: 0.35, weight: 30, items: ['Pikachu','Bulbasaur','WrenIsOld','Tikitheg','Juju2y','The Mind of Orin','Cyatr9 (Block of Cheese)','Edunzie','The Dairy King','Bletelsnort','Zxno','Nikocado Avocado','JiDion','Nolan (MrBeast)','MrBeast','Markiplier','Drax','Gamora','Black Widow','Hawkeye','Elephant','Lion','Pringles Man','Bear','Windows 7','Windows 11','Dwayne The Rock','Kevin Hart','Chris Pratt','Tom Hanks','Tom Holland','Eminem','Tupac','Biggie','Taylor Swift','The Weeknd','Kanye West','IShowSpeed','John Cena','Kanye East','Iron Golem','Villager','Human'] },
   decent: { rate: 0.50, weight: 20, items: ['Freddy','Groot','Iron Man','Ronald McDonald','Peppa Pig','Bluey','Jedi','War Machine','Tom Cruise','Black Panther','Captain America','Batman','Charizard','Spider-Man','Green Goblin','Nebula','Mario','Luigi','Megamind','Megalodon','T-Rex','Harry Potter'] },
-  hard: { rate: 0.25, weight: 10, items: ['Pluto','Venom','Carnage','Loki','Lucky the Cat','Ender Dragon','Warden','Captain Crunch','Voldemort','The Moon','Darth Vader','Palpatine','Deadpool','Wolverine','Doctor Strange','Scarlet Witch','Vision','Ant-Man','Wasp','Shrek','Donkey','Po','Hiccup','Toothless','Sonic','Tails','Knuckles','Kirby','Meta Knight'] },
+  hard: { rate: 0.20, weight: 10, items: ['Pluto','Venom','Carnage','Loki','Lucky the Cat','Ender Dragon','Warden','Captain Crunch','Voldemort','The Moon','Darth Vader','Palpatine','Deadpool','Wolverine','Doctor Strange','Scarlet Witch','Vision','Ant-Man','Wasp','Shrek','Donkey','Po','Hiccup','Toothless','Sonic','Tails','Knuckles','Kirby','Meta Knight'] },
   superhard: { rate: 0.10, weight: 4, items: ['Superman','Magneto','Thanos','Invincible','Sentry','Omni-Man','Earth','Venus','Mars','Mercury','Daddy Pig','Goku','Grimace','Thor','Hulk','Doctor Fate','Green Lantern','Flash','Aquaman','Kratos','Master Chief','Link','Zelda','Arceus','Mewtwo','Rayquaza','Godzilla','King Kong','Optimus Prime'] },
   impossible: { rate: 0.01, weight: 1, items: ['Dr Doom','Galactus','The Devil','Chuck Norris','God','The Universe','The One Above All','Stan Lee','A Black Hole','A White Hole','Time','Space','Gravity','The Watcher','Living Tribunal','Eternity','Infinity','Darkseid','Anti-Monitor','The Presence','One Punch Man','Zeno','The Collector','Dormammu','Galactic Emperor','Multiverse','Reality','Dimensions','Infinity'] }
 };
 
-const BALL_MULTIPLIERS = { normal: 1, super: 1.5, omega: 4, god: 999 };
+const BALL_MULTIPLIERS = { normal: 1, super: 1.5, omega: 3, god: 999 };
 const BALL_ICONS = { normal: '⚾', super: '🎾', omega: '🏀', god: '✨' };
 const BALL_NAMES = { normal: 'Normal Wren Ball', super: 'Super Wren Ball', omega: 'Omega Wren Ball', god: 'God Light Wren Ball' };
 const DIFF_LABELS = { easy: 'Easy', normal: 'Normal', decent: 'Decent', hard: 'Hard', superhard: 'Super Hard', impossible: 'Impossible' };
@@ -958,12 +1000,29 @@ function renderChanceTable() {
   wrap.innerHTML = html;
 }
 
-function clearInventory() {
-  if (!confirm('Clear your entire inventory? This cannot be undone!')) return;
+function openClearModal() {
+  const modal = document.getElementById('clearModal');
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+}
+function closeClearModal() {
+  const modal = document.getElementById('clearModal');
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+}
+function confirmClearInventory() {
   state.inventory = {};
   saveState();
   renderInventory();
+  closeClearModal();
 }
+
+document.getElementById('clearModal').addEventListener('click', (e) => {
+  if (e.target.id === 'clearModal') closeClearModal();
+});
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeClearModal();
+});
 
 function spawnSparkles(cx, cy) {
   const emojis = ['✨','⭐','💫','🌟','🔥','⚡','🌠'];
