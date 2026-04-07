@@ -63,16 +63,13 @@
     --omega-ball: #d97706;
     --god-ball: #ca8a04;
   }
-  #galaxyCanvas {
-    position: fixed; inset: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 0; transition: opacity 0.5s;
-  }
-  body.mode-light #galaxyCanvas { opacity: 0; }
-  #dayCanvas {
+  #galaxyCanvas, #dayCanvas {
     position: fixed; inset: 0; width: 100%; height: 100%;
     pointer-events: none; z-index: 0;
-    opacity: 0; transition: opacity 0.5s;
   }
+  #galaxyCanvas { transition: opacity 0.5s; }
+  body.mode-light #galaxyCanvas { opacity: 0; }
+  #dayCanvas { opacity: 0; transition: opacity 0.5s; }
   body.mode-light #dayCanvas { opacity: 1; }
   body::before {
     content: '';
@@ -125,13 +122,16 @@
   .tab {
     flex: 1; padding: 10px 6px; border-radius: 12px; border: none;
     font-family: 'Rubik', sans-serif; font-weight: 700; font-size: clamp(0.72em, 2.5vw, 0.95em);
-    cursor: pointer; transition: background 0.2s, color 0.2s, transform 0.15s;
+    cursor: pointer; transition: transform 0.15s, background 0.2s, color 0.2s, box-shadow 0.2s;
     background: transparent; color: var(--muted);
   }
-  .tab:hover { color: var(--text); background: rgba(255,255,255,0.05); }
-  .tab.active { background: var(--accent); color: white; transform: none; box-shadow: 0 4px 14px rgba(124,58,237,0.35); }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
+  .tab:hover { color: var(--text); background: rgba(255,255,255,0.05); transform: translateY(-1px); }
+  .tab.active { background: var(--accent); color: white; transform: translateY(-2px) scale(1.02); box-shadow: 0 4px 14px rgba(124,58,237,0.35); }
+  .tab-pop { animation: tabPop 0.22s ease; }
+  @keyframes tabPop { 0%{transform:scale(0.98)} 60%{transform:scale(1.04)} 100%{transform:scale(1)} }
+  .tab-panel { display: none; opacity: 0; transform: translateY(8px) scale(0.99); }
+  .tab-panel.active { display: block; animation: panelIn 0.28s cubic-bezier(0.2,1,0.2,1) forwards; }
+  @keyframes panelIn { to { opacity: 1; transform: translateY(0) scale(1); } }
 
   .card {
     background: var(--surface); border: 1px solid var(--border);
@@ -147,7 +147,7 @@
   body.mode-light .ball-card { background: rgba(255,255,255,0.7); }
   body.mode-light .ball-select-btn { background: rgba(255,255,255,0.7); color: rgba(15,26,46,0.7); }
   body.mode-light .tabs { background: rgba(255,255,255,0.6); }
-  body.mode-light .inv-stat { background: rgba(255,255,255,0.7); }
+  body.mode-light .inv-stat, body.mode-light .chance-cell, body.mode-light .chance-head { background: rgba(255,255,255,0.7); }
   body.mode-light .inv-item { background: rgba(255,255,255,0.6); }
   body.mode-light .clear-btn { background: rgba(255,80,80,0.08); }
   body.mode-light #modeToggle { background: rgba(255,255,255,0.75); border-color: rgba(30,80,160,0.18); color: #1a1a3a; }
@@ -197,7 +197,6 @@
   @keyframes godPulse { 0%,100%{box-shadow:0 0 20px rgba(251,191,36,0.3)} 50%{box-shadow:0 0 40px rgba(251,191,36,0.6)} }
   @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-  .catch-area { text-align: center; }
   .encounter-box {
     background: var(--surface2); border-radius: 20px; padding: 30px 20px;
     border: 2px solid var(--border); min-height: 240px;
@@ -213,16 +212,11 @@
   .encounter-box.active { border-color: rgba(124,58,237,0.4); }
   .encounter-box.ran-off { border-color: rgba(239,68,68,0.3); }
   .encounter-box.caught { border-color: rgba(34,197,94,0.4); }
-  .encounter-box.revealing {
-    animation: revealPop 0.62s cubic-bezier(0.2, 1.2, 0.2, 1) both;
-    box-shadow: 0 0 0 0 rgba(124,58,237,0.0);
-  }
+  .encounter-box.revealing { animation: revealPop 0.62s cubic-bezier(0.2, 1.2, 0.2, 1) both; }
   .encounter-box.revealing::after {
-    content: '';
-    position: absolute; inset: 0;
+    content: ''; position: absolute; inset: 0;
     background: radial-gradient(circle at center, rgba(255,255,255,0.55) 0%, rgba(124,58,237,0.18) 22%, rgba(6,182,212,0.08) 45%, transparent 70%);
-    animation: revealFlash 0.62s ease-out forwards;
-    pointer-events: none;
+    animation: revealFlash 0.62s ease-out forwards; pointer-events: none;
   }
   @keyframes revealPop {
     0% { transform: scale(0.92); filter: blur(1px) brightness(1.05); }
@@ -234,49 +228,24 @@
     100% { opacity: 0; transform: scale(1.35); }
   }
   .radar-wrap {
-    position: relative;
-    width: 110px; height: 110px;
-    display: grid; place-items: center;
+    position: relative; width: 110px; height: 110px; display: grid; place-items: center;
   }
   .radar-core {
     width: 26px; height: 26px; border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, #fff 0%, #7dd3fc 30%, #2563eb 70%, #0f172a 100%);
     box-shadow: 0 0 18px rgba(6,182,212,0.55);
-    position: relative; z-index: 2;
-    animation: radarPulse 1.2s ease-in-out infinite;
+    position: relative; z-index: 2; animation: radarPulse 1.2s ease-in-out infinite;
   }
-  .radar-ring, .radar-ring::before, .radar-ring::after {
-    position: absolute; inset: 0; border-radius: 50%; content: '';
-  }
-  .radar-ring {
-    border: 2px solid rgba(6,182,212,0.18);
-    animation: radarExpand 1.5s ease-out infinite;
-  }
-  .radar-ring::before {
-    inset: 10px;
-    border: 2px solid rgba(124,58,237,0.18);
-    animation: radarExpand 1.5s ease-out infinite 0.25s;
-  }
-  .radar-ring::after {
-    inset: 22px;
-    border: 2px solid rgba(255,255,255,0.10);
-    animation: radarExpand 1.5s ease-out infinite 0.5s;
-  }
-  @keyframes radarExpand {
-    0% { transform: scale(0.4); opacity: 0.0; }
-    18% { opacity: 0.95; }
-    100% { transform: scale(1.35); opacity: 0; }
-  }
-  @keyframes radarPulse {
-    0%,100% { transform: scale(0.94); }
-    50% { transform: scale(1.06); }
-  }
+  .radar-ring, .radar-ring::before, .radar-ring::after { position: absolute; inset: 0; border-radius: 50%; content: ''; }
+  .radar-ring { border: 2px solid rgba(6,182,212,0.18); animation: radarExpand 1.5s ease-out infinite; }
+  .radar-ring::before { inset: 10px; border: 2px solid rgba(124,58,237,0.18); animation: radarExpand 1.5s ease-out infinite 0.25s; }
+  .radar-ring::after { inset: 22px; border: 2px solid rgba(255,255,255,0.10); animation: radarExpand 1.5s ease-out infinite 0.5s; }
+  @keyframes radarExpand { 0% { transform: scale(0.4); opacity: 0.0; } 18% { opacity: 0.95; } 100% { transform: scale(1.35); opacity: 0; } }
+  @keyframes radarPulse { 0%,100% { transform: scale(0.94); } 50% { transform: scale(1.06); } }
   .scan-sweep {
-    position: absolute; inset: -8px;
-    border-radius: 50%;
+    position: absolute; inset: -8px; border-radius: 50%;
     background: conic-gradient(from 0deg, transparent 0 18%, rgba(6,182,212,0.22) 28%, transparent 42% 100%);
-    animation: sweepSpin 1.2s linear infinite;
-    filter: blur(1px);
+    animation: sweepSpin 1.2s linear infinite; filter: blur(1px);
     mask: radial-gradient(circle, transparent 0 34%, black 38% 100%);
   }
   @keyframes sweepSpin { to { transform: rotate(360deg); } }
@@ -298,7 +267,6 @@
   .diff-superhard { background: rgba(168,85,247,0.15); color: var(--superhard); }
   .diff-impossible { background: rgba(236,72,153,0.15); color: var(--impossible); animation: impossibleGlow 2s ease infinite; }
   @keyframes impossibleGlow { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 18px rgba(236,72,153,0.4)} }
-
   .throws-left { font-size: 0.85em; color: var(--muted); font-weight: 700; }
   .catch-rate-info { font-size: 0.82em; color: var(--muted); }
 
@@ -312,7 +280,7 @@
     font-family: 'Rubik', sans-serif; font-weight: 700; font-size: 0.82em;
     cursor: pointer; transition: all 0.2s;
   }
-  .ball-select-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+  .ball-select-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text); transform: translateY(-1px); }
   .ball-select-btn.selected { border-color: var(--accent); color: var(--text); background: rgba(124,58,237,0.15); }
   .ball-select-btn.selected-normal { border-color: var(--normal-ball); color: var(--normal-ball); background: rgba(96,165,250,0.12); }
   .ball-select-btn.selected-super { border-color: var(--super-ball); color: var(--super-ball); background: rgba(52,211,153,0.12); }
@@ -363,10 +331,10 @@
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px;
   }
   @media(min-width: 480px) { .inv-stats { grid-template-columns: repeat(6, 1fr); } }
-  .inv-stat {
-    background: var(--surface2); border-radius: 12px; padding: 10px 6px;
-    text-align: center; border: 1px solid var(--border);
+  .inv-stat, .chance-head, .chance-cell {
+    background: var(--surface2); border-radius: 12px; border: 1px solid var(--border);
   }
+  .inv-stat { padding: 10px 6px; text-align: center; }
   .inv-stat-num { font-size: 1.4em; font-weight: 900; }
   .inv-stat-label { font-size: 0.62em; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
   .inv-stat-easy .inv-stat-num { color: var(--easy); }
@@ -381,9 +349,7 @@
     padding: 10px 0 8px; margin-top: 8px;
     display: flex; align-items: center; gap: 8px;
   }
-  .inv-items {
-    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; min-height: 10px;
-  }
+  .inv-items { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; min-height: 10px; }
   .inv-item {
     background: var(--surface2); border: 1px solid var(--border);
     border-radius: 10px; padding: 5px 11px;
@@ -401,6 +367,22 @@
     padding: 1px 6px; font-size: 0.85em; min-width: 20px; text-align: center;
   }
   .inv-empty { color: var(--muted); font-size: 0.85em; font-weight: 400; padding: 8px 0; }
+
+  .chance-table { display: grid; gap: 10px; }
+  .chance-row {
+    display: grid;
+    grid-template-columns: 1.2fr repeat(4, 1fr);
+    gap: 8px;
+  }
+  .chance-head, .chance-cell {
+    padding: 12px 10px;
+    text-align: center;
+    font-weight: 700;
+  }
+  .chance-head { font-size: 0.78em; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); }
+  .chance-cell { font-size: 0.92em; }
+  .chance-diff { text-align: left; }
+  .chance-small { font-size: 0.72em; color: var(--muted); margin-top: 2px; font-weight: 400; }
 
   .clear-btn {
     margin-top: 18px; padding: 10px 22px; border-radius: 12px; border: 1px solid rgba(239,68,68,0.3);
@@ -445,14 +427,9 @@
 
   .sparkle { position: fixed; pointer-events: none; font-size: 1.2em; animation: sparklePop 0.8s ease forwards; }
   @keyframes sparklePop { 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0.3)} }
-
   .catch-particle {
-    position: fixed;
-    pointer-events: none;
-    z-index: 9998;
-    font-size: 0.9em;
-    font-weight: 900;
-    text-shadow: 0 0 10px currentColor;
+    position: fixed; pointer-events: none; z-index: 9998;
+    font-size: 0.9em; font-weight: 900; text-shadow: 0 0 10px currentColor;
     animation: particleBurst 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   }
   @keyframes particleBurst {
@@ -461,14 +438,9 @@
     100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.15) rotate(180deg); }
   }
   .reveal-ring {
-    position: fixed;
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.35);
-    pointer-events: none;
-    z-index: 9997;
-    transform: translate(-50%, -50%);
-    animation: ringPop 0.8s ease-out forwards;
+    position: fixed; width: 40px; height: 40px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.35); pointer-events: none; z-index: 9997;
+    transform: translate(-50%, -50%); animation: ringPop 0.8s ease-out forwards;
   }
   @keyframes ringPop {
     0% { opacity: 0.85; transform: translate(-50%, -50%) scale(0.3); }
@@ -484,13 +456,8 @@
     display: flex; align-items: center; justify-content: center;
   }
   #modeToggle:hover { transform: scale(1.1); background: var(--surface); }
-  footer {
-    position: fixed; bottom: 10px; width: 100%; text-align: center;
-    font-family: 'Rubik', sans-serif; font-size: 0.88em; color: var(--muted);
-    z-index: 10;
-  }
-  footer a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
-  footer a:hover { color: var(--text); }
+
+  footer { display: none; }
 </style>
 </head>
 <body>
@@ -506,6 +473,7 @@
     <button class="tab active" onclick="switchTab('catch')">🎯 Catch</button>
     <button class="tab" onclick="switchTab('balls')">⚾ Balls</button>
     <button class="tab" onclick="switchTab('inventory')">🎒 Inventory</button>
+    <button class="tab" onclick="switchTab('chances')">📈 Chances</button>
   </div>
 
   <div class="tab-panel active" id="tab-catch">
@@ -585,42 +553,30 @@
       <button class="clear-btn" onclick="clearInventory()">🗑 Clear Inventory</button>
     </div>
   </div>
-</div>
 
-<footer><a href="../">← Wren.fun</a></footer>
+  <div class="tab-panel" id="tab-chances">
+    <div class="card">
+      <div class="card-title">Catch Chances</div>
+      <div style="font-size:0.85em;color:var(--muted);line-height:1.6;margin-bottom:12px;">
+        These are the exact catch chances for every difficulty with every ball. Normal is the base rate.
+      </div>
+      <div class="chance-table" id="chanceTable"></div>
+    </div>
+    <div class="card" style="font-size:0.85em; color:var(--muted); line-height:1.7;">
+      <div class="card-title">Ball Multipliers</div>
+      Normal = 1× · Super = 1.5× · Omega = 4× · God Light = guaranteed
+    </div>
+  </div>
+</div>
 
 <script>
 const THINGS = {
-  easy: {
-    rate: 0.80,
-    weight: 60,
-    items: ['Chair','Worm','Cat','Dog','Steven Hawking','Ipad','Toad','Minecraft Goat','Minecraft Pig','Dart Monkey','Salmon','Crab','Bottle','Pak\'nsave Stick Man','Minecraft Llama','Troll','Success Kid','Jamal Watkins','Hasbulla','The Rizzler','Caterpie','Old Woman','Peter Wisdom','Infant','Pig','Sheep','Cow','Deer','Rat','Plate','Toothpick','Pencil']
-  },
-  normal: {
-    rate: 0.60,
-    weight: 30,
-    items: ['Pikachu','Bulbasaur','WrenIsOld','Tikitheg','Juju2y','The Mind of Orin','Cyatr9 (Block of Cheese)','Edunzie','The Dairy King','Bletelsnort','Zxno','Nikocado Avocado','JiDion','Nolan (MrBeast)','MrBeast','Markiplier','Drax','Gamora','Black Widow','Hawkeye','Elephant','Lion','Pringles Man','Bear','Windows 7','Windows 11','Dwayne The Rock','Kevin Hart','Chris Pratt','Tom Hanks','Tom Holland','Eminem','Tupac','Biggie','Taylor Swift','The Weeknd','Kanye West','IShowSpeed','John Cena','Kanye East','Iron Golem','Villager','Human']
-  },
-  decent: {
-    rate: 0.50,
-    weight: 20,
-    items: ['Freddy','Groot','Iron Man','Ronald McDonald','Peppa Pig','Bluey','Jedi','War Machine','Tom Cruise','Black Panther','Captain America','Batman','Charizard','Spider-Man','Green Goblin','Nebula','Mario','Luigi','Megamind','Megalodon','T-Rex','Harry Potter']
-  },
-  hard: {
-    rate: 0.25,
-    weight: 10,
-    items: ['Pluto','Venom','Carnage','Loki','Lucky the Cat','Ender Dragon','Warden','Captain Crunch','Voldemort','The Moon','Darth Vader','Palpatine','Deadpool','Wolverine','Doctor Strange','Scarlet Witch','Vision','Ant-Man','Wasp','Shrek','Donkey','Po','Hiccup','Toothless','Sonic','Tails','Knuckles','Kirby','Meta Knight']
-  },
-  superhard: {
-    rate: 0.10,
-    weight: 4,
-    items: ['Superman','Magneto','Thanos','Invincible','Sentry','Omni-Man','Earth','Venus','Mars','Mercury','Daddy Pig','Goku','Grimace','Thor','Hulk','Doctor Fate','Green Lantern','Flash','Aquaman','Kratos','Master Chief','Link','Zelda','Arceus','Mewtwo','Rayquaza','Godzilla','King Kong','Optimus Prime']
-  },
-  impossible: {
-    rate: 0.01,
-    weight: 1,
-    items: ['Dr Doom','Galactus','The Devil','Chuck Norris','God','The Universe','The One Above All','Stan Lee','A Black Hole','A White Hole','Time','Space','Gravity','The Watcher','Living Tribunal','Eternity','Infinity','Darkseid','Anti-Monitor','The Presence','One Punch Man','Zeno','The Collector','Dormammu','Galactic Emperor','Multiverse','Reality','Dimensions','Infinity']
-  }
+  easy: { rate: 0.80, weight: 60, items: ['Chair','Worm','Cat','Dog','Steven Hawking','Ipad','Toad','Minecraft Goat','Minecraft Pig','Dart Monkey','Salmon','Crab','Bottle','Pak\'nsave Stick Man','Minecraft Llama','Troll','Success Kid','Jamal Watkins','Hasbulla','The Rizzler','Caterpie','Old Woman','Peter Wisdom','Infant','Pig','Sheep','Cow','Deer','Rat','Plate','Toothpick','Pencil'] },
+  normal: { rate: 0.60, weight: 30, items: ['Pikachu','Bulbasaur','WrenIsOld','Tikitheg','Juju2y','The Mind of Orin','Cyatr9 (Block of Cheese)','Edunzie','The Dairy King','Bletelsnort','Zxno','Nikocado Avocado','JiDion','Nolan (MrBeast)','MrBeast','Markiplier','Drax','Gamora','Black Widow','Hawkeye','Elephant','Lion','Pringles Man','Bear','Windows 7','Windows 11','Dwayne The Rock','Kevin Hart','Chris Pratt','Tom Hanks','Tom Holland','Eminem','Tupac','Biggie','Taylor Swift','The Weeknd','Kanye West','IShowSpeed','John Cena','Kanye East','Iron Golem','Villager','Human'] },
+  decent: { rate: 0.50, weight: 20, items: ['Freddy','Groot','Iron Man','Ronald McDonald','Peppa Pig','Bluey','Jedi','War Machine','Tom Cruise','Black Panther','Captain America','Batman','Charizard','Spider-Man','Green Goblin','Nebula','Mario','Luigi','Megamind','Megalodon','T-Rex','Harry Potter'] },
+  hard: { rate: 0.25, weight: 10, items: ['Pluto','Venom','Carnage','Loki','Lucky the Cat','Ender Dragon','Warden','Captain Crunch','Voldemort','The Moon','Darth Vader','Palpatine','Deadpool','Wolverine','Doctor Strange','Scarlet Witch','Vision','Ant-Man','Wasp','Shrek','Donkey','Po','Hiccup','Toothless','Sonic','Tails','Knuckles','Kirby','Meta Knight'] },
+  superhard: { rate: 0.10, weight: 4, items: ['Superman','Magneto','Thanos','Invincible','Sentry','Omni-Man','Earth','Venus','Mars','Mercury','Daddy Pig','Goku','Grimace','Thor','Hulk','Doctor Fate','Green Lantern','Flash','Aquaman','Kratos','Master Chief','Link','Zelda','Arceus','Mewtwo','Rayquaza','Godzilla','King Kong','Optimus Prime'] },
+  impossible: { rate: 0.01, weight: 1, items: ['Dr Doom','Galactus','The Devil','Chuck Norris','God','The Universe','The One Above All','Stan Lee','A Black Hole','A White Hole','Time','Space','Gravity','The Watcher','Living Tribunal','Eternity','Infinity','Darkseid','Anti-Monitor','The Presence','One Punch Man','Zeno','The Collector','Dormammu','Galactic Emperor','Multiverse','Reality','Dimensions','Infinity'] }
 };
 
 const BALL_MULTIPLIERS = { normal: 1, super: 1.5, omega: 4, god: 999 };
@@ -630,10 +586,13 @@ const DIFF_LABELS = { easy: 'Easy', normal: 'Normal', decent: 'Decent', hard: 'H
 const DIFF_EMOJIS = { easy: '🟢', normal: '🔵', decent: '🟡', hard: '🔴', superhard: '🟣', impossible: '💀' };
 
 const SAVE_KEY = 'catchAnything_save';
+const MODE_KEY = 'wrenMode';
+let state = defaultState();
+
 function defaultState() {
   return { balls: { normal: 0, super: 0, omega: 0, god: 0 }, inventory: {}, encounter: null, throwsLeft: 0, selectedBall: 'normal' };
 }
-let state = defaultState();
+
 function loadState() {
   try {
     const s = JSON.parse(localStorage.getItem(SAVE_KEY));
@@ -652,12 +611,18 @@ function saveState() {
 
 function switchTab(tab) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  const idx = ['catch','balls','inventory'].indexOf(tab);
-  document.querySelectorAll('.tab')[idx].classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active', 'tab-pop'));
+  const panel = document.getElementById('tab-' + tab);
+  panel.classList.add('active');
+  const idx = ['catch','balls','inventory','chances'].indexOf(tab);
+  const tabBtn = document.querySelectorAll('.tab')[idx];
+  if (tabBtn) {
+    tabBtn.classList.add('active', 'tab-pop');
+    setTimeout(() => tabBtn.classList.remove('tab-pop'), 240);
+  }
   if (tab === 'inventory') renderInventory();
   if (tab === 'catch') renderBallSelector();
+  if (tab === 'chances') renderChanceTable();
 }
 
 function getBalls() {
@@ -681,6 +646,7 @@ function getBalls() {
     saveState();
     updateBallCounts();
     renderBallSelector();
+    if (state.encounter) renderEncounter();
 
     const labels = { normal: '⚾ Normal!', super: '🎾 Super!', omega: '🏀 Omega!!', god: '✨ GOD LIGHT!!!' };
     const count = got === 'god' ? 6 : got === 'omega' ? 5 : got === 'super' ? 3 : 2;
@@ -720,12 +686,24 @@ function renderBallSelector() {
     btn.className = 'ball-select-btn' + (isSelected ? ` selected selected-${b}` : '');
     btn.disabled = state.balls[b] === 0 && !isSelected;
     btn.innerHTML = `${BALL_ICONS[b]} ${b.charAt(0).toUpperCase()+b.slice(1)} <span style="opacity:0.7">(${state.balls[b]})</span>`;
-    btn.onclick = () => { if (state.balls[b] > 0) { state.selectedBall = b; saveState(); renderBallSelector(); } };
+    btn.onclick = () => {
+      if (state.balls[b] > 0) {
+        state.selectedBall = b;
+        saveState();
+        renderBallSelector();
+        if (state.encounter) renderEncounter();
+      }
+    };
     sel.appendChild(btn);
   });
   if (state.balls[state.selectedBall] === 0) {
     const fallback = ['normal','super','omega','god'].find(b => state.balls[b] > 0);
-    if (fallback) { state.selectedBall = fallback; saveState(); renderBallSelector(); }
+    if (fallback) {
+      state.selectedBall = fallback;
+      saveState();
+      renderBallSelector();
+      if (state.encounter) renderEncounter();
+    }
   }
 }
 
@@ -738,7 +716,6 @@ function pickDifficulty() {
   }
   return 'easy';
 }
-
 function pickItem(diff) {
   const items = THINGS[diff].items;
   return items[Math.floor(Math.random() * items.length)];
@@ -791,10 +768,7 @@ function showSearchingState() {
 }
 
 function spawnCatchBurst(cx, cy, diff) {
-  const colors = {
-    easy: 'var(--easy)', normal: 'var(--normal)', decent: 'var(--decent)',
-    hard: 'var(--hard)', superhard: 'var(--superhard)', impossible: 'var(--impossible)'
-  };
+  const colors = { easy: 'var(--easy)', normal: 'var(--normal)', decent: 'var(--decent)', hard: 'var(--hard)', superhard: 'var(--superhard)', impossible: 'var(--impossible)' };
   const emojis = ['✨','💫','⭐','✦','✧','🌟'];
   for (let i = 0; i < 14; i++) {
     const p = document.createElement('div');
@@ -813,7 +787,6 @@ function spawnCatchBurst(cx, cy, diff) {
   ring.className = 'reveal-ring';
   ring.style.left = cx + 'px';
   ring.style.top = cy + 'px';
-  ring.style.borderColor = 'rgba(255,255,255,0.4)';
   document.body.appendChild(ring);
   setTimeout(() => ring.remove(), 900);
 }
@@ -879,6 +852,7 @@ function throwBall() {
   saveState();
   updateBallCounts();
   renderBallSelector();
+  if (state.encounter) renderEncounter();
 
   const { diff, item } = state.encounter;
   const rate = Math.min(1, THINGS[diff].rate * BALL_MULTIPLIERS[ball]);
@@ -893,7 +867,6 @@ function throwBall() {
     state.encounter = null; state.throwsLeft = 0;
     document.getElementById('throwBtn').disabled = true;
     setFindMode(false);
-
     box.className = 'encounter-box caught anim-success';
     box.innerHTML = `
       <div style="font-size:3em">🎉</div>
@@ -902,7 +875,6 @@ function throwBall() {
       <div style="font-size:0.85em;color:var(--muted)">Added to your inventory</div>
     `;
     showThrowResult(`✅ You caught ${item}!`, 'caught-result');
-
     const r = box.getBoundingClientRect();
     spawnCatchBurst(r.left + r.width / 2, r.top + r.height / 2, diff);
   } else {
@@ -920,7 +892,7 @@ function throwBall() {
       document.getElementById('throwBtn').disabled = true;
     } else {
       box.className = 'encounter-box active anim-shake';
-      setTimeout(() => { box.className = 'encounter-box active'; renderEncounter(); }, 500);
+      setTimeout(() => { if (state.encounter) renderEncounter(); }, 500);
       showThrowResult(`❌ Missed! ${state.throwsLeft} throw${state.throwsLeft!==1?'s':''} left.`, 'miss-result');
     }
   }
@@ -962,6 +934,30 @@ function renderInventory() {
   list.innerHTML = html;
 }
 
+function renderChanceTable() {
+  const wrap = document.getElementById('chanceTable');
+  const diffs = ['easy','normal','decent','hard','superhard','impossible'];
+  const balls = ['normal','super','omega','god'];
+  let html = '';
+
+  html += `<div class="chance-row">`;
+  html += `<div class="chance-head">Difficulty</div>`;
+  balls.forEach(b => html += `<div class="chance-head">${BALL_ICONS[b]} ${b.charAt(0).toUpperCase()+b.slice(1)}</div>`);
+  html += `</div>`;
+
+  diffs.forEach(diff => {
+    html += `<div class="chance-row">`;
+    html += `<div class="chance-cell chance-diff"><div>${DIFF_LABELS[diff]}</div><div class="chance-small">Base ${Math.round(THINGS[diff].rate * 100)}%</div></div>`;
+    balls.forEach(ball => {
+      const rate = Math.min(1, THINGS[diff].rate * BALL_MULTIPLIERS[ball]);
+      html += `<div class="chance-cell" style="color:var(--${ball === 'omega' ? 'omega-ball' : ball === 'super' ? 'super-ball' : ball === 'god' ? 'god-ball' : 'normal-ball'})">${Math.round(rate * 100)}%</div>`;
+    });
+    html += `</div>`;
+  });
+
+  wrap.innerHTML = html;
+}
+
 function clearInventory() {
   if (!confirm('Clear your entire inventory? This cannot be undone!')) return;
   state.inventory = {};
@@ -983,12 +979,6 @@ function spawnSparkles(cx, cy) {
   }
 }
 
-loadState();
-updateBallCounts();
-renderBallSelector();
-renderEncounterEmpty();
-
-const MODE_KEY = 'wrenMode';
 function applyMode(m) {
   document.body.className = 'mode-' + m;
   const btn = document.getElementById('modeToggle');
@@ -999,35 +989,23 @@ function toggleMode() {
   const cur = localStorage.getItem(MODE_KEY) || 'dark';
   applyMode(cur === 'dark' ? 'light' : 'dark');
 }
-applyMode(localStorage.getItem(MODE_KEY) || 'dark');
-</script>
 
-<canvas id="galaxyCanvas"></canvas>
-<canvas id="dayCanvas"></canvas>
-<script>
+loadState();
+updateBallCounts();
+renderBallSelector();
+renderEncounterEmpty();
+renderChanceTable();
+applyMode(localStorage.getItem(MODE_KEY) || 'dark');
+
 (function() {
   const canvas = document.getElementById('dayCanvas');
   const ctx = canvas.getContext('2d');
   let W, H, clouds = [];
   function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
   function makeCloud() {
-    return {
-      x: Math.random() * W + W * 0.2,
-      y: Math.random() * H * 0.55 + 20,
-      r: 50 + Math.random() * 90,
-      speed: 0.12 + Math.random() * 0.18,
-      alpha: 0.55 + Math.random() * 0.35,
-      puffs: Array.from({length: 5 + Math.floor(Math.random()*4)}, () => ({
-        ox: (Math.random()-0.5) * 80,
-        oy: (Math.random()-0.5) * 30,
-        r: 30 + Math.random() * 50
-      }))
-    };
+    return { x: Math.random() * W + W * 0.2, y: Math.random() * H * 0.55 + 20, r: 50 + Math.random() * 90, speed: 0.12 + Math.random() * 0.18, alpha: 0.55 + Math.random() * 0.35, puffs: Array.from({length: 5 + Math.floor(Math.random()*4)}, () => ({ ox: (Math.random()-0.5) * 80, oy: (Math.random()-0.5) * 30, r: 30 + Math.random() * 50 })) };
   }
-  function init() {
-    resize();
-    clouds = Array.from({length: 9}, () => { const cl = makeCloud(); cl.x = Math.random() * W; return cl; });
-  }
+  function init() { resize(); clouds = Array.from({length: 9}, () => { const cl = makeCloud(); cl.x = Math.random() * W; return cl; }); }
   function draw() {
     ctx.clearRect(0, 0, W, H);
     const sunGrad = ctx.createRadialGradient(W*0.78, H*0.1, 10, W*0.78, H*0.1, 90);
@@ -1061,28 +1039,12 @@ applyMode(localStorage.getItem(MODE_KEY) || 'dark');
   let W, H, stars = [], shootingStars = [];
   function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
   function makeStar() {
-    return {
-      x: Math.random() * W,
-      y: Math.random() * H,
-      r: Math.random() * 1.6 + 0.2,
-      alpha: Math.random() * 0.7 + 0.2,
-      speed: Math.random() * 0.003 + 0.001,
-      phase: Math.random() * Math.PI * 2,
-      hue: [null, null, null, '200,180,255', '160,200,255', '255,180,220'][Math.floor(Math.random() * 6)]
-    };
+    return { x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.6 + 0.2, alpha: Math.random() * 0.7 + 0.2, speed: Math.random() * 0.003 + 0.001, phase: Math.random() * Math.PI * 2, hue: [null, null, null, '200,180,255', '160,200,255', '255,180,220'][Math.floor(Math.random() * 6)] };
   }
   function makeShootingStar() {
     const angle = Math.PI / 6 + Math.random() * Math.PI / 6;
     const speed = 6 + Math.random() * 10;
-    return {
-      x: Math.random() * W * 0.8,
-      y: Math.random() * H * 0.4,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      len: 60 + Math.random() * 80,
-      life: 0,
-      maxLife: 60 + Math.random() * 40
-    };
+    return { x: Math.random() * W * 0.8, y: Math.random() * H * 0.4, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, len: 60 + Math.random() * 80, life: 0, maxLife: 60 + Math.random() * 40 };
   }
   function init() {
     resize();
@@ -1091,8 +1053,7 @@ applyMode(localStorage.getItem(MODE_KEY) || 'dark');
       const s = makeStar();
       s.x = W * 0.55 + (Math.random() - 0.5) * W * 0.5;
       s.y = H * 0.35 + (Math.random() - 0.5) * H * 0.5;
-      s.r *= 0.7;
-      s.alpha *= 0.5;
+      s.r *= 0.7; s.alpha *= 0.5;
       stars.push(s);
     }
   }
@@ -1102,8 +1063,7 @@ applyMode(localStorage.getItem(MODE_KEY) || 'dark');
     frame++;
     for (const s of stars) {
       const a = s.alpha * (0.6 + 0.4 * Math.sin(frame * s.speed + s.phase));
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fillStyle = s.hue ? `rgba(${s.hue},${a})` : `rgba(255,255,255,${a})`;
       ctx.fill();
     }
@@ -1118,12 +1078,8 @@ applyMode(localStorage.getItem(MODE_KEY) || 'dark');
       grad.addColorStop(0, `rgba(255,255,255,${alpha})`);
       grad.addColorStop(0.4, `rgba(200,180,255,${alpha * 0.5})`);
       grad.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.beginPath();
-      ctx.moveTo(ss.x, ss.y);
-      ctx.lineTo(ss.x - ss.vx * len, ss.y - ss.vy * len);
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ss.x, ss.y); ctx.lineTo(ss.x - ss.vx * len, ss.y - ss.vy * len);
+      ctx.strokeStyle = grad; ctx.lineWidth = 1.5; ctx.stroke();
       if (ss.life >= ss.maxLife || ss.x > W + 50 || ss.y > H + 50) shootingStars.splice(i, 1);
     }
     requestAnimationFrame(draw);
