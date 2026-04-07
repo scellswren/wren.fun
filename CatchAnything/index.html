@@ -499,12 +499,21 @@
   .inv-items { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
   .inv-item {
     background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 9px; padding: 5px 11px;
+    border-radius: 9px; padding: 5px 8px 5px 11px;
     font-size: 0.81em; font-weight: 700;
-    display: flex; align-items: center; gap: 5px;
+    display: flex; align-items: center; gap: 8px;
     transition: transform 0.15s;
   }
   .inv-item:hover { transform: scale(1.04); }
+  .inv-item-main { display: inline-flex; align-items: center; gap: 6px; }
+  .inv-item-remove {
+    width: 24px; height: 24px; border-radius: 999px;
+    border: 1px solid rgba(239,68,68,0.3);
+    background: rgba(239,68,68,0.08);
+    color: #ef4444; font-weight: 900; line-height: 1;
+    cursor: pointer; flex: 0 0 auto;
+  }
+  .inv-item-remove:hover { background: rgba(239,68,68,0.16); }
   .inv-item-easy       { border-color: rgba(34,197,94,0.25); }
   .inv-item-normal     { border-color: rgba(59,130,246,0.25); }
   .inv-item-decent     { border-color: rgba(245,158,11,0.25); }
@@ -610,6 +619,15 @@
   .modal-title { font-family: 'Rubik Mono One', monospace; font-size: 1.05em; margin-bottom: 10px; }
   .modal-text  { color: var(--muted); line-height: 1.65; font-size: 0.94em; margin-bottom: 18px; }
   .modal-actions { display: flex; gap: 10px; }
+  .delete-field { margin-bottom: 18px; }
+  .delete-label { display:block; font-size:0.78em; color:var(--muted); margin-bottom:8px; font-weight:700; letter-spacing:0.4px; }
+  .delete-input {
+    width: 100%; padding: 13px 14px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: var(--surface2); color: var(--text);
+    font-family: 'Rubik', sans-serif; font-size: 1em; font-weight: 700;
+    outline: none;
+  }
+  .delete-input:focus { border-color: rgba(124,58,237,0.7); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
   .modal-btn {
     flex: 1; border: none; border-radius: var(--radius-sm); padding: 13px 14px;
     font-family: 'Rubik', sans-serif; font-weight: 900; cursor: pointer;
@@ -759,17 +777,32 @@
   </div>
 </div>
 
+<!-- DELETE MODAL -->
+<div class="modal-backdrop" id="deleteModal">
+  <div class="modal-box" role="dialog" aria-modal="true">
+    <div class="modal-title">Delete character</div>
+    <div class="modal-text">Remove <b id="deleteItemName"></b> from your inventory.</div>
+    <div class="delete-field">
+      <label class="delete-label" for="deleteAmountInput">Amount to delete</label>
+      <input id="deleteAmountInput" class="delete-input" type="number" min="1" value="1">
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn ghost" onclick="closeDeleteModal()">Cancel</button>
+      <button class="modal-btn danger" onclick="confirmDeleteItem()">Delete</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ── DATA ── */
 const THINGS = {
   easy: { rate:0.60, weight:60, items:["Chair", "Worm", "Cat", "Dog", "Toad", "Salmon", "Crab", "Bottle", "Pig", "Sheep", "Cow", "Deer", "Rat", "Plate", "Toothpick", "Pencil", "Apple", "Banana", "Bread", "Sock", "Mug", "Cup", "Pen", "Notebook", "Rock", "Leaf", "Stick", "Carrot", "Egg", "Orange", "Sandwich", "Mushroom", "Mouse", "Hamster", "Duck", "Chicken", "Goose", "Cowboy Hat", "Bean", "Tissue", "Paperclip", "Rubber Duck", "Golf Ball", "T-Shirt", "Shoe", "Pillow", "Blanket", "Lamp", "Mop", "Bucket", "Broom", "Spatula", "Potato", "Carpet", "Old Woman", "Infant", "Steven Hawking", "Ipad", "Minecraft Goat", "Minecraft Pig", "Minecraft Llama", "Dart Monkey", "Pak'nsave Stick Man", "Success Kid", "Jamal Watkins", "Hasbulla", "The Rizzler", "Caterpie", "Peter Wisdom", "Troll", "Frog", "Snail", "Ant", "Butterfly", "Ladybug", "Wren", "Goat", "Sheepdog", "Corn", "Kiwi Fruit", "Candle", "Stapler", "Glue Stick", "Fork", "Spoon", "Tea Bag", "Napkin", "Hair Tie", "Umbrella", "Bookmark", "Wallet", "Key", "Phone Charger", "Eraser", "Scarf", "Beanie", "Soda Can", "Popsicle", "Dustpan", "Cheese Slice", "Banana Peel", "Ketchup Packet", "Jelly Bean", "Marble", "Paper Airplane", "Toy Car", "Plastic Fork", "Tin Can", "Soap Bubble", "Tissue Box", "Paint Brush", "Chalk", "Pencil Sharpener", "Paper Bag", "Spaghetti", "Clothespin", "Button", "Acorn", "Pebble", "Twig", "Pinecone"] },
-  normal: { rate:0.40, weight:30, items:["Pikachu", "Bulbasaur", "Eevee", "Squirtle", "Charmander", "WrenIsOld", "Tikitheg", "Juju2y", "The Mind of Orin", "Cyatr9 (Block of Cheese)", "Edunzie", "The Dairy King", "Bletelsnort", "Zxno", "Nikocado Avocado", "JiDion", "Nolan MrBeast", "MrBeast", "Markiplier", "PewDiePie", "Jacksepticeye", "KSI", "IShowSpeed", "Dream", "Ninja", "Pokimane", "Valkyrae", "CoryxKenshin", "Kai Cenat", "CaseOh", "HasanAbi", "Thor Kid Version", "Elephant", "Lion", "Pringles Man", "Bear", "Windows 7", "Windows 11", "Dwayne The Rock", "Kevin Hart", "Chris Pratt", "Tom Hanks", "Tom Holland", "Eminem", "Tupac", "Biggie", "Taylor Swift", "The Weeknd", "Kanye West", "John Cena", "Kanye East", "Iron Golem", "Villager", "Human", "Kermit", "Shrek Baby", "Minnie Mouse", "Jerry", "Tom", "Garfield", "Snoopy", "SpongeBob Baby", "Patrick Baby", "Bluey Pup", "Mario Kart Mario", "Luigi Kart", "Link Child", "Zelda Child", "Doctor", "Firefighter", "Teacher", "Chef", "Mechanic", "Farmer", "Builder", "Police Officer", "Nurse", "Delivery Driver", "Runner", "Swimmer", "Student", "Mom", "Dad", "Teenager", "Adult Man", "Adult Woman", "Horse", "Camel", "Seal", "Penguin", "Koala", "Raccoon", "Librarian", "Barista", "Cashier", "Mail Carrier", "Bus Driver", "Tour Guide"] },
-  decent: { rate:0.30, weight:20, items:["Drax", "Gamora", "Green Arrow", "Freddy", "Groot", "Iron Man", "Captain America", "Black Panther", "Spider-Man", "Batman", "Super Mario", "Luigi", "Peppa Pig", "Bluey", "Ronald McDonald", "Jedi", "War Machine", "Tom Cruise", "Green Goblin", "Nebula", "Megalodon", "T-Rex", "Harry Potter", "Tails", "Knuckles", "Kirby", "Meta Knight", "Donkey Kong", "Link", "Zelda", "Samus", "Master Chief Armored", "Aang", "Momo", "Stitch", "Shrek", "Donkey", "Po", "Hiccup", "Toothless", "Mickey Mouse", "Goofy", "Donald Duck", "Spongebob", "Patrick", "Sandy Cheeks", "Roblox Noob", "Among Us Crewmate", "Homer Simpson", "Ned Flanders", "Walter White", "Venom Symbiote Host", "Gru", "Megamind Adjusted", "Captain Jack Sparrow", "Indiana Jones", "Ferris Bueller", "Deadpool Masked", "Optimus Prime Damaged", "Batman Beyond", "Miles Morales", "Catwoman", "Ms. Marvel", "Black Widow Classic", "Hawkeye Classic", "Robin Hood", "Puss in Boots", "Jack Sparrow", "Ahsoka Tano", "Mandalorian Armored", "Star-Lord Prime", "Boba Fett Elite", "Tails the Fox", "Knuckles the Echidna", "Crash Bandicoot", "Spyro the Dragon", "Mega Man", "Lara Croft", "Solid Snake", "Sam Fisher", "Batman Detective", "Doctor Octopus", "Mysterio", "Falcon", "Winter Soldier", "Raven Teen Titans", "Beast Boy", "Starfire", "Robin Dick Grayson", "Black Panther Stealth", "Miles Morales Spider-Verse", "Black Widow", "Hawkeye", "Star-Lord", "Rocket Raccoon"] },
-  hard: { rate:0.20, weight:10, items:["Sonic the Hedgehog", "Pluto", "Venom", "Carnage", "Loki", "Warden", "Ender Dragon", "Voldemort", "Darth Vader", "Palpatine", "The Moon", "The Sun", "Deadpool", "Wolverine", "Ant-Man", "Wasp", "Vision", "Captain Crunch", "Lucky the Cat", "Shrek Ogre Mode", "Bowser", "Wario", "Joker", "Harley Quinn", "Aquaman", "Wonder Woman", "Batman Dark Knight", "Supergirl", "Flash", "Green Lantern", "Cyborg", "Lex Luthor", "Kylo Ren", "Obi-Wan Kenobi", "Mandalorian", "Boba Fett", "Anakin Skywalker", "Gandalf", "Frodo", "Neo", "Trinity", "John Wick", "Morpheus", "Godzilla", "King Kong", "Megamind", "Toothless", "Sonic", "Shadow the Hedgehog", "Metal Sonic", "Daddy Pig", "Scorpion", "Sub-Zero", "Raiden", "Kratos", "Master Chief", "Pikmin", "Mewtwo", "Doctor Fate", "Black Adam", "Black Canary", "Nightwing", "Spider-Man 2099", "Doctor Doom Masked", "Shang-Chi", "Moon Knight", "Hulk", "Doctor Strange", "Thor", "Doctor Doom", "Hela", "Hulkbuster", "Kraven the Hunter", "The Winter Soldier", "Bane", "Captain America Old Man", "Iron Man Mark III", "Black Panther Armored", "Spider-Man Noir", "Deadpool X-Force", "Batgirl", "Batwoman", "Hawkgirl", "Blue Beetle", "Shazam Jr.", "Ghost Rider", "Ms. Marvel Binary", "The Punisher", "Bayonetta", "Link Hero of Time", "Itachi", "Mario", "Megatron", "Shadow", "Hulk Rage Mode", "Thor Warrior", "Doctor Strange Sorcerer Supreme"] },
-  superhard: { rate:0.10, weight:4, items:["Superman", "Thanos", "Invincible", "Sentry", "Omni-Man", "Goku", "Green Lantern", "Flash", "Aquaman", "Kratos", "Master Chief", "Link", "Zelda", "Arceus", "Mewtwo", "Rayquaza", "Godzilla", "King Kong", "Optimus Prime", "Darkseid", "Reverse Flash", "Martian Manhunter", "Shazam", "Deadshot", "Red Hood", "Spawn", "Broly", "Vegeta", "Beerus", "Jiren", "Saitama", "Genos", "Luffy", "Naruto", "Sasuke", "Ichigo", "Tanjiro", "Nezuko", "Doom Slayer", "Silver Surfer", "Dormammu", "Galactus", "Scarlet Witch", "Doctor Strange Supreme", "Scarlet Witch Westview", "Darth Maul", "Yoda", "Luke Skywalker", "Din Djarin", "Pikachu Gigantamax", "Bowser Jr.", "Waluigi", "Super Sonic", "Hyper Sonic", "Ultra Instinct Goku", "Perfect Cell", "Ben 10", "Ben 10 Alien X", "Rick Sanchez", "The Hulkbuster", "Kratos God Mode", "Sora", "Riku", "Cloud Strife", "Sephiroth", "Aether", "Lumine", "Garen", "Zoro", "Tanjiro Sun Breathing", "Doom Slayer Praetor", "The Thing", "Fantastic Four Thing", "Captain Marvel", "Black Bolt", "The Spectre", "Dormammu True Form", "Galactus Hunger", "TOAA Avatar", "Nexus Being", "Phoenix Force", "The Fulcrum", "The Judge", "The Hand", "Arceus Prime", "Super Saiyan Blue Goku", "Broly Crossover", "Invincible Full Power", "Omni-Man Full Power", "Sentry Solar", "Martian Manhunter Prime", "Superman Prime", "Luffy Gear 5", "Naruto Six Paths", "Ichigo Bankai"] },
-  impossible: { rate:0.01, weight:1, items:["Dr Doom", "Galactus", "The Devil", "Chuck Norris", "God", "The Universe", "The One Above All", "Stan Lee", "A Black Hole", "A White Hole", "Time", "Space", "Gravity", "The Watcher", "Living Tribunal", "Eternity", "Infinity", "Darkseid", "Anti-Monitor", "The Presence", "One Punch Man", "Zeno", "The Collector", "Dormammu", "Galactic Emperor", "Multiverse", "Reality", "Dimensions", "Loki God of Stories", "The One Below All", "Scarlet King", "True Form Darkseid", "The Living Tribunal", "The Writer", "TOAA", "Living God of Speed", "Anti-Life Equation", "The Beyonder", "The Maker", "Knull", "Molecule Man", "Cosmic Armor Superman", "Unicron", "Sauron", "Balrog", "The Night King", "Cthulhu", "SCP-3812", "The One Above All True Form", "The Endless", "Mikami", "The Creator", "The Final Boss", "The Simulation", "The Code", "Omnipotence", "Infinite Timelines", "Everyone Everywhere", "Everything", "The Multiverse", "The Void", "All of Existence", "The Source", "The End", "The Beginning", "The Alpha and Omega", "Eternity True Form", "Infinity True Form", "Reality True Form", "Dimensions True Form", "Time True Form", "Space True Form", "Gravity True Form", "A Black Hole Primordial", "A White Hole Primordial", "God True Form", "The Universe True Form", "The Cosmic Web", "The Final Truth"] },
+  normal: { rate:0.40, weight:30, items:["Pikachu", "Bulbasaur", "Eevee", "Squirtle", "Charmander", "WrenIsOld", "Tikitheg", "Juju2y", "The Mind of Orin", "Cyatr9 (Block of Cheese)", "Edunzie", "The Dairy King", "Bletelsnort", "Zxno", "Nikocado Avocado", "JiDion", "Nolan MrBeast", "MrBeast", "Markiplier", "PewDiePie", "Jacksepticeye", "KSI", "IShowSpeed", "Dream", "Ninja", "Pokimane", "Valkyrae", "CoryxKenshin", "Kai Cenat", "CaseOh", "HasanAbi", "Thor Kid Version", "Elephant", "Lion", "Pringles Man", "Bear", "Windows 7", "Windows 11", "Dwayne The Rock", "Kevin Hart", "Chris Pratt", "Tom Hanks", "Tom Holland", "Eminem", "Tupac", "Biggie", "Taylor Swift", "The Weeknd", "Kanye West", "John Cena", "Kanye East", "Iron Golem", "Villager", "Human", "Kermit", "Shrek Baby", "Minnie Mouse", "Jerry", "Tom", "Garfield", "Snoopy", "SpongeBob Baby", "Patrick Baby", "Bluey Pup", "Mario Kart Mario", "Luigi Kart", "Link Child", "Zelda Child", "Doctor", "Firefighter", "Teacher", "Chef", "Mechanic", "Farmer", "Builder", "Police Officer", "Nurse", "Delivery Driver", "Runner", "Swimmer", "Student", "Mom", "Dad", "Teenager", "Adult Man", "Adult Woman", "Horse", "Camel", "Seal", "Penguin", "Koala", "Raccoon", "Librarian", "Barista", "Cashier", "Mail Carrier", "Bus Driver", "Tour Guide", "Isaac Newton", "Albert Einstein", "Amelia Earhart"] },
+  decent: { rate:0.30, weight:20, items:["Drax", "Gamora", "Groot", "Green Arrow", "Freddy", "Iron Man", "Captain America", "Black Panther", "Spider-Man", "Batman", "Super Mario", "Luigi", "Peppa Pig", "Bluey", "Ronald McDonald", "Jedi", "War Machine", "Tom Cruise", "Green Goblin", "Nebula", "Megalodon", "T-Rex", "Harry Potter", "Tails", "Knuckles", "Kirby", "Meta Knight", "Donkey Kong", "Link", "Zelda", "Samus", "Master Chief Armored", "Aang", "Momo", "Stitch", "Shrek", "Donkey", "Po", "Hiccup", "Toothless", "Mickey Mouse", "Goofy", "Donald Duck", "Spongebob", "Patrick", "Sandy Cheeks", "Roblox Noob", "Among Us Crewmate", "Homer Simpson", "Ned Flanders", "Walter White", "Venom Symbiote Host", "Gru", "Megamind Adjusted", "Captain Jack Sparrow", "Indiana Jones", "Ferris Bueller", "Deadpool Masked", "Optimus Prime Damaged", "Batman Beyond", "Miles Morales", "Catwoman", "Ms. Marvel", "Black Widow Classic", "Hawkeye Classic", "Robin Hood", "Puss in Boots", "Jack Sparrow", "Ahsoka Tano", "Mandalorian Armored", "Star-Lord Prime", "Boba Fett Elite", "Tails the Fox", "Knuckles the Echidna", "Crash Bandicoot", "Spyro the Dragon", "Mega Man", "Lara Croft", "Solid Snake", "Sam Fisher", "Batman Detective", "Doctor Octopus", "Mysterio", "Falcon", "Winter Soldier", "Raven Teen Titans", "Beast Boy", "Starfire", "Robin Dick Grayson", "Black Panther Stealth", "Miles Morales Spider-Verse", "Black Widow", "Hawkeye", "Star-Lord", "Rocket Raccoon", "Bane", "Nightwing", "Batwoman", "Batgirl", "Batman Dark Knight"] },
+  hard: { rate:0.20, weight:10, items:["Sonic the Hedgehog", "Pluto", "Venom", "Carnage", "Loki", "Warden", "Ender Dragon", "Voldemort", "Darth Vader", "Palpatine", "The Moon", "The Sun", "Deadpool", "Wolverine", "Ant-Man", "Wasp", "Vision", "Captain Crunch", "Lucky the Cat", "Shrek Ogre Mode", "Bowser", "Wario", "Joker", "Harley Quinn", "Aquaman", "Wonder Woman", "Supergirl", "Flash", "Green Lantern", "Cyborg", "Lex Luthor", "Kylo Ren", "Obi-Wan Kenobi", "Mandalorian", "Boba Fett", "Anakin Skywalker", "Gandalf", "Frodo", "Neo", "Trinity", "John Wick", "Morpheus", "Godzilla", "King Kong", "Megamind", "Toothless", "Sonic", "Shadow the Hedgehog", "Metal Sonic", "Daddy Pig", "Scorpion", "Sub-Zero", "Raiden", "Kratos", "Master Chief", "Pikmin", "Mewtwo", "Doctor Fate", "Black Adam", "Black Canary", "Spider-Man 2099", "Doctor Doom Masked", "Shang-Chi", "Moon Knight", "Hela", "Hulkbuster", "Kraven the Hunter", "The Winter Soldier", "Captain America Old Man", "Iron Man Mark III", "Black Panther Armored", "Spider-Man Noir", "Deadpool X-Force", "Hawkgirl", "Blue Beetle", "Shazam Jr.", "Ghost Rider", "Ms. Marvel Binary", "The Punisher", "Bayonetta", "Link Hero of Time", "Itachi", "Mario", "Megatron", "Hulk Rage Mode", "Thor Warrior"] },
+  superhard: { rate:0.10, weight:4, items:["Superman", "Thanos", "Invincible", "Sentry", "Omni-Man", "Goku", "Green Lantern", "Flash", "Aquaman", "Kratos", "Master Chief", "Link", "Zelda", "Arceus", "Mewtwo", "Rayquaza", "Godzilla", "King Kong", "Optimus Prime", "Darkseid", "Reverse Flash", "Martian Manhunter", "Shazam", "Deadshot", "Red Hood", "Spawn", "Broly", "Vegeta", "Beerus", "Jiren", "Saitama", "Genos", "Luffy", "Naruto", "Sasuke", "Ichigo", "Tanjiro", "Nezuko", "Doom Slayer", "Silver Surfer", "Dormammu", "Galactus", "Dr. Strange", "Scarlet Witch", "Doctor Strange Supreme", "Scarlet Witch Westview", "Darth Maul", "Yoda", "Luke Skywalker", "Din Djarin", "Pikachu Gigantamax", "Bowser Jr.", "Waluigi", "Super Sonic", "Hyper Sonic", "Ultra Instinct Goku", "Perfect Cell", "Ben 10", "Ben 10 Alien X", "Rick Sanchez", "The Hulkbuster", "Kratos God Mode", "Sora", "Riku", "Cloud Strife", "Sephiroth", "Aether", "Lumine", "Garen", "Zoro", "Tanjiro Sun Breathing", "Doom Slayer Praetor", "The Thing", "Fantastic Four Thing", "Captain Marvel", "Black Bolt", "The Spectre", "Dormammu True Form", "Galactus Hunger", "TOAA Avatar", "Nexus Being", "Phoenix Force", "The Fulcrum", "The Judge", "The Hand", "Arceus Prime", "Super Saiyan Blue Goku", "Broly Crossover", "Invincible Full Power", "Omni-Man Full Power", "Sentry Solar", "Martian Manhunter Prime", "Superman Prime", "Luffy Gear 5", "Naruto Six Paths", "Ichigo Bankai", "hulk"] },
+  impossible: { rate:0.01, weight:1, items:["Dr Doom", "Galactus", "The Devil", "Chuck Norris", "God", "The Universe", "The One Above All", "Stan Lee", "A Black Hole", "A White Hole", "Time", "Space", "Gravity", "The Watcher", "Living Tribunal", "Eternity", "Infinity", "Darkseid", "Anti-Monitor", "The Presence", "One Punch Man", "Zeno", "The Collector", "Dormammu", "Galactic Emperor", "Multiverse", "Reality", "Dimensions", "Loki God of Stories", "The God of Stories Loki", "The One Below All", "Scarlet King", "True Form Darkseid", "The Living Tribunal", "The Writer", "TOAA", "Living God of Speed", "Anti-Life Equation", "The Beyonder", "The Maker", "Knull", "Molecule Man", "Cosmic Armor Superman", "Unicron", "Sauron", "Balrog", "The Night King", "Cthulhu", "SCP-3812", "The One Above All True Form", "The Endless", "Mikami", "The Creator", "The Final Boss", "The Simulation", "The Code", "Omnipotence", "Infinite Timelines", "Everyone Everywhere", "Everything", "The Multiverse", "The Void", "All of Existence", "The Source", "The End", "The Beginning", "The Alpha and Omega", "Eternity True Form", "Infinity True Form", "Reality True Form", "Dimensions True Form", "Time True Form", "Space True Form", "Gravity True Form", "A Black Hole Primordial", "A White Hole Primordial", "God True Form", "The Universe True Form", "The Cosmic Web", "The Final Truth"] },
 };
-
 const BALL_MULT  = { normal:1, super:1.5, omega:3, god:999 };
 const BALL_ICONS = { normal:'⚾', super:'🎾', omega:'🏀', god:'✨' };
 const BALL_NAMES = { normal:'Normal Wren Ball', super:'Super Wren Ball', omega:'Omega Wren Ball', god:'God Light Wren Ball' };
@@ -788,7 +821,7 @@ function loadState() {
     const s = JSON.parse(localStorage.getItem(SAVE_KEY));
     if (s) {
       state.balls       = s.balls       || state.balls;
-      state.inventory   = s.inventory   || {};
+      state.inventory   = s.inventory   || state.inventory;
       state.selectedBall= s.selectedBall|| 'normal';
     }
   } catch(e) {}
@@ -1138,24 +1171,70 @@ function clearThrowResult() {
 }
 
 /* ── INVENTORY ── */
+let deleteTarget = null;
+
+function openDeleteModal(name) {
+  const data = state.inventory[name];
+  if (!data) return;
+  deleteTarget = name;
+  document.getElementById('deleteItemName').textContent = name;
+  const input = document.getElementById('deleteAmountInput');
+  input.max = data.count;
+  input.value = 1;
+  document.getElementById('deleteModal').classList.add('show');
+  setTimeout(() => input.focus(), 0);
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('show');
+  deleteTarget = null;
+}
+
+function confirmDeleteItem() {
+  if (!deleteTarget) return closeDeleteModal();
+  const input = document.getElementById('deleteAmountInput');
+  const data = state.inventory[deleteTarget];
+  if (!data) return closeDeleteModal();
+
+  let amount = parseInt(input.value, 10);
+  if (!Number.isFinite(amount)) amount = 1;
+  amount = Math.max(1, Math.min(amount, data.count));
+
+  data.count -= amount;
+  if (data.count <= 0) delete state.inventory[deleteTarget];
+  saveState();
+  renderInventory();
+  closeDeleteModal();
+}
+
 function renderInventory() {
   const list  = document.getElementById('inventoryList');
   const diffs = ['easy','normal','decent','hard','superhard','impossible'];
   const totals = {}; diffs.forEach(d => { totals[d] = 0; });
-  for (const [, data] of Object.entries(state.inventory)) { if (totals[data.diff] !== undefined) totals[data.diff] += data.count; }
+
+  for (const [, data] of Object.entries(state.inventory)) {
+    if (totals[data.diff] !== undefined) totals[data.diff] += data.count;
+  }
   diffs.forEach(d => { document.getElementById('inv-cnt-' + d).textContent = totals[d]; });
 
   let html = '';
   diffs.forEach(diff => {
-    const items = Object.entries(state.inventory).filter(([,d]) => d.diff === diff);
+    const items = Object.entries(state.inventory).filter(([, d]) => d.diff === diff);
     if (!items.length) return;
+
     html += `<div class="inv-section-title">${DIFF_EMOJI[diff]} <span style="color:var(--${diff==='superhard'?'superhard':diff})">${DIFF_LABELS[diff]}</span></div>`;
     html += `<div class="inv-items">`;
+
     items.sort((a,b) => a[0].localeCompare(b[0])).forEach(([name, data]) => {
-      html += `<div class="inv-item inv-item-${diff}">${name}${data.count>1?`<span class="inv-item-count">×${data.count}</span>`:''}</div>`;
+      html += `<div class="inv-item inv-item-${diff}">
+        <span class="inv-item-main">${name}${data.count>1?`<span class="inv-item-count">×${data.count}</span>`:''}</span>
+        <button type="button" class="inv-item-remove" onclick='openDeleteModal(${JSON.stringify(name)})' aria-label="Delete ${name}">×</button>
+      </div>`;
     });
+
     html += `</div>`;
   });
+
   if (!html) html = `<div class="inv-empty">No catches yet! Head to Catch and start hunting. 🎯</div>`;
   list.innerHTML = html;
 }
@@ -1190,7 +1269,13 @@ function closeClearModal() { document.getElementById('clearModal').classList.rem
 function confirmClearInventory() { state.inventory={}; saveState(); renderInventory(); closeClearModal(); }
 
 document.getElementById('clearModal').addEventListener('click', e => { if (e.target.id==='clearModal') closeClearModal(); });
-window.addEventListener('keydown', e => { if (e.key==='Escape') closeClearModal(); });
+document.getElementById('deleteModal').addEventListener('click', e => { if (e.target.id==='deleteModal') closeDeleteModal(); });
+window.addEventListener('keydown', e => { 
+  if (e.key === 'Escape') {
+    closeClearModal();
+    closeDeleteModal();
+  }
+});
 
 /* ── SPARKLES / PARTICLES ── */
 function spawnSparkles(cx, cy) {
