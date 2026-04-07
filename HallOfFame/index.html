@@ -14,17 +14,32 @@
       --text: #f8f1ff;
       --muted: rgba(248, 241, 255, 0.78);
       --accent: #a855f7;
+      --scroll-track: rgba(255, 255, 255, 0.08);
+      --scroll-thumb: linear-gradient(180deg, #fff1a8 0%, #d4af37 45%, #8f6a00 100%);
+      --scroll-thumb-hover: linear-gradient(180deg, #fff7d0 0%, #ffd95a 45%, #b98200 100%);
     }
 
     * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
-      min-height: 100vh;
+      min-height: 100%;
       font-family: Arial, sans-serif;
       color: var(--text);
       text-align: center;
       overflow-x: hidden;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    body::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+
+    body {
+      min-height: 100vh;
       background:
         radial-gradient(circle at top left, rgba(168, 85, 247, 0.18), transparent 34%),
         radial-gradient(circle at bottom right, rgba(245, 158, 11, 0.12), transparent 32%),
@@ -329,6 +344,54 @@
       100% { transform: translateX(130%) skewX(-20deg); }
     }
 
+    /* Custom scrollbar */
+    #scrollRail {
+      position: fixed;
+      right: 10px;
+      top: 120px;
+      bottom: 22px;
+      width: 16px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.10));
+      border: 1px solid rgba(255, 215, 0, 0.16);
+      box-shadow:
+        inset 0 0 10px rgba(0, 0, 0, 0.22),
+        0 0 18px rgba(255, 215, 0, 0.05);
+      z-index: 999;
+      opacity: 0.95;
+      user-select: none;
+      touch-action: none;
+    }
+
+    #scrollThumb {
+      position: absolute;
+      left: 2px;
+      top: 0;
+      width: 12px;
+      height: 80px;
+      border-radius: 999px;
+      background: var(--scroll-thumb);
+      box-shadow:
+        0 0 10px rgba(255, 215, 0, 0.30),
+        inset 0 1px 0 rgba(255,255,255,0.55),
+        inset 0 -1px 0 rgba(120, 80, 0, 0.45);
+      cursor: grab;
+      transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    #scrollThumb:hover {
+      background: var(--scroll-thumb-hover);
+      box-shadow:
+        0 0 14px rgba(255, 215, 0, 0.42),
+        inset 0 1px 0 rgba(255,255,255,0.62),
+        inset 0 -1px 0 rgba(120, 80, 0, 0.50);
+      transform: scaleX(1.06);
+    }
+
+    #scrollThumb:active {
+      cursor: grabbing;
+    }
+
     @media (max-width: 520px) {
       #homeText {
         font-size: 1.7em;
@@ -353,6 +416,18 @@
 
       .subtext {
         font-size: 1em;
+      }
+
+      #scrollRail {
+        right: 6px;
+        top: 96px;
+        bottom: 14px;
+        width: 12px;
+      }
+
+      #scrollThumb {
+        left: 1px;
+        width: 8px;
       }
     }
   </style>
@@ -502,6 +577,10 @@
   <div class="more-coming">More coming soon</div>
 </div>
 
+<div id="scrollRail" aria-hidden="true">
+  <div id="scrollThumb"></div>
+</div>
+
 <script>
   const MODE_KEY = 'wrenMode';
   const savedMode = localStorage.getItem(MODE_KEY) || 'light';
@@ -510,6 +589,94 @@
   function goHome() {
     window.location.href = "../index.html";
   }
+
+  const scrollRail = document.getElementById('scrollRail');
+  const scrollThumb = document.getElementById('scrollThumb');
+
+  let isDragging = false;
+  let dragStartY = 0;
+  let dragStartScroll = 0;
+
+  function getMaxScroll() {
+    return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  }
+
+  function updateCustomScroll() {
+    const maxScroll = getMaxScroll();
+    const railHeight = scrollRail.clientHeight;
+
+    if (maxScroll <= 0 || railHeight <= 0) {
+      scrollRail.style.display = 'none';
+      return;
+    }
+
+    scrollRail.style.display = 'block';
+
+    const thumbHeight = Math.max(56, railHeight * (window.innerHeight / document.documentElement.scrollHeight));
+    const maxThumbTop = railHeight - thumbHeight;
+    const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+    const thumbTop = maxScroll === 0 ? 0 : (scrollTop / maxScroll) * maxThumbTop;
+
+    scrollThumb.style.height = thumbHeight + 'px';
+    scrollThumb.style.transform = `translateY(${thumbTop}px)`;
+  }
+
+  function scrollToFromRail(clientY) {
+    const railRect = scrollRail.getBoundingClientRect();
+    const maxScroll = getMaxScroll();
+    const railHeight = scrollRail.clientHeight;
+    const thumbHeight = scrollThumb.offsetHeight;
+    const maxThumbTop = railHeight - thumbHeight;
+
+    const y = clientY - railRect.top - thumbHeight / 2;
+    const clampedThumbTop = Math.max(0, Math.min(maxThumbTop, y));
+    const ratio = maxThumbTop === 0 ? 0 : clampedThumbTop / maxThumbTop;
+    window.scrollTo({
+      top: ratio * maxScroll,
+      behavior: 'auto'
+    });
+  }
+
+  scrollThumb.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    dragStartY = e.clientY;
+    dragStartScroll = window.scrollY || 0;
+    scrollThumb.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+
+  window.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+
+    const maxScroll = getMaxScroll();
+    const railHeight = scrollRail.clientHeight;
+    const thumbHeight = scrollThumb.offsetHeight;
+    const maxThumbTop = railHeight - thumbHeight;
+
+    const deltaY = e.clientY - dragStartY;
+    const scrollRatio = maxScroll === 0 ? 0 : deltaY / (maxThumbTop || 1);
+    const newScroll = dragStartScroll + scrollRatio * maxScroll;
+
+    window.scrollTo({
+      top: Math.max(0, Math.min(maxScroll, newScroll)),
+      behavior: 'auto'
+    });
+  });
+
+  window.addEventListener('pointerup', () => {
+    isDragging = false;
+  });
+
+  scrollRail.addEventListener('pointerdown', (e) => {
+    if (e.target === scrollThumb) return;
+    scrollToFromRail(e.clientY);
+  });
+
+  window.addEventListener('scroll', updateCustomScroll, { passive: true });
+  window.addEventListener('resize', updateCustomScroll);
+
+  window.addEventListener('load', updateCustomScroll);
+  document.addEventListener('DOMContentLoaded', updateCustomScroll);
 </script>
 
 </body>
