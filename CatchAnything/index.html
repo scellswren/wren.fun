@@ -267,7 +267,14 @@
     background: radial-gradient(circle at 50% 60%, rgba(124,58,237,0.05) 0%, transparent 70%);
     pointer-events: none;
   }
-  .encounter-box.active      { border-color: rgba(124,58,237,0.45); box-shadow: 0 0 30px rgba(124,58,237,0.08); }
+  .encounter-box.detecting {
+    border-color: rgba(6,182,212,0.7) !important;
+    animation: detectPulse 0.18s ease-in-out 3;
+    box-shadow: 0 0 40px rgba(6,182,212,0.2), inset 0 0 30px rgba(6,182,212,0.05);
+  }
+  @keyframes detectPulse { 0%,100%{box-shadow:0 0 20px rgba(6,182,212,0.1)} 50%{box-shadow:0 0 60px rgba(6,182,212,0.35), inset 0 0 40px rgba(6,182,212,0.08)} }
+  @keyframes contactPing { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.04)} }
+  @keyframes shockExpand { 0%{transform:translate(-50%,-50%) scale(1);opacity:0.9} 100%{transform:translate(-50%,-50%) scale(28);opacity:0} }
   .encounter-box.ran-off     { border-color: rgba(239,68,68,0.35); }
   .encounter-box.caught      { border-color: rgba(34,197,94,0.45); box-shadow: 0 0 30px rgba(34,197,94,0.08); }
   .encounter-box.revealing   { animation: revealPop 0.55s cubic-bezier(0.2,1.2,0.2,1) both; }
@@ -279,27 +286,97 @@
   @keyframes revealPop { 0%{transform:scale(0.93)} 55%{transform:scale(1.04)} 100%{transform:scale(1)} }
   @keyframes revealFlash { 0%{opacity:.9;transform:scale(0.7)} 100%{opacity:0;transform:scale(1.3)} }
 
-  /* ── RADAR ── */
-  .radar-wrap { position: relative; width: 110px; height: 110px; display: grid; place-items: center; }
-  .radar-core {
-    width: 26px; height: 26px; border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #fff 0%, #7dd3fc 30%, #2563eb 70%, #0f172a 100%);
-    box-shadow: 0 0 16px rgba(6,182,212,0.5);
-    position: relative; z-index: 2; animation: radarPulse 1.2s ease-in-out infinite;
+  /* ── RADAR — epic version ── */
+  .radar-wrap {
+    position: relative; width: 160px; height: 160px;
+    display: grid; place-items: center;
   }
-  .radar-ring, .radar-ring::before, .radar-ring::after { position: absolute; inset: 0; border-radius: 50%; content: ''; }
-  .radar-ring { border: 1.5px solid rgba(6,182,212,0.18); animation: radarExpand 1.5s ease-out infinite; }
-  .radar-ring::before { inset: 10px; border: 1.5px solid rgba(124,58,237,0.18); animation: radarExpand 1.5s ease-out infinite 0.25s; }
-  .radar-ring::after  { inset: 22px; border: 1.5px solid rgba(255,255,255,0.10); animation: radarExpand 1.5s ease-out infinite 0.5s; }
-  @keyframes radarExpand { 0%{transform:scale(0.4);opacity:0} 18%{opacity:.9} 100%{transform:scale(1.35);opacity:0} }
-  @keyframes radarPulse  { 0%,100%{transform:scale(0.94)} 50%{transform:scale(1.06)} }
-  .scan-sweep {
-    position: absolute; inset: -8px; border-radius: 50%;
-    background: conic-gradient(from 0deg, transparent 0 18%, rgba(6,182,212,0.22) 28%, transparent 42% 100%);
-    animation: sweepSpin 1.2s linear infinite; filter: blur(1px);
-    mask: radial-gradient(circle, transparent 0 34%, black 38% 100%);
+
+  /* Outer glow halo */
+  .radar-halo {
+    position: absolute; inset: -20px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(6,182,212,0.10) 0%, rgba(124,58,237,0.06) 40%, transparent 70%);
+    animation: haloBreath 2s ease-in-out infinite;
+  }
+  @keyframes haloBreath { 0%,100%{transform:scale(0.92);opacity:.6} 50%{transform:scale(1.08);opacity:1} }
+
+  /* Expanding concentric rings */
+  .radar-ring-1, .radar-ring-2, .radar-ring-3, .radar-ring-4 {
+    position: absolute; border-radius: 50%;
+    border: 1.5px solid rgba(6,182,212,0.25);
+    animation: ringExpand 2.4s ease-out infinite;
+  }
+  .radar-ring-1 { width: 40px; height: 40px; animation-delay: 0s; border-color: rgba(6,182,212,0.40); }
+  .radar-ring-2 { width: 40px; height: 40px; animation-delay: 0.6s; border-color: rgba(124,58,237,0.32); }
+  .radar-ring-3 { width: 40px; height: 40px; animation-delay: 1.2s; border-color: rgba(6,182,212,0.20); }
+  .radar-ring-4 { width: 40px; height: 40px; animation-delay: 1.8s; border-color: rgba(168,85,247,0.25); }
+  @keyframes ringExpand {
+    0%   { transform: scale(0.3); opacity: 0; }
+    10%  { opacity: 1; }
+    100% { transform: scale(5); opacity: 0; }
+  }
+
+  /* Rotating sweep arm */
+  .radar-sweep {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(from 0deg,
+      transparent 0deg 300deg,
+      rgba(6,182,212,0.08) 300deg 330deg,
+      rgba(6,182,212,0.35) 330deg 355deg,
+      rgba(255,255,255,0.55) 355deg 360deg
+    );
+    animation: sweepSpin 1.1s linear infinite;
+    mask: radial-gradient(circle, transparent 14%, black 18%);
   }
   @keyframes sweepSpin { to { transform: rotate(360deg); } }
+
+  /* Sweep trail fade */
+  .radar-sweep-trail {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(from 0deg,
+      transparent 0deg 260deg,
+      rgba(6,182,212,0.04) 260deg 355deg,
+      transparent 355deg 360deg
+    );
+    animation: sweepSpin 1.1s linear infinite;
+    mask: radial-gradient(circle, transparent 14%, black 18%);
+  }
+
+  /* Static grid lines (crosshair) */
+  .radar-grid {
+    position: absolute; inset: 12px; border-radius: 50%;
+    border: 1px solid rgba(6,182,212,0.08);
+    overflow: hidden;
+  }
+  .radar-grid::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(transparent 49.5%, rgba(6,182,212,0.10) 49.5%, rgba(6,182,212,0.10) 50.5%, transparent 50.5%),
+      linear-gradient(90deg, transparent 49.5%, rgba(6,182,212,0.10) 49.5%, rgba(6,182,212,0.10) 50.5%, transparent 50.5%);
+  }
+
+  /* Blips — random dots that appear/disappear */
+  .radar-blip {
+    position: absolute; width: 5px; height: 5px; border-radius: 50%;
+    background: #06b6d4; box-shadow: 0 0 8px #06b6d4, 0 0 20px rgba(6,182,212,0.6);
+    animation: blipFade 1.6s ease-in-out infinite;
+  }
+  .radar-blip:nth-child(1) { top: 28%; left: 60%; animation-delay: 0s; }
+  .radar-blip:nth-child(2) { top: 55%; left: 25%; animation-delay: 0.5s; width: 4px; height: 4px; background: #a855f7; box-shadow: 0 0 8px #a855f7; }
+  .radar-blip:nth-child(3) { top: 38%; left: 72%; animation-delay: 1.0s; width: 3px; height: 3px; }
+  .radar-blip:nth-child(4) { top: 68%; left: 58%; animation-delay: 1.3s; width: 4px; height: 4px; background: #34d399; box-shadow: 0 0 8px #34d399; }
+  @keyframes blipFade { 0%,100%{opacity:0;transform:scale(0.5)} 30%,70%{opacity:1;transform:scale(1)} }
+
+  /* Core dot */
+  .radar-core {
+    position: relative; z-index: 5;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff 0%, #7dd3fc 35%, #0ea5e9 100%);
+    box-shadow: 0 0 0 3px rgba(6,182,212,0.2), 0 0 16px rgba(6,182,212,0.7), 0 0 32px rgba(6,182,212,0.3);
+    animation: corePulse 0.9s ease-in-out infinite;
+  }
+  @keyframes corePulse { 0%,100%{transform:scale(0.9);box-shadow:0 0 0 3px rgba(6,182,212,0.2),0 0 14px rgba(6,182,212,0.6),0 0 28px rgba(6,182,212,0.25)} 50%{transform:scale(1.15);box-shadow:0 0 0 5px rgba(6,182,212,0.15),0 0 24px rgba(6,182,212,0.85),0 0 48px rgba(6,182,212,0.4)} }
 
   .no-encounter-icon { font-size: 3.4em; opacity: 0.28; }
   .no-encounter-text { font-size: 0.98em; color: var(--muted); font-weight: 700; }
@@ -699,7 +776,7 @@ const DIFF_LABELS= { easy:'Easy', normal:'Normal', decent:'Decent', hard:'Hard',
 const DIFF_EMOJI = { easy:'🟢', normal:'🔵', decent:'🟡', hard:'🔴', superhard:'🟣', impossible:'💀' };
 
 /* ── STATE ── */
-const SAVE_KEY = 'catchAnything_save_v2';
+const SAVE_KEY = 'catchAnything_save';
 // Use a page-specific sessionStorage key so it never bleeds to other pages
 const MODE_KEY = 'catchAnythingMode_v2_thispage';
 
@@ -760,12 +837,12 @@ function getBalls() {
   btn.disabled = true;
   setTimeout(() => { btn.disabled = false; }, 200);
 
-  const roll = Math.random() * 12.76;
+  const roll = Math.random() * 100;
   let got = null;
-  if      (roll < 0.01) got = 'god';
-  else if (roll < 0.76) got = 'omega';
-  else if (roll < 2.76) got = 'super';
-  else if (roll < 12.76)got = 'normal';
+  if      (roll < 0.01)  got = 'god';
+  else if (roll < 0.76)  got = 'omega';
+  else if (roll < 2.76)  got = 'super';
+  else if (roll < 12.76) got = 'normal';
 
   const rect = btn.getBoundingClientRect();
   const cx = rect.left + rect.width  / 2;
@@ -826,7 +903,8 @@ function renderBallSelector() {
     const isSel = state.selectedBall === b;
     btn.className = 'ball-select-btn' + (isSel ? ' selected-' + b : '');
     btn.disabled  = state.balls[b] === 0 && !isSel;
-    btn.innerHTML = `${BALL_ICONS[b]} ${b.charAt(0).toUpperCase()+b.slice(1)} <span style="opacity:0.65">(${state.balls[b]})</span>`;
+    const ballDisplayName = { normal:'Normal', super:'Super', omega:'Omega', god:'God Light' };
+    btn.innerHTML = `${BALL_ICONS[b]} ${ballDisplayName[b]} <span style="opacity:0.65">(${state.balls[b]})</span>`;
     btn.onclick = () => {
       if (state.balls[b] > 0) {
         state.selectedBall = b; saveState();
@@ -873,12 +951,13 @@ function renderEncounter() {
   const rate = Math.min(1, THINGS[diff].rate * (BALL_MULT[state.selectedBall] || 1));
   const box = document.getElementById('encounterBox');
   box.className = 'encounter-box active slide-in';
+  const bDisplayName = { normal:'Normal', super:'Super', omega:'Omega', god:'God Light' };
   box.innerHTML = `
     <div style="font-size:3em">${DIFF_EMOJI[diff]}</div>
     <div class="encounter-thing-name">${item}</div>
     <div class="encounter-difficulty diff-${diff}">${DIFF_LABELS[diff]}</div>
     <div class="throws-left">🎯 Throws left: <b>${state.throwsLeft}</b></div>
-    <div class="catch-rate-info">Catch rate: <b>${Math.round(rate*100)}%</b> with ${BALL_ICONS[state.selectedBall]} ${state.selectedBall.charAt(0).toUpperCase()+state.selectedBall.slice(1)}</div>`;
+    <div class="catch-rate-info">Catch rate: <b>${Math.round(rate*100)}%</b> with ${BALL_ICONS[state.selectedBall]} ${bDisplayName[state.selectedBall]}</div>`;
 }
 
 function showSearchingState() {
@@ -886,12 +965,23 @@ function showSearchingState() {
   box.className = 'encounter-box active';
   box.innerHTML = `
     <div class="radar-wrap">
-      <div class="scan-sweep"></div>
-      <div class="radar-ring"></div>
+      <div class="radar-halo"></div>
+      <div class="radar-grid">
+        <div class="radar-blip"></div>
+        <div class="radar-blip"></div>
+        <div class="radar-blip"></div>
+        <div class="radar-blip"></div>
+      </div>
+      <div class="radar-ring-1"></div>
+      <div class="radar-ring-2"></div>
+      <div class="radar-ring-3"></div>
+      <div class="radar-ring-4"></div>
+      <div class="radar-sweep-trail"></div>
+      <div class="radar-sweep"></div>
       <div class="radar-core"></div>
     </div>
-    <div style="font-size:1.1em;font-weight:900;letter-spacing:0.4px">Scanning<span class="searching-dots"><span>.</span><span>.</span><span>.</span></span></div>
-    <div style="font-size:0.82em;color:var(--muted);opacity:0.75">Sweeping the area for something catchable</div>`;
+    <div style="font-size:1.1em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent2)">Scanning<span class="searching-dots"><span>.</span><span>.</span><span>.</span></span></div>
+    <div style="font-size:0.79em;color:var(--muted);letter-spacing:0.5px">Sweeping the area for something catchable</div>`;
 }
 
 function spawnCatchBurst(cx, cy, diff) {
@@ -916,6 +1006,15 @@ function spawnCatchBurst(cx, cy, diff) {
   setTimeout(() => ring.remove(), 900);
 }
 
+function spawnShockwave(cx, cy, diff) {
+  const colors = { easy:'rgba(34,197,94,', normal:'rgba(59,130,246,', decent:'rgba(245,158,11,', hard:'rgba(239,68,68,', superhard:'rgba(168,85,247,', impossible:'rgba(236,72,153,' };
+  const col = (colors[diff] || 'rgba(6,182,212,');
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;width:6px;height:6px;border-radius:50%;border:2px solid ${col}0.8);transform:translate(-50%,-50%);pointer-events:none;z-index:9996;animation:shockExpand 0.7s ease-out forwards;`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 750);
+}
+
 function findEncounter() {
   const findBtn  = document.getElementById('findBtn');
   const throwBtn = document.getElementById('throwBtn');
@@ -932,29 +1031,65 @@ function findEncounter() {
   findBtn.disabled = true; throwBtn.disabled = true; clearThrowResult();
   showSearchingState();
 
-  const box  = document.getElementById('encounterBox');
-  const rect = box.getBoundingClientRect();
-  const cx   = rect.left + rect.width  / 2;
-  const cy   = rect.top  + rect.height / 2;
+  const box = document.getElementById('encounterBox');
 
-  setTimeout(() => {
-    if (Math.random() < 0.5) {
-      const diff = pickDifficulty();
-      const item = pickItem(diff);
-      state.encounter = { diff, item }; state.throwsLeft = 3;
-      renderEncounter(); setFindMode(true); throwBtn.disabled = false;
-      spawnCatchBurst(cx, cy, diff);
-      box.classList.add('revealing');
-      setTimeout(() => box.classList.remove('revealing'), 600);
-    } else {
+  if (Math.random() < 0.5) {
+    const diff = pickDifficulty();
+    const item = pickItem(diff);
+
+    // Phase 1: scan for 1.2s
+    setTimeout(() => {
+      // Phase 2: "CONTACT!" alert for 0.5s
+      box.className = 'encounter-box active detecting';
+      box.innerHTML = `
+        <div class="radar-wrap" style="width:80px;height:80px">
+          <div class="radar-ring-1"></div>
+          <div class="radar-ring-2"></div>
+          <div class="radar-sweep"></div>
+          <div class="radar-core" style="background:radial-gradient(circle at 35% 35%,#fff 0%,#86efac 35%,#16a34a 100%);box-shadow:0 0 0 3px rgba(34,197,94,0.3),0 0 24px rgba(34,197,94,0.8)"></div>
+        </div>
+        <div style="font-size:1.05em;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#22c55e;animation:contactPing 0.15s ease-in-out 2">⚡ CONTACT DETECTED ⚡</div>
+        <div style="font-size:0.8em;color:var(--muted)">Preparing encounter…</div>`;
+
+      // Spawn shockwave rings from box center
+      const rect = box.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top  + rect.height / 2;
+      for (let i = 0; i < 4; i++) {
+        setTimeout(() => spawnShockwave(cx, cy, diff), i * 80);
+      }
+
+      // Phase 3: reveal after 0.55s
+      setTimeout(() => {
+        state.encounter = { diff, item }; state.throwsLeft = 3;
+
+        // Explosive reveal
+        box.className = 'encounter-box active revealing';
+        renderEncounter();
+        setFindMode(true); throwBtn.disabled = false;
+
+        // Burst particles from box
+        const r2 = box.getBoundingClientRect();
+        spawnCatchBurst(r2.left + r2.width/2, r2.top + r2.height/2, diff);
+        // Extra shockwaves
+        for (let i = 0; i < 3; i++) setTimeout(() => spawnShockwave(r2.left + r2.width/2, r2.top + r2.height/2, diff), i * 120);
+
+        setTimeout(() => box.classList.remove('revealing'), 650);
+      }, 550);
+    }, 1200);
+
+  } else {
+    // Nothing found — show scanning then disappointment
+    setTimeout(() => {
       state.encounter = null; state.throwsLeft = 0;
       box.className = 'encounter-box';
-      box.innerHTML = `<div class="no-encounter-icon">🌿</div><div class="no-encounter-text">Nothing found… keep searching!</div>`;
-      showThrowResult('🌿 Nothing found… keep searching!', 'no-enc');
+      box.innerHTML = `<div class="no-encounter-icon" style="opacity:0.25">📡</div><div class="no-encounter-text">Nothing found… keep searching!</div>`;
+      showThrowResult('📡 Area clear — nothing catchable nearby.', 'no-enc');
       throwBtn.disabled = true; setFindMode(false);
-    }
-    findBtn.disabled = false;
-  }, 1600);
+    }, 1600);
+  }
+
+  setTimeout(() => { findBtn.disabled = false; }, 1850);
 }
 
 function throwBall() {
@@ -1045,7 +1180,8 @@ function renderChanceTable() {
   let html = '';
   html += `<div class="chance-row">`;
   html += `<div class="chance-head">Difficulty</div>`;
-  balls.forEach(b => html += `<div class="chance-head">${BALL_ICONS[b]} ${b.charAt(0).toUpperCase()+b.slice(1)}</div>`);
+  const ballDisplayNames = { normal:'Normal', super:'Super', omega:'Omega', god:'God Light' };
+  balls.forEach(b => html += `<div class="chance-head">${BALL_ICONS[b]} ${ballDisplayNames[b]}</div>`);
   html += `</div>`;
   diffs.forEach(diff => {
     html += `<div class="chance-row">`;
