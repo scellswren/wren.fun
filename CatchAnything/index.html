@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Catch Anything – Wren.fun</title>
+<link rel="icon" type="image/png" href="../Favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&family=Rubik+Mono+One&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -29,34 +30,90 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Rubik', sans-serif;
-    background: var(--bg);
+    background: #020008;
     color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
+    transition: background 0.5s, color 0.5s;
   }
+  /* Dark mode (galaxy) - default */
+  body.mode-dark {
+    background: #020008;
+    --surface: #13131f;
+    --surface2: #1a1a2e;
+    --border: rgba(255,255,255,0.07);
+    --text: #f0f0f8;
+    --muted: rgba(240,240,248,0.45);
+  }
+  /* Light mode (day sky) */
+  body.mode-light {
+    background: #d4eaff;
+    --surface: rgba(255,255,255,0.75);
+    --surface2: rgba(255,255,255,0.60);
+    --border: rgba(30,80,160,0.14);
+    --text: #0f1a2e;
+    --muted: rgba(15,26,46,0.55);
+    --accent: #4f46e5;
+    --easy: #16a34a;
+    --normal: #2563eb;
+    --decent: #d97706;
+    --hard: #dc2626;
+    --superhard: #7c3aed;
+    --impossible: #db2777;
+    --normal-ball: #3b82f6;
+    --super-ball: #10b981;
+    --omega-ball: #d97706;
+    --god-ball: #ca8a04;
+  }
+  #galaxyCanvas {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+    transition: opacity 0.5s;
+  }
+  body.mode-light #galaxyCanvas { opacity: 0; }
+  /* Light mode day background */
+  #dayCanvas {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+    opacity: 0; transition: opacity 0.5s;
+  }
+  body.mode-light #dayCanvas { opacity: 1; }
   body::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background:
-      radial-gradient(ellipse 60% 40% at 15% 10%, rgba(124,58,237,0.18) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 35% at 85% 80%, rgba(6,182,212,0.14) 0%, transparent 55%),
-      radial-gradient(ellipse 40% 30% at 75% 10%, rgba(236,72,153,0.10) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
+      radial-gradient(ellipse 70% 55% at 20% 15%, rgba(88,28,220,0.30) 0%, transparent 55%),
+      radial-gradient(ellipse 55% 45% at 82% 78%, rgba(6,182,212,0.22) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 65% 5%,  rgba(236,72,153,0.20) 0%, transparent 48%),
+      radial-gradient(ellipse 40% 35% at 8% 82%,  rgba(124,58,237,0.18) 0%, transparent 45%),
+      radial-gradient(ellipse 35% 30% at 92% 32%, rgba(52,211,153,0.12) 0%, transparent 45%);
+    pointer-events: none; z-index: 1;
+    transition: opacity 0.5s;
   }
-  #app { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 20px 16px 100px; }
+  body.mode-light::before { opacity: 0; }
+  /* Light mode sky gradients */
+  body.mode-light::after {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 70% 0%, rgba(255,220,80,0.35) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 20% 5%,  rgba(135,206,250,0.50) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 60% at 50% 100%, rgba(255,255,255,0.30) 0%, transparent 55%);
+    pointer-events: none; z-index: 1;
+  }
+  #app { position: relative; z-index: 2; max-width: 960px; margin: 0 auto; padding: 20px 16px 100px; }
 
   /* Header */
   .header { text-align: center; padding: 30px 0 24px; }
-  .back-btn {
-    position: fixed; top: 14px; left: 14px; z-index: 100;
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); font-family: 'Rubik', sans-serif; font-weight: 700;
-    font-size: 0.88em; padding: 9px 18px; border-radius: 14px; cursor: pointer;
-    transition: transform 0.2s, background 0.2s; text-decoration: none; display: inline-block;
+  #homeText {
+    position: fixed; top: 10px; left: 10px; z-index: 1002;
+    font-family: 'Rubik', sans-serif; font-weight: 700;
+    font-size: 2em; cursor: pointer;
+    transition: transform 0.2s; user-select: none;
+    opacity: 0.95; color: var(--text); text-decoration: none;
+    display: block;
   }
-  .back-btn:hover { transform: scale(1.06); background: var(--surface); }
+  #homeText:hover { transform: scale(1.15); }
   .game-title {
     font-family: 'Rubik Mono One', monospace;
     font-size: clamp(2em, 8vw, 3.8em);
@@ -88,8 +145,23 @@
   .card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 20px; padding: 20px; margin-bottom: 16px;
+    backdrop-filter: blur(12px);
   }
   .card-title { font-size: 0.7em; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  /* Light mode text fixes */
+  body.mode-light .game-sub { color: rgba(15,26,46,0.6); }
+  body.mode-light .no-encounter-text { color: rgba(15,26,46,0.5); }
+  body.mode-light .ball-result-toast { background: rgba(255,255,255,0.7); border-color: rgba(30,80,160,0.15); color: var(--text); }
+  body.mode-light .throw-result { background: rgba(255,255,255,0.7); border-color: rgba(30,80,160,0.15); }
+  body.mode-light .encounter-box { background: rgba(255,255,255,0.65); border-color: rgba(30,80,160,0.15); }
+  body.mode-light .ball-card { background: rgba(255,255,255,0.7); }
+  body.mode-light .ball-select-btn { background: rgba(255,255,255,0.7); color: rgba(15,26,46,0.7); }
+  body.mode-light .tabs { background: rgba(255,255,255,0.6); }
+  body.mode-light .inv-stat { background: rgba(255,255,255,0.7); }
+  body.mode-light .inv-item { background: rgba(255,255,255,0.6); }
+  body.mode-light .clear-btn { background: rgba(255,80,80,0.08); }
+  body.mode-light #modeToggle { background: rgba(255,255,255,0.75); border-color: rgba(30,80,160,0.18); color: #1a1a3a; }
+  body.mode-light #homeText { color: #0f1a2e; }
 
   /* Balls Panel */
   .balls-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -327,6 +399,17 @@
   .sparkle { position: fixed; pointer-events: none; font-size: 1.2em; animation: sparklePop 0.8s ease forwards; }
   @keyframes sparklePop { 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0.3)} }
 
+
+  /* Mode toggle */
+  #modeToggle {
+    position: fixed; top: 14px; right: 14px; z-index: 1002;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Rubik', sans-serif; font-weight: 700;
+    font-size: 1.3em; width: 44px; height: 44px; border-radius: 14px;
+    cursor: pointer; transition: transform 0.2s, background 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #modeToggle:hover { transform: scale(1.1); background: var(--surface); }
   footer {
     position: fixed; bottom: 10px; width: 100%; text-align: center;
     font-family: 'Rubik', sans-serif; font-size: 0.88em; color: var(--muted);
@@ -337,7 +420,8 @@
 </style>
 </head>
 <body>
-<a class="back-btn" href="../">← Back</a>
+<div id="homeText" onclick="window.location.href='../'">Wren.fun</div>
+<button id="modeToggle" onclick="toggleMode()" title="Toggle light/dark mode">🌙</button>
 <div id="app">
   <div class="header">
     <div class="game-title">Catch Anything</div>
@@ -824,10 +908,89 @@ loadState();
 updateBallCounts();
 renderBallSelector();
 renderEncounterEmpty();
+
+// ===================== LIGHT/DARK MODE =====================
+const MODE_KEY = 'wrenMode';
+function applyMode(m) {
+  document.body.className = 'mode-' + m;
+  const btn = document.getElementById('modeToggle');
+  btn.textContent = m === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem(MODE_KEY, m);
+}
+function toggleMode() {
+  const cur = localStorage.getItem(MODE_KEY) || 'dark';
+  applyMode(cur === 'dark' ? 'light' : 'dark');
+}
+// Load saved mode (default dark = galaxy)
+applyMode(localStorage.getItem(MODE_KEY) || 'dark');
 </script>
 
 <canvas id="galaxyCanvas"></canvas>
+<canvas id="dayCanvas"></canvas>
 <script>
+// Day sky (clouds)
+(function() {
+  const canvas = document.getElementById('dayCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, clouds = [];
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+  function makeCloud() {
+    return {
+      x: Math.random() * W + W * 0.2,
+      y: Math.random() * H * 0.55 + 20,
+      r: 50 + Math.random() * 90,
+      speed: 0.12 + Math.random() * 0.18,
+      alpha: 0.55 + Math.random() * 0.35,
+      puffs: Array.from({length: 5 + Math.floor(Math.random()*4)}, () => ({
+        ox: (Math.random()-0.5) * 80,
+        oy: (Math.random()-0.5) * 30,
+        r: 30 + Math.random() * 50
+      }))
+    };
+  }
+
+  function init() {
+    resize();
+    clouds = Array.from({length: 9}, () => {
+      const cl = makeCloud(); cl.x = Math.random() * W; return cl;
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // Draw sun
+    const sunGrad = ctx.createRadialGradient(W*0.78, H*0.1, 10, W*0.78, H*0.1, 90);
+    sunGrad.addColorStop(0, 'rgba(255,240,120,0.9)');
+    sunGrad.addColorStop(0.4, 'rgba(255,200,60,0.5)');
+    sunGrad.addColorStop(1, 'rgba(255,160,0,0)');
+    ctx.beginPath(); ctx.arc(W*0.78, H*0.1, 90, 0, Math.PI*2);
+    ctx.fillStyle = sunGrad; ctx.fill();
+    // Sun core
+    ctx.beginPath(); ctx.arc(W*0.78, H*0.1, 28, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,248,180,0.95)'; ctx.fill();
+
+    for (const cl of clouds) {
+      cl.x -= cl.speed;
+      if (cl.x + cl.r * 2 < -50) { Object.assign(cl, makeCloud()); cl.x = W + 100; }
+      ctx.save();
+      for (const p of cl.puffs) {
+        const grad = ctx.createRadialGradient(cl.x+p.ox, cl.y+p.oy, 0, cl.x+p.ox, cl.y+p.oy, p.r);
+        grad.addColorStop(0, `rgba(255,255,255,${cl.alpha})`);
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.beginPath(); ctx.arc(cl.x+p.ox, cl.y+p.oy, p.r, 0, Math.PI*2);
+        ctx.fillStyle = grad; ctx.fill();
+      }
+      ctx.restore();
+    }
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); init(); });
+  init(); draw();
+})();
+
 // Galaxy starfield
 (function() {
   const canvas = document.getElementById('galaxyCanvas');
