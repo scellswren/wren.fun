@@ -674,10 +674,7 @@ window.addEventListener('load',()=>{
   refreshGoldOption();refreshRadioactiveOption();refreshSnowOption();refreshMoneyOption();syncPizzaUnlock();refreshPizzaOption();
   checkAllUnlocks();
   const s=localStorage.getItem(MODE_KEY)||'light';
-  const safe=(s==='luxurious'||(ALL_LOCKED_MODES.includes(s)&&!unlockedFeatures.includes(s)))?'light':s;
-  if(s==='luxurious'&&localStorage.getItem(MODE_KEY)!=='light'){
-    localStorage.setItem(MODE_KEY,'light');
-  }
+  const safe=(ALL_LOCKED_MODES.includes(s)&&!unlockedFeatures.includes(s))?'light':s;
   applyMode(safe);
   initDayClouds();
 });
