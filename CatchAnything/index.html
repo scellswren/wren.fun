@@ -67,6 +67,7 @@
   #galaxyCanvas, #dayCanvas {
     position: fixed; inset: 0; width: 100%; height: 100%;
     pointer-events: none; z-index: 0; transition: opacity 0.5s;
+    filter: saturate(1.25) contrast(1.12);
   }
   #dayCanvas { opacity: 0; }
   body.mode-dark #dayCanvas { opacity: 0; }
@@ -1032,62 +1033,49 @@ function findEncounter() {
   showSearchingState();
 
   const box = document.getElementById('encounterBox');
+  const diff = pickDifficulty();
+  const item = pickItem(diff);
 
-  if (Math.random() < 0.5) {
-    const diff = pickDifficulty();
-    const item = pickItem(diff);
+  // Phase 1: scan for 1.2s
+  setTimeout(() => {
+    // Phase 2: "CONTACT!" alert for 0.5s
+    box.className = 'encounter-box active detecting';
+    box.innerHTML = `
+      <div class="radar-wrap" style="width:80px;height:80px">
+        <div class="radar-ring-1"></div>
+        <div class="radar-ring-2"></div>
+        <div class="radar-sweep"></div>
+        <div class="radar-core" style="background:radial-gradient(circle at 35% 35%,#fff 0%,#86efac 35%,#16a34a 100%);box-shadow:0 0 0 3px rgba(34,197,94,0.3),0 0 24px rgba(34,197,94,0.8)"></div>
+      </div>
+      <div style="font-size:1.05em;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#22c55e;animation:contactPing 0.15s ease-in-out 2">⚡ CONTACT DETECTED ⚡</div>
+      <div style="font-size:0.8em;color:var(--muted)">Preparing encounter…</div>`;
 
-    // Phase 1: scan for 1.2s
+    // Spawn shockwave rings from box center
+    const rect = box.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top  + rect.height / 2;
+    for (let i = 0; i < 4; i++) {
+      setTimeout(() => spawnShockwave(cx, cy, diff), i * 80);
+    }
+
+    // Phase 3: reveal after 0.55s
     setTimeout(() => {
-      // Phase 2: "CONTACT!" alert for 0.5s
-      box.className = 'encounter-box active detecting';
-      box.innerHTML = `
-        <div class="radar-wrap" style="width:80px;height:80px">
-          <div class="radar-ring-1"></div>
-          <div class="radar-ring-2"></div>
-          <div class="radar-sweep"></div>
-          <div class="radar-core" style="background:radial-gradient(circle at 35% 35%,#fff 0%,#86efac 35%,#16a34a 100%);box-shadow:0 0 0 3px rgba(34,197,94,0.3),0 0 24px rgba(34,197,94,0.8)"></div>
-        </div>
-        <div style="font-size:1.05em;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#22c55e;animation:contactPing 0.15s ease-in-out 2">⚡ CONTACT DETECTED ⚡</div>
-        <div style="font-size:0.8em;color:var(--muted)">Preparing encounter…</div>`;
+      state.encounter = { diff, item }; state.throwsLeft = 3;
 
-      // Spawn shockwave rings from box center
-      const rect = box.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top  + rect.height / 2;
-      for (let i = 0; i < 4; i++) {
-        setTimeout(() => spawnShockwave(cx, cy, diff), i * 80);
-      }
+      // Explosive reveal
+      box.className = 'encounter-box active revealing';
+      renderEncounter();
+      setFindMode(true); throwBtn.disabled = false;
 
-      // Phase 3: reveal after 0.55s
-      setTimeout(() => {
-        state.encounter = { diff, item }; state.throwsLeft = 3;
+      // Burst particles from box
+      const r2 = box.getBoundingClientRect();
+      spawnCatchBurst(r2.left + r2.width/2, r2.top + r2.height/2, diff);
+      // Extra shockwaves
+      for (let i = 0; i < 3; i++) setTimeout(() => spawnShockwave(r2.left + r2.width/2, r2.top + r2.height/2, diff), i * 120);
 
-        // Explosive reveal
-        box.className = 'encounter-box active revealing';
-        renderEncounter();
-        setFindMode(true); throwBtn.disabled = false;
-
-        // Burst particles from box
-        const r2 = box.getBoundingClientRect();
-        spawnCatchBurst(r2.left + r2.width/2, r2.top + r2.height/2, diff);
-        // Extra shockwaves
-        for (let i = 0; i < 3; i++) setTimeout(() => spawnShockwave(r2.left + r2.width/2, r2.top + r2.height/2, diff), i * 120);
-
-        setTimeout(() => box.classList.remove('revealing'), 650);
-      }, 550);
-    }, 1200);
-
-  } else {
-    // Nothing found — show scanning then disappointment
-    setTimeout(() => {
-      state.encounter = null; state.throwsLeft = 0;
-      box.className = 'encounter-box';
-      box.innerHTML = `<div class="no-encounter-icon" style="opacity:0.25">📡</div><div class="no-encounter-text">Nothing found… keep searching!</div>`;
-      showThrowResult('📡 Area clear — nothing catchable nearby.', 'no-enc');
-      throwBtn.disabled = true; setFindMode(false);
-    }, 1600);
-  }
+      setTimeout(() => box.classList.remove('revealing'), 650);
+    }, 550);
+  }, 1200);
 
   setTimeout(() => { findBtn.disabled = false; }, 1850);
 }
@@ -1252,37 +1240,166 @@ function spawnSparkles(cx, cy) {
 (function() {
   const canvas = document.getElementById('galaxyCanvas');
   const ctx    = canvas.getContext('2d');
-  let W, H, stars=[], shooters=[];
-  function resize() { W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
-  function makeStar() { return {x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.2,alpha:Math.random()*.7+.2,speed:Math.random()*.003+.001,phase:Math.random()*Math.PI*2,hue:['','','','200,180,255','160,200,255','255,180,220'][Math.floor(Math.random()*6)]}; }
-  function makeShooter() { const a=Math.PI/6+Math.random()*Math.PI/6,s=6+Math.random()*10; return {x:Math.random()*W*.8,y:Math.random()*H*.4,vx:Math.cos(a)*s,vy:Math.sin(a)*s,len:60+Math.random()*80,life:0,maxLife:60+Math.random()*40}; }
-  function init() { resize(); stars=Array.from({length:320},makeStar); }
-  let frame=0;
+  let W, H, stars = [], shooters = [], clouds = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function makeStar() {
+    const palette = [
+      [255,255,255],
+      [180,210,255],
+      [200,180,255],
+      [255,190,220],
+      [140,230,255]
+    ];
+    const [r,g,b] = palette[Math.floor(Math.random() * palette.length)];
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: 0.7 + Math.random() * 2.2,
+      alpha: 0.22 + Math.random() * 0.78,
+      speed: 0.0015 + Math.random() * 0.004,
+      phase: Math.random() * Math.PI * 2,
+      twinkle: 0.6 + Math.random() * 1.2,
+      rC: r, gC: g, bC: b
+    };
+  }
+
+  function makeNebula() {
+    const hues = [
+      ['124,58,237', '6,182,212'],
+      ['236,72,153', '124,58,237'],
+      ['59,130,246', '168,85,247'],
+      ['34,197,94', '6,182,212']
+    ];
+    const [a,b] = hues[Math.floor(Math.random() * hues.length)];
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      rx: 140 + Math.random() * 260,
+      ry: 100 + Math.random() * 180,
+      alpha: 0.05 + Math.random() * 0.08,
+      rot: Math.random() * Math.PI,
+      c1: a,
+      c2: b
+    };
+  }
+
+  function makeShooter() {
+    const a = Math.PI / 10 + Math.random() * Math.PI / 6;
+    const s = 7 + Math.random() * 12;
+    return {
+      x: Math.random() * W * 0.9,
+      y: Math.random() * H * 0.45,
+      vx: Math.cos(a) * s,
+      vy: Math.sin(a) * s,
+      len: 90 + Math.random() * 140,
+      life: 0,
+      maxLife: 55 + Math.random() * 50
+    };
+  }
+
+  function init() {
+    resize();
+    stars = Array.from({length: 520}, makeStar);
+    clouds = Array.from({length: 7}, makeNebula);
+    shooters = [];
+  }
+
+  let frame = 0;
+
   function draw() {
-    ctx.clearRect(0,0,W,H); frame++;
+    frame++;
+    ctx.clearRect(0, 0, W, H);
+
+    // deep background haze
+    const bg = ctx.createRadialGradient(W * 0.5, H * 0.5, 20, W * 0.5, H * 0.5, Math.max(W, H) * 0.8);
+    bg.addColorStop(0, 'rgba(8, 10, 28, 0.22)');
+    bg.addColorStop(0.55, 'rgba(10, 12, 34, 0.08)');
+    bg.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // nebula clouds
+    for (const n of clouds) {
+      const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, Math.max(n.rx, n.ry));
+      g.addColorStop(0, `rgba(${n.c1},${n.alpha})`);
+      g.addColorStop(0.45, `rgba(${n.c2},${n.alpha * 0.55})`);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.save();
+      ctx.translate(n.x, n.y);
+      ctx.rotate(n.rot);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, n.rx, n.ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // distant stars
     for (const s of stars) {
-      const a=s.alpha*(0.6+0.4*Math.sin(frame*s.speed+s.phase));
-      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-      ctx.fillStyle=s.hue?`rgba(${s.hue},${a})`:`rgba(255,255,255,${a})`; ctx.fill();
+      const twinkle = 0.55 + 0.45 * Math.sin(frame * s.speed * s.twinkle + s.phase);
+      const alpha = Math.min(1, s.alpha * twinkle);
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${s.rC},${s.gC},${s.bC},${alpha})`;
+      ctx.fill();
+
+      if (s.r > 1.7 && Math.random() < 0.018) {
+        ctx.strokeStyle = `rgba(${s.rC},${s.gC},${s.bC},${alpha * 0.55})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(s.x - s.r * 2.2, s.y);
+        ctx.lineTo(s.x + s.r * 2.2, s.y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y - s.r * 2.2);
+        ctx.lineTo(s.x, s.y + s.r * 2.2);
+        ctx.stroke();
+      }
     }
-    if (Math.random()<.004&&shooters.length<3) shooters.push(makeShooter());
-    for (let i=shooters.length-1;i>=0;i--) {
-      const ss=shooters[i]; ss.x+=ss.vx; ss.y+=ss.vy; ss.life++;
-      const prog=ss.life/ss.maxLife, alpha=(1-prog)*.9;
-      const len=ss.len/Math.hypot(ss.vx,ss.vy);
-      const g=ctx.createLinearGradient(ss.x,ss.y,ss.x-ss.vx*len,ss.y-ss.vy*len);
-      g.addColorStop(0,`rgba(255,255,255,${alpha})`); g.addColorStop(.4,`rgba(200,180,255,${alpha*.5})`); g.addColorStop(1,'rgba(255,255,255,0)');
-      ctx.beginPath(); ctx.moveTo(ss.x,ss.y); ctx.lineTo(ss.x-ss.vx*len,ss.y-ss.vy*len);
-      ctx.strokeStyle=g; ctx.lineWidth=1.5; ctx.stroke();
-      if (ss.life>=ss.maxLife||ss.x>W+50||ss.y>H+50) shooters.splice(i,1);
+
+    // occasional shooting stars
+    if (Math.random() < 0.010 && shooters.length < 4) shooters.push(makeShooter());
+    for (let i = shooters.length - 1; i >= 0; i--) {
+      const ss = shooters[i];
+      ss.x += ss.vx;
+      ss.y += ss.vy;
+      ss.life++;
+
+      const prog = ss.life / ss.maxLife;
+      const alpha = (1 - prog) * 0.95;
+      const len = ss.len / Math.hypot(ss.vx, ss.vy);
+
+      const g = ctx.createLinearGradient(ss.x, ss.y, ss.x - ss.vx * len, ss.y - ss.vy * len);
+      g.addColorStop(0, `rgba(255,255,255,${alpha})`);
+      g.addColorStop(.35, `rgba(200,180,255,${alpha * .7})`);
+      g.addColorStop(.7, `rgba(120,220,255,${alpha * .35})`);
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+
+      ctx.beginPath();
+      ctx.moveTo(ss.x, ss.y);
+      ctx.lineTo(ss.x - ss.vx * len, ss.y - ss.vy * len);
+      ctx.strokeStyle = g;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      if (ss.life >= ss.maxLife || ss.x > W + 80 || ss.y > H + 80) shooters.splice(i, 1);
     }
+
     requestAnimationFrame(draw);
   }
-  window.addEventListener('resize',()=>{ resize(); init(); });
-  init(); draw();
+
+  window.addEventListener('resize', () => { resize(); init(); });
+  init();
+  draw();
 })();
 
 /* ── INIT ── */
+
 loadState();
 updateBallCounts();
 renderBallSelector();
