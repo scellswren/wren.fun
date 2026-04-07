@@ -473,7 +473,7 @@
     <div class="mode-option" data-mode="light" onclick="selectMode('light')">☀️ Light Mode<div class="mode-dot"></div></div>
     <div class="mode-option" data-mode="dark" onclick="selectMode('dark')">🌙 Dark Mode<div class="mode-dot"></div></div>
     <div class="mode-option" data-mode="rainbow" onclick="selectMode('rainbow')">🌈 Rainbow Neon<div class="mode-dot rainbow-dot"></div></div>
-    <div class="mode-option" data-mode="luxurious" onclick="selectMode('luxurious')">✨ Luxurious<div class="mode-dot luxurious-dot"></div></div>
+    <div class="mode-option locked" id="luxuriousModeOption" data-mode="luxurious"><span>✨ Luxurious <span id="luxuriousLock">🔒</span></span><div class="mode-dot luxurious-dot"></div></div>
     <div class="mode-option locked" id="dayModeOption" data-mode="day"><span>🌤️ Day <span id="dayLock">🔒</span></span><div class="mode-dot day-dot"></div></div>
     <div class="mode-option locked" id="nightModeOption" data-mode="night"><span>🌙 Night <span id="nightLock">🔒</span></span><div class="mode-dot night-dot"></div></div>
     <div class="mode-option locked" id="glassModeOption" data-mode="glass"><span>✨ Liquid Glass <span id="glassLock">🔒</span></span><div class="mode-dot glass-dot"></div></div>
@@ -543,7 +543,6 @@
 <audio id="bgSong" loop><source src="song.mp3" type="audio/mpeg"></audio>
 <script>
 // ── ALL THEME CODES ──
-// Banana294OPo = cycle through all themes in a cool animated sequence
 const CODES={
   'WrenIsOld123':'glass',
   'Hotbeans78':'lava',
@@ -585,9 +584,8 @@ function incrementGlitchCounter(){const n=getGlitchClicks()+1;setGlitchClicks(n)
 cog.addEventListener('click',()=>{incrementGlitchCounter();const o=settingsMenu.classList.contains('open');settingsMenu.classList.toggle('open',!o);cog.classList.toggle('open',!o);if(getGlitchClicks()>=GLITCH_TARGET)checkGlitchUnlock(false);});
 document.addEventListener('click',e=>{if(!settingsMenu.contains(e.target)&&e.target!==cog){settingsMenu.classList.remove('open');cog.classList.remove('open');}});
 
-// ── LUXURIOUS is always available (no lock needed) ──
-// It's listed in the HTML as an always-clickable option just like light/dark/rainbow
-const ALL_LOCKED_MODES=['day','night','glass','lava','rose','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','bronze','silver','gold','radioactive','snow','money','pizza'];
+// ── ALL LOCKED MODES (luxurious is now locked too) ──
+const ALL_LOCKED_MODES=['luxurious','day','night','glass','lava','rose','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','bronze','silver','gold','radioactive','snow','money','pizza'];
 
 function selectMode(m){if(ALL_LOCKED_MODES.includes(m)&&!unlockedFeatures.includes(m))return;applyMode(m);localStorage.setItem(MODE_KEY,m);}
 function applyMode(m){
@@ -601,6 +599,7 @@ function applyMode(m){
 }
 
 function refreshOption(id,lid,t){const o=document.getElementById(id),l=document.getElementById(lid);if(!o)return;if(unlockedFeatures.includes(t)){o.classList.remove('locked');o.onclick=()=>selectMode(t);if(l)l.textContent='';}else{o.classList.add('locked');o.onclick=null;if(l)l.textContent='🔒';}}
+function refreshLuxuriousOption(){refreshOption('luxuriousModeOption','luxuriousLock','luxurious');}
 function refreshDayOption(){refreshOption('dayModeOption','dayLock','day');}
 function refreshNightOption(){refreshOption('nightModeOption','nightLock','night');}
 function refreshGlassOption(){refreshOption('glassModeOption','glassLock','glass');}
@@ -645,8 +644,10 @@ function hasNightUnlocked(){
 function hasLuckyClicksUnlocked(){return localStorage.getItem(LUCKY_THEME_UNLOCK_KEY)==='1'||Number(localStorage.getItem(LUCKY_CLICK_COUNT_KEY)||'0')>=50;}
 function hasVisitedAllPages(){return hasVisitedLucky()&&hasVisitedWrenPacks()&&hasVisitedSmallCreators()&&hasVisitedWheel()&&hasVisitedCheese();}
 function getCreditsCount(){return parseInt(localStorage.getItem(CREDITS_WATCH_KEY)||'0',10)||0;}
+function hasLuxuriousUnlocked(){return localStorage.getItem(LUXURIOUS_THEME_UNLOCK_KEY)==='1';}
 
 function unlockIfEligible(t,fn,msg,rfn){if(!fn())return false;if(!unlockedFeatures.includes(t)){persistUnlocked(t);rfn();if(msg)showToast(msg);}return true;}
+function unlockLuxuriousIfEligible(){return unlockIfEligible('luxurious',hasLuxuriousUnlocked,'✨ Luxurious unlocked! You found George21z\'s secret in the Hall of Fame.',refreshLuxuriousOption);}
 function unlockDayIfEligible(){return unlockIfEligible('day',hasDayUnlocked,'🌤️ Day unlocked! You visited Catch Anything.',refreshDayOption);}
 function unlockNightIfEligible(){return unlockIfEligible('night',hasNightUnlocked,'🌙 Night unlocked! You caught an Impossible in Catch Anything.',refreshNightOption);}
 function unlockRoseIfEligible(){return unlockIfEligible('rose',hasVisitedBothLinks,'🌹 Rose unlocked! You visited both links.',refreshRoseOption);}
@@ -669,6 +670,7 @@ function unlockSnowIfEligible(){return unlockIfEligible('snow',()=>localStorage.
 function unlockMoneyIfEligible(){return unlockIfEligible('money',()=>localStorage.getItem(MONEY_UNLOCK_KEY)==='1','💵 Money unlocked! You reached $1 Million in the Wheel of Doom.',refreshMoneyOption);}
 function checkCreditsUnlocks(){unlockBronzeIfEligible();unlockSilverIfEligible();unlockGoldIfEligible();}
 function checkAllUnlocks(){
+  unlockLuxuriousIfEligible();
   unlockDayIfEligible();unlockNightIfEligible();
   unlockRoseIfEligible();unlockWaterIfEligible();unlockPotatoIfEligible();unlockGrapeIfEligible();
   unlockSunIfEligible();unlockShadowIfEligible();unlockCheeseIfEligible();unlockToothpasteIfEligible();
@@ -731,7 +733,6 @@ const CYCLE_THEME_NAMES = {
   'night':       '🌙 Night',
 };
 
-// All themes in order (locked ones get shown during cycle but not permanently switched to unless unlocked)
 const ALL_CYCLE_THEMES = [
   'light','dark','rainbow','luxurious',
   'rose','water','potato','grape','sun','shadow','cheese','toothpaste',
@@ -749,16 +750,12 @@ function runThemeCycle(){
 
   const overlay = document.getElementById('cycleOverlay');
   const banner = document.getElementById('cycleBanner');
-  const originalMode = localStorage.getItem(MODE_KEY) || 'light';
 
-  // Unlock all themes temporarily for display during cycle
-  // (cycle shows them but returns to a valid state at the end)
-  const cycleMs = 420; // ms per theme
+  const cycleMs = 420;
   let step = 0;
 
   function showNext(){
     if(step >= ALL_CYCLE_THEMES.length){
-      // End: land on luxurious
       overlay.classList.add('flash');
       setTimeout(()=>{
         applyMode('luxurious');
@@ -778,10 +775,8 @@ function runThemeCycle(){
     const mode = ALL_CYCLE_THEMES[step];
     const name = CYCLE_THEME_NAMES[mode] || mode;
 
-    // Flash white between themes
     overlay.classList.add('flash');
     setTimeout(()=>{
-      // Force-apply the mode visually (even if locked, just for the animation)
       stopSnowParticles(); stopMoneyParticles();
       document.body.className = 'mode-' + mode;
       document.querySelectorAll('.mode-option').forEach(o=>o.classList.toggle('active-mode',o.dataset.mode===mode));
@@ -802,7 +797,6 @@ function runThemeCycle(){
     }, 90);
   }
 
-  // Brief intro flash
   overlay.classList.add('flash');
   banner.textContent = '🌈 Theme Tour!';
   banner.classList.add('show');
@@ -816,6 +810,7 @@ function runThemeCycle(){
 }
 
 window.addEventListener('load',()=>{
+  refreshLuxuriousOption();
   refreshDayOption();refreshNightOption();
   refreshGlassOption();refreshLavaOption();refreshRoseOption();refreshWaterOption();
   refreshPotatoOption();refreshGrapeOption();refreshSunOption();refreshShadowOption();
@@ -824,13 +819,8 @@ window.addEventListener('load',()=>{
   refreshGoldOption();refreshRadioactiveOption();refreshSnowOption();refreshMoneyOption();syncPizzaUnlock();refreshPizzaOption();
   checkAllUnlocks();
 
-  // Check if luxurious was unlocked from HallOfFame
-  if(localStorage.getItem(LUXURIOUS_THEME_UNLOCK_KEY)==='1'){
-    // Luxurious is always available, but honour the saved mode
-  }
-
   const s=localStorage.getItem(MODE_KEY)||'light';
-  // Luxurious is now always allowed (not in ALL_LOCKED_MODES)
+  // If saved mode is locked and not yet unlocked, fall back to light
   const safe=(ALL_LOCKED_MODES.includes(s)&&!unlockedFeatures.includes(s))?'light':s;
   applyMode(safe);
   initDayClouds();
@@ -844,7 +834,6 @@ document.getElementById('codeInput').addEventListener('keydown',e=>{if(e.key==='
 function submitCode(){
   const i=document.getElementById('codeInput'),f=document.getElementById('codeFeedback'),v=i.value.trim(),u=CODES[v];
 
-  // ── BANANA CODE: cycle all themes ──
   if(v==='Banana294OPo'){
     i.className='success';
     f.textContent='🌈 Starting theme tour...';
