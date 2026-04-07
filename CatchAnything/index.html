@@ -664,7 +664,8 @@ const DIFF_LABELS = { easy: 'Easy', normal: 'Normal', decent: 'Decent', hard: 'H
 const DIFF_EMOJIS = { easy: '🟢', normal: '🔵', decent: '🟡', hard: '🔴', superhard: '🟣', impossible: '💀' };
 
 const SAVE_KEY = 'catchAnything_save';
-const MODE_KEY = 'catchAnythingMode';
+// Use sessionStorage so it doesn't affect other pages
+const MODE_KEY = 'catchAnythingMode_session';
 let state = defaultState();
 
 function defaultState() {
@@ -1078,10 +1079,10 @@ function applyMode(m) {
   document.body.className = 'mode-' + m;
   const btn = document.getElementById('modeToggle');
   btn.textContent = m === 'dark' ? '☀️' : '🌙';
-  localStorage.setItem(MODE_KEY, m);
+  sessionStorage.setItem(MODE_KEY, m);
 }
 function toggleMode() {
-  const cur = localStorage.getItem(MODE_KEY) || 'dark';
+  const cur = sessionStorage.getItem(MODE_KEY) || 'dark';
   applyMode(cur === 'dark' ? 'light' : 'dark');
 }
 
@@ -1090,7 +1091,7 @@ updateBallCounts();
 renderBallSelector();
 renderEncounterEmpty();
 renderChanceTable();
-applyMode(localStorage.getItem(MODE_KEY) || 'dark');
+applyMode(sessionStorage.getItem(MODE_KEY) || 'dark');
 
 (function() {
   const canvas = document.getElementById('dayCanvas');
