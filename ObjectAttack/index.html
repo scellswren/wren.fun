@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Object Battle</title>
+  <title>Object Attack</title>
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Exo+2:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="../Favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -524,6 +524,60 @@
       .team-slots{grid-template-columns:1fr;}
       .inline-grid{grid-template-columns:1fr;}
     }
+
+    body.mode-banana{
+      background:linear-gradient(180deg,#fff7b8 0%,#ffe45c 45%,#d1a800 100%);
+      color:#2c2300;
+    }
+    body.mode-banana::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+      background:
+        radial-gradient(circle at 16% 18%,rgba(255,255,255,0.33) 0%,transparent 24%),
+        radial-gradient(circle at 82% 72%,rgba(0,0,0,0.08) 0%,transparent 28%),
+        radial-gradient(circle at 50% 8%,rgba(255,255,255,0.16) 0%,transparent 18%);
+    }
+    .code-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.72);
+      z-index:950;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      backdrop-filter:blur(4px);
+    }
+    .code-overlay.show{display:flex;}
+    .code-modal{
+      background:#120025;
+      border:1px solid rgba(168,85,247,0.3);
+      border-radius:22px;
+      width:min(420px,calc(100vw - 32px));
+      box-shadow:0 20px 60px rgba(0,0,0,0.8);
+      overflow:hidden;
+    }
+    .code-modal .modal-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-family:'Russo One',sans-serif;}
+    .code-modal .modal-body{padding:18px;}
+    .code-input{
+      width:100%;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid rgba(168,85,247,0.35);
+      background:rgba(255,255,255,0.05);
+      color:inherit;
+      font-family:'Exo 2',sans-serif;
+      font-size:1em;
+      outline:none;
+      margin-top:10px;
+    }
+    .code-input:focus{border-color:rgba(168,85,247,0.7);box-shadow:0 0 0 3px rgba(168,85,247,0.15);}
+    .code-feedback{margin-top:10px;font-size:0.88em;color:var(--muted);min-height:1.2em;}
+    .code-feedback.ok{color:#86efac;}
+    .code-feedback.err{color:#fca5a5;}
   </style>
 </head>
 <body>
@@ -583,8 +637,23 @@
   </div>
 </div>
 
+<div class="code-overlay" id="codeOverlay">
+  <div class="code-modal">
+    <div class="modal-head">
+      <span>Redeem Code</span>
+      <button class="close-btn" onclick="closeCodeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sub" style="margin-bottom:0;">Enter a secret code to unlock a reward.</div>
+      <input class="code-input" id="codeInput" type="text" placeholder="Enter code here" autocomplete="off" spellcheck="false">
+      <div class="code-feedback" id="codeFeedback"></div>
+      <button class="big-btn" style="margin-top:12px;" onclick="submitCode()">Redeem</button>
+    </div>
+  </div>
+</div>
+
 <div class="screen active" id="screenHome">
-  <h1>⚔️ Object Battle</h1>
+  <h1>⚔️ Object Attack</h1>
   <p class="sub">Collect objects, build your team, and fight!</p>
   <div id="statsBar">
     <div class="stat-chip">🏆 <span id="statTrophies">0</span> Trophies</div>
@@ -598,6 +667,7 @@
     <button class="sec-btn" onclick="showScreen('screenMyObjects')" style="margin-top:0;">🎒 My Objects</button>
     <button class="sec-btn" onclick="showScreen('screenTeam')" style="margin-top:0;">👥 My Team</button>
   </div>
+  <button class="sec-btn" onclick="openCodeModal()" style="margin-top:10px;">🎟️ Redeem Code</button>
 </div>
 
 <div class="screen" id="screenModeSelect">
@@ -772,15 +842,77 @@ const STARTER_CHOICES=[
   {id:'pillow',name:'Pillow',emoji:'🛏️',hp:30},
 ];
 
-const SAVE_KEY='objectBattle_save_v5';
-const LEGACY_SAVE_KEYS=['objectBattle_save_v4','objectBattle_save_v2','objectBattle_save_v1','objectBattle_save'];
+const SAVE_KEY='objectAttack_save_v5';
+const LEGACY_SAVE_KEYS=['objectAttack_save_v4','objectAttack_save_v2','objectAttack_save_v1','objectAttack_save'];
 
 const state={trophies:0,power:0,inventory:{},team:[null,null,null],battleMode:null,battleState:null,starterChosen:false};
+document.body.classList.add('mode-banana');
+document.title='Banana';
+
 let starterSelection=[];
 let upgradeId=null;
 let pickerSlot=-1;
 let audioCtx=null;
 let crateOpening=false;
+const LOLLY_USED_KEY='objectAttack_lolly123_used';
+
+function openCodeModal(){
+  const overlay=document.getElementById('codeOverlay');
+  const input=document.getElementById('codeInput');
+  const feedback=document.getElementById('codeFeedback');
+  if(!overlay||!input||!feedback) return;
+  input.value='';
+  input.className='code-input';
+  feedback.textContent='';
+  feedback.className='code-feedback';
+  overlay.classList.add('show');
+  setTimeout(()=>input.focus(),50);
+}
+function closeCodeModal(){
+  const overlay=document.getElementById('codeOverlay');
+  if(overlay) overlay.classList.remove('show');
+}
+function grantLollyReward(){
+  const rewardId='littleboy';
+  const reward=ALL_OBJECTS.find(o=>o.id===rewardId);
+  if(reward && !state.inventory[rewardId]){
+    state.inventory[rewardId]={id:reward.id,name:reward.name,emoji:reward.emoji,baseHp:reward.hp,level:1,crate:'grandmaster'};
+  }
+  state.trophies += 1000000;
+  saveState();
+  renderHome();
+  renderMyObjects();
+  renderTeam();
+  renderCrates();
+  showToast('Lolly123 redeemed: +1,000,000 trophies and Little Boy Nuke unlocked!');
+}
+function submitCode(){
+  const input=document.getElementById('codeInput');
+  const feedback=document.getElementById('codeFeedback');
+  if(!input||!feedback) return;
+  const code=input.value.trim();
+  if(!code){
+    feedback.textContent='Enter a code first.';
+    feedback.className='code-feedback err';
+    return;
+  }
+  if(code==='Lolly123'){
+    if(localStorage.getItem(LOLLY_USED_KEY)==='1'){
+      feedback.textContent='That code was already redeemed on this browser.';
+      feedback.className='code-feedback ok';
+      return;
+    }
+    localStorage.setItem(LOLLY_USED_KEY,'1');
+    feedback.textContent='Reward granted!';
+    feedback.className='code-feedback ok';
+    grantLollyReward();
+    setTimeout(closeCodeModal,500);
+    return;
+  }
+  feedback.textContent='That code is not valid.';
+  feedback.className='code-feedback err';
+}
+
 
 function cloneDefaultState(){
   return {trophies:0,power:0,inventory:{},team:[null,null,null],battleMode:null,battleState:null,starterChosen:false};
