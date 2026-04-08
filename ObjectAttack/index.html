@@ -330,7 +330,7 @@
 </div>
 
 <script>
-const OPPONENT_NAMES=['WrenIsOld','The Dairy King','Edunzie','Block Of Cheese','The Mind Of Orin','Zxno','Juju2y','Nathan','James','Bob Tim','Garry','Greg','Kyle','Nate','Kevin Hart','Charizard','Mr Clean','Henry','Iron Man','Poland','Sam','Ronald McDonald'];
+const OPPONENT_NAMES=['WrenIsOld','Zxno','Block Of Cheese','Edunzie','The Dairy King','Nathan8028','The Mind of Orin','Katsurchicken','Juju2y','Random_Jhony','Brayden Coldicutt','Tikitheg','Mr Sivvy','George21z','Cocomelon','Turtlekid2012','TheRealBaldCena72','EthansHalfTable','AustinsHalfTable','MouldyBready','Bingus165'];
 
 const MODES=[
   {id:'easy',name:'Easy',emoji:'🟢',trophies:10,power:100,unlockHp:0,crateId:'easy'},
@@ -411,19 +411,28 @@ const CRATE_DEFS=[
   {id:'grandmaster',name:'Grandmaster Crate',emoji:'👑',cost:50000,unlockHp:30000,tier:'grandmaster'},
 ];
 
-const SAVE_KEY='objectBattle_save_v3';
+const SAVE_KEY='objectBattle_save_v4';
 
 const state={trophies:0,power:0,inventory:{},team:[null,null,null],battleMode:null,battleState:null};
 
-function saveState(){localStorage.setItem(SAVE_KEY,JSON.stringify(state));}
+function saveState(){
+  try{
+    localStorage.setItem(SAVE_KEY,JSON.stringify(state));
+  }catch(e){}
+}
 function loadState(){
   const s=localStorage.getItem(SAVE_KEY);
   if(s){
     try{
       const parsed=JSON.parse(s);
       Object.assign(state,parsed);
+      state.trophies=Number(state.trophies)||0;
+      state.power=Number(state.power)||0;
       state.inventory=state.inventory||{};
-      state.team=state.team||[null,null,null];
+      state.team=Array.isArray(state.team)?state.team:[null,null,null];
+      if(!Array.isArray(state.team) || state.team.length<3) state.team=[null,null,null];
+      state.battleMode=state.battleMode||null;
+      state.battleState=state.battleState||null;
     }catch(e){}
   }
   if(Object.keys(state.inventory).length===0){
@@ -1053,7 +1062,7 @@ function checkBattleEnd(){
   if(allPlayerDead){
     bs.phase='done';
     const mode=bs.mode;
-    const powerLoss=Math.floor(mode.power*0.1);
+    const powerLoss=Math.floor(mode.power*0.5);
     state.power=Math.max(0,state.power-powerLoss);
     saveState();
     addLog(`💀 You were defeated... -${powerLoss} ⚡`,'log-enemy-hit');
@@ -1077,6 +1086,12 @@ function rematch(){
   if(state.battleMode) startBattle(state.battleMode);
   else showScreen('screenModeSelect');
 }
+
+window.addEventListener('beforeunload', saveState);
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='hidden') saveState();
+});
+setInterval(saveState, 30000);
 
 loadState();
 renderHome();
