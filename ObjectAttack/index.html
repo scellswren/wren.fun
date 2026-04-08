@@ -627,7 +627,7 @@
 <div id="bgLightning"></div>
 
 <div id="homeText" onclick="goHome()">Wren.fun</div>
-<div id="themeBadge"></div>
+<div id="themeBadge" style="display:none;"></div>
 <div id="toast"></div>
 <div id="hitFlash"></div>
 <div id="boostBanner">🚀 Active Boost: <span id="boostText"></span></div>
@@ -984,7 +984,7 @@ const THEME_THRESHOLDS=[
 function getEarnedTheme(){
   if(state.power>=5000000) return 'lightning';
   if(state.power>=50000) return 'ketchup';
-  return 'normal'; // plain background by default
+  return 'banana';
 }
 
 function applyTheme(themeId){
@@ -997,61 +997,18 @@ function applyTheme(themeId){
 }
 
 function buildThemeDecor(themeId){
-  // Clear
-  document.getElementById('bgBananas').innerHTML='';
-  document.getElementById('bgKetchup').innerHTML='';
-  document.getElementById('bgLightning').innerHTML='';
-  if(themeId==='banana'){
-    const bg=document.getElementById('bgBananas');
-    for(let i=0;i<18;i++){
-      const s=document.createElement('span');
-      s.className='banana-float';
-      s.textContent='🍌';
-      s.style.left=Math.random()*100+'%';
-      s.style.top=Math.random()*100+'%';
-      s.style.animationDelay=Math.random()*6+'s';
-      s.style.fontSize=(1.5+Math.random()*2)+'em';
-      bg.appendChild(s);
-    }
-  }else if(themeId==='ketchup'){
-    const bg=document.getElementById('bgKetchup');
-    for(let i=0;i<14;i++){
-      const s=document.createElement('div');
-      s.className='ketchup-drip';
-      s.style.left=Math.random()*100+'%';
-      s.style.animationDelay=Math.random()*4+'s';
-      bg.appendChild(s);
-    }
-  }else if(themeId==='lightning'){
-    const bg=document.getElementById('bgLightning');
-    const bolts=['⚡','🌩️','⚡','🌩️','⚡'];
-    for(let i=0;i<16;i++){
-      const s=document.createElement('span');
-      s.className='lightning-bolt';
-      s.textContent=bolts[i%bolts.length];
-      s.style.left=Math.random()*100+'%';
-      s.style.top=Math.random()*100+'%';
-      s.style.animationDelay=Math.random()*3+'s';
-      s.style.fontSize=(2+Math.random()*3)+'em';
-      bg.appendChild(s);
-    }
-  }
+  // No themed background decorations in this game screen.
 }
 
 function updateThemeBadge(themeId){
   const badge=document.getElementById('themeBadge');
-  const map={ketchup:'🍅 Ketchup Theme',lightning:'⚡ Lightning Theme'};
-  if(map[themeId]){
-    badge.textContent=map[themeId];
-    badge.style.display='block';
-  }else{
-    badge.style.display='none';
-  }
+  if(badge) badge.style.display='none';
 }
 
 function checkAndApplyTheme(){
   const theme=getEarnedTheme();
-  applyTheme(theme);
+  try{localStorage.setItem(THEME_KEY,theme);}catch(e){}
+  document.body.className='';
 }
 
 /* ============================================================
@@ -1061,7 +1018,7 @@ function updateBoostBanner(){
   const banner=document.getElementById('boostBanner');
   const txt=document.getElementById('boostText');
   if(state.trophyBoost&&state.trophyBoost>1){
-    txt.textContent=`🏆 ${state.trophyBoost}x Trophy Multiplier (Code: GorillaManYay662)`;
+    txt.textContent=`🏆 ${state.trophyBoost}x Trophy Multiplier active!`;
     banner.classList.add('show');
   }else{
     banner.classList.remove('show');
@@ -1095,7 +1052,6 @@ function redeemCode(){
   msg.className='ok';
   renderHome();
   updateBoostBanner();
-  checkAndApplyTheme();
   showToast(entry.label);
   playVictorySound();
   setTimeout(closeCodeOverlay,2200);
@@ -1429,8 +1385,7 @@ function startBattle(modeId){
   const enemyPool=OBJECTS_BY_CRATE[mode.crateId]||OBJECTS_BY_CRATE.easy;
   const shuffled=[...enemyPool].sort(()=>Math.random()-0.5);
   const enemyDefs=shuffled.slice(0,3);
-  const scaleMult={easy:1,normal:3,hard:8,grandmaster:15}[modeId]||1;
-  const enemyTeam=enemyDefs.map(d=>({id:d.id+'_enemy',name:d.name,emoji:d.emoji,maxHp:Math.floor(d.hp*scaleMult),currentHp:Math.floor(d.hp*scaleMult)}));
+  const enemyTeam=enemyDefs.map(d=>({id:d.id+'_enemy',name:d.name,emoji:d.emoji,maxHp:d.hp,currentHp:d.hp}));
   const playerTeam=validTeam.map(id=>{const obj=state.inventory[id];const hp=getObjectHp(id);return {id,name:obj.name,emoji:obj.emoji,maxHp:hp,currentHp:hp};});
   state.battleMode=modeId;
   state.battleState={mode,oppName,playerTeam:[...playerTeam],enemyTeam:[...enemyTeam],playerIdx:0,enemyIdx:0,currentTurn:'player',phase:'fight',isFirstTurn:true,log:[]};
@@ -1677,7 +1632,6 @@ function checkBattleEnd(){
     const boostNote=boost>1?` (×${boost} boost!)`:'';
     addLog(`🎉 You won! +${trophyGain.toLocaleString()} 🏆${boostNote} +${mode.power.toLocaleString()} ⚡`,'log-info');
     renderBattle();
-    checkAndApplyTheme();
     setTimeout(()=>{playVictorySound();showResult(true,mode,0,trophyGain);},450);
     return true;
   }
@@ -1711,7 +1665,7 @@ function rematch(){if(state.battleMode)startBattle(state.battleMode);else showSc
    INIT
 ============================================================ */
 loadState();
-checkAndApplyTheme();
+document.body.className='';
 renderHome();
 if(!state.starterChosen&&Object.keys(state.inventory).length===0){
   starterSelection=[];
