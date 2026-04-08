@@ -5,9 +5,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="Favicon.png">
   <style>
-    :root { --accent:#7c3aed; --transition:0.45s cubic-bezier(0.4,0,0.2,1); }
+    :root { --accent:#7c3aed; --transition:0.45s cubic-bezier(0.4,0,0.2,1); --page-brightness:1; }
     *{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'Rubik',sans-serif;text-align:center;min-height:100vh;transition:background var(--transition),color var(--transition);overflow-x:hidden;}
+    body{font-family:'Rubik',sans-serif;text-align:center;min-height:100vh;transition:background var(--transition),color var(--transition),filter 0.22s ease;overflow-x:hidden;filter:brightness(var(--page-brightness));}
     body.mode-light{background:#f5f5f7;color:#1d1d1f;}
     body.mode-dark{background:#0a0a0f;color:#f0f0f0;}
     body.mode-rainbow{animation:rainbowBG 10s linear infinite;color:#111;}
@@ -124,6 +124,14 @@
     @keyframes snowFall{0%{opacity:0;transform:translateY(0) translateX(0) rotate(0deg)}10%{opacity:0.7}90%{opacity:0.5}100%{opacity:0;transform:translateY(110vh) translateX(var(--drift)) rotate(var(--spin))}}
     body.mode-money{background:radial-gradient(circle at 18% 18%,rgba(50,200,80,0.40) 0%,transparent 28%),radial-gradient(circle at 80% 22%,rgba(30,180,60,0.34) 0%,transparent 28%),radial-gradient(circle at 74% 72%,rgba(80,220,100,0.34) 0%,transparent 34%),radial-gradient(circle at 24% 76%,rgba(50,200,80,0.28) 0%,transparent 30%),linear-gradient(180deg,#001a08 0%,#003010 42%,#000c04 100%);color:#d4ffdd;}
     body.mode-money::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 22% 25%,rgba(80,255,120,0.16) 0%,transparent 22%),radial-gradient(circle at 80% 65%,rgba(50,200,80,0.12) 0%,transparent 26%);pointer-events:none;z-index:0;}
+    body.mode-whiteneon{background:radial-gradient(circle at 18% 18%,rgba(255,255,255,0.96) 0%,transparent 28%),radial-gradient(circle at 82% 22%,rgba(0,210,255,0.22) 0%,transparent 24%),radial-gradient(circle at 74% 72%,rgba(255,72,196,0.18) 0%,transparent 28%),radial-gradient(circle at 24% 76%,rgba(124,58,237,0.16) 0%,transparent 26%),linear-gradient(180deg,#ffffff 0%,#f7fbff 46%,#eef4ff 100%);color:#101827;}
+    body.mode-whiteneon::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 18% 20%,rgba(0,210,255,0.20) 0%,transparent 18%),radial-gradient(circle at 82% 18%,rgba(255,72,196,0.18) 0%,transparent 20%),radial-gradient(circle at 50% 82%,rgba(124,58,237,0.10) 0%,transparent 26%);pointer-events:none;z-index:0;}
+    body.mode-whiteneon h1{background:linear-gradient(135deg,#ffffff,#dff7ff,#6ee7ff,#f5d0ff,#ffffff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 12px rgba(0,210,255,0.34)) drop-shadow(0 0 18px rgba(255,72,196,0.22));}
+    body.mode-whiteneon .btn{background:linear-gradient(145deg,rgba(255,255,255,0.95),rgba(236,245,255,0.92));color:#101827;box-shadow:0 10px 30px rgba(0,0,0,0.10),0 0 18px rgba(0,210,255,0.16),0 0 18px rgba(255,72,196,0.10);border:1px solid rgba(0,210,255,0.20);}
+    body.mode-whiteneon .btn:hover{box-shadow:0 14px 38px rgba(0,0,0,0.12),0 0 22px rgba(0,210,255,0.20),0 0 22px rgba(255,72,196,0.14);}
+    body.mode-whiteneon #codeBtn{background:rgba(255,255,255,0.90);color:#101827;backdrop-filter:blur(14px);border:1px solid rgba(0,210,255,0.18);box-shadow:0 8px 22px rgba(0,0,0,0.08),0 0 16px rgba(0,210,255,0.12),0 0 14px rgba(255,72,196,0.08);}
+    body.mode-whiteneon #settingsPanel{background:rgba(255,255,255,0.90);backdrop-filter:blur(20px);box-shadow:0 12px 48px rgba(0,0,0,0.14),0 0 18px rgba(0,210,255,0.10);border:1px solid rgba(0,210,255,0.14);color:#101827;}
+    body.mode-whiteneon #codeModal{background:rgba(255,255,255,0.96);backdrop-filter:blur(22px);border:1px solid rgba(0,210,255,0.18);color:#101827;}
 
     /* ── LUXURIOUS MODE ── */
     body.mode-luxurious{
@@ -359,6 +367,7 @@
     .mode-dot.radioactive-dot{background:linear-gradient(135deg,#ccffcc,#44ff44,#006600);border:1px solid rgba(80,255,0,0.55);box-shadow:0 0 8px rgba(60,255,0,0.3);}
     .mode-dot.snow-dot{background:linear-gradient(135deg,#ffffff,#d0eaff,#90c8ff);border:1px solid rgba(200,230,255,0.70);box-shadow:0 2px 8px rgba(120,190,255,0.25);}
     .mode-dot.money-dot{background:linear-gradient(135deg,#d4ffdd,#50ff80,#00882a);border:1px solid rgba(80,255,120,0.60);box-shadow:0 2px 8px rgba(50,200,80,0.25);}
+    .mode-dot.white-neon-dot{background:linear-gradient(135deg,#ffffff,#dff7ff,#6ee7ff,#f5d0ff);border:1px solid rgba(0,210,255,0.55);box-shadow:0 2px 8px rgba(0,210,255,0.18),0 0 10px rgba(255,72,196,0.12);}
     .mode-dot.day-dot{background:linear-gradient(135deg,#d4eaff,#87ceeb,#ffd700,#ffffff);border:1px solid rgba(14,165,233,0.55);box-shadow:0 2px 8px rgba(14,165,233,0.25);}
     .mode-dot.night-dot{background:linear-gradient(135deg,#08101f,#19284a,#3b4f8a,#b8c8ff);border:1px solid rgba(170,190,255,0.55);box-shadow:0 2px 8px rgba(120,150,255,0.22);}
     .settings-divider{height:1px;background:rgba(128,128,128,0.12);margin:4px 0;}
@@ -370,6 +379,30 @@
     input[type="range"]{width:100%;accent-color:var(--accent);height:4px;cursor:pointer;}
     .volume-row{padding:4px 18px 14px;display:flex;align-items:center;gap:8px;}
     .vol-icon{font-size:1em;opacity:0.5;}
+    .settings-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px 18px 8px;}
+    .settings-action-btn{padding:12px 14px;border:none;border-radius:16px;font-family:'Rubik',sans-serif;font-size:0.95em;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform 0.2s,box-shadow 0.2s,background 0.2s,color 0.2s;border:1px solid transparent;}
+    .settings-action-btn:hover{transform:translateY(-1px) scale(1.02);}
+    .settings-action-btn:active{transform:scale(0.98);}
+    .settings-action-btn.code-btn{background:rgba(124,58,237,0.12);color:var(--accent);border-color:rgba(124,58,237,0.18);}
+    .settings-action-btn.themes-btn{background:linear-gradient(145deg,rgba(0,210,255,0.18),rgba(255,72,196,0.14));color:inherit;border-color:rgba(0,210,255,0.18);}
+    .settings-action-btn.themes-btn .spark{filter:saturate(1.3);}
+    .brightness-row{padding:4px 18px 14px;display:flex;align-items:center;gap:8px;}
+    #brightnessValue{font-weight:800;opacity:0.75;}
+    #brightnessControl{flex:1;}
+    #themesOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.48);backdrop-filter:blur(8px);z-index:9050;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s ease;}
+    #themesOverlay.open{opacity:1;pointer-events:auto;}
+    #themesModal{width:min(1120px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:hidden;border-radius:28px;transform:scale(0.95) translateY(18px);transition:transform 0.3s cubic-bezier(0.34,1.4,0.64,1);background:rgba(10,12,18,0.94);color:#f7f7fb;box-shadow:0 24px 70px rgba(0,0,0,0.34);border:1px solid rgba(255,255,255,0.12);}
+    #themesOverlay.open #themesModal{transform:scale(1) translateY(0);}
+    .themes-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:18px 18px 12px;border-bottom:1px solid rgba(255,255,255,0.10);}
+    .themes-title{font-size:1.15em;font-weight:900;letter-spacing:0.2px;}
+    .themes-sub{margin-top:4px;font-size:0.88em;opacity:0.72;line-height:1.35;}
+    .themes-close{border:none;cursor:pointer;width:42px;height:42px;border-radius:14px;font:inherit;font-weight:900;background:rgba(255,255,255,0.08);color:inherit;transition:transform 0.18s,background 0.18s;}
+    .themes-close:hover{transform:scale(1.05);background:rgba(255,255,255,0.14);}
+    @media(max-width:680px){.settings-actions{grid-template-columns:1fr;}}
+    .theme-grid{padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;max-height:calc(100vh - 150px);overflow:auto;}
+    .theme-grid .mode-option{border-radius:18px;padding:14px 16px;min-height:64px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);}
+    .theme-grid .mode-option:hover{background:rgba(255,255,255,0.08);}
+    .theme-grid .mode-option.active-mode{box-shadow:0 0 0 1px rgba(124,58,237,0.18),0 0 20px rgba(124,58,237,0.14);}
     #codeBtn{position:fixed;top:14px;right:14px;z-index:1000;padding:9px 20px;border-radius:14px;border:none;cursor:pointer;font-family:'Rubik',sans-serif;font-weight:700;font-size:0.9em;letter-spacing:0.5px;transition:transform 0.2s,box-shadow 0.2s,background var(--transition);display:flex;align-items:center;gap:7px;}
     #codeBtn:hover{transform:scale(1.07);}
     #codeBtn:active{transform:scale(0.94);}
@@ -469,34 +502,14 @@
 <div id="settingsMenu">
   <div id="settingsPanel">
     <div class="settings-header">⚙ Settings</div>
-    <div class="settings-section-label">Appearance</div>
-    <div class="mode-option" data-mode="light" onclick="selectMode('light')">☀️ Light Mode<div class="mode-dot"></div></div>
-    <div class="mode-option" data-mode="dark" onclick="selectMode('dark')">🌙 Dark Mode<div class="mode-dot"></div></div>
-    <div class="mode-option" data-mode="rainbow" onclick="selectMode('rainbow')">🌈 Rainbow Neon<div class="mode-dot rainbow-dot"></div></div>
-    <div class="mode-option locked" id="luxuriousModeOption" data-mode="luxurious"><span>✨ Luxurious <span id="luxuriousLock">🔒</span></span><div class="mode-dot luxurious-dot"></div></div>
-    <div class="mode-option locked" id="dayModeOption" data-mode="day"><span>🌤️ Day <span id="dayLock">🔒</span></span><div class="mode-dot day-dot"></div></div>
-    <div class="mode-option locked" id="nightModeOption" data-mode="night"><span>🌙 Night <span id="nightLock">🔒</span></span><div class="mode-dot night-dot"></div></div>
-    <div class="mode-option locked" id="glassModeOption" data-mode="glass"><span>✨ Liquid Glass <span id="glassLock">🔒</span></span><div class="mode-dot glass-dot"></div></div>
-    <div class="mode-option locked" id="lavaModeOption" data-mode="lava"><span>🌋 Lava <span id="lavaLock">🔒</span></span><div class="mode-dot lava-dot"></div></div>
-    <div class="mode-option locked" id="roseModeOption" data-mode="rose"><span>🌹 Rose <span id="roseLock">🔒</span></span><div class="mode-dot rose-dot"></div></div>
-    <div class="mode-option locked" id="waterModeOption" data-mode="water"><span>💧 Water <span id="waterLock">🔒</span></span><div class="mode-dot water-dot"></div></div>
-    <div class="mode-option locked" id="potatoModeOption" data-mode="potato"><span>🥔 Potato <span id="potatoLock">🔒</span></span><div class="mode-dot potato-dot"></div></div>
-    <div class="mode-option locked" id="grapeModeOption" data-mode="grape"><span>🍇 Grape <span id="grapeLock">🔒</span></span><div class="mode-dot grape-dot"></div></div>
-    <div class="mode-option locked" id="sunModeOption" data-mode="sun"><span>☀️ Sun <span id="sunLock">🔒</span></span><div class="mode-dot sun-dot"></div></div>
-    <div class="mode-option locked" id="shadowModeOption" data-mode="shadow"><span>🌑 Shadow <span id="shadowLock">🔒</span></span><div class="mode-dot shadow-dot"></div></div>
-    <div class="mode-option locked" id="cheeseModeOption" data-mode="cheese"><span>🧀 Cheese <span id="cheeseLock">🔒</span></span><div class="mode-dot cheese-dot"></div></div>
-    <div class="mode-option locked" id="toothpasteModeOption" data-mode="toothpaste"><span>🪥 Toothpaste <span id="toothpasteLock">🔒</span></span><div class="mode-dot toothpaste-dot"></div></div>
-    <div class="mode-option locked" id="luckyModeOption" data-mode="lucky"><span>🐈 Lucky <span id="luckyLock">🔒</span></span><div class="mode-dot lucky-dot"></div></div>
-    <div class="mode-option locked" id="glitchModeOption" data-mode="glitch"><span>🟩 Glitch <span id="glitchLock">🔒</span></span><div class="mode-dot glitch-dot"></div></div>
-    <div class="mode-option locked" id="slimeModeOption" data-mode="slime"><span>🟢 Slime <span id="slimeLock">🔒</span></span><div class="mode-dot slime-dot"></div></div>
-    <div class="mode-option locked" id="galaxyModeOption" data-mode="galaxy"><span>🌌 Galaxy <span id="galaxyLock">🔒</span></span><div class="mode-dot galaxy-dot"></div></div>
-    <div class="mode-option locked" id="bronzeModeOption" data-mode="bronze"><span>🥉 Bronze <span id="bronzeLock">🔒</span></span><div class="mode-dot bronze-dot"></div></div>
-    <div class="mode-option locked" id="silverModeOption" data-mode="silver"><span>🥈 Silver <span id="silverLock">🔒</span></span><div class="mode-dot silver-dot"></div></div>
-    <div class="mode-option locked" id="goldModeOption" data-mode="gold"><span>🥇 Gold <span id="goldLock">🔒</span></span><div class="mode-dot gold-dot"></div></div>
-    <div class="mode-option locked" id="radioactiveModeOption" data-mode="radioactive"><span>☢️ Radioactive <span id="radioactiveLock">🔒</span></span><div class="mode-dot radioactive-dot"></div></div>
-    <div class="mode-option locked" id="snowModeOption" data-mode="snow"><span>❄️ Snow <span id="snowLock">🔒</span></span><div class="mode-dot snow-dot"></div></div>
-    <div class="mode-option locked" id="moneyModeOption" data-mode="money"><span>💵 Money <span id="moneyLock">🔒</span></span><div class="mode-dot money-dot"></div></div>
-    <div class="mode-option locked" id="pizzaModeOption" data-mode="pizza"><span>🍕 Pizza <span id="pizzaLock">🔒</span></span><div class="mode-dot pizza-dot"></div></div>
+    <div class="settings-actions">
+      <button class="settings-action-btn code-btn settings-code-only" onclick="openCodeModal()">🔑 Code</button>
+      <button class="settings-action-btn themes-btn" onclick="openThemesModal()"><span class="spark">🎨</span> Themes</button>
+    </div>
+    <div class="settings-divider"></div>
+    <div class="settings-section-label">Brightness</div>
+    <div class="settings-row"><span>☀️ Brightness</span><span id="brightnessValue">100%</span></div>
+    <div class="brightness-row"><span class="vol-icon">🌑</span><input type="range" id="brightnessControl" min="0.65" max="1.35" step="0.01" value="1"><span class="vol-icon">☀️</span></div>
     <div class="settings-divider"></div>
     <div class="settings-section-label">Music</div>
     <div class="settings-row"><span>🎵 Song</span><button class="mini-btn" id="toggleSong">Play</button></div>
@@ -504,6 +517,7 @@
   </div>
 </div>
 <button id="codeBtn" onclick="openCodeModal()">🔑 Enter Code</button>
+<button id="themesBtn" onclick="openThemesModal()" onmouseenter="this.style.transform='scale(1.07)'" onmouseleave="this.style.transform='scale(1)'" onmousedown="this.style.transform='scale(0.94)'" onmouseup="this.style.transform='scale(1.07)'" style="position:fixed;top:58px;right:14px;z-index:1000;padding:9px 20px;border-radius:14px;border:none;cursor:pointer;font-family:'Rubik',sans-serif;font-weight:700;font-size:0.9em;letter-spacing:0.5px;transition:transform 0.2s,box-shadow 0.2s,background 0.2s,color 0.2s,border-color 0.2s;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.78);color:#1d1d1f;box-shadow:0 3px 14px rgba(0,0,0,0.12),0 0 12px rgba(0,210,255,0.08),0 0 10px rgba(255,72,196,0.06);backdrop-filter:blur(14px);">🎨 Themes</button>
 <div id="codeOverlay">
   <div id="codeModal">
     <div class="code-modal-top">
@@ -516,6 +530,47 @@
     <div class="code-modal-footer">
       <button class="btn-submit" onclick="submitCode()">Unlock</button>
       <button class="btn-cancel" onclick="closeCodeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+<div id="themesOverlay">
+  <div id="themesModal">
+    <div class="themes-top">
+      <div>
+        <div class="themes-title">🎨 Themes</div>
+        <div class="themes-sub">Pick a background. Locked themes unlock as you explore the site.</div>
+      </div>
+      <button class="themes-close" onclick="closeThemesModal()">✕</button>
+    </div>
+    <div class="theme-grid">
+      <div class="mode-option" data-mode="light" onclick="selectMode('light');closeThemesModal()">☀️ Light Mode<div class="mode-dot"></div></div>
+      <div class="mode-option" data-mode="dark" onclick="selectMode('dark');closeThemesModal()">🌙 Dark Mode<div class="mode-dot"></div></div>
+      <div class="mode-option" data-mode="rainbow" onclick="selectMode('rainbow');closeThemesModal()">🌈 Rainbow Neon<div class="mode-dot rainbow-dot"></div></div>
+      <div class="mode-option locked" id="whiteNeonModeOption" data-mode="whiteneon"><span>⚪ White Neon <span id="whiteNeonLock">🔒</span></span><div class="mode-dot white-neon-dot"></div></div>
+      <div class="mode-option locked" id="luxuriousModeOption" data-mode="luxurious"><span>✨ Luxurious <span id="luxuriousLock">🔒</span></span><div class="mode-dot luxurious-dot"></div></div>
+      <div class="mode-option locked" id="dayModeOption" data-mode="day"><span>🌤️ Day <span id="dayLock">🔒</span></span><div class="mode-dot day-dot"></div></div>
+      <div class="mode-option locked" id="nightModeOption" data-mode="night"><span>🌙 Night <span id="nightLock">🔒</span></span><div class="mode-dot night-dot"></div></div>
+      <div class="mode-option locked" id="glassModeOption" data-mode="glass"><span>✨ Liquid Glass <span id="glassLock">🔒</span></span><div class="mode-dot glass-dot"></div></div>
+      <div class="mode-option locked" id="lavaModeOption" data-mode="lava"><span>🌋 Lava <span id="lavaLock">🔒</span></span><div class="mode-dot lava-dot"></div></div>
+      <div class="mode-option locked" id="roseModeOption" data-mode="rose"><span>🌹 Rose <span id="roseLock">🔒</span></span><div class="mode-dot rose-dot"></div></div>
+      <div class="mode-option locked" id="waterModeOption" data-mode="water"><span>💧 Water <span id="waterLock">🔒</span></span><div class="mode-dot water-dot"></div></div>
+      <div class="mode-option locked" id="potatoModeOption" data-mode="potato"><span>🥔 Potato <span id="potatoLock">🔒</span></span><div class="mode-dot potato-dot"></div></div>
+      <div class="mode-option locked" id="grapeModeOption" data-mode="grape"><span>🍇 Grape <span id="grapeLock">🔒</span></span><div class="mode-dot grape-dot"></div></div>
+      <div class="mode-option locked" id="sunModeOption" data-mode="sun"><span>☀️ Sun <span id="sunLock">🔒</span></span><div class="mode-dot sun-dot"></div></div>
+      <div class="mode-option locked" id="shadowModeOption" data-mode="shadow"><span>🌑 Shadow <span id="shadowLock">🔒</span></span><div class="mode-dot shadow-dot"></div></div>
+      <div class="mode-option locked" id="cheeseModeOption" data-mode="cheese"><span>🧀 Cheese <span id="cheeseLock">🔒</span></span><div class="mode-dot cheese-dot"></div></div>
+      <div class="mode-option locked" id="toothpasteModeOption" data-mode="toothpaste"><span>🪥 Toothpaste <span id="toothpasteLock">🔒</span></span><div class="mode-dot toothpaste-dot"></div></div>
+      <div class="mode-option locked" id="luckyModeOption" data-mode="lucky"><span>🐈 Lucky <span id="luckyLock">🔒</span></span><div class="mode-dot lucky-dot"></div></div>
+      <div class="mode-option locked" id="glitchModeOption" data-mode="glitch"><span>🟩 Glitch <span id="glitchLock">🔒</span></span><div class="mode-dot glitch-dot"></div></div>
+      <div class="mode-option locked" id="slimeModeOption" data-mode="slime"><span>🟢 Slime <span id="slimeLock">🔒</span></span><div class="mode-dot slime-dot"></div></div>
+      <div class="mode-option locked" id="galaxyModeOption" data-mode="galaxy"><span>🌌 Galaxy <span id="galaxyLock">🔒</span></span><div class="mode-dot galaxy-dot"></div></div>
+      <div class="mode-option locked" id="bronzeModeOption" data-mode="bronze"><span>🥉 Bronze <span id="bronzeLock">🔒</span></span><div class="mode-dot bronze-dot"></div></div>
+      <div class="mode-option locked" id="silverModeOption" data-mode="silver"><span>🥈 Silver <span id="silverLock">🔒</span></span><div class="mode-dot silver-dot"></div></div>
+      <div class="mode-option locked" id="goldModeOption" data-mode="gold"><span>🥇 Gold <span id="goldLock">🔒</span></span><div class="mode-dot gold-dot"></div></div>
+      <div class="mode-option locked" id="radioactiveModeOption" data-mode="radioactive"><span>☢️ Radioactive <span id="radioactiveLock">🔒</span></span><div class="mode-dot radioactive-dot"></div></div>
+      <div class="mode-option locked" id="snowModeOption" data-mode="snow"><span>❄️ Snow <span id="snowLock">🔒</span></span><div class="mode-dot snow-dot"></div></div>
+      <div class="mode-option locked" id="moneyModeOption" data-mode="money"><span>💵 Money <span id="moneyLock">🔒</span></span><div class="mode-dot money-dot"></div></div>
+      <div class="mode-option locked" id="pizzaModeOption" data-mode="pizza"><span>🍕 Pizza <span id="pizzaLock">🔒</span></span><div class="mode-dot pizza-dot"></div></div>
     </div>
   </div>
 </div>
@@ -570,6 +625,7 @@ const WHEEL_MONEY_KEY='wren_money';
 const DAY_UNLOCK_KEY='wren_theme_day_unlocked';
 const NIGHT_THEME_UNLOCK_KEY='wren_theme_night_unlocked';
 const LUXURIOUS_THEME_UNLOCK_KEY='wren_theme_luxurious_unlocked';
+const BRIGHTNESS_KEY='wrenBrightness';
 
 let unlockedFeatures=JSON.parse(localStorage.getItem(UNLOCK_KEY)||'[]');
 const cog=document.getElementById('settingsCog'), settingsMenu=document.getElementById('settingsMenu');
@@ -585,9 +641,9 @@ cog.addEventListener('click',()=>{incrementGlitchCounter();const o=settingsMenu.
 document.addEventListener('click',e=>{if(!settingsMenu.contains(e.target)&&e.target!==cog){settingsMenu.classList.remove('open');cog.classList.remove('open');}});
 
 // ── ALL LOCKED MODES (luxurious is now locked too) ──
-const ALL_LOCKED_MODES=['luxurious','day','night','glass','lava','rose','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','bronze','silver','gold','radioactive','snow','money','pizza'];
+const ALL_LOCKED_MODES=['luxurious','whiteneon','day','night','glass','lava','rose','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','bronze','silver','gold','radioactive','snow','money','pizza'];
 
-function selectMode(m){if(ALL_LOCKED_MODES.includes(m)&&!unlockedFeatures.includes(m))return;applyMode(m);localStorage.setItem(MODE_KEY,m);}
+function selectMode(m){if(ALL_LOCKED_MODES.includes(m)&&!unlockedFeatures.includes(m))return;applyMode(m);localStorage.setItem(MODE_KEY,m);closeThemesModal();}
 function applyMode(m){
   stopSnowParticles();stopMoneyParticles();
   document.body.className='mode-'+m;
@@ -623,6 +679,7 @@ function refreshRadioactiveOption(){refreshOption('radioactiveModeOption','radio
 function refreshSnowOption(){refreshOption('snowModeOption','snowLock','snow');}
 function refreshMoneyOption(){refreshOption('moneyModeOption','moneyLock','money');}
 function refreshPizzaOption(){syncPizzaUnlock();refreshOption('pizzaModeOption','pizzaLock','pizza');}
+function refreshWhiteNeonOption(){refreshOption('whiteNeonModeOption','whiteNeonLock','whiteneon');}
 
 function hasVisitedBothLinks(){return localStorage.getItem(VISIT_YT_KEY)==='1'&&localStorage.getItem(VISIT_DISCORD_KEY)==='1';}
 function hasVisitedCredits(){return localStorage.getItem(VISIT_CREDITS_KEY)==='1';}
@@ -632,6 +689,7 @@ function hasVisitedSmallCreators(){return localStorage.getItem(VISIT_SMALLCREATO
 function hasVisitedWheel(){return localStorage.getItem(VISIT_WHEEL_KEY)==='1';}
 function hasVisitedCheese(){return localStorage.getItem(VISIT_CHEESE_KEY)==='1';}
 function hasVisitedCatchAnything(){return localStorage.getItem(VISIT_CATCHANYTHING_KEY)==='1';}
+function hasVisitedHallOfFame(){return localStorage.getItem(VISIT_HALL_OF_FAME_KEY)==='1';}
 function hasDayUnlocked(){return localStorage.getItem(DAY_UNLOCK_KEY)==='1'||hasVisitedCatchAnything();}
 function hasNightUnlocked(){
   if(localStorage.getItem(NIGHT_THEME_UNLOCK_KEY)==='1')return true;
@@ -642,12 +700,13 @@ function hasNightUnlocked(){
   }catch(e){return false;}
 }
 function hasLuckyClicksUnlocked(){return localStorage.getItem(LUCKY_THEME_UNLOCK_KEY)==='1'||Number(localStorage.getItem(LUCKY_CLICK_COUNT_KEY)||'0')>=50;}
-function hasVisitedAllPages(){return hasVisitedLucky()&&hasVisitedWrenPacks()&&hasVisitedSmallCreators()&&hasVisitedWheel()&&hasVisitedCheese();}
+function hasVisitedAllPages(){return hasVisitedLucky()&&hasVisitedWrenPacks()&&hasVisitedSmallCreators()&&hasVisitedWheel()&&hasVisitedCatchAnything()&&hasVisitedHallOfFame()&&hasVisitedCredits();}
 function getCreditsCount(){return parseInt(localStorage.getItem(CREDITS_WATCH_KEY)||'0',10)||0;}
 function hasLuxuriousUnlocked(){return localStorage.getItem(LUXURIOUS_THEME_UNLOCK_KEY)==='1';}
 
 function unlockIfEligible(t,fn,msg,rfn){if(!fn())return false;if(!unlockedFeatures.includes(t)){persistUnlocked(t);rfn();if(msg)showToast(msg);}return true;}
 function unlockLuxuriousIfEligible(){return unlockIfEligible('luxurious',hasLuxuriousUnlocked,'✨ Luxurious unlocked! You found George21z\'s secret in the Hall of Fame.',refreshLuxuriousOption);}
+function unlockWhiteNeonIfEligible(){return unlockIfEligible('whiteneon',hasVisitedHallOfFame,'⚪ White Neon unlocked! You visited The Hall of Fame.',refreshWhiteNeonOption);}
 function unlockDayIfEligible(){return unlockIfEligible('day',hasDayUnlocked,'🌤️ Day unlocked! You visited Catch Anything.',refreshDayOption);}
 function unlockNightIfEligible(){return unlockIfEligible('night',hasNightUnlocked,'🌙 Night unlocked! You caught an Impossible in Catch Anything.',refreshNightOption);}
 function unlockRoseIfEligible(){return unlockIfEligible('rose',hasVisitedBothLinks,'🌹 Rose unlocked! You visited both links.',refreshRoseOption);}
@@ -657,7 +716,7 @@ function unlockGrapeIfEligible(){return unlockIfEligible('grape',hasVisitedWrenP
 function unlockSunIfEligible(){return unlockIfEligible('sun',hasVisitedSmallCreators,'☀️ Sun unlocked! You visited Small Creators.',refreshSunOption);}
 function unlockShadowIfEligible(){return unlockIfEligible('shadow',hasVisitedWheel,'🌑 Shadow unlocked! You visited The Wren Wheel of Doom.',refreshShadowOption);}
 function unlockCheeseIfEligible(){return unlockIfEligible('cheese',hasVisitedCheese,"🧀 Cheese unlocked! You visited Cheese's Art.",refreshCheeseOption);}
-function unlockToothpasteIfEligible(){return unlockIfEligible('toothpaste',hasVisitedAllPages,'🪥 Toothpaste unlocked! You visited all the pages.',refreshToothpasteOption);}
+function unlockToothpasteIfEligible(){return unlockIfEligible('toothpaste',hasVisitedAllPages,'🪥 Toothpaste unlocked! You visited Lucky Generator, Wren Packs, Small Creators, The Wren Wheel of Doom, Catch Anything, The Hall of Fame, and Credits.',refreshToothpasteOption);}
 function unlockLuckyIfEligible(){return unlockIfEligible('lucky',hasLuckyClicksUnlocked,'🐈 Lucky unlocked! You clicked Show Lucky 50 times.',refreshLuckyOption);}
 function unlockGlitchIfEligible(){return unlockIfEligible('glitch',()=>localStorage.getItem(GLITCH_THEME_UNLOCK_KEY)==='1'||getGlitchClicks()>=GLITCH_TARGET,'🟩 Glitch unlocked!',refreshGlitchOption);}
 function unlockSlimeIfEligible(){return unlockIfEligible('slime',()=>localStorage.getItem(SLIME_THEME_UNLOCK_KEY)==='1','🟢 Slime unlocked!',refreshSlimeOption);}
@@ -670,7 +729,7 @@ function unlockSnowIfEligible(){return unlockIfEligible('snow',()=>localStorage.
 function unlockMoneyIfEligible(){return unlockIfEligible('money',()=>localStorage.getItem(MONEY_UNLOCK_KEY)==='1','💵 Money unlocked! You reached $1 Million in the Wheel of Doom.',refreshMoneyOption);}
 function checkCreditsUnlocks(){unlockBronzeIfEligible();unlockSilverIfEligible();unlockGoldIfEligible();}
 function checkAllUnlocks(){
-  unlockLuxuriousIfEligible();
+  unlockLuxuriousIfEligible();unlockWhiteNeonIfEligible();
   unlockDayIfEligible();unlockNightIfEligible();
   unlockRoseIfEligible();unlockWaterIfEligible();unlockPotatoIfEligible();unlockGrapeIfEligible();
   unlockSunIfEligible();unlockShadowIfEligible();unlockCheeseIfEligible();unlockToothpasteIfEligible();
@@ -707,6 +766,7 @@ const CYCLE_THEME_NAMES = {
   'light':       '☀️ Light',
   'dark':        '🌙 Dark',
   'rainbow':     '🌈 Rainbow Neon',
+  'whiteneon':   '⚪ White Neon',
   'luxurious':   '✨ Luxurious',
   'rose':        '🌹 Rose',
   'water':       '💧 Water',
@@ -734,7 +794,7 @@ const CYCLE_THEME_NAMES = {
 };
 
 const ALL_CYCLE_THEMES = [
-  'light','dark','rainbow','luxurious',
+  'light','dark','rainbow','whiteneon','luxurious',
   'rose','water','potato','grape','sun','shadow','cheese','toothpaste',
   'lucky','glitch','slime','glass','lava','galaxy',
   'bronze','silver','gold','radioactive','snow','money','pizza',
@@ -810,7 +870,7 @@ function runThemeCycle(){
 }
 
 window.addEventListener('load',()=>{
-  refreshLuxuriousOption();
+  refreshLuxuriousOption();refreshWhiteNeonOption();
   refreshDayOption();refreshNightOption();
   refreshGlassOption();refreshLavaOption();refreshRoseOption();refreshWaterOption();
   refreshPotatoOption();refreshGrapeOption();refreshSunOption();refreshShadowOption();
@@ -823,13 +883,22 @@ window.addEventListener('load',()=>{
   // If saved mode is locked and not yet unlocked, fall back to light
   const safe=(ALL_LOCKED_MODES.includes(s)&&!unlockedFeatures.includes(s))?'light':s;
   applyMode(safe);
+  const savedBrightness=localStorage.getItem(BRIGHTNESS_KEY)||'1';
+  const brightnessControl=document.getElementById('brightnessControl');
+  if(brightnessControl)brightnessControl.value=savedBrightness;
+  applyBrightness(savedBrightness);
   initDayClouds();
 });
 
 function openCodeModal(){const i=document.getElementById('codeInput'),f=document.getElementById('codeFeedback');i.value='';i.className='';f.textContent='';f.className='';document.getElementById('codeOverlay').classList.add('open');setTimeout(()=>i.focus(),350);}
 function closeCodeModal(){document.getElementById('codeOverlay').classList.remove('open');}
+function openThemesModal(){document.getElementById('themesOverlay').classList.add('open');}
+function closeThemesModal(){document.getElementById('themesOverlay').classList.remove('open');}
+function applyBrightness(v){const n=Number(v)||1;document.documentElement.style.setProperty('--page-brightness',String(n));localStorage.setItem(BRIGHTNESS_KEY,String(n));const label=document.getElementById('brightnessValue');if(label)label.textContent=Math.round(n*100)+'%';}
 document.getElementById('codeOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('codeOverlay'))closeCodeModal();});
+document.getElementById('themesOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('themesOverlay'))closeThemesModal();});
 document.getElementById('codeInput').addEventListener('keydown',e=>{if(e.key==='Enter')submitCode();});
+document.getElementById('brightnessControl').addEventListener('input',e=>applyBrightness(e.target.value));
 
 function submitCode(){
   const i=document.getElementById('codeInput'),f=document.getElementById('codeFeedback'),v=i.value.trim(),u=CODES[v];
