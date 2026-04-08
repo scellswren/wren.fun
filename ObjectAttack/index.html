@@ -411,35 +411,72 @@ const CRATE_DEFS=[
   {id:'grandmaster',name:'Grandmaster Crate',emoji:'👑',cost:50000,unlockHp:30000,tier:'grandmaster'},
 ];
 
-const SAVE_KEY='objectBattle_save_v4';
+const SAVE_KEY='objectBattle_save_v3';
+const LEGACY_SAVE_KEYS=['objectBattle_save_v2','objectBattle_save_v1','objectBattle_save'];
 
 const state={trophies:0,power:0,inventory:{},team:[null,null,null],battleMode:null,battleState:null};
 
 function saveState(){
+  const payload=JSON.stringify(state);
   try{
-    localStorage.setItem(SAVE_KEY,JSON.stringify(state));
+    localStorage.setItem(SAVE_KEY,payload);
+    LEGACY_SAVE_KEYS.forEach(k=>localStorage.setItem(k,payload));
   }catch(e){}
 }
+function cloneDefaultState(){
+  return {trophies:0,power:0,inventory:{},team:[null,null,null],battleMode:null,battleState:null};
+}
+function normalizeLoadedState(parsed){
+  const s=cloneDefaultState();
+  if(parsed && typeof parsed==='object'){
+    Object.assign(s,parsed);
+  }
+  s.inventory=s.inventory && typeof s.inventory==='object' ? s.inventory : {};
+  s.team=Array.isArray(s.team) ? s.team.slice(0,3) : [null,null,null];
+  while(s.team.length<3) s.team.push(null);
+  s.trophies=Number.isFinite(s.trophies) ? s.trophies : 0;
+  s.power=Number.isFinite(s.power) ? s.power : 0;
+  return s;
+}
+function stateScore(s){
+  const invCount=s && s.inventory ? Object.keys(s.inventory).length : 0;
+  const teamCount=Array.isArray(s && s.team ? s.team : []) ? s.team.filter(Boolean).length : 0;
+  const trophies=Number(s?.trophies||0);
+  const power=Number(s?.power||0);
+  return invCount*100000 + teamCount*1000 + trophies + power;
+}
 function loadState(){
-  const s=localStorage.getItem(SAVE_KEY);
-  if(s){
+  let best=null;
+  let bestScore=-1;
+  const keys=[SAVE_KEY,...LEGACY_SAVE_KEYS];
+  for(const key of keys){
+    const raw=localStorage.getItem(key);
+    if(!raw) continue;
     try{
-      const parsed=JSON.parse(s);
-      Object.assign(state,parsed);
-      state.trophies=Number(state.trophies)||0;
-      state.power=Number(state.power)||0;
-      state.inventory=state.inventory||{};
-      state.team=Array.isArray(state.team)?state.team:[null,null,null];
-      if(!Array.isArray(state.team) || state.team.length<3) state.team=[null,null,null];
-      state.battleMode=state.battleMode||null;
-      state.battleState=state.battleState||null;
+      const parsed=normalizeLoadedState(JSON.parse(raw));
+      const score=stateScore(parsed);
+      if(score>bestScore){
+        best=parsed;
+        bestScore=score;
+      }
     }catch(e){}
   }
+  if(best){
+    Object.assign(state,best);
+  }
+  state.inventory=state.inventory||{};
+  state.team=Array.isArray(state.team) ? state.team.slice(0,3) : [null,null,null];
+  while(state.team.length<3) state.team.push(null);
+
   if(Object.keys(state.inventory).length===0){
     giveObject('rock','easy');giveObject('pen','easy');giveObject('pillow','easy');
     state.team=['rock','pen','pillow'];
     saveState();
   }
+  window.addEventListener('beforeunload', saveState);
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden) saveState();
+  });
 }
 
 function giveObject(id,crateId){
@@ -1086,12 +1123,6 @@ function rematch(){
   if(state.battleMode) startBattle(state.battleMode);
   else showScreen('screenModeSelect');
 }
-
-window.addEventListener('beforeunload', saveState);
-document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState==='hidden') saveState();
-});
-setInterval(saveState, 30000);
 
 loadState();
 renderHome();
