@@ -1062,7 +1062,7 @@ function redeemCode(){
 ============================================================ */
 function getRandomFromPool(pool){if(!Array.isArray(pool)||pool.length===0)return null;return pool[Math.floor(Math.random()*pool.length)];}
 function getObjectHp(id){const obj=state.inventory[id];if(!obj)return 0;return Math.floor(obj.baseHp+(obj.level-1)*Math.floor(obj.baseHp*0.25));}
-function getUpgradeCost(id){const obj=state.inventory[id];if(!obj)return 0;const crate=CRATE_DEFS.find(c=>c.id===obj.crate);const base=crate?Math.floor(crate.cost*0.20):10;return Math.floor(base*Math.pow(2,obj.level-1));}
+function getUpgradeCost(id){const obj=state.inventory[id];if(!obj)return 0;const crate=CRATE_DEFS.find(c=>c.id===obj.crate);const base=crate?Math.floor(crate.cost*0.20):10;const effectiveLevel=Math.min(obj.level,10);return Math.floor(base*Math.pow(2,effectiveLevel-1));}
 function getMaxHpInInventory(){let max=0;for(const id in state.inventory)max=Math.max(max,getObjectHp(id));return max;}
 function isModeUnlocked(modeId){const mode=MODES.find(m=>m.id===modeId);if(!mode||mode.unlockHp===0)return true;return getMaxHpInInventory()>=mode.unlockHp;}
 function isCrateUnlocked(crateId){const crate=CRATE_DEFS.find(c=>c.id===crateId);if(!crate||crate.unlockHp===0)return true;return getMaxHpInInventory()>=crate.unlockHp;}
