@@ -29,7 +29,6 @@
       color:var(--text);
       overflow-x:hidden;
     }
-    /* Animated grid background */
     body::before{
       content:'';
       position:fixed;inset:0;
@@ -61,7 +60,6 @@
     h2{font-family:'Russo One',sans-serif;font-size:1.3em;margin-bottom:10px;}
     .sub{text-align:center;color:var(--muted);margin-bottom:24px;font-size:0.95em;}
 
-    /* STATS BAR */
     #statsBar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:22px;}
     .stat-chip{
       background:rgba(168,85,247,0.12);
@@ -72,7 +70,6 @@
     }
     .stat-chip span{color:#c084fc;}
 
-    /* MODE GRID */
     .mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
     .mode-card{
       background:var(--surface);
@@ -91,7 +88,6 @@
     .mode-card .mode-name{font-family:'Russo One',sans-serif;font-size:1.15em;}
     .mode-card .mode-reward{font-size:0.8em;color:var(--muted);margin-top:4px;}
 
-    /* TEAM SLOTS */
     .team-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
     .slot-card{
       background:var(--surface);
@@ -108,7 +104,6 @@
     .slot-card .slot-hp{font-size:0.7em;color:var(--muted);}
     .slot-card .slot-lvl{font-size:0.68em;color:var(--purple);}
 
-    /* PICKER */
     #pickerOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
     #pickerOverlay.show{display:flex;}
     #pickerModal{background:#120025;border:1px solid rgba(168,85,247,0.3);border-radius:22px;width:min(700px,calc(100vw - 32px));max-height:82vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.8);}
@@ -121,12 +116,13 @@
       transition:all 0.2s;
     }
     .picker-item:hover{border-color:rgba(168,85,247,0.5);background:rgba(168,85,247,0.1);transform:translateY(-2px);}
+    .picker-item.already-in-team{opacity:0.35;cursor:not-allowed;pointer-events:none;}
+    .picker-item.already-in-team::after{content:'In team';display:block;font-size:0.62em;color:var(--muted);margin-top:3px;}
     .picker-item .p-emoji{font-size:1.7em;}
     .picker-item .p-name{font-size:0.74em;font-weight:700;margin-top:3px;}
     .picker-item .p-hp{font-size:0.67em;color:var(--muted);}
     .picker-item .p-lvl{font-size:0.64em;color:var(--purple);}
 
-    /* CRATE PREVIEW OVERLAY */
     #cratePreviewOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
     #cratePreviewOverlay.show{display:flex;}
     #cratePreviewModal{background:#120025;border:1px solid rgba(168,85,247,0.3);border-radius:22px;width:min(700px,calc(100vw - 32px));max-height:82vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.8);}
@@ -139,7 +135,6 @@
     .preview-item.owned{border-color:rgba(168,85,247,0.4);background:rgba(168,85,247,0.08);}
     .preview-item.owned::after{content:'✓ owned';display:block;font-size:0.6em;color:var(--purple);font-weight:700;margin-top:2px;}
 
-    /* CRATES */
     .crate-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px;}
     .crate-card{
       background:var(--surface);border:2px solid var(--border);
@@ -164,7 +159,6 @@
     }
     .crate-preview-btn:hover{background:rgba(59,130,246,0.28);}
 
-    /* CRATE ANIMATION */
     #crateAnim{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:600;align-items:center;justify-content:center;flex-direction:column;gap:18px;}
     #crateAnim.show{display:flex;}
     #crateAnimBox{font-size:5em;animation:crateBounce 0.55s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(168,85,247,0.7));}
@@ -180,7 +174,6 @@
     .anim-btn{background:rgba(168,85,247,0.2);border:2px solid rgba(168,85,247,0.5);color:#f0e6ff;border-radius:12px;padding:11px 26px;font-family:'Russo One',sans-serif;font-size:0.95em;cursor:pointer;margin-top:8px;transition:transform 0.2s,box-shadow 0.2s;}
     .anim-btn:hover{transform:scale(1.06);box-shadow:0 0 20px rgba(168,85,247,0.4);}
 
-    /* UPGRADE */
     #upgradeOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
     #upgradeOverlay.show{display:flex;}
     #upgradeModal{background:#120025;border:1px solid rgba(168,85,247,0.3);border-radius:22px;width:min(400px,calc(100vw - 32px));overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.8);}
@@ -192,10 +185,8 @@
     .upg-btn:disabled{opacity:0.35;cursor:not-allowed;}
     .upg-btn:not(:disabled):hover{transform:scale(1.03);}
 
-    /* ===== BATTLE SCREEN ===== */
     #battleScreen{padding-bottom:40px;}
 
-    /* opponent header */
     .battle-header{
       text-align:center;margin-bottom:16px;
       padding:14px;
@@ -206,7 +197,6 @@
     .battle-header .opp-name{font-family:'Russo One',sans-serif;font-size:1.3em;color:#fca5a5;}
     .battle-header .opp-mode{font-size:0.82em;color:var(--muted);margin-top:3px;}
 
-    /* ARENA */
     .battle-arena{
       display:grid;
       grid-template-columns:1fr 50px 1fr;
@@ -229,16 +219,13 @@
     .fighter-box.enemy-side{border-color:rgba(239,68,68,0.35);}
     .fighter-box.dead{opacity:0.28;filter:grayscale(1);}
 
-    /* shake animation */
     .fighter-box.shake{animation:shake 0.35s;}
     @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px) rotate(-1.5deg)}40%{transform:translateX(6px) rotate(1.5deg)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 
-    /* glow on hit */
     .fighter-box.player-side.glow-hit{box-shadow:0 0 30px rgba(56,189,248,0.5);animation:glowPulse 0.4s;}
     .fighter-box.enemy-side.glow-hit{box-shadow:0 0 30px rgba(239,68,68,0.5);animation:glowPulse 0.4s;}
     @keyframes glowPulse{0%{box-shadow:0 0 0px transparent}50%{box-shadow:0 0 40px rgba(239,68,68,0.7)}100%{box-shadow:0 0 10px rgba(239,68,68,0.2)}}
 
-    /* damage float */
     .dmg-float{
       position:absolute;top:10px;left:50%;
       transform:translateX(-50%);
@@ -268,7 +255,6 @@
     .fighter-hp-bar-fill.low{background:linear-gradient(90deg,#ef4444,#fca5a5);}
     .fighter-hp-text{font-size:0.72em;color:var(--muted);}
 
-    /* VS badge */
     .vs-badge{
       width:44px;height:44px;border-radius:50%;
       background:linear-gradient(135deg,rgba(168,85,247,0.3),rgba(59,130,246,0.3));
@@ -281,7 +267,6 @@
     }
     @keyframes vsPulse{0%,100%{box-shadow:0 0 10px rgba(168,85,247,0.2)}50%{box-shadow:0 0 24px rgba(168,85,247,0.5)}}
 
-    /* TURN INDICATOR */
     #turnIndicator{
       text-align:center;margin-bottom:12px;
       padding:8px;border-radius:12px;
@@ -299,7 +284,6 @@
       color:#f87171;
     }
 
-    /* BATTLE LOG */
     .battle-log{
       background:rgba(0,0,0,0.35);
       border:1px solid var(--border);
@@ -315,7 +299,6 @@
     .log-info{color:#c084fc;}
     .log-warn{color:#fbbf24;}
 
-    /* PICK ROW */
     #pickFighterRow{display:none;}
     .pick-row{display:flex;gap:8px;margin:10px 0 14px;flex-wrap:wrap;justify-content:center;}
     .pick-btn{
@@ -328,7 +311,6 @@
     }
     .pick-btn:hover{border-color:#38bdf8;background:rgba(56,189,248,0.1);transform:translateY(-2px);}
 
-    /* ACTION BUTTONS */
     .big-btn{
       display:block;width:100%;padding:15px;
       background:linear-gradient(135deg,#7c3aed,#2563eb);
@@ -353,7 +335,6 @@
     .sec-btn:hover{background:rgba(255,255,255,0.12);transform:scale(1.01);}
     .inline-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
-    /* MY OBJECTS */
     .obj-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:18px;}
     .obj-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px;text-align:center;transition:all 0.2s;}
     .obj-card:hover{border-color:rgba(168,85,247,0.4);transform:translateY(-2px);}
@@ -364,7 +345,6 @@
     .obj-card .upg-btn-small{margin-top:7px;padding:5px 8px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.35);border-radius:8px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:0.68em;color:var(--purple);cursor:pointer;width:100%;transition:all 0.2s;}
     .obj-card .upg-btn-small:hover{background:rgba(124,58,237,0.3);}
 
-    /* DICE ROLL animation */
     #diceAnim{
       display:none;position:fixed;inset:0;
       background:rgba(0,0,0,0.85);
@@ -391,7 +371,6 @@
       display:none;animation:resultPop 0.5s cubic-bezier(0.34,1.4,0.64,1) forwards;
     }
 
-    /* ATTACK FLASH overlay (full screen flash on hit) */
     #hitFlash{
       position:fixed;inset:0;pointer-events:none;z-index:800;
       opacity:0;
@@ -401,11 +380,25 @@
     @keyframes flashPlayer{0%{opacity:0;background:rgba(56,189,248,0.15)}50%{opacity:1;}100%{opacity:0;}}
     @keyframes flashEnemy{0%{opacity:0;background:rgba(239,68,68,0.15)}50%{opacity:1;}100%{opacity:0;}}
 
-    /* TOAST */
+    /* Enemy picking banner */
+    #enemyPickingBanner{
+      display:none;
+      text-align:center;
+      padding:14px;
+      background:rgba(239,68,68,0.1);
+      border:1px solid rgba(239,68,68,0.3);
+      border-radius:14px;
+      margin-bottom:12px;
+      font-family:'Russo One',sans-serif;
+      font-size:1em;
+      color:#fca5a5;
+      animation:bannerPulse 1s ease-in-out infinite;
+    }
+    @keyframes bannerPulse{0%,100%{opacity:0.7}50%{opacity:1}}
+
     #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(30px);background:linear-gradient(135deg,#7c3aed,#2563eb);color:white;padding:11px 22px;border-radius:40px;font-weight:700;font-size:0.92em;opacity:0;pointer-events:none;transition:opacity 0.3s,transform 0.3s;z-index:9999;white-space:nowrap;max-width:90vw;text-align:center;}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-    /* RESULT */
     #screenResult .result-center{text-align:center;padding-top:24px;}
     #resultEmojiWrap{font-size:5em;margin-bottom:14px;animation:resultBounce 0.6s cubic-bezier(0.34,1.5,0.64,1) forwards;}
     @keyframes resultBounce{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
@@ -423,13 +416,11 @@
 <div id="toast"></div>
 <div id="hitFlash"></div>
 
-<!-- DICE ANIMATION -->
 <div id="diceAnim">
   <div id="diceEmoji">🎲</div>
   <div id="diceResult"></div>
 </div>
 
-<!-- CRATE ANIMATION -->
 <div id="crateAnim">
   <div id="crateAnimBox">📦</div>
   <div id="crateResult">
@@ -441,7 +432,6 @@
   <button class="anim-btn" id="crateAnimBtn" onclick="closeCrateAnim()" style="display:none;">Continue</button>
 </div>
 
-<!-- UPGRADE OVERLAY -->
 <div id="upgradeOverlay">
   <div id="upgradeModal">
     <div class="upg-head"><span id="upgTitle">Upgrade</span><button class="picker-close" onclick="closeUpgrade()">✕</button></div>
@@ -456,7 +446,6 @@
   </div>
 </div>
 
-<!-- OBJECT PICKER -->
 <div id="pickerOverlay">
   <div id="pickerModal">
     <div class="picker-head"><span>Choose an Object</span><button class="picker-close" onclick="closePicker()">✕</button></div>
@@ -464,15 +453,12 @@
   </div>
 </div>
 
-<!-- CRATE PREVIEW -->
 <div id="cratePreviewOverlay">
   <div id="cratePreviewModal">
     <div class="preview-head"><span id="previewTitle">What's Inside?</span><button class="picker-close" onclick="closePreview()">✕</button></div>
     <div class="preview-grid" id="previewGrid"></div>
   </div>
 </div>
-
-<!-- ===== SCREENS ===== -->
 
 <!-- HOME -->
 <div class="screen active" id="screenHome">
@@ -516,6 +502,7 @@
     <div class="opp-mode" id="battleOppMode"></div>
   </div>
   <div id="turnIndicator" class="your-turn">Your turn — Roll the dice!</div>
+  <div id="enemyPickingBanner">💀 Enemy is choosing their next fighter...</div>
   <div class="battle-arena">
     <div class="fighter-box player-side" id="playerFighterBox">
       <span class="fighter-emoji" id="playerFighterEmoji"></span>
@@ -572,7 +559,6 @@
 </div>
 
 <script>
-// ===================== DATA =====================
 const OPPONENT_NAMES=['WrenIsOld','The Dairy King','Edunzie','Block Of Cheese','The Mind Of Orin','Zxno','Juju2y','Nathan','James','Bob Tim','Garry','Greg','Kyle','Nate','Kevin Hart','Charizard','Mr Clean','Henry','Iron Man','Poland','Sam','Ronald McDonald'];
 
 const MODES=[
@@ -656,14 +642,11 @@ const CRATE_DEFS=[
 
 const SAVE_KEY='objectBattle_save_v2';
 
-// Victory sound (generated via AudioContext since file may not be present)
 function playVictorySound(){
   try{
     const AudioCtx=window.AudioContext||window.webkitAudioContext;
     if(!AudioCtx)return;
     const ctx=new AudioCtx();
-
-    // Try loading Win.mp3 first
     const audio=new Audio('../Win.mp3');
     audio.volume=0.8;
     const p=audio.play();
@@ -673,15 +656,13 @@ function playVictorySound(){
 
 function playFallbackVictory(ctx){
   if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return;}}
-  // fanfare-ish
   const notes=[523,659,784,1047,784,1047,1319];
   const times=[0,0.12,0.24,0.36,0.52,0.62,0.72];
   notes.forEach((freq,i)=>{
     const osc=ctx.createOscillator();
     const gain=ctx.createGain();
     osc.connect(gain);gain.connect(ctx.destination);
-    osc.frequency.value=freq;
-    osc.type='triangle';
+    osc.frequency.value=freq;osc.type='triangle';
     const t=ctx.currentTime+times[i];
     gain.gain.setValueAtTime(0,t);
     gain.gain.linearRampToValueAtTime(0.35,t+0.05);
@@ -704,7 +685,26 @@ function playHitSound(isPlayer){
   }catch(e){}
 }
 
-// ===================== STATE =====================
+// FIX 2: Sound when enemy object is killed
+function playKillSound(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    // Two-tone "defeated" sound
+    const freqs=[600,300];
+    freqs.forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.frequency.value=freq;osc.type='sine';
+      const t=ctx.currentTime+(i*0.18);
+      gain.gain.setValueAtTime(0,t);
+      gain.gain.linearRampToValueAtTime(0.4,t+0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001,t+0.25);
+      osc.start(t);osc.stop(t+0.28);
+    });
+  }catch(e){}
+}
+
 let state={trophies:0,power:0,inventory:{},team:[null,null,null],battleMode:null,battleState:null};
 
 function saveState(){localStorage.setItem(SAVE_KEY,JSON.stringify(state));}
@@ -730,8 +730,7 @@ function giveObject(id,crateId){
 }
 
 function getObjectHp(id){
-  const obj=state.inventory[id];
-  if(!obj)return 0;
+  const obj=state.inventory[id];if(!obj)return 0;
   return Math.floor(obj.baseHp+(obj.level-1)*Math.floor(obj.baseHp*0.15));
 }
 function getUpgradeCost(id){
@@ -754,7 +753,6 @@ function isCrateUnlocked(crateId){
   return getMaxHpInInventory()>=crate.unlockHp;
 }
 
-// ===================== UI =====================
 function goHome(){window.location.href='../index.html';}
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
 function showScreen(id){
@@ -771,7 +769,6 @@ function renderHome(){
   document.getElementById('statPower').textContent=state.power.toLocaleString();
 }
 
-// MODES
 function renderModes(){
   const grid=document.getElementById('modeGrid');grid.innerHTML='';
   MODES.forEach(m=>{
@@ -785,7 +782,6 @@ function renderModes(){
   });
 }
 
-// TEAM
 function renderTeam(){
   const cont=document.getElementById('teamSlots');cont.innerHTML='';
   for(let i=0;i<3;i++){
@@ -802,23 +798,27 @@ function renderTeam(){
   }
 }
 
-// PICKER
 let pickerSlot=-1;
 function openPicker(slot){
   pickerSlot=slot;
   const grid=document.getElementById('pickerGrid');grid.innerHTML='';
+  // FIX 4: Get IDs already used in OTHER slots (not the current one being replaced)
+  const usedIds=state.team.filter((_,i)=>i!==slot&&state.team[i]!=null).map(id=>id);
   Object.values(state.inventory).forEach(obj=>{
     const hp=getObjectHp(obj.id);
-    const div=document.createElement('div');div.className='picker-item';
+    const alreadyUsed=usedIds.includes(obj.id);
+    const div=document.createElement('div');
+    div.className='picker-item'+(alreadyUsed?' already-in-team':'');
     div.innerHTML=`<div class="p-emoji">${obj.emoji}</div><div class="p-name">${obj.name}</div><div class="p-hp">${hp} HP</div><div class="p-lvl">Lv.${obj.level}</div>`;
-    div.onclick=()=>{state.team[pickerSlot]=obj.id;saveState();closePicker();renderTeam();};
+    if(!alreadyUsed){
+      div.onclick=()=>{state.team[pickerSlot]=obj.id;saveState();closePicker();renderTeam();};
+    }
     grid.appendChild(div);
   });
   document.getElementById('pickerOverlay').classList.add('show');
 }
 function closePicker(){document.getElementById('pickerOverlay').classList.remove('show');}
 
-// CRATE PREVIEW
 function openPreview(crateId){
   const crate=CRATE_DEFS.find(c=>c.id===crateId);if(!crate)return;
   document.getElementById('previewTitle').textContent=`${crate.emoji} ${crate.name} — Possible Drops`;
@@ -835,7 +835,6 @@ function openPreview(crateId){
 }
 function closePreview(){document.getElementById('cratePreviewOverlay').classList.remove('show');}
 
-// CRATES
 function renderCrates(){
   document.getElementById('crateStatTrophies').textContent=state.trophies.toLocaleString();
   const grid=document.getElementById('crateGrid');grid.innerHTML='';
@@ -846,7 +845,6 @@ function renderCrates(){
     div.className='crate-card'+(locked?' locked':'');
     const req=c.unlockHp>0?`Requires ${c.unlockHp.toLocaleString()}+ HP`:'';
     div.innerHTML=`<div class="crate-emoji">${c.emoji}</div><div class="crate-name">${c.name}</div><div class="crate-cost">🏆 ${c.cost.toLocaleString()} trophies</div><div class="crate-req">${locked?req:(cantAfford?'Not enough trophies':'')}</div>`;
-    // Preview button always shown (even if locked)
     const previewBtn=document.createElement('button');
     previewBtn.className='crate-preview-btn';previewBtn.textContent='👁 View Possible Drops';
     previewBtn.onclick=(e)=>{e.stopPropagation();openPreview(c.id);};
@@ -889,7 +887,6 @@ function closeCrateAnim(){
   renderCrates();
 }
 
-// MY OBJECTS
 function renderMyObjects(){
   const list=document.getElementById('objList');list.innerHTML='';
   Object.values(state.inventory).forEach(obj=>{
@@ -901,7 +898,6 @@ function renderMyObjects(){
   });
 }
 
-// UPGRADE
 let upgradeId=null;
 function openUpgrade(id){
   upgradeId=id;const obj=state.inventory[id];if(!obj)return;
@@ -927,13 +923,6 @@ function doUpgrade(){
 }
 
 // ===================== BATTLE =====================
-/*
-  TURN MECHANIC:
-  - Player always goes first on turn 1
-  - After each attack, roll dice (50/50) to determine who attacks next
-  - Only ONE attack happens per button press (the current turn holder attacks)
-  - Dice determines NEXT turn holder after each attack
-*/
 
 function startBattle(modeId){
   const mode=MODES.find(m=>m.id===modeId);if(!mode)return;
@@ -961,9 +950,8 @@ function startBattle(modeId){
     playerTeam:[...playerTeam],
     enemyTeam:[...enemyTeam],
     playerIdx:0,enemyIdx:0,
-    // 'player' = player attacks next, 'enemy' = enemy attacks next
     currentTurn:'player',
-    phase:'fight', // 'fight' | 'pickFighter' | 'done'
+    phase:'fight',
     isFirstTurn:true,
     log:[],
   };
@@ -979,13 +967,13 @@ function addLog(text,cls=''){
 function renderBattle(){
   const bs=state.battleState;
   if(!bs)return;
+
   document.getElementById('battleOppName').textContent='⚔️ '+bs.oppName;
   document.getElementById('battleOppMode').textContent=bs.mode.emoji+' '+bs.mode.name+' Mode';
 
   const pf=bs.playerTeam[bs.playerIdx];
   const ef=bs.enemyTeam[bs.enemyIdx];
 
-  // Player
   document.getElementById('playerFighterEmoji').textContent=pf?pf.emoji:'💀';
   document.getElementById('playerFighterName').textContent=pf?pf.name:'Defeated';
   if(pf){
@@ -1000,7 +988,6 @@ function renderBattle(){
     document.getElementById('playerFighterBox').classList.add('dead');
   }
 
-  // Enemy
   document.getElementById('enemyFighterEmoji').textContent=ef?ef.emoji:'💀';
   document.getElementById('enemyFighterName').textContent=ef?ef.name:'Defeated';
   if(ef){
@@ -1015,14 +1002,23 @@ function renderBattle(){
     document.getElementById('enemyFighterBox').classList.add('dead');
   }
 
-  // Turn indicator
   const ti=document.getElementById('turnIndicator');
+  const banner=document.getElementById('enemyPickingBanner');
+
+  // FIX 2: Show enemy picking banner during enemyPicking phase
+  if(bs.phase==='enemyPicking'){
+    banner.style.display='block';
+    ti.style.display='none';
+  }else{
+    banner.style.display='none';
+  }
+
   if(bs.phase==='pickFighter'){
     ti.className='turn-indicator your-turn';
     ti.textContent='Choose your next fighter!';
     ti.style.display='block';
-  }else if(bs.phase==='done'){
-    ti.style.display='none';
+  }else if(bs.phase==='done'||bs.phase==='enemyPicking'){
+    if(bs.phase==='done')ti.style.display='none';
   }else{
     ti.style.display='block';
     if(bs.currentTurn==='player'){
@@ -1034,17 +1030,16 @@ function renderBattle(){
     }
   }
 
-  // Log
   const logEl=document.getElementById('battleLog');
   logEl.innerHTML=bs.log.map(l=>`<div class="log-entry ${l.cls||''}">${l.text}</div>`).join('');
   logEl.scrollTop=logEl.scrollHeight;
 
-  // Buttons
   const btn=document.getElementById('battleActionBtn');
   const pickRow=document.getElementById('pickFighterRow');
+
   if(bs.phase==='pickFighter'){
     btn.style.display='none';pickRow.style.display='block';renderPickRow();
-  }else if(bs.phase==='done'){
+  }else if(bs.phase==='done'||bs.phase==='enemyPicking'){
     btn.style.display='none';pickRow.style.display='none';
   }else{
     btn.style.display='block';pickRow.style.display='none';
@@ -1063,34 +1058,29 @@ function renderPickRow(){
     btn.onclick=()=>{
       bs.playerIdx=i;
       bs.phase='fight';
-      // After sending in new fighter, dice determines next turn
       bs.currentTurn=Math.random()<0.5?'player':'enemy';
       addLog(`You send in ${f.emoji} ${f.name}!`,'log-info');
       const turnMsg=bs.currentTurn==='player'?'🎲 Dice says: YOU go next!':'🎲 Dice says: ENEMY goes next!';
-      addLog(turnMsg, bs.currentTurn==='player'?'log-info':'log-warn');
+      addLog(turnMsg,bs.currentTurn==='player'?'log-info':'log-warn');
       renderBattle();saveState();
     };
     row.appendChild(btn);
   });
 }
 
-// Animate a hit on a fighter box
-function animateHit(side, damage){
+function animateHit(side,damage){
   const box=document.getElementById(side==='player'?'playerFighterBox':'enemyFighterBox');
-  // shake
   box.classList.remove('shake');
   void box.offsetWidth;
   box.classList.add('shake');
   setTimeout(()=>box.classList.remove('shake'),400);
 
-  // damage float
   const float=document.createElement('div');
   float.className='dmg-float '+(side==='player'?'enemy-dmg':'player-dmg');
   float.textContent='-'+damage.toLocaleString();
   box.appendChild(float);
   setTimeout(()=>float.remove(),950);
 
-  // screen flash
   const flash=document.getElementById('hitFlash');
   flash.className='';
   void flash.offsetWidth;
@@ -1100,8 +1090,7 @@ function animateHit(side, damage){
   playHitSound(side!=='player');
 }
 
-// Show dice roll animation then call callback
-function showDiceRoll(winner, callback){
+function showDiceRoll(winner,callback){
   const overlay=document.getElementById('diceAnim');
   const emoji=document.getElementById('diceEmoji');
   const result=document.getElementById('diceResult');
@@ -1112,9 +1101,7 @@ function showDiceRoll(winner, callback){
 
   const faces=['🎲','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣'];
   let i=0;
-  const spin=setInterval(()=>{
-    emoji.textContent=faces[i%faces.length];i++;
-  },60);
+  const spin=setInterval(()=>{emoji.textContent=faces[i%faces.length];i++;},60);
 
   setTimeout(()=>{
     clearInterval(spin);
@@ -1129,69 +1116,105 @@ function showDiceRoll(winner, callback){
   },600);
 }
 
+// FIX 1: battleAction is now a pure dispatcher — enemy turn is always handled inline,
+// never left dangling. The button triggers BOTH player and enemy turns sequentially.
 function battleAction(){
   const bs=state.battleState;
   if(!bs||bs.phase!=='fight')return;
 
+  const btn=document.getElementById('battleActionBtn');
+  btn.disabled=true; // prevent double-click during animation
+
   const pf=bs.playerTeam[bs.playerIdx];
   const ef=bs.enemyTeam[bs.enemyIdx];
-  if(!pf||!ef){checkBattleEnd();return;}
+  if(!pf||!ef){checkBattleEnd();btn.disabled=false;return;}
 
-  // Roll dice for next turn AFTER this one (except first turn which is always player)
   const nextTurn=Math.random()<0.5?'player':'enemy';
 
   if(bs.currentTurn==='player'){
-    // Player attacks enemy
-    const dmg=pf.currentHp;
-    
-    // Animate dice, then attack
-    showDiceRoll(nextTurn,()=>{
-      ef.currentHp=Math.max(0,ef.currentHp-dmg);
-      animateHit('enemy',dmg);
-      addLog(`${pf.emoji} ${pf.name} attacks ${ef.emoji} ${ef.name} for ${dmg.toLocaleString()} damage!`,'log-hit');
-
-      if(ef.currentHp<=0){
-        addLog(`${ef.emoji} ${ef.name} was defeated!`,'log-warn');
-        bs.enemyIdx++;
-        const nef=bs.enemyTeam[bs.enemyIdx];
-        if(nef)addLog(`${bs.oppName} sends in ${nef.emoji} ${nef.name}!`,'log-enemy-hit');
-        if(checkBattleEnd())return;
-      }
-
-      bs.isFirstTurn=false;
-      bs.currentTurn=nextTurn;
-      addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
-      renderBattle();saveState();
-    });
-
+    doPlayerAttack(nextTurn,()=>{btn.disabled=false;});
   }else{
-    // Enemy attacks player
-    const dmg=ef.currentHp;
-
-    showDiceRoll(nextTurn,()=>{
-      pf.currentHp=Math.max(0,pf.currentHp-dmg);
-      animateHit('player',dmg);
-      addLog(`${ef.emoji} ${ef.name} attacks ${pf.emoji} ${pf.name} for ${dmg.toLocaleString()} damage!`,'log-enemy-hit');
-
-      if(pf.currentHp<=0){
-        addLog(`${pf.emoji} ${pf.name} was knocked out!`,'log-warn');
-        // Check for remaining player fighters
-        const remaining=bs.playerTeam.filter((f,i)=>i!==bs.playerIdx&&f.currentHp>0);
-        if(remaining.length>0){
-          bs.phase='pickFighter';
-          renderBattle();saveState();
-          return;
-        }else{
-          if(checkBattleEnd())return;
-        }
-      }
-
-      bs.isFirstTurn=false;
-      bs.currentTurn=nextTurn;
-      addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
-      renderBattle();saveState();
-    });
+    doEnemyAttack(nextTurn,()=>{btn.disabled=false;});
   }
+}
+
+function doPlayerAttack(nextTurn,onDone){
+  const bs=state.battleState;
+  const pf=bs.playerTeam[bs.playerIdx];
+  const ef=bs.enemyTeam[bs.enemyIdx];
+  const dmg=pf.currentHp;
+
+  showDiceRoll(nextTurn,()=>{
+    ef.currentHp=Math.max(0,ef.currentHp-dmg);
+    animateHit('enemy',dmg);
+    addLog(`${pf.emoji} ${pf.name} attacks ${ef.emoji} ${ef.name} for ${dmg.toLocaleString()} damage!`,'log-hit');
+
+    if(ef.currentHp<=0){
+      addLog(`${ef.emoji} ${ef.name} was defeated!`,'log-warn');
+
+      // FIX 2: Play kill sound then show enemy picking banner
+      playKillSound();
+      bs.enemyIdx++;
+      const nef=bs.enemyTeam[bs.enemyIdx];
+
+      if(nef){
+        bs.phase='enemyPicking';
+        renderBattle();saveState();
+        // After a brief delay, enemy "picks" their next fighter
+        setTimeout(()=>{
+          addLog(`${bs.oppName} sends in ${nef.emoji} ${nef.name}!`,'log-enemy-hit');
+          bs.phase='fight';
+          bs.currentTurn=nextTurn;
+          bs.isFirstTurn=false;
+          addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
+          renderBattle();saveState();
+          onDone();
+        },1800);
+        return;
+      }else{
+        if(checkBattleEnd()){onDone();return;}
+      }
+    }
+
+    bs.isFirstTurn=false;
+    bs.currentTurn=nextTurn;
+    addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
+    renderBattle();saveState();
+    onDone();
+  });
+}
+
+// FIX 1: Enemy attack is its own function, always called when it's enemy's turn
+function doEnemyAttack(nextTurn,onDone){
+  const bs=state.battleState;
+  const pf=bs.playerTeam[bs.playerIdx];
+  const ef=bs.enemyTeam[bs.enemyIdx];
+  const dmg=ef.currentHp;
+
+  showDiceRoll(nextTurn,()=>{
+    pf.currentHp=Math.max(0,pf.currentHp-dmg);
+    animateHit('player',dmg);
+    addLog(`${ef.emoji} ${ef.name} attacks ${pf.emoji} ${pf.name} for ${dmg.toLocaleString()} damage!`,'log-enemy-hit');
+
+    if(pf.currentHp<=0){
+      addLog(`${pf.emoji} ${pf.name} was knocked out!`,'log-warn');
+      const remaining=bs.playerTeam.filter((f,i)=>i!==bs.playerIdx&&f.currentHp>0);
+      if(remaining.length>0){
+        bs.phase='pickFighter';
+        renderBattle();saveState();
+        onDone();
+        return;
+      }else{
+        if(checkBattleEnd()){onDone();return;}
+      }
+    }
+
+    bs.isFirstTurn=false;
+    bs.currentTurn=nextTurn;
+    addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
+    renderBattle();saveState();
+    onDone();
+  });
 }
 
 function checkBattleEnd(){
@@ -1210,18 +1233,25 @@ function checkBattleEnd(){
   }
   if(allPlayerDead){
     bs.phase='done';
-    addLog('💀 You were defeated...','log-enemy-hit');
-    setTimeout(()=>{showResult(false,bs.mode);},400);
+    // FIX 3: Lose 10% of the power reward on defeat (trophies unchanged)
+    const mode=bs.mode;
+    const powerLoss=Math.floor(mode.power*0.1);
+    state.power=Math.max(0,state.power-powerLoss);
+    saveState();
+    addLog(`💀 You were defeated... -${powerLoss} ⚡`,'log-enemy-hit');
+    setTimeout(()=>{showResult(false,mode,powerLoss);},400);
     renderBattle();
     return true;
   }
   return false;
 }
 
-function showResult(won,mode){
+function showResult(won,mode,powerLoss=0){
   document.getElementById('resultEmojiWrap').textContent=won?'🏆':'💀';
   document.getElementById('resultTitle').textContent=won?'Victory!':'Defeated!';
-  document.getElementById('resultSub').textContent=won?`You beat ${state.battleState.oppName}!`:`You lost to ${state.battleState.oppName}.`;
+  document.getElementById('resultSub').textContent=won
+    ?`You beat ${state.battleState.oppName}!`
+    :`You lost to ${state.battleState.oppName}. -${powerLoss} ⚡ penalty`;
   document.getElementById('resultTrophies').textContent=state.trophies.toLocaleString()+' total';
   document.getElementById('resultPower').textContent=state.power.toLocaleString()+' total';
   showScreen('screenResult');
@@ -1232,7 +1262,6 @@ function rematch(){
   else showScreen('screenModeSelect');
 }
 
-// ===================== INIT =====================
 loadState();showScreen('screenHome');
 </script>
 </body>
