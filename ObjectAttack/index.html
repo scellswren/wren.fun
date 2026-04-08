@@ -522,7 +522,6 @@
     <p style="text-align:center;color:var(--muted);margin-bottom:6px;font-size:0.88em;">⚡ Choose your next fighter:</p>
     <div class="pick-row" id="pickRow"></div>
   </div>
-  <div class="battle-log" id="battleLog"></div>
   <button class="big-btn" id="battleActionBtn" onclick="battleAction()">Roll Dice 🎲</button>
 </div>
 
@@ -988,18 +987,28 @@ function renderBattle(){
     document.getElementById('playerFighterBox').classList.add('dead');
   }
 
-  document.getElementById('enemyFighterEmoji').textContent=ef?ef.emoji:'💀';
-  document.getElementById('enemyFighterName').textContent=ef?ef.name:'Defeated';
-  if(ef){
-    const ePct=Math.max(0,(ef.currentHp/ef.maxHp)*100);
-    document.getElementById('enemyHpFill').style.width=ePct+'%';
-    document.getElementById('enemyHpFill').className='fighter-hp-bar-fill'+(ePct<30?' low':'');
-    document.getElementById('enemyHpText').textContent=`${ef.currentHp.toLocaleString()}/${ef.maxHp.toLocaleString()} HP`;
-    document.getElementById('enemyFighterBox').classList.remove('dead');
-  }else{
+  const enemyBox=document.getElementById('enemyFighterBox');
+  if(bs.phase==='enemyPicking'){
+    enemyBox.style.visibility='hidden';
+    document.getElementById('enemyFighterEmoji').textContent='';
+    document.getElementById('enemyFighterName').textContent='';
     document.getElementById('enemyHpFill').style.width='0%';
-    document.getElementById('enemyHpText').textContent='0 HP';
-    document.getElementById('enemyFighterBox').classList.add('dead');
+    document.getElementById('enemyHpText').textContent='';
+  }else{
+    enemyBox.style.visibility='visible';
+    document.getElementById('enemyFighterEmoji').textContent=ef?ef.emoji:'💀';
+    document.getElementById('enemyFighterName').textContent=ef?ef.name:'Defeated';
+    if(ef){
+      const ePct=Math.max(0,(ef.currentHp/ef.maxHp)*100);
+      document.getElementById('enemyHpFill').style.width=ePct+'%';
+      document.getElementById('enemyHpFill').className='fighter-hp-bar-fill'+(ePct<30?' low':'');
+      document.getElementById('enemyHpText').textContent=\`\${ef.currentHp.toLocaleString()}/\${ef.maxHp.toLocaleString()} HP\`;
+      enemyBox.classList.remove('dead');
+    }else{
+      document.getElementById('enemyHpFill').style.width='0%';
+      document.getElementById('enemyHpText').textContent='0 HP';
+      enemyBox.classList.add('dead');
+    }
   }
 
   const ti=document.getElementById('turnIndicator');
@@ -1030,10 +1039,6 @@ function renderBattle(){
     }
   }
 
-  const logEl=document.getElementById('battleLog');
-  logEl.innerHTML=bs.log.map(l=>`<div class="log-entry ${l.cls||''}">${l.text}</div>`).join('');
-  logEl.scrollTop=logEl.scrollHeight;
-
   const btn=document.getElementById('battleActionBtn');
   const pickRow=document.getElementById('pickFighterRow');
 
@@ -1043,7 +1048,7 @@ function renderBattle(){
     btn.style.display='none';pickRow.style.display='none';
   }else{
     btn.style.display='block';pickRow.style.display='none';
-    btn.textContent=bs.currentTurn==='player'?'Roll Dice 🎲':'Roll Dice 🎲 (enemy turn)';
+    btn.textContent='Roll Dice 🎲';
   }
 }
 
@@ -1101,7 +1106,7 @@ function showDiceRoll(winner,callback){
 
   const faces=['🎲','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣'];
   let i=0;
-  const spin=setInterval(()=>{emoji.textContent=faces[i%faces.length];i++;},60);
+  const spin=setInterval(()=>{emoji.textContent=faces[i%faces.length];i++;},80);
 
   setTimeout(()=>{
     clearInterval(spin);
@@ -1113,7 +1118,7 @@ function showDiceRoll(winner,callback){
       overlay.classList.remove('show');
       callback();
     },700);
-  },600);
+  },1000);
 }
 
 // FIX 1: battleAction is now a pure dispatcher — enemy turn is always handled inline,
@@ -1145,42 +1150,43 @@ function doPlayerAttack(nextTurn,onDone){
   const dmg=pf.currentHp;
 
   showDiceRoll(nextTurn,()=>{
-    ef.currentHp=Math.max(0,ef.currentHp-dmg);
+    const target=ef;
+    target.currentHp=Math.max(0,target.currentHp-dmg);
     animateHit('enemy',dmg);
-    addLog(`${pf.emoji} ${pf.name} attacks ${ef.emoji} ${ef.name} for ${dmg.toLocaleString()} damage!`,'log-hit');
+    addLog(`${pf.emoji} ${pf.name} attacks ${target.emoji} ${target.name} for ${dmg.toLocaleString()} damage!`,'log-hit');
 
-    if(ef.currentHp<=0){
-      addLog(`${ef.emoji} ${ef.name} was defeated!`,'log-warn');
+    setTimeout(()=>{
+      if(target.currentHp<=0){
+        addLog(`${target.emoji} ${target.name} was defeated!`,'log-warn');
 
-      // FIX 2: Play kill sound then show enemy picking banner
-      playKillSound();
-      bs.enemyIdx++;
-      const nef=bs.enemyTeam[bs.enemyIdx];
+        playKillSound();
+        bs.enemyIdx++;
+        const nef=bs.enemyTeam[bs.enemyIdx];
 
-      if(nef){
-        bs.phase='enemyPicking';
-        renderBattle();saveState();
-        // After a brief delay, enemy "picks" their next fighter
-        setTimeout(()=>{
-          addLog(`${bs.oppName} sends in ${nef.emoji} ${nef.name}!`,'log-enemy-hit');
-          bs.phase='fight';
-          bs.currentTurn=nextTurn;
-          bs.isFirstTurn=false;
-          addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
+        if(nef){
+          bs.phase='enemyPicking';
           renderBattle();saveState();
-          onDone();
-        },1800);
-        return;
-      }else{
-        if(checkBattleEnd()){onDone();return;}
+          setTimeout(()=>{
+            addLog(`${bs.oppName} sends in ${nef.emoji} ${nef.name}!`,'log-enemy-hit');
+            bs.phase='fight';
+            bs.currentTurn=nextTurn;
+            bs.isFirstTurn=false;
+            addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
+            renderBattle();saveState();
+            onDone();
+          },2200);
+          return;
+        }else{
+          if(checkBattleEnd()){onDone();return;}
+        }
       }
-    }
 
-    bs.isFirstTurn=false;
-    bs.currentTurn=nextTurn;
-    addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
-    renderBattle();saveState();
-    onDone();
+      bs.isFirstTurn=false;
+      bs.currentTurn=nextTurn;
+      addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
+      renderBattle();saveState();
+      onDone();
+    },1100);
   });
 }
 
@@ -1192,28 +1198,36 @@ function doEnemyAttack(nextTurn,onDone){
   const dmg=ef.currentHp;
 
   showDiceRoll(nextTurn,()=>{
-    pf.currentHp=Math.max(0,pf.currentHp-dmg);
-    animateHit('player',dmg);
-    addLog(`${ef.emoji} ${ef.name} attacks ${pf.emoji} ${pf.name} for ${dmg.toLocaleString()} damage!`,'log-enemy-hit');
-
-    if(pf.currentHp<=0){
-      addLog(`${pf.emoji} ${pf.name} was knocked out!`,'log-warn');
-      const remaining=bs.playerTeam.filter((f,i)=>i!==bs.playerIdx&&f.currentHp>0);
-      if(remaining.length>0){
-        bs.phase='pickFighter';
-        renderBattle();saveState();
-        onDone();
-        return;
-      }else{
-        if(checkBattleEnd()){onDone();return;}
-      }
+    const target=pf;
+    if(!target){
+      if(checkBattleEnd()){onDone();return;}
+      onDone();
+      return;
     }
+    target.currentHp=Math.max(0,target.currentHp-dmg);
+    animateHit('player',dmg);
+    addLog(\`\${ef.emoji} \${ef.name} attacks \${target.emoji} \${target.name} for \${dmg.toLocaleString()} damage!\`,'log-enemy-hit');
 
-    bs.isFirstTurn=false;
-    bs.currentTurn=nextTurn;
-    addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
-    renderBattle();saveState();
-    onDone();
+    setTimeout(()=>{
+      if(target.currentHp<=0){
+        addLog(\`\${target.emoji} \${target.name} was knocked out!\`,'log-warn');
+        const remaining=bs.playerTeam.filter((f,i)=>i!==bs.playerIdx&&f.currentHp>0);
+        if(remaining.length>0){
+          bs.phase='pickFighter';
+          renderBattle();saveState();
+          onDone();
+          return;
+        }else{
+          if(checkBattleEnd()){onDone();return;}
+        }
+      }
+
+      bs.isFirstTurn=false;
+      bs.currentTurn=nextTurn;
+      addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
+      renderBattle();saveState();
+      onDone();
+    },1100);
   });
 }
 
