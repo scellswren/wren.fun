@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8" />
   <title>Object Battle</title>
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Exo+2:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="../Favicon.png">
@@ -40,374 +41,149 @@
       pointer-events:none;z-index:0;
     }
     @keyframes gridScroll{0%{background-position:0 0}100%{background-position:40px 40px}}
-
     #homeText{position:fixed;top:12px;left:14px;font-family:'Russo One',sans-serif;font-size:1.6em;cursor:pointer;transition:transform 0.2s,color 0.2s;z-index:1000;user-select:none;color:var(--purple);text-shadow:0 0 20px rgba(168,85,247,0.6);}
     #homeText:hover{transform:scale(1.12);color:#c084fc;}
-
     .screen{display:none;min-height:100vh;padding:70px 16px 40px;max-width:900px;margin:0 auto;position:relative;z-index:1;}
     .screen.active{display:block;}
-
-    h1{
-      font-family:'Russo One',sans-serif;
-      font-size:clamp(1.8em,5vw,3.2em);
-      text-align:center;
-      background:linear-gradient(135deg,#c084fc,#818cf8,#38bdf8);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      margin-bottom:6px;
-      text-shadow:none;
-      filter:drop-shadow(0 0 20px rgba(168,85,247,0.4));
-    }
-    h2{font-family:'Russo One',sans-serif;font-size:1.3em;margin-bottom:10px;}
+    h1{font-family:'Russo One',sans-serif;font-size:clamp(1.8em,5vw,3.2em);text-align:center;background:linear-gradient(135deg,#c084fc,#818cf8,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;filter:drop-shadow(0 0 20px rgba(168,85,247,0.4));}
     .sub{text-align:center;color:var(--muted);margin-bottom:24px;font-size:0.95em;}
-
     #statsBar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:22px;}
-    .stat-chip{
-      background:rgba(168,85,247,0.12);
-      border:1px solid rgba(168,85,247,0.25);
-      border-radius:12px;padding:8px 16px;
-      font-size:0.88em;font-weight:700;
-      backdrop-filter:blur(8px);
-    }
+    .stat-chip{background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.25);border-radius:12px;padding:8px 16px;font-size:0.88em;font-weight:700;backdrop-filter:blur(8px);}
     .stat-chip span{color:#c084fc;}
-
-    .mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
-    .mode-card{
+    .mode-grid,.crate-grid,.obj-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+    .mode-card,.crate-card,.obj-card,.slot-card,.picker-item,.preview-item{
       background:var(--surface);
       border:2px solid var(--border);
-      border-radius:18px;padding:20px;
-      cursor:pointer;
+      border-radius:18px;padding:16px;text-align:center;
       transition:transform 0.2s,border-color 0.2s,background 0.2s,box-shadow 0.2s;
-      text-align:center;
       position:relative;overflow:hidden;
     }
-    .mode-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(168,85,247,0.1),transparent 70%);opacity:0;transition:opacity 0.3s;}
-    .mode-card:hover::before{opacity:1;}
-    .mode-card:hover{transform:translateY(-3px);border-color:rgba(168,85,247,0.5);box-shadow:0 8px 30px rgba(168,85,247,0.2);}
-    .mode-card.locked{opacity:0.38;cursor:not-allowed;}
-    .mode-card .mode-emoji{font-size:2.4em;display:block;margin-bottom:6px;}
-    .mode-card .mode-name{font-family:'Russo One',sans-serif;font-size:1.15em;}
-    .mode-card .mode-reward{font-size:0.8em;color:var(--muted);margin-top:4px;}
-
-    .team-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
-    .slot-card{
-      background:var(--surface);
-      border:2px dashed rgba(255,255,255,0.15);
-      border-radius:16px;padding:16px 8px;
-      text-align:center;cursor:pointer;
-      transition:all 0.25s;min-height:110px;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
-    }
+    .mode-card::before,.crate-card::before,.obj-card::before,.slot-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(168,85,247,0.1),transparent 70%);opacity:0;transition:opacity 0.3s;pointer-events:none;}
+    .mode-card:hover::before,.crate-card:hover::before,.obj-card:hover::before,.slot-card:hover::before{opacity:1;}
+    .mode-card:hover,.crate-card:hover,.obj-card:hover,.slot-card:hover,.picker-item:hover{transform:translateY(-3px);border-color:rgba(168,85,247,0.5);box-shadow:0 8px 30px rgba(168,85,247,0.2);}
+    .mode-card.locked,.crate-card.locked,.picker-item.already-in-team{opacity:0.38;cursor:not-allowed;}
+    .mode-card .mode-emoji,.crate-card .crate-emoji,.obj-card .oc-emoji,.picker-item .p-emoji,.preview-item .pi-emoji{font-size:2.2em;display:block;margin-bottom:6px;}
+    .mode-name,.crate-name,.oc-name,.p-name,.pi-name,.slot-name,.fighter-name{font-family:'Russo One',sans-serif;}
+    .mode-reward,.crate-cost,.crate-req,.oc-hp,.oc-lvl,.p-hp,.p-lvl,.pi-hp,.slot-hp,.slot-lvl,.fighter-hp-text{font-size:0.72em;color:var(--muted);}
+    .mode-reward{margin-top:4px;}
+    .mode-card{padding:20px;}
+    .mode-card .mode-name{font-size:1.1em;}
+    .crate-card .crate-name{font-size:1.0em;}
+    .slot-card{min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-style:dashed;}
     .slot-card.filled{border-style:solid;border-color:rgba(168,85,247,0.45);background:rgba(168,85,247,0.07);}
-    .slot-card:hover{border-color:rgba(168,85,247,0.6);transform:translateY(-2px);}
+    .team-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
     .slot-card .slot-emoji{font-size:2em;}
-    .slot-card .slot-name{font-size:0.78em;font-weight:700;}
-    .slot-card .slot-hp{font-size:0.7em;color:var(--muted);}
-    .slot-card .slot-lvl{font-size:0.68em;color:var(--purple);}
-
-    #pickerOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
-    #pickerOverlay.show{display:flex;}
-    #pickerModal{background:#120025;border:1px solid rgba(168,85,247,0.3);border-radius:22px;width:min(700px,calc(100vw - 32px));max-height:82vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.8);}
-    .picker-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-family:'Russo One',sans-serif;}
-    .picker-close{background:var(--surface2);border:none;color:inherit;border-radius:8px;padding:5px 11px;cursor:pointer;font-family:'Exo 2',sans-serif;font-weight:700;}
-    .picker-grid{overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
-    .picker-item{
-      background:var(--surface);border:1px solid var(--border);
-      border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;
-      transition:all 0.2s;
-    }
-    .picker-item:hover{border-color:rgba(168,85,247,0.5);background:rgba(168,85,247,0.1);transform:translateY(-2px);}
-    .picker-item.already-in-team{opacity:0.35;cursor:not-allowed;pointer-events:none;}
-    .picker-item.already-in-team::after{content:'In team';display:block;font-size:0.62em;color:var(--muted);margin-top:3px;}
-    .picker-item .p-emoji{font-size:1.7em;}
-    .picker-item .p-name{font-size:0.74em;font-weight:700;margin-top:3px;}
-    .picker-item .p-hp{font-size:0.67em;color:var(--muted);}
-    .picker-item .p-lvl{font-size:0.64em;color:var(--purple);}
-
-    #cratePreviewOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
-    #cratePreviewOverlay.show{display:flex;}
-    #cratePreviewModal{background:#120025;border:1px solid rgba(168,85,247,0.3);border-radius:22px;width:min(700px,calc(100vw - 32px));max-height:82vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.8);}
-    .preview-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-family:'Russo One',sans-serif;}
-    .preview-grid{overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
-    .preview-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center;}
-    .preview-item .pi-emoji{font-size:1.7em;}
-    .preview-item .pi-name{font-size:0.74em;font-weight:700;margin-top:3px;}
-    .preview-item .pi-hp{font-size:0.67em;color:var(--muted);}
+    .slot-card .slot-lvl{color:var(--purple);}
+    .picker-overlay,.crate-preview-overlay,.upgrade-overlay,.crate-anim,.dice-anim{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
+    .picker-overlay.show,.crate-preview-overlay.show,.upgrade-overlay.show,.crate-anim.show,.dice-anim.show{display:flex;}
+    .modal{background:#120025;border:1px solid rgba(168,85,247,0.3);border-radius:22px;width:min(700px,calc(100vw - 32px));max-height:82vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.8);}
+    .modal.small{width:min(400px,calc(100vw - 32px));}
+    .modal-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-family:'Russo One',sans-serif;}
+    .modal-body{padding:18px;}
+    .close-btn{background:var(--surface2);border:none;color:inherit;border-radius:8px;padding:5px 11px;cursor:pointer;font-family:'Exo 2',sans-serif;font-weight:700;}
+    .picker-grid,.preview-grid{overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
+    .picker-item,.preview-item{padding:10px 6px;border-radius:12px;border:1px solid var(--border);}
+    .picker-item.already-in-team::after,.preview-item.owned::after{display:block;font-size:0.6em;color:var(--purple);font-weight:700;margin-top:2px;}
+    .picker-item.already-in-team::after{content:'In team';}
+    .preview-item{border-color:rgba(168,85,247,0.15);}
     .preview-item.owned{border-color:rgba(168,85,247,0.4);background:rgba(168,85,247,0.08);}
-    .preview-item.owned::after{content:'✓ owned';display:block;font-size:0.6em;color:var(--purple);font-weight:700;margin-top:2px;}
-
-    .crate-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px;}
-    .crate-card{
-      background:var(--surface);border:2px solid var(--border);
-      border-radius:18px;padding:16px;
-      text-align:center;
-      transition:all 0.2s;
-      position:relative;overflow:hidden;
+    .preview-item.owned::after{content:'✓ owned';}
+    .crate-preview-btn,.upg-btn-small,.anim-btn,.upg-btn,.big-btn,.sec-btn,.pick-btn{
+      cursor:pointer;border:none;border-radius:12px;font-family:'Exo 2',sans-serif;font-weight:700;
+      transition:transform 0.2s,opacity 0.2s,background 0.2s,box-shadow 0.2s;
     }
-    .crate-card:not(.locked){cursor:pointer;}
-    .crate-card:not(.locked):hover{transform:translateY(-3px);border-color:rgba(168,85,247,0.5);box-shadow:0 8px 24px rgba(168,85,247,0.2);}
-    .crate-card.locked{opacity:0.35;cursor:not-allowed;}
-    .crate-card .crate-emoji{font-size:2.6em;}
-    .crate-card .crate-name{font-family:'Russo One',sans-serif;font-size:1.05em;margin-top:5px;}
-    .crate-card .crate-cost{font-size:0.82em;color:var(--purple);margin-top:3px;}
-    .crate-card .crate-req{font-size:0.7em;color:var(--muted);margin-top:2px;}
     .crate-preview-btn{
-      margin-top:10px;padding:6px 12px;
+      margin-top:10px;padding:6px 12px;width:100%;
       background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);
-      border-radius:9px;font-family:'Exo 2',sans-serif;font-weight:700;
-      font-size:0.72em;color:#93c5fd;cursor:pointer;width:100%;
-      transition:all 0.2s;
+      color:#93c5fd;font-size:0.72em;
     }
     .crate-preview-btn:hover{background:rgba(59,130,246,0.28);}
-
-    #crateAnim{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:600;align-items:center;justify-content:center;flex-direction:column;gap:18px;}
-    #crateAnim.show{display:flex;}
-    #crateAnimBox{font-size:5em;animation:crateBounce 0.55s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(168,85,247,0.7));}
-    @keyframes crateBounce{0%,100%{transform:scale(1) rotate(-4deg) translateY(0)}50%{transform:scale(1.15) rotate(4deg) translateY(-8px)}}
-    #crateAnimBox.opening{animation:crateOpen 0.75s forwards;}
-    @keyframes crateOpen{0%{transform:scale(1)}30%{transform:scale(1.4) rotate(-12deg)}65%{transform:scale(0.7) rotate(18deg)}100%{transform:scale(1.2) rotate(0);opacity:0;}}
-    #crateResult{display:none;text-align:center;animation:resultPop 0.5s cubic-bezier(0.34,1.4,0.64,1) forwards;}
-    @keyframes resultPop{0%{transform:scale(0.3);opacity:0}100%{transform:scale(1);opacity:1}}
-    #crateResult .res-emoji{font-size:4em;filter:drop-shadow(0 0 16px rgba(168,85,247,0.8));}
-    #crateResult .res-name{font-family:'Russo One',sans-serif;font-size:1.5em;margin:8px 0;}
-    #crateResult .res-hp{font-size:0.95em;color:var(--muted);}
-    #crateResult .res-msg{font-size:0.88em;color:var(--purple);margin-top:5px;}
-    .anim-btn{background:rgba(168,85,247,0.2);border:2px solid rgba(168,85,247,0.5);color:#f0e6ff;border-radius:12px;padding:11px 26px;font-family:'Russo One',sans-serif;font-size:0.95em;cursor:pointer;margin-top:8px;transition:transform 0.2s,box-shadow 0.2s;}
-    .anim-btn:hover{transform:scale(1.06);box-shadow:0 0 20px rgba(168,85,247,0.4);}
-
-    #upgradeOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
-    #upgradeOverlay.show{display:flex;}
-    #upgradeModal{background:#120025;border:1px solid rgba(168,85,247,0.3);border-radius:22px;width:min(400px,calc(100vw - 32px));overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.8);}
-    .upg-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-family:'Russo One',sans-serif;}
-    .upg-body{padding:18px;}
-    .upg-stat{display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.88em;}
-    .upg-stat span:last-child{font-weight:700;color:var(--purple);}
-    .upg-btn{width:100%;padding:13px;background:linear-gradient(135deg,#7c3aed,#2563eb);border:none;border-radius:12px;color:white;font-family:'Russo One',sans-serif;font-size:0.95em;cursor:pointer;margin-top:10px;transition:transform 0.2s,opacity 0.2s;}
-    .upg-btn:disabled{opacity:0.35;cursor:not-allowed;}
-    .upg-btn:not(:disabled):hover{transform:scale(1.03);}
-
+    .upg-btn-small{margin-top:7px;padding:5px 8px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.35);border-radius:8px;font-size:0.68em;color:var(--purple);width:100%;}
+    .upg-btn-small:hover{background:rgba(124,58,237,0.3);}
+    .big-btn{display:block;width:100%;padding:15px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:white;font-family:'Russo One',sans-serif;font-size:1.05em;margin-top:12px;position:relative;overflow:hidden;}
+    .big-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);opacity:0;transition:opacity 0.2s;}
+    .big-btn:hover::before{opacity:1;}
+    .big-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
+    .big-btn:not(:disabled):hover{transform:scale(1.02);box-shadow:0 6px 24px rgba(124,58,237,0.5);}
+    .sec-btn{display:block;width:100%;padding:12px;background:var(--surface2);border:1px solid var(--border);color:inherit;font-size:0.95em;margin-top:8px;}
+    .sec-btn:hover{background:rgba(255,255,255,0.12);transform:scale(1.01);}
+    .inline-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     #battleScreen{padding-bottom:40px;}
-
-    .battle-header{
-      text-align:center;margin-bottom:16px;
-      padding:14px;
-      background:rgba(239,68,68,0.07);
-      border:1px solid rgba(239,68,68,0.2);
-      border-radius:16px;
-    }
+    .battle-header{text-align:center;margin-bottom:16px;padding:14px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:16px;}
     .battle-header .opp-name{font-family:'Russo One',sans-serif;font-size:1.3em;color:#fca5a5;}
     .battle-header .opp-mode{font-size:0.82em;color:var(--muted);margin-top:3px;}
-
-    .battle-arena{
-      display:grid;
-      grid-template-columns:1fr 50px 1fr;
-      gap:12px;align-items:center;
-      margin-bottom:16px;
-    }
-    .fighter-box{
-      background:var(--surface);
-      border:2px solid var(--border);
-      border-radius:20px;padding:16px;
-      text-align:center;
-      transition:border-color 0.3s,box-shadow 0.3s,transform 0.15s;
-      position:relative;overflow:hidden;
-    }
-    .fighter-box::before{
-      content:'';position:absolute;inset:0;
-      background:radial-gradient(circle at 50% 0%,rgba(255,255,255,0.04),transparent 70%);
-    }
+    .battle-arena{display:grid;grid-template-columns:1fr 50px 1fr;gap:12px;align-items:center;margin-bottom:16px;}
+    .fighter-box{background:var(--surface);border:2px solid var(--border);border-radius:20px;padding:16px;text-align:center;transition:border-color 0.3s,box-shadow 0.3s,transform 0.15s;position:relative;overflow:hidden;}
+    .fighter-box::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,0.04),transparent 70%);pointer-events:none;}
     .fighter-box.player-side{border-color:rgba(56,189,248,0.35);}
     .fighter-box.enemy-side{border-color:rgba(239,68,68,0.35);}
     .fighter-box.dead{opacity:0.28;filter:grayscale(1);}
-
     .fighter-box.shake{animation:shake 0.35s;}
     @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px) rotate(-1.5deg)}40%{transform:translateX(6px) rotate(1.5deg)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
-
     .fighter-box.player-side.glow-hit{box-shadow:0 0 30px rgba(56,189,248,0.5);animation:glowPulse 0.4s;}
     .fighter-box.enemy-side.glow-hit{box-shadow:0 0 30px rgba(239,68,68,0.5);animation:glowPulse 0.4s;}
     @keyframes glowPulse{0%{box-shadow:0 0 0px transparent}50%{box-shadow:0 0 40px rgba(239,68,68,0.7)}100%{box-shadow:0 0 10px rgba(239,68,68,0.2)}}
-
-    .dmg-float{
-      position:absolute;top:10px;left:50%;
-      transform:translateX(-50%);
-      font-family:'Russo One',sans-serif;
-      font-size:1.6em;
-      pointer-events:none;
-      animation:dmgFloat 0.9s forwards;
-      z-index:10;
-      text-shadow:0 2px 8px rgba(0,0,0,0.8);
-      white-space:nowrap;
-    }
+    .dmg-float{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-family:'Russo One',sans-serif;font-size:1.6em;pointer-events:none;animation:dmgFloat 0.9s forwards;z-index:10;text-shadow:0 2px 8px rgba(0,0,0,0.8);white-space:nowrap;}
     .dmg-float.player-dmg{color:#fbbf24;}
     .dmg-float.enemy-dmg{color:#f87171;}
-    @keyframes dmgFloat{
-      0%{transform:translateX(-50%) translateY(0) scale(0.6);opacity:1;}
-      30%{transform:translateX(-50%) translateY(-20px) scale(1.2);opacity:1;}
-      100%{transform:translateX(-50%) translateY(-50px) scale(0.9);opacity:0;}
-    }
-
-    .fighter-emoji-wrap{position:relative;display:inline-block;}
+    @keyframes dmgFloat{0%{transform:translateX(-50%) translateY(0) scale(0.6);opacity:1;}30%{transform:translateX(-50%) translateY(-20px) scale(1.2);opacity:1;}100%{transform:translateX(-50%) translateY(-50px) scale(0.9);opacity:0;}}
     .fighter-emoji{font-size:3em;display:block;margin-bottom:6px;transition:transform 0.2s;}
     .fighter-box:not(.dead) .fighter-emoji{animation:fighterFloat 3s ease-in-out infinite;}
     @keyframes fighterFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-    .fighter-name{font-family:'Russo One',sans-serif;font-size:0.9em;}
     .fighter-hp-bar{height:10px;border-radius:10px;background:rgba(255,255,255,0.08);margin:8px 0 4px;overflow:hidden;}
     .fighter-hp-bar-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#22c55e,#86efac);transition:width 0.5s cubic-bezier(0.4,0,0.2,1);}
     .fighter-hp-bar-fill.low{background:linear-gradient(90deg,#ef4444,#fca5a5);}
-    .fighter-hp-text{font-size:0.72em;color:var(--muted);}
-
-    .vs-badge{
-      width:44px;height:44px;border-radius:50%;
-      background:linear-gradient(135deg,rgba(168,85,247,0.3),rgba(59,130,246,0.3));
-      border:2px solid rgba(168,85,247,0.4);
-      display:flex;align-items:center;justify-content:center;
-      font-family:'Russo One',sans-serif;font-size:0.85em;
-      flex-shrink:0;
-      box-shadow:0 0 16px rgba(168,85,247,0.3);
-      animation:vsPulse 2s ease-in-out infinite;
-    }
+    .vs-badge{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,rgba(168,85,247,0.3),rgba(59,130,246,0.3));border:2px solid rgba(168,85,247,0.4);display:flex;align-items:center;justify-content:center;font-family:'Russo One',sans-serif;font-size:0.85em;flex-shrink:0;box-shadow:0 0 16px rgba(168,85,247,0.3);animation:vsPulse 2s ease-in-out infinite;}
     @keyframes vsPulse{0%,100%{box-shadow:0 0 10px rgba(168,85,247,0.2)}50%{box-shadow:0 0 24px rgba(168,85,247,0.5)}}
-
-    #turnIndicator{
-      text-align:center;margin-bottom:12px;
-      padding:8px;border-radius:12px;
-      font-weight:700;font-size:0.9em;
-      transition:all 0.4s;
-    }
-    #turnIndicator.your-turn{
-      background:rgba(56,189,248,0.1);
-      border:1px solid rgba(56,189,248,0.3);
-      color:#38bdf8;
-    }
-    #turnIndicator.enemy-turn{
-      background:rgba(239,68,68,0.1);
-      border:1px solid rgba(239,68,68,0.3);
-      color:#f87171;
-    }
-
-    .battle-log{
-      background:rgba(0,0,0,0.35);
-      border:1px solid var(--border);
-      border-radius:14px;padding:12px;
-      max-height:160px;overflow-y:auto;
-      margin-bottom:14px;font-size:0.85em;line-height:1.8;
-      scrollbar-width:thin;scrollbar-color:rgba(168,85,247,0.3) transparent;
-    }
+    #turnIndicator{ text-align:center;margin-bottom:12px;padding:8px;border-radius:12px;font-weight:700;font-size:0.9em;transition:all 0.4s; }
+    #turnIndicator.your-turn{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;}
+    #turnIndicator.enemy-turn{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;}
+    .battle-log{background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:14px;padding:12px;max-height:160px;overflow-y:auto;margin-bottom:14px;font-size:0.85em;line-height:1.8;scrollbar-width:thin;scrollbar-color:rgba(168,85,247,0.3) transparent;}
     .log-entry{padding:1px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
     .log-entry:last-child{border:none;}
     .log-hit{color:#86efac;}
     .log-enemy-hit{color:#fca5a5;}
     .log-info{color:#c084fc;}
     .log-warn{color:#fbbf24;}
-
     #pickFighterRow{display:none;}
     .pick-row{display:flex;gap:8px;margin:10px 0 14px;flex-wrap:wrap;justify-content:center;}
-    .pick-btn{
-      background:var(--surface);
-      border:2px solid rgba(56,189,248,0.3);
-      border-radius:12px;padding:9px 14px;
-      cursor:pointer;font-family:'Exo 2',sans-serif;
-      font-weight:700;font-size:0.85em;
-      color:inherit;transition:all 0.2s;text-align:center;
-    }
+    .pick-btn{background:var(--surface);border:2px solid rgba(56,189,248,0.3);border-radius:12px;padding:9px 14px;color:inherit;font-size:0.85em;}
     .pick-btn:hover{border-color:#38bdf8;background:rgba(56,189,248,0.1);transform:translateY(-2px);}
-
-    .big-btn{
-      display:block;width:100%;padding:15px;
-      background:linear-gradient(135deg,#7c3aed,#2563eb);
-      border:none;border-radius:16px;color:white;
-      font-family:'Russo One',sans-serif;font-size:1.05em;
-      cursor:pointer;margin-top:12px;
-      transition:transform 0.2s,box-shadow 0.2s,opacity 0.2s;
-      position:relative;overflow:hidden;
-    }
-    .big-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);opacity:0;transition:opacity 0.2s;}
-    .big-btn:hover::before{opacity:1;}
-    .big-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
-    .big-btn:not(:disabled):hover{transform:scale(1.02);box-shadow:0 6px 24px rgba(124,58,237,0.5);}
-    .sec-btn{
-      display:block;width:100%;padding:12px;
-      background:var(--surface2);
-      border:1px solid var(--border);
-      border-radius:16px;color:inherit;
-      font-family:'Exo 2',sans-serif;font-weight:700;font-size:0.95em;
-      cursor:pointer;margin-top:8px;transition:all 0.2s;
-    }
-    .sec-btn:hover{background:rgba(255,255,255,0.12);transform:scale(1.01);}
-    .inline-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-
-    .obj-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:18px;}
-    .obj-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px;text-align:center;transition:all 0.2s;}
-    .obj-card:hover{border-color:rgba(168,85,247,0.4);transform:translateY(-2px);}
-    .obj-card .oc-emoji{font-size:2em;}
-    .obj-card .oc-name{font-size:0.78em;font-weight:700;margin-top:3px;}
-    .obj-card .oc-hp{font-size:0.68em;color:var(--muted);}
-    .obj-card .oc-lvl{font-size:0.65em;color:var(--purple);}
-    .obj-card .upg-btn-small{margin-top:7px;padding:5px 8px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.35);border-radius:8px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:0.68em;color:var(--purple);cursor:pointer;width:100%;transition:all 0.2s;}
-    .obj-card .upg-btn-small:hover{background:rgba(124,58,237,0.3);}
-
-    #diceAnim{
-      display:none;position:fixed;inset:0;
-      background:rgba(0,0,0,0.85);
-      z-index:700;
-      align-items:center;justify-content:center;
-      flex-direction:column;gap:12px;
-      backdrop-filter:blur(6px);
-    }
+    #diceAnim{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:700;align-items:center;justify-content:center;flex-direction:column;gap:12px;backdrop-filter:blur(6px);}
     #diceAnim.show{display:flex;}
-    #diceEmoji{
-      font-size:5em;
-      filter:drop-shadow(0 0 20px rgba(168,85,247,0.8));
-      animation:diceRollAnim 0.08s linear infinite;
-    }
-    @keyframes diceRollAnim{
-      0%{transform:rotate(0deg) scale(1);}
-      25%{transform:rotate(90deg) scale(1.1);}
-      50%{transform:rotate(180deg) scale(1);}
-      75%{transform:rotate(270deg) scale(1.1);}
-      100%{transform:rotate(360deg) scale(1);}
-    }
-    #diceResult{
-      font-family:'Russo One',sans-serif;font-size:1.4em;
-      display:none;animation:resultPop 0.5s cubic-bezier(0.34,1.4,0.64,1) forwards;
-    }
-
-    #hitFlash{
-      position:fixed;inset:0;pointer-events:none;z-index:800;
-      opacity:0;
-    }
+    #diceEmoji{font-size:5em;filter:drop-shadow(0 0 20px rgba(168,85,247,0.8));animation:diceRollAnim 0.08s linear infinite;}
+    @keyframes diceRollAnim{0%{transform:rotate(0deg) scale(1);}25%{transform:rotate(90deg) scale(1.1);}50%{transform:rotate(180deg) scale(1);}75%{transform:rotate(270deg) scale(1.1);}100%{transform:rotate(360deg) scale(1);}}
+    #diceResult{font-family:'Russo One',sans-serif;font-size:1.4em;display:none;animation:resultPop 0.5s cubic-bezier(0.34,1.4,0.64,1) forwards;}
+    @keyframes resultPop{0%{transform:scale(0.3);opacity:0}100%{transform:scale(1);opacity:1}}
+    #hitFlash{position:fixed;inset:0;pointer-events:none;z-index:800;opacity:0;}
     #hitFlash.player-flash{animation:flashPlayer 0.25s forwards;}
     #hitFlash.enemy-flash{animation:flashEnemy 0.25s forwards;}
     @keyframes flashPlayer{0%{opacity:0;background:rgba(56,189,248,0.15)}50%{opacity:1;}100%{opacity:0;}}
     @keyframes flashEnemy{0%{opacity:0;background:rgba(239,68,68,0.15)}50%{opacity:1;}100%{opacity:0;}}
-
-    /* Enemy picking banner */
-    #enemyPickingBanner{
-      display:none;
-      text-align:center;
-      padding:14px;
-      background:rgba(239,68,68,0.1);
-      border:1px solid rgba(239,68,68,0.3);
-      border-radius:14px;
-      margin-bottom:12px;
-      font-family:'Russo One',sans-serif;
-      font-size:1em;
-      color:#fca5a5;
-      animation:bannerPulse 1s ease-in-out infinite;
-    }
+    #enemyPickingBanner{display:none;text-align:center;padding:14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:14px;margin-bottom:12px;font-family:'Russo One',sans-serif;font-size:1em;color:#fca5a5;animation:bannerPulse 1s ease-in-out infinite;}
     @keyframes bannerPulse{0%,100%{opacity:0.7}50%{opacity:1}}
-
     #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(30px);background:linear-gradient(135deg,#7c3aed,#2563eb);color:white;padding:11px 22px;border-radius:40px;font-weight:700;font-size:0.92em;opacity:0;pointer-events:none;transition:opacity 0.3s,transform 0.3s;z-index:9999;white-space:nowrap;max-width:90vw;text-align:center;}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
     #screenResult .result-center{text-align:center;padding-top:24px;}
     #resultEmojiWrap{font-size:5em;margin-bottom:14px;animation:resultBounce 0.6s cubic-bezier(0.34,1.5,0.64,1) forwards;}
     @keyframes resultBounce{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
     .result-chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px 0;}
-
+    .fighter-box.choosing .fighter-emoji,
+    .fighter-box.choosing .fighter-name,
+    .fighter-box.choosing .fighter-hp-bar,
+    .fighter-box.choosing .fighter-hp-text{visibility:hidden;}
+    .fighter-box.choosing::after{
+      content:'Enemy picking...';
+      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      font-family:'Russo One',sans-serif;font-size:1em;color:#fca5a5;
+      background:rgba(0,0,0,0.12);
+    }
     @media(max-width:520px){
-      .mode-grid,.crate-grid{grid-template-columns:1fr;}
+      .mode-grid,.crate-grid,.obj-list{grid-template-columns:1fr;}
       .battle-arena{gap:6px;}
       .fighter-emoji{font-size:2.3em;}
+      .team-slots{grid-template-columns:1fr;}
+      .inline-grid{grid-template-columns:1fr;}
     }
   </style>
 </head>
@@ -416,51 +192,52 @@
 <div id="toast"></div>
 <div id="hitFlash"></div>
 
-<div id="diceAnim">
+<div class="dice-anim" id="diceAnim">
   <div id="diceEmoji">🎲</div>
   <div id="diceResult"></div>
 </div>
 
-<div id="crateAnim">
-  <div id="crateAnimBox">📦</div>
-  <div id="crateResult">
-    <div class="res-emoji" id="resEmoji"></div>
-    <div class="res-name" id="resName"></div>
-    <div class="res-hp" id="resHp"></div>
-    <div class="res-msg" id="resMsg"></div>
+<div class="crate-anim" id="crateAnim">
+  <div class="modal small" style="background:transparent;box-shadow:none;border:none;max-height:none;">
+    <div style="text-align:center;font-size:5em;" id="crateAnimBox">📦</div>
+    <div id="crateResult" style="display:none;text-align:center;animation:resultPop 0.5s cubic-bezier(0.34,1.4,0.64,1) forwards;">
+      <div class="res-emoji" id="resEmoji" style="font-size:4em;filter:drop-shadow(0 0 16px rgba(168,85,247,0.8));"></div>
+      <div class="res-name" id="resName" style="font-family:'Russo One',sans-serif;font-size:1.5em;margin:8px 0;"></div>
+      <div class="res-hp" id="resHp" style="font-size:0.95em;color:var(--muted);"></div>
+      <div class="res-msg" id="resMsg" style="font-size:0.88em;color:var(--purple);margin-top:5px;"></div>
+    </div>
+    <button class="anim-btn" id="crateAnimBtn" onclick="closeCrateAnim()" style="display:none;background:rgba(168,85,247,0.2);border:2px solid rgba(168,85,247,0.5);color:#f0e6ff;border-radius:12px;padding:11px 26px;font-family:'Russo One',sans-serif;font-size:0.95em;cursor:pointer;margin-top:18px;">Continue</button>
   </div>
-  <button class="anim-btn" id="crateAnimBtn" onclick="closeCrateAnim()" style="display:none;">Continue</button>
 </div>
 
-<div id="upgradeOverlay">
-  <div id="upgradeModal">
-    <div class="upg-head"><span id="upgTitle">Upgrade</span><button class="picker-close" onclick="closeUpgrade()">✕</button></div>
-    <div class="upg-body">
-      <div class="upg-stat"><span>Current Level</span><span id="upgLevel"></span></div>
-      <div class="upg-stat"><span>Current HP</span><span id="upgCurHP"></span></div>
-      <div class="upg-stat"><span>HP After Upgrade</span><span id="upgNewHP"></span></div>
-      <div class="upg-stat"><span>Cost</span><span id="upgCost"></span></div>
-      <div class="upg-stat"><span>Your Trophies</span><span id="upgTrophies"></span></div>
-      <button class="upg-btn" id="upgDoBtn" onclick="doUpgrade()">Upgrade ⬆️</button>
+<div class="upgrade-overlay" id="upgradeOverlay">
+  <div class="modal small">
+    <div class="modal-head"><span id="upgTitle">Upgrade</span><button class="close-btn" onclick="closeUpgrade()">✕</button></div>
+    <div class="modal-body">
+      <div class="upg-stat" style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.88em;"><span>Current Level</span><span id="upgLevel"></span></div>
+      <div class="upg-stat" style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.88em;"><span>Current HP</span><span id="upgCurHP"></span></div>
+      <div class="upg-stat" style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.88em;"><span>HP After Upgrade</span><span id="upgNewHP"></span></div>
+      <div class="upg-stat" style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.88em;"><span>Cost</span><span id="upgCost"></span></div>
+      <div class="upg-stat" style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.88em;"><span>Your Trophies</span><span id="upgTrophies"></span></div>
+      <button class="upg-btn" id="upgDoBtn" onclick="doUpgrade()" style="width:100%;padding:13px;background:linear-gradient(135deg,#7c3aed,#2563eb);border:none;border-radius:12px;color:white;font-family:'Russo One',sans-serif;font-size:0.95em;cursor:pointer;margin-top:10px;">Upgrade ⬆️</button>
     </div>
   </div>
 </div>
 
-<div id="pickerOverlay">
-  <div id="pickerModal">
-    <div class="picker-head"><span>Choose an Object</span><button class="picker-close" onclick="closePicker()">✕</button></div>
+<div class="picker-overlay" id="pickerOverlay">
+  <div class="modal">
+    <div class="modal-head"><span>Choose an Object</span><button class="close-btn" onclick="closePicker()">✕</button></div>
     <div class="picker-grid" id="pickerGrid"></div>
   </div>
 </div>
 
-<div id="cratePreviewOverlay">
-  <div id="cratePreviewModal">
-    <div class="preview-head"><span id="previewTitle">What's Inside?</span><button class="picker-close" onclick="closePreview()">✕</button></div>
+<div class="crate-preview-overlay" id="cratePreviewOverlay">
+  <div class="modal">
+    <div class="modal-head"><span id="previewTitle">What's Inside?</span><button class="close-btn" onclick="closePreview()">✕</button></div>
     <div class="preview-grid" id="previewGrid"></div>
   </div>
 </div>
 
-<!-- HOME -->
 <div class="screen active" id="screenHome">
   <h1>⚔️ Object Battle</h1>
   <p class="sub">Collect objects, build your team, and fight!</p>
@@ -478,7 +255,6 @@
   </div>
 </div>
 
-<!-- MODE SELECT -->
 <div class="screen" id="screenModeSelect">
   <h1>Select Mode</h1>
   <p class="sub">Harder modes give more rewards</p>
@@ -486,7 +262,6 @@
   <button class="sec-btn" onclick="showScreen('screenHome')">← Back</button>
 </div>
 
-<!-- TEAM -->
 <div class="screen" id="screenTeam">
   <h1>👥 Team</h1>
   <p class="sub">Pick 3 objects to fight with</p>
@@ -495,7 +270,6 @@
   <button class="sec-btn" onclick="showScreen('screenHome')">← Back</button>
 </div>
 
-<!-- BATTLE -->
 <div class="screen" id="battleScreen">
   <div class="battle-header">
     <div class="opp-name" id="battleOppName"></div>
@@ -526,7 +300,6 @@
   <button class="big-btn" id="battleActionBtn" onclick="battleAction()">Roll Dice 🎲</button>
 </div>
 
-<!-- RESULT -->
 <div class="screen" id="screenResult">
   <div class="result-center">
     <div id="resultEmojiWrap"></div>
@@ -541,7 +314,6 @@
   </div>
 </div>
 
-<!-- CRATES -->
 <div class="screen" id="screenCrates">
   <h1>📦 Crates</h1>
   <p class="sub">Open crates to get new objects</p>
@@ -550,7 +322,6 @@
   <button class="sec-btn" onclick="showScreen('screenHome')">← Back</button>
 </div>
 
-<!-- MY OBJECTS -->
 <div class="screen" id="screenMyObjects">
   <h1>🎒 My Objects</h1>
   <p class="sub">All your collected objects</p>
@@ -640,80 +411,25 @@ const CRATE_DEFS=[
   {id:'grandmaster',name:'Grandmaster Crate',emoji:'👑',cost:50000,unlockHp:30000,tier:'grandmaster'},
 ];
 
-const SAVE_KEY='objectBattle_save_v2';
+const SAVE_KEY='objectBattle_save_v3';
 
-function playVictorySound(){
-  try{
-    const AudioCtx=window.AudioContext||window.webkitAudioContext;
-    if(!AudioCtx)return;
-    const ctx=new AudioCtx();
-    const audio=new Audio('../Win.mp3');
-    audio.volume=0.8;
-    const p=audio.play();
-    if(p)p.catch(()=>playFallbackVictory(ctx));
-  }catch(e){playFallbackVictory(null);}
-}
-
-function playFallbackVictory(ctx){
-  if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return;}}
-  const notes=[523,659,784,1047,784,1047,1319];
-  const times=[0,0.12,0.24,0.36,0.52,0.62,0.72];
-  notes.forEach((freq,i)=>{
-    const osc=ctx.createOscillator();
-    const gain=ctx.createGain();
-    osc.connect(gain);gain.connect(ctx.destination);
-    osc.frequency.value=freq;osc.type='triangle';
-    const t=ctx.currentTime+times[i];
-    gain.gain.setValueAtTime(0,t);
-    gain.gain.linearRampToValueAtTime(0.35,t+0.05);
-    gain.gain.exponentialRampToValueAtTime(0.001,t+0.3);
-    osc.start(t);osc.stop(t+0.32);
-  });
-}
-
-function playHitSound(isPlayer){
-  try{
-    const ctx=new (window.AudioContext||window.webkitAudioContext)();
-    const osc=ctx.createOscillator();
-    const gain=ctx.createGain();
-    osc.connect(gain);gain.connect(ctx.destination);
-    osc.frequency.value=isPlayer?220:340;
-    osc.type='sawtooth';
-    gain.gain.setValueAtTime(0.3,ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.15);
-    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.15);
-  }catch(e){}
-}
-
-// FIX 2: Sound when enemy object is killed
-function playKillSound(){
-  try{
-    const ctx=new (window.AudioContext||window.webkitAudioContext)();
-    // Two-tone "defeated" sound
-    const freqs=[600,300];
-    freqs.forEach((freq,i)=>{
-      const osc=ctx.createOscillator();
-      const gain=ctx.createGain();
-      osc.connect(gain);gain.connect(ctx.destination);
-      osc.frequency.value=freq;osc.type='sine';
-      const t=ctx.currentTime+(i*0.18);
-      gain.gain.setValueAtTime(0,t);
-      gain.gain.linearRampToValueAtTime(0.4,t+0.04);
-      gain.gain.exponentialRampToValueAtTime(0.001,t+0.25);
-      osc.start(t);osc.stop(t+0.28);
-    });
-  }catch(e){}
-}
-
-let state={trophies:0,power:0,inventory:{},team:[null,null,null],battleMode:null,battleState:null};
+const state={trophies:0,power:0,inventory:{},team:[null,null,null],battleMode:null,battleState:null};
 
 function saveState(){localStorage.setItem(SAVE_KEY,JSON.stringify(state));}
 function loadState(){
   const s=localStorage.getItem(SAVE_KEY);
-  if(s){try{state=JSON.parse(s);}catch(e){}}
+  if(s){
+    try{
+      const parsed=JSON.parse(s);
+      Object.assign(state,parsed);
+      state.inventory=state.inventory||{};
+      state.team=state.team||[null,null,null];
+    }catch(e){}
+  }
   if(Object.keys(state.inventory).length===0){
     giveObject('rock','easy');giveObject('pen','easy');giveObject('pillow','easy');
-    state.team=['rock','pen','pillow'];saveState();
+    state.team=['rock','pen','pillow'];
+    saveState();
   }
 }
 
@@ -723,24 +439,34 @@ function giveObject(id,crateId){
   if(!def)return;
   if(state.inventory[id]){
     const crate=CRATE_DEFS.find(c=>c.id===crateId);
-    if(crate){state.trophies+=Math.floor(crate.cost/2);showToast(`Duplicate! +${Math.floor(crate.cost/2)} trophies`);}
+    if(crate){
+      const refund=Math.floor(crate.cost/2);
+      state.trophies+=refund;
+      showToast(`Duplicate! +${refund} trophies`);
+    }
     return;
   }
   state.inventory[id]={id,name:def.name,emoji:def.emoji,baseHp:def.hp,level:1,crate:crateId};
 }
 
 function getObjectHp(id){
-  const obj=state.inventory[id];if(!obj)return 0;
+  const obj=state.inventory[id];
+  if(!obj)return 0;
   return Math.floor(obj.baseHp+(obj.level-1)*Math.floor(obj.baseHp*0.15));
 }
 function getUpgradeCost(id){
-  const obj=state.inventory[id];if(!obj)return 0;
+  const obj=state.inventory[id];
+  if(!obj)return 0;
   const crate=CRATE_DEFS.find(c=>c.id===obj.crate);
   const base=crate?Math.floor(crate.cost*0.20):10;
   return Math.floor(base*Math.pow(2,obj.level-1));
 }
 function getMaxHpInInventory(){
-  let max=0;for(const id in state.inventory){const h=getObjectHp(id);if(h>max)max=h;}return max;
+  let max=0;
+  for(const id in state.inventory){
+    max=Math.max(max,getObjectHp(id));
+  }
+  return max;
 }
 function isModeUnlocked(modeId){
   const mode=MODES.find(m=>m.id===modeId);
@@ -753,8 +479,61 @@ function isCrateUnlocked(crateId){
   return getMaxHpInInventory()>=crate.unlockHp;
 }
 
-function goHome(){window.location.href='../index.html';}
-function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+let audioCtx=null;
+function getAudioCtx(){
+  const Ctx=window.AudioContext||window.webkitAudioContext;
+  if(!Ctx)return null;
+  if(!audioCtx)audioCtx=new Ctx();
+  if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
+  return audioCtx;
+}
+function tone(freq,type='sine',dur=0.12,vol=0.2,when=0){
+  const ctx=getAudioCtx(); if(!ctx)return;
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
+  osc.type=type; osc.frequency.value=freq;
+  osc.connect(gain); gain.connect(ctx.destination);
+  const t=ctx.currentTime+when;
+  gain.gain.setValueAtTime(0.0001,t);
+  gain.gain.exponentialRampToValueAtTime(vol,t+0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  osc.start(t); osc.stop(t+dur+0.02);
+}
+function playClickSound(){ tone(740,'square',0.06,0.12,0); }
+function playHitSound(isPlayer){
+  const ctx=getAudioCtx(); if(!ctx)return;
+  const freq=isPlayer?220:340;
+  tone(freq,'sawtooth',0.14,0.22,0);
+}
+function playKillSound(){ tone(600,'sine',0.22,0.26,0); tone(300,'sine',0.22,0.26,0.16); }
+function playVictorySound(){
+  try{
+    const audio=new Audio('../Win.mp3');
+    audio.volume=0.8;
+    const p=audio.play();
+    if(p&&p.catch)p.catch(()=>{
+      tone(523,'triangle',0.25,0.16,0);
+      tone(659,'triangle',0.25,0.16,0.12);
+      tone(784,'triangle',0.25,0.16,0.24);
+      tone(1047,'triangle',0.25,0.18,0.36);
+    });
+  }catch(e){}
+}
+
+document.addEventListener('click', (e)=>{
+  const t=e.target.closest('button');
+  if(!t)return;
+  if(t.id==='upgDoBtn') return; // still click sound, but let it be natural? keep yes.
+  playClickSound();
+}, true);
+
+function goHome(){ window.location.href='../index.html'; }
+function showToast(m){
+  const t=document.getElementById('toast');
+  t.textContent=m;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3200);
+}
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -768,24 +547,25 @@ function renderHome(){
   document.getElementById('statTrophies').textContent=state.trophies.toLocaleString();
   document.getElementById('statPower').textContent=state.power.toLocaleString();
 }
-
 function renderModes(){
-  const grid=document.getElementById('modeGrid');grid.innerHTML='';
+  const grid=document.getElementById('modeGrid');
+  grid.innerHTML='';
   MODES.forEach(m=>{
     const locked=!isModeUnlocked(m.id);
     const div=document.createElement('div');
     div.className='mode-card'+(locked?' locked':'');
     const req=m.unlockHp>0?`Unlock: ${m.unlockHp.toLocaleString()}+ HP`:'Always available';
     div.innerHTML=`<span class="mode-emoji">${m.emoji}</span><div class="mode-name">${m.name}</div><div class="mode-reward">+${m.trophies.toLocaleString()} 🏆 · +${m.power.toLocaleString()} ⚡</div><div style="font-size:0.7em;color:var(--muted);margin-top:3px;">${locked?req:''}</div>`;
-    if(!locked)div.onclick=()=>startBattle(m.id);
+    if(!locked) div.onclick=()=>startBattle(m.id);
     grid.appendChild(div);
   });
 }
-
 function renderTeam(){
-  const cont=document.getElementById('teamSlots');cont.innerHTML='';
+  const cont=document.getElementById('teamSlots');
+  cont.innerHTML='';
   for(let i=0;i<3;i++){
-    const id=state.team[i];const obj=id?state.inventory[id]:null;
+    const id=state.team[i];
+    const obj=id?state.inventory[id]:null;
     const div=document.createElement('div');
     div.className='slot-card'+(obj?' filled':'');
     if(obj){
@@ -794,16 +574,17 @@ function renderTeam(){
     }else{
       div.innerHTML=`<div style="font-size:2em;opacity:0.25;">+</div><div style="font-size:0.75em;opacity:0.4;">Empty</div>`;
     }
-    const slot=i;div.onclick=()=>openPicker(slot);cont.appendChild(div);
+    div.onclick=()=>openPicker(i);
+    cont.appendChild(div);
   }
 }
 
 let pickerSlot=-1;
 function openPicker(slot){
   pickerSlot=slot;
-  const grid=document.getElementById('pickerGrid');grid.innerHTML='';
-  // FIX 4: Get IDs already used in OTHER slots (not the current one being replaced)
-  const usedIds=state.team.filter((_,i)=>i!==slot&&state.team[i]!=null).map(id=>id);
+  const grid=document.getElementById('pickerGrid');
+  grid.innerHTML='';
+  const usedIds=state.team.filter((_,i)=>i!==slot&&state.team[i]!=null);
   Object.values(state.inventory).forEach(obj=>{
     const hp=getObjectHp(obj.id);
     const alreadyUsed=usedIds.includes(obj.id);
@@ -811,18 +592,20 @@ function openPicker(slot){
     div.className='picker-item'+(alreadyUsed?' already-in-team':'');
     div.innerHTML=`<div class="p-emoji">${obj.emoji}</div><div class="p-name">${obj.name}</div><div class="p-hp">${hp} HP</div><div class="p-lvl">Lv.${obj.level}</div>`;
     if(!alreadyUsed){
-      div.onclick=()=>{state.team[pickerSlot]=obj.id;saveState();closePicker();renderTeam();};
+      div.onclick=()=>{ state.team[pickerSlot]=obj.id; saveState(); closePicker(); renderTeam(); };
     }
     grid.appendChild(div);
   });
   document.getElementById('pickerOverlay').classList.add('show');
 }
-function closePicker(){document.getElementById('pickerOverlay').classList.remove('show');}
+function closePicker(){ document.getElementById('pickerOverlay').classList.remove('show'); }
 
 function openPreview(crateId){
-  const crate=CRATE_DEFS.find(c=>c.id===crateId);if(!crate)return;
+  const crate=CRATE_DEFS.find(c=>c.id===crateId);
+  if(!crate)return;
   document.getElementById('previewTitle').textContent=`${crate.emoji} ${crate.name} — Possible Drops`;
-  const grid=document.getElementById('previewGrid');grid.innerHTML='';
+  const grid=document.getElementById('previewGrid');
+  grid.innerHTML='';
   const pool=OBJECTS_BY_CRATE[crate.tier]||[];
   pool.forEach(obj=>{
     const owned=!!state.inventory[obj.id];
@@ -833,11 +616,12 @@ function openPreview(crateId){
   });
   document.getElementById('cratePreviewOverlay').classList.add('show');
 }
-function closePreview(){document.getElementById('cratePreviewOverlay').classList.remove('show');}
+function closePreview(){ document.getElementById('cratePreviewOverlay').classList.remove('show'); }
 
 function renderCrates(){
   document.getElementById('crateStatTrophies').textContent=state.trophies.toLocaleString();
-  const grid=document.getElementById('crateGrid');grid.innerHTML='';
+  const grid=document.getElementById('crateGrid');
+  grid.innerHTML='';
   CRATE_DEFS.forEach(c=>{
     const locked=!isCrateUnlocked(c.id);
     const cantAfford=state.trophies<c.cost;
@@ -846,62 +630,75 @@ function renderCrates(){
     const req=c.unlockHp>0?`Requires ${c.unlockHp.toLocaleString()}+ HP`:'';
     div.innerHTML=`<div class="crate-emoji">${c.emoji}</div><div class="crate-name">${c.name}</div><div class="crate-cost">🏆 ${c.cost.toLocaleString()} trophies</div><div class="crate-req">${locked?req:(cantAfford?'Not enough trophies':'')}</div>`;
     const previewBtn=document.createElement('button');
-    previewBtn.className='crate-preview-btn';previewBtn.textContent='👁 View Possible Drops';
-    previewBtn.onclick=(e)=>{e.stopPropagation();openPreview(c.id);};
+    previewBtn.className='crate-preview-btn';
+    previewBtn.textContent='👁 View Possible Drops';
+    previewBtn.onclick=(e)=>{ e.stopPropagation(); openPreview(c.id); };
     div.appendChild(previewBtn);
-    if(!locked&&!cantAfford)div.onclick=()=>openCrate(c.id);
+    if(!locked && !cantAfford) div.onclick=()=>openCrate(c.id);
     grid.appendChild(div);
   });
 }
 
 function openCrate(crateId){
   const crate=CRATE_DEFS.find(c=>c.id===crateId);
-  if(!crate||state.trophies<crate.cost)return;
-  state.trophies-=crate.cost;saveState();
+  if(!crate || state.trophies<crate.cost)return;
+  state.trophies-=crate.cost;
+  saveState();
   const pool=OBJECTS_BY_CRATE[crate.tier];
   const picked=pool[Math.floor(Math.random()*pool.length)];
   const anim=document.getElementById('crateAnim');
   const box=document.getElementById('crateAnimBox');
   const result=document.getElementById('crateResult');
   const btn=document.getElementById('crateAnimBtn');
-  box.textContent=crate.emoji;box.className='';box.style.animation='';box.style.display='';
-  result.style.display='none';btn.style.display='none';
+  box.textContent=crate.emoji;
+  box.style.display='';
+  box.style.animation='';
+  result.style.display='none';
+  btn.style.display='none';
   anim.classList.add('show');
   setTimeout(()=>{
-    box.classList.add('opening');
+    box.style.transform='scale(1.15)';
     setTimeout(()=>{
       box.style.display='none';
       const isDupe=!!state.inventory[picked.id];
-      giveObject(picked.id,crateId);saveState();
+      giveObject(picked.id,crateId);
+      saveState();
       document.getElementById('resEmoji').textContent=picked.emoji;
       document.getElementById('resName').textContent=picked.name;
       document.getElementById('resHp').textContent=picked.hp+' Base HP';
-      document.getElementById('resMsg').textContent=isDupe?`Duplicate! +${Math.floor(crate.cost/2)} 🏆 refunded`:'New object unlocked! 🎉';
-      result.style.display='block';btn.style.display='inline-block';
-    },900);
-  },700);
+      document.getElementById('resMsg').textContent=isDupe?`Duplicate! +${Math.floor(crate.cost/2)} 🏆 refunded`:'New object unlocked!';
+      result.style.display='block';
+      btn.style.display='inline-block';
+    },650);
+  },350);
 }
 function closeCrateAnim(){
   document.getElementById('crateAnim').classList.remove('show');
-  document.getElementById('crateAnimBox').style.display='';
+  renderHome();
   renderCrates();
 }
 
+let upgradeId=null;
 function renderMyObjects(){
-  const list=document.getElementById('objList');list.innerHTML='';
+  const list=document.getElementById('objList');
+  list.innerHTML='';
   Object.values(state.inventory).forEach(obj=>{
     const hp=getObjectHp(obj.id);
     const cost=getUpgradeCost(obj.id);
-    const div=document.createElement('div');div.className='obj-card';
+    const div=document.createElement('div');
+    div.className='obj-card';
     div.innerHTML=`<div class="oc-emoji">${obj.emoji}</div><div class="oc-name">${obj.name}</div><div class="oc-hp">${hp} HP</div><div class="oc-lvl">Lv.${obj.level}/50</div><button class="upg-btn-small" ${obj.level>=50?'disabled':''} onclick="openUpgrade('${obj.id}')">⬆️ Upgrade (${cost.toLocaleString()} 🏆)</button>`;
     list.appendChild(div);
   });
 }
 
-let upgradeId=null;
 function openUpgrade(id){
-  upgradeId=id;const obj=state.inventory[id];if(!obj)return;
-  const curHp=getObjectHp(id);const gain=Math.floor(obj.baseHp*0.15);const newHp=curHp+gain;
+  upgradeId=id;
+  const obj=state.inventory[id];
+  if(!obj)return;
+  const curHp=getObjectHp(id);
+  const gain=Math.floor(obj.baseHp*0.15);
+  const newHp=curHp+gain;
   const cost=getUpgradeCost(id);
   document.getElementById('upgTitle').textContent=`${obj.emoji} ${obj.name}`;
   document.getElementById('upgLevel').textContent=`${obj.level}/50`;
@@ -909,25 +706,29 @@ function openUpgrade(id){
   document.getElementById('upgNewHP').textContent=newHp.toLocaleString();
   document.getElementById('upgCost').textContent=cost.toLocaleString()+' 🏆';
   document.getElementById('upgTrophies').textContent=state.trophies.toLocaleString();
-  document.getElementById('upgDoBtn').disabled=obj.level>=50||state.trophies<cost;
+  document.getElementById('upgDoBtn').disabled=obj.level>=50 || state.trophies<cost;
   document.getElementById('upgradeOverlay').classList.add('show');
 }
-function closeUpgrade(){document.getElementById('upgradeOverlay').classList.remove('show');}
+function closeUpgrade(){ document.getElementById('upgradeOverlay').classList.remove('show'); }
 function doUpgrade(){
-  const obj=state.inventory[upgradeId];if(!obj||obj.level>=50)return;
+  const obj=state.inventory[upgradeId];
+  if(!obj || obj.level>=50)return;
   const cost=getUpgradeCost(upgradeId);
-  if(state.trophies<cost){showToast('Not enough trophies!');return;}
-  state.trophies-=cost;obj.level++;saveState();
+  if(state.trophies<cost){ showToast('Not enough trophies!'); return; }
+  state.trophies-=cost;
+  obj.level++;
+  saveState();
   showToast(`${obj.emoji} ${obj.name} is now Level ${obj.level}!`);
-  openUpgrade(upgradeId);renderMyObjects();
+  openUpgrade(upgradeId);
+  renderMyObjects();
+  renderHome();
 }
 
-// ===================== BATTLE =====================
-
 function startBattle(modeId){
-  const mode=MODES.find(m=>m.id===modeId);if(!mode)return;
+  const mode=MODES.find(m=>m.id===modeId);
+  if(!mode)return;
   const validTeam=state.team.filter(id=>id&&state.inventory[id]);
-  if(validTeam.length<3){showToast('You need 3 objects in your team!');showScreen('screenTeam');return;}
+  if(validTeam.length<3){ showToast('You need 3 objects in your team!'); showScreen('screenTeam'); return; }
 
   const oppName=OPPONENT_NAMES[Math.floor(Math.random()*OPPONENT_NAMES.length)];
   const enemyPool=OBJECTS_BY_CRATE[mode.crateId]||OBJECTS_BY_CRATE.easy;
@@ -936,12 +737,16 @@ function startBattle(modeId){
   const scaleMult={easy:1,normal:3,hard:8,grandmaster:15}[modeId]||1;
 
   const enemyTeam=enemyDefs.map(d=>({
-    id:d.id+'_enemy',name:d.name,emoji:d.emoji,
-    maxHp:Math.floor(d.hp*scaleMult),currentHp:Math.floor(d.hp*scaleMult),
+    id:d.id+'_enemy',
+    name:d.name,
+    emoji:d.emoji,
+    maxHp:Math.floor(d.hp*scaleMult),
+    currentHp:Math.floor(d.hp*scaleMult),
   }));
   const playerTeam=validTeam.map(id=>{
-    const obj=state.inventory[id];const hp=getObjectHp(id);
-    return{id,name:obj.name,emoji:obj.emoji,maxHp:hp,currentHp:hp};
+    const obj=state.inventory[id];
+    const hp=getObjectHp(id);
+    return {id,name:obj.name,emoji:obj.emoji,maxHp:hp,currentHp:hp};
   });
 
   state.battleMode=modeId;
@@ -960,9 +765,7 @@ function startBattle(modeId){
   showScreen('battleScreen');
 }
 
-function addLog(text,cls=''){
-  state.battleState.log.push({text,cls});
-}
+function addLog(text,cls=''){ state.battleState.log.push({text,cls}); }
 
 function renderBattle(){
   const bs=state.battleState;
@@ -974,6 +777,9 @@ function renderBattle(){
   const pf=bs.playerTeam[bs.playerIdx];
   const ef=bs.enemyTeam[bs.enemyIdx];
 
+  const pBox=document.getElementById('playerFighterBox');
+  const eBox=document.getElementById('enemyFighterBox');
+
   document.getElementById('playerFighterEmoji').textContent=pf?pf.emoji:'💀';
   document.getElementById('playerFighterName').textContent=pf?pf.name:'Defeated';
   if(pf){
@@ -981,51 +787,55 @@ function renderBattle(){
     document.getElementById('playerHpFill').style.width=pPct+'%';
     document.getElementById('playerHpFill').className='fighter-hp-bar-fill'+(pPct<30?' low':'');
     document.getElementById('playerHpText').textContent=`${pf.currentHp.toLocaleString()}/${pf.maxHp.toLocaleString()} HP`;
-    document.getElementById('playerFighterBox').classList.remove('dead');
+    pBox.classList.remove('dead');
   }else{
     document.getElementById('playerHpFill').style.width='0%';
     document.getElementById('playerHpText').textContent='0 HP';
-    document.getElementById('playerFighterBox').classList.add('dead');
-  }
-
-  document.getElementById('enemyFighterEmoji').textContent=ef?ef.emoji:'💀';
-  document.getElementById('enemyFighterName').textContent=ef?ef.name:'Defeated';
-  if(ef){
-    const ePct=Math.max(0,(ef.currentHp/ef.maxHp)*100);
-    document.getElementById('enemyHpFill').style.width=ePct+'%';
-    document.getElementById('enemyHpFill').className='fighter-hp-bar-fill'+(ePct<30?' low':'');
-    document.getElementById('enemyHpText').textContent=`${ef.currentHp.toLocaleString()}/${ef.maxHp.toLocaleString()} HP`;
-    document.getElementById('enemyFighterBox').classList.remove('dead');
-  }else{
-    document.getElementById('enemyHpFill').style.width='0%';
-    document.getElementById('enemyHpText').textContent='0 HP';
-    document.getElementById('enemyFighterBox').classList.add('dead');
+    pBox.classList.add('dead');
   }
 
   const ti=document.getElementById('turnIndicator');
   const banner=document.getElementById('enemyPickingBanner');
 
-  // FIX 2: Show enemy picking banner during enemyPicking phase
   if(bs.phase==='enemyPicking'){
     banner.style.display='block';
     ti.style.display='none';
+    eBox.classList.add('choosing');
+    document.getElementById('enemyFighterEmoji').textContent='';
+    document.getElementById('enemyFighterName').textContent='';
+    document.getElementById('enemyHpFill').style.width='0%';
+    document.getElementById('enemyHpText').textContent='';
   }else{
     banner.style.display='none';
+    eBox.classList.remove('choosing');
+    document.getElementById('enemyFighterEmoji').textContent=ef?ef.emoji:'💀';
+    document.getElementById('enemyFighterName').textContent=ef?ef.name:'Defeated';
+    if(ef){
+      const ePct=Math.max(0,(ef.currentHp/ef.maxHp)*100);
+      document.getElementById('enemyHpFill').style.width=ePct+'%';
+      document.getElementById('enemyHpFill').className='fighter-hp-bar-fill'+(ePct<30?' low':'');
+      document.getElementById('enemyHpText').textContent=`${ef.currentHp.toLocaleString()}/${ef.maxHp.toLocaleString()} HP`;
+      eBox.classList.remove('dead');
+    }else{
+      document.getElementById('enemyHpFill').style.width='0%';
+      document.getElementById('enemyHpText').textContent='0 HP';
+      eBox.classList.add('dead');
+    }
   }
 
   if(bs.phase==='pickFighter'){
-    ti.className='turn-indicator your-turn';
+    ti.className='your-turn';
     ti.textContent='Choose your next fighter!';
     ti.style.display='block';
-  }else if(bs.phase==='done'||bs.phase==='enemyPicking'){
-    if(bs.phase==='done')ti.style.display='none';
-  }else{
+  }else if(bs.phase==='done'){
+    ti.style.display='none';
+  }else if(bs.phase!=='enemyPicking'){
     ti.style.display='block';
     if(bs.currentTurn==='player'){
-      ti.className='turn-indicator your-turn';
+      ti.className='your-turn';
       ti.textContent=bs.isFirstTurn?'⚡ You go first! Roll the dice!':'🎲 Your turn — Roll the dice!';
     }else{
-      ti.className='turn-indicator enemy-turn';
+      ti.className='enemy-turn';
       ti.textContent='💀 Enemy\'s turn — Roll the dice!';
     }
   }
@@ -1038,18 +848,23 @@ function renderBattle(){
   const pickRow=document.getElementById('pickFighterRow');
 
   if(bs.phase==='pickFighter'){
-    btn.style.display='none';pickRow.style.display='block';renderPickRow();
+    btn.style.display='none';
+    pickRow.style.display='block';
+    renderPickRow();
   }else if(bs.phase==='done'||bs.phase==='enemyPicking'){
-    btn.style.display='none';pickRow.style.display='none';
+    btn.style.display='none';
+    pickRow.style.display='none';
   }else{
-    btn.style.display='block';pickRow.style.display='none';
-    btn.textContent=bs.currentTurn==='player'?'Roll Dice 🎲':'Roll Dice 🎲 (enemy turn)';
+    btn.style.display='block';
+    pickRow.style.display='none';
+    btn.textContent='Roll Dice 🎲';
   }
 }
 
 function renderPickRow(){
   const bs=state.battleState;
-  const row=document.getElementById('pickRow');row.innerHTML='';
+  const row=document.getElementById('pickRow');
+  row.innerHTML='';
   bs.playerTeam.forEach((f,i)=>{
     if(i===bs.playerIdx||f.currentHp<=0)return;
     const btn=document.createElement('button');
@@ -1060,9 +875,9 @@ function renderPickRow(){
       bs.phase='fight';
       bs.currentTurn=Math.random()<0.5?'player':'enemy';
       addLog(`You send in ${f.emoji} ${f.name}!`,'log-info');
-      const turnMsg=bs.currentTurn==='player'?'🎲 Dice says: YOU go next!':'🎲 Dice says: ENEMY goes next!';
-      addLog(turnMsg,bs.currentTurn==='player'?'log-info':'log-warn');
-      renderBattle();saveState();
+      addLog(bs.currentTurn==='player'?'🎲 Dice says: YOU go next!':'🎲 Dice says: ENEMY goes next!',bs.currentTurn==='player'?'log-info':'log-warn');
+      renderBattle();
+      saveState();
     };
     row.appendChild(btn);
   });
@@ -1090,7 +905,7 @@ function animateHit(side,damage){
   playHitSound(side!=='player');
 }
 
-function showDiceRoll(winner,callback){
+function showDiceRoll(turn,callback){
   const overlay=document.getElementById('diceAnim');
   const emoji=document.getElementById('diceEmoji');
   const result=document.getElementById('diceResult');
@@ -1098,16 +913,14 @@ function showDiceRoll(winner,callback){
   result.style.display='none';
   result.textContent='';
   overlay.classList.add('show');
-
   const faces=['🎲','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣'];
   let i=0;
   const spin=setInterval(()=>{emoji.textContent=faces[i%faces.length];i++;},60);
-
   setTimeout(()=>{
     clearInterval(spin);
     emoji.textContent='🎲';
-    result.textContent=winner==='player'?'🔵 YOUR TURN!':'🔴 ENEMY\'S TURN!';
-    result.style.color=winner==='player'?'#38bdf8':'#f87171';
+    result.textContent=turn==='player'?'🔵 YOUR TURN!':'🔴 ENEMY\'S TURN!';
+    result.style.color=turn==='player'?'#38bdf8':'#f87171';
     result.style.display='block';
     setTimeout(()=>{
       overlay.classList.remove('show');
@@ -1116,25 +929,26 @@ function showDiceRoll(winner,callback){
   },600);
 }
 
-// FIX 1: battleAction is now a pure dispatcher — enemy turn is always handled inline,
-// never left dangling. The button triggers BOTH player and enemy turns sequentially.
 function battleAction(){
   const bs=state.battleState;
   if(!bs||bs.phase!=='fight')return;
-
   const btn=document.getElementById('battleActionBtn');
-  btn.disabled=true; // prevent double-click during animation
+  btn.disabled=true;
 
   const pf=bs.playerTeam[bs.playerIdx];
   const ef=bs.enemyTeam[bs.enemyIdx];
-  if(!pf||!ef){checkBattleEnd();btn.disabled=false;return;}
+  if(!pf||!ef){
+    checkBattleEnd();
+    btn.disabled=false;
+    return;
+  }
 
   const nextTurn=Math.random()<0.5?'player':'enemy';
 
   if(bs.currentTurn==='player'){
-    doPlayerAttack(nextTurn,()=>{btn.disabled=false;});
+    doPlayerAttack(nextTurn,()=>{ btn.disabled=false; });
   }else{
-    doEnemyAttack(nextTurn,()=>{btn.disabled=false;});
+    doEnemyAttack(nextTurn,()=>{ btn.disabled=false; });
   }
 }
 
@@ -1144,54 +958,55 @@ function doPlayerAttack(nextTurn,onDone){
   const ef=bs.enemyTeam[bs.enemyIdx];
   const dmg=pf.currentHp;
 
-  showDiceRoll(nextTurn,()=>{
+  showDiceRoll('player',()=>{
+    if(!ef){ onDone(); return; }
     ef.currentHp=Math.max(0,ef.currentHp-dmg);
     animateHit('enemy',dmg);
     addLog(`${pf.emoji} ${pf.name} attacks ${ef.emoji} ${ef.name} for ${dmg.toLocaleString()} damage!`,'log-hit');
 
     if(ef.currentHp<=0){
       addLog(`${ef.emoji} ${ef.name} was defeated!`,'log-warn');
-
-      // FIX 2: Play kill sound then show enemy picking banner
       playKillSound();
       bs.enemyIdx++;
       const nef=bs.enemyTeam[bs.enemyIdx];
 
       if(nef){
         bs.phase='enemyPicking';
-        renderBattle();saveState();
-        // After a brief delay, enemy "picks" their next fighter
+        renderBattle();
+        saveState();
         setTimeout(()=>{
           addLog(`${bs.oppName} sends in ${nef.emoji} ${nef.name}!`,'log-enemy-hit');
           bs.phase='fight';
           bs.currentTurn=nextTurn;
           bs.isFirstTurn=false;
           addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
-          renderBattle();saveState();
+          renderBattle();
+          saveState();
           onDone();
         },1800);
         return;
       }else{
-        if(checkBattleEnd()){onDone();return;}
+        if(checkBattleEnd()){ onDone(); return; }
       }
     }
 
     bs.isFirstTurn=false;
     bs.currentTurn=nextTurn;
     addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
-    renderBattle();saveState();
+    renderBattle();
+    saveState();
     onDone();
   });
 }
 
-// FIX 1: Enemy attack is its own function, always called when it's enemy's turn
 function doEnemyAttack(nextTurn,onDone){
   const bs=state.battleState;
   const pf=bs.playerTeam[bs.playerIdx];
   const ef=bs.enemyTeam[bs.enemyIdx];
   const dmg=ef.currentHp;
 
-  showDiceRoll(nextTurn,()=>{
+  showDiceRoll('enemy',()=>{
+    if(!pf){ onDone(); return; }
     pf.currentHp=Math.max(0,pf.currentHp-dmg);
     animateHit('player',dmg);
     addLog(`${ef.emoji} ${ef.name} attacks ${pf.emoji} ${pf.name} for ${dmg.toLocaleString()} damage!`,'log-enemy-hit');
@@ -1201,18 +1016,20 @@ function doEnemyAttack(nextTurn,onDone){
       const remaining=bs.playerTeam.filter((f,i)=>i!==bs.playerIdx&&f.currentHp>0);
       if(remaining.length>0){
         bs.phase='pickFighter';
-        renderBattle();saveState();
+        renderBattle();
+        saveState();
         onDone();
         return;
       }else{
-        if(checkBattleEnd()){onDone();return;}
+        if(checkBattleEnd()){ onDone(); return; }
       }
     }
 
     bs.isFirstTurn=false;
     bs.currentTurn=nextTurn;
     addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
-    renderBattle();saveState();
+    renderBattle();
+    saveState();
     onDone();
   });
 }
@@ -1225,22 +1042,23 @@ function checkBattleEnd(){
   if(allEnemyDead){
     bs.phase='done';
     const mode=bs.mode;
-    state.trophies+=mode.trophies;state.power+=mode.power;saveState();
+    state.trophies+=mode.trophies;
+    state.power+=mode.power;
+    saveState();
     addLog(`🎉 You won! +${mode.trophies} 🏆 +${mode.power} ⚡`,'log-info');
-    setTimeout(()=>{playVictorySound();showResult(true,mode);},400);
     renderBattle();
+    setTimeout(()=>{ playVictorySound(); showResult(true,mode); },400);
     return true;
   }
   if(allPlayerDead){
     bs.phase='done';
-    // FIX 3: Lose 10% of the power reward on defeat (trophies unchanged)
     const mode=bs.mode;
     const powerLoss=Math.floor(mode.power*0.1);
     state.power=Math.max(0,state.power-powerLoss);
     saveState();
     addLog(`💀 You were defeated... -${powerLoss} ⚡`,'log-enemy-hit');
-    setTimeout(()=>{showResult(false,mode,powerLoss);},400);
     renderBattle();
+    setTimeout(()=>{ showResult(false,mode,powerLoss); },400);
     return true;
   }
   return false;
@@ -1249,20 +1067,20 @@ function checkBattleEnd(){
 function showResult(won,mode,powerLoss=0){
   document.getElementById('resultEmojiWrap').textContent=won?'🏆':'💀';
   document.getElementById('resultTitle').textContent=won?'Victory!':'Defeated!';
-  document.getElementById('resultSub').textContent=won
-    ?`You beat ${state.battleState.oppName}!`
-    :`You lost to ${state.battleState.oppName}. -${powerLoss} ⚡ penalty`;
+  document.getElementById('resultSub').textContent=won ? `You beat ${state.battleState.oppName}!` : `You lost to ${state.battleState.oppName}. -${powerLoss} ⚡ penalty`;
   document.getElementById('resultTrophies').textContent=state.trophies.toLocaleString()+' total';
   document.getElementById('resultPower').textContent=state.power.toLocaleString()+' total';
   showScreen('screenResult');
 }
 
 function rematch(){
-  if(state.battleMode)startBattle(state.battleMode);
+  if(state.battleMode) startBattle(state.battleMode);
   else showScreen('screenModeSelect');
 }
 
-loadState();showScreen('screenHome');
+loadState();
+renderHome();
+showScreen('screenHome');
 </script>
 </body>
 </html>
