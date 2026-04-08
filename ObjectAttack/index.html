@@ -137,9 +137,6 @@
     .fighter-hp-bar-fill.low{background:linear-gradient(90deg,#ef4444,#fca5a5);}
     .vs-badge{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,rgba(168,85,247,0.3),rgba(59,130,246,0.3));border:2px solid rgba(168,85,247,0.4);display:flex;align-items:center;justify-content:center;font-family:'Russo One',sans-serif;font-size:0.85em;flex-shrink:0;box-shadow:0 0 16px rgba(168,85,247,0.3);animation:vsPulse 2s ease-in-out infinite;}
     @keyframes vsPulse{0%,100%{box-shadow:0 0 10px rgba(168,85,247,0.2)}50%{box-shadow:0 0 24px rgba(168,85,247,0.5)}}
-    #turnIndicator{ text-align:center;margin-bottom:12px;padding:8px;border-radius:12px;font-weight:700;font-size:0.9em;transition:all 0.4s; }
-    #turnIndicator.your-turn{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;}
-    #turnIndicator.enemy-turn{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;}
     .battle-log{background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:14px;padding:12px;max-height:160px;overflow-y:auto;margin-bottom:14px;font-size:0.85em;line-height:1.8;scrollbar-width:thin;scrollbar-color:rgba(168,85,247,0.3) transparent;}
     .log-entry{padding:1px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
     .log-entry:last-child{border:none;}
@@ -271,8 +268,7 @@
     <div class="opp-name" id="battleOppName"></div>
     <div class="opp-mode" id="battleOppMode"></div>
   </div>
-  <div id="turnIndicator" class="your-turn">Your turn — Roll the dice!</div>
-  <div id="enemyPickingBanner">💀 Enemy is choosing their next fighter...</div>
+    <div id="enemyPickingBanner">💀 Enemy is choosing their next fighter...</div>
   <div class="battle-arena">
     <div class="fighter-box player-side" id="playerFighterBox">
       <span class="fighter-emoji" id="playerFighterEmoji"></span>
@@ -887,12 +883,10 @@ function renderBattle(){
     pBox.classList.add('dead');
   }
 
-  const ti=document.getElementById('turnIndicator');
   const banner=document.getElementById('enemyPickingBanner');
 
   if(bs.phase==='enemyPicking'){
     banner.style.display='block';
-    ti.style.display='none';
     eBox.classList.add('choosing');
     document.getElementById('enemyFighterEmoji').textContent='';
     document.getElementById('enemyFighterName').textContent='';
@@ -913,23 +907,6 @@ function renderBattle(){
       document.getElementById('enemyHpFill').style.width='0%';
       document.getElementById('enemyHpText').textContent='0 HP';
       eBox.classList.add('dead');
-    }
-  }
-
-  if(bs.phase==='pickFighter'){
-    ti.className='your-turn';
-    ti.textContent='Choose your next fighter!';
-    ti.style.display='block';
-  }else if(bs.phase==='done'){
-    ti.style.display='none';
-  }else if(bs.phase!=='enemyPicking'){
-    ti.style.display='block';
-    if(bs.currentTurn==='player'){
-      ti.className='your-turn';
-      ti.textContent=bs.isFirstTurn?'⚡ You go first! Roll the dice!':'🎲 Your turn — Roll the dice!';
-    }else{
-      ti.className='enemy-turn';
-      ti.textContent='💀 Enemy\'s turn — Roll the dice!';
     }
   }
 
