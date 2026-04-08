@@ -62,7 +62,7 @@
     .mode-card:hover::before,.crate-card:hover::before,.obj-card:hover::before,.slot-card:hover::before{opacity:1;}
     .mode-card:hover,.crate-card:hover,.obj-card:hover,.slot-card:hover,.picker-item:hover{transform:translateY(-3px);border-color:rgba(168,85,247,0.5);box-shadow:0 8px 30px rgba(168,85,247,0.2);}
     .mode-card.locked,.crate-card.locked,.picker-item.already-in-team{opacity:0.38;cursor:not-allowed;}
-    .starter-card.selected{border-color:rgba(34,197,94,0.7);box-shadow:0 0 0 2px rgba(34,197,94,0.18),0 8px 30px rgba(34,197,94,0.18);pointer-events:none;opacity:0.72;}
+    .starter-card.selected{border-color:rgba(34,197,94,0.7);box-shadow:0 0 0 2px rgba(34,197,94,0.18),0 8px 30px rgba(34,197,94,0.18);}
     .starter-card.selected::after{content:'Selected';display:block;font-size:0.68em;color:#86efac;font-weight:700;margin-top:4px;}
     .mode-card .mode-emoji,.crate-card .crate-emoji,.obj-card .oc-emoji,.picker-item .p-emoji,.preview-item .pi-emoji{font-size:2.2em;display:block;margin-bottom:6px;}
     .mode-name,.crate-name,.oc-name,.p-name,.pi-name,.slot-name,.fighter-name{font-family:'Russo One',sans-serif;}
@@ -137,6 +137,9 @@
     .fighter-hp-bar-fill.low{background:linear-gradient(90deg,#ef4444,#fca5a5);}
     .vs-badge{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,rgba(168,85,247,0.3),rgba(59,130,246,0.3));border:2px solid rgba(168,85,247,0.4);display:flex;align-items:center;justify-content:center;font-family:'Russo One',sans-serif;font-size:0.85em;flex-shrink:0;box-shadow:0 0 16px rgba(168,85,247,0.3);animation:vsPulse 2s ease-in-out infinite;}
     @keyframes vsPulse{0%,100%{box-shadow:0 0 10px rgba(168,85,247,0.2)}50%{box-shadow:0 0 24px rgba(168,85,247,0.5)}}
+    #turnIndicator{ text-align:center;margin-bottom:12px;padding:8px;border-radius:12px;font-weight:700;font-size:0.9em;transition:all 0.4s; }
+    #turnIndicator.your-turn{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;}
+    #turnIndicator.enemy-turn{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;}
     .battle-log{background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:14px;padding:12px;max-height:160px;overflow-y:auto;margin-bottom:14px;font-size:0.85em;line-height:1.8;scrollbar-width:thin;scrollbar-color:rgba(168,85,247,0.3) transparent;}
     .log-entry{padding:1px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
     .log-entry:last-child{border:none;}
@@ -268,7 +271,8 @@
     <div class="opp-name" id="battleOppName"></div>
     <div class="opp-mode" id="battleOppMode"></div>
   </div>
-    <div id="enemyPickingBanner">💀 Enemy is choosing their next fighter...</div>
+  <div id="turnIndicator" style="display:none"></div>
+  <div id="enemyPickingBanner">💀 Enemy is choosing their next fighter...</div>
   <div class="battle-arena">
     <div class="fighter-box player-side" id="playerFighterBox">
       <span class="fighter-emoji" id="playerFighterEmoji"></span>
@@ -633,7 +637,7 @@ function renderStarterSelection(){
     const div=document.createElement('div');
     div.className='crate-card starter-card'+(selected?' selected':'');
     div.innerHTML=`<div class="crate-emoji">${obj.emoji}</div><div class="crate-name">${obj.name}</div><div class="crate-cost">🏆 Starter choice</div><div class="crate-req">${obj.hp} base HP</div>`;
-    if(!selected) div.onclick=()=>toggleStarterChoice(obj.id);
+    div.onclick=()=>toggleStarterChoice(obj.id);
     grid.appendChild(div);
   });
   countEl.textContent=`${starterSelection.length} / 3 selected`;
@@ -642,12 +646,16 @@ function renderStarterSelection(){
 
 let starterSelection=[];
 function toggleStarterChoice(id){
-  if(starterSelection.includes(id)) return;
-  if(starterSelection.length>=3){
-    showToast('Pick only 3 starters!');
-    return;
+  const idx=starterSelection.indexOf(id);
+  if(idx>=0){
+    starterSelection.splice(idx,1);
+  }else{
+    if(starterSelection.length>=3){
+      showToast('Pick only 3 starters!');
+      return;
+    }
+    starterSelection.push(id);
   }
-  starterSelection.push(id);
   renderStarterSelection();
 }
 
@@ -718,7 +726,7 @@ function renderCrates(){
     const div=document.createElement('div');
     div.className='crate-card'+(locked?' locked':'');
     const req=c.unlockHp>0?`Requires ${c.unlockHp.toLocaleString()}+ HP`:'';
-    div.innerHTML=`<div class="crate-emoji">${c.emoji}</div><div class="crate-name">${c.name}</div><div class="crate-cost">🏆 ${c.cost.toLocaleString()} trophies</div><div class="crate-req">${locked?req:(cantAfford?'Not enough trophies':'')}</div>`;
+    div.innerHTML=`<div class="crate-emoji">${c.emoji}</div><div class="crate-name">${c.name}</div><div class="crate-cost">🏆 ${c.cost.toLocaleString()} trophies</div><div class="crate-req">${locked?req:(cantAfford?'Not enough trophies':'')}</div><div style="font-size:0.72em;color:var(--muted);margin-top:8px;">Tap the crate to reveal a random starter item</div>`;
     if(!locked && !cantAfford) div.onclick=()=>openCrate(c.id);
     grid.appendChild(div);
   });
@@ -879,10 +887,12 @@ function renderBattle(){
     pBox.classList.add('dead');
   }
 
+  const ti=document.getElementById('turnIndicator');
   const banner=document.getElementById('enemyPickingBanner');
 
   if(bs.phase==='enemyPicking'){
     banner.style.display='block';
+    ti.style.display='none';
     eBox.classList.add('choosing');
     document.getElementById('enemyFighterEmoji').textContent='';
     document.getElementById('enemyFighterName').textContent='';
@@ -905,6 +915,8 @@ function renderBattle(){
       eBox.classList.add('dead');
     }
   }
+
+  ti.style.display='none';
 
   const logEl=document.getElementById('battleLog');
   logEl.innerHTML=bs.log.map(l=>`<div class="log-entry ${l.cls||''}">${l.text}</div>`).join('');
@@ -1045,7 +1057,6 @@ function doPlayerAttack(nextTurn,onDone){
           bs.phase='fight';
           bs.currentTurn=nextTurn;
           bs.isFirstTurn=false;
-          addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
           renderBattle();
           saveState();
           onDone();
@@ -1058,7 +1069,6 @@ function doPlayerAttack(nextTurn,onDone){
 
     bs.isFirstTurn=false;
     bs.currentTurn=nextTurn;
-    addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
     renderBattle();
     saveState();
     onDone();
@@ -1093,7 +1103,6 @@ function doEnemyAttack(nextTurn,onDone){
 
     bs.isFirstTurn=false;
     bs.currentTurn=nextTurn;
-    addLog(nextTurn==='player'?'🎲 Dice: YOUR turn next!':'🎲 Dice: ENEMY\'s turn next!',nextTurn==='player'?'log-info':'log-warn');
     renderBattle();
     saveState();
     onDone();
