@@ -233,12 +233,6 @@
   </div>
 </div>
 
-<div class="crate-preview-overlay" id="cratePreviewOverlay">
-  <div class="modal">
-    <div class="modal-head"><span id="previewTitle">What's Inside?</span><button class="close-btn" onclick="closePreview()">✕</button></div>
-    <div class="preview-grid" id="previewGrid"></div>
-  </div>
-</div>
 
 <div class="screen active" id="screenHome">
   <h1>⚔️ Object Battle</h1>
@@ -668,7 +662,7 @@ function toggleStarterChoice(id){
 function completeStarterSelection(){
   if(starterSelection.length!==3) return;
   if(Object.keys(state.inventory).length===0){
-    starterSelection.forEach(id=>giveObject(id,'easy'));
+    starterSelection.forEach(id=>giveObject(id,'starter'));
     state.team=[...starterSelection];
     state.starterChosen=true;
     saveState();
@@ -722,24 +716,6 @@ function openPicker(slot){
 }
 function closePicker(){ document.getElementById('pickerOverlay').classList.remove('show'); }
 
-function openPreview(crateId){
-  const crate=CRATE_DEFS.find(c=>c.id===crateId);
-  if(!crate)return;
-  document.getElementById('previewTitle').textContent=`${crate.emoji} ${crate.name} — Possible Drops`;
-  const grid=document.getElementById('previewGrid');
-  grid.innerHTML='';
-  const pool=OBJECTS_BY_CRATE[crate.tier]||[];
-  pool.forEach(obj=>{
-    const owned=!!state.inventory[obj.id];
-    const div=document.createElement('div');
-    div.className='preview-item'+(owned?' owned':'');
-    div.innerHTML=`<div class="pi-emoji">${obj.emoji}</div><div class="pi-name">${obj.name}</div><div class="pi-hp">${obj.hp} Base HP</div>`;
-    grid.appendChild(div);
-  });
-  document.getElementById('cratePreviewOverlay').classList.add('show');
-}
-function closePreview(){ document.getElementById('cratePreviewOverlay').classList.remove('show'); }
-
 function renderCrates(){
   document.getElementById('crateStatTrophies').textContent=state.trophies.toLocaleString();
   const grid=document.getElementById('crateGrid');
@@ -750,12 +726,7 @@ function renderCrates(){
     const div=document.createElement('div');
     div.className='crate-card'+(locked?' locked':'');
     const req=c.unlockHp>0?`Requires ${c.unlockHp.toLocaleString()}+ HP`:'';
-    div.innerHTML=`<div class="crate-emoji">${c.emoji}</div><div class="crate-name">${c.name}</div><div class="crate-cost">🏆 ${c.cost.toLocaleString()} trophies</div><div class="crate-req">${locked?req:(cantAfford?'Not enough trophies':'')}</div>`;
-    const previewBtn=document.createElement('button');
-    previewBtn.className='crate-preview-btn';
-    previewBtn.textContent='👁 View Possible Drops';
-    previewBtn.onclick=(e)=>{ e.stopPropagation(); openPreview(c.id); };
-    div.appendChild(previewBtn);
+    div.innerHTML=`<div class="crate-emoji">${c.emoji}</div><div class="crate-name">${c.name}</div><div class="crate-cost">🏆 ${c.cost.toLocaleString()} trophies</div><div class="crate-req">${locked?req:(cantAfford?'Not enough trophies':'')}</div><div style="font-size:0.72em;color:var(--muted);margin-top:8px;">Tap the crate to reveal a random starter item</div>`;
     if(!locked && !cantAfford) div.onclick=()=>openCrate(c.id);
     grid.appendChild(div);
   });
@@ -766,7 +737,7 @@ function openCrate(crateId){
   if(!crate || state.trophies<crate.cost)return;
   state.trophies-=crate.cost;
   saveState();
-  const pool=OBJECTS_BY_CRATE[crate.tier];
+  const pool=CRATE_LOOT_POOL;
   const picked=getRandomFromPool(pool);
   const anim=document.getElementById('crateAnim');
   const box=document.getElementById('crateAnimBox');
