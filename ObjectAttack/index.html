@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Object Battle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../Favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Rubik',sans-serif;min-height:100vh;background:linear-gradient(135deg,#0a0015 0%,#150030 50%,#0a001a 100%);color:#f0e6ff;overflow-x:hidden;}
+    #homeText{position:fixed;top:10px;left:10px;font-family:'Rubik',sans-serif;font-size:2em;cursor:pointer;transition:transform 0.2s;z-index:1000;user-select:none;opacity:0.95;font-weight:900;}
+    #homeText:hover{transform:scale(1.15);}
+    .screen{display:none;min-height:100vh;padding:70px 16px 40px;max-width:900px;margin:0 auto;}
+    .screen.active{display:block;}
+    h1{font-size:clamp(2em,6vw,3.5em);font-weight:900;text-align:center;background:linear-gradient(135deg,#c084fc,#818cf8,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+    h2{font-size:1.4em;font-weight:900;margin-bottom:12px;}
+    .sub{text-align:center;opacity:0.65;margin-bottom:28px;font-size:1em;}
+
+    /* STATS BAR */
+    #statsBar{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;}
+    .stat-chip{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:8px 16px;font-size:0.9em;font-weight:700;}
+    .stat-chip span{color:#c084fc;}
+
+    /* MODE SELECT */
+    .mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px;}
+    .mode-card{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.10);border-radius:20px;padding:20px;cursor:pointer;transition:transform 0.2s,border-color 0.2s,background 0.2s;text-align:center;}
+    .mode-card:hover{transform:scale(1.03);border-color:rgba(192,132,252,0.5);}
+    .mode-card.locked{opacity:0.4;cursor:not-allowed;}
+    .mode-card .mode-emoji{font-size:2.5em;display:block;margin-bottom:8px;}
+    .mode-card .mode-name{font-size:1.2em;font-weight:900;}
+    .mode-card .mode-reward{font-size:0.82em;opacity:0.7;margin-top:4px;}
+    .mode-card.selected{border-color:#c084fc;background:rgba(192,132,252,0.12);}
+
+    /* TEAM SELECT */
+    .team-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+    .slot-card{background:rgba(255,255,255,0.05);border:2px dashed rgba(255,255,255,0.18);border-radius:18px;padding:18px 10px;text-align:center;cursor:pointer;transition:all 0.2s;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
+    .slot-card.filled{border-style:solid;border-color:rgba(192,132,252,0.5);background:rgba(192,132,252,0.08);}
+    .slot-card .slot-emoji{font-size:2.2em;}
+    .slot-card .slot-name{font-size:0.82em;font-weight:700;opacity:0.9;}
+    .slot-card .slot-hp{font-size:0.75em;opacity:0.6;}
+    .slot-card .slot-lvl{font-size:0.7em;color:#c084fc;}
+
+    /* OBJECT PICKER */
+    #pickerOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;padding:16px;}
+    #pickerOverlay.show{display:flex;}
+    #pickerModal{background:#1a0030;border:1px solid rgba(192,132,252,0.3);border-radius:24px;width:min(700px,calc(100vw - 32px));max-height:80vh;overflow:hidden;display:flex;flex-direction:column;}
+    .picker-head{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between;font-weight:900;}
+    .picker-close{background:rgba(255,255,255,0.08);border:none;color:inherit;border-radius:10px;padding:6px 12px;cursor:pointer;font-family:'Rubik',sans-serif;font-weight:700;}
+    .picker-grid{overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+    .picker-item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);border-radius:14px;padding:12px 8px;text-align:center;cursor:pointer;transition:all 0.2s;}
+    .picker-item:hover{border-color:rgba(192,132,252,0.5);background:rgba(192,132,252,0.10);}
+    .picker-item .p-emoji{font-size:1.8em;}
+    .picker-item .p-name{font-size:0.78em;font-weight:700;margin-top:4px;}
+    .picker-item .p-hp{font-size:0.7em;opacity:0.55;}
+    .picker-item .p-lvl{font-size:0.68em;color:#c084fc;}
+
+    /* CRATE SHOP */
+    .crate-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px;}
+    .crate-card{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.10);border-radius:20px;padding:18px;cursor:pointer;transition:all 0.2s;text-align:center;}
+    .crate-card:hover:not(.locked){transform:scale(1.03);border-color:rgba(192,132,252,0.5);}
+    .crate-card.locked{opacity:0.38;cursor:not-allowed;}
+    .crate-card .crate-emoji{font-size:2.8em;}
+    .crate-card .crate-name{font-size:1.1em;font-weight:900;margin-top:6px;}
+    .crate-card .crate-cost{font-size:0.85em;color:#c084fc;margin-top:4px;}
+    .crate-card .crate-req{font-size:0.72em;opacity:0.5;margin-top:2px;}
+
+    /* CRATE ANIMATION OVERLAY */
+    #crateAnim{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:600;align-items:center;justify-content:center;flex-direction:column;gap:20px;}
+    #crateAnim.show{display:flex;}
+    #crateAnimBox{font-size:6em;animation:crateBounce 0.6s ease-in-out infinite;}
+    @keyframes crateBounce{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.15) rotate(3deg)}}
+    #crateAnimBox.opening{animation:crateOpen 0.8s forwards;}
+    @keyframes crateOpen{0%{transform:scale(1) rotate(0)}30%{transform:scale(1.3) rotate(-10deg)}60%{transform:scale(0.8) rotate(15deg)}100%{transform:scale(1.1) rotate(0);opacity:0;}}
+    #crateResult{display:none;text-align:center;animation:resultPop 0.5s cubic-bezier(0.34,1.4,0.64,1) forwards;}
+    @keyframes resultPop{0%{transform:scale(0.4);opacity:0}100%{transform:scale(1);opacity:1}}
+    #crateResult .res-emoji{font-size:4em;}
+    #crateResult .res-name{font-size:1.6em;font-weight:900;margin:8px 0;}
+    #crateResult .res-hp{font-size:1em;opacity:0.7;}
+    #crateResult .res-msg{font-size:0.9em;color:#c084fc;margin-top:6px;}
+    .anim-btn{background:rgba(192,132,252,0.2);border:2px solid rgba(192,132,252,0.5);color:#f0e6ff;border-radius:14px;padding:12px 28px;font-family:'Rubik',sans-serif;font-weight:900;font-size:1em;cursor:pointer;margin-top:10px;transition:transform 0.2s;}
+    .anim-btn:hover{transform:scale(1.05);}
+
+    /* UPGRADE MENU */
+    #upgradeOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;padding:16px;}
+    #upgradeOverlay.show{display:flex;}
+    #upgradeModal{background:#1a0030;border:1px solid rgba(192,132,252,0.3);border-radius:24px;width:min(420px,calc(100vw - 32px));overflow:hidden;}
+    .upg-head{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between;font-weight:900;}
+    .upg-body{padding:20px;}
+    .upg-stat{display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.9em;}
+    .upg-stat span:last-child{font-weight:700;color:#c084fc;}
+    .upg-btn{width:100%;padding:14px;background:linear-gradient(135deg,#7c3aed,#2563eb);border:none;border-radius:14px;color:white;font-family:'Rubik',sans-serif;font-weight:900;font-size:1em;cursor:pointer;margin-top:12px;transition:transform 0.2s,opacity 0.2s;}
+    .upg-btn:disabled{opacity:0.38;cursor:not-allowed;}
+    .upg-btn:not(:disabled):hover{transform:scale(1.02);}
+
+    /* BATTLE SCREEN */
+    #battleScreen{padding-bottom:60px;}
+    .battle-header{text-align:center;margin-bottom:20px;}
+    .battle-header .opp-name{font-size:1.4em;font-weight:900;}
+    .battle-header .opp-mode{font-size:0.85em;opacity:0.6;margin-top:2px;}
+    .battle-arena{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin-bottom:20px;}
+    .fighter-box{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.12);border-radius:20px;padding:18px;text-align:center;}
+    .fighter-box.player-side{border-color:rgba(56,189,248,0.4);}
+    .fighter-box.enemy-side{border-color:rgba(248,113,113,0.4);}
+    .fighter-box.dead{opacity:0.35;border-color:rgba(255,255,255,0.08);}
+    .fighter-emoji{font-size:3em;display:block;margin-bottom:8px;}
+    .fighter-name{font-size:0.95em;font-weight:700;}
+    .fighter-hp-bar{height:10px;border-radius:10px;background:rgba(255,255,255,0.1);margin:8px 0 4px;overflow:hidden;}
+    .fighter-hp-bar-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#22c55e,#86efac);transition:width 0.4s ease;}
+    .fighter-hp-bar-fill.low{background:linear-gradient(90deg,#ef4444,#fca5a5);}
+    .fighter-hp-text{font-size:0.75em;opacity:0.65;}
+    .vs-badge{background:rgba(255,255,255,0.08);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1em;flex-shrink:0;}
+    .battle-log{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:14px;max-height:200px;overflow-y:auto;margin-bottom:16px;font-size:0.88em;line-height:1.7;}
+    .log-entry{padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+    .log-entry:last-child{border:none;}
+    .log-hit{color:#86efac;}
+    .log-enemy-hit{color:#fca5a5;}
+    .log-info{color:#c084fc;}
+    .log-warn{color:#fbbf24;}
+
+    /* PLAYER TEAM PICK */
+    .pick-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;justify-content:center;}
+    .pick-btn{background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 16px;cursor:pointer;font-family:'Rubik',sans-serif;font-weight:700;font-size:0.9em;color:inherit;transition:all 0.2s;text-align:center;}
+    .pick-btn:hover:not(:disabled){border-color:rgba(56,189,248,0.5);background:rgba(56,189,248,0.08);}
+    .pick-btn:disabled{opacity:0.35;cursor:not-allowed;}
+    .pick-btn.selected-fighter{border-color:#38bdf8;background:rgba(56,189,248,0.12);}
+
+    /* GENERAL BUTTONS */
+    .big-btn{display:block;width:100%;padding:16px;background:linear-gradient(135deg,#7c3aed,#2563eb);border:none;border-radius:18px;color:white;font-family:'Rubik',sans-serif;font-weight:900;font-size:1.1em;cursor:pointer;margin-top:14px;transition:transform 0.2s,opacity 0.2s;}
+    .big-btn:disabled{opacity:0.38;cursor:not-allowed;transform:none;}
+    .big-btn:not(:disabled):hover{transform:scale(1.02);}
+    .sec-btn{display:block;width:100%;padding:13px;background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.14);border-radius:18px;color:inherit;font-family:'Rubik',sans-serif;font-weight:700;font-size:1em;cursor:pointer;margin-top:10px;transition:transform 0.2s;}
+    .sec-btn:hover{transform:scale(1.02);}
+    .inline-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+    /* MY OBJECTS LIST */
+    .obj-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:20px;}
+    .obj-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);border-radius:16px;padding:14px;text-align:center;position:relative;}
+    .obj-card .oc-emoji{font-size:2em;}
+    .obj-card .oc-name{font-size:0.82em;font-weight:700;margin-top:4px;}
+    .obj-card .oc-hp{font-size:0.72em;opacity:0.6;}
+    .obj-card .oc-lvl{font-size:0.7em;color:#c084fc;}
+    .obj-card .upg-btn-small{margin-top:8px;padding:6px 10px;background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.4);border-radius:10px;font-family:'Rubik',sans-serif;font-weight:700;font-size:0.72em;color:#c084fc;cursor:pointer;width:100%;transition:all 0.2s;}
+    .obj-card .upg-btn-small:hover{background:rgba(124,58,237,0.35);}
+
+    /* TOAST */
+    #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(30px);background:#7c3aed;color:white;padding:12px 24px;border-radius:40px;font-weight:700;font-size:0.95em;opacity:0;pointer-events:none;transition:opacity 0.3s,transform 0.3s;z-index:9999;white-space:nowrap;max-width:90vw;text-align:center;}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+    @media(max-width:520px){
+      .mode-grid,.crate-grid{grid-template-columns:1fr;}
+      .team-slots{grid-template-columns:repeat(3,1fr);}
+      .battle-arena{grid-template-columns:1fr auto 1fr;gap:8px;}
+      .fighter-emoji{font-size:2.2em;}
+    }
+  </style>
+</head>
+<body>
+<div id="homeText" onclick="goHome()">Wren.fun</div>
+<div id="toast"></div>
+
+<!-- CRATE ANIMATION OVERLAY -->
+<div id="crateAnim">
+  <div id="crateAnimBox">📦</div>
+  <div id="crateResult">
+    <div class="res-emoji" id="resEmoji"></div>
+    <div class="res-name" id="resName"></div>
+    <div class="res-hp" id="resHp"></div>
+    <div class="res-msg" id="resMsg"></div>
+  </div>
+  <button class="anim-btn" id="crateAnimBtn" onclick="closeCrateAnim()" style="display:none;">Continue</button>
+</div>
+
+<!-- UPGRADE OVERLAY -->
+<div id="upgradeOverlay">
+  <div id="upgradeModal">
+    <div class="upg-head"><span id="upgTitle">Upgrade</span><button class="picker-close" onclick="closeUpgrade()">✕</button></div>
+    <div class="upg-body">
+      <div class="upg-stat"><span>Current Level</span><span id="upgLevel"></span></div>
+      <div class="upg-stat"><span>Current HP</span><span id="upgCurHP"></span></div>
+      <div class="upg-stat"><span>HP After Upgrade</span><span id="upgNewHP"></span></div>
+      <div class="upg-stat"><span>Cost</span><span id="upgCost"></span></div>
+      <div class="upg-stat"><span>Your Trophies</span><span id="upgTrophies"></span></div>
+      <button class="upg-btn" id="upgDoBtn" onclick="doUpgrade()">Upgrade ⬆️</button>
+    </div>
+  </div>
+</div>
+
+<!-- OBJECT PICKER OVERLAY -->
+<div id="pickerOverlay">
+  <div id="pickerModal">
+    <div class="picker-head"><span>Choose an Object</span><button class="picker-close" onclick="closePicker()">✕</button></div>
+    <div class="picker-grid" id="pickerGrid"></div>
+  </div>
+</div>
+
+<!-- ===== SCREENS ===== -->
+
+<!-- HOME -->
+<div class="screen active" id="screenHome">
+  <h1>⚔️ Object Battle</h1>
+  <p class="sub">Collect objects, build your team, and fight!</p>
+  <div id="statsBar">
+    <div class="stat-chip">🏆 <span id="statTrophies">0</span> Trophies</div>
+    <div class="stat-chip">⚡ <span id="statPower">0</span> Power</div>
+  </div>
+  <div class="inline-grid" style="margin-bottom:10px;">
+    <button class="big-btn" onclick="showScreen('screenModeSelect')" style="margin-top:0;">⚔️ Fight</button>
+    <button class="big-btn" onclick="showScreen('screenCrates')" style="margin-top:0;background:linear-gradient(135deg,#d97706,#b45309);">📦 Crates</button>
+  </div>
+  <div class="inline-grid">
+    <button class="sec-btn" onclick="showScreen('screenMyObjects')" style="margin-top:0;">🎒 My Objects</button>
+    <button class="sec-btn" onclick="showScreen('screenTeam')" style="margin-top:0;">👥 My Team</button>
+  </div>
+</div>
+
+<!-- MODE SELECT -->
+<div class="screen" id="screenModeSelect">
+  <h1>Select Mode</h1>
+  <p class="sub">Harder modes give more rewards</p>
+  <div class="mode-grid" id="modeGrid"></div>
+  <button class="sec-btn" onclick="showScreen('screenHome')">← Back</button>
+</div>
+
+<!-- TEAM SELECT (before battle) -->
+<div class="screen" id="screenTeam">
+  <h1>👥 Team</h1>
+  <p class="sub">Pick 3 objects to fight with</p>
+  <div class="team-slots" id="teamSlots"></div>
+  <button class="big-btn" onclick="showScreen('screenHome')">✅ Done</button>
+  <button class="sec-btn" onclick="showScreen('screenHome')">← Back</button>
+</div>
+
+<!-- BATTLE -->
+<div class="screen" id="battleScreen">
+  <div class="battle-header">
+    <div class="opp-name" id="battleOppName"></div>
+    <div class="opp-mode" id="battleOppMode"></div>
+  </div>
+  <div class="battle-arena">
+    <div class="fighter-box player-side" id="playerFighterBox">
+      <span class="fighter-emoji" id="playerFighterEmoji"></span>
+      <div class="fighter-name" id="playerFighterName"></div>
+      <div class="fighter-hp-bar"><div class="fighter-hp-bar-fill" id="playerHpFill"></div></div>
+      <div class="fighter-hp-text" id="playerHpText"></div>
+    </div>
+    <div class="vs-badge">⚔️</div>
+    <div class="fighter-box enemy-side" id="enemyFighterBox">
+      <span class="fighter-emoji" id="enemyFighterEmoji"></span>
+      <div class="fighter-name" id="enemyFighterName"></div>
+      <div class="fighter-hp-bar"><div class="fighter-hp-bar-fill" id="enemyHpFill"></div></div>
+      <div class="fighter-hp-text" id="enemyHpText"></div>
+    </div>
+  </div>
+  <!-- Player pick row shown when fighter needs to be chosen -->
+  <div id="pickFighterRow" style="display:none;">
+    <p style="text-align:center;opacity:0.7;margin-bottom:8px;font-size:0.9em;">Choose your next fighter:</p>
+    <div class="pick-row" id="pickRow"></div>
+  </div>
+  <div class="battle-log" id="battleLog"></div>
+  <button class="big-btn" id="battleActionBtn" onclick="battleAction()">Roll Dice 🎲</button>
+</div>
+
+<!-- BATTLE RESULT -->
+<div class="screen" id="screenResult">
+  <div style="text-align:center;padding-top:20px;">
+    <div id="resultEmoji" style="font-size:5em;margin-bottom:16px;"></div>
+    <h1 id="resultTitle"></h1>
+    <p class="sub" id="resultSub"></p>
+    <div id="statsBar2" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:20px 0;">
+      <div class="stat-chip">🏆 <span id="resultTrophies"></span></div>
+      <div class="stat-chip">⚡ <span id="resultPower"></span></div>
+    </div>
+    <button class="big-btn" onclick="showScreen('screenHome')">🏠 Home</button>
+    <button class="sec-btn" onclick="rematch()">⚔️ Fight Again</button>
+  </div>
+</div>
+
+<!-- CRATES -->
+<div class="screen" id="screenCrates">
+  <h1>📦 Crates</h1>
+  <p class="sub">Open crates to get new objects</p>
+  <div id="statsBar3">
+    <div style="text-align:center;margin-bottom:16px;" class="stat-chip">🏆 <span id="crateStatTrophies">0</span> Trophies</div>
+  </div>
+  <div class="crate-grid" id="crateGrid"></div>
+  <button class="sec-btn" onclick="showScreen('screenHome')">← Back</button>
+</div>
+
+<!-- MY OBJECTS -->
+<div class="screen" id="screenMyObjects">
+  <h1>🎒 My Objects</h1>
+  <p class="sub">All your collected objects</p>
+  <div class="obj-list" id="objList"></div>
+  <button class="sec-btn" onclick="showScreen('screenHome')">← Back</button>
+</div>
+
+<script>
+// ===================== DATA =====================
+const OPPONENT_NAMES=['WrenIsOld','The Dairy King','Edunzie','Block Of Cheese','The Mind Of Orin','Zxno','Juju2y','Nathan','James','Bob Tim','Garry','Greg','Kyle','Nate','Kevin Hart','Charizard','Mr Clean','Henry','Iron Man','Poland','Sam','Ronald McDonald'];
+
+const MODES=[
+  {id:'easy',name:'Easy',emoji:'🟢',trophies:10,power:100,unlockHp:0,crateId:'easy'},
+  {id:'normal',name:'Normal',emoji:'🟡',trophies:100,power:1000,unlockHp:200,crateId:'normal'},
+  {id:'hard',name:'Hard',emoji:'🔴',trophies:1000,power:10000,unlockHp:2000,crateId:'hard'},
+  {id:'grandmaster',name:'Grandmaster',emoji:'👑',trophies:10000,power:100000,unlockHp:30000,crateId:'grandmaster'},
+];
+
+const OBJECTS_BY_CRATE={
+  easy:[
+    {id:'rock',name:'Rock',emoji:'🪨',hp:50},
+    {id:'pen',name:'Pen',emoji:'🖊️',hp:20},
+    {id:'pillow',name:'Pillow',emoji:'🛏️',hp:30},
+    {id:'shoe',name:'Shoe',emoji:'👟',hp:30},
+    {id:'soap',name:'Soap',emoji:'🧼',hp:10},
+    {id:'golfball',name:'Golf Ball',emoji:'⛳',hp:60},
+    {id:'rubber',name:'Rubber',emoji:'🧽',hp:5},
+    {id:'sandwich',name:'Sandwich',emoji:'🥪',hp:10},
+    {id:'ketchup',name:'Ketchup Bottle',emoji:'🍅',hp:70},
+    {id:'gum',name:'Chewing Gum',emoji:'🫧',hp:20},
+    {id:'cup',name:'Cup',emoji:'🥤',hp:50},
+    {id:'flyspray',name:'Fly Spray Can',emoji:'💨',hp:90},
+    {id:'blanket',name:'Blanket',emoji:'🛌',hp:20},
+    {id:'deodorant',name:'Deodorant',emoji:'🧴',hp:40},
+  ],
+  normal:[
+    {id:'tennisracket',name:'Tennis Racket',emoji:'🎾',hp:160},
+    {id:'metaljar',name:'Metal Jar',emoji:'🫙',hp:210},
+    {id:'scissors',name:'Scissors',emoji:'✂️',hp:120},
+    {id:'brick',name:'Brick',emoji:'🧱',hp:200},
+    {id:'plate',name:'Plate',emoji:'🍽️',hp:120},
+    {id:'ipad',name:'iPad',emoji:'📱',hp:220},
+    {id:'golfclub',name:'Golf Club',emoji:'🏌️',hp:250},
+    {id:'moonboot',name:'Moon Boot',emoji:'👢',hp:150},
+    {id:'mattress',name:'Mattress',emoji:'🛏️',hp:110},
+    {id:'metalruler',name:'Metal Ruler',emoji:'📏',hp:130},
+    {id:'woodenlog',name:'Wooden Log',emoji:'🪵',hp:240},
+    {id:'smokedetector',name:'Smoke Detector',emoji:'🔔',hp:100},
+    {id:'microphone',name:'Microphone',emoji:'🎤',hp:120},
+    {id:'shelf',name:'Shelf',emoji:'🗄️',hp:300},
+    {id:'coffeetable',name:'Coffee Table',emoji:'🪑',hp:600},
+  ],
+  hard:[
+    {id:'piano',name:'Piano',emoji:'🎹',hp:2900},
+    {id:'pistol',name:'Pistol',emoji:'🔫',hp:2100},
+    {id:'fridge',name:'Fridge',emoji:'🧊',hp:2500},
+    {id:'shower',name:'Shower',emoji:'🚿',hp:2000},
+    {id:'uranium',name:'Box of Uranium',emoji:'☢️',hp:2200},
+    {id:'sledgehammer',name:'Sledge Hammer',emoji:'🔨',hp:2300},
+    {id:'flamethrower',name:'Flamethrower',emoji:'🔥',hp:2350},
+    {id:'storagerack',name:'Storage Rack',emoji:'📦',hp:3500},
+    {id:'circustent',name:'Circus Tent',emoji:'🎪',hp:1800},
+    {id:'stairs',name:'Stairs',emoji:'🪜',hp:2250},
+    {id:'chainsaw',name:'Chainsaw',emoji:'🪚',hp:2345},
+  ],
+  grandmaster:[
+    {id:'garage',name:'Garage',emoji:'🏠',hp:30000},
+    {id:'tank',name:'Tank',emoji:'💣',hp:39000},
+    {id:'fighterjet',name:'Fighter Jet',emoji:'✈️',hp:45000},
+    {id:'house',name:'House',emoji:'🏡',hp:40000},
+    {id:'truck',name:'Truck',emoji:'🚛',hp:29000},
+    {id:'car',name:'Car',emoji:'🚗',hp:20000},
+    {id:'lambo',name:'Lamborghini',emoji:'🏎️',hp:26000},
+    {id:'tinyhome',name:'Tiny Home',emoji:'🏕️',hp:29500},
+    {id:'goldenbathroom',name:'Golden Bathroom',emoji:'🛁',hp:32000},
+    {id:'road',name:'Road',emoji:'🛣️',hp:38500},
+    {id:'bomberplane',name:'Bomber Plane',emoji:'💥',hp:54000},
+    {id:'littleboy',name:'Little Boy Nuke',emoji:'☣️',hp:60000},
+    {id:'missile',name:'Missile',emoji:'🚀',hp:37000},
+    {id:'minivan',name:'Minivan',emoji:'🚐',hp:24000},
+  ],
+};
+
+const CRATE_DEFS=[
+  {id:'easy',name:'Easy Crate',emoji:'📦',cost:30,unlockHp:0,tier:'easy'},
+  {id:'normal',name:'Normal Crate',emoji:'🗃️',cost:600,unlockHp:200,tier:'normal'},
+  {id:'hard',name:'Hard Crate',emoji:'💼',cost:9000,unlockHp:2000,tier:'hard'},
+  {id:'grandmaster',name:'Grandmaster Crate',emoji:'👑',cost:50000,unlockHp:30000,tier:'grandmaster'},
+];
+
+const SAVE_KEY='objectBattle_save';
+
+// ===================== STATE =====================
+let state={
+  trophies:0,
+  power:0,
+  inventory:{}, // id -> {id, name, emoji, baseHp, level, crate}
+  team:[null,null,null], // slot -> object id or null
+  battleMode:null,
+  battleState:null,
+};
+
+function saveState(){localStorage.setItem(SAVE_KEY,JSON.stringify(state));}
+function loadState(){
+  const s=localStorage.getItem(SAVE_KEY);
+  if(s){try{state=JSON.parse(s);}catch(e){}}
+  // Give starter objects if inventory is empty
+  if(Object.keys(state.inventory).length===0){
+    giveObject('rock','easy');
+    giveObject('pen','easy');
+    giveObject('pillow','easy');
+    state.team=[makeTeamEntry('rock'),makeTeamEntry('pen'),makeTeamEntry('pillow')];
+    saveState();
+  }
+}
+
+function makeTeamEntry(id){return id;}
+
+function giveObject(id, crateId){
+  const all=[...OBJECTS_BY_CRATE.easy,...OBJECTS_BY_CRATE.normal,...OBJECTS_BY_CRATE.hard,...OBJECTS_BY_CRATE.grandmaster];
+  const def=all.find(o=>o.id===id);
+  if(!def)return;
+  if(state.inventory[id]){
+    // duplicate -> half trophies of crate cost back
+    const crate=CRATE_DEFS.find(c=>c.id===crateId);
+    if(crate){state.trophies+=Math.floor(crate.cost/2);showToast(`Duplicate! +${Math.floor(crate.cost/2)} trophies`);}
+    return;
+  }
+  state.inventory[id]={id,name:def.name,emoji:def.emoji,baseHp:def.hp,level:1,crate:crateId};
+}
+
+function getObjectHp(id){
+  const obj=state.inventory[id];
+  if(!obj)return 0;
+  // HP = baseHp + (level-1)*floor(baseHp*0.15)
+  return Math.floor(obj.baseHp + (obj.level-1)*Math.floor(obj.baseHp*0.15));
+}
+
+function getUpgradeCost(id){
+  const obj=state.inventory[id];
+  if(!obj)return 0;
+  const crate=CRATE_DEFS.find(c=>c.id===obj.crate);
+  const base=crate?Math.floor(crate.cost*0.20):10;
+  // Level 1->2: base, then doubles each time
+  return Math.floor(base*Math.pow(2,obj.level-1));
+}
+
+function getMaxHpInInventory(){
+  let max=0;
+  for(const id in state.inventory){const h=getObjectHp(id);if(h>max)max=h;}
+  return max;
+}
+
+function isModeUnlocked(modeId){
+  const mode=MODES.find(m=>m.id===modeId);
+  if(!mode||mode.unlockHp===0)return true;
+  return getMaxHpInInventory()>=mode.unlockHp;
+}
+
+function isCrateUnlocked(crateId){
+  const crate=CRATE_DEFS.find(c=>c.id===crateId);
+  if(!crate||crate.unlockHp===0)return true;
+  return getMaxHpInInventory()>=crate.unlockHp;
+}
+
+// ===================== UI HELPERS =====================
+function goHome(){window.location.href='../index.html';}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='screenHome')renderHome();
+  if(id==='screenModeSelect')renderModes();
+  if(id==='screenTeam')renderTeam();
+  if(id==='screenCrates')renderCrates();
+  if(id==='screenMyObjects')renderMyObjects();
+}
+
+function renderHome(){
+  document.getElementById('statTrophies').textContent=state.trophies.toLocaleString();
+  document.getElementById('statPower').textContent=state.power.toLocaleString();
+}
+
+// ===================== MODE SELECT =====================
+function renderModes(){
+  const grid=document.getElementById('modeGrid');
+  grid.innerHTML='';
+  MODES.forEach(m=>{
+    const locked=!isModeUnlocked(m.id);
+    const div=document.createElement('div');
+    div.className='mode-card'+(locked?' locked':'');
+    const req=m.unlockHp>0?`Unlock: ${m.unlockHp.toLocaleString()}+ HP`:'Always available';
+    div.innerHTML=`<span class="mode-emoji">${m.emoji}</span><div class="mode-name">${m.name}</div><div class="mode-reward">+${m.trophies.toLocaleString()} 🏆 · +${m.power.toLocaleString()} ⚡</div><div style="font-size:0.72em;opacity:0.5;margin-top:2px;">${locked?req:''}</div>`;
+    if(!locked){div.onclick=()=>startBattle(m.id);}
+    grid.appendChild(div);
+  });
+}
+
+// ===================== TEAM =====================
+function renderTeam(){
+  const cont=document.getElementById('teamSlots');
+  cont.innerHTML='';
+  for(let i=0;i<3;i++){
+    const id=state.team[i];
+    const obj=id?state.inventory[id]:null;
+    const div=document.createElement('div');
+    div.className='slot-card'+(obj?' filled':'');
+    if(obj){
+      const hp=getObjectHp(id);
+      div.innerHTML=`<span class="slot-emoji">${obj.emoji}</span><div class="slot-name">${obj.name}</div><div class="slot-hp">${hp} HP</div><div class="slot-lvl">Lv.${obj.level}</div>`;
+    }else{
+      div.innerHTML=`<div style="font-size:2em;opacity:0.3;">+</div><div style="font-size:0.8em;opacity:0.4;">Empty</div>`;
+    }
+    const slot=i;
+    div.onclick=()=>openPicker(slot);
+    cont.appendChild(div);
+  }
+}
+
+// ===================== PICKER =====================
+let pickerSlot=-1;
+function openPicker(slot){
+  pickerSlot=slot;
+  const grid=document.getElementById('pickerGrid');
+  grid.innerHTML='';
+  Object.values(state.inventory).forEach(obj=>{
+    const hp=getObjectHp(obj.id);
+    const div=document.createElement('div');
+    div.className='picker-item';
+    div.innerHTML=`<div class="p-emoji">${obj.emoji}</div><div class="p-name">${obj.name}</div><div class="p-hp">${hp} HP</div><div class="p-lvl">Lv.${obj.level}</div>`;
+    div.onclick=()=>{state.team[pickerSlot]=obj.id;saveState();closePicker();renderTeam();};
+    grid.appendChild(div);
+  });
+  document.getElementById('pickerOverlay').classList.add('show');
+}
+function closePicker(){document.getElementById('pickerOverlay').classList.remove('show');}
+
+// ===================== CRATES =====================
+function renderCrates(){
+  document.getElementById('crateStatTrophies').textContent=state.trophies.toLocaleString();
+  const grid=document.getElementById('crateGrid');
+  grid.innerHTML='';
+  CRATE_DEFS.forEach(c=>{
+    const locked=!isCrateUnlocked(c.id);
+    const cantAfford=state.trophies<c.cost;
+    const div=document.createElement('div');
+    div.className='crate-card'+(locked?' locked':'');
+    const req=c.unlockHp>0?`Requires ${c.unlockHp.toLocaleString()}+ HP`:'';
+    div.innerHTML=`<div class="crate-emoji">${c.emoji}</div><div class="crate-name">${c.name}</div><div class="crate-cost">🏆 ${c.cost.toLocaleString()} trophies</div><div class="crate-req">${locked?req:(cantAfford?'Not enough trophies':'')}</div>`;
+    if(!locked&&!cantAfford){div.onclick=()=>openCrate(c.id);}
+    grid.appendChild(div);
+  });
+}
+
+function openCrate(crateId){
+  const crate=CRATE_DEFS.find(c=>c.id===crateId);
+  if(!crate||state.trophies<crate.cost)return;
+  state.trophies-=crate.cost;
+  saveState();
+
+  // Roll random object from that tier
+  const pool=OBJECTS_BY_CRATE[crate.tier];
+  const picked=pool[Math.floor(Math.random()*pool.length)];
+
+  // Animate
+  const anim=document.getElementById('crateAnim');
+  const box=document.getElementById('crateAnimBox');
+  const result=document.getElementById('crateResult');
+  const btn=document.getElementById('crateAnimBtn');
+  box.textContent=crate.emoji;
+  box.className='';box.style.animation='';
+  result.style.display='none';
+  btn.style.display='none';
+  anim.classList.add('show');
+
+  setTimeout(()=>{
+    box.classList.add('opening');
+    setTimeout(()=>{
+      box.style.display='none';
+      // Check duplicate before giving
+      const isDupe=!!state.inventory[picked.id];
+      giveObject(picked.id, crateId);
+      saveState();
+
+      document.getElementById('resEmoji').textContent=picked.emoji;
+      document.getElementById('resName').textContent=picked.name;
+      document.getElementById('resHp').textContent=picked.hp+' Base HP';
+      document.getElementById('resMsg').textContent=isDupe?`Duplicate! +${Math.floor(crate.cost/2)} 🏆 refunded`:'New object unlocked! 🎉';
+      result.style.display='block';
+      btn.style.display='inline-block';
+    },900);
+  },700);
+}
+
+function closeCrateAnim(){
+  document.getElementById('crateAnim').classList.remove('show');
+  document.getElementById('crateAnimBox').style.display='';
+  renderCrates();
+}
+
+// ===================== MY OBJECTS =====================
+function renderMyObjects(){
+  const list=document.getElementById('objList');
+  list.innerHTML='';
+  Object.values(state.inventory).forEach(obj=>{
+    const hp=getObjectHp(obj.id);
+    const cost=getUpgradeCost(obj.id);
+    const canUpg=obj.level<50&&state.trophies>=cost;
+    const div=document.createElement('div');
+    div.className='obj-card';
+    div.innerHTML=`<div class="oc-emoji">${obj.emoji}</div><div class="oc-name">${obj.name}</div><div class="oc-hp">${hp} HP</div><div class="oc-lvl">Lv.${obj.level}/50</div><button class="upg-btn-small" ${obj.level>=50?'disabled':''} onclick="openUpgrade('${obj.id}')">⬆️ Upgrade (${cost.toLocaleString()} 🏆)</button>`;
+    list.appendChild(div);
+  });
+}
+
+// ===================== UPGRADE =====================
+let upgradeId=null;
+function openUpgrade(id){
+  upgradeId=id;
+  const obj=state.inventory[id];
+  if(!obj)return;
+  const curHp=getObjectHp(id);
+  const gain=Math.floor(obj.baseHp*0.15);
+  const newHp=curHp+gain;
+  const cost=getUpgradeCost(id);
+  document.getElementById('upgTitle').textContent=`${obj.emoji} ${obj.name}`;
+  document.getElementById('upgLevel').textContent=`${obj.level}/50`;
+  document.getElementById('upgCurHP').textContent=curHp.toLocaleString();
+  document.getElementById('upgNewHP').textContent=newHp.toLocaleString();
+  document.getElementById('upgCost').textContent=cost.toLocaleString()+' 🏆';
+  document.getElementById('upgTrophies').textContent=state.trophies.toLocaleString();
+  const btn=document.getElementById('upgDoBtn');
+  btn.disabled=obj.level>=50||state.trophies<cost;
+  document.getElementById('upgradeOverlay').classList.add('show');
+}
+function closeUpgrade(){document.getElementById('upgradeOverlay').classList.remove('show');}
+function doUpgrade(){
+  const obj=state.inventory[upgradeId];
+  if(!obj||obj.level>=50)return;
+  const cost=getUpgradeCost(upgradeId);
+  if(state.trophies<cost){showToast('Not enough trophies!');return;}
+  state.trophies-=cost;
+  obj.level++;
+  saveState();
+  showToast(`${obj.emoji} ${obj.name} is now Level ${obj.level}!`);
+  openUpgrade(upgradeId);
+  renderMyObjects();
+}
+
+// ===================== BATTLE =====================
+function startBattle(modeId){
+  const mode=MODES.find(m=>m.id===modeId);
+  if(!mode)return;
+  // Validate team
+  const validTeam=state.team.filter(id=>id&&state.inventory[id]);
+  if(validTeam.length<3){showToast('You need 3 objects in your team! Go to My Team first.');showScreen('screenTeam');return;}
+
+  const oppName=OPPONENT_NAMES[Math.floor(Math.random()*OPPONENT_NAMES.length)];
+
+  // Build enemy team from same tier as mode
+  const enemyPool=OBJECTS_BY_CRATE[mode.crateId]||OBJECTS_BY_CRATE.easy;
+  const shuffled=[...enemyPool].sort(()=>Math.random()-0.5);
+  const enemyDefs=shuffled.slice(0,3);
+
+  // Scale enemy HP to be challenging based on mode (multiplier)
+  const scaleMult={easy:1,normal:3,hard:8,grandmaster:15}[modeId]||1;
+
+  const enemyTeam=enemyDefs.map(d=>({
+    id:d.id+'_enemy',name:d.name,emoji:d.emoji,
+    maxHp:Math.floor(d.hp*scaleMult),
+    currentHp:Math.floor(d.hp*scaleMult),
+  }));
+
+  // Player team
+  const playerTeam=validTeam.map(id=>{
+    const obj=state.inventory[id];
+    const hp=getObjectHp(id);
+    return{id,name:obj.name,emoji:obj.emoji,maxHp:hp,currentHp:hp};
+  });
+
+  state.battleMode=modeId;
+  state.battleState={
+    mode,oppName,
+    playerTeam:[...playerTeam],
+    enemyTeam:[...enemyTeam],
+    playerIdx:0,enemyIdx:0,
+    waitingForPlayerPick:false,
+    playerGotFirstHit:false,
+    phase:'roll', // 'roll' | 'pickFighter' | 'done'
+    log:[],
+  };
+  saveState();
+  renderBattle();
+  showScreen('battleScreen');
+}
+
+function renderBattle(){
+  const bs=state.battleState;
+  document.getElementById('battleOppName').textContent='⚔️ '+bs.oppName;
+  document.getElementById('battleOppMode').textContent=bs.mode.emoji+' '+bs.mode.name+' Mode';
+
+  const pf=bs.playerTeam[bs.playerIdx];
+  const ef=bs.enemyTeam[bs.enemyIdx];
+
+  // Player fighter
+  document.getElementById('playerFighterEmoji').textContent=pf?pf.emoji:'💀';
+  document.getElementById('playerFighterName').textContent=pf?pf.name:'Defeated';
+  if(pf){
+    const pPct=Math.max(0,(pf.currentHp/pf.maxHp)*100);
+    document.getElementById('playerHpFill').style.width=pPct+'%';
+    document.getElementById('playerHpFill').className='fighter-hp-bar-fill'+(pPct<30?' low':'');
+    document.getElementById('playerHpText').textContent=`${pf.currentHp}/${pf.maxHp} HP`;
+    document.getElementById('playerFighterBox').classList.remove('dead');
+  }else{
+    document.getElementById('playerHpFill').style.width='0%';
+    document.getElementById('playerHpText').textContent='0 HP';
+    document.getElementById('playerFighterBox').classList.add('dead');
+  }
+
+  // Enemy fighter
+  document.getElementById('enemyFighterEmoji').textContent=ef?ef.emoji:'💀';
+  document.getElementById('enemyFighterName').textContent=ef?ef.name:'Defeated';
+  if(ef){
+    const ePct=Math.max(0,(ef.currentHp/ef.maxHp)*100);
+    document.getElementById('enemyHpFill').style.width=ePct+'%';
+    document.getElementById('enemyHpFill').className='fighter-hp-bar-fill'+(ePct<30?' low':'');
+    document.getElementById('enemyHpText').textContent=`${ef.currentHp}/${ef.maxHp} HP`;
+    document.getElementById('enemyFighterBox').classList.remove('dead');
+  }else{
+    document.getElementById('enemyHpFill').style.width='0%';
+    document.getElementById('enemyHpText').textContent='0 HP';
+    document.getElementById('enemyFighterBox').classList.add('dead');
+  }
+
+  // Log
+  const logEl=document.getElementById('battleLog');
+  logEl.innerHTML=bs.log.map(l=>`<div class="log-entry ${l.cls||''}">${l.text}</div>`).join('');
+  logEl.scrollTop=logEl.scrollHeight;
+
+  // Action button
+  const btn=document.getElementById('battleActionBtn');
+  const pickRow=document.getElementById('pickFighterRow');
+
+  if(bs.phase==='pickFighter'){
+    btn.style.display='none';
+    pickRow.style.display='block';
+    renderPickRow();
+  }else if(bs.phase==='done'){
+    btn.style.display='none';
+    pickRow.style.display='none';
+  }else{
+    btn.style.display='block';
+    pickRow.style.display='none';
+    btn.textContent=bs.log.length===0?'Roll Dice to Start 🎲':'Roll Dice 🎲';
+  }
+}
+
+function renderPickRow(){
+  const bs=state.battleState;
+  const row=document.getElementById('pickRow');
+  row.innerHTML='';
+  bs.playerTeam.forEach((f,i)=>{
+    if(f.currentHp<=0)return;
+    const btn=document.createElement('button');
+    btn.className='pick-btn';
+    btn.innerHTML=`${f.emoji} ${f.name}<br><small>${f.currentHp} HP</small>`;
+    btn.onclick=()=>{bs.playerIdx=i;bs.phase='roll';bs.playerGotFirstHit=true;addLog(`You send in ${f.emoji} ${f.name}!`,'log-info');renderBattle();saveState();};
+    row.appendChild(btn);
+  });
+}
+
+function addLog(text,cls=''){state.battleState.log.push({text,cls});}
+
+function battleAction(){
+  const bs=state.battleState;
+  if(!bs||bs.phase!=='roll')return;
+
+  const pf=bs.playerTeam[bs.playerIdx];
+  const ef=bs.enemyTeam[bs.enemyIdx];
+
+  if(!pf||!ef){checkBattleEnd();return;}
+
+  if(bs.log.length===0){
+    // Dice roll for who goes first
+    const dice=Math.random()<0.5?'player':'enemy';
+    addLog(`🎲 Dice rolled... ${dice==='player'?'You go first!':bs.oppName+' goes first!'}`,dice==='player'?'log-info':'log-warn');
+    bs._turnOrder=dice;
+    renderBattle();saveState();
+    return;
+  }
+
+  // Handle first-hit bonus after enemy dies
+  if(bs.playerGotFirstHit){
+    bs.playerGotFirstHit=false;
+    // Player attacks enemy first
+    const dmg=pf.currentHp;
+    ef.currentHp=Math.max(0,ef.currentHp-dmg);
+    addLog(`${pf.emoji} ${pf.name} attacks ${ef.emoji} ${ef.name} for ${dmg} damage!`,'log-hit');
+    if(ef.currentHp<=0){
+      addLog(`${ef.emoji} ${ef.name} is defeated!`,'log-warn');
+      advanceEnemyTeam();
+    }
+    checkBattleEnd();
+    renderBattle();saveState();
+    return;
+  }
+
+  // Normal turn
+  const first=bs._turnOrder||'player';
+  if(first==='player'){
+    // Player hits enemy
+    const dmg1=pf.currentHp;
+    ef.currentHp=Math.max(0,ef.currentHp-dmg1);
+    addLog(`${pf.emoji} ${pf.name} attacks ${ef.emoji} ${ef.name} for ${dmg1} damage!`,'log-hit');
+    if(ef.currentHp<=0){
+      addLog(`${ef.emoji} ${ef.name} is defeated!`,'log-warn');
+      advanceEnemyTeam();
+      const nef=bs.enemyTeam[bs.enemyIdx];
+      if(nef){
+        // Player gets first hit next round
+        bs.playerGotFirstHit=true;
+        addLog(`${bs.oppName} sends in ${nef.emoji} ${nef.name}!`,'log-enemy-hit');
+      }
+    }else{
+      // Enemy retaliates
+      const dmg2=ef.currentHp;
+      pf.currentHp=Math.max(0,pf.currentHp-dmg2);
+      addLog(`${ef.emoji} ${ef.name} retaliates for ${dmg2} damage!`,'log-enemy-hit');
+      if(pf.currentHp<=0){
+        addLog(`${pf.emoji} ${pf.name} was knocked out!`,'log-warn');
+        advancePlayerTeam();
+      }
+    }
+    // Alternate turn order
+    bs._turnOrder='enemy';
+  }else{
+    // Enemy hits player
+    const dmg1=ef.currentHp;
+    pf.currentHp=Math.max(0,pf.currentHp-dmg1);
+    addLog(`${ef.emoji} ${ef.name} attacks ${pf.emoji} ${pf.name} for ${dmg1} damage!`,'log-enemy-hit');
+    if(pf.currentHp<=0){
+      addLog(`${pf.emoji} ${pf.name} was knocked out!`,'log-warn');
+      advancePlayerTeam();
+    }else{
+      // Player retaliates
+      const dmg2=pf.currentHp;
+      ef.currentHp=Math.max(0,ef.currentHp-dmg2);
+      addLog(`${pf.emoji} ${pf.name} retaliates for ${dmg2} damage!`,'log-hit');
+      if(ef.currentHp<=0){
+        addLog(`${ef.emoji} ${ef.name} is defeated!`,'log-warn');
+        advanceEnemyTeam();
+        const nef=bs.enemyTeam[bs.enemyIdx];
+        if(nef){
+          bs.playerGotFirstHit=true;
+          addLog(`${bs.oppName} sends in ${nef.emoji} ${nef.name}!`,'log-enemy-hit');
+        }
+      }
+    }
+    bs._turnOrder='player';
+  }
+
+  checkBattleEnd();
+  renderBattle();
+  saveState();
+}
+
+function advanceEnemyTeam(){
+  const bs=state.battleState;
+  bs.enemyIdx++;
+}
+function advancePlayerTeam(){
+  const bs=state.battleState;
+  // Check if more alive player fighters remain
+  const remaining=bs.playerTeam.filter((f,i)=>i>bs.playerIdx&&f.currentHp>0);
+  if(remaining.length>0){
+    bs.phase='pickFighter';
+  }else{
+    // Also check current
+    const any=bs.playerTeam.some((f,i)=>i!==bs.playerIdx&&f.currentHp>0);
+    if(!any){bs.phase='done';}
+    else{bs.phase='pickFighter';}
+  }
+}
+
+function checkBattleEnd(){
+  const bs=state.battleState;
+  const allEnemyDead=bs.enemyTeam.every(f=>f.currentHp<=0);
+  const allPlayerDead=bs.playerTeam.every(f=>f.currentHp<=0);
+  if(allEnemyDead){
+    bs.phase='done';
+    const mode=bs.mode;
+    state.trophies+=mode.trophies;
+    state.power+=mode.power;
+    saveState();
+    addLog(`🎉 You won! +${mode.trophies} 🏆 +${mode.power} ⚡`,'log-info');
+    setTimeout(()=>{showResult(true,mode);},800);
+  }else if(allPlayerDead){
+    bs.phase='done';
+    addLog('💀 You were defeated...'  ,'log-enemy-hit');
+    setTimeout(()=>{showResult(false,bs.mode);},800);
+  }
+}
+
+function showResult(won, mode){
+  document.getElementById('resultEmoji').textContent=won?'🏆':'💀';
+  document.getElementById('resultTitle').textContent=won?'Victory!':'Defeated!';
+  document.getElementById('resultSub').textContent=won?`You beat ${state.battleState.oppName}!`:`You lost to ${state.battleState.oppName}.`;
+  document.getElementById('resultTrophies').textContent=state.trophies.toLocaleString()+' total';
+  document.getElementById('resultPower').textContent=state.power.toLocaleString()+' total';
+  showScreen('screenResult');
+}
+
+function rematch(){
+  if(state.battleMode)startBattle(state.battleMode);
+  else showScreen('screenModeSelect');
+}
+
+// ===================== INIT =====================
+loadState();
+showScreen('screenHome');
+</script>
+</body>
+</html>
