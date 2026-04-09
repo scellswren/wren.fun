@@ -58,6 +58,7 @@
     body.mode-galaxy{background:radial-gradient(circle at 18% 20%,rgba(140,88,255,0.38) 0%,transparent 22%),radial-gradient(circle at 76% 24%,rgba(76,181,255,0.30) 0%,transparent 24%),linear-gradient(180deg,#040011 0%,#0a0630 42%,#02040b 100%);color:#f7f4ff;}
     body.mode-galaxy::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 18% 26%,rgba(255,255,255,0.18) 0 1px,transparent 2px),radial-gradient(circle at 34% 64%,rgba(255,255,255,0.12) 0 1px,transparent 2px),radial-gradient(circle at 52% 18%,rgba(255,255,255,0.20) 0 1px,transparent 2px),radial-gradient(circle at 72% 38%,rgba(255,255,255,0.14) 0 1px,transparent 2px),radial-gradient(circle at 84% 72%,rgba(255,255,255,0.16) 0 1px,transparent 2px),radial-gradient(circle at 12% 82%,rgba(255,255,255,0.12) 0 1px,transparent 2px),radial-gradient(circle at 60% 82%,rgba(255,255,255,0.14) 0 1px,transparent 2px);background-size:240px 240px,320px 320px,380px 380px,460px 460px,520px 520px,610px 610px,700px 700px;opacity:0.9;pointer-events:none;z-index:0;}
 
+
     body.mode-blackhole{
       --accent:#ffb34d;
       background:
@@ -129,14 +130,15 @@
     body.mode-blackhole .mini-btn{
       position:relative;
       isolation:isolate;
-      overflow:hidden;
+      overflow:visible;
       background:
         radial-gradient(circle at 50% 18%, rgba(255,186,92,0.08) 0 18%, transparent 28%),
         linear-gradient(180deg,#141414 0%,#060606 100%);
       color:#fff0d7;
       box-shadow:
         0 10px 26px rgba(0,0,0,0.52),
-        inset 0 0 0 1px rgba(255,188,88,0.10),
+        0 0 0 1px rgba(255,194,104,0.08),
+        0 0 14px rgba(255,150,40,0.10),
         inset 0 0 20px rgba(255,140,20,0.05);
       border:1px solid rgba(255,186,92,0.15);
     }
@@ -147,28 +149,32 @@
     body.mode-blackhole .mini-btn::before{
       content:'';
       position:absolute;
-      inset:0;
-      padding:2px;
+      inset:-10px;
       border-radius:inherit;
-      background:conic-gradient(
-        from 0deg,
-        rgba(255,194,104,0) 0deg 12deg,
-        rgba(255,194,104,0.95) 14deg 20deg,
-        rgba(255,138,40,0.96) 22deg 30deg,
-        rgba(255,234,165,0.45) 34deg 42deg,
-        rgba(255,178,76,0.98) 46deg 58deg,
-        rgba(255,122,22,0.96) 60deg 70deg,
-        rgba(255,210,120,0.20) 74deg 84deg,
-        rgba(255,194,104,0) 86deg 360deg
-      );
-      animation:blackholeBorderSpin 2.6s linear infinite;
-      pointer-events:none;
-      -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      padding:4px;
+      background:
+        conic-gradient(
+          from 0deg,
+          rgba(255,194,104,0.00) 0deg,
+          rgba(255,194,104,0.10) 18deg,
+          rgba(255,232,170,0.92) 34deg,
+          rgba(255,164,58,0.98) 58deg,
+          rgba(255,120,20,0.90) 84deg,
+          rgba(255,194,104,0.10) 110deg,
+          rgba(255,194,104,0.00) 150deg,
+          rgba(255,194,104,0.00) 360deg
+        );
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
       -webkit-mask-composite:xor;
       mask-composite:exclude;
-      z-index:0;
-      filter:drop-shadow(0 0 10px rgba(255,164,58,0.34));
+      pointer-events:none;
       transform:translateZ(0);
+      filter:
+        drop-shadow(0 0 10px rgba(255,164,58,0.45))
+        drop-shadow(0 0 18px rgba(255,120,20,0.20));
+      animation:blackholeRingSpin 2.8s linear infinite;
     }
     body.mode-blackhole .btn:hover,
     body.mode-blackhole .settings-action-btn:hover,
@@ -177,7 +183,7 @@
     body.mode-blackhole .mini-btn:hover{
       box-shadow:
         0 14px 34px rgba(0,0,0,0.62),
-        inset 0 0 0 1px rgba(255,200,120,0.16),
+        0 0 0 1px rgba(255,200,120,0.16),
         0 0 18px rgba(255,148,28,0.12);
       transform:translateY(-1px);
     }
@@ -212,11 +218,12 @@
       0%,100%{filter:brightness(1);}
       50%{filter:brightness(1.08);}
     }
-    @keyframes blackholeBorderSpin{
+    @keyframes blackholeRingSpin{
       0%{transform:rotate(0deg);}
       100%{transform:rotate(360deg);}
     }
-    body.mode-bronze{background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transparent 34%),radial-gradient(circle at 80% 68%,rgba(180,100,30,0.44) 0%,transparent 38%),radial-gradient(circle at 55% 15%,rgba(255,200,140,0.24) 0%,transparent 32%),linear-gradient(180deg,#2a1200 0%,#5c2e00 45%,#1a0b00 100%);color:#ffeedd;}background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transparent 34%),radial-gradient(circle at 80% 68%,rgba(180,100,30,0.44) 0%,transparent 38%),radial-gradient(circle at 55% 15%,rgba(255,200,140,0.24) 0%,transparent 32%),linear-gradient(180deg,#2a1200 0%,#5c2e00 45%,#1a0b00 100%);color:#ffeedd;}
+    body.mode-bronze{
+background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transparent 34%),radial-gradient(circle at 80% 68%,rgba(180,100,30,0.44) 0%,transparent 38%),radial-gradient(circle at 55% 15%,rgba(255,200,140,0.24) 0%,transparent 32%),linear-gradient(180deg,#2a1200 0%,#5c2e00 45%,#1a0b00 100%);color:#ffeedd;}background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transparent 34%),radial-gradient(circle at 80% 68%,rgba(180,100,30,0.44) 0%,transparent 38%),radial-gradient(circle at 55% 15%,rgba(255,200,140,0.24) 0%,transparent 32%),linear-gradient(180deg,#2a1200 0%,#5c2e00 45%,#1a0b00 100%);color:#ffeedd;}
     body.mode-silver{background:radial-gradient(circle at 20% 20%,rgba(220,230,240,0.50) 0%,transparent 34%),radial-gradient(circle at 80% 70%,rgba(140,160,180,0.40) 0%,transparent 40%),radial-gradient(circle at 55% 15%,rgba(255,255,255,0.30) 0%,transparent 32%),linear-gradient(180deg,#1a1f26 0%,#2e3a48 45%,#0d1117 100%);color:#e8f0f8;}
     body.mode-gold{background:radial-gradient(circle at 18% 18%,rgba(255,248,180,0.48) 0%,transparent 28%),radial-gradient(circle at 80% 22%,rgba(255,200,60,0.38) 0%,transparent 28%),radial-gradient(circle at 74% 72%,rgba(220,140,20,0.38) 0%,transparent 34%),radial-gradient(circle at 24% 76%,rgba(255,220,100,0.30) 0%,transparent 30%),linear-gradient(180deg,#3a2200 0%,#6e4400 42%,#1e1000 100%);color:#fff9e0;}
     body.mode-radioactive{background:radial-gradient(circle at 20% 25%,rgba(100,255,60,0.42) 0%,transparent 34%),radial-gradient(circle at 80% 68%,rgba(50,200,0,0.48) 0%,transparent 38%),radial-gradient(circle at 55% 15%,rgba(180,255,80,0.26) 0%,transparent 32%),linear-gradient(180deg,#001a00 0%,#042600 45%,#000d00 100%);color:#ccffcc;}
