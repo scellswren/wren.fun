@@ -180,8 +180,8 @@
       display:none;
       position:fixed;
       bottom:0;left:0;right:0;
-      background:linear-gradient(90deg,rgba(34,197,94,0.18),rgba(56,189,248,0.12),rgba(34,197,94,0.18));
-      border-top:1px solid rgba(34,197,94,0.35);
+      background:linear-gradient(90deg,rgba(34,197,94,0.12),rgba(56,189,248,0.08),rgba(34,197,94,0.12));
+      border-top:1px solid rgba(34,197,94,0.25);
       padding:7px 16px;
       text-align:center;
       font-size:0.82em;
@@ -189,9 +189,8 @@
       color:#86efac;
       z-index:999;
       letter-spacing:0.03em;
-      animation:boostGlow 2.5s ease-in-out infinite;
+      box-shadow:0 -1px 0 rgba(0,0,0,0.25);
     }
-    @keyframes boostGlow{0%,100%{background:linear-gradient(90deg,rgba(34,197,94,0.15),rgba(56,189,248,0.10),rgba(34,197,94,0.15))}50%{background:linear-gradient(90deg,rgba(34,197,94,0.30),rgba(56,189,248,0.20),rgba(34,197,94,0.30))}}
     #boostBanner.show{ display:block; }
 
     .screen{
@@ -296,8 +295,9 @@
       font-weight:700;
       margin-top:4px;
     }
-    .mode-card .mode-emoji,.crate-card .crate-emoji,.obj-card .oc-emoji,.picker-item .p-emoji,.preview-item .pi-emoji{font-size:2.2em;display:block;margin-bottom:6px;}
+    .mode-card .mode-emoji,.crate-card .crate-emoji,.obj-card .oc-emoji,.picker-item .p-emoji,.preview-item .pi-emoji{font-size:2.55em;display:block;margin-bottom:6px;}
     .mode-name,.crate-name,.oc-name,.p-name,.pi-name,.slot-name,.fighter-name{font-family:'Russo One',sans-serif;}
+.p-name,.pi-name{font-size:0.95em;line-height:1.15;word-break:break-word;}
     .mode-reward,.crate-cost,.crate-req,.oc-hp,.oc-lvl,.p-hp,.p-lvl,.pi-hp,.slot-hp,.slot-lvl,.fighter-hp-text{font-size:0.72em;color:var(--muted);}
     .mode-card{padding:20px;}
     .mode-card .mode-name{font-size:1.1em;}
@@ -337,6 +337,7 @@
     body.theme-ketchup .modal{ background:#160000; border-color:rgba(239,68,68,0.3); }
     body.theme-lightning .modal{ background:#00101e; border-color:rgba(56,189,248,0.3); }
     .modal.small{width:min(420px,calc(100vw - 32px));}
+.picker-overlay .modal{width:min(860px,calc(100vw - 32px));}
     .modal-head{
       padding:14px 18px;border-bottom:1px solid var(--border);
       display:flex;align-items:center;justify-content:space-between;
@@ -350,10 +351,35 @@
       font-family:'Exo 2',sans-serif;font-weight:700;
     }
     .picker-grid,.preview-grid{
-      overflow-y:auto;padding:14px;
-      display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;
+      overflow-y:auto;
+      padding:16px;
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+      gap:10px;
+      max-height:calc(82vh - 58px);
+      scrollbar-width:thin;
+      scrollbar-color:#000 rgba(255,255,255,0.10);
     }
-    .picker-item,.preview-item{padding:10px 6px;border-radius:12px;border:1px solid var(--border);}
+    .picker-grid::-webkit-scrollbar,.preview-grid::-webkit-scrollbar{
+      width:10px;
+    }
+    .picker-grid::-webkit-scrollbar-track,.preview-grid::-webkit-scrollbar-track{
+      background:rgba(255,255,255,0.06);
+      border-radius:999px;
+    }
+    .picker-grid::-webkit-scrollbar-thumb,.preview-grid::-webkit-scrollbar-thumb{
+      background:#000;
+      border-radius:999px;
+      border:2px solid rgba(255,255,255,0.06);
+    }
+    .picker-grid::-webkit-scrollbar-thumb:hover,.preview-grid::-webkit-scrollbar-thumb:hover{
+      background:#111;
+    }
+    .picker-item,.preview-item{
+      padding:14px 8px;
+      border-radius:14px;
+      border:1px solid var(--border);
+    }
     .picker-item.already-in-team::after,.preview-item.owned::after{
       display:block;font-size:0.6em;color:var(--accent1);font-weight:700;margin-top:2px;
     }
@@ -705,6 +731,23 @@
   </div>
 </div>
 
+
+<!-- ===== GRANDMASTER CHOICE OVERLAY ===== -->
+<div class="code-overlay" id="grandmasterOverlay">
+  <div class="modal small">
+    <div class="modal-head">
+      <span>👑 Grandmaster Level</span>
+      <button class="close-btn" onclick="closeGrandmasterOverlay()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--muted);font-size:0.85em;margin-bottom:12px;text-align:center;">Pick which Grandmaster level you want to fight.</p>
+      <button class="big-btn" onclick="startGrandmasterBattle(1)" style="margin-top:0;">Level 1 · 10,000 🏆 · 100,000 ⚡</button>
+      <button class="big-btn" onclick="startGrandmasterBattle(10)" style="margin-top:10px;background:linear-gradient(135deg,#6b7280,#374151);">Level 10 · 20,000 🏆 · 200,000 ⚡</button>
+      <button class="big-btn" onclick="startGrandmasterBattle(50)" style="margin-top:10px;background:linear-gradient(135deg,#111827,#030712);">Level 50 · 50,000 🏆 · 500,000 ⚡</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== HOME ===== -->
 <div class="screen active" id="screenHome">
   <h1>⚔️ Object Attack</h1>
@@ -879,24 +922,6 @@ const STARTER_CHOICES=[
 ];
 
 const REDEEM_CODES={
-  'lolly123':{
-    reward:'unlock_everything_level_50',
-    label:'🎁 All objects unlocked at Level 50!',
-    onRedeem(state){
-      const allObjects=[...OBJECTS_BY_CRATE.easy,...OBJECTS_BY_CRATE.normal,...OBJECTS_BY_CRATE.hard,...OBJECTS_BY_CRATE.grandmaster];
-      allObjects.forEach(obj=>{
-        state.inventory[obj.id]={
-          id:obj.id,
-          name:obj.name,
-          emoji:obj.emoji,
-          baseHp:obj.hp,
-          level:50,
-          crate:'code'
-        };
-      });
-      state.starterChosen=true;
-    }
-  },
   'GorillaManYay662':{
     reward:'trophy_boost_1_5x',
     label:'🦍 Permanent 1.5x Trophy Boost!',
@@ -1124,6 +1149,17 @@ function renderHome(){
   checkAndApplyTheme();
 }
 
+function openGrandmasterOverlay(){
+  document.getElementById('grandmasterOverlay').classList.add('show');
+}
+function closeGrandmasterOverlay(){
+  document.getElementById('grandmasterOverlay').classList.remove('show');
+}
+function startGrandmasterBattle(level){
+  closeGrandmasterOverlay();
+  startBattle(`grandmaster_${level}`);
+}
+
 /* ============================================================
    MODES
 ============================================================ */
@@ -1136,8 +1172,10 @@ function renderModes(){
     div.className='mode-card'+(locked?' locked':'');
     const req=m.unlockHp>0?`Unlock: ${m.unlockHp.toLocaleString()}+ HP`:'Always available';
     const boost=state.trophyBoost&&state.trophyBoost>1?`<div style="font-size:0.65em;color:#86efac;margin-top:2px;">×${state.trophyBoost} boost active!</div>`:'';
-    div.innerHTML=`<span class="mode-emoji">${m.emoji}</span><div class="mode-name">${m.name}</div><div class="mode-reward">+${m.trophies.toLocaleString()} 🏆 · +${m.power.toLocaleString()} ⚡</div><div style="font-size:0.7em;color:var(--muted);margin-top:3px;">${locked?req:''}</div>${boost}`;
-    if(!locked)div.onclick=()=>startBattle(m.id);
+    const rewardText=m.id==='grandmaster'?'Choose Level 1 / 10 / 50':`+${m.trophies.toLocaleString()} 🏆 · +${m.power.toLocaleString()} ⚡`;
+    const extraText=m.id==='grandmaster'?'Tap to pick a Grandmaster level':(locked?req:'');
+    div.innerHTML=`<span class="mode-emoji">${m.emoji}</span><div class="mode-name">${m.name}</div><div class="mode-reward">${rewardText}</div><div style="font-size:0.7em;color:var(--muted);margin-top:3px;">${extraText}</div>${boost}`;
+    if(!locked)div.onclick=()=>m.id==='grandmaster'?openGrandmasterOverlay():startBattle(m.id);
     grid.appendChild(div);
   });
 }
@@ -1386,8 +1424,13 @@ function doUpgrade(){
    BATTLE START
 ============================================================ */
 function startBattle(modeId){
-  const mode=MODES.find(m=>m.id===modeId);
-  if(!mode)return;
+  const isGrandmasterChoice=typeof modeId==='string'&&modeId.startsWith('grandmaster_');
+  const gmLevel=isGrandmasterChoice?Number(modeId.split('_')[1]||1):1;
+  const baseMode=MODES.find(m=>m.id===(isGrandmasterChoice?'grandmaster':modeId));
+  if(!baseMode)return;
+  const mode=isGrandmasterChoice
+    ?{...baseMode,name:`Grandmaster Level ${gmLevel}`,trophies:gmLevel===10?20000:gmLevel===50?50000:10000,power:gmLevel===10?200000:gmLevel===50?500000:100000}
+    :baseMode;
   const validTeam=state.team.filter(id=>id&&state.inventory[id]);
   if(validTeam.length<3){showToast('You need 3 objects in your team!');showScreen('screenTeam');return;}
   consecutivePlayerHits=0;
@@ -1397,7 +1440,7 @@ function startBattle(modeId){
   const enemyDefs=shuffled.slice(0,3);
   const enemyTeam=enemyDefs.map(d=>({id:d.id+'_enemy',name:d.name,emoji:d.emoji,maxHp:d.hp,currentHp:d.hp}));
   const playerTeam=validTeam.map(id=>{const obj=state.inventory[id];const hp=getObjectHp(id);return {id,name:obj.name,emoji:obj.emoji,maxHp:hp,currentHp:hp};});
-  state.battleMode=modeId;
+  state.battleMode=isGrandmasterChoice?`grandmaster_${gmLevel}`:modeId;
   state.battleState={mode,oppName,playerTeam:[...playerTeam],enemyTeam:[...enemyTeam],playerIdx:0,enemyIdx:0,currentTurn:'player',phase:'fight',isFirstTurn:true,log:[]};
   saveState();
   renderBattle();
