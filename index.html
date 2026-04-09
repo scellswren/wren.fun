@@ -5,9 +5,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="Favicon.png">
   <style>
-    :root { --accent:#7c3aed; --transition:0.45s cubic-bezier(0.4,0,0.2,1); --page-brightness:1; }
+    :root {
+      --accent:#7c3aed;
+      --transition:0.45s cubic-bezier(0.4,0,0.2,1);
+      --page-brightness:1;
+      --scroll-track:rgba(255,255,255,0.14);
+      --scroll-thumb:rgba(124,58,237,0.72);
+      --scroll-thumb-hover:rgba(124,58,237,0.92);
+    }
     *{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'Rubik',sans-serif;text-align:center;min-height:100vh;transition:background var(--transition),color var(--transition),filter 0.22s ease;overflow-x:hidden;filter:brightness(var(--page-brightness));}
+    body{font-family:'Rubik',sans-serif;text-align:center;min-height:100vh;transition:background var(--transition),color var(--transition),filter 0.22s ease;overflow-x:hidden;overflow-y:auto;filter:brightness(var(--page-brightness));scrollbar-gutter:stable;}
+
+    html{scrollbar-color:var(--scroll-thumb) var(--scroll-track);}
+    ::-webkit-scrollbar{width:10px;height:10px;}
+    ::-webkit-scrollbar-track{background:var(--scroll-track);}
+    ::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:999px;border:2px solid var(--scroll-track);}
+    ::-webkit-scrollbar-thumb:hover{background:var(--scroll-thumb-hover);}
+
     body.mode-light{background:#f5f5f7;color:#1d1d1f;}
     body.mode-dark{background:#0a0a0f;color:#f0f0f0;}
     body.mode-rainbow{animation:rainbowBG 10s linear infinite;color:#111;}
@@ -56,14 +70,16 @@
     body.mode-money{background:radial-gradient(circle at 18% 18%,rgba(50,200,80,0.40) 0%,transparent 28%),radial-gradient(circle at 80% 22%,rgba(30,180,60,0.34) 0%,transparent 28%),radial-gradient(circle at 74% 72%,rgba(80,220,100,0.34) 0%,transparent 34%),radial-gradient(circle at 24% 76%,rgba(50,200,80,0.28) 0%,transparent 30%),linear-gradient(180deg,#001a08 0%,#003010 42%,#000c04 100%);color:#d4ffdd;}
     body.mode-whiteneon{
       background:
-        radial-gradient(circle at 18% 18%,rgba(255,255,255,0.98) 0%,transparent 22%),
-        radial-gradient(circle at 82% 22%,rgba(255,255,255,0.90) 0%,transparent 18%),
-        radial-gradient(circle at 74% 72%,rgba(120,220,255,0.28) 0%,transparent 24%),
-        radial-gradient(circle at 24% 76%,rgba(255,120,240,0.24) 0%,transparent 22%),
-        radial-gradient(circle at 50% 50%,rgba(255,255,255,0.20) 0%,transparent 42%),
-        linear-gradient(180deg,#ffffff 0%,#fbfdff 42%,#eef8ff 100%);
-      color:#0d1726;
-      animation:whiteNeonPulse 6s ease-in-out infinite;
+        radial-gradient(circle at 18% 18%,rgba(255,255,255,1) 0%,transparent 20%),
+        radial-gradient(circle at 82% 22%,rgba(255,255,255,0.98) 0%,transparent 16%),
+        radial-gradient(circle at 74% 72%,rgba(255,255,255,0.80) 0%,transparent 26%),
+        radial-gradient(circle at 24% 76%,rgba(210,245,255,0.55) 0%,transparent 22%),
+        radial-gradient(circle at 50% 50%,rgba(255,255,255,0.88) 0%,transparent 36%),
+        radial-gradient(circle at 12% 48%,rgba(120,220,255,0.34) 0%,transparent 18%),
+        radial-gradient(circle at 86% 58%,rgba(255,120,240,0.26) 0%,transparent 18%),
+        linear-gradient(180deg,#ffffff 0%,#ffffff 36%,#f5fcff 72%,#ffffff 100%);
+      color:#08111f;
+      animation:whiteNeonPulse 4.5s ease-in-out infinite;
     }
     body.mode-whiteneon::before{
       content:'';
@@ -72,15 +88,65 @@
       pointer-events:none;
       z-index:0;
       background:
-        linear-gradient(120deg,rgba(255,255,255,0.00) 0%,rgba(255,255,255,0.35) 16%,rgba(255,255,255,0.00) 32%,rgba(120,220,255,0.16) 48%,rgba(255,255,255,0.00) 64%,rgba(255,120,240,0.12) 80%,rgba(255,255,255,0.00) 100%),
-        repeating-linear-gradient(180deg,rgba(255,255,255,0.00) 0px,rgba(255,255,255,0.00) 26px,rgba(120,220,255,0.09) 27px,rgba(255,255,255,0.00) 29px);
-      opacity:0.9;
-      animation:whiteNeonScan 8s linear infinite;
+        linear-gradient(120deg,rgba(255,255,255,0.00) 0%,rgba(255,255,255,0.60) 14%,rgba(255,255,255,0.00) 26%,rgba(120,220,255,0.22) 42%,rgba(255,255,255,0.00) 58%,rgba(255,120,240,0.18) 74%,rgba(255,255,255,0.00) 100%),
+        repeating-linear-gradient(180deg,rgba(255,255,255,0.00) 0px,rgba(255,255,255,0.00) 22px,rgba(180,240,255,0.14) 23px,rgba(255,255,255,0.00) 26px);
+      opacity:0.95;
+      animation:whiteNeonScan 7s linear infinite;
       mix-blend-mode:screen;
     }
-    @keyframes whiteNeonPulse{0%,100%{filter:brightness(1) saturate(1.05)}50%{filter:brightness(1.12) saturate(1.22)}}
-    @keyframes whiteNeonScan{0%{transform:translateY(-6%)}100%{transform:translateY(6%)}}
+    body.mode-whiteneon::after{
+      content:'';
+      position:fixed;
+      inset:-20%;
+      pointer-events:none;
+      z-index:0;
+      background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.35) 0%,transparent 22%),radial-gradient(circle at 70% 70%,rgba(120,220,255,0.18) 0%,transparent 20%);
+      opacity:0.7;
+      animation:whiteNeonGlow 10s ease-in-out infinite;
+      mix-blend-mode:screen;
+    }
+    @keyframes whiteNeonPulse{0%,100%{filter:brightness(1.04) saturate(1.08)}50%{filter:brightness(1.22) saturate(1.25)}}
+    @keyframes whiteNeonScan{0%{transform:translateY(-8%) translateX(-1%)}50%{transform:translateY(0%) translateX(1%)}100%{transform:translateY(8%) translateX(-1%)}}
+    @keyframes whiteNeonGlow{0%,100%{transform:scale(1) rotate(0deg)}50%{transform:scale(1.05) rotate(1deg)}}
     body.mode-luxurious{--accent:#d4af37;background:radial-gradient(circle at 18% 18%,rgba(212,175,55,0.16) 0%,transparent 28%),radial-gradient(circle at 82% 22%,rgba(167,139,250,0.12) 0%,transparent 26%),radial-gradient(circle at 72% 74%,rgba(212,175,55,0.10) 0%,transparent 30%),radial-gradient(circle at 24% 78%,rgba(167,139,250,0.08) 0%,transparent 26%),linear-gradient(180deg,#050505 0%,#0b0910 45%,#000000 100%);color:#f5ecff;}
+    body.mode-ice{
+      background:
+        radial-gradient(circle at 18% 18%,rgba(255,255,255,1) 0%,transparent 20%),
+        radial-gradient(circle at 80% 22%,rgba(180,235,255,0.70) 0%,transparent 18%),
+        radial-gradient(circle at 74% 72%,rgba(140,210,255,0.48) 0%,transparent 24%),
+        radial-gradient(circle at 24% 76%,rgba(255,255,255,0.60) 0%,transparent 20%),
+        linear-gradient(180deg,#f7fdff 0%,#dff4ff 45%,#b9e6ff 100%);
+      color:#06131f;
+      animation:icePulse 6s ease-in-out infinite;
+    }
+    body.mode-ice::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+      background:
+        linear-gradient(135deg,rgba(255,255,255,0.00) 0%,rgba(255,255,255,0.42) 16%,rgba(255,255,255,0.00) 33%,rgba(140,210,255,0.18) 50%,rgba(255,255,255,0.00) 66%,rgba(255,255,255,0.20) 82%,rgba(255,255,255,0.00) 100%),
+        repeating-linear-gradient(180deg,rgba(255,255,255,0.00) 0px,rgba(255,255,255,0.00) 28px,rgba(140,210,255,0.09) 29px,rgba(255,255,255,0.00) 32px);
+      opacity:0.9;
+      animation:iceDrift 10s linear infinite;
+      mix-blend-mode:screen;
+    }
+    body.mode-ice::after{
+      content:'';
+      position:fixed;
+      inset:-20%;
+      pointer-events:none;
+      z-index:0;
+      background:radial-gradient(circle at 20% 30%,rgba(255,255,255,0.28) 0%,transparent 18%),radial-gradient(circle at 78% 66%,rgba(180,235,255,0.24) 0%,transparent 20%);
+      opacity:0.75;
+      animation:iceGlow 12s ease-in-out infinite;
+      mix-blend-mode:screen;
+    }
+    @keyframes icePulse{0%,100%{filter:brightness(1.02) saturate(1.04)}50%{filter:brightness(1.12) saturate(1.16)}}
+    @keyframes iceDrift{0%{transform:translateY(-7%) translateX(0)}50%{transform:translateY(0) translateX(1.5%)}100%{transform:translateY(7%) translateX(0)}}
+    @keyframes iceGlow{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+
     body.mode-day{background:#d4eaff;color:#0f1a2e;}
     body.mode-night{background:radial-gradient(circle at 18% 20%,rgba(90,110,170,0.28) 0%,transparent 30%),radial-gradient(circle at 78% 26%,rgba(120,90,220,0.20) 0%,transparent 28%),radial-gradient(circle at 50% 92%,rgba(30,50,90,0.22) 0%,transparent 35%),linear-gradient(180deg,#04060d 0%,#0a1020 45%,#02030a 100%);color:#edf3ff;}
 
@@ -510,6 +576,7 @@
       <div class="mode-option locked" id="lightningModeOption" data-mode="lightning"><span>⚡ Lightning <span id="lightningLock">🔒</span></span><div class="mode-dot lightning-dot"></div></div>
       <!-- Other themes -->
       <div class="mode-option locked" id="whiteNeonModeOption" data-mode="whiteneon"><span>⚪ White Neon <span id="whiteNeonLock">🔒</span></span><div class="mode-dot white-neon-dot"></div></div>
+      <div class="mode-option locked" id="iceModeOption" data-mode="ice"><span>🧊 Ice <span id="iceLock">🔒</span></span><div class="mode-dot ice-dot"></div></div>
       <div class="mode-option locked" id="luxuriousModeOption" data-mode="luxurious"><span>✨ Luxurious <span id="luxuriousLock">🔒</span></span><div class="mode-dot luxurious-dot"></div></div>
       <div class="mode-option locked" id="dayModeOption" data-mode="day"><span>🌤️ Day <span id="dayLock">🔒</span></span><div class="mode-dot day-dot"></div></div>
       <div class="mode-option locked" id="nightModeOption" data-mode="night"><span>🌙 Night <span id="nightLock">🔒</span></span><div class="mode-dot night-dot"></div></div>
@@ -583,6 +650,8 @@ const WHEEL_MONEY_KEY='wren_money';
 const DAY_UNLOCK_KEY='wren_theme_day_unlocked';
 const NIGHT_THEME_UNLOCK_KEY='wren_theme_night_unlocked';
 const LUXURIOUS_THEME_UNLOCK_KEY='wren_theme_luxurious_unlocked';
+const ICE_THEME_UNLOCK_KEY='wren_theme_ice_unlocked';
+const VISIT_NOTICE_KEY='wren_last_unlock_notice';
 const BRIGHTNESS_KEY='wrenBrightness';
 const OA_VISITED_KEY='wren_visited_objectattack';
 const OA_SAVE_KEY='objectBattle_save_v5';
@@ -643,7 +712,7 @@ cog.addEventListener('click',()=>{
 });
 document.addEventListener('click',e=>{if(!settingsMenu.contains(e.target)&&e.target!==cog){settingsMenu.classList.remove('open');cog.classList.remove('open');}});
 
-const ALL_LOCKED_MODES=['banana','ketchup','lightning','luxurious','whiteneon','day','night','glass','lava','rose','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','bronze','silver','gold','radioactive','snow','money','pizza'];
+const ALL_LOCKED_MODES=['banana','ketchup','lightning','luxurious','whiteneon','ice','day','night','glass','lava','rose','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','bronze','silver','gold','radioactive','snow','money','pizza'];
 
 function selectMode(m){
   if(ALL_LOCKED_MODES.includes(m)&&!unlockedFeatures.includes(m))return;
@@ -657,6 +726,7 @@ const MENU_BUTTON_THEME_STYLES={
   ketchup:{background:'linear-gradient(145deg,#ff6a6a,#8d0d0d)',color:'#fff1f1',border:'1px solid rgba(255,150,150,0.25)',boxShadow:'0 8px 24px rgba(180,20,20,0.34)'},
   lightning:{background:'linear-gradient(145deg,#1643a6,#061037)',color:'#e8f4ff',border:'1px solid rgba(120,180,255,0.28)',boxShadow:'0 8px 24px rgba(40,100,255,0.30),0 0 16px rgba(120,200,255,0.14)'},
   whiteneon:{background:'linear-gradient(145deg,#ffffff,#eefcff)',color:'#101827',border:'1px solid rgba(160,220,255,0.50)',boxShadow:'0 8px 22px rgba(120,190,255,0.18)'},
+  ice:{background:'linear-gradient(145deg,#ffffff,#dff7ff)',color:'#0a1720',border:'1px solid rgba(170,235,255,0.58)',boxShadow:'0 8px 24px rgba(150,220,255,0.18),0 0 14px rgba(255,255,255,0.35)'},
   luxurious:{background:'linear-gradient(145deg,#151116,#050506)',color:'#fff6cf',border:'1px solid rgba(212,175,55,0.28)',boxShadow:'0 8px 26px rgba(212,175,55,0.18)'},
   rose:{background:'linear-gradient(145deg,#ff9ac8,#b81a79)',color:'#fff3fa',border:'1px solid rgba(255,180,220,0.22)',boxShadow:'0 8px 24px rgba(255,100,180,0.24)'},
   water:{background:'linear-gradient(145deg,#97efff,#1f8fff)',color:'#effcff',border:'1px solid rgba(130,220,255,0.30)',boxShadow:'0 8px 24px rgba(30,140,255,0.22)'},
@@ -692,9 +762,28 @@ function styleMenuButtons(mode){
     btn.style.webkitBackdropFilter='blur(14px) saturate(150%)';
   });
 }
+
+function applyScrollbarTheme(mode){
+  const map={
+    light:{track:'rgba(0,0,0,0.08)',thumb:'rgba(130,130,140,0.70)',hover:'rgba(100,100,112,0.92)'},
+    dark:{track:'rgba(255,255,255,0.06)',thumb:'rgba(110,116,140,0.72)',hover:'rgba(145,155,190,0.92)'},
+    rainbow:{track:'rgba(255,255,255,0.12)',thumb:'rgba(255,160,0,0.72)',hover:'rgba(255,110,0,0.92)'},
+    banana:{track:'rgba(255,220,90,0.12)',thumb:'rgba(218,171,11,0.78)',hover:'rgba(180,140,0,0.96)'},
+    ketchup:{track:'rgba(255,90,90,0.10)',thumb:'rgba(190,30,30,0.80)',hover:'rgba(140,15,15,0.96)'},
+    lightning:{track:'rgba(120,190,255,0.10)',thumb:'rgba(80,160,255,0.82)',hover:'rgba(30,110,255,0.96)'},
+    whiteneon:{track:'rgba(120,200,255,0.10)',thumb:'rgba(185,230,255,0.80)',hover:'rgba(255,255,255,0.98)'},
+    ice:{track:'rgba(160,225,255,0.12)',thumb:'rgba(140,210,235,0.82)',hover:'rgba(220,248,255,0.98)'}
+  };
+  const theme=map[mode]||{track:'rgba(0,0,0,0.10)',thumb:'rgba(124,58,237,0.76)',hover:'rgba(124,58,237,0.96)'};
+  document.documentElement.style.setProperty('--scroll-track',theme.track);
+  document.documentElement.style.setProperty('--scroll-thumb',theme.thumb);
+  document.documentElement.style.setProperty('--scroll-thumb-hover',theme.hover);
+}
+
 function applyMode(m){
   stopSnowParticles();stopMoneyParticles();stopLightningParticles();
   document.body.className='mode-'+m;
+  applyScrollbarTheme(m);
   document.querySelectorAll('.mode-option').forEach(o=>o.classList.toggle('active-mode',o.dataset.mode===m));
   styleMenuButtons(m);
   if(m==='snow')startSnowParticles();
@@ -735,6 +824,7 @@ function refreshSnowOption(){refreshOption('snowModeOption','snowLock','snow');}
 function refreshMoneyOption(){refreshOption('moneyModeOption','moneyLock','money');}
 function refreshPizzaOption(){syncPizzaUnlock();refreshOption('pizzaModeOption','pizzaLock','pizza');}
 function refreshWhiteNeonOption(){refreshOption('whiteNeonModeOption','whiteNeonLock','whiteneon');}
+function refreshIceOption(){refreshOption('iceModeOption','iceLock','ice');}
 
 function hasVisitedBothLinks(){return localStorage.getItem(VISIT_YT_KEY)==='1'&&localStorage.getItem(VISIT_DISCORD_KEY)==='1';}
 function hasVisitedCredits(){return localStorage.getItem(VISIT_CREDITS_KEY)==='1';}
@@ -758,6 +848,7 @@ function hasLuxuriousUnlocked(){return localStorage.getItem(LUXURIOUS_THEME_UNLO
 function unlockIfEligible(t,fn,msg,rfn){if(!fn())return false;if(!unlockedFeatures.includes(t)){persistUnlocked(t);rfn();if(msg)showToast(msg);}return true;}
 function unlockLuxuriousIfEligible(){return unlockIfEligible('luxurious',hasLuxuriousUnlocked,"✨ Luxurious unlocked!",refreshLuxuriousOption);}
 function unlockWhiteNeonIfEligible(){return unlockIfEligible('whiteneon',hasVisitedHallOfFame,'⚪ White Neon unlocked!',refreshWhiteNeonOption);}
+function unlockIceIfEligible(){return unlockIfEligible('ice',()=>localStorage.getItem(ICE_THEME_UNLOCK_KEY)==='1','🧊 Ice unlocked!',refreshIceOption);}
 function unlockDayIfEligible(){return unlockIfEligible('day',hasDayUnlocked,'🌤️ Day unlocked!',refreshDayOption);}
 function unlockNightIfEligible(){return unlockIfEligible('night',hasNightUnlocked,'🌙 Night unlocked!',refreshNightOption);}
 function unlockRoseIfEligible(){return unlockIfEligible('rose',hasVisitedBothLinks,'🌹 Rose unlocked!',refreshRoseOption);}
@@ -780,7 +871,7 @@ function unlockSnowIfEligible(){return unlockIfEligible('snow',()=>localStorage.
 function unlockMoneyIfEligible(){return unlockIfEligible('money',()=>localStorage.getItem(MONEY_UNLOCK_KEY)==='1','💵 Money unlocked!',refreshMoneyOption);}
 function checkCreditsUnlocks(){unlockBronzeIfEligible();unlockSilverIfEligible();unlockGoldIfEligible();}
 function checkAllUnlocks(){
-  unlockLuxuriousIfEligible();unlockWhiteNeonIfEligible();unlockDayIfEligible();unlockNightIfEligible();
+  unlockLuxuriousIfEligible();unlockWhiteNeonIfEligible();unlockIceIfEligible();unlockDayIfEligible();unlockNightIfEligible();
   unlockRoseIfEligible();unlockWaterIfEligible();unlockPotatoIfEligible();unlockGrapeIfEligible();
   unlockSunIfEligible();unlockShadowIfEligible();unlockCheeseIfEligible();unlockToothpasteIfEligible();
   unlockLuckyIfEligible();unlockGlitchIfEligible();unlockSlimeIfEligible();unlockGalaxyIfEligible();
@@ -788,28 +879,48 @@ function checkAllUnlocks(){
   checkObjectAttackThemes();
 }
 function markVisit(w){
-  if(w==='youtube')localStorage.setItem(VISIT_YT_KEY,'1');
-  else if(w==='discord')localStorage.setItem(VISIT_DISCORD_KEY,'1');
-  else if(w==='credits')localStorage.setItem(VISIT_CREDITS_KEY,'1');
-  else if(w==='neal')localStorage.setItem('wren_visited_neal','1');
-  else if(w==='lucky')localStorage.setItem(VISIT_LUCKY_KEY,'1');
-  else if(w==='wrenpacks')localStorage.setItem(VISIT_WRENPACKS_KEY,'1');
-  else if(w==='smallcreators')localStorage.setItem(VISIT_SMALLCREATORS_KEY,'1');
-  else if(w==='wheel')localStorage.setItem(VISIT_WHEEL_KEY,'1');
-  else if(w==='cheese')localStorage.setItem(VISIT_CHEESE_KEY,'1');
-  else if(w==='catchanything'){localStorage.setItem(VISIT_CATCHANYTHING_KEY,'1');localStorage.setItem(DAY_UNLOCK_KEY,'1');localStorage.setItem('wren_theme_day_unlocked','1');}
-  else if(w==='halloffame')localStorage.setItem(VISIT_HALL_OF_FAME_KEY,'1');
+  let notice='';
+  if(w==='youtube'){localStorage.setItem(VISIT_YT_KEY,'1');notice=hasVisitedBothLinks()?'🌹 Rose unlocked!':'Visited YouTube';}
+  else if(w==='discord'){localStorage.setItem(VISIT_DISCORD_KEY,'1');notice=hasVisitedBothLinks()?'🌹 Rose unlocked!':'Visited Discord';}
+  else if(w==='credits'){localStorage.setItem(VISIT_CREDITS_KEY,'1');notice='💧 Water unlocked!';}
+  else if(w==='neal'){localStorage.setItem('wren_visited_neal','1');notice='Visited Neal.fun';}
+  else if(w==='lucky'){localStorage.setItem(VISIT_LUCKY_KEY,'1');notice='🐈 Lucky unlocked!';}
+  else if(w==='wrenpacks'){localStorage.setItem(VISIT_WRENPACKS_KEY,'1');notice='🍇 Grape unlocked!';}
+  else if(w==='smallcreators'){localStorage.setItem(VISIT_SMALLCREATORS_KEY,'1');notice='☀️ Sun unlocked!';}
+  else if(w==='wheel'){localStorage.setItem(VISIT_WHEEL_KEY,'1');notice='🌑 Shadow unlocked!';}
+  else if(w==='cheese'){localStorage.setItem(VISIT_CHEESE_KEY,'1');notice='🧀 Cheese unlocked!';}
+  else if(w==='catchanything'){localStorage.setItem(VISIT_CATCHANYTHING_KEY,'1');localStorage.setItem(DAY_UNLOCK_KEY,'1');localStorage.setItem('wren_theme_day_unlocked','1');notice='🌤️ Day unlocked!';}
+  else if(w==='halloffame'){localStorage.setItem(VISIT_HALL_OF_FAME_KEY,'1');notice='⚪ White Neon unlocked!';}
   else if(w==='objectattack'){
     localStorage.setItem(OA_VISITED_KEY,'1');
-    // Banana unlocks immediately on click
     if(!unlockedFeatures.includes('banana')){
       persistUnlocked('banana');
       refreshBananaOption();
-      showToast('🍌 Banana theme unlocked! Visit Object Attack!');
     }
+    notice='🍌 Banana unlocked!';
   }
   checkAllUnlocks();
+  if(notice)setUnlockNotice(notice,true);
 }
+function getSelectionText(){try{return String(window.getSelection&&window.getSelection().toString()||'').replace(/\s+/g,' ').trim();}catch(e){return '';}}
+function unlockIceFromSelection(){
+  const selected=getSelectionText();
+  if(!selected)return;
+  if(selected.includes('Vewy Cool')&&selected.includes('😎')){
+    if(localStorage.getItem(ICE_THEME_UNLOCK_KEY)!=='1'){
+      localStorage.setItem(ICE_THEME_UNLOCK_KEY,'1');
+      persistUnlocked('ice');
+      refreshIceOption();
+      const notice='🧊 Ice unlocked!';
+      setUnlockNotice(notice,true);
+    }else{
+      persistUnlocked('ice');
+      refreshIceOption();
+    }
+  }
+}
+document.addEventListener('mouseup',()=>setTimeout(unlockIceFromSelection,0));
+document.addEventListener('selectionchange',()=>setTimeout(unlockIceFromSelection,0));
 
 // ===== PARTICLES =====
 function startSnowParticles(){const c=document.getElementById('snowContainer');c.innerHTML='';for(let i=0;i<60;i++){const f=document.createElement('div');f.className='snow-particle';const s=2+Math.random()*6,d=(Math.random()-0.5)*120;f.style.cssText=`left:${Math.random()*100}vw;width:${s}px;height:${s}px;opacity:${0.4+Math.random()*0.6};--drift:${d}px;--spin:${Math.random()*360}deg;animation-duration:${4+Math.random()*8}s;animation-delay:${-Math.random()*10}s;`;c.appendChild(f);}}
@@ -904,8 +1015,8 @@ function stopLightningParticles(){
   if(c)c.innerHTML='';
 }
 
-const CYCLE_THEME_NAMES={'light':'☀️ Light','dark':'🌙 Dark','rainbow':'🌈 Rainbow Neon','banana':'🍌 Banana','ketchup':'🍅 Ketchup','lightning':'⚡ Lightning','whiteneon':'⚪ White Neon','luxurious':'✨ Luxurious','rose':'🌹 Rose','water':'💧 Water','potato':'🥔 Potato','grape':'🍇 Grape','sun':'☀️ Sun','shadow':'🌑 Shadow','cheese':'🧀 Cheese','toothpaste':'🪥 Toothpaste','lucky':'🐈 Lucky','glitch':'🟩 Glitch','slime':'🟢 Slime','glass':'✨ Liquid Glass','lava':'🌋 Lava','galaxy':'🌌 Galaxy','bronze':'🥉 Bronze','silver':'🥈 Silver','gold':'🥇 Gold','radioactive':'☢️ Radioactive','snow':'❄️ Snow','money':'💵 Money','pizza':'🍕 Pizza','day':'🌤️ Day','night':'🌙 Night'};
-const ALL_CYCLE_THEMES=['light','dark','rainbow','banana','ketchup','lightning','whiteneon','luxurious','rose','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','glass','lava','galaxy','bronze','silver','gold','radioactive','snow','money','pizza','day','night','luxurious'];
+const CYCLE_THEME_NAMES={'light':'☀️ Light','dark':'🌙 Dark','rainbow':'🌈 Rainbow Neon','banana':'🍌 Banana','ketchup':'🍅 Ketchup','lightning':'⚡ Lightning','whiteneon':'⚪ White Neon','ice':'🧊 Ice','luxurious':'✨ Luxurious','rose':'🌹 Rose','water':'💧 Water','potato':'🥔 Potato','grape':'🍇 Grape','sun':'☀️ Sun','shadow':'🌑 Shadow','cheese':'🧀 Cheese','toothpaste':'🪥 Toothpaste','lucky':'🐈 Lucky','glitch':'🟩 Glitch','slime':'🟢 Slime','glass':'✨ Liquid Glass','lava':'🌋 Lava','galaxy':'🌌 Galaxy','bronze':'🥉 Bronze','silver':'🥈 Silver','gold':'🥇 Gold','radioactive':'☢️ Radioactive','snow':'❄️ Snow','money':'💵 Money','pizza':'🍕 Pizza','day':'🌤️ Day','night':'🌙 Night'};
+const ALL_CYCLE_THEMES=['light','dark','rainbow','banana','ketchup','lightning','whiteneon','ice','luxurious','rose','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','glass','lava','galaxy','bronze','silver','gold','radioactive','snow','money','pizza','day','night','luxurious'];
 let isCycling=false;
 function runThemeCycle(){
   if(isCycling)return;isCycling=true;closeCodeModal();
@@ -927,7 +1038,7 @@ function runThemeCycle(){
 window.addEventListener('load',()=>{
   // Refresh all options
   refreshBananaOption();refreshKetchupOption();refreshLightningOption();
-  refreshLuxuriousOption();refreshWhiteNeonOption();refreshDayOption();refreshNightOption();
+  refreshLuxuriousOption();refreshWhiteNeonOption();refreshIceOption();refreshDayOption();refreshNightOption();
   refreshGlassOption();refreshLavaOption();refreshRoseOption();refreshWaterOption();
   refreshPotatoOption();refreshGrapeOption();refreshSunOption();refreshShadowOption();
   refreshCheeseOption();refreshToothpasteOption();refreshLuckyOption();refreshGlitchOption();
@@ -941,6 +1052,7 @@ window.addEventListener('load',()=>{
   const brightnessControl=document.getElementById('brightnessControl');
   if(brightnessControl)brightnessControl.value=savedBrightness;
   applyBrightness(savedBrightness);
+  restoreUnlockNotice();
   initDayClouds();
 });
 function openCodeModal(){const i=document.getElementById('codeInput'),f=document.getElementById('codeFeedback');i.value='';i.className='';f.textContent='';f.className='';document.getElementById('codeOverlay').classList.add('open');setTimeout(()=>i.focus(),350);}
