@@ -903,7 +903,7 @@ const OBJECTS_BY_CRATE={
     {id:'truck',name:'Truck',emoji:'🚛',hp:29000},{id:'car',name:'Car',emoji:'🚗',hp:20000},
     {id:'lambo',name:'Lamborghini',emoji:'🏎️',hp:26000},{id:'tinyhome',name:'Tiny Home',emoji:'🏕️',hp:29500},
     {id:'goldenbathroom',name:'Golden Bathroom',emoji:'🛁',hp:32000},{id:'road',name:'Road',emoji:'🛣️',hp:38500},
-    {id:'bomberplane',name:'Bomber Plane',emoji:'💥',hp:54000},{id:'littleboy',name:'Little Boy Nuke',emoji:'☣️',hp:60000},
+    {id:'bomberplane',name:'Bomber Plane',emoji:'💥',hp:54000},{id:'littleboy',name:'Little Boy Nuke',emoji:'☣️',hp:100000},
     {id:'missile',name:'Missile',emoji:'🚀',hp:37000},{id:'minivan',name:'Minivan',emoji:'🚐',hp:24000},
   ],
 };
@@ -953,6 +953,7 @@ function migrateOwnedObject(obj){
   const migratedId=migrateObjectId(obj.id);
   if(migratedId===obj.id)return obj;
   if(migratedId==='rubber')return {id:'rubber',name:'Rubber',emoji:'⬜',baseHp:15,level:Number.isFinite(obj.level)?obj.level:1,crate:obj.crate||'starter'};
+  if(migratedId==='littleboy')return {id:'littleboy',name:'Little Boy Nuke',emoji:'☣️',baseHp:100000,level:Number.isFinite(obj.level)?obj.level:1,crate:obj.crate||'grandmaster'};
   return {...obj,id:migratedId};
 }
 function normalizeLoadedState(parsed){
@@ -1096,7 +1097,8 @@ function redeemCode(){
    HELPERS
 ============================================================ */
 function getRandomFromPool(pool){if(!Array.isArray(pool)||pool.length===0)return null;return pool[Math.floor(Math.random()*pool.length)];}
-function getObjectHp(id){const obj=state.inventory[id];if(!obj)return 0;return Math.floor(obj.baseHp+(obj.level-1)*Math.floor(obj.baseHp*0.25));}
+function getHpAtLevel(baseHp, level){return Math.floor(baseHp+(Math.max(1,level)-1)*Math.floor(baseHp*0.25));}
+function getObjectHp(id){const obj=state.inventory[id];if(!obj)return 0;return getHpAtLevel(obj.baseHp,obj.level);}
 function getUpgradeCost(id){const obj=state.inventory[id];if(!obj)return 0;const crate=CRATE_DEFS.find(c=>c.id===obj.crate);const base=crate?Math.floor(crate.cost*0.20):10;const effectiveLevel=Math.min(obj.level,8);return Math.max(1,Math.floor(base*Math.pow(1.10,effectiveLevel-1)));}
 function getMaxHpInInventory(){let max=0;for(const id in state.inventory)max=Math.max(max,getObjectHp(id));return max;}
 function isModeUnlocked(modeId){const mode=MODES.find(m=>m.id===modeId);if(!mode||mode.unlockHp===0)return true;return getMaxHpInInventory()>=mode.unlockHp;}
@@ -1437,9 +1439,13 @@ function startBattle(modeId){
   const oppName=OPPONENT_NAMES[Math.floor(Math.random()*OPPONENT_NAMES.length)];
   const enemyPool=OBJECTS_BY_CRATE[mode.crateId]||OBJECTS_BY_CRATE.easy;
   const shuffled=[...enemyPool].sort(()=>Math.random()-0.5);
-  const enemyDefs=shuffled.slice(0,3);
-  const enemyTeam=enemyDefs.map(d=>({id:d.id+'_enemy',name:d.name,emoji:d.emoji,maxHp:d.hp,currentHp:d.hp}));
-  const playerTeam=validTeam.map(id=>{const obj=state.inventory[id];const hp=getObjectHp(id);return {id,name:obj.name,emoji:obj.emoji,maxHp:hp,currentHp:hp};});
+  const enemyDefs=shuffled.slice(0,3).map(d=>({
+    ...d,
+    level:isGrandmasterChoice?gmLevel:1,
+    maxHp:getHpAtLevel(d.hp,isGrandmasterChoice?gmLevel:1),
+  }));
+  const enemyTeam=enemyDefs.map(d=>({id:d.id+'_enemy',name:d.name,emoji:d.emoji,level:d.level,maxHp:d.maxHp,currentHp:d.maxHp}));
+  const playerTeam=validTeam.map(id=>{const obj=state.inventory[id];const hp=getObjectHp(id);return {id,name:obj.name,emoji:obj.emoji,level:obj.level,maxHp:hp,currentHp:hp};});
   state.battleMode=isGrandmasterChoice?`grandmaster_${gmLevel}`:modeId;
   state.battleState={mode,oppName,playerTeam:[...playerTeam],enemyTeam:[...enemyTeam],playerIdx:0,enemyIdx:0,currentTurn:'player',phase:'fight',isFirstTurn:true,log:[]};
   saveState();
@@ -1462,7 +1468,7 @@ function renderBattle(){
   const eBox=document.getElementById('enemyFighterBox');
 
   document.getElementById('playerFighterEmoji').textContent=pf?pf.emoji:'💀';
-  document.getElementById('playerFighterName').textContent=pf?pf.name:'Defeated';
+  document.getElementById('playerFighterName').textContent=pf?`${pf.name} · Lv.${pf.level}`:'Defeated';
   if(pf){
     const pPct=Math.max(0,(pf.currentHp/pf.maxHp)*100);
     const fill=document.getElementById('playerHpFill');
@@ -1488,13 +1494,13 @@ function renderBattle(){
   }else{
     banner.style.display='none';eBox.classList.remove('choosing');
     document.getElementById('enemyFighterEmoji').textContent=ef?ef.emoji:'💀';
-    document.getElementById('enemyFighterName').textContent=ef?ef.name:'Defeated';
+    document.getElementById('enemyFighterName').textContent=ef?`${ef.name} · Lv.${ef.level}`:'Defeated';
     if(ef){
       const ePct=Math.max(0,(ef.currentHp/ef.maxHp)*100);
       const eFill=document.getElementById('enemyHpFill');
       eFill.style.width=ePct+'%';
       eFill.className='fighter-hp-bar-fill'+(ePct<25?' low':ePct<55?' medium':'');
-      document.getElementById('enemyHpText').textContent=`${ef.currentHp.toLocaleString()}/${ef.maxHp.toLocaleString()} HP`;
+      document.getElementById('enemyHpText').textContent=`Lv.${ef.level} · ${ef.currentHp.toLocaleString()}/${ef.maxHp.toLocaleString()} HP`;
       eBox.classList.remove('dead');
     }else{
       document.getElementById('enemyHpFill').style.width='0%';
