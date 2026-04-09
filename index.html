@@ -66,14 +66,17 @@
         radial-gradient(circle at 50% 50%, rgba(0,0,0,0.82) 0 10%, rgba(0,0,0,0.97) 18%, #000000 38%, #000000 100%);
       color:#f5f1ea;
       animation:blackholePulse 8s ease-in-out infinite;
+      overflow-x:hidden;
+      overflow-y:hidden;
     }
     body.mode-blackhole::before,
     body.mode-blackhole::after{
       content:'';
       position:fixed;
-      inset:-12%;
+      inset:0;
       pointer-events:none;
       z-index:0;
+      will-change:transform,opacity,background-position;
     }
     body.mode-blackhole::before{
       background:
@@ -93,6 +96,8 @@
         radial-gradient(circle at 50% 50%, transparent 0 34%, rgba(255,170,60,0.10) 36%, transparent 39%, rgba(255,120,20,0.08) 41%, transparent 44%);
       filter:blur(16px);
       opacity:0.95;
+      transform:scale(1.16);
+      transform-origin:center center;
       animation:blackholeSwirl 18s linear infinite;
     }
     body.mode-blackhole::after{
@@ -108,6 +113,8 @@
         radial-gradient(circle at 84% 72%, rgba(255,255,255,0.05) 0 0.12%, transparent 0.22%);
       opacity:0.8;
       mix-blend-mode:screen;
+      transform:scale(1.06);
+      animation:blackholeSwirl 26s linear infinite reverse;
     }
     body.mode-blackhole h1{
       background:linear-gradient(180deg,#fffdf8 0%,#ffe9bf 42%,#ffbf63 74%,#ffffff 100%);
@@ -159,8 +166,9 @@
       -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
       -webkit-mask-composite:xor;
       mask-composite:exclude;
-      z-index:-1;
+      z-index:0;
       filter:drop-shadow(0 0 10px rgba(255,164,58,0.34));
+      transform:translateZ(0);
     }
     body.mode-blackhole .btn:hover,
     body.mode-blackhole .settings-action-btn:hover,
@@ -173,6 +181,18 @@
         0 0 18px rgba(255,148,28,0.12);
       transform:translateY(-1px);
     }
+    body.mode-blackhole #codeBtn,
+    body.mode-blackhole #themesBtn{
+      position:fixed;
+      top:14px;
+      right:14px;
+      left:auto;
+    }
+    body.mode-blackhole #themesBtn{
+      top:58px;
+      right:14px;
+      left:auto;
+    }
     body.mode-blackhole #settingsPanel,
     body.mode-blackhole #codeModal{
       background:
@@ -184,9 +204,9 @@
     }
     body.mode-blackhole .mode-option.active-mode{color:#ffcb82;}
     @keyframes blackholeSwirl{
-      0%{transform:rotate(0deg) scale(1);}
-      50%{transform:rotate(180deg) scale(1.03);}
-      100%{transform:rotate(360deg) scale(1);}
+      0%{transform:scale(1.16) rotate(0deg);}
+      50%{transform:scale(1.18) rotate(180deg);}
+      100%{transform:scale(1.16) rotate(360deg);}
     }
     @keyframes blackholePulse{
       0%,100%{filter:brightness(1);}
@@ -196,7 +216,7 @@
       0%{transform:rotate(0deg);}
       100%{transform:rotate(360deg);}
     }
-    body.mode-bronze{background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transparent 34%),radial-gradient(circle at 80% 68%,rgba(180,100,30,0.44) 0%,transparent 38%),radial-gradient(circle at 55% 15%,rgba(255,200,140,0.24) 0%,transparent 32%),linear-gradient(180deg,#2a1200 0%,#5c2e00 45%,#1a0b00 100%);color:#ffeedd;}
+    body.mode-bronze{background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transparent 34%),radial-gradient(circle at 80% 68%,rgba(180,100,30,0.44) 0%,transparent 38%),radial-gradient(circle at 55% 15%,rgba(255,200,140,0.24) 0%,transparent 32%),linear-gradient(180deg,#2a1200 0%,#5c2e00 45%,#1a0b00 100%);color:#ffeedd;}background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transparent 34%),radial-gradient(circle at 80% 68%,rgba(180,100,30,0.44) 0%,transparent 38%),radial-gradient(circle at 55% 15%,rgba(255,200,140,0.24) 0%,transparent 32%),linear-gradient(180deg,#2a1200 0%,#5c2e00 45%,#1a0b00 100%);color:#ffeedd;}
     body.mode-silver{background:radial-gradient(circle at 20% 20%,rgba(220,230,240,0.50) 0%,transparent 34%),radial-gradient(circle at 80% 70%,rgba(140,160,180,0.40) 0%,transparent 40%),radial-gradient(circle at 55% 15%,rgba(255,255,255,0.30) 0%,transparent 32%),linear-gradient(180deg,#1a1f26 0%,#2e3a48 45%,#0d1117 100%);color:#e8f0f8;}
     body.mode-gold{background:radial-gradient(circle at 18% 18%,rgba(255,248,180,0.48) 0%,transparent 28%),radial-gradient(circle at 80% 22%,rgba(255,200,60,0.38) 0%,transparent 28%),radial-gradient(circle at 74% 72%,rgba(220,140,20,0.38) 0%,transparent 34%),radial-gradient(circle at 24% 76%,rgba(255,220,100,0.30) 0%,transparent 30%),linear-gradient(180deg,#3a2200 0%,#6e4400 42%,#1e1000 100%);color:#fff9e0;}
     body.mode-radioactive{background:radial-gradient(circle at 20% 25%,rgba(100,255,60,0.42) 0%,transparent 34%),radial-gradient(circle at 80% 68%,rgba(50,200,0,0.48) 0%,transparent 38%),radial-gradient(circle at 55% 15%,rgba(180,255,80,0.26) 0%,transparent 32%),linear-gradient(180deg,#001a00 0%,#042600 45%,#000d00 100%);color:#ccffcc;}
