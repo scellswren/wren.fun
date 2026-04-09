@@ -879,15 +879,22 @@ const STARTER_CHOICES=[
 ];
 
 const REDEEM_CODES={
-  'Lolly123':{
-    reward:'littleboy_plus_trophies',
-    label:'🎁 Little Boy Nuke + 1,000,000 Trophies!',
+  'lolly123':{
+    reward:'unlock_everything_level_50',
+    label:'🎁 All objects unlocked at Level 50!',
     onRedeem(state){
-      const def=OBJECTS_BY_CRATE.grandmaster.find(o=>o.id==='littleboy');
-      if(!state.inventory['littleboy']){
-        state.inventory['littleboy']={id:'littleboy',name:def.name,emoji:def.emoji,baseHp:def.hp,level:1,crate:'grandmaster'};
-      }
-      state.trophies+=1000000;
+      const allObjects=[...OBJECTS_BY_CRATE.easy,...OBJECTS_BY_CRATE.normal,...OBJECTS_BY_CRATE.hard,...OBJECTS_BY_CRATE.grandmaster];
+      allObjects.forEach(obj=>{
+        state.inventory[obj.id]={
+          id:obj.id,
+          name:obj.name,
+          emoji:obj.emoji,
+          baseHp:obj.hp,
+          level:50,
+          crate:'code'
+        };
+      });
+      state.starterChosen=true;
     }
   },
   'GorillaManYay662':{
@@ -1040,18 +1047,21 @@ document.getElementById('codeInput').addEventListener('keydown',(e)=>{if(e.key==
 
 function redeemCode(){
   const raw=document.getElementById('codeInput').value.trim();
+  const code=raw.toLowerCase();
   const msg=document.getElementById('codeMsg');
   if(!raw){msg.textContent='Please enter a code.';msg.className='err';return;}
-  const entry=REDEEM_CODES[raw];
+  const entry=REDEEM_CODES[code];
   if(!entry){msg.textContent='❌ Invalid code. Check your spelling!';msg.className='err';return;}
-  if(state.redeemedCodes.includes(raw)){msg.textContent='✅ You already redeemed this code!';msg.className='ok';return;}
+  if(state.redeemedCodes.includes(code)){msg.textContent='✅ You already redeemed this code!';msg.className='ok';return;}
   entry.onRedeem(state);
-  state.redeemedCodes.push(raw);
+  state.redeemedCodes.push(code);
   saveState();
   msg.textContent='✅ '+entry.label;
   msg.className='ok';
   renderHome();
   updateBoostBanner();
+  renderMyObjects();
+  renderTeam();
   showToast(entry.label);
   playVictorySound();
   setTimeout(closeCodeOverlay,2200);
@@ -1062,7 +1072,7 @@ function redeemCode(){
 ============================================================ */
 function getRandomFromPool(pool){if(!Array.isArray(pool)||pool.length===0)return null;return pool[Math.floor(Math.random()*pool.length)];}
 function getObjectHp(id){const obj=state.inventory[id];if(!obj)return 0;return Math.floor(obj.baseHp+(obj.level-1)*Math.floor(obj.baseHp*0.25));}
-function getUpgradeCost(id){const obj=state.inventory[id];if(!obj)return 0;const crate=CRATE_DEFS.find(c=>c.id===obj.crate);const base=crate?Math.floor(crate.cost*0.20):10;const effectiveLevel=Math.min(obj.level,10);return Math.floor(base*Math.pow(2,effectiveLevel-1));}
+function getUpgradeCost(id){const obj=state.inventory[id];if(!obj)return 0;const crate=CRATE_DEFS.find(c=>c.id===obj.crate);const base=crate?Math.floor(crate.cost*0.20):10;const effectiveLevel=Math.min(obj.level,8);return Math.max(1,Math.floor(base*Math.pow(1.10,effectiveLevel-1)));}
 function getMaxHpInInventory(){let max=0;for(const id in state.inventory)max=Math.max(max,getObjectHp(id));return max;}
 function isModeUnlocked(modeId){const mode=MODES.find(m=>m.id===modeId);if(!mode||mode.unlockHp===0)return true;return getMaxHpInInventory()>=mode.unlockHp;}
 function isCrateUnlocked(crateId){const crate=CRATE_DEFS.find(c=>c.id===crateId);if(!crate||crate.unlockHp===0)return true;return getMaxHpInInventory()>=crate.unlockHp;}
