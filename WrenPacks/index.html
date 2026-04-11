@@ -1678,28 +1678,11 @@
       document.getElementById("settingsDarken").classList.remove("visible");
     }
 
-    const RAINBOW_REMASTERED_THEME_UNLOCK_KEY = "wren_theme_rainbow_neon_remastered_unlocked";
-    const FIRE_THEME_UNLOCK_KEY = "wren_theme_fire_unlocked";
-
     function syncRadioactiveUnlockFromInventory() {
       const inv = JSON.parse(localStorage.getItem("inventory") || "{}");
       const legendaryCount = LEGENDARY_NAMES.reduce((sum, name) => sum + (Number(inv[name]) || 0), 0);
       if (legendaryCount >= 1) {
         localStorage.setItem(RADIOACTIVE_UNLOCK_KEY, "1");
-      }
-    }
-
-    function syncSpecialThemeUnlocksFromInventory() {
-      const inv = JSON.parse(localStorage.getItem("inventory") || "{}");
-      const totalChars = Object.values(inv).reduce((sum, value) => sum + (Number(value) || 0), 0);
-      const hasOmega = items.some(item => item.rarity === "Omega" && (Number(inv[item.name]) || 0) > 0);
-
-      if (hasOmega) {
-        localStorage.setItem(RAINBOW_REMASTERED_THEME_UNLOCK_KEY, "1");
-      }
-
-      if (totalChars >= 5000) {
-        localStorage.setItem(FIRE_THEME_UNLOCK_KEY, "1");
       }
     }
 
@@ -1829,8 +1812,6 @@
       const usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || {};
       if (usedCodes["CoolLemons"]) unlockRainbow();
       if (usedCodes["ColourPPP"])  unlockMaroon();
-      syncRadioactiveUnlockFromInventory();
-      syncSpecialThemeUnlocksFromInventory();
 
       const savedColour = localStorage.getItem("packColour") || "purple";
       const sw = document.querySelector(`.pack-colour-swatch[data-colour="${savedColour}"]`);
@@ -2053,7 +2034,6 @@
       inv[name] = (inv[name] || 0) + 1;
       localStorage.setItem("inventory", JSON.stringify(inv));
       syncRadioactiveUnlockFromInventory();
-      syncSpecialThemeUnlocksFromInventory();
     }
 
     const rarityGlow = {
