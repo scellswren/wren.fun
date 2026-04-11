@@ -138,6 +138,12 @@
   .countdown-overlay{position:absolute;inset:0;background:rgba(5,5,8,0.85);display:flex;align-items:center;justify-content:center;z-index:10;}
   .countdown-num{font-family:'Orbitron',monospace;font-size:100px;font-weight:900;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px #00d4ff);animation:countdown-pop 0.8s ease-out;}
   @keyframes countdown-pop{0%{transform:scale(2);opacity:0;}100%{transform:scale(1);opacity:1;}}
+
+  /* MOBILE ARROW BUTTONS */
+  .mobile-controls{position:absolute;left:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:20;}
+  .mobile-btn{width:52px;height:52px;border-radius:10px;border:2px solid rgba(0,212,255,0.5);background:rgba(0,212,255,0.1);color:var(--neon-cyan);font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none;transition:background 0.1s;}
+  .mobile-btn:active,.mobile-btn.pressed{background:rgba(0,212,255,0.3);border-color:var(--neon-cyan);}
+
   /* RESULT */
   #screen-result{gap:20px;}
   .result-box{text-align:center;padding:32px 40px;border-radius:16px;min-width:min(420px,90vw);}
@@ -285,10 +291,15 @@
     <div class="countdown-overlay" id="countdown-overlay" style="display:none">
       <div class="countdown-num" id="countdown-num">3</div>
     </div>
+    <!-- Mobile arrow controls -->
+    <div class="mobile-controls" id="mobile-controls">
+      <div class="mobile-btn" id="btn-up">▲</div>
+      <div class="mobile-btn" id="btn-down">▼</div>
+    </div>
   </div>
   <div class="pong-footer">
-    <span>↑↓ OR W/S TO MOVE</span>
-    <span class="pong-target">FIRST TO <span id="pong-target-score">10</span> WINS</span>
+    <span>↑↓ · W/S · TAP ARROWS</span>
+    <span class="pong-target">FIRST TO <span id="pong-target-score">7</span> WINS</span>
     <span id="pong-context-label">MATCH</span>
   </div>
 </div>
@@ -370,7 +381,7 @@
 
 <script>
 // ═══════════════════════════════════════════════
-// PONG WORLD CUP
+// PONG WORLD CUP — Fixed Edition
 // ═══════════════════════════════════════════════
 
 // ── STARFIELD ───────────────────────────────────
@@ -398,59 +409,69 @@ const Sound=(()=>{
   };
 })();
 
-// ── COUNTRIES (deduped) ──────────────────────────
+// ── COUNTRIES ────────────────────────────────────
+// Power scale: 50 = baseline average, range ~35–70
+// No country is dramatically stronger than another — the gap is meaningful but beatable
 const COUNTRIES=[
-  {name:'United States',flag:'🇺🇸',p:98},{name:'Canada',flag:'🇨🇦',p:75},{name:'Mexico',flag:'🇲🇽',p:78},
-  {name:'Brazil',flag:'🇷',p:99},{name:'Argentina',flag:'🇦🇷',p:97},{name:'Colombia',flag:'🇨🇴',p:75},
-  {name:'Germany',flag:'🇩🇪',p:98},{name:'France',flag:'🇫🇷',p:97},{name:'Spain',flag:'🇪🇸',p:96},
-  {name:'Italy',flag:'🇮🇹',p:95},{name:'Portugal',flag:'🇵🇹',p:94},{name:'Netherlands',flag:'🇳🇱',p:93},
-  {name:'Belgium',flag:'🇧🇪',p:90},{name:'Sweden',flag:'🇸🇪',p:88},{name:'UK',flag:'🇬🇧',p:92},
-  {name:'China',flag:'�',p:93},{name:'Japan',flag:'��',p:91},{name:'South Korea',flag:'�🇷',p:90},
-  {name:'Cuba',flag:'🇨🇺',p:46},{name:'Dominican Republic',flag:'🇩�',p:44},{name:'Liechtenstein',flag:'🇱🇮',p:30},{name:'Monaco',flag:'🇲🇨',p:28},
-  {name:'San Marino',flag:'🇸🇲',p:26},{name:'Andorra',flag:'🇦🇩',p:28},{name:'Vatican City',flag:'🇻🇦',p:20},
-  {name:'Scotland',flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',p:55},{name:'Wales',flag:'🏴󠁧󠁢󠁷󠁬󠁳󠁿',p:50},
-  {name:'China',flag:'🇨🇳',p:93},{name:'Japan',flag:'🇯🇵',p:90},{name:'South Korea',flag:'🇰🇷',p:91},
-  {name:'India',flag:'🇮🇳',p:84},{name:'Indonesia',flag:'🇮🇩',p:67},{name:'Taiwan',flag:'🇹🇼',p:72},
-  {name:'Vietnam',flag:'🇻🇳',p:62},{name:'Thailand',flag:'🇹🇭',p:63},{name:'Malaysia',flag:'🇲🇾',p:54},
-  {name:'Philippines',flag:'🇵🇭',p:50},{name:'Singapore',flag:'🇸🇬',p:56},{name:'Pakistan',flag:'🇵🇰',p:48},
-  {name:'Bangladesh',flag:'🇧🇩',p:44},{name:'Sri Lanka',flag:'🇱🇰',p:42},{name:'Nepal',flag:'🇳🇵',p:36},
-  {name:'Myanmar',flag:'🇲🇲',p:35},{name:'Cambodia',flag:'🇰🇭',p:34},{name:'Laos',flag:'🇱🇦',p:32},
-  {name:'Mongolia',flag:'🇲🇳',p:38},{name:'North Korea',flag:'🇰🇵',p:65},{name:'Uzbekistan',flag:'🇺🇿',p:47},
-  {name:'Turkmenistan',flag:'🇹🇲',p:40},{name:'Kyrgyzstan',flag:'🇰🇬',p:36},{name:'Tajikistan',flag:'🇹🇯',p:33},
-  {name:'Afghanistan',flag:'🇦🇫',p:28},{name:'Brunei',flag:'🇧🇳',p:38},{name:'Timor-Leste',flag:'🇹🇱',p:25},
-  {name:'Bhutan',flag:'🇧🇹',p:27},{name:'Maldives',flag:'🇲🇻',p:26},{name:'Hong Kong',flag:'🇭🇰',p:55},
-  {name:'Israel',flag:'🇮🇱',p:65},{name:'Saudi Arabia',flag:'🇸🇦',p:68},{name:'UAE',flag:'🇦🇪',p:67},
-  {name:'Iran',flag:'🇮🇷',p:53},{name:'Iraq',flag:'🇮🇶',p:40},{name:'Jordan',flag:'🇯🇴',p:45},
-  {name:'Lebanon',flag:'🇱🇧',p:42},{name:'Syria',flag:'🇸🇾',p:38},{name:'Palestine',flag:'🇵🇸',p:35},
-  {name:'Qatar',flag:'🇶🇦',p:55},{name:'Kuwait',flag:'🇰🇼',p:48},{name:'Bahrain',flag:'🇧🇭',p:44},
-  {name:'Oman',flag:'🇴🇲',p:46},{name:'Yemen',flag:'🇾🇪',p:28},
-  {name:'South Africa',flag:'🇿🇦',p:52},{name:'Nigeria',flag:'🇳🇬',p:52},{name:'Egypt',flag:'🇪🇬',p:51},
-  {name:'Kenya',flag:'🇰🇪',p:44},{name:'Ghana',flag:'🇬🇭',p:46},{name:'Morocco',flag:'🇲🇦',p:55},
-  {name:'Ethiopia',flag:'🇪🇹',p:40},{name:'Algeria',flag:'🇩🇿',p:48},{name:'Senegal',flag:'🇸🇳',p:48},
-  {name:'Cameroon',flag:'🇨🇲',p:47},{name:'Ivory Coast',flag:'🇨🇮',p:49},{name:'Tanzania',flag:'🇹🇿',p:39},
-  {name:'Uganda',flag:'🇺🇬',p:38},{name:'Zimbabwe',flag:'🇿🇼',p:36},{name:'Zambia',flag:'🇿🇲',p:35},
-  {name:'Angola',flag:'🇦🇴',p:41},{name:'Mozambique',flag:'🇲🇿',p:32},{name:'Madagascar',flag:'🇲🇬',p:30},
-  {name:'Tunisia',flag:'🇹🇳',p:46},{name:'Libya',flag:'🇱🇾',p:34},{name:'Sudan',flag:'🇸🇩',p:30},
-  {name:'South Sudan',flag:'🇸🇸',p:22},{name:'Rwanda',flag:'🇷🇼',p:38},{name:'Mali',flag:'🇲🇱',p:28},
-  {name:'Burkina Faso',flag:'🇧🇫',p:27},{name:'Niger',flag:'🇳🇪',p:26},{name:'Chad',flag:'🇹🇩',p:24},
-  {name:'Somalia',flag:'🇸🇴',p:20},{name:'DR Congo',flag:'🇨🇩',p:33},{name:'Republic of Congo',flag:'🇨🇬',p:30},
-  {name:'Gabon',flag:'🇬🇦',p:34},{name:'Equatorial Guinea',flag:'🇬🇶',p:28},{name:'Burundi',flag:'🇧🇮',p:22},
-  {name:'Benin',flag:'🇧🇯',p:29},{name:'Togo',flag:'🇹🇬',p:28},{name:'Sierra Leone',flag:'🇸🇱',p:23},
-  {name:'Liberia',flag:'🇱🇷',p:22},{name:'Guinea',flag:'🇬🇳',p:26},{name:'Guinea-Bissau',flag:'🇬🇼',p:21},
-  {name:'Gambia',flag:'🇬🇲',p:22},{name:'Mauritania',flag:'🇲🇷',p:25},{name:'Cabo Verde',flag:'🇨🇻',p:28},
-  {name:'São Tomé & Príncipe',flag:'🇸🇹',p:20},{name:'Comoros',flag:'🇰🇲',p:20},{name:'Seychelles',flag:'🇸🇨',p:26},
-  {name:'Mauritius',flag:'🇲🇺',p:36},{name:'Djibouti',flag:'🇩🇯',p:22},{name:'Eritrea',flag:'🇪🇷',p:23},
-  {name:'Central African Republic',flag:'🇨🇫',p:20},{name:'Botswana',flag:'🇧🇼',p:38},{name:'Namibia',flag:'🇳🇦',p:34},
-  {name:'Lesotho',flag:'🇱🇸',p:22},{name:'Eswatini',flag:'🇸🇿',p:22},{name:'Malawi',flag:'🇲🇼',p:24},
-  {name:'Australia',flag:'🇦🇺',p:58},{name:'New Zealand',flag:'🇳🇿',p:50},{name:'Papua New Guinea',flag:'🇵🇬',p:30},
-  {name:'Fiji',flag:'🇫🇯',p:30},{name:'Solomon Islands',flag:'🇸🇧',p:22},{name:'Vanuatu',flag:'🇻🇺',p:21},
-  {name:'Samoa',flag:'🇼🇸',p:24},{name:'Tonga',flag:'🇹🇴',p:23},{name:'Kiribati',flag:'🇰🇮',p:20},
-  {name:'Micronesia',flag:'🇫🇲',p:20},{name:'Palau',flag:'🇵🇼',p:20},{name:'Marshall Islands',flag:'🇲🇭',p:20},
-  {name:'Nauru',flag:'🇳🇷',p:20},{name:'Tuvalu',flag:'🇹🇻',p:20},
+  // Americas
+  {name:'United States',flag:'🇺🇸',p:65},{name:'Canada',flag:'🇨🇦',p:58},{name:'Mexico',flag:'🇲🇽',p:57},
+  {name:'Brazil',flag:'🇧🇷',p:67},{name:'Argentina',flag:'🇦🇷',p:64},{name:'Colombia',flag:'🇨🇴',p:54},
+  {name:'Chile',flag:'🇨🇱',p:52},{name:'Peru',flag:'🇵🇪',p:49},{name:'Venezuela',flag:'🇻🇪',p:47},
+  {name:'Ecuador',flag:'🇪🇨',p:46},{name:'Bolivia',flag:'🇧🇴',p:43},{name:'Paraguay',flag:'🇵🇾',p:44},
+  {name:'Uruguay',flag:'🇺🇾',p:53},{name:'Cuba',flag:'🇨🇺',p:46},{name:'Dominican Republic',flag:'🇩🇴',p:44},
+  {name:'Jamaica',flag:'🇯🇲',p:45},{name:'Haiti',flag:'🇭🇹',p:36},{name:'Guatemala',flag:'🇬🇹',p:40},
+  {name:'Honduras',flag:'🇭🇳',p:39},{name:'El Salvador',flag:'🇸🇻',p:40},{name:'Costa Rica',flag:'🇨🇷',p:48},
+  {name:'Panama',flag:'🇵🇦',p:47},{name:'Trinidad & Tobago',flag:'🇹🇹',p:45},
+  // Europe
+  {name:'Germany',flag:'🇩🇪',p:66},{name:'France',flag:'🇫🇷',p:65},{name:'Spain',flag:'🇪🇸',p:64},
+  {name:'Italy',flag:'🇮🇹',p:63},{name:'Portugal',flag:'🇵🇹',p:61},{name:'Netherlands',flag:'🇳🇱',p:62},
+  {name:'Belgium',flag:'🇧🇪',p:60},{name:'Sweden',flag:'🇸🇪',p:58},{name:'UK',flag:'🇬🇧',p:62},
+  {name:'Scotland',flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',p:54},{name:'Wales',flag:'🏴󠁧󠁢󠁷󠁬󠁳󠁿',p:52},{name:'Poland',flag:'🇵🇱',p:57},
+  {name:'Czech Republic',flag:'🇨🇿',p:56},{name:'Hungary',flag:'🇭🇺',p:54},{name:'Romania',flag:'🇷🇴',p:52},
+  {name:'Croatia',flag:'🇭🇷',p:57},{name:'Serbia',flag:'🇷🇸',p:55},{name:'Greece',flag:'🇬🇷',p:53},
+  {name:'Denmark',flag:'🇩🇰',p:59},{name:'Norway',flag:'🇳🇴',p:57},{name:'Finland',flag:'🇫🇮',p:56},
+  {name:'Switzerland',flag:'🇨🇭',p:58},{name:'Austria',flag:'🇦🇹',p:56},{name:'Russia',flag:'🇷🇺',p:61},
+  {name:'Ukraine',flag:'🇺🇦',p:57},{name:'Turkey',flag:'🇹🇷',p:55},{name:'Ireland',flag:'🇮🇪',p:53},
+  {name:'Liechtenstein',flag:'🇱🇮',p:37},{name:'Monaco',flag:'🇲🇨',p:36},{name:'San Marino',flag:'🇸🇲',p:35},
+  {name:'Andorra',flag:'🇦🇩',p:36},{name:'Vatican City',flag:'🇻🇦',p:35},{name:'Luxembourg',flag:'🇱🇺',p:45},
+  {name:'Iceland',flag:'🇮🇸',p:50},{name:'Malta',flag:'🇲🇹',p:42},{name:'Cyprus',flag:'🇨🇾',p:43},
+  {name:'Slovakia',flag:'🇸🇰',p:52},{name:'Slovenia',flag:'🇸🇮',p:51},{name:'Bulgaria',flag:'🇧🇬',p:50},
+  // Asia
+  {name:'China',flag:'🇨🇳',p:63},{name:'Japan',flag:'🇯🇵',p:62},{name:'South Korea',flag:'🇰🇷',p:61},
+  {name:'India',flag:'🇮🇳',p:56},{name:'Indonesia',flag:'🇮🇩',p:51},{name:'Taiwan',flag:'🇹🇼',p:55},
+  {name:'Vietnam',flag:'🇻🇳',p:50},{name:'Thailand',flag:'🇹🇭',p:51},{name:'Malaysia',flag:'🇲🇾',p:49},
+  {name:'Philippines',flag:'🇵🇭',p:48},{name:'Singapore',flag:'🇸🇬',p:54},{name:'Pakistan',flag:'🇵🇰',p:47},
+  {name:'Bangladesh',flag:'🇧🇩',p:44},{name:'Sri Lanka',flag:'🇱🇰',p:43},{name:'Nepal',flag:'🇳🇵',p:39},
+  {name:'Myanmar',flag:'🇲🇲',p:38},{name:'Cambodia',flag:'🇰🇭',p:37},{name:'Mongolia',flag:'🇲🇳',p:41},
+  {name:'Uzbekistan',flag:'🇺🇿',p:46},{name:'Kazakhstan',flag:'🇰🇿',p:49},{name:'North Korea',flag:'🇰🇵',p:52},
+  {name:'Bhutan',flag:'🇧🇹',p:36},{name:'Maldives',flag:'🇲🇻',p:35},{name:'Hong Kong',flag:'🇭🇰',p:54},
+  // Middle East
+  {name:'Israel',flag:'🇮🇱',p:56},{name:'Saudi Arabia',flag:'🇸🇦',p:54},{name:'UAE',flag:'🇦🇪',p:53},
+  {name:'Iran',flag:'🇮🇷',p:51},{name:'Iraq',flag:'🇮🇶',p:42},{name:'Jordan',flag:'🇯🇴',p:46},
+  {name:'Lebanon',flag:'🇱🇧',p:44},{name:'Qatar',flag:'🇶🇦',p:50},{name:'Kuwait',flag:'🇰🇼',p:47},
+  {name:'Oman',flag:'🇴🇲',p:46},{name:'Yemen',flag:'🇾🇪',p:37},
+  // Africa
+  {name:'South Africa',flag:'🇿🇦',p:52},{name:'Nigeria',flag:'🇳🇬',p:51},{name:'Egypt',flag:'🇪🇬',p:51},
+  {name:'Kenya',flag:'🇰🇪',p:46},{name:'Ghana',flag:'🇬🇭',p:48},{name:'Morocco',flag:'🇲🇦',p:52},
+  {name:'Ethiopia',flag:'🇪🇹',p:43},{name:'Algeria',flag:'🇩🇿',p:49},{name:'Senegal',flag:'🇸🇳',p:49},
+  {name:'Cameroon',flag:'🇨🇲',p:48},{name:'Ivory Coast',flag:'🇨🇮',p:49},{name:'Tunisia',flag:'🇹🇳',p:47},
+  {name:'Tanzania',flag:'🇹🇿',p:41},{name:'Uganda',flag:'🇺🇬',p:40},{name:'Zimbabwe',flag:'🇿🇼',p:39},
+  {name:'Angola',flag:'🇦🇴',p:43},{name:'Mozambique',flag:'🇲🇿',p:37},{name:'Rwanda',flag:'🇷🇼',p:41},
+  {name:'Madagascar',flag:'🇲🇬',p:36},{name:'Botswana',flag:'🇧🇼',p:42},{name:'Namibia',flag:'🇳🇦',p:40},
+  {name:'Zambia',flag:'🇿🇲',p:39},{name:'Mali',flag:'🇲🇱',p:37},{name:'Sudan',flag:'🇸🇩',p:36},
+  {name:'Somalia',flag:'🇸🇴',p:35},{name:'DR Congo',flag:'🇨🇩',p:38},{name:'Libya',flag:'🇱🇾',p:38},
+  {name:'Gabon',flag:'🇬🇦',p:40},{name:'Burkina Faso',flag:'🇧🇫',p:36},{name:'Niger',flag:'🇳🇪',p:35},
+  {name:'Chad',flag:'🇹🇩',p:35},{name:'South Sudan',flag:'🇸🇸',p:35},{name:'Guinea',flag:'🇬🇳',p:37},
+  {name:'Sierra Leone',flag:'🇸🇱',p:36},{name:'Liberia',flag:'🇱🇷',p:35},{name:'Mauritius',flag:'🇲🇺',p:44},
+  {name:'Cabo Verde',flag:'🇨🇻',p:39},{name:'Seychelles',flag:'🇸🇨',p:40},
+  // Oceania
+  {name:'Australia',flag:'🇦🇺',p:60},{name:'New Zealand',flag:'🇳🇿',p:55},{name:'Fiji',flag:'🇫🇯',p:41},
+  {name:'Papua New Guinea',flag:'🇵🇬',p:38},{name:'Samoa',flag:'🇼🇸',p:38},{name:'Tonga',flag:'🇹🇴',p:37},
+  {name:'Vanuatu',flag:'🇻🇺',p:36},{name:'Solomon Islands',flag:'🇸🇧',p:36},{name:'Nauru',flag:'🇳🇷',p:35},
+  {name:'Tuvalu',flag:'🇹🇻',p:35},{name:'Kiribati',flag:'🇰🇮',p:35},
 ];
 
 // ── HOME BUTTON ──────────────────────────────────
-// Screens where we show Wren.fun (all except pong match)
 const HIDE_HOME_ON=['pong'];
 function updateHomeBtn(screenId){
   const el=document.getElementById('homeText');
@@ -468,10 +489,17 @@ function loadAll(){const r=localStorage.getItem('pwc_saves');if(r)G.saves=JSON.p
 function saveAll(){localStorage.setItem('pwc_saves',JSON.stringify(G.saves));localStorage.setItem('pwc_settings',JSON.stringify(G.settings));}
 function getSave(){return G.saves[G.currentSave];}
 function setSave(d){G.saves[G.currentSave]=d;saveAll();}
-function getPower(name,save){const base=COUNTRIES.find(c=>c.name===name);if(!base)return 50;return Math.min(99,Math.max(20,base.p+(save&&save.pd&&save.pd[name]||0)));}
 
-// ── IN-PROGRESS STATE (qual / bracket) ──────────
-// Saved into save.inProgress = {type:'qual'|'bracket', data:{...}}
+// Power is now linear — base 50, small shifts from history
+// getPower returns a value centered around 50 with ±15 range max
+function getPower(name,save){
+  const base=COUNTRIES.find(c=>c.name===name);
+  if(!base)return 50;
+  const drift=save&&save.pd&&save.pd[name]||0;
+  return Math.min(70,Math.max(35,base.p+drift));
+}
+
+// ── IN-PROGRESS STATE ──────────────────────────
 function clearInProgress(){const s=getSave();if(s){s.inProgress=null;setSave(s);}}
 function saveInProgress(type,data){const s=getSave();if(s){s.inProgress={type,data};setSave(s);}}
 function getInProgress(){const s=getSave();return s&&s.inProgress||null;}
@@ -557,7 +585,6 @@ function renderMenu(){
   document.getElementById('menu-flag').textContent=c?c.flag:'🌍';
   document.getElementById('menu-country-name').textContent=save.country.toUpperCase();
   document.getElementById('menu-year-num').textContent=save.year;
-  // Show resume button if there's an in-progress cup
   const resumeBtn=document.getElementById('btn-resume-cup');
   const ip=getInProgress();
   if(ip){
@@ -575,7 +602,6 @@ document.getElementById('btn-resume-cup').onclick=()=>{
   if(ip.type==='qual'){QS=ip.data;QS.opps=QS.opps.map(o=>COUNTRIES.find(c=>c.name===o.name)||o);QS.me=COUNTRIES.find(c=>c.name===QS.me.name)||QS.me;renderQual();showScreen('qual');}
   else if(ip.type==='bracket'){T=ip.data;T.teams=T.teams.map(o=>COUNTRIES.find(c=>c.name===o.name)||o);T.me=COUNTRIES.find(c=>c.name===T.me.name)||T.me;restoreBracketRefs(T);renderBracket();showScreen('bracket');}
 };
-// Restore object refs in T.rounds after JSON parse
 function restoreBracketRefs(t){
   const byName=n=>t.teams.find(x=>x.name===n)||COUNTRIES.find(x=>x.name===n)||{name:n,flag:'🌍',p:50};
   t.rounds.forEach(round=>round.forEach(m=>{m.a=byName(m.a.name);m.b=byName(m.b.name);if(m.w)m.w=byName(m.w.name);}));
@@ -629,11 +655,20 @@ document.getElementById('btn-bracket-exit').onclick=()=>{Sound.click();renderMen
 // ── HELPERS ──────────────────────────────────────
 const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const rndItem=a=>a[Math.floor(Math.random()*a.length)];
+
+// Win probability based on power difference — gentler curve
+// At equal power: 50/50. At max spread (35 vs 70): ~75/25
+function winProb(powerA, powerB) {
+  const diff = powerA - powerB;
+  // Logistic curve — diff of 35 gives ~75% chance
+  return 1 / (1 + Math.exp(-diff / 18));
+}
+
 function wRandom(pool,save){
+  // Weight selection toward higher power but not crushingly so
   const w=pool.map(c=>{
-    const p = getPower(c.name,save);
-    // Exponential weight: 99 power is 100x more likely than 50 power
-    return {c, w: Math.pow(p / 100, 6)}; 
+    const p=getPower(c.name,save);
+    return {c, w: Math.pow(p/50, 2.5)};
   });
   const t=w.reduce((s,x)=>s+x.w,0);
   let r=Math.random()*t;
@@ -658,7 +693,7 @@ function renderQual(){
   const btns=document.getElementById('qual-buttons');btns.innerHTML='';
   if(QS.cur<QS.opps.length){
     const btn=document.createElement('button');btn.className='btn btn-gold';btn.innerHTML=`<span>▶ PLAY VS ${QS.opps[QS.cur].name.toUpperCase()}</span>`;
-      btn.onclick=()=>{Sound.click();startPong({player:QS.me,cpu:QS.opps[QS.cur],ctx:`QUALIFICATION MATCH ${QS.cur+1}`,
+    btn.onclick=()=>{Sound.click();startPong({player:QS.me,cpu:QS.opps[QS.cur],ctx:`QUALIFICATION MATCH ${QS.cur+1}`,
       onWin:()=>{QS.results.push('won');QS.cur++;saveInProgress('qual',QS);if(QS.results.filter(r=>r==='won').length===3){clearInProgress();setTimeout(()=>{showScreen('qual');renderQual();setTimeout(startTournament,1200);},600);}else{showScreen('qual');renderQual();}},
       onLoss:()=>{QS.results.push('lost');QS.cur++;saveInProgress('qual',QS);clearInProgress();setTimeout(()=>fastForwardYear(false),600);}
     });};btns.appendChild(btn);
@@ -713,7 +748,13 @@ function renderBracket(){
     }
   }
 }
-function simMatch(m,save){const pa=getPower(m.a.name,save),pb=getPower(m.b.name,save);const aW=Math.random()<(pa/(pa+pb))*0.85+0.075;m.w=aW?m.a:m.b;if(aW){m.sa=10;m.sb=rnd(0,9);}else{m.sa=rnd(0,9);m.sb=10;}}
+function simMatch(m,save){
+  const pa=getPower(m.a.name,save),pb=getPower(m.b.name,save);
+  const prob=winProb(pa,pb);
+  const aW=Math.random()<prob;
+  m.w=aW?m.a:m.b;
+  if(aW){m.sa=7;m.sb=rnd(0,6);}else{m.sa=rnd(0,6);m.sb=7;}
+}
 function advance(){
   saveInProgress('bracket',T);
   if(!T.rounds[T.round].every(m=>m.w)){renderBracket();showScreen('bracket');return;}
@@ -725,8 +766,8 @@ function endTournament(){
   const save=getSave();const third=rndItem(T.semis),fourth=T.semis.find(c=>c.name!==third.name)||T.semis[0];
   const pos=[{country:T.champ.name},{country:T.finalist2.name},{country:third.name},{country:fourth.name}];
   save.history.push({year:save.year,positions:pos});
-  pos.forEach((p,i)=>{const d=[3,1,0,-1][i];save.pd[p.country]=(save.pd[p.country]||0)+d;});
-  COUNTRIES.forEach(c=>{save.pd[c.name]=Math.max(-40,Math.min(40,(save.pd[c.name]||0)+(Math.random()-0.5)*4));});
+  pos.forEach((p,i)=>{const d=[2,1,0,-1][i];save.pd[p.country]=(save.pd[p.country]||0)+d;});
+  COUNTRIES.forEach(c=>{save.pd[c.name]=Math.max(-15,Math.min(15,(save.pd[c.name]||0)+(Math.random()-0.5)*2));});
   save.year++;setSave(save);
   const isC=T.champ.name===save.country;
   document.getElementById('tourney-end-title').textContent=isC?'🏆 CHAMPION!':'TOURNAMENT COMPLETE';
@@ -751,8 +792,8 @@ function fastForwardYear(includePlayer=false){
   const sl=sf.map(m=>m.a===m.w?m.b:m.a),third=rndItem(sl),fourth=sl.find(c=>c.name!==third.name)||sl[0];
   const pos=[{country:champ.name},{country:runner.name},{country:third.name},{country:fourth.name}];
   save.history.push({year:save.year,positions:pos});
-  pos.forEach((p,i)=>{const d=[3,1,0,-1][i];save.pd[p.country]=(save.pd[p.country]||0)+d;});
-  COUNTRIES.forEach(c=>{save.pd[c.name]=Math.max(-40,Math.min(40,(save.pd[c.name]||0)+(Math.random()-0.5)*4));});
+  pos.forEach((p,i)=>{const d=[2,1,0,-1][i];save.pd[p.country]=(save.pd[p.country]||0)+d;});
+  COUNTRIES.forEach(c=>{save.pd[c.name]=Math.max(-15,Math.min(15,(save.pd[c.name]||0)+(Math.random()-0.5)*2));});
   save.year++;setSave(save);
   document.getElementById('tourney-end-title').textContent='FAST-FORWARDED';
   document.getElementById('tourney-end-year').textContent=`YEAR ${save.year-1} SIMULATED`;
@@ -763,15 +804,12 @@ function fastForwardYear(includePlayer=false){
 
 function simulateRemainingTournament(){
   const save=getSave();
-  // Finish current round
   T.rounds[T.round].forEach(m=>{if(!m.w)simMatch(m,save);});
-  // Simulate rest of tournament
   while(T.round<2){
     T.round++;
     buildRound();
     T.rounds[T.round].forEach(m=>{if(!m.w)simMatch(m,save);});
   }
-  // Finalize
   const fm=T.rounds[2][0];
   T.champ=fm.w;T.finalist2=fm.a===fm.w?fm.b:fm.a;
   if(!T.semis.length){const sf=T.rounds[1];T.semis=[sf[0].a===sf[0].w?sf[0].b:sf[0].a,sf[1].a===sf[1].w?sf[1].b:sf[1].a];}
@@ -786,6 +824,8 @@ let _loopToken=0;
 const _keys={};
 document.addEventListener('keydown',e=>_keys[e.key]=true);
 document.addEventListener('keyup',e=>_keys[e.key]=false);
+
+// ── MOBILE TOUCH ON CANVAS ───────────────────────
 let _touchY=null;
 document.addEventListener('touchstart',e=>{if(e.target.id==='pongCanvas'){_touchY=e.touches[0].clientY;e.preventDefault();}},{passive:false});
 document.addEventListener('touchmove',e=>{
@@ -795,6 +835,7 @@ document.addEventListener('touchmove',e=>{
   e.preventDefault();
 },{passive:false});
 
+// ── MOUSE CONTROL ────────────────────────────────
 document.addEventListener('mousemove',e=>{
   if(!window._PS)return;
   const s=window._PS;
@@ -804,6 +845,22 @@ document.addEventListener('mousemove',e=>{
   const my=(e.clientY-rect.top)*scale;
   s.py=Math.max(0,Math.min(s.H-s.ph,my-s.ph/2));
 });
+
+// ── MOBILE ARROW BUTTONS ─────────────────────────
+const _mobileKeys={up:false,down:false};
+function setupMobileControls(){
+  const btnUp=document.getElementById('btn-up');
+  const btnDn=document.getElementById('btn-down');
+  const press=(btn,dir,active)=>{
+    _mobileKeys[dir]=active;
+    btn.classList.toggle('pressed',active);
+  };
+  ['touchstart','mousedown'].forEach(ev=>{btnUp.addEventListener(ev,e=>{e.preventDefault();press(btnUp,'up',true);},{passive:false});});
+  ['touchend','mouseup','mouseleave'].forEach(ev=>{btnUp.addEventListener(ev,e=>{press(btnUp,'up',false);});});
+  ['touchstart','mousedown'].forEach(ev=>{btnDn.addEventListener(ev,e=>{e.preventDefault();press(btnDn,'down',true);},{passive:false});});
+  ['touchend','mouseup','mouseleave'].forEach(ev=>{btnDn.addEventListener(ev,e=>{press(btnDn,'down',false);});});
+}
+setupMobileControls();
 
 function startPong({player,cpu,ctx:ctxLabel,onWin,onLoss}){
   _loopToken++;const tok=_loopToken;
@@ -822,39 +879,40 @@ function startPong({player,cpu,ctx:ctxLabel,onWin,onLoss}){
     const W=Math.max(400,Math.min(wrap.clientWidth,900)),H=Math.max(300,Math.min(wrap.clientHeight-10,550));
     cv.width=W;cv.height=H;const ctx=cv.getContext('2d');
 
-    const dm={easy:0.6,normal:1.0,hard:1.4}[G.settings.difficulty]||1.0;
+    // AI speed based on difficulty + opponent power
+    const dm={easy:0.55,normal:0.85,hard:1.2}[G.settings.difficulty]||0.85;
     const cp=getPower(cpu.name,getSave());
-    const aiSpd=((cp/100)*3.2+1.2)*dm,aiAcc=(cp/100)*0.6+0.1;
+    // AI speed: gentle range. At power 35 = slow, power 70 = faster, but never unbeatable
+    const aiSpd=((cp-35)/35*2.5+2.5)*dm;
     const PW=14,PH=110,BSP=5.0,TARGET=7;
     const PX=PW+10,AX=W-PW-10-PW;
     let ballId=0;
 
-    // lastScorer: 'player'|'cpu'|null — determines which side gets served to
+    // ── BALL FACTORY ────────────────────────────
+    // lastScorer: 'player' scored → serve toward CPU (right)
+    //             'cpu' scored → serve toward player (left) so player receives
+    //             null → random
     function mkBall(lastScorer){
-      // Ball starts in center; direction aims toward the side that just got scored on
-      // i.e. serve goes toward the player who lost the point (they receive)
-      let vx,vy;
       const speed=BSP;
-      const angleSpread=0.6; // radians variance from horizontal
-      const angle=(Math.random()-0.5)*angleSpread*2;
+      const maxAngle=Math.PI/5; // 36° max spread from horizontal
+      const angle=(Math.random()-0.5)*maxAngle*2;
+      let vx,vy;
       if(lastScorer==='player'){
-        // player scored → serve toward CPU (right)
+        // player just scored — serve toward cpu (positive x = right)
         vx=speed*Math.cos(angle);
       }else if(lastScorer==='cpu'){
-        // cpu scored → serve toward player (left)
+        // cpu just scored — serve toward player (negative x = left)
         vx=-speed*Math.cos(angle);
       }else{
-        // first serve: random
         vx=speed*(Math.random()>0.5?1:-1)*Math.cos(angle);
       }
       vy=speed*Math.sin(angle)*(Math.random()>0.5?1:-1);
-      // ensure minimum vertical component so it's not purely horizontal
-      if(Math.abs(vy)<0.8)vy=(vy>=0?0.8:-0.8);
+      if(Math.abs(vy)<0.6)vy=(vy>=0?0.6:-0.6);
       return{id:++ballId,x:W/2,y:H/2,vx,vy,spd:speed,trail:[],hue:180,scored:false};
     }
 
-    const S={running:false,W,H,py:H/2-PH/2,ay:H/2-PH/2,ps:0,as:0,ball:mkBall(null),aiTgt:H/2,aiTmr:0,resumeAt:0,done:false,player,cpu,onWin,onLoss,ph:PH};
-    S.py = Math.max(0, Math.min(H - PH, S.py));
+    const S={running:false,W,H,py:H/2-PH/2,ay:H/2-PH/2,ps:0,as:0,ball:mkBall(null),aiTmr:0,resumeAt:0,done:false,player,cpu,onWin,onLoss,ph:PH};
+    S.py=Math.max(0,Math.min(H-PH,S.py));
     window._PS=S;
 
     const ov=document.getElementById('countdown-overlay'),nm=document.getElementById('countdown-num');
@@ -865,63 +923,64 @@ function startPong({player,cpu,ctx:ctxLabel,onWin,onLoss}){
       if(_loopToken!==tok||S.done)return;
       const now=Date.now();
       draw(ctx,S,W,H,PW,PH,PX,AX);
-      if(S.running&&now>=S.resumeAt){physics(S,W,H,PW,PH,PX,AX,BSP,PH,aiSpd,aiAcc,TARGET,tok,mkBall);}
+      if(S.running&&now>=S.resumeAt){physics(S,W,H,PW,PH,PX,AX,BSP,aiSpd,TARGET,tok,mkBall);}
       requestAnimationFrame(loop);
     }
   });
 }
 
-function physics(S,W,H,PW,PH,PX,AX,BSP,_ph,aiSpd,aiAcc,TARGET,tok,mkBall){
+function physics(S,W,H,PW,PH,PX,AX,BSP,aiSpd,TARGET,tok,mkBall){
   const b=S.ball;
-  // player
-  if(_keys['ArrowUp']||_keys['w']||_keys['W'])S.py=Math.max(0,S.py-9);
-  if(_keys['ArrowDown']||_keys['s']||_keys['S'])S.py=Math.min(H-PH,S.py+9);
-  // AI - Smooth interpolation with reaction error
+  // Player movement: keyboard + mobile buttons
+  const upPressed=_keys['ArrowUp']||_keys['w']||_keys['W']||_mobileKeys.up;
+  const dnPressed=_keys['ArrowDown']||_keys['s']||_keys['S']||_mobileKeys.down;
+  if(upPressed)S.py=Math.max(0,S.py-9);
+  if(dnPressed)S.py=Math.min(H-PH,S.py+9);
+
+  // AI tracking — moves toward ball center with speed cap
   const aiCenter=S.ay+PH/2;
-  // Only track the ball if it's moving towards the AI or is somewhat close
-  let targetY = H/2; // default to center
-  if(b.vx > 0 || b.x > W/2){
-    targetY = b.y + (Math.sin(Date.now()/500) * 25); // wavy movement to simulate error
-  }
+  const targetY=b.y;
   const dist=targetY-aiCenter;
-  if(Math.abs(dist)>10){S.ay=Math.max(0,Math.min(H-PH,S.ay+Math.sign(dist)*aiSpd*0.75));}
-  // ball trail + move
+  if(Math.abs(dist)>6){S.ay=Math.max(0,Math.min(H-PH,S.ay+Math.sign(dist)*aiSpd));}
+
+  // Ball trail
   b.trail.push({x:b.x,y:b.y,hue:b.hue});if(b.trail.length>8)b.trail.shift();b.hue=(b.hue+3)%360;
   b.x+=b.vx;b.y+=b.vy;
-  // walls
+
+  // Walls
   if(b.y<=5){b.vy=Math.abs(b.vy);b.y=5;Sound.wallHit();}
   if(b.y>=H-5){b.vy=-Math.abs(b.vy);b.y=H-5;Sound.wallHit();}
-  // player paddle
+
+  // Player paddle collision
   if(b.vx<0&&b.x-6<=PX+PW&&b.x+6>=PX&&b.y+6>=S.py&&b.y-6<=S.py+PH){
     b.vx=Math.abs(b.vx);const hp=(b.y-S.py)/PH-0.5;b.vy=hp*8;
-    b.spd=Math.min(b.spd*1.055,18);const mg=Math.sqrt(b.vx*b.vx+b.vy*b.vy);b.vx=(b.vx/mg)*b.spd;b.vy=(b.vy/mg)*b.spd;
+    b.spd=Math.min(b.spd*1.055,16);const mg=Math.sqrt(b.vx*b.vx+b.vy*b.vy);b.vx=(b.vx/mg)*b.spd;b.vy=(b.vy/mg)*b.spd;
     Sound.paddleHit();sparks(PX+PW,b.y,'#00d4ff',5);
   }
-  // AI paddle
+  // AI paddle collision
   if(b.vx>0&&b.x+6>=AX&&b.x-6<=AX+PW&&b.y+6>=S.ay&&b.y-6<=S.ay+PH){
     b.vx=-Math.abs(b.vx);const hp=(b.y-S.ay)/PH-0.5;b.vy=hp*8;
-    b.spd=Math.min(b.spd*1.055,18);const mg=Math.sqrt(b.vx*b.vx+b.vy*b.vy);b.vx=(b.vx/mg)*b.spd;b.vy=(b.vy/mg)*b.spd;
+    b.spd=Math.min(b.spd*1.055,16);const mg=Math.sqrt(b.vx*b.vx+b.vy*b.vy);b.vx=(b.vx/mg)*b.spd;b.vy=(b.vy/mg)*b.spd;
     Sound.paddleHit();sparks(AX,b.y,'#ff006e',5);
   }
-  // SCORING
+
+  // Scoring
   if(!b.scored&&(b.x<-15||b.x>W+15)){
     b.scored=true;
-    const pScored=b.x>W+15; // ball exits right → player scored
+    const pScored=b.x>W+15;
     if(pScored){S.ps++;Sound.score(true);flash('green');bump('left');sparks(W*0.3,H*0.5,'#39ff14',7);}
     else{S.as++;Sound.score(false);flash('pink');bump('right');}
     document.getElementById('pong-score-left').textContent=S.ps;
     document.getElementById('pong-score-right').textContent=S.as;
-    // popup
     const pop=document.createElement('div');pop.className='score-popup';pop.style.cssText=`left:${W/2-20}px;top:${H/2-40}px;color:${pScored?'var(--neon-green)':'var(--neon-pink)'};`;pop.textContent=pScored?'+1':'-1';document.getElementById('pong-canvas-wrap').appendChild(pop);setTimeout(()=>pop.remove(),1200);
-    // game over?
     if(S.ps>=TARGET||S.as>=TARGET){
       S.done=true;const pw=S.ps>=TARGET;if(pw)Sound.matchWin();else Sound.matchLoss();
       setTimeout(()=>showResult(pw,S),700);return;
     }
-    // fresh ball aimed at the loser's side
+    // New serve — aimed toward the side that just lost the point
     const newBall=mkBall(pScored?'player':'cpu');
     S.ball=window._PS.ball=newBall;
-    S.resumeAt=Date.now()+750;
+    S.resumeAt=Date.now()+800;
   }
 }
 
