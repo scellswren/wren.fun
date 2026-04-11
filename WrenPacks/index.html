@@ -1494,8 +1494,6 @@
     const RADIOACTIVE_UNLOCK_KEY = 'wren_theme_radioactive_unlocked';
     const MONEY_UNLOCK_KEY = 'wren_theme_money_unlocked';
     const SNOW_UNLOCK_KEY = 'wren_theme_snow_unlocked';
-    const RAINBOW_REMASTERED_THEME_UNLOCK_KEY = 'wren_theme_rainbow_neon_remastered_unlocked';
-    const FIRE_THEME_UNLOCK_KEY = 'wren_theme_fire_unlocked';
     const MONEY_BILLION_CODE = 'HHH2sksdne23';
 
     document.addEventListener("click", function unlockAudio() {
@@ -1688,20 +1686,6 @@
       }
     }
 
-    function syncSpecialThemeUnlocksFromInventory() {
-      const inv = JSON.parse(localStorage.getItem("inventory") || "{}");
-      const totalChars = Object.values(inv).reduce((sum, value) => sum + (Number(value) || 0), 0);
-      const hasOmega = items.some(item => item.rarity === "Omega" && (Number(inv[item.name]) || 0) > 0);
-
-      if (hasOmega) {
-        localStorage.setItem(RAINBOW_REMASTERED_THEME_UNLOCK_KEY, "1");
-      }
-
-      if (totalChars >= 5000) {
-        localStorage.setItem(FIRE_THEME_UNLOCK_KEY, "1");
-      }
-    }
-
     function openInfo() {
       const inv = JSON.parse(localStorage.getItem("inventory")) || {};
       const totalChars = Object.values(inv).reduce((a, b) => a + b, 0);
@@ -1838,7 +1822,6 @@
       }
 
       syncRadioactiveUnlockFromInventory();
-      syncSpecialThemeUnlocksFromInventory();
       updateThemeUnlocksFromMoney();
       buildRarityFilters();
     })();
@@ -2051,7 +2034,6 @@
       inv[name] = (inv[name] || 0) + 1;
       localStorage.setItem("inventory", JSON.stringify(inv));
       syncRadioactiveUnlockFromInventory();
-      syncSpecialThemeUnlocksFromInventory();
     }
 
     const rarityGlow = {
