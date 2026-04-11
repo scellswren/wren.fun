@@ -64,6 +64,11 @@
   .country-item{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:10px;}
   .country-item:hover{border-color:var(--neon-cyan);background:#0d1a2e;}
   .country-item .flag{font-size:20px;min-width:24px;}.country-item .name{font-size:12px;font-weight:600;color:var(--text);line-height:1.2;}
+  .country-item .pwr{font-size:10px;font-family:'Orbitron',monospace;margin-left:auto;padding:2px 6px;border-radius:4px;white-space:nowrap;}
+  .pwr.tier-s{color:var(--neon-pink);border:1px solid var(--neon-pink);}
+  .pwr.tier-a{color:var(--neon-gold);border:1px solid var(--neon-gold);}
+  .pwr.tier-b{color:var(--neon-cyan);border:1px solid var(--neon-cyan);}
+  .pwr.tier-c{color:var(--text-dim);border:1px solid var(--border);}
   /* MENU */
   #screen-menu{gap:16px;}
   .menu-header{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,var(--panel),#0d1a2e);border:1px solid #1a2a4a;border-radius:10px;padding:16px 24px;width:min(480px,95vw);}
@@ -119,6 +124,13 @@
   .progress-dots{display:flex;gap:8px;justify-content:center;}
   .dot{width:10px;height:10px;border-radius:50%;border:1px solid var(--border);background:transparent;transition:all 0.3s;}
   .dot.filled{background:var(--neon-green);border-color:var(--neon-green);box-shadow:var(--glow-green);}
+  /* PRACTICE */
+  #screen-practice{gap:16px;}
+  .practice-header{text-align:center;margin-bottom:4px;}
+  .practice-title{font-family:'Orbitron',monospace;font-size:clamp(16px,4vw,28px);color:var(--neon-cyan);font-weight:700;letter-spacing:3px;}
+  .practice-sub{font-family:'Orbitron',monospace;font-size:11px;color:var(--text-dim);letter-spacing:4px;margin-top:4px;}
+  .practice-tier-legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:4px 0;}
+  .tier-badge{font-size:11px;font-family:'Orbitron',monospace;padding:3px 10px;border-radius:4px;}
   /* PONG */
   #screen-pong{justify-content:flex-start;padding:0;background:var(--bg);}
   .pong-header{width:100%;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#050518,#0a0a18,#050518);border-bottom:1px solid #1a1a3a;z-index:5;flex-shrink:0;}
@@ -138,12 +150,10 @@
   .countdown-overlay{position:absolute;inset:0;background:rgba(5,5,8,0.85);display:flex;align-items:center;justify-content:center;z-index:10;}
   .countdown-num{font-family:'Orbitron',monospace;font-size:100px;font-weight:900;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px #00d4ff);animation:countdown-pop 0.8s ease-out;}
   @keyframes countdown-pop{0%{transform:scale(2);opacity:0;}100%{transform:scale(1);opacity:1;}}
-
   /* MOBILE ARROW BUTTONS */
   .mobile-controls{position:absolute;left:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:20;}
   .mobile-btn{width:52px;height:52px;border-radius:10px;border:2px solid rgba(0,212,255,0.5);background:rgba(0,212,255,0.1);color:var(--neon-cyan);font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none;transition:background 0.1s;}
   .mobile-btn:active,.mobile-btn.pressed{background:rgba(0,212,255,0.3);border-color:var(--neon-cyan);}
-
   /* RESULT */
   #screen-result{gap:20px;}
   .result-box{text-align:center;padding:32px 40px;border-radius:16px;min-width:min(420px,90vw);}
@@ -247,6 +257,7 @@
   <div class="menu-buttons">
     <button class="menu-btn resume-btn" id="btn-resume-cup" style="display:none"><span class="icon">⚡</span> RESUME CUP</button>
     <button class="menu-btn" id="btn-play-cup"><span class="icon">▶</span> PLAY CUP</button>
+    <button class="menu-btn" id="btn-practice"><span class="icon">🎯</span> PRACTICE</button>
     <button class="menu-btn" id="btn-stats-menu"><span class="icon">📊</span> MY STATS</button>
     <button class="menu-btn" id="btn-history"><span class="icon">📜</span> HISTORY</button>
     <button class="menu-btn" id="btn-codes-menu"><span class="icon">🔑</span> ENTER CODE</button>
@@ -259,6 +270,23 @@
   <div class="game-title" style="font-size:clamp(20px,4vw,36px)">📊 NATION STATS</div>
   <div class="stats-container" id="stats-container"></div>
   <button class="btn" id="btn-stats-back"><span>← BACK</span></button>
+</div>
+
+<!-- PRACTICE SCREEN -->
+<div class="screen" id="screen-practice">
+  <div class="practice-header">
+    <div class="practice-title">🎯 PRACTICE MODE</div>
+    <div class="practice-sub">NO STAKES · JUST REPS</div>
+  </div>
+  <div class="practice-tier-legend">
+    <span class="tier-badge pwr tier-s">★★★ ELITE</span>
+    <span class="tier-badge pwr tier-a">★★ STRONG</span>
+    <span class="tier-badge pwr tier-b">★ DECENT</span>
+    <span class="tier-badge pwr tier-c">· WEAK</span>
+  </div>
+  <input class="country-search" type="text" placeholder="🔍  Search opponent..." id="practice-search-input" style="width:min(500px,90vw)">
+  <div class="country-grid" id="practice-country-grid" style="width:min(720px,95vw);max-height:50vh;"></div>
+  <button class="btn btn-sm" id="btn-practice-back" style="margin-top:8px"><span>← BACK</span></button>
 </div>
 
 <div class="screen" id="screen-qual">
@@ -291,7 +319,6 @@
     <div class="countdown-overlay" id="countdown-overlay" style="display:none">
       <div class="countdown-num" id="countdown-num">3</div>
     </div>
-    <!-- Mobile arrow controls -->
     <div class="mobile-controls" id="mobile-controls">
       <div class="mobile-btn" id="btn-up">▲</div>
       <div class="mobile-btn" id="btn-down">▼</div>
@@ -381,7 +408,7 @@
 
 <script>
 // ═══════════════════════════════════════════════
-// PONG WORLD CUP — Fixed Edition
+// PONG WORLD CUP
 // ═══════════════════════════════════════════════
 
 // ── STARFIELD ───────────────────────────────────
@@ -410,12 +437,10 @@ const Sound=(()=>{
 })();
 
 // ── COUNTRIES ────────────────────────────────────
-// Power scale: 50 = baseline average, range ~35–70
-// No country is dramatically stronger than another — the gap is meaningful but beatable
 const COUNTRIES=[
   // Americas
-  {name:'United States',flag:'🇺🇸',p:65},{name:'Canada',flag:'🇨🇦',p:58},{name:'Mexico',flag:'🇲🇽',p:57},
-  {name:'Brazil',flag:'🇧🇷',p:67},{name:'Argentina',flag:'🇦🇷',p:64},{name:'Colombia',flag:'🇨🇴',p:54},
+  {name:'United States',flag:'🇺🇸',p:61},{name:'Canada',flag:'🇨🇦',p:56},{name:'Mexico',flag:'🇲🇽',p:55},
+  {name:'Brazil',flag:'🇧🇷',p:62},{name:'Argentina',flag:'🇦🇷',p:61},{name:'Colombia',flag:'🇨🇴',p:52},
   {name:'Chile',flag:'🇨🇱',p:52},{name:'Peru',flag:'🇵🇪',p:49},{name:'Venezuela',flag:'🇻🇪',p:47},
   {name:'Ecuador',flag:'🇪🇨',p:46},{name:'Bolivia',flag:'🇧🇴',p:43},{name:'Paraguay',flag:'🇵🇾',p:44},
   {name:'Uruguay',flag:'🇺🇾',p:53},{name:'Cuba',flag:'🇨🇺',p:46},{name:'Dominican Republic',flag:'🇩🇴',p:44},
@@ -423,30 +448,30 @@ const COUNTRIES=[
   {name:'Honduras',flag:'🇭🇳',p:39},{name:'El Salvador',flag:'🇸🇻',p:40},{name:'Costa Rica',flag:'🇨🇷',p:48},
   {name:'Panama',flag:'🇵🇦',p:47},{name:'Trinidad & Tobago',flag:'🇹🇹',p:45},
   // Europe
-  {name:'Germany',flag:'🇩🇪',p:66},{name:'France',flag:'🇫🇷',p:65},{name:'Spain',flag:'🇪🇸',p:64},
-  {name:'Italy',flag:'🇮🇹',p:63},{name:'Portugal',flag:'🇵🇹',p:61},{name:'Netherlands',flag:'🇳🇱',p:62},
-  {name:'Belgium',flag:'🇧🇪',p:60},{name:'Sweden',flag:'🇸🇪',p:58},{name:'UK',flag:'🇬🇧',p:62},
+  {name:'Germany',flag:'🇩🇪',p:62},{name:'France',flag:'🇫🇷',p:61},{name:'Spain',flag:'🇪🇸',p:61},
+  {name:'Italy',flag:'🇮🇹',p:60},{name:'Portugal',flag:'🇵🇹',p:59},{name:'Netherlands',flag:'🇳🇱',p:59},
+  {name:'Belgium',flag:'🇧🇪',p:58},{name:'Sweden',flag:'🇸🇪',p:56},{name:'UK',flag:'🇬🇧',p:59},
   {name:'Scotland',flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',p:54},{name:'Wales',flag:'🏴󠁧󠁢󠁷󠁬󠁳󠁿',p:52},{name:'Poland',flag:'🇵🇱',p:57},
   {name:'Czech Republic',flag:'🇨🇿',p:56},{name:'Hungary',flag:'🇭🇺',p:54},{name:'Romania',flag:'🇷🇴',p:52},
   {name:'Croatia',flag:'🇭🇷',p:57},{name:'Serbia',flag:'🇷🇸',p:55},{name:'Greece',flag:'🇬🇷',p:53},
   {name:'Denmark',flag:'🇩🇰',p:59},{name:'Norway',flag:'🇳🇴',p:57},{name:'Finland',flag:'🇫🇮',p:56},
-  {name:'Switzerland',flag:'🇨🇭',p:58},{name:'Austria',flag:'🇦🇹',p:56},{name:'Russia',flag:'🇷🇺',p:61},
+  {name:'Switzerland',flag:'🇨🇭',p:58},{name:'Austria',flag:'🇦🇹',p:56},{name:'Russia',flag:'🇷🇺',p:58},
   {name:'Ukraine',flag:'🇺🇦',p:57},{name:'Turkey',flag:'🇹🇷',p:55},{name:'Ireland',flag:'🇮🇪',p:53},
   {name:'Liechtenstein',flag:'🇱🇮',p:37},{name:'Monaco',flag:'🇲🇨',p:36},{name:'San Marino',flag:'🇸🇲',p:35},
   {name:'Andorra',flag:'🇦🇩',p:36},{name:'Vatican City',flag:'🇻🇦',p:35},{name:'Luxembourg',flag:'🇱🇺',p:45},
   {name:'Iceland',flag:'🇮🇸',p:50},{name:'Malta',flag:'🇲🇹',p:42},{name:'Cyprus',flag:'🇨🇾',p:43},
   {name:'Slovakia',flag:'🇸🇰',p:52},{name:'Slovenia',flag:'🇸🇮',p:51},{name:'Bulgaria',flag:'🇧🇬',p:50},
   // Asia
-  {name:'China',flag:'🇨🇳',p:63},{name:'Japan',flag:'🇯🇵',p:62},{name:'South Korea',flag:'🇰🇷',p:61},
-  {name:'India',flag:'🇮🇳',p:56},{name:'Indonesia',flag:'🇮🇩',p:51},{name:'Taiwan',flag:'🇹🇼',p:55},
+  {name:'China',flag:'🇨🇳',p:60},{name:'Japan',flag:'🇯🇵',p:59},{name:'South Korea',flag:'🇰🇷',p:59},
+  {name:'India',flag:'🇮🇳',p:55},{name:'Indonesia',flag:'🇮🇩',p:51},{name:'Taiwan',flag:'🇹🇼',p:54},
   {name:'Vietnam',flag:'🇻🇳',p:50},{name:'Thailand',flag:'🇹🇭',p:51},{name:'Malaysia',flag:'🇲🇾',p:49},
-  {name:'Philippines',flag:'🇵🇭',p:48},{name:'Singapore',flag:'🇸🇬',p:54},{name:'Pakistan',flag:'🇵🇰',p:47},
+  {name:'Philippines',flag:'🇵🇭',p:48},{name:'Singapore',flag:'🇸🇬',p:53},{name:'Pakistan',flag:'🇵🇰',p:47},
   {name:'Bangladesh',flag:'🇧🇩',p:44},{name:'Sri Lanka',flag:'🇱🇰',p:43},{name:'Nepal',flag:'🇳🇵',p:39},
   {name:'Myanmar',flag:'🇲🇲',p:38},{name:'Cambodia',flag:'🇰🇭',p:37},{name:'Mongolia',flag:'🇲🇳',p:41},
   {name:'Uzbekistan',flag:'🇺🇿',p:46},{name:'Kazakhstan',flag:'🇰🇿',p:49},{name:'North Korea',flag:'🇰🇵',p:52},
-  {name:'Bhutan',flag:'🇧🇹',p:36},{name:'Maldives',flag:'🇲🇻',p:35},{name:'Hong Kong',flag:'🇭🇰',p:54},
+  {name:'Bhutan',flag:'🇧🇹',p:36},{name:'Maldives',flag:'🇲🇻',p:35},{name:'Hong Kong',flag:'🇭🇰',p:53},
   // Middle East
-  {name:'Israel',flag:'🇮🇱',p:56},{name:'Saudi Arabia',flag:'🇸🇦',p:54},{name:'UAE',flag:'🇦🇪',p:53},
+  {name:'Israel',flag:'🇮🇱',p:55},{name:'Saudi Arabia',flag:'🇸🇦',p:53},{name:'UAE',flag:'🇦🇪',p:52},
   {name:'Iran',flag:'🇮🇷',p:51},{name:'Iraq',flag:'🇮🇶',p:42},{name:'Jordan',flag:'🇯🇴',p:46},
   {name:'Lebanon',flag:'🇱🇧',p:44},{name:'Qatar',flag:'🇶🇦',p:50},{name:'Kuwait',flag:'🇰🇼',p:47},
   {name:'Oman',flag:'🇴🇲',p:46},{name:'Yemen',flag:'🇾🇪',p:37},
@@ -465,7 +490,7 @@ const COUNTRIES=[
   {name:'Sierra Leone',flag:'🇸🇱',p:36},{name:'Liberia',flag:'🇱🇷',p:35},{name:'Mauritius',flag:'🇲🇺',p:44},
   {name:'Cabo Verde',flag:'🇨🇻',p:39},{name:'Seychelles',flag:'🇸🇨',p:40},
   // Oceania
-  {name:'Australia',flag:'🇦🇺',p:60},{name:'New Zealand',flag:'🇳🇿',p:55},{name:'Fiji',flag:'🇫🇯',p:41},
+  {name:'Australia',flag:'🇦🇺',p:57},{name:'New Zealand',flag:'🇳🇿',p:54},{name:'Fiji',flag:'🇫🇯',p:41},
   {name:'Papua New Guinea',flag:'🇵🇬',p:38},{name:'Samoa',flag:'🇼🇸',p:38},{name:'Tonga',flag:'🇹🇴',p:37},
   {name:'Vanuatu',flag:'🇻🇺',p:36},{name:'Solomon Islands',flag:'🇸🇧',p:36},{name:'Nauru',flag:'🇳🇷',p:35},
   {name:'Tuvalu',flag:'🇹🇻',p:35},{name:'Kiribati',flag:'🇰🇮',p:35},
@@ -490,13 +515,11 @@ function saveAll(){localStorage.setItem('pwc_saves',JSON.stringify(G.saves));loc
 function getSave(){return G.saves[G.currentSave];}
 function setSave(d){G.saves[G.currentSave]=d;saveAll();}
 
-// Power is now linear — base 50, small shifts from history
-// getPower returns a value centered around 50 with ±15 range max
 function getPower(name,save){
   const base=COUNTRIES.find(c=>c.name===name);
   if(!base)return 50;
   const drift=save&&save.pd&&save.pd[name]||0;
-  return Math.min(70,Math.max(35,base.p+drift));
+  return Math.min(65,Math.max(35,base.p+drift));
 }
 
 // ── IN-PROGRESS STATE ──────────────────────────
@@ -610,6 +633,7 @@ function restoreBracketRefs(t){
   if(t.champ)t.champ=byName(t.champ.name);
 }
 document.getElementById('btn-play-cup').onclick=()=>{Sound.click();startQualification();};
+document.getElementById('btn-practice').onclick=()=>{Sound.click();renderPractice();showScreen('practice');};
 document.getElementById('btn-stats-menu').onclick=()=>{Sound.click();renderStats();showScreen('stats');};
 document.getElementById('btn-history').onclick=()=>{Sound.click();renderHistory();showScreen('history');};
 document.getElementById('btn-codes-menu').onclick=()=>{
@@ -631,6 +655,63 @@ document.getElementById('cheat-confirm').onclick=()=>{
 document.getElementById('btn-settings').onclick=()=>{Sound.click();renderSettings();showScreen('settings');};
 document.getElementById('btn-save-select').onclick=()=>{Sound.click();renderSaveSlots();showScreen('save');};
 document.getElementById('btn-stats-back').onclick=()=>{Sound.click();showScreen('menu');};
+
+// ── PRACTICE MODE ─────────────────────────────────
+function pwrTier(p){
+  if(p>=58)return'tier-s';
+  if(p>=52)return'tier-a';
+  if(p>=44)return'tier-b';
+  return'tier-c';
+}
+function pwrLabel(p){
+  if(p>=58)return'★★★';
+  if(p>=52)return'★★';
+  if(p>=44)return'★';
+  return'·';
+}
+
+function renderPractice(){
+  const save=getSave();
+  const me=COUNTRIES.find(c=>c.name===save.country);
+  const grid=document.getElementById('practice-country-grid');
+  const inp=document.getElementById('practice-search-input');
+  inp.value='';
+
+  const render=f=>{
+    grid.innerHTML='';
+    const seen=new Set();
+    const list=COUNTRIES.filter(c=>{
+      if(c.name===save.country)return false;
+      if(seen.has(c.name))return false;
+      seen.add(c.name);
+      if(f&&!c.name.toLowerCase().includes(f.toLowerCase()))return false;
+      return true;
+    });
+    // Sort hardest first so practice targets are easy to find
+    list.sort((a,b)=>getPower(b.name,save)-getPower(a.name,save));
+    list.forEach(c=>{
+      const p=getPower(c.name,save);
+      const item=document.createElement('div');
+      item.className='country-item';
+      item.innerHTML=`<span class="flag">${c.flag}</span><span class="name">${c.name}</span><span class="pwr ${pwrTier(p)}">${pwrLabel(p)}</span>`;
+      item.addEventListener('click',()=>{
+        Sound.click();
+        startPong({
+          player:me,
+          cpu:c,
+          ctx:'PRACTICE',
+          isPractice:true,
+          onWin:()=>{flash('green');setTimeout(()=>{renderPractice();showScreen('practice');},400);},
+          onLoss:()=>{flash('pink');setTimeout(()=>{renderPractice();showScreen('practice');},400);}
+        });
+      });
+      grid.appendChild(item);
+    });
+  };
+  render('');
+  inp.oninput=()=>render(inp.value);
+}
+document.getElementById('btn-practice-back').onclick=()=>{Sound.click();showScreen('menu');};
 
 // ── HISTORY ──────────────────────────────────────
 function renderHistory(){
@@ -656,16 +737,12 @@ document.getElementById('btn-bracket-exit').onclick=()=>{Sound.click();renderMen
 const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const rndItem=a=>a[Math.floor(Math.random()*a.length)];
 
-// Win probability based on power difference — gentler curve
-// At equal power: 50/50. At max spread (35 vs 70): ~75/25
 function winProb(powerA, powerB) {
   const diff = powerA - powerB;
-  // Logistic curve — diff of 35 gives ~75% chance
   return 1 / (1 + Math.exp(-diff / 18));
 }
 
 function wRandom(pool,save){
-  // Weight selection toward higher power but not crushingly so
   const w=pool.map(c=>{
     const p=getPower(c.name,save);
     return {c, w: Math.pow(p/50, 2.5)};
@@ -825,7 +902,6 @@ const _keys={};
 document.addEventListener('keydown',e=>_keys[e.key]=true);
 document.addEventListener('keyup',e=>_keys[e.key]=false);
 
-// ── MOBILE TOUCH ON CANVAS ───────────────────────
 let _touchY=null;
 document.addEventListener('touchstart',e=>{if(e.target.id==='pongCanvas'){_touchY=e.touches[0].clientY;e.preventDefault();}},{passive:false});
 document.addEventListener('touchmove',e=>{
@@ -835,7 +911,6 @@ document.addEventListener('touchmove',e=>{
   e.preventDefault();
 },{passive:false});
 
-// ── MOUSE CONTROL ────────────────────────────────
 document.addEventListener('mousemove',e=>{
   if(!window._PS)return;
   const s=window._PS;
@@ -846,7 +921,6 @@ document.addEventListener('mousemove',e=>{
   s.py=Math.max(0,Math.min(s.H-s.ph,my-s.ph/2));
 });
 
-// ── MOBILE ARROW BUTTONS ─────────────────────────
 const _mobileKeys={up:false,down:false};
 function setupMobileControls(){
   const btnUp=document.getElementById('btn-up');
@@ -862,7 +936,19 @@ function setupMobileControls(){
 }
 setupMobileControls();
 
-function startPong({player,cpu,ctx:ctxLabel,onWin,onLoss}){
+// ── AI SPEED FORMULA ─────────────────────────────
+// Tuned so elite teams (power 62) are hard but not unbeatable.
+// Old max was 5.5 at power 65. New max is ~4.8 at power 65.
+// Range: power 35 → 2.5, power 50 → 3.5, power 62 → 4.6, power 65 → 4.8
+// All values then multiplied by difficulty modifier.
+function calcAiSpeed(cpuPower, difficulty) {
+  const dm = {easy: 0.58, normal: 0.82, hard: 1.10}[difficulty] || 0.82;
+  // Softer curve: narrower range, lower ceiling than before
+  const base = ((cpuPower - 35) / 30) * 2.3 + 2.5;
+  return Math.min(base, 4.8) * dm;
+}
+
+function startPong({player,cpu,ctx:ctxLabel,onWin,onLoss,isPractice}){
   _loopToken++;const tok=_loopToken;
   ['pong-left-flag','pong-right-flag'].forEach((id,i)=>document.getElementById(id).textContent=[player,cpu][i].flag);
   ['pong-left-name','pong-right-name'].forEach((id,i)=>document.getElementById(id).textContent=[player,cpu][i].name.toUpperCase());
@@ -879,29 +965,21 @@ function startPong({player,cpu,ctx:ctxLabel,onWin,onLoss}){
     const W=Math.max(400,Math.min(wrap.clientWidth,900)),H=Math.max(300,Math.min(wrap.clientHeight-10,550));
     cv.width=W;cv.height=H;const ctx=cv.getContext('2d');
 
-    // AI speed based on difficulty + opponent power
-    const dm={easy:0.55,normal:0.85,hard:1.2}[G.settings.difficulty]||0.85;
     const cp=getPower(cpu.name,getSave());
-    // AI speed: gentle range. At power 35 = slow, power 70 = faster, but never unbeatable
-    const aiSpd=((cp-35)/35*2.5+2.5)*dm;
+    const aiSpd=calcAiSpeed(cp, G.settings.difficulty);
+
     const PW=14,PH=110,BSP=5.0,TARGET=7;
     const PX=PW+10,AX=W-PW-10-PW;
     let ballId=0;
 
-    // ── BALL FACTORY ────────────────────────────
-    // lastScorer: 'player' scored → serve toward CPU (right)
-    //             'cpu' scored → serve toward player (left) so player receives
-    //             null → random
     function mkBall(lastScorer){
       const speed=BSP;
-      const maxAngle=Math.PI/5; // 36° max spread from horizontal
+      const maxAngle=Math.PI/5;
       const angle=(Math.random()-0.5)*maxAngle*2;
       let vx,vy;
       if(lastScorer==='player'){
-        // player just scored — serve toward cpu (positive x = right)
         vx=speed*Math.cos(angle);
       }else if(lastScorer==='cpu'){
-        // cpu just scored — serve toward player (negative x = left)
         vx=-speed*Math.cos(angle);
       }else{
         vx=speed*(Math.random()>0.5?1:-1)*Math.cos(angle);
@@ -911,7 +989,7 @@ function startPong({player,cpu,ctx:ctxLabel,onWin,onLoss}){
       return{id:++ballId,x:W/2,y:H/2,vx,vy,spd:speed,trail:[],hue:180,scored:false};
     }
 
-    const S={running:false,W,H,py:H/2-PH/2,ay:H/2-PH/2,ps:0,as:0,ball:mkBall(null),aiTmr:0,resumeAt:0,done:false,player,cpu,onWin,onLoss,ph:PH};
+    const S={running:false,W,H,py:H/2-PH/2,ay:H/2-PH/2,ps:0,as:0,ball:mkBall(null),aiTmr:0,resumeAt:0,done:false,player,cpu,onWin,onLoss,ph:PH,isPractice:!!isPractice};
     S.py=Math.max(0,Math.min(H-PH,S.py));
     window._PS=S;
 
@@ -931,40 +1009,33 @@ function startPong({player,cpu,ctx:ctxLabel,onWin,onLoss}){
 
 function physics(S,W,H,PW,PH,PX,AX,BSP,aiSpd,TARGET,tok,mkBall){
   const b=S.ball;
-  // Player movement: keyboard + mobile buttons
   const upPressed=_keys['ArrowUp']||_keys['w']||_keys['W']||_mobileKeys.up;
   const dnPressed=_keys['ArrowDown']||_keys['s']||_keys['S']||_mobileKeys.down;
   if(upPressed)S.py=Math.max(0,S.py-9);
   if(dnPressed)S.py=Math.min(H-PH,S.py+9);
 
-  // AI tracking — moves toward ball center with speed cap
   const aiCenter=S.ay+PH/2;
   const targetY=b.y;
   const dist=targetY-aiCenter;
   if(Math.abs(dist)>6){S.ay=Math.max(0,Math.min(H-PH,S.ay+Math.sign(dist)*aiSpd));}
 
-  // Ball trail
   b.trail.push({x:b.x,y:b.y,hue:b.hue});if(b.trail.length>8)b.trail.shift();b.hue=(b.hue+3)%360;
   b.x+=b.vx;b.y+=b.vy;
 
-  // Walls
   if(b.y<=5){b.vy=Math.abs(b.vy);b.y=5;Sound.wallHit();}
   if(b.y>=H-5){b.vy=-Math.abs(b.vy);b.y=H-5;Sound.wallHit();}
 
-  // Player paddle collision
   if(b.vx<0&&b.x-6<=PX+PW&&b.x+6>=PX&&b.y+6>=S.py&&b.y-6<=S.py+PH){
     b.vx=Math.abs(b.vx);const hp=(b.y-S.py)/PH-0.5;b.vy=hp*8;
     b.spd=Math.min(b.spd*1.055,16);const mg=Math.sqrt(b.vx*b.vx+b.vy*b.vy);b.vx=(b.vx/mg)*b.spd;b.vy=(b.vy/mg)*b.spd;
     Sound.paddleHit();sparks(PX+PW,b.y,'#00d4ff',5);
   }
-  // AI paddle collision
   if(b.vx>0&&b.x+6>=AX&&b.x-6<=AX+PW&&b.y+6>=S.ay&&b.y-6<=S.ay+PH){
     b.vx=-Math.abs(b.vx);const hp=(b.y-S.ay)/PH-0.5;b.vy=hp*8;
     b.spd=Math.min(b.spd*1.055,16);const mg=Math.sqrt(b.vx*b.vx+b.vy*b.vy);b.vx=(b.vx/mg)*b.spd;b.vy=(b.vy/mg)*b.spd;
     Sound.paddleHit();sparks(AX,b.y,'#ff006e',5);
   }
 
-  // Scoring
   if(!b.scored&&(b.x<-15||b.x>W+15)){
     b.scored=true;
     const pScored=b.x>W+15;
@@ -977,7 +1048,6 @@ function physics(S,W,H,PW,PH,PX,AX,BSP,aiSpd,TARGET,tok,mkBall){
       S.done=true;const pw=S.ps>=TARGET;if(pw)Sound.matchWin();else Sound.matchLoss();
       setTimeout(()=>showResult(pw,S),700);return;
     }
-    // New serve — aimed toward the side that just lost the point
     const newBall=mkBall(pScored?'player':'cpu');
     S.ball=window._PS.ball=newBall;
     S.resumeAt=Date.now()+800;
@@ -1020,10 +1090,16 @@ function showResult(pw,S){
   if(pw){
     const btn=document.createElement('button');btn.className='btn btn-green';btn.innerHTML='<span>▶ CONTINUE</span>';
     btn.onclick=()=>{Sound.click();S.onWin(S.ps,S.as);};btns.appendChild(btn);
-  }else{
-    if(S.onLoss)setTimeout(()=>S.onLoss(S.ps,S.as),0);
   }
-  showScreen('result');
+  if(S.isPractice){
+    // In practice: always show a "play again" and "back" button
+    const replayBtn=document.createElement('button');replayBtn.className='btn btn-gold btn-sm';replayBtn.innerHTML='<span>↺ REMATCH</span>';
+    replayBtn.onclick=()=>{Sound.click();startPong({player:S.player,cpu:S.cpu,ctx:'PRACTICE',isPractice:true,onWin:S.onWin,onLoss:S.onLoss});};btns.appendChild(replayBtn);
+    const backBtn=document.createElement('button');backBtn.className='btn btn-sm';backBtn.innerHTML='<span>← OPPONENT SELECT</span>';
+    backBtn.onclick=()=>{Sound.click();renderPractice();showScreen('practice');};btns.appendChild(backBtn);
+  }else if(!pw&&S.onLoss){
+    setTimeout(()=>S.onLoss(S.ps,S.as),0);
+  }
 }
 
 // ── INIT ─────────────────────────────────────────
