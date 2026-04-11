@@ -1688,16 +1688,15 @@
       }
     }
 
-    function syncRainbowRemasteredUnlockFromInventory() {
-      const inv = JSON.parse(localStorage.getItem("inventory") || "{}");
-      if (items.some(item => item.rarity === "Omega" && (Number(inv[item.name]) || 0) > 0)) {
-        localStorage.setItem(RAINBOW_REMASTERED_THEME_UNLOCK_KEY, "1");
-      }
-    }
-
-    function syncFireUnlockFromInventory() {
+    function syncSpecialThemeUnlocksFromInventory() {
       const inv = JSON.parse(localStorage.getItem("inventory") || "{}");
       const totalChars = Object.values(inv).reduce((sum, value) => sum + (Number(value) || 0), 0);
+      const hasOmega = items.some(item => item.rarity === "Omega" && (Number(inv[item.name]) || 0) > 0);
+
+      if (hasOmega) {
+        localStorage.setItem(RAINBOW_REMASTERED_THEME_UNLOCK_KEY, "1");
+      }
+
       if (totalChars >= 5000) {
         localStorage.setItem(FIRE_THEME_UNLOCK_KEY, "1");
       }
@@ -1839,8 +1838,7 @@
       }
 
       syncRadioactiveUnlockFromInventory();
-      syncRainbowRemasteredUnlockFromInventory();
-      syncFireUnlockFromInventory();
+      syncSpecialThemeUnlocksFromInventory();
       updateThemeUnlocksFromMoney();
       buildRarityFilters();
     })();
@@ -2053,8 +2051,7 @@
       inv[name] = (inv[name] || 0) + 1;
       localStorage.setItem("inventory", JSON.stringify(inv));
       syncRadioactiveUnlockFromInventory();
-      syncRainbowRemasteredUnlockFromInventory();
-      syncFireUnlockFromInventory();
+      syncSpecialThemeUnlocksFromInventory();
     }
 
     const rarityGlow = {
