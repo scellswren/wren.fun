@@ -1286,34 +1286,63 @@ const DIFF_EMOJI = { easy:'🟢', normal:'🔵', decent:'🟡', hard:'🔴', sup
 
 /* ── STATE ── */
 const SAVE_KEY = 'catchAnything_save';
+const SAVE_KEY_BACKUP = 'catchAnything_save_backup';
 // Use a page-specific sessionStorage key so it never bleeds to other pages
 const MODE_KEY = 'catchAnythingMode_v2_thispage';
 
 let state = { balls:{normal:0,super:0,omega:0,god:0}, inventory:{}, encounter:null, throwsLeft:0, selectedBall:'normal', level:1, xp:0, tokens:0 };
 
-function loadState() {
+function readSave(key) {
   try {
-    const s = JSON.parse(localStorage.getItem(SAVE_KEY));
-    if (s) {
-      state.balls        = s.balls       || state.balls;
-      state.inventory    = s.inventory   || state.inventory;
-      state.selectedBall = s.selectedBall|| 'normal';
-      state.level        = Number.isFinite(s.level) ? s.level : state.level;
-      state.xp           = Number.isFinite(s.xp) ? s.xp : state.xp;
-      state.tokens       = Number.isFinite(s.tokens) ? s.tokens : state.tokens;
-      state.tokens       = Number.isFinite(s.tokens) ? s.tokens : state.tokens;
-    }
-  } catch(e) {}
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch (e) {
+    return null;
+  }
 }
+
+function applySavedState(s) {
+  if (!s) return;
+
+  if (s.balls && typeof s.balls === 'object') {
+    state.balls = { ...state.balls, ...s.balls };
+  }
+  if (s.inventory && typeof s.inventory === 'object') {
+    state.inventory = s.inventory;
+  }
+  if (typeof s.selectedBall === 'string') {
+    state.selectedBall = s.selectedBall;
+  }
+  if (Number.isFinite(s.level)) {
+    state.level = s.level;
+  }
+  if (Number.isFinite(s.xp)) {
+    state.xp = s.xp;
+  }
+  if (Number.isFinite(s.tokens)) {
+    state.tokens = s.tokens;
+  }
+}
+
+function loadState() {
+  const primary = readSave(SAVE_KEY);
+  const backup = readSave(SAVE_KEY_BACKUP);
+  applySavedState(primary || backup);
+}
+
 function saveState() {
-  localStorage.setItem(SAVE_KEY, JSON.stringify({
+  const payload = JSON.stringify({
     balls: state.balls,
     inventory: state.inventory,
     selectedBall: state.selectedBall,
     level: state.level,
     xp: state.xp,
     tokens: state.tokens
-  }));
+  });
+  localStorage.setItem(SAVE_KEY, payload);
+  localStorage.setItem(SAVE_KEY_BACKUP, payload);
   updateLevelUI();
   renderExchangeTab();
 }
