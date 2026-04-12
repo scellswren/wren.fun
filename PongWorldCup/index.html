@@ -715,6 +715,8 @@ function renderPractice(){
       item.innerHTML=`<span class="flag">${c.flag}</span><span class="name">${c.name}</span><span class="pwr ${pwrTier(p)}">${pwrLabel(p)}</span>`;
       item.addEventListener('click',()=>{
         Sound.click();
+        // Flag that a practice match has been played — unlocks Watermelon on main menu
+        try{localStorage.setItem('pong_practice_played','1');}catch(e){}
         startPong({
           player:me,
           cpu:c,
@@ -872,7 +874,11 @@ function endTournament(){
   const isC=T.champ.name===save.country;
   document.getElementById('tourney-end-title').textContent=isC?'🏆 CHAMPION!':'TOURNAMENT COMPLETE';
   document.getElementById('tourney-end-year').textContent=`YEAR ${save.year-1}`;
-  if(isC){Sound.champion();flash('gold');setTimeout(()=>{sparks(innerWidth/2,innerHeight/2,'#ffd700',20);sparks(innerWidth/4,innerHeight/3,'#bf00ff',12);},300);}
+  if(isC){
+    Sound.champion();flash('gold');setTimeout(()=>{sparks(innerWidth/2,innerHeight/2,'#ffd700',20);sparks(innerWidth/4,innerHeight/3,'#bf00ff',12);},300);
+    // Unlock Jedi theme on main menu — flag that a cup has been won
+    try{localStorage.setItem('pong_cup_won','1');}catch(e){}
+  }
   const med=['🥇','🥈','🥉','4️⃣'],pod=document.getElementById('podium');pod.innerHTML='';
   pos.forEach((p,i)=>{const c=COUNTRIES.find(x=>x.name===p.country);const r=document.createElement('div');r.className=`podium-row place-${i+1}${p.country===save.country?' is-you':''}`;r.innerHTML=`<span class="podium-medal">${med[i]}</span><span class="podium-flag">${c?c.flag:'🌍'}</span><span class="podium-name">${p.country.toUpperCase()}</span>${p.country===save.country?'<span style="font-size:11px;color:var(--neon-blue)">YOU</span>':''}`;pod.appendChild(r);});
   showScreen('tourney-end');
@@ -1163,6 +1169,26 @@ loadAll();renderSaveSlots();
 updateHomeBtn('save');
 document.querySelectorAll('.diff-btn').forEach(b=>b.classList.toggle('active',b.dataset.diff===G.settings.difficulty));
 document.addEventListener('click',()=>{try{new(window.AudioContext||window.webkitAudioContext)().resume();}catch(e){}},{once:true});
+
+// ── SONG STATE PERSISTENCE ────────────────────────
+// Save whether the in-game sound is on when leaving, so the main menu can
+// auto-resume its own song (Song.mp3) and unlock the Bone theme.
+// We repurpose wren_song_was_playing to mean "user had audio on in Pong".
+(function saveSongStateOnLeave(){
+  function saveState(){
+    try{
+      // G.settings.sound reflects whether in-game audio is enabled
+      localStorage.setItem('wren_song_was_playing', G.settings.sound ? '1' : '0');
+    }catch(e){}
+  }
+  window.addEventListener('beforeunload', saveState);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveState();});
+  // Also fire when the home button is clicked (navigates to main menu)
+  const homeBtn=document.getElementById('homeText');
+  if(homeBtn){
+    homeBtn.addEventListener('click',saveState,{capture:true});
+  }
+})();
 </script>
 </body>
 </html>
