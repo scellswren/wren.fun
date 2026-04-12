@@ -353,6 +353,17 @@
     border-color: rgba(251,191,36,0.38);
     box-shadow: 0 0 0 1px rgba(251,191,36,0.10), 0 0 18px rgba(251,191,36,0.08);
   }
+  .level-card.current {
+    border-color: rgba(34,197,94,0.8);
+    box-shadow: 0 0 0 1px rgba(34,197,94,0.18), 0 0 20px rgba(34,197,94,0.22);
+    background: linear-gradient(135deg, rgba(34,197,94,0.18), var(--surface2));
+  }
+  .level-card.current .level-pill,
+  .level-card.current .level-num-big,
+  .level-card.current .level-xp,
+  .level-card.current .level-reward {
+    color: #86efac;
+  }
   .level-card-top {
     display: flex;
     align-items: center;
@@ -1011,6 +1022,7 @@
     <div class="level-overlay-head">Level Timeline</div>
     <div class="level-overlay-sub">
       Click the top level bar any time to open this full-screen view.
+      From level 85 onward, the XP needed to level up stays at 235,000.
     </div>
 
     <div class="card">
@@ -1162,7 +1174,7 @@
       <div class="card-title">Token Exchange</div>
       <div class="exchange-head">
         <div class="exchange-token-box">Tokens: <b id="tokenCount">0</b></div>
-        <div class="exchange-note">Earn 1 token per level. Every 5th level gives 3 tokens.</div>
+        <div class="exchange-note">Level 1 is your start. Rewards jump at level 25 and again at level 50.</div>
       </div>
       <div class="exchange-grid" id="exchangeGrid"></div>
     </div>
@@ -1204,12 +1216,12 @@
     </div>
     <div class="card" id="levelsCardWrap">
       <div class="card-title">Level Timeline</div>
-      <div style="font-size:0.85em;color:var(--muted);line-height:1.65;margin-bottom:14px">Every level gives 1 token. Every 5th level gives 3 tokens.</div>
+      <div style="font-size:0.85em;color:var(--muted);line-height:1.65;margin-bottom:14px">Level 1 is your start. Later levels give more tokens, and the current level is highlighted green.</div>
       <div id="levelsStrip" class="levels-strip"></div>
     </div>
     <div class="card" style="font-size:0.85em;color:var(--muted);line-height:1.75">
       <div class="card-title">Ball Luck Milestones</div>
-      Level 10 = +10% ball roll chance · Level 30 = +10% again · Level 50 = +30% · Level 100 = +50% · Level 120 = guaranteed ball rolls
+      Level 10 = +10% ball roll chance · Level 30 = +10% again · Level 50 = +50% · Level 75 = 100% bonus cap
     </div>
   </div>
 
@@ -1221,6 +1233,9 @@
   <div class="modal-box exchange-modal" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
     <div class="modal-title">Choose a <span id="exchangeChooserTitle"></span> item</div>
     <div class="modal-text">Cost: <b id="exchangeChooserCost"></b></div>
+    <div class="modal-actions" style="margin-bottom:12px">
+      <button class="modal-btn ghost" type="button" id="rarityListBtn">📜 Show all characters</button>
+    </div>
     <div class="exchange-item-grid" id="exchangeChooserList"></div>
     <div class="modal-actions" style="margin-top:18px">
       <button class="modal-btn ghost" onclick="closeExchangeChooser()">Close</button>
@@ -1289,6 +1304,7 @@ const SAVE_KEY = 'catchAnything_save';
 const SAVE_KEY_BACKUP = 'catchAnything_save_backup';
 const SAVE_KEY_PREV = 'catchAnything_save_prev';
 const SAVE_KEY_LEGACY = 'catchAnything_save_v1';
+const EXCHANGE_COST_KEY = 'catchAnything_exchangeCosts_v1';
 // Use a page-specific sessionStorage key so it never bleeds to other pages
 const MODE_KEY = 'catchAnythingMode_v2_thispage';
 
@@ -1309,6 +1325,7 @@ function createDefaultState() {
 }
 
 let state = createDefaultState();
+let exchangeCosts = { impossible: 15 };
 
 function isPlainObject(value) {
   return !!value && typeof value === 'object' && !Array.isArray(value);
@@ -1353,6 +1370,25 @@ function sanitizeInventory(inventory) {
 
 function sanitizeSelectedBall(value) {
   return VALID_SELECTED_BALLS.has(value) ? value : 'normal';
+}
+
+function loadExchangeCosts() {
+  try {
+    const raw = localStorage.getItem(EXCHANGE_COST_KEY);
+    if (!raw) return;
+    const parsed = safeParseSave(raw);
+    if (!parsed) return;
+    const n = Number(parsed.impossible);
+    if (Number.isFinite(n) && n >= 15) {
+      exchangeCosts.impossible = Math.floor(n);
+    }
+  } catch (e) {}
+}
+
+function saveExchangeCosts() {
+  try {
+    localStorage.setItem(EXCHANGE_COST_KEY, JSON.stringify(exchangeCosts));
+  } catch (e) {}
 }
 
 function sanitizeProgressNumber(value, fallback) {
@@ -1466,17 +1502,19 @@ function saveState() {
   localStorage.setItem(SAVE_KEY_BACKUP, payload);
   updateLevelUI();
   renderExchangeTab();
+  renderLevelsTab();
 }
 
 /* ── LEVEL / XP ── */
 function getXpRequirement(level) {
+  if (level >= 85) return 235000;
   if (level < 10) return level * 1000;
   if (level < 20) return 10000 + (level - 10) * 2000;
   if (level < 40) return 30000 + (level - 20) * 2000;
   if (level < 60) return 70000 + (level - 40) * 3000;
   if (level < 80) return 130000 + (level - 60) * 4000;
-  if (level < 100) return 210000 + (level - 80) * 5000;
-  return 310000 + (level - 100) * 10000;
+  if (level < 85) return 210000 + (level - 80) * 5000;
+  return 235000;
 }
 
 function getCatchXp(diff) {
@@ -1487,15 +1525,15 @@ function getRollXp(ball) {
   return { normal:10, super:50, omega:200, god:20000 }[ball] || 0;
 }
 
+
 function getBallLuckFactor() {
-  if (state.level >= 120) return Infinity;
-  let factor = 1;
-  if (state.level >= 10)  factor *= 1.10;
-  if (state.level >= 30)  factor *= 1.10;
-  if (state.level >= 50)  factor *= 1.30;
-  if (state.level >= 100) factor *= 1.50;
-  return factor;
+  if (state.level >= 75) return 2.0;
+  if (state.level >= 50) return 1.815;
+  if (state.level >= 30) return 1.21;
+  if (state.level >= 10) return 1.10;
+  return 1;
 }
+
 
 function updateLevelUI() {
   const levelEl = document.getElementById('levelNum');
@@ -1512,9 +1550,27 @@ function updateLevelUI() {
   nowEl.textContent = now.toLocaleString();
   needEl.textContent = need.toLocaleString();
   fillEl.style.width = pct.toFixed(2) + '%';
+  updateBallOddsDisplay();
+}
+
+function updateBallOddsDisplay() {
+  const thresholds = getBallRollThresholds();
+  const chanceMap = Object.fromEntries(thresholds.map(([ball, chance]) => [ball, chance]));
+  const fmt = (n) => `${(n).toFixed(n < 0.1 ? 2 : 1)}% chance`;
+
+  const normal = document.getElementById('ballOddsNormal');
+  const superEl = document.getElementById('ballOddsSuper');
+  const omega  = document.getElementById('ballOddsOmega');
+  const god    = document.getElementById('ballOddsGod');
+
+  if (normal) normal.textContent = fmt(chanceMap.normal ?? 10);
+  if (superEl) superEl.textContent = fmt(chanceMap.super ?? 2);
+  if (omega) omega.textContent = fmt(chanceMap.omega ?? 0.75);
+  if (god) god.textContent = fmt(chanceMap.god ?? 0.01);
 }
 
 function flashLevelDock() {
+
   const dock = document.getElementById('xpDock');
   if (!dock) return;
   dock.classList.remove('leveled');
@@ -1598,6 +1654,29 @@ function playLevelUpSound() {
   setTimeout(() => playTone(783.99, 0.18, 'triangle', 0.07, 1318.5), 240);
 }
 
+let searchSoundTimer = null;
+function startSearchSound() {
+  stopSearchSound();
+  const seq = [
+    [420, 'sine', 0.03, 620],
+    [560, 'triangle', 0.032, 790],
+    [700, 'sine', 0.034, 980],
+    [840, 'triangle', 0.03, 1180],
+  ];
+  let i = 0;
+  searchSoundTimer = setInterval(() => {
+    const [freq, type, gain, sweep] = seq[i % seq.length];
+    playTone(freq, 0.09, type, gain, sweep);
+    i++;
+  }, 150);
+}
+function stopSearchSound() {
+  if (searchSoundTimer) {
+    clearInterval(searchSoundTimer);
+    searchSoundTimer = null;
+  }
+}
+
 function awardXp(amount, diff, sourceRect) {
   if (!amount || amount <= 0) return;
   spawnXPFly(amount, diff, sourceRect, diff === 'impossible' ? 'levelup' : '');
@@ -1622,33 +1701,37 @@ function awardXp(amount, diff, sourceRect) {
   }
 }
 
+
 function getBallRollThresholds() {
+  const factor = getBallLuckFactor();
   const base = [
     ['god', 0.01],
     ['omega', 0.75],
     ['super', 2],
     ['normal', 10],
   ];
-  if (state.level >= 120) return base;
-  const factor = getBallLuckFactor();
   return base.map(([ball, chance]) => [ball, chance * factor]);
 }
 
 function getMilestoneText(level) {
-  if (level === 10)  return 'Ball roll chance +10%.';
-  if (level === 30)  return 'Ball roll chance +10% again.';
-  if (level === 50)  return 'Ball roll chance +30%.';
-  if (level === 100) return 'Ball roll chance +50%.';
-  if (level >= 120)  return 'Ball rolls are guaranteed. No more nope / lol.';
+  if (level === 10) return 'Ball roll chance +10%.';
+  if (level === 30) return 'Ball roll chance +10% again.';
+  if (level === 50) return 'Ball roll chance +50%.';
+  if (level >= 75) return 'Ball rolls are maxed out (100% bonus cap).';
   return 'No ball roll bonus.';
 }
 
 
 function getLevelTokenReward(level) {
+  if (level <= 1) return 0;
+  if (level >= 50) return level % 5 === 0 ? 8 : 4;
+  if (level >= 25) return level % 5 === 0 ? 5 : 2;
   return level % 5 === 0 ? 3 : 1;
 }
 function getLevelRewardText(level) {
-  const tokenText = getLevelTokenReward(level) === 3 ? '+3 tokens' : '+1 token';
+  if (level <= 1) return 'Start';
+  const reward = getLevelTokenReward(level);
+  const tokenText = reward === 1 ? '+1 token' : `+${reward} tokens`;
   const milestone = getMilestoneText(level);
   return milestone === 'No ball roll bonus.' ? tokenText : `${tokenText} · ${milestone}`;
 }
@@ -1670,17 +1753,17 @@ function closeLevelOverlay() {
 
 
 function renderLevelsTab() {
-
   const strip = document.getElementById('levelsStrip');
   if (!strip) return;
   let html = '';
   for (let lvl = 1; lvl <= 120; lvl++) {
     const req = getXpRequirement(lvl);
-    const milestone = [10,30,50,100,120].includes(lvl);
+    const milestone = [10,30,50,75].includes(lvl);
+    const current = lvl === state.level;
     html += `
-      <div class="level-card ${milestone ? 'milestone' : ''}">
+      <div class="level-card ${milestone ? 'milestone' : ''} ${current ? 'current' : ''}">
         <div class="level-card-top">
-          <div class="level-pill">Level</div>
+          <div class="level-pill">${current ? 'Current' : 'Level'}</div>
           <div class="level-num-big">${lvl}</div>
         </div>
         <div class="level-xp">${req.toLocaleString()} XP</div>
@@ -1732,6 +1815,7 @@ function switchTab(tab) {
   if (btn) btn.classList.add('active');
   if (tab === 'inventory') renderInventory();
   if (tab === 'catch')     renderBallSelector();
+  if (tab === 'balls')     updateBallOddsDisplay();
   if (tab === 'chances')   renderChanceTable();
   if (tab === 'exchange')  renderExchangeTab();
   if (tab === 'levels')    renderLevelsTab();
@@ -1746,6 +1830,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ── GET BALLS ── */
+
 function getBalls() {
   const btn = document.getElementById('getBallsBtn');
   btn.disabled = true;
@@ -1758,23 +1843,15 @@ function getBalls() {
   const rollXp = { normal:10, super:50, omega:200, god:20000 };
 
   let got = null;
-  if (state.level >= 120) {
-    const r = Math.random() * 100;
-    if      (r < 0.01)  got = 'god';
-    else if (r < 0.76)  got = 'omega';
-    else if (r < 2.76)  got = 'super';
-    else                got = 'normal';
-  } else {
-    const thresholds = getBallRollThresholds();
-    const total = thresholds.reduce((sum, [, chance]) => sum + chance, 0);
-    const r = Math.random() * 100;
-    let cursor = 0;
-    for (const [ball, chance] of thresholds) {
-      cursor += chance;
-      if (r < Math.min(cursor, 100)) { got = ball; break; }
-    }
-    if (!got && r < Math.min(total, 100)) got = 'normal';
+  const thresholds = getBallRollThresholds();
+  const total = thresholds.reduce((sum, [, chance]) => sum + chance, 0);
+  const r = Math.random() * 100;
+  let cursor = 0;
+  for (const [ball, chance] of thresholds) {
+    cursor += chance;
+    if (r < Math.min(cursor, 100)) { got = ball; break; }
   }
+  if (!got && r < Math.min(total, 100)) got = 'normal';
 
   if (got) {
     state.balls[got]++;
@@ -1864,7 +1941,7 @@ function pickItem(diff) {
 function setFindMode(isEnc) {
   const btn = document.getElementById('findBtn');
   if (isEnc) { btn.classList.add('run-mode'); btn.innerHTML = '🏃 Run'; }
-  else        { btn.classList.remove('run-mode'); btn.innerHTML = '🔍 Find'; }
+  else        { btn.classList.remove('run-mode'); btn.innerHTML = '🔍 Find'; stopSearchSound(); }
 }
 
 function renderEncounterEmpty() {
@@ -1949,6 +2026,7 @@ function findEncounter() {
 
   if (findBtn.classList.contains('run-mode')) {
     state.encounter = null; state.throwsLeft = 0;
+    stopSearchSound();
     setFindMode(false); throwBtn.disabled = true;
     const box = document.getElementById('encounterBox');
     box.className = 'encounter-box';
@@ -1957,6 +2035,7 @@ function findEncounter() {
   }
 
   findBtn.disabled = true; throwBtn.disabled = true; clearThrowResult();
+  startSearchSound();
   showSearchingState();
 
   const box = document.getElementById('encounterBox');
@@ -1988,6 +2067,7 @@ function findEncounter() {
     // Phase 3: reveal after 0.55s
     setTimeout(() => {
       state.encounter = { diff, item }; state.throwsLeft = 3;
+      stopSearchSound();
 
       // Explosive reveal
       box.className = 'encounter-box active revealing';
@@ -2180,7 +2260,8 @@ function renderRarityChanceTable() {
 let exchangeState = { rarity: null, item: null };
 
 function getExchangeCost(rarity) {
-  return { decent:1, hard:2, superhard:4, impossible:15 }[rarity] || 0;
+  if (rarity === 'impossible') return exchangeCosts.impossible;
+  return { decent:1, hard:2, superhard:4 }[rarity] || 0;
 }
 
 function renderExchangeTab() {
@@ -2209,15 +2290,30 @@ function openExchangeChooser(rarity) {
   const title = document.getElementById('exchangeChooserTitle');
   const costEl = document.getElementById('exchangeChooserCost');
   const list = document.getElementById('exchangeChooserList');
+  const listBtn = document.getElementById('rarityListBtn');
   if (!modal || !title || !costEl || !list) return;
 
   title.textContent = DIFF_LABELS[rarity];
   costEl.textContent = `${getExchangeCost(rarity)} token${getExchangeCost(rarity)===1?'':'s'}`;
 
+  if (listBtn) {
+    listBtn.textContent = `📜 Show all ${DIFF_LABELS[rarity]} characters`;
+    listBtn.onclick = () => showRarityList(rarity);
+  }
+
   const items = [...new Set(THINGS[rarity].items)];
   list.innerHTML = items.map(item => `<button class="exchange-item-btn" type="button" onclick="openExchangeConfirm(${JSON.stringify(item)})">${item}</button>`).join('');
   modal.classList.add('show');
   document.body.style.overflow = 'hidden';
+}
+
+function showRarityList(rarity) {
+  const items = [...new Set((THINGS[rarity]?.items || []))].sort((a, b) => a.localeCompare(b));
+  if (!items.length) {
+    alert('No characters found.');
+    return;
+  }
+  alert(`${DIFF_LABELS[rarity]} characters:\n\n${items.join('\n')}`);
 }
 
 function closeExchangeChooser() {
@@ -2258,6 +2354,10 @@ function confirmExchange() {
   }
 
   state.tokens -= cost;
+  if (rarity === 'impossible') {
+    exchangeCosts.impossible += 5;
+    saveExchangeCosts();
+  }
   if (!state.inventory[item]) state.inventory[item] = { diff: rarity, count: 0 };
   state.inventory[item].diff = rarity;
   state.inventory[item].count++;
@@ -2514,12 +2614,14 @@ function spawnSparkles(cx, cy) {
 /* ── INIT ── */
 
 loadState();
+loadExchangeCosts();
 updateBallCounts();
 renderBallSelector();
 renderEncounterEmpty();
 renderChanceTable();
 renderLevelsTab();
 updateLevelUI();
+updateBallOddsDisplay();
 
 // Load mode — defaults to dark, scoped to this page only
 applyMode(sessionStorage.getItem(MODE_KEY) || 'dark');
