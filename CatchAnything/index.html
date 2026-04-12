@@ -1156,7 +1156,7 @@
     <div class="level-overlay-head">Level Timeline</div>
     <div class="level-overlay-sub">
       Click the top level bar any time to open this full-screen view.
-      From level 85 onward, the XP needed to level up stays at 235,000.
+      From level 100 onward, the XP needed to level up stays at 100,000.
     </div>
 
     <div class="card">
@@ -1309,7 +1309,7 @@
       <div class="card-title">Token Exchange</div>
       <div class="exchange-head">
         <div class="exchange-token-box">Tokens: <b id="tokenCount">0</b></div>
-        <div class="exchange-note">Level 1 is your start. Rewards jump at level 25 and again at level 50.</div>
+        <div class="exchange-note">Level 1 is your start. Rewards are 1 token per level, 3 on every 5th level, and from level 100 onward they become 2 tokens per level and 5 on every 5th level.</div>
       </div>
       <div class="xp-boost-card">
         <div class="xp-boost-head">
@@ -1336,7 +1336,7 @@
       <div class="card-title">Level Rewards</div>
       <div class="levels-intro">
         Scroll down a little, then scroll right through the level strip to see every level up to 120.
-        Each card shows the XP needed for that level, plus the token reward. Level 1 is just your starting point. Token rewards grow at level 25 and again at level 50.
+        Each card shows the XP needed for that level, plus the token reward. Level 1 is just your starting point. Token rewards are 1 per level, 3 on every 5th level, and from level 100 onward they become 2 per level and 5 on every 5th level.
       </div>
     </div>
     <div class="card">
@@ -1362,7 +1362,7 @@
     </div>
     <div class="card" id="levelsCardWrap">
       <div class="card-title">Level Timeline</div>
-      <div style="font-size:0.85em;color:var(--muted);line-height:1.65;margin-bottom:14px">Level 1 is your start. Later levels give more tokens, and the current level is highlighted green.</div>
+      <div style="font-size:0.85em;color:var(--muted);line-height:1.65;margin-bottom:14px">Level 1 is your start. Levels give 1 token each, 3 on every 5th level, and from level 100 onward that becomes 2 per level and 5 on every 5th level.</div>
       <div id="levelsStrip" class="levels-strip"></div>
     </div>
     <div class="card" style="font-size:0.85em;color:var(--muted);line-height:1.75">
@@ -1671,14 +1671,8 @@ function saveState() {
 
 /* ── LEVEL / XP ── */
 function getXpRequirement(level) {
-  if (level >= 85) return 235000;
-  if (level < 10) return level * 1000;
-  if (level < 20) return 10000 + (level - 10) * 2000;
-  if (level < 40) return 30000 + (level - 20) * 2000;
-  if (level < 60) return 70000 + (level - 40) * 3000;
-  if (level < 80) return 130000 + (level - 60) * 3000;
-  if (level < 85) return 210000 + (level - 80) * 5000;
-  return 235000;
+  const cappedLevel = Math.min(Math.max(1, Math.floor(level)), 100);
+  return cappedLevel * 1000;
 }
 
 function getCatchXp(diff) {
@@ -1889,8 +1883,7 @@ function getMilestoneText(level) {
 
 function getLevelTokenReward(level) {
   if (level <= 1) return 0;
-  if (level >= 50) return level % 5 === 0 ? 8 : 4;
-  if (level >= 25) return level % 5 === 0 ? 5 : 2;
+  if (level >= 100) return level % 5 === 0 ? 5 : 2;
   return level % 5 === 0 ? 3 : 1;
 }
 function getLevelRewardText(level) {
