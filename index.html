@@ -445,10 +445,13 @@
     }
     @keyframes coffeeSteam{0%,100%{transform:translateY(0) scale(1);opacity:0.75;}50%{transform:translateY(-8px) scale(1.02);opacity:1;}}
     body.mode-coffee h1{
-      background:linear-gradient(135deg,#fffaf4,#ffe3c6,#d7a77d,#7a4b2d,#fffdf9);
+      background:linear-gradient(135deg,#fffdf9 0%,#fff0de 18%,#f1cfa9 36%,#c88d5a 58%,#7a472a 78%,#fffefb 100%);
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
-      filter:drop-shadow(0 0 12px rgba(255,236,214,0.22)) drop-shadow(0 0 24px rgba(122,75,45,0.28));
+      -webkit-text-stroke:1.2px rgba(70,35,18,0.30);
+      text-shadow:0 2px 0 rgba(40,20,10,0.42),0 0 18px rgba(255,236,214,0.28),0 0 42px rgba(122,75,45,0.34);
+      filter:drop-shadow(0 0 14px rgba(255,244,228,0.28)) drop-shadow(0 0 28px rgba(122,75,45,0.34));
+      letter-spacing:0.02em;
     }
     body.mode-coffee .btn,body.mode-coffee .settings-action-btn,body.mode-coffee .mini-btn{
       position:relative;overflow:hidden;
@@ -1909,6 +1912,7 @@ function refreshWatermelonOption(){refreshOption('watermelonModeOption','waterme
 function refreshBoneOption(){refreshOption('boneModeOption','boneLock','bone');}
 function refreshCoffeeOption(){refreshOption('coffeeModeOption','coffeeLock','coffee');}
 function refreshWinduOption(){refreshOption('winduModeOption','winduLock','windu');}
+function queueUnlockNotice(msg){try{localStorage.setItem(LAST_UNLOCK_NOTICE_KEY,msg);}catch(e){}}
 
 function getCatchSave(){
   try{return JSON.parse(localStorage.getItem('catchAnything_save')||'null');}catch(e){return null;}
@@ -1922,13 +1926,19 @@ function hasCatchX2Owned(){
   return !!s && Number(s.xpMultiplier||1)>=2;
 }
 function syncCatchThemeUnlocks(){
-  if(hasCatchLevelAtLeast(20)){
+  const coffeeReady=hasCatchLevelAtLeast(20);
+  const winduReady=hasCatchX2Owned();
+  if(coffeeReady){
+    const wasUnlocked=localStorage.getItem(COFFEE_THEME_UNLOCK_KEY)==='1';
     localStorage.setItem(COFFEE_THEME_UNLOCK_KEY,'1');
     persistUnlocked('coffee');
+    if(!wasUnlocked)queueUnlockNotice('☕ Coffee unlocked!');
   }
-  if(hasCatchX2Owned()){
+  if(winduReady){
+    const wasUnlocked=localStorage.getItem(WINDU_THEME_UNLOCK_KEY)==='1';
     localStorage.setItem(WINDU_THEME_UNLOCK_KEY,'1');
     persistUnlocked('windu');
+    if(!wasUnlocked)queueUnlockNotice('🟪 Windu unlocked!');
   }
   refreshCoffeeOption();
   refreshWinduOption();
@@ -2016,7 +2026,15 @@ function unlockWatermelonIfEligible(){return unlockIfEligible('watermelon',()=>l
 function unlockBoneIfEligible(){return unlockIfEligible('bone',()=>localStorage.getItem(BONE_THEME_UNLOCK_KEY)==='1','🦴 Bone unlocked! Spooky.',refreshBoneOption);}
 function checkCreditsUnlocks(){unlockBronzeIfEligible();unlockSilverIfEligible();unlockGoldIfEligible();}
 function announceUnlock(msg){showToast(msg);}
-function showStoredUnlockNotice(){const footer=document.getElementById('footerText');if(footer)footer.textContent='Thanks for visiting my website';}
+function showStoredUnlockNotice(){
+  const msg=localStorage.getItem(LAST_UNLOCK_NOTICE_KEY);
+  const footer=document.getElementById('footerText');
+  if(msg){
+    showToast(msg);
+    localStorage.removeItem(LAST_UNLOCK_NOTICE_KEY);
+  }
+  if(footer)footer.textContent='Thanks for visiting my website';
+}
 function checkAllUnlocks(){
   syncCatchThemeUnlocks();
   unlockLuxuriousIfEligible();unlockRainbowRemasteredIfEligible();unlockFireIfEligible();unlockBlueberryIfEligible();unlockBlackHoleIfEligible();unlockCyanIfEligible();unlockWhiteNeonIfEligible();unlockIceIfEligible();unlockDarthIfEligible();unlockDayIfEligible();unlockNightIfEligible();
