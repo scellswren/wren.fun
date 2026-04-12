@@ -419,6 +419,10 @@
     /* ── COFFEE THEME — rich espresso glow, not another brown skin ── */
     body.mode-coffee{
       --accent:#b87a4a;
+      overflow-x:hidden;
+      overflow-y:auto;
+      position:relative;
+      isolation:isolate;
       background:
         radial-gradient(circle at 18% 18%,rgba(255,248,235,0.30) 0%,transparent 16%),
         radial-gradient(circle at 78% 22%,rgba(255,220,184,0.22) 0%,transparent 20%),
@@ -2157,8 +2161,8 @@ window.addEventListener('load',()=>{
 window.addEventListener('pageshow',e=>{if(e.persisted){syncCatchThemeUnlocks();showStoredUnlockNotice();checkAllUnlocks();}});
 function openCodeModal(){const i=document.getElementById('codeInput'),f=document.getElementById('codeFeedback');i.value='';i.className='';f.textContent='';f.className='';document.getElementById('codeOverlay').classList.add('open');setTimeout(()=>i.focus(),350);}
 function closeCodeModal(){document.getElementById('codeOverlay').classList.remove('open');}
-function openThemesModal(){document.getElementById('themesOverlay').classList.add('open');}
-function closeThemesModal(){document.getElementById('themesOverlay').classList.remove('open');}
+function openThemesModal(){document.getElementById('themesOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function closeThemesModal(){document.getElementById('themesOverlay').classList.remove('open');document.body.style.overflow='';}
 let darthUnlockTimer=null;
 function normalizeBrightnessValue(v){
   if(v===null||v===undefined||v==='')return 50;
