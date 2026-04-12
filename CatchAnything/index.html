@@ -786,28 +786,28 @@
   .inv-items { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
   .inv-item {
     background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 9px; padding: 5px 8px 5px 11px;
+    border-radius: 9px; padding: 5px 10px 5px 11px;
     font-size: 0.81em; font-weight: 700;
-    display: flex; align-items: center; gap: 8px;
-    transition: transform 0.15s;
+    display: flex; align-items: center; gap: 0;
+    position: relative; overflow: hidden;
+    transition: transform 0.15s, padding-right 0.15s;
   }
-  .inv-item:hover { transform: scale(1.04); }
-  .inv-item-main { display: inline-flex; align-items: center; gap: 6px; }
+  .inv-item:hover { transform: scale(1.04); padding-right: 40px; }
+  .inv-item-main { display: inline-flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
   .inv-item-remove {
     width: 24px; height: 24px; border-radius: 999px;
     border: 1px solid rgba(239,68,68,0.3);
     background: rgba(239,68,68,0.08);
     color: #ef4444; font-weight: 900; line-height: 1;
-    cursor: pointer; flex: 0 0 auto;
-    opacity: 0;
-    pointer-events: none;
-    transform: scale(0.92);
+    cursor: pointer; position: absolute; right: 6px; top: 50%;
+    opacity: 0; pointer-events: none;
+    transform: translateY(-50%) scale(0.92);
     transition: opacity 0.16s ease, transform 0.16s ease, background 0.16s ease;
   }
   .inv-item:hover .inv-item-remove {
     opacity: 1;
     pointer-events: auto;
-    transform: scale(1);
+    transform: translateY(-50%) scale(1);
   }
   .inv-item-remove:hover { background: rgba(239,68,68,0.16); }
   .inv-item-easy       { border-color: rgba(34,197,94,0.25); }
@@ -936,6 +936,48 @@
   .modal-btn.ghost  { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
   .modal-btn.ghost:hover { background: var(--surface); }
 
+
+  .exchange-head { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
+  .exchange-token-box {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 999px;
+    padding: 10px 14px; font-weight: 900;
+  }
+  .exchange-note { color: var(--muted); font-size: 0.88em; }
+  .exchange-grid {
+    display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px;
+  }
+  @media(min-width: 760px) {
+    .exchange-grid { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  }
+  .exchange-choice {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 16px; text-align: left; cursor: pointer; color: var(--text);
+    transition: transform 0.18s, border-color 0.18s, background 0.18s;
+  }
+  .exchange-choice:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.18); }
+  .exchange-choice-title { font-weight: 900; font-size: 1.05em; margin-bottom: 6px; }
+  .exchange-choice-cost { font-weight: 700; color: var(--accent2); margin-bottom: 4px; }
+  .exchange-choice-meta { font-size: 0.8em; color: var(--muted); }
+  .exchange-item-grid {
+    display: grid; gap: 8px; max-height: 54vh; overflow: auto; padding-right: 4px;
+  }
+  .exchange-item-btn {
+    text-align: left; width: 100%;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 10px; padding: 12px 14px; cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .exchange-item-btn:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.16); }
+  .exchange-toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(16px);
+    opacity: 0; pointer-events: none; z-index: 4500;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 12px 18px; font-weight: 800; transition: opacity 0.18s, transform 0.18s;
+  }
+  .exchange-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .rarity-row { grid-template-columns: 1.2fr 1fr; }
+  .rarity-row .chance-cell { font-weight: 900; }
+
   footer { display: none; }
 </style>
 </head>
@@ -968,7 +1010,7 @@
     <button class="level-overlay-close" type="button" onclick="closeLevelOverlay()" aria-label="Close levels overlay">✕</button>
     <div class="level-overlay-head">Level Timeline</div>
     <div class="level-overlay-sub">
-      Click the top level bar any time to open this full-screen view. Scroll a little, then scroll right through the timeline to see every level up to 120.
+      Click the top level bar any time to open this full-screen view.
     </div>
 
     <div class="card">
@@ -992,11 +1034,6 @@
         </div>
       </div>
     </div>
-
-    <div class="card" id="levelsOverlayWrap">
-      <div class="card-title">Level Timeline</div>
-      <div id="levelOverlayStrip" class="levels-strip level-strip-large"></div>
-    </div>
   </div>
 </div>
 
@@ -1011,6 +1048,7 @@
     <button class="tab" onclick="switchTab('balls')">⚾ Balls</button>
     <button class="tab" onclick="switchTab('inventory')">🎒 Inventory</button>
     <button class="tab" onclick="switchTab('chances')">📈 Chances</button>
+    <button class="tab" onclick="switchTab('exchange')">💱 Exchange</button>
     <button class="tab" onclick="switchTab('levels')">🧭 Levels</button>
   </div>
 
@@ -1104,19 +1142,43 @@
       </div>
       <div class="chance-table" id="chanceTable"></div>
     </div>
+    <div class="card">
+      <div class="card-title">Encounter Chances</div>
+      <div style="font-size:0.85em;color:var(--muted);line-height:1.65;margin-bottom:14px">
+        These are the odds of encountering each rarity before any ball is thrown.
+      </div>
+      <div class="chance-table" id="rarityChanceTable"></div>
+    </div>
     <div class="card" style="font-size:0.85em;color:var(--muted);line-height:1.75">
       <div class="card-title">Ball Multipliers</div>
       Normal = 1× &nbsp;·&nbsp; Super = 1.5× &nbsp;·&nbsp; Omega = 3× &nbsp;·&nbsp; God Light = guaranteed
     </div>
   </div>
 
+
+  <!-- EXCHANGE TAB -->
+  <div class="tab-panel" id="tab-exchange">
+    <div class="card">
+      <div class="card-title">Token Exchange</div>
+      <div class="exchange-head">
+        <div class="exchange-token-box">Tokens: <b id="tokenCount">0</b></div>
+        <div class="exchange-note">Earn 1 token per level. Every 5th level gives 3 tokens.</div>
+      </div>
+      <div class="exchange-grid" id="exchangeGrid"></div>
+    </div>
+    <div class="card" style="font-size:0.85em;color:var(--muted);line-height:1.75">
+      <div class="card-title">How Exchange Works</div>
+      Pick a rarity, choose an item, then confirm the trade. The item goes straight into your inventory.
+    </div>
+    <div class="exchange-toast" id="exchangeOwnedToast"></div>
+  </div>
   <!-- LEVELS TAB -->
   <div class="tab-panel" id="tab-levels">
     <div class="card">
       <div class="card-title">Level Rewards</div>
       <div class="levels-intro">
         Scroll down a little, then scroll right through the level strip to see every level up to 120.
-        Each card shows the XP needed for that level. Only the milestone levels change ball roll luck.
+        Each card shows the XP needed for that level, plus the token reward. Every level gives 1 token and every 5th level gives 3.
       </div>
     </div>
     <div class="card">
@@ -1142,6 +1204,7 @@
     </div>
     <div class="card" id="levelsCardWrap">
       <div class="card-title">Level Timeline</div>
+      <div style="font-size:0.85em;color:var(--muted);line-height:1.65;margin-bottom:14px">Every level gives 1 token. Every 5th level gives 3 tokens.</div>
       <div id="levelsStrip" class="levels-strip"></div>
     </div>
     <div class="card" style="font-size:0.85em;color:var(--muted);line-height:1.75">
@@ -1150,6 +1213,31 @@
     </div>
   </div>
 
+</div>
+
+
+<!-- EXCHANGE CHOOSE MODAL -->
+<div class="modal-backdrop" id="exchangeChooserModal">
+  <div class="modal-box exchange-modal" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+    <div class="modal-title">Choose a <span id="exchangeChooserTitle"></span> item</div>
+    <div class="modal-text">Cost: <b id="exchangeChooserCost"></b></div>
+    <div class="exchange-item-grid" id="exchangeChooserList"></div>
+    <div class="modal-actions" style="margin-top:18px">
+      <button class="modal-btn ghost" onclick="closeExchangeChooser()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXCHANGE CONFIRM MODAL -->
+<div class="modal-backdrop" id="exchangeConfirmModal">
+  <div class="modal-box" role="dialog" aria-modal="true">
+    <div class="modal-title">Confirm exchange</div>
+    <div class="modal-text" id="exchangeConfirmText"></div>
+    <div class="modal-actions">
+      <button class="modal-btn ghost" onclick="closeExchangeConfirm()">Cancel</button>
+      <button class="modal-btn danger" onclick="confirmExchange()">Yes, exchange</button>
+    </div>
+  </div>
 </div>
 
 <!-- CLEAR MODAL -->
@@ -1201,7 +1289,7 @@ const SAVE_KEY = 'catchAnything_save';
 // Use a page-specific sessionStorage key so it never bleeds to other pages
 const MODE_KEY = 'catchAnythingMode_v2_thispage';
 
-let state = { balls:{normal:0,super:0,omega:0,god:0}, inventory:{}, encounter:null, throwsLeft:0, selectedBall:'normal', level:1, xp:0 };
+let state = { balls:{normal:0,super:0,omega:0,god:0}, inventory:{}, encounter:null, throwsLeft:0, selectedBall:'normal', level:1, xp:0, tokens:0 };
 
 function loadState() {
   try {
@@ -1212,6 +1300,8 @@ function loadState() {
       state.selectedBall = s.selectedBall|| 'normal';
       state.level        = Number.isFinite(s.level) ? s.level : state.level;
       state.xp           = Number.isFinite(s.xp) ? s.xp : state.xp;
+      state.tokens       = Number.isFinite(s.tokens) ? s.tokens : state.tokens;
+      state.tokens       = Number.isFinite(s.tokens) ? s.tokens : state.tokens;
     }
   } catch(e) {}
 }
@@ -1221,9 +1311,11 @@ function saveState() {
     inventory: state.inventory,
     selectedBall: state.selectedBall,
     level: state.level,
-    xp: state.xp
+    xp: state.xp,
+    tokens: state.tokens
   }));
   updateLevelUI();
+  renderExchangeTab();
 }
 
 /* ── LEVEL / XP ── */
@@ -1366,6 +1458,8 @@ function awardXp(amount, diff, sourceRect) {
     state.xp -= getXpRequirement(state.level);
     state.level++;
     leveled = true;
+    const tokenGain = getLevelTokenReward(state.level);
+    state.tokens += tokenGain;
     playLevelUpSound();
     flashLevelDock();
   }
@@ -1399,9 +1493,31 @@ function getMilestoneText(level) {
   return 'No ball roll bonus.';
 }
 
-function getLevelRewardText(level) {
-  return getMilestoneText(level);
+
+function getLevelTokenReward(level) {
+  return level % 5 === 0 ? 3 : 1;
 }
+function getLevelRewardText(level) {
+  const tokenText = getLevelTokenReward(level) === 3 ? '+3 tokens' : '+1 token';
+  const milestone = getMilestoneText(level);
+  return milestone === 'No ball roll bonus.' ? tokenText : `${tokenText} · ${milestone}`;
+}
+
+function openLevelOverlay() {
+  const backdrop = document.getElementById('levelOverlayBackdrop');
+  if (!backdrop) return;
+  backdrop.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  renderLevelsTab();
+}
+
+function closeLevelOverlay() {
+  const backdrop = document.getElementById('levelOverlayBackdrop');
+  if (!backdrop) return;
+  backdrop.classList.remove('show');
+  document.body.style.overflow = '';
+}
+
 
 function renderLevelsTab() {
 
@@ -1461,18 +1577,22 @@ function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   const panel = document.getElementById('tab-' + tab);
   if (panel) panel.classList.add('active');
-  const idx = ['catch','balls','inventory','chances','levels'].indexOf(tab);
+  const idx = ['catch','balls','inventory','chances','exchange','levels'].indexOf(tab);
   const btn = document.querySelectorAll('.tab')[idx];
   if (btn) btn.classList.add('active');
   if (tab === 'inventory') renderInventory();
   if (tab === 'catch')     renderBallSelector();
   if (tab === 'chances')   renderChanceTable();
-renderLevelsTab();
+  if (tab === 'exchange')  renderExchangeTab();
   if (tab === 'levels')    renderLevelsTab();
 }
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeLevelOverlay();
+  if (e.key === 'Escape') {
+    closeLevelOverlay();
+    closeExchangeChooser();
+    closeExchangeConfirm();
+  }
 });
 
 /* ── GET BALLS ── */
@@ -1888,9 +2008,122 @@ function renderChanceTable() {
     html += `</div>`;
   });
   wrap.innerHTML = html;
+  renderRarityChanceTable();
+}
+
+function renderRarityChanceTable() {
+  const wrap = document.getElementById('rarityChanceTable');
+  if (!wrap) return;
+  const order = ['easy','normal','decent','hard','superhard','impossible'];
+  const total = Object.values(THINGS).reduce((sum, d) => sum + d.weight, 0);
+  wrap.innerHTML = order.map(diff => {
+    const pct = (THINGS[diff].weight / total) * 100;
+    return `<div class="chance-row rarity-row">
+      <div class="chance-cell chance-diff"><div>${DIFF_LABELS[diff]}</div><div class="chance-small">Encounter rarity</div></div>
+      <div class="chance-cell">${pct.toFixed(1)}%</div>
+    </div>`;
+  }).join('');
 }
 
 /* ── MODAL ── */
+
+let exchangeState = { rarity: null, item: null };
+
+function getExchangeCost(rarity) {
+  return { decent:1, hard:2, superhard:4, impossible:15 }[rarity] || 0;
+}
+
+function renderExchangeTab() {
+  const wrap = document.getElementById('exchangeGrid');
+  const tokenNum = document.getElementById('tokenCount');
+  if (tokenNum) tokenNum.textContent = state.tokens.toLocaleString();
+  if (!wrap) return;
+
+  const order = ['decent','hard','superhard','impossible'];
+  wrap.innerHTML = order.map(rarity => {
+    const cost = getExchangeCost(rarity);
+    const count = new Set(THINGS[rarity].items).size;
+    return `<button class="exchange-choice" type="button" onclick="openExchangeChooser('${rarity}')">
+      <div class="exchange-choice-title">${DIFF_LABELS[rarity]}</div>
+      <div class="exchange-choice-cost">${cost} token${cost===1?'':'s'}</div>
+      <div class="exchange-choice-meta">${count} things available</div>
+    </button>`;
+  }).join('');
+}
+
+function openExchangeChooser(rarity) {
+  exchangeState.rarity = rarity;
+  exchangeState.item = null;
+
+  const modal = document.getElementById('exchangeChooserModal');
+  const title = document.getElementById('exchangeChooserTitle');
+  const costEl = document.getElementById('exchangeChooserCost');
+  const list = document.getElementById('exchangeChooserList');
+  if (!modal || !title || !costEl || !list) return;
+
+  title.textContent = DIFF_LABELS[rarity];
+  costEl.textContent = `${getExchangeCost(rarity)} token${getExchangeCost(rarity)===1?'':'s'}`;
+
+  const items = [...new Set(THINGS[rarity].items)];
+  list.innerHTML = items.map(item => `<button class="exchange-item-btn" type="button" onclick="openExchangeConfirm(${JSON.stringify(item)})">${item}</button>`).join('');
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeExchangeChooser() {
+  const modal = document.getElementById('exchangeChooserModal');
+  if (modal) modal.classList.remove('show');
+  if (!document.getElementById('exchangeConfirmModal')?.classList.contains('show')) {
+    document.body.style.overflow = '';
+  }
+}
+
+function openExchangeConfirm(item) {
+  exchangeState.item = item;
+  const modal = document.getElementById('exchangeConfirmModal');
+  const text = document.getElementById('exchangeConfirmText');
+  const rarity = exchangeState.rarity;
+  if (!modal || !text || !rarity) return;
+  text.innerHTML = `Spend <b>${getExchangeCost(rarity)} token${getExchangeCost(rarity)===1?'':'s'}</b> to get <b>${item}</b>?`;
+  modal.classList.add('show');
+}
+
+function closeExchangeConfirm() {
+  const modal = document.getElementById('exchangeConfirmModal');
+  if (modal) modal.classList.remove('show');
+  if (!document.getElementById('exchangeChooserModal')?.classList.contains('show')) {
+    document.body.style.overflow = '';
+  }
+}
+
+function confirmExchange() {
+  const rarity = exchangeState.rarity;
+  const item = exchangeState.item;
+  if (!rarity || !item) return;
+
+  const cost = getExchangeCost(rarity);
+  if (state.tokens < cost) {
+    alert('Not enough tokens.');
+    return;
+  }
+
+  state.tokens -= cost;
+  if (!state.inventory[item]) state.inventory[item] = { diff: rarity, count: 0 };
+  state.inventory[item].diff = rarity;
+  state.inventory[item].count++;
+  saveState();
+  renderInventory();
+  renderExchangeTab();
+  closeExchangeConfirm();
+  closeExchangeChooser();
+  const overlay = document.getElementById('exchangeOwnedToast');
+  if (overlay) {
+    overlay.textContent = `Got ${item}!`;
+    overlay.classList.add('show');
+    setTimeout(() => overlay.classList.remove('show'), 1800);
+  }
+}
+
 function openClearModal()  { document.getElementById('clearModal').classList.add('show'); }
 function closeClearModal() { document.getElementById('clearModal').classList.remove('show'); }
 function confirmClearInventory() { state.inventory={}; saveState(); renderInventory(); closeClearModal(); }
