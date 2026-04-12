@@ -858,6 +858,113 @@
   .clear-btn:hover { background: rgba(239,68,68,0.16); transform: translateY(-1px); }
   .clear-btn:active { transform: scale(0.96); }
 
+  .checklist-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(6,182,212,0.35);
+    background: rgba(6,182,212,0.10);
+    color: var(--text);
+    font-family: 'Rubik', sans-serif;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform 0.18s, background 0.18s, border-color 0.18s;
+  }
+  .checklist-btn:hover { transform: translateY(-1px); background: rgba(6,182,212,0.16); border-color: rgba(6,182,212,0.55); }
+  .checklist-btn:active { transform: scale(0.96); }
+
+  .xp-boost-card {
+    background: linear-gradient(135deg, rgba(6,182,212,0.12), rgba(124,58,237,0.14));
+    border: 1px solid rgba(124,58,237,0.24);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 12px;
+    display: grid;
+    gap: 10px;
+  }
+  .xp-boost-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+  }
+  .xp-boost-title { font-weight: 900; font-size: 1.05em; }
+  .xp-boost-meta { color: var(--muted); font-size: 0.88em; line-height: 1.5; }
+  .xp-boost-badge {
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    font-weight: 900;
+    white-space: nowrap;
+  }
+  .xp-boost-btn {
+    width: fit-content;
+    min-width: 180px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 900;
+    cursor: pointer;
+    color: white;
+    background: linear-gradient(135deg, #06b6d4, #7c3aed);
+    box-shadow: 0 8px 24px rgba(124,58,237,0.22);
+    transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
+  }
+  .xp-boost-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(124,58,237,0.28); }
+  .xp-boost-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+  .xp-boost-owned { color: #8be9ff; font-weight: 800; font-size: 0.88em; }
+
+  .checklist-summary {
+    display: grid;
+    gap: 12px;
+    max-height: 62vh;
+    overflow: auto;
+    padding-right: 4px;
+  }
+  .checklist-section {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 14px 12px;
+  }
+  .checklist-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-weight: 900;
+    margin-bottom: 10px;
+  }
+  .checklist-section-title span:last-child {
+    color: var(--muted);
+    font-size: 0.8em;
+    font-weight: 700;
+  }
+  .checklist-items {
+    display: grid;
+    gap: 8px;
+  }
+  .checklist-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .checklist-item.have { border-color: rgba(34,197,94,0.2); }
+  .checklist-item.missing { border-color: rgba(239,68,68,0.22); }
+  .checklist-name { font-weight: 700; }
+  .checklist-state { font-weight: 900; font-size: 0.85em; }
+  .checklist-state.have { color: #34d399; }
+  .checklist-state.missing { color: #f87171; }
+
   /* ── ANIMATIONS ── */
   @keyframes catchShake   { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
   @keyframes catchSuccess { 0%{transform:scale(1)} 35%{transform:scale(1.07)} 70%{transform:scale(1.02)} 100%{transform:scale(1)} }
@@ -1093,25 +1200,25 @@
           <div class="ball-icon">⚾</div>
           <div class="ball-name" style="color:var(--normal-ball)">Normal</div>
           <div class="ball-count" id="cnt-normal">0</div>
-          <div class="ball-odds">10% chance</div>
+          <div class="ball-odds" id="ballOddsNormal">10% chance</div>
         </div>
         <div class="ball-card ball-super">
           <div class="ball-icon">🎾</div>
           <div class="ball-name" style="color:var(--super-ball)">Super</div>
           <div class="ball-count" id="cnt-super">0</div>
-          <div class="ball-odds">2% chance</div>
+          <div class="ball-odds" id="ballOddsSuper">2% chance</div>
         </div>
         <div class="ball-card ball-omega">
           <div class="ball-icon">🏀</div>
           <div class="ball-name" style="color:var(--omega-ball)">Omega</div>
           <div class="ball-count" id="cnt-omega">0</div>
-          <div class="ball-odds">0.75% chance</div>
+          <div class="ball-odds" id="ballOddsOmega">0.75% chance</div>
         </div>
         <div class="ball-card ball-god">
           <div class="ball-icon">✨</div>
           <div class="ball-name" style="color:var(--god-ball)">God Light</div>
           <div class="ball-count" id="cnt-god">0</div>
-          <div class="ball-odds">0.01% chance</div>
+          <div class="ball-odds" id="ballOddsGod">0.01% chance</div>
         </div>
       </div>
       <button class="get-balls-btn" id="getBallsBtn" onclick="getBalls()">🎲 Roll for Wren Balls!</button>
@@ -1141,6 +1248,7 @@
         <div class="inv-stat inv-stat-impossible"><div class="inv-stat-num" id="inv-cnt-impossible">0</div><div class="inv-stat-label">Impossible</div></div>
       </div>
       <div id="inventoryList"></div>
+      <button class="checklist-btn" onclick="openMissingChecklist()">✅ Missing Checklist</button>
       <button class="clear-btn" onclick="openClearModal()">🗑 Clear Inventory</button>
     </div>
   </div>
@@ -1176,6 +1284,17 @@
         <div class="exchange-token-box">Tokens: <b id="tokenCount">0</b></div>
         <div class="exchange-note">Level 1 is your start. Rewards jump at level 25 and again at level 50.</div>
       </div>
+      <div class="xp-boost-card">
+        <div class="xp-boost-head">
+          <div>
+            <div class="xp-boost-title">x2 XP Boost</div>
+            <div class="xp-boost-meta">Doubles all XP you earn from catches and rolls.</div>
+          </div>
+          <div class="xp-boost-badge" id="xpBoostBadge">Not owned</div>
+        </div>
+        <button class="xp-boost-btn" id="xpBoostBtn" type="button" onclick="buyXpBoost()">Buy for 25 tokens</button>
+        <div class="xp-boost-owned" id="xpBoostOwnedText">Permanent upgrade. Only needs to be bought once.</div>
+      </div>
       <div class="exchange-grid" id="exchangeGrid"></div>
     </div>
     <div class="card" style="font-size:0.85em;color:var(--muted);line-height:1.75">
@@ -1190,7 +1309,7 @@
       <div class="card-title">Level Rewards</div>
       <div class="levels-intro">
         Scroll down a little, then scroll right through the level strip to see every level up to 120.
-        Each card shows the XP needed for that level, plus the token reward. Every level gives 1 token and every 5th level gives 3.
+        Each card shows the XP needed for that level, plus the token reward. Level 1 is just your starting point. Token rewards grow at level 25 and again at level 50.
       </div>
     </div>
     <div class="card">
@@ -1267,6 +1386,18 @@
   </div>
 </div>
 
+<!-- MISSING CHECKLIST MODAL -->
+<div class="modal-backdrop" id="missingChecklistModal">
+  <div class="modal-box" role="dialog" aria-modal="true" onclick="event.stopPropagation()" style="width:min(760px,100%)">
+    <div class="modal-title">Missing checklist</div>
+    <div class="modal-text">Everything you have and everything you are still missing, grouped by rarity.</div>
+    <div class="checklist-summary" id="missingChecklistList"></div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="modal-btn ghost" onclick="closeMissingChecklist()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- DELETE MODAL -->
 <div class="modal-backdrop" id="deleteModal">
   <div class="modal-box" role="dialog" aria-modal="true">
@@ -1320,7 +1451,8 @@ function createDefaultState() {
     selectedBall: 'normal',
     level: 1,
     xp: 0,
-    tokens: 0
+    tokens: 0,
+    xpMultiplier: 1
   };
 }
 
@@ -1406,7 +1538,8 @@ function normalizeLoadedState(raw) {
     selectedBall: sanitizeSelectedBall(s.selectedBall),
     level: sanitizeProgressNumber(s.level, 1),
     xp: sanitizeProgressNumber(s.xp, 0),
-    tokens: sanitizeProgressNumber(s.tokens, 0)
+    tokens: sanitizeProgressNumber(s.tokens, 0),
+    xpMultiplier: Number(s.xpMultiplier) >= 2 ? 2 : 1
   };
 }
 
@@ -1456,6 +1589,7 @@ function loadState() {
     state.level = current.level;
     state.xp = current.xp;
     state.tokens = current.tokens;
+    state.xpMultiplier = current.xpMultiplier || 1;
     state.inventory = current.inventory;
 
     for (let i = 1; i < candidates.length; i++) {
@@ -1465,6 +1599,7 @@ function loadState() {
       state.level = Math.max(state.level, candidates[i].level);
       state.xp = Math.max(state.xp, candidates[i].xp);
       state.tokens = Math.max(state.tokens, candidates[i].tokens);
+      state.xpMultiplier = Math.max(state.xpMultiplier || 1, candidates[i].xpMultiplier || 1);
     }
 
     // If we recovered anything from a backup, write it back immediately so the good data stays put.
@@ -1476,6 +1611,7 @@ function loadState() {
         level: state.level,
         xp: state.xp,
         tokens: state.tokens,
+        xpMultiplier: state.xpMultiplier,
         updatedAt: Date.now()
       }));
       localStorage.setItem(SAVE_KEY_BACKUP, localStorage.getItem(SAVE_KEY));
@@ -1490,6 +1626,7 @@ function saveState() {
     level: state.level,
     xp: state.xp,
     tokens: state.tokens,
+    xpMultiplier: state.xpMultiplier,
     updatedAt: Date.now()
   });
 
@@ -1512,7 +1649,7 @@ function getXpRequirement(level) {
   if (level < 20) return 10000 + (level - 10) * 2000;
   if (level < 40) return 30000 + (level - 20) * 2000;
   if (level < 60) return 70000 + (level - 40) * 3000;
-  if (level < 80) return 130000 + (level - 60) * 4000;
+  if (level < 80) return 130000 + (level - 60) * 3000;
   if (level < 85) return 210000 + (level - 80) * 5000;
   return 235000;
 }
@@ -1679,8 +1816,9 @@ function stopSearchSound() {
 
 function awardXp(amount, diff, sourceRect) {
   if (!amount || amount <= 0) return;
-  spawnXPFly(amount, diff, sourceRect, diff === 'impossible' ? 'levelup' : '');
-  state.xp += amount;
+  const totalAmount = Math.max(0, Math.round(amount * (state.xpMultiplier || 1)));
+  spawnXPFly(totalAmount, diff, sourceRect, diff === 'impossible' ? 'levelup' : '');
+  state.xp += totalAmount;
 
   let leveled = false;
   while (state.level < 120 && state.xp >= getXpRequirement(state.level)) {
@@ -1758,7 +1896,7 @@ function renderLevelsTab() {
   let html = '';
   for (let lvl = 1; lvl <= 120; lvl++) {
     const req = getXpRequirement(lvl);
-    const milestone = [10,30,50,75].includes(lvl);
+    const milestone = [10,30,50,75,85].includes(lvl);
     const current = lvl === state.level;
     html += `
       <div class="level-card ${milestone ? 'milestone' : ''} ${current ? 'current' : ''}">
@@ -2216,6 +2354,62 @@ function renderInventory() {
   list.innerHTML = html;
 }
 
+function openMissingChecklist() {
+  const modal = document.getElementById('missingChecklistModal');
+  if (!modal) return;
+  renderMissingChecklist();
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMissingChecklist() {
+  const modal = document.getElementById('missingChecklistModal');
+  if (modal) modal.classList.remove('show');
+  if (!document.getElementById('clearModal')?.classList.contains('show') &&
+      !document.getElementById('deleteModal')?.classList.contains('show') &&
+      !document.getElementById('exchangeChooserModal')?.classList.contains('show') &&
+      !document.getElementById('exchangeConfirmModal')?.classList.contains('show')) {
+    document.body.style.overflow = '';
+  }
+}
+
+function renderMissingChecklist() {
+  const wrap = document.getElementById('missingChecklistList');
+  if (!wrap) return;
+  const order = ['easy','normal','decent','hard','superhard','impossible'];
+  const owned = new Set(Object.keys(state.inventory));
+  const makeCount = (rarity) => [...new Set(THINGS[rarity].items)].length;
+  const totalMissing = order.reduce((sum, rarity) => sum + [...new Set(THINGS[rarity].items)].filter(item => !owned.has(item)).length, 0);
+
+  wrap.innerHTML = `
+    <div class="checklist-section">
+      <div class="checklist-section-title"><span>Overall</span><span>${totalMissing} missing</span></div>
+      <div class="xp-boost-meta">Use this as a checklist for everything you still need to catch.</div>
+    </div>
+    ${order.map(rarity => {
+      const items = [...new Set(THINGS[rarity].items)];
+      const missing = items.filter(item => !owned.has(item));
+      const haveCount = items.length - missing.length;
+      return `
+        <div class="checklist-section">
+          <div class="checklist-section-title">
+            <span style="color:var(--${rarity==='superhard'?'superhard':rarity})">${DIFF_LABELS[rarity]}</span>
+            <span>${haveCount}/${items.length} owned</span>
+          </div>
+          <div class="checklist-items">
+            ${items.map(item => {
+              const isOwned = owned.has(item);
+              return `<div class="checklist-item ${isOwned ? 'have' : 'missing'}">
+                <div class="checklist-name">${item}</div>
+                <div class="checklist-state ${isOwned ? 'have' : 'missing'}">${isOwned ? 'Have' : 'Missing'}</div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }).join('')}
+  `;
+}
+
 /* ── CHANCES TABLE ── */
 function renderChanceTable() {
   const wrap  = document.getElementById('chanceTable');
@@ -2386,6 +2580,7 @@ function confirmClearInventory() {
       level: state.level,
       xp: state.xp,
       tokens: state.tokens,
+      xpMultiplier: state.xpMultiplier,
       updatedAt: Date.now(),
       clearedAt: Date.now()
     }));
@@ -2398,10 +2593,14 @@ function confirmClearInventory() {
 
 document.getElementById('clearModal').addEventListener('click', e => { if (e.target.id==='clearModal') closeClearModal(); });
 document.getElementById('deleteModal').addEventListener('click', e => { if (e.target.id==='deleteModal') closeDeleteModal(); });
+document.getElementById('missingChecklistModal').addEventListener('click', e => { if (e.target.id==='missingChecklistModal') closeMissingChecklist(); });
 window.addEventListener('keydown', e => { 
   if (e.key === 'Escape') {
     closeClearModal();
     closeDeleteModal();
+    closeMissingChecklist();
+    closeExchangeChooser();
+    closeExchangeConfirm();
   }
 });
 
