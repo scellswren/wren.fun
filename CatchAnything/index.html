@@ -1287,51 +1287,165 @@ const DIFF_EMOJI = { easy:'🟢', normal:'🔵', decent:'🟡', hard:'🔴', sup
 /* ── STATE ── */
 const SAVE_KEY = 'catchAnything_save';
 const SAVE_KEY_BACKUP = 'catchAnything_save_backup';
+const SAVE_KEY_PREV = 'catchAnything_save_prev';
+const SAVE_KEY_LEGACY = 'catchAnything_save_v1';
 // Use a page-specific sessionStorage key so it never bleeds to other pages
 const MODE_KEY = 'catchAnythingMode_v2_thispage';
 
-let state = { balls:{normal:0,super:0,omega:0,god:0}, inventory:{}, encounter:null, throwsLeft:0, selectedBall:'normal', level:1, xp:0, tokens:0 };
+const BALL_TYPES = ['normal', 'super', 'omega', 'god'];
+const VALID_SELECTED_BALLS = new Set(BALL_TYPES);
 
-function readSave(key) {
+function createDefaultState() {
+  return {
+    balls: { normal: 0, super: 0, omega: 0, god: 0 },
+    inventory: {},
+    encounter: null,
+    throwsLeft: 0,
+    selectedBall: 'normal',
+    level: 1,
+    xp: 0,
+    tokens: 0
+  };
+}
+
+let state = createDefaultState();
+
+function isPlainObject(value) {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function safeParseSave(raw) {
+  if (!raw) return null;
   try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? parsed : null;
+    return isPlainObject(parsed) ? parsed : null;
   } catch (e) {
     return null;
   }
 }
 
-function applySavedState(s) {
-  if (!s) return;
+function clampInt(value, fallback) {
+  return Number.isFinite(value) ? value : fallback;
+}
 
-  if (s.balls && typeof s.balls === 'object') {
-    state.balls = { ...state.balls, ...s.balls };
+function sanitizeBalls(balls) {
+  const out = { normal: 0, super: 0, omega: 0, god: 0 };
+  if (!isPlainObject(balls)) return out;
+  BALL_TYPES.forEach(ball => {
+    const n = Number(balls[ball]);
+    out[ball] = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+  });
+  return out;
+}
+
+function sanitizeInventory(inventory) {
+  const out = {};
+  if (!isPlainObject(inventory)) return out;
+  for (const [name, data] of Object.entries(inventory)) {
+    if (!isPlainObject(data)) continue;
+    const count = Math.floor(Number(data.count));
+    if (!Number.isFinite(count) || count <= 0) continue;
+    const diff = typeof data.diff === 'string' ? data.diff : 'normal';
+    out[name] = { diff, count };
   }
-  if (s.inventory && typeof s.inventory === 'object') {
-    state.inventory = s.inventory;
+  return out;
+}
+
+function sanitizeSelectedBall(value) {
+  return VALID_SELECTED_BALLS.has(value) ? value : 'normal';
+}
+
+function sanitizeProgressNumber(value, fallback) {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : fallback;
+}
+
+function normalizeLoadedState(raw) {
+  const s = safeParseSave(raw);
+  if (!s) return null;
+
+  return {
+    balls: sanitizeBalls(s.balls),
+    inventory: sanitizeInventory(s.inventory),
+    selectedBall: sanitizeSelectedBall(s.selectedBall),
+    level: sanitizeProgressNumber(s.level, 1),
+    xp: sanitizeProgressNumber(s.xp, 0),
+    tokens: sanitizeProgressNumber(s.tokens, 0)
+  };
+}
+
+function mergeInventory(baseInventory, extraInventory) {
+  const merged = { ...baseInventory };
+  if (!isPlainObject(extraInventory)) return merged;
+
+  for (const [name, data] of Object.entries(extraInventory)) {
+    if (!isPlainObject(data)) continue;
+    const count = Math.floor(Number(data.count));
+    if (!Number.isFinite(count) || count <= 0) continue;
+
+    const current = merged[name];
+    if (!current) {
+      merged[name] = { diff: typeof data.diff === 'string' ? data.diff : 'normal', count };
+      continue;
+    }
+
+    const currentCount = Number(current.count);
+    if (!Number.isFinite(currentCount) || count > currentCount) {
+      merged[name] = { diff: typeof data.diff === 'string' ? data.diff : current.diff || 'normal', count };
+    }
   }
-  if (typeof s.selectedBall === 'string') {
-    state.selectedBall = s.selectedBall;
+
+  return merged;
+}
+
+function readAnySavedState() {
+  const keys = [SAVE_KEY, SAVE_KEY_BACKUP, SAVE_KEY_PREV, SAVE_KEY_LEGACY];
+  const candidates = [];
+  for (const key of keys) {
+    const parsed = normalizeLoadedState(localStorage.getItem(key));
+    if (parsed) candidates.push(parsed);
   }
-  if (Number.isFinite(s.level)) {
-    state.level = s.level;
-  }
-  if (Number.isFinite(s.xp)) {
-    state.xp = s.xp;
-  }
-  if (Number.isFinite(s.tokens)) {
-    state.tokens = s.tokens;
-  }
+  return candidates;
 }
 
 function loadState() {
-  const primary = readSave(SAVE_KEY);
-  const backup = readSave(SAVE_KEY_BACKUP);
-  applySavedState(primary || backup);
-}
+  try {
+    const candidates = readAnySavedState();
+    if (!candidates.length) return;
 
+    // Prefer the newest current save, but pull any missing inventory items from backups.
+    const current = candidates[0];
+    state.balls = current.balls;
+    state.selectedBall = current.selectedBall;
+    state.level = current.level;
+    state.xp = current.xp;
+    state.tokens = current.tokens;
+    state.inventory = current.inventory;
+
+    for (let i = 1; i < candidates.length; i++) {
+      state.inventory = mergeInventory(state.inventory, candidates[i].inventory);
+      state.balls = sanitizeBalls({ ...state.balls, ...candidates[i].balls });
+      if (!VALID_SELECTED_BALLS.has(state.selectedBall)) state.selectedBall = candidates[i].selectedBall;
+      state.level = Math.max(state.level, candidates[i].level);
+      state.xp = Math.max(state.xp, candidates[i].xp);
+      state.tokens = Math.max(state.tokens, candidates[i].tokens);
+    }
+
+    // If we recovered anything from a backup, write it back immediately so the good data stays put.
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        balls: state.balls,
+        inventory: state.inventory,
+        selectedBall: state.selectedBall,
+        level: state.level,
+        xp: state.xp,
+        tokens: state.tokens,
+        updatedAt: Date.now()
+      }));
+      localStorage.setItem(SAVE_KEY_BACKUP, localStorage.getItem(SAVE_KEY));
+    } catch (e) {}
+  } catch(e) {}
+}
 function saveState() {
   const payload = JSON.stringify({
     balls: state.balls,
@@ -1339,8 +1453,15 @@ function saveState() {
     selectedBall: state.selectedBall,
     level: state.level,
     xp: state.xp,
-    tokens: state.tokens
+    tokens: state.tokens,
+    updatedAt: Date.now()
   });
+
+  try {
+    const previous = localStorage.getItem(SAVE_KEY);
+    if (previous) localStorage.setItem(SAVE_KEY_PREV, previous);
+  } catch (e) {}
+
   localStorage.setItem(SAVE_KEY, payload);
   localStorage.setItem(SAVE_KEY_BACKUP, payload);
   updateLevelUI();
@@ -2155,7 +2276,25 @@ function confirmExchange() {
 
 function openClearModal()  { document.getElementById('clearModal').classList.add('show'); }
 function closeClearModal() { document.getElementById('clearModal').classList.remove('show'); }
-function confirmClearInventory() { state.inventory={}; saveState(); renderInventory(); closeClearModal(); }
+function confirmClearInventory() {
+  try {
+    localStorage.setItem(SAVE_KEY_PREV, localStorage.getItem(SAVE_KEY) || '');
+    localStorage.setItem(SAVE_KEY_BACKUP, JSON.stringify({
+      balls: state.balls,
+      inventory: state.inventory,
+      selectedBall: state.selectedBall,
+      level: state.level,
+      xp: state.xp,
+      tokens: state.tokens,
+      updatedAt: Date.now(),
+      clearedAt: Date.now()
+    }));
+  } catch (e) {}
+  state.inventory = {};
+  saveState();
+  renderInventory();
+  closeClearModal();
+}
 
 document.getElementById('clearModal').addEventListener('click', e => { if (e.target.id==='clearModal') closeClearModal(); });
 document.getElementById('deleteModal').addEventListener('click', e => { if (e.target.id==='deleteModal') closeDeleteModal(); });
