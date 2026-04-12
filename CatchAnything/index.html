@@ -358,6 +358,17 @@
     box-shadow: 0 0 0 1px rgba(34,197,94,0.18), 0 0 20px rgba(34,197,94,0.22);
     background: linear-gradient(135deg, rgba(34,197,94,0.18), var(--surface2));
   }
+  .level-card.completed {
+    border-color: rgba(34,197,94,0.55);
+    box-shadow: 0 0 0 1px rgba(34,197,94,0.14), 0 0 18px rgba(34,197,94,0.18);
+    background: linear-gradient(135deg, rgba(34,197,94,0.12), var(--surface2));
+  }
+  .level-card.completed .level-pill,
+  .level-card.completed .level-num-big,
+  .level-card.completed .level-xp,
+  .level-card.completed .level-reward {
+    color: #86efac;
+  }
   .level-card.current .level-pill,
   .level-card.current .level-num-big,
   .level-card.current .level-xp,
@@ -1076,6 +1087,22 @@
   .exchange-choice-title { font-weight: 900; font-size: 1.05em; margin-bottom: 6px; }
   .exchange-choice-cost { font-weight: 700; color: var(--accent2); margin-bottom: 4px; }
   .exchange-choice-meta { font-size: 0.8em; color: var(--muted); }
+  .exchange-buy-btn {
+    margin-top: 10px;
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    padding: 11px 12px;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 900;
+    cursor: pointer;
+    color: white;
+    background: linear-gradient(135deg, var(--accent), #a855f7);
+    box-shadow: 0 8px 18px rgba(124,58,237,0.22);
+    transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
+  }
+  .exchange-buy-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(124,58,237,0.30); }
+  .exchange-buy-btn:active { transform: translateY(0); filter: brightness(0.96); }
   .exchange-item-grid {
     display: grid; gap: 8px; max-height: 54vh; overflow: auto; padding-right: 4px;
   }
@@ -1898,10 +1925,11 @@ function renderLevelsTab() {
     const req = getXpRequirement(lvl);
     const milestone = [10,30,50,75,85].includes(lvl);
     const current = lvl === state.level;
+    const completed = lvl < state.level;
     html += `
-      <div class="level-card ${milestone ? 'milestone' : ''} ${current ? 'current' : ''}">
+      <div class="level-card ${milestone ? 'milestone' : ''} ${completed ? 'completed' : ''} ${current ? 'current' : ''}">
         <div class="level-card-top">
-          <div class="level-pill">${current ? 'Current' : 'Level'}</div>
+          <div class="level-pill">${completed ? 'Completed' : (current ? 'Current' : 'Level')}</div>
           <div class="level-num-big">${lvl}</div>
         </div>
         <div class="level-xp">${req.toLocaleString()} XP</div>
@@ -2453,6 +2481,14 @@ function renderRarityChanceTable() {
 
 let exchangeState = { rarity: null, item: null };
 
+function escapeHtmlAttr(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 function getExchangeCost(rarity) {
   if (rarity === 'impossible') return exchangeCosts.impossible;
   return { decent:1, hard:2, superhard:4 }[rarity] || 0;
@@ -2468,12 +2504,17 @@ function renderExchangeTab() {
   wrap.innerHTML = order.map(rarity => {
     const cost = getExchangeCost(rarity);
     const count = new Set(THINGS[rarity].items).size;
-    return `<button class="exchange-choice" type="button" onclick="openExchangeChooser('${rarity}')">
+    return `<div class="exchange-choice">
       <div class="exchange-choice-title">${DIFF_LABELS[rarity]}</div>
       <div class="exchange-choice-cost">${cost} token${cost===1?'':'s'}</div>
       <div class="exchange-choice-meta">${count} things available</div>
-    </button>`;
+      <button class="exchange-buy-btn" type="button" data-rarity="${rarity}">Buy</button>
+    </div>`;
   }).join('');
+
+  wrap.querySelectorAll('.exchange-buy-btn').forEach(btn => {
+    btn.onclick = () => openExchangeChooser(btn.dataset.rarity);
+  });
 }
 
 function openExchangeChooser(rarity) {
@@ -2496,7 +2537,12 @@ function openExchangeChooser(rarity) {
   }
 
   const items = [...new Set(THINGS[rarity].items)];
-  list.innerHTML = items.map(item => `<button class="exchange-item-btn" type="button" onclick="openExchangeConfirm(${JSON.stringify(item)})">${item}</button>`).join('');
+  list.innerHTML = items.map(item => `<button class="exchange-item-btn" type="button" data-item="${String(item).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}">${item}</button>`).join('');
+
+  list.querySelectorAll('.exchange-item-btn').forEach(btn => {
+    btn.onclick = () => openExchangeConfirm(btn.dataset.item || btn.textContent.trim());
+  });
+
   modal.classList.add('show');
   document.body.style.overflow = 'hidden';
 }
@@ -2524,8 +2570,10 @@ function openExchangeConfirm(item) {
   const text = document.getElementById('exchangeConfirmText');
   const rarity = exchangeState.rarity;
   if (!modal || !text || !rarity) return;
-  text.innerHTML = `Spend <b>${getExchangeCost(rarity)} token${getExchangeCost(rarity)===1?'':'s'}</b> to get <b>${item}</b>?`;
+  const cost = getExchangeCost(rarity);
+  text.innerHTML = `Are you sure you want to spend <b>${cost} token${cost===1?'':'s'}</b> to get <b>${item}</b>?`;
   modal.classList.add('show');
+  closeExchangeChooser();
 }
 
 function closeExchangeConfirm() {
@@ -2543,7 +2591,7 @@ function confirmExchange() {
 
   const cost = getExchangeCost(rarity);
   if (state.tokens < cost) {
-    alert('Not enough tokens.');
+    alert("You don't have enough tokens.");
     return;
   }
 
