@@ -52,7 +52,7 @@
   .save-slot-flag{font-size:32px;}.save-slot-country{font-family:'Orbitron',monospace;font-size:14px;color:var(--neon-cyan);font-weight:700;}
   .save-slot-year{font-size:13px;color:var(--text-dim);}
   .save-slot-empty{font-size:13px;color:var(--text-dim);margin-top:auto;}
-  .save-slot .delete-save{position:absolute;top:8px;right:8px;font-size:11px;padding:3px 8px;border:1px solid #333;color:#555;background:transparent;cursor:pointer;border-radius:4px;transition:all 0.2s;font-family:'Rajdhani',sans-serif;}
+  .save-slot .delete-save{position:absolute;top:8px;right:8px;font-size:11px;padding:3px 8px;border:1px solid #333;color:#555;background:transparent;cursor:pointer;border-radius:4px;transition:all 0.2s;font-family:'Rajdhani',sans-serif;z-index:10;}
   .save-slot .delete-save:hover{border-color:var(--neon-pink);color:var(--neon-pink);}
   .save-slot-resume{font-size:10px;color:var(--neon-gold);letter-spacing:1px;font-family:'Orbitron',monospace;margin-top:2px;}
   /* COUNTRY */
@@ -584,10 +584,30 @@ function renderSaveSlots(){
     }else{
       slot.innerHTML=`<div class="save-slot-num">SLOT ${i+1}</div><div class="save-slot-empty">+ NEW GAME</div>`;
     }
-    slot.addEventListener('click',e=>{if(e.target.classList.contains('delete-save'))return;Sound.click();G.currentSave=i;if(save){showScreen('menu');renderMenu();}else{document.getElementById('cs-slot-num').textContent=i+1;renderCountrySelect();showScreen('country');}});
+    // FIX: Only load the save if the click was NOT on the delete button
+    slot.addEventListener('click',e=>{
+      if(e.target.classList.contains('delete-save'))return;
+      Sound.click();
+      G.currentSave=i;
+      if(save){showScreen('menu');renderMenu();}
+      else{document.getElementById('cs-slot-num').textContent=i+1;renderCountrySelect();showScreen('country');}
+    });
     cont.appendChild(slot);
   });
-  cont.querySelectorAll('.delete-save').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const s=parseInt(btn.dataset.slot);modal('DELETE SAVE?',`Slot ${s+1} will be permanently erased.`,()=>{G.saves[s]=null;saveAll();renderSaveSlots();toast('SAVE DELETED');});}));
+  // FIX: Attach delete handlers after appending, with stopPropagation
+  cont.querySelectorAll('.delete-save').forEach(btn=>btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    Sound.click();
+    const s=parseInt(btn.dataset.slot);
+    const slotSave=G.saves[s];
+    const saveName=slotSave?slotSave.country:'this slot';
+    modal('DELETE SAVE?',`Are you sure you want to permanently erase Slot ${s+1} (${saveName})? This cannot be undone.`,()=>{
+      G.saves[s]=null;
+      saveAll();
+      renderSaveSlots();
+      toast('SAVE DELETED');
+    });
+  }));
 }
 
 // ── COUNTRY SELECT ───────────────────────────────
@@ -687,7 +707,6 @@ function renderPractice(){
       if(f&&!c.name.toLowerCase().includes(f.toLowerCase()))return false;
       return true;
     });
-    // Sort hardest first so practice targets are easy to find
     list.sort((a,b)=>getPower(b.name,save)-getPower(a.name,save));
     list.forEach(c=>{
       const p=getPower(c.name,save);
@@ -701,8 +720,12 @@ function renderPractice(){
           cpu:c,
           ctx:'PRACTICE',
           isPractice:true,
-          onWin:()=>{flash('green');setTimeout(()=>{renderPractice();showScreen('practice');},400);},
-          onLoss:()=>{flash('pink');setTimeout(()=>{renderPractice();showScreen('practice');},400);}
+          onWin:(ps,cs)=>{
+            // Practice win — show result screen then allow rematch or back
+          },
+          onLoss:(ps,cs)=>{
+            // Practice loss — show result screen then allow rematch or back
+          }
         });
       });
       grid.appendChild(item);
@@ -937,13 +960,8 @@ function setupMobileControls(){
 setupMobileControls();
 
 // ── AI SPEED FORMULA ─────────────────────────────
-// Tuned so elite teams (power 62) are hard but not unbeatable.
-// Old max was 5.5 at power 65. New max is ~4.8 at power 65.
-// Range: power 35 → 2.5, power 50 → 3.5, power 62 → 4.6, power 65 → 4.8
-// All values then multiplied by difficulty modifier.
 function calcAiSpeed(cpuPower, difficulty) {
   const dm = {easy: 0.58, normal: 0.82, hard: 1.10}[difficulty] || 0.82;
-  // Softer curve: narrower range, lower ceiling than before
   const base = ((cpuPower - 35) / 30) * 2.3 + 2.5;
   return Math.min(base, 4.8) * dm;
 }
@@ -1079,27 +1097,65 @@ function drawPad(ctx,x,y,w,h,c1,c2,glow){
   ctx.stroke();
 }
 
+// ── SHOW RESULT ──────────────────────────────────
+// FIX: Practice now always shows the result screen with proper win/loss display,
+// a rematch button, and a back-to-opponent-select button, regardless of outcome.
 function showResult(pw,S){
-  const box=document.getElementById('result-box');box.className='result-box '+(pw?'won':'lost');
+  const box=document.getElementById('result-box');
+  box.className='result-box '+(pw?'won':'lost');
   document.getElementById('result-label').textContent=pw?'VICTORY!':'DEFEAT';
   document.getElementById('result-score').textContent=`${S.ps} – ${S.as}`;
   document.getElementById('result-vs').textContent=`vs. ${S.cpu.name}`;
   document.getElementById('result-flags').innerHTML=`${S.player.flag} <span style="font-size:20px;color:var(--text-dim)">VS</span> ${S.cpu.flag}`;
-  if(pw){flash('green');setTimeout(()=>{sparks(innerWidth/2,innerHeight/2,'#39ff14',16);sparks(innerWidth/2,innerHeight/2,'#00ffff',8);},200);}else flash('pink');
-  const btns=document.getElementById('result-buttons');btns.innerHTML='';
+
   if(pw){
-    const btn=document.createElement('button');btn.className='btn btn-green';btn.innerHTML='<span>▶ CONTINUE</span>';
-    btn.onclick=()=>{Sound.click();S.onWin(S.ps,S.as);};btns.appendChild(btn);
+    flash('green');
+    setTimeout(()=>{sparks(innerWidth/2,innerHeight/2,'#39ff14',16);sparks(innerWidth/2,innerHeight/2,'#00ffff',8);},200);
+  }else{
+    flash('pink');
   }
+
+  const btns=document.getElementById('result-buttons');
+  btns.innerHTML='';
+
   if(S.isPractice){
-    // In practice: always show a "play again" and "back" button
-    const replayBtn=document.createElement('button');replayBtn.className='btn btn-gold btn-sm';replayBtn.innerHTML='<span>↺ REMATCH</span>';
-    replayBtn.onclick=()=>{Sound.click();startPong({player:S.player,cpu:S.cpu,ctx:'PRACTICE',isPractice:true,onWin:S.onWin,onLoss:S.onLoss});};btns.appendChild(replayBtn);
-    const backBtn=document.createElement('button');backBtn.className='btn btn-sm';backBtn.innerHTML='<span>← OPPONENT SELECT</span>';
-    backBtn.onclick=()=>{Sound.click();renderPractice();showScreen('practice');};btns.appendChild(backBtn);
-  }else if(!pw&&S.onLoss){
-    setTimeout(()=>S.onLoss(S.ps,S.as),0);
+    // Practice mode: always show rematch + back, regardless of win or loss
+    const rematchBtn=document.createElement('button');
+    rematchBtn.className='btn btn-gold';
+    rematchBtn.innerHTML='<span>↺ REMATCH</span>';
+    rematchBtn.onclick=()=>{
+      Sound.click();
+      startPong({
+        player:S.player,
+        cpu:S.cpu,
+        ctx:'PRACTICE',
+        isPractice:true,
+        onWin:S.onWin,
+        onLoss:S.onLoss
+      });
+    };
+    btns.appendChild(rematchBtn);
+
+    const backBtn=document.createElement('button');
+    backBtn.className='btn btn-sm';
+    backBtn.innerHTML='<span>← OPPONENT SELECT</span>';
+    backBtn.onclick=()=>{Sound.click();renderPractice();showScreen('practice');};
+    btns.appendChild(backBtn);
+  }else{
+    // Cup mode: only show Continue on win; loss triggers the callback automatically
+    if(pw){
+      const continueBtn=document.createElement('button');
+      continueBtn.className='btn btn-green';
+      continueBtn.innerHTML='<span>▶ CONTINUE</span>';
+      continueBtn.onclick=()=>{Sound.click();S.onWin(S.ps,S.as);};
+      btns.appendChild(continueBtn);
+    }else{
+      // Loss in cup — fire the callback after a brief delay so the result screen is visible
+      setTimeout(()=>{if(S.onLoss)S.onLoss(S.ps,S.as);},1800);
+    }
   }
+
+  showScreen('result');
 }
 
 // ── INIT ─────────────────────────────────────────
