@@ -566,15 +566,77 @@
 
   /* ── LEVEL UP NOTIFICATION ── */
   .level-up-notif {
-    position: fixed; left: 50%; top: 60px; transform: translateX(-50%) translateY(-20px);
-    opacity: 0; z-index: 5000; pointer-events: none;
-    background: linear-gradient(135deg, rgba(251,191,36,0.95), rgba(245,158,11,0.95));
-    color: #000; font-family: 'Rubik Mono One', monospace; font-weight: 900;
-    padding: 14px 28px; border-radius: 999px; font-size: 1.05em;
-    box-shadow: 0 8px 32px rgba(251,191,36,0.5);
-    transition: opacity 0.35s, transform 0.35s;
+    position: fixed; inset: 0; z-index: 5000; pointer-events: none;
+    display: grid; place-items: center;
+    opacity: 0;
+    background:
+      radial-gradient(circle at 50% 45%, rgba(251,191,36,0.18) 0%, rgba(245,158,11,0.12) 18%, rgba(0,0,0,0.88) 58%, rgba(0,0,0,0.98) 100%);
+    transition: opacity 0.25s ease;
   }
-  .level-up-notif.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .level-up-notif.show { opacity: 1; pointer-events: auto; }
+  .level-up-notif-card {
+    width: min(760px, calc(100vw - 28px));
+    min-height: min(62vh, 560px);
+    border-radius: 30px;
+    border: 1px solid rgba(251,191,36,0.45);
+    background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+    box-shadow: 0 24px 90px rgba(0,0,0,0.62), 0 0 60px rgba(251,191,36,0.12);
+    backdrop-filter: blur(18px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px;
+    padding: clamp(24px, 5vw, 52px);
+    text-align: center;
+    transform: scale(0.96);
+    transition: transform 0.35s cubic-bezier(0.2,1.25,0.2,1);
+    position: relative;
+    overflow: hidden;
+  }
+  .level-up-notif.show .level-up-notif-card { transform: scale(1); }
+  .level-up-notif-card::before {
+    content: '';
+    position: absolute; inset: -30%;
+    background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 55%);
+    animation: levelPulse 1.3s ease-out infinite;
+    pointer-events: none;
+  }
+  .level-up-kicker {
+    position: relative;
+    font-size: 0.88em;
+    font-weight: 900;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: rgba(255,248,220,0.92);
+  }
+  .level-up-main {
+    position: relative;
+    font-family: 'Rubik Mono One', monospace;
+    font-size: clamp(2.6em, 12vw, 7em);
+    line-height: 0.95;
+    background: linear-gradient(135deg, #fff8d7, #fbbf24, #fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 28px rgba(251,191,36,0.28);
+  }
+  .level-up-sub {
+    position: relative;
+    font-size: clamp(0.98em, 3vw, 1.38em);
+    font-weight: 700;
+    color: rgba(255,255,255,0.90);
+    max-width: 34ch;
+    line-height: 1.5;
+  }
+  .level-up-rank {
+    position: relative;
+    font-family: 'Rubik Mono One', monospace;
+    font-size: clamp(1.1em, 4vw, 2em);
+    color: rgba(255,224,140,0.95);
+    letter-spacing: 0.06em;
+  }
+  @keyframes levelPulse {
+    0% { transform: scale(0.86); opacity: 0.25; }
+    70% { transform: scale(1.06); opacity: 0.55; }
+    100% { transform: scale(1.18); opacity: 0; }
+  }
 
   /* ── ANIMATIONS ── */
   @keyframes catchShake   { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
@@ -588,6 +650,8 @@
   .fly-text { position: fixed; font-family: 'Rubik', sans-serif; font-weight: 900; font-size: clamp(0.85em,2.5vw,1.1em); pointer-events: none; z-index: 9999; white-space: nowrap; animation: flyUp 1.1s cubic-bezier(0.22,1,0.36,1) forwards; text-shadow: 0 0 12px currentColor; }
   .fly-text.fly-nope   { color: rgba(180,180,200,0.7); font-size: clamp(0.75em,2vw,0.92em); }
   .fly-text.fly-normal { color: var(--normal-ball); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes scanLine { 0% { transform: translateY(-70%); opacity: 0; } 15% { opacity: .85; } 100% { transform: translateY(70%); opacity: 0; } }
   .fly-text.fly-super  { color: var(--super-ball); filter: drop-shadow(0 0 5px var(--super-ball)); }
   .fly-text.fly-omega  { color: var(--omega-ball); filter: drop-shadow(0 0 8px var(--omega-ball)); font-size: clamp(1em,3vw,1.3em); }
   .fly-text.fly-god    { color: var(--god-ball); filter: drop-shadow(0 0 12px var(--god-ball)) drop-shadow(0 0 28px rgba(251,191,36,0.55)); font-size: clamp(1.2em,4vw,1.7em); animation-duration: 1.6s; }
@@ -652,7 +716,7 @@
   </div>
 </div>
 
-<div class="level-up-notif" id="levelUpNotif">🎉 LEVEL UP!</div>
+<div class="level-up-notif" id="levelUpNotif"><div class="level-up-notif-card"><div class="level-up-kicker">LEVEL UP</div><div class="level-up-main">+1</div><div class="level-up-rank">NEW LEVEL UNLOCKED</div><div class="level-up-sub">Keep going to unlock more rewards.</div></div></div>
 
 <!-- LEVEL OVERLAY -->
 <div class="level-overlay-backdrop" id="levelOverlayBackdrop" onclick="closeLevelOverlay()">
@@ -826,7 +890,7 @@
     </div>
     <div class="card" style="font-size:0.85em;color:var(--muted);line-height:1.75">
       <div class="card-title">Ball Luck Milestones</div>
-      Level 10 = +50% ball roll chance · Level 30 = +50% again · Level 50 = +100% · Level 75 = max cap locked in<br>
+      Level 10 = +50% ball roll chance · Level 30 = +50% again · Level 50 = +100% · Level 75 = guaranteed ball rolls<br>
       Level 100 = 4 God Light balls reward · Level 120+ = 30× easier God Light, balls every level
     </div>
   </div>
@@ -1125,22 +1189,15 @@ function getXpRequirement(level){
 function getCatchXp(diff){ return{easy:100,normal:300,decent:750,hard:2000,superhard:4000,impossible:35000}[diff]||0; }
 function getRollXp(ball){ return{normal:10,super:50,omega:200,god:20000}[ball]||0; }
 
-// Updated ball luck milestones: +50% at 10, +50% at 30, +100% at 50, cap at 75
-function getBallLuckFactor(){
-  if(state.level>=75)return 3.0; // 50+50+100 = 200% bonus = 3x total
-  if(state.level>=50)return 2.0; // 50+50+100% but only +100 reached = 2x
-  if(state.level>=30)return 1.5; // 50+50% bonus = 1.5x
-  if(state.level>=10)return 1.5; // Just +50%
-  return 1;
-}
-
-// Actually: level 10 = +50% (1.5x), level 30 = +50% more (2x total), level 50 = +100% more (3x total), level 75 = cap
 function getBallLuckMultiplier(){
-  if(state.level>=75)return 3.0;
   if(state.level>=50)return 3.0;
   if(state.level>=30)return 2.0;
   if(state.level>=10)return 1.5;
   return 1.0;
+}
+
+function isBallRollGuaranteed(){
+  return state.level>=75;
 }
 
 // God light gets 30x boost from level 120+
@@ -1148,22 +1205,63 @@ function getGodLightBoost(){
   return state.level>=120?30:1;
 }
 
-function getBallRollThresholds(){
+function getBallRollWeights(){
   const factor=getBallLuckMultiplier();
   const godBoost=getGodLightBoost();
+  return {
+    normal: 10 * factor,
+    super: 2 * factor,
+    omega: 0.75 * factor,
+    god: 0.01 * factor * godBoost,
+  };
+}
+
+function getBallRollThresholds(){
+  const weights=getBallRollWeights();
+  if(isBallRollGuaranteed()){
+    const total=Object.values(weights).reduce((sum,n)=>sum+n,0)||1;
+    return[
+      ['god', weights.god / total * 100],
+      ['omega', weights.omega / total * 100],
+      ['super', weights.super / total * 100],
+      ['normal', weights.normal / total * 100],
+    ];
+  }
   return[
-    ['god',   0.01 * factor * godBoost],
-    ['omega', 0.75 * factor],
-    ['super', 2    * factor],
-    ['normal',10   * factor],
+    ['god', weights.god],
+    ['omega', weights.omega],
+    ['super', weights.super],
+    ['normal', weights.normal],
   ];
+}
+
+function rollBallOutcome(){
+  const probs=getBallRollThresholds();
+  if(isBallRollGuaranteed()){
+    let r=Math.random()*100;
+    for(const[ball,chance] of probs){
+      r-=chance;
+      if(r<0)return ball;
+    }
+    return 'normal';
+  }
+  const total=probs.reduce((sum,[,chance])=>sum+chance,0);
+  const missChance=Math.max(0,100-total);
+  let r=Math.random()*100;
+  if(r<missChance)return null;
+  r-=missChance;
+  for(const[ball,chance] of probs){
+    r-=chance;
+    if(r<0)return ball;
+  }
+  return 'normal';
 }
 
 function getMilestoneText(level){
   if(level===10) return 'Ball roll chance +50%.';
   if(level===30) return 'Ball roll chance +50% again (2× total).';
-  if(level===50) return 'Ball roll chance +100% more (3× total, max!).';
-  if(level===75) return 'Ball roll bonus locked at max (3×).';
+  if(level===50) return 'Ball roll chance +100% more (3× total).';
+  if(level===75) return 'Ball rolls are guaranteed from here on.';
   if(level===100)return '🎁 Receive 4 God Light Balls!';
   if(level===120)return '⚡ God Light 30× easier + balls every level!';
   return 'No special milestone.';
@@ -1213,14 +1311,23 @@ function updateLevelUI(){
 }
 
 function updateBallOddsDisplay(){
-  const thresholds=getBallRollThresholds();
-  const chanceMap=Object.fromEntries(thresholds.map(([b,c])=>[b,c]));
+  const weights=getBallRollWeights();
+  const total=Object.values(weights).reduce((sum,n)=>sum+n,0)||1;
+  const guaranteed=isBallRollGuaranteed();
+  const pct=guaranteed
+    ? {
+        normal: weights.normal / total * 100,
+        super: weights.super / total * 100,
+        omega: weights.omega / total * 100,
+        god: weights.god / total * 100,
+      }
+    : weights;
   const fmt=(n)=>`${n<0.1?n.toFixed(2):n.toFixed(1)}% chance`;
   const el=id=>document.getElementById(id);
-  if(el('ballOddsNormal'))el('ballOddsNormal').textContent=fmt(Math.min(chanceMap.normal??10,100));
-  if(el('ballOddsSuper'))el('ballOddsSuper').textContent=fmt(Math.min(chanceMap.super??2,100));
-  if(el('ballOddsOmega'))el('ballOddsOmega').textContent=fmt(Math.min(chanceMap.omega??0.75,100));
-  if(el('ballOddsGod'))el('ballOddsGod').textContent=fmt(Math.min(chanceMap.god??0.01,100));
+  if(el('ballOddsNormal'))el('ballOddsNormal').textContent=fmt(Math.min(pct.normal??10,100));
+  if(el('ballOddsSuper'))el('ballOddsSuper').textContent=fmt(Math.min(pct.super??2,100));
+  if(el('ballOddsOmega'))el('ballOddsOmega').textContent=fmt(Math.min(pct.omega??0.75,100));
+  if(el('ballOddsGod'))el('ballOddsGod').textContent=fmt(Math.min(pct.god??0.01,100));
 }
 
 function renderXpRewardGrids(){
@@ -1252,10 +1359,16 @@ let levelUpNotifTimer=null;
 function showLevelUpNotif(level){
   const el=document.getElementById('levelUpNotif');
   if(!el)return;
-  el.textContent=`🎉 LEVEL ${level}!`;
+  el.innerHTML=`
+    <div class="level-up-notif-card">
+      <div class="level-up-kicker">LEVEL UP</div>
+      <div class="level-up-main">+${level}</div>
+      <div class="level-up-rank">NEW LEVEL UNLOCKED</div>
+      <div class="level-up-sub">You reached level ${level}. Keep going to unlock more rewards.</div>
+    </div>`;
   el.classList.add('show');
   if(levelUpNotifTimer)clearTimeout(levelUpNotifTimer);
-  levelUpNotifTimer=setTimeout(()=>el.classList.remove('show'),2200);
+  levelUpNotifTimer=setTimeout(()=>el.classList.remove('show'),2400);
 }
 
 function flashLevelDock(){
@@ -1514,15 +1627,7 @@ function getBalls(){
   const cx=rect.left+rect.width/2;
   const cy=rect.top+rect.height/2;
   const toast=document.getElementById('ballResultToast');
-  let got=null;
-  const thresholds=getBallRollThresholds();
-  const r=Math.random()*100;
-  let cursor=0;
-  for(const[ball,chance]of thresholds){
-    cursor+=chance;
-    if(r<Math.min(cursor,100)){got=ball;break;}
-  }
-  if(!got&&r<Math.min(thresholds.reduce((s,[,c])=>s+c,0),100))got='normal';
+  const got=rollBallOutcome();
   const rollXp={normal:10,super:50,omega:200,god:20000};
   if(got){
     state.balls[got]++;saveState();updateBallCounts();renderBallSelector();
@@ -1549,6 +1654,7 @@ function getBalls(){
 }
 
 /* ══════════════════════════════════════════════
+   FLY TEXT & PARTICLES/* ══════════════════════════════════════════════
    FLY TEXT & PARTICLES
    ══════════════════════════════════════════════ */
 function spawnFlyText(text,cls,cx,cy,idx){
@@ -1649,7 +1755,16 @@ function setFindMode(isEnc){
 function renderEncounterEmpty(){
   const box=document.getElementById('encounterBox');
   box.className='encounter-box';
-  box.innerHTML=`<div class="no-encounter-icon">🌿</div><div class="no-encounter-text">Nothing here yet — press Find!</div>`;
+  box.innerHTML=`
+    <div style="width:min(440px,100%);display:grid;gap:12px;justify-items:center;text-align:center">
+      <div style="width:170px;height:170px;border-radius:28px;border:1px solid rgba(124,58,237,0.22);background:radial-gradient(circle at 50% 45%, rgba(6,182,212,0.14) 0%, rgba(255,255,255,0.02) 38%, rgba(0,0,0,0.16) 100%);display:grid;place-items:center;position:relative;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,0.04), inset 0 0 30px rgba(6,182,212,0.05)">
+        <div style="position:absolute;inset:14%;border-radius:50%;border:1px dashed rgba(255,255,255,0.08);animation:spin 10s linear infinite"></div>
+        <div style="position:absolute;inset:28%;border-radius:50%;border:1px solid rgba(34,197,94,0.10);box-shadow:0 0 20px rgba(34,197,94,0.08)"></div>
+        <div style="font-size:3.4em;opacity:0.85">🌿</div>
+      </div>
+      <div style="font-family:'Rubik Mono One', monospace; font-size: clamp(1.1em, 4vw, 1.5em); letter-spacing: 0.04em;">Area Clear</div>
+      <div style="color:var(--muted);font-size:0.95em;line-height:1.6">Press Find to start a scan and lock onto a target.</div>
+    </div>`;
 }
 
 function renderEncounter(){
@@ -1660,27 +1775,42 @@ function renderEncounter(){
   box.className='encounter-box active slide-in';
   const names={normal:'Normal',super:'Super',omega:'Omega',god:'God Light'};
   box.innerHTML=`
-    <div style="font-size:3em">${DIFF_EMOJI[diff]}</div>
-    <div class="encounter-thing-name">${item}</div>
-    <div class="encounter-difficulty diff-${diff}">${DIFF_LABELS[diff]}</div>
-    <div class="throws-left">🎯 Throws left: <b>${state.throwsLeft}</b></div>
-    <div class="catch-rate-info">Catch rate: <b>${Math.round(rate*100)}%</b> with ${BALL_ICONS[state.selectedBall]} ${names[state.selectedBall]}</div>`;
+    <div style="width:min(560px,100%);display:grid;gap:14px;justify-items:center;text-align:center">
+      <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03);font-size:0.76em;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)">
+        <span>${DIFF_EMOJI[diff]}</span>
+        <span>${DIFF_LABELS[diff]} Target</span>
+      </div>
+      <div style="font-size:3.3em;line-height:1">🎯</div>
+      <div class="encounter-thing-name" style="max-width:100%;word-break:break-word">${item}</div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:min(100%,420px);margin-top:4px">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:12px 10px">
+          <div style="font-size:0.68em;font-weight:900;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Throws Left</div>
+          <div style="font-family:'Rubik Mono One', monospace;font-size:1.2em">${state.throwsLeft}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:12px 10px">
+          <div style="font-size:0.68em;font-weight:900;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Catch Rate</div>
+          <div style="font-family:'Rubik Mono One', monospace;font-size:1.2em">${Math.round(rate*100)}%</div>
+        </div>
+      </div>
+      <div style="font-size:0.88em;color:var(--muted);line-height:1.55">Use ${BALL_ICONS[state.selectedBall]} ${names[state.selectedBall]} to capture it before it runs away.</div>
+    </div>`;
 }
 
 function showSearchingState(){
   const box=document.getElementById('encounterBox');
   box.className='encounter-box active';
   box.innerHTML=`
-    <div class="radar-wrap">
-      <div class="radar-halo"></div>
-      <div class="radar-grid">
-        <div class="radar-blip"></div><div class="radar-blip"></div><div class="radar-blip"></div><div class="radar-blip"></div>
+    <div style="width:min(540px,100%);display:grid;gap:16px;justify-items:center;text-align:center">
+      <div style="width:min(240px,62vw);aspect-ratio:1;border-radius:28px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 45%, rgba(6,182,212,0.14) 0%, rgba(124,58,237,0.08) 38%, rgba(0,0,0,0.20) 100%);border:1px solid rgba(6,182,212,0.22);box-shadow:inset 0 0 32px rgba(6,182,212,0.06), 0 0 36px rgba(6,182,212,0.08)">
+        <div style="position:absolute;inset:10%;border-radius:50%;border:1px solid rgba(6,182,212,0.12)"></div>
+        <div style="position:absolute;inset:24%;border-radius:50%;border:1px solid rgba(255,255,255,0.08)"></div>
+        <div style="position:absolute;inset:38%;border-radius:50%;background:radial-gradient(circle at 35% 35%, #ffffff 0%, #22c55e 38%, #065f46 100%);box-shadow:0 0 0 3px rgba(34,197,94,0.18), 0 0 24px rgba(34,197,94,0.5)"></div>
+        <div style="position:absolute;inset:-18%;background:conic-gradient(from 120deg, transparent 0 66%, rgba(34,197,94,0.10) 74%, rgba(34,197,94,0.50) 80%, transparent 88%, transparent 100%);animation:spin 1.15s linear infinite;mask:radial-gradient(circle, transparent 32%, black 35%)"></div>
+        <div style="position:absolute;inset:0; background:linear-gradient(180deg, transparent 0 48%, rgba(255,255,255,0.08) 50%, transparent 52%);animation:scanLine 1.2s linear infinite;opacity:0.7"></div>
       </div>
-      <div class="radar-ring-1"></div><div class="radar-ring-2"></div><div class="radar-ring-3"></div><div class="radar-ring-4"></div>
-      <div class="radar-sweep-trail"></div><div class="radar-sweep"></div><div class="radar-core"></div>
-    </div>
-    <div style="font-size:1.1em;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent2)">Scanning<span class="searching-dots"><span>.</span><span>.</span><span>.</span></span></div>
-    <div style="font-size:0.79em;color:var(--muted);letter-spacing:0.5px">Sweeping the area for something catchable</div>`;
+      <div style="font-family:'Rubik Mono One', monospace;font-size:clamp(1.1em,4vw,1.7em);letter-spacing:0.18em;text-transform:uppercase;color:var(--accent2)">Scanning…</div>
+      <div style="font-size:0.88em;color:var(--muted);letter-spacing:0.4px;line-height:1.55">Sweeping the battlefield for a target.</div>
+    </div>`;
 }
 
 function findEncounter(){
@@ -1692,7 +1822,12 @@ function findEncounter(){
     setFindMode(false);throwBtn.disabled=true;
     const box=document.getElementById('encounterBox');
     box.className='encounter-box';
-    box.innerHTML=`<div class="no-encounter-icon">🏃</div><div class="no-encounter-text">You ran away!</div>`;
+    box.innerHTML=`
+      <div style="width:min(440px,100%);display:grid;gap:10px;justify-items:center;text-align:center">
+        <div style="font-size:3.1em">🏃</div>
+        <div style="font-family:'Rubik Mono One', monospace;font-size:1.35em;letter-spacing:0.05em">Retreat</div>
+        <div style="color:var(--muted);font-size:0.95em;line-height:1.6">You ran away from the encounter.</div>
+      </div>`;
     clearThrowResult();return;
   }
   playFindSound();
@@ -1703,13 +1838,15 @@ function findEncounter(){
   setTimeout(()=>{
     box.className='encounter-box active detecting';
     box.innerHTML=`
-      <div class="radar-wrap" style="width:80px;height:80px">
-        <div class="radar-ring-1"></div><div class="radar-ring-2"></div>
-        <div class="radar-sweep"></div>
-        <div class="radar-core" style="background:radial-gradient(circle at 35% 35%,#fff 0%,#86efac 35%,#16a34a 100%);box-shadow:0 0 0 3px rgba(34,197,94,0.3),0 0 24px rgba(34,197,94,0.8)"></div>
-      </div>
-      <div style="font-size:1.05em;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#22c55e;animation:contactPing 0.15s ease-in-out 2">⚡ CONTACT DETECTED ⚡</div>
-      <div style="font-size:0.8em;color:var(--muted)">Preparing encounter…</div>`;
+      <div style="width:min(520px,100%);display:grid;gap:12px;justify-items:center;text-align:center">
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;border:1px solid rgba(34,197,94,0.22);background:rgba(34,197,94,0.06);font-size:0.74em;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;color:#86efac;animation:contactPing 0.15s ease-in-out 2">
+          <span>⚡</span>
+          <span>Target Locked</span>
+        </div>
+        <div style="font-size:3.2em;line-height:1">🎯</div>
+        <div style="font-family:'Rubik Mono One', monospace;font-size:1.2em;letter-spacing:0.06em">Signal Found</div>
+        <div style="color:var(--muted);font-size:0.85em">Preparing capture sequence…</div>
+      </div>`;
     const rect=box.getBoundingClientRect();
     const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
     for(let i=0;i<4;i++)setTimeout(()=>spawnShockwave(cx,cy,diff),i*80);
@@ -1892,6 +2029,14 @@ function getExchangeCost(r){
   return{decent:1,hard:2,superhard:4}[r]||0;
 }
 
+function getExchangeUniqueCount(rarity){
+  return [...new Set(THINGS[rarity]?.items||[])].length;
+}
+
+function getExchangeTotalCount(){
+  return ['decent','hard','superhard','impossible'].reduce((sum,rarity)=>sum+getExchangeUniqueCount(rarity),0);
+}
+
 function updateXpBoostUI(){
   const owned=Number(state.xpMultiplier)>=2;
   const badge=document.getElementById('xpBoostBadge');
@@ -1906,15 +2051,21 @@ function renderExchangeTab(){
   const tokenNum=document.getElementById('tokenCount');
   if(tokenNum)tokenNum.textContent=state.tokens.toLocaleString();
   updateXpBoostUI();
+
+  const exchangeNote=document.querySelector('#tab-exchange .exchange-note');
+  if(exchangeNote){
+    exchangeNote.textContent=`Shop updated: ${getExchangeTotalCount()} unique characters across all exchange tiers.`;
+  }
+
   const wrap=document.getElementById('exchangeGrid');if(!wrap)return;
   const order=['decent','hard','superhard','impossible'];
   wrap.innerHTML=order.map(rarity=>{
     const cost=getExchangeCost(rarity);
-    const count=new Set(THINGS[rarity].items).size;
+    const count=getExchangeUniqueCount(rarity);
     return`<div class="exchange-choice">
       <div class="exchange-choice-title">${DIFF_LABELS[rarity]}</div>
       <div class="exchange-choice-cost">${cost} token${cost===1?'':'s'}</div>
-      <div class="exchange-choice-meta">${count} things available</div>
+      <div class="exchange-choice-meta">${count} unique character${count===1?'':'s'}</div>
       <button class="exchange-buy-btn" type="button" data-rarity="${rarity}">Buy</button>
     </div>`;
   }).join('');
@@ -1929,7 +2080,7 @@ function openExchangeChooser(rarity){
   document.getElementById('exchangeChooserTitle').textContent=DIFF_LABELS[rarity];
   document.getElementById('exchangeChooserCost').textContent=`${getExchangeCost(rarity)} token${getExchangeCost(rarity)===1?'':'s'}`;
   const listBtn=document.getElementById('rarityListBtn');
-  if(listBtn){listBtn.textContent=`📜 Show all ${DIFF_LABELS[rarity]} characters`;listBtn.onclick=()=>showRarityList(rarity);}
+  if(listBtn){listBtn.textContent=`📜 Show all ${getExchangeUniqueCount(rarity)} ${DIFF_LABELS[rarity]} characters`;listBtn.onclick=()=>showRarityList(rarity);}
   const items=[...new Set(THINGS[rarity].items)];
   document.getElementById('exchangeChooserList').innerHTML=items.map(item=>`<button class="exchange-item-btn" type="button">${item}</button>`).join('');
   document.querySelectorAll('#exchangeChooserList .exchange-item-btn').forEach(btn=>{
