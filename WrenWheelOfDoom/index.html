@@ -618,13 +618,33 @@ const moneyDisplay = document.getElementById("money");
 
 const MONEY_UNLOCK_KEY = "wren_theme_money_unlocked";
 const SNOW_UNLOCK_KEY  = "wren_theme_snow_unlocked";
+const COTTON_CANDY_UNLOCK_KEY = "wren_theme_cotton_candy_unlocked";
+const SABER_UNLOCK_KEY = "wren_theme_saber_unlocked";
 const BLACKHOLE_UNLOCK_KEY = "wren_theme_blackhole_unlocked";
 
+const UNLOCK_NOTICE_QUEUE_KEY = "wren_pending_unlock_notices";
+
 function saveMoney() { localStorage.setItem("wren_money", money); }
+
+function queueUnlockNotice(message) {
+  try {
+    const queue = JSON.parse(localStorage.getItem(UNLOCK_NOTICE_QUEUE_KEY) || "[]");
+    queue.push(message);
+    localStorage.setItem(UNLOCK_NOTICE_QUEUE_KEY, JSON.stringify(queue));
+  } catch (e) {
+    localStorage.setItem(UNLOCK_NOTICE_QUEUE_KEY, JSON.stringify([message]));
+  }
+}
 
 function syncThemeUnlocks() {
   const floored = Math.floor(money);
 
+  if (floored >= 1_000_000_000_000 && localStorage.getItem(COTTON_CANDY_UNLOCK_KEY) !== "1") {
+    localStorage.setItem(COTTON_CANDY_UNLOCK_KEY, "1");
+  }
+  if (floored >= 1_000_000_000_000_000 && localStorage.getItem(SABER_UNLOCK_KEY) !== "1") {
+    localStorage.setItem(SABER_UNLOCK_KEY, "1");
+  }
   if (floored >= 1_000_000_000) {
     localStorage.setItem(MONEY_UNLOCK_KEY, "1");
     localStorage.setItem(SNOW_UNLOCK_KEY, "1");
@@ -1196,6 +1216,7 @@ function toggleMusic() {
 window.addEventListener("load", () => {
   updateMoney();
   updateTheme();
+  syncThemeUnlocks();
 });
 </script>
 </body>
