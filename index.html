@@ -353,11 +353,6 @@
     body.mode-diamond #codeBtn{top:14px;}
     body.mode-diamond #themesBtn{top:58px;}
 
-    .emerald-particle,.diamond-particle{position:fixed;top:-12vh;pointer-events:none;z-index:0;user-select:none;will-change:transform,opacity;animation:gemFall linear forwards;font-size:24px;line-height:1;text-shadow:none;opacity:0.95;}
-    .emerald-particle{color:#4dff8a;}
-    .diamond-particle{color:#61c4ff;}
-    @keyframes gemFall{0%{opacity:0;transform:translateY(0) translateX(0) rotate(0deg) scale(var(--scale,1));}10%{opacity:1;}90%{opacity:0.92;}100%{opacity:0;transform:translateY(114vh) translateX(var(--drift)) rotate(var(--spin)) scale(calc(var(--scale,1) * 1.02));}}
-
     body.mode-seven{background:linear-gradient(145deg,#120000 0%,#2d0000 32%,#5b0000 58%,#120000 100%);color:#ffecec;overflow:hidden;}
     body.mode-seven::before,
     body.mode-seven::after{content:none;}
@@ -372,6 +367,11 @@
     body.mode-seven .mode-option.active-mode{color:#ff4444;}
     .seven-particle{position:fixed;top:-10vh;pointer-events:none;z-index:0;user-select:none;will-change:transform,opacity;animation:sevenFall linear forwards;font-family:'Rubik',sans-serif;font-weight:900;color:#cc0000;text-shadow:0 0 8px rgba(255,0,0,0.60);}
     @keyframes sevenFall{0%{opacity:0;transform:translateY(0) translateX(0) rotate(var(--rot-start)) scale(var(--scale,1));}8%{opacity:1;}88%{opacity:0.85;}100%{opacity:0;transform:translateY(115vh) translateX(var(--drift)) rotate(var(--rot-end)) scale(var(--scale,1));}}
+
+    .emerald-particle,.diamond-particle{position:fixed;top:-12vh;pointer-events:none;z-index:0;user-select:none;will-change:transform,opacity;animation:gemFall linear forwards;font-size:24px;line-height:1;text-shadow:none;opacity:0.95;}
+    .emerald-particle{color:#4dff8a;}
+    .diamond-particle{color:#61c4ff;}
+    @keyframes gemFall{0%{opacity:0;transform:translateY(0) translateX(0) rotate(0deg) scale(var(--scale,1));}10%{opacity:1;}90%{opacity:0.92;}100%{opacity:0;transform:translateY(114vh) translateX(var(--drift)) rotate(var(--spin)) scale(calc(var(--scale,1) * 1.02));}}
 
     body.mode-money{background:radial-gradient(circle at 18% 18%,rgba(50,200,80,0.40) 0%,transparent 28%),radial-gradient(circle at 80% 22%,rgba(30,180,60,0.34) 0%,transparent 28%),radial-gradient(circle at 74% 72%,rgba(80,220,100,0.34) 0%,transparent 34%),radial-gradient(circle at 24% 76%,rgba(50,200,80,0.28) 0%,transparent 30%),linear-gradient(180deg,#001a08 0%,#003010 42%,#000c04 100%);color:#d4ffdd;}
     body.mode-whiteneon{background:radial-gradient(circle at 20% 16%,rgba(255,255,255,0.98) 0%,transparent 22%),radial-gradient(circle at 78% 18%,rgba(163,240,255,0.52) 0%,transparent 22%),radial-gradient(circle at 50% 52%,rgba(255,255,255,0.82) 0%,transparent 34%),radial-gradient(circle at 18% 82%,rgba(204,153,255,0.28) 0%,transparent 24%),radial-gradient(circle at 84% 78%,rgba(0,210,255,0.18) 0%,transparent 24%),linear-gradient(180deg,#ffffff 0%,#f7fbff 42%,#eef6ff 100%);background-attachment:fixed;background-size:cover;color:#101827;}
@@ -3847,12 +3847,11 @@ cog.addEventListener('click',()=>{
 });
 document.addEventListener('click',e=>{if(!settingsMenu.contains(e.target)&&e.target!==cog){settingsMenu.classList.remove('open');cog.classList.remove('open');}});
 
-const ALL_LOCKED_MODES=['banana','ketchup','lightning','luxurious','whiteneon','ice','coffee','darth','windu','jedi','watermelon','bone','blueberry','blackhole','day','night','cyan','glass','lava','rose','orange','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','spider','bronze','silver','gold','radioactive','snow','money','cottoncandy','saber','pizza','skin','rainbowremastered','fire','emerald','diamond'];
+const ALL_LOCKED_MODES=['banana','ketchup','lightning','luxurious','whiteneon','ice','coffee','darth','windu','jedi','watermelon','bone','blueberry','blackhole','day','night','cyan','glass','lava','rose','orange','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','spider','bronze','silver','gold','radioactive','snow','money','cottoncandy','saber','pizza','skin','rainbowremastered','fire','emerald','diamond','seven'];
 
 function selectMode(m){
-  applyMode(m);
-  localStorage.setItem(MODE_KEY,m);
-  closeThemesModal();
+  if(ALL_LOCKED_MODES.includes(m)&&!unlockedFeatures.includes(m))return;
+  applyMode(m);localStorage.setItem(MODE_KEY,m);closeThemesModal();
 }
 function applyMode(m){
   stopSnowParticles();stopMoneyParticles();stopLightningParticles();stopFireParticles();stopEmeraldParticles();stopDiamondParticles();stopSevenParticles();
@@ -3966,9 +3965,8 @@ function setScrollbarTheme(mode){
 function refreshOption(id,lid,t){
   const o=document.getElementById(id),l=document.getElementById(lid);
   if(!o)return;
-  o.onclick=()=>{selectMode(t);closeThemesModal();};
-  if(unlockedFeatures.includes(t)){o.classList.remove('locked');if(l)l.textContent='';}
-  else{o.classList.add('locked');if(l)l.textContent='🔒';}
+  if(unlockedFeatures.includes(t)){o.classList.remove('locked');o.onclick=()=>{selectMode(t);closeThemesModal();};if(l)l.textContent='';}
+  else{o.classList.add('locked');o.onclick=null;if(l)l.textContent='🔒';}
 }
 function refreshLuxuriousOption(){refreshOption('luxuriousModeOption','luxuriousLock','luxurious');}
 function refreshBlueberryOption(){refreshOption('blueberryModeOption','blueberryLock','blueberry');}
@@ -4123,6 +4121,7 @@ function unlockCottonCandyIfEligible(){return unlockIfEligible('cottoncandy',()=
 function unlockSaberIfEligible(){return unlockIfEligible('saber',()=>localStorage.getItem(SABER_UNLOCK_KEY)==='1','💙 Saber unlocked!',refreshSaberOption);}
 function unlockEmeraldIfEligible(){return unlockIfEligible('emerald',()=>localStorage.getItem(EMERALD_THEME_UNLOCK_KEY)==='1',null,refreshEmeraldOption);}
 function unlockDiamondIfEligible(){return unlockIfEligible('diamond',()=>localStorage.getItem(DIAMOND_THEME_UNLOCK_KEY)==='1',null,refreshDiamondOption);}
+function unlockSevenIfEligible(){return unlockIfEligible('seven',()=>localStorage.getItem(SEVEN_THEME_UNLOCK_KEY)==='1','💚 Seven unlocked! Lucky number.',refreshSevenOption);}
 function unlockJediIfEligible(){return unlockIfEligible('jedi',()=>localStorage.getItem(PONG_CUP_WIN_KEY)==='1','🟩 Jedi unlocked! The Force is strong with you.',refreshJediOption);}
 function unlockWatermelonIfEligible(){return unlockIfEligible('watermelon',()=>localStorage.getItem(PONG_PRACTICE_PLAYED_KEY)==='1','🍉 Watermelon unlocked! Practice makes perfect.',refreshWatermelonOption);}
 function unlockBoneIfEligible(){return unlockIfEligible('bone',()=>localStorage.getItem(BONE_THEME_UNLOCK_KEY)==='1','🦴 Bone unlocked! Spooky.',refreshBoneOption);}
@@ -4151,7 +4150,7 @@ function checkAllUnlocks(){
   unlockLuxuriousIfEligible();unlockRainbowRemasteredIfEligible();unlockFireIfEligible();unlockBlueberryIfEligible();unlockBlackHoleIfEligible();unlockCyanIfEligible();unlockWhiteNeonIfEligible();unlockIceIfEligible();unlockDarthIfEligible();unlockDayIfEligible();unlockNightIfEligible();
   unlockRoseIfEligible();unlockWaterIfEligible();unlockPotatoIfEligible();unlockGrapeIfEligible();unlockSunIfEligible();unlockShadowIfEligible();unlockCheeseIfEligible();unlockToothpasteIfEligible();
   unlockLuckyIfEligible();unlockGlitchIfEligible();unlockSlimeIfEligible();unlockGalaxyIfEligible();unlockSpiderIfEligible();checkCreditsUnlocks();unlockRadioactiveIfEligible();unlockSnowIfEligible();unlockMoneyIfEligible();unlockCottonCandyIfEligible();unlockSaberIfEligible();checkSkinUnlock(false);
-  unlockEmeraldIfEligible();unlockDiamondIfEligible();
+  unlockEmeraldIfEligible();unlockDiamondIfEligible();unlockSevenIfEligible();
   unlockJediIfEligible();unlockWatermelonIfEligible();unlockBoneIfEligible();
   checkObjectAttackThemes();
 }
@@ -4196,6 +4195,10 @@ function startEmeraldParticles(){const c=document.getElementById('emeraldContain
 function stopEmeraldParticles(){if(emeraldInterval){clearInterval(emeraldInterval);emeraldInterval=null;}const c=document.getElementById('emeraldContainer');if(c)c.innerHTML='';}
 function startDiamondParticles(){const c=document.getElementById('diamondContainer');if(!c)return;c.innerHTML='';for(let i=0;i<12;i++)setTimeout(()=>spawnGemParticle('diamondContainer','diamond-particle','◆','none'),Math.random()*900);if(diamondInterval)clearInterval(diamondInterval);diamondInterval=setInterval(()=>spawnGemParticle('diamondContainer','diamond-particle','◆','none'),420);}
 function stopDiamondParticles(){if(diamondInterval){clearInterval(diamondInterval);diamondInterval=null;}const c=document.getElementById('diamondContainer');if(c)c.innerHTML='';}
+function spawnSevenParticle(){const c=document.getElementById('sevenContainer');if(!c)return;const p=document.createElement('div');p.className='seven-particle';p.textContent='7';const size=20+Math.random()*30;const left=Math.random()*100;const drift=(Math.random()-0.5)*180;const rotStart=(Math.random()-0.5)*180;const rotEnd=(Math.random()-0.5)*360;const dur=5.0+Math.random()*5.5;p.style.cssText=`left:${left}vw;font-size:${size}px;--drift:${drift}px;--rot-start:${rotStart}deg;--rot-end:${rotEnd}deg;--scale:${0.8+Math.random()*0.7};animation-duration:${dur}s;animation-delay:0s;`;c.appendChild(p);setTimeout(()=>p.remove(),(dur+0.2)*1000);}
+let sevenInterval=null;
+function startSevenParticles(){const c=document.getElementById('sevenContainer');if(!c)return;c.innerHTML='';for(let i=0;i<18;i++)setTimeout(spawnSevenParticle,Math.random()*700);if(sevenInterval)clearInterval(sevenInterval);sevenInterval=setInterval(spawnSevenParticle,300);}
+function stopSevenParticles(){if(sevenInterval){clearInterval(sevenInterval);sevenInterval=null;}const c=document.getElementById('sevenContainer');if(c)c.innerHTML='';}
 function tryUnlockIceFromSelection(){
   const target=document.getElementById('iceUnlockTarget');if(!target)return;
   const sel=window.getSelection?window.getSelection().toString():'';
@@ -4224,8 +4227,8 @@ function startLightningParticles(){
 }
 function stopLightningParticles(){if(lightningInterval){clearInterval(lightningInterval);lightningInterval=null;}document.getElementById('lightningContainer').innerHTML='';}
 
-const CYCLE_THEME_NAMES={'light':'☀️ Light','dark':'🌙 Dark','rainbow':'🌈 Rainbow Neon','banana':'🍌 Banana','ketchup':'🍅 Ketchup','lightning':'⚡ Lightning','whiteneon':'⚪ White Neon','ice':'🧊 Ice','luxurious':'✨ Luxurious','rose':'🌹 Rose','orange':'🟠 Orange','water':'💧 Water','potato':'🥔 Potato','grape':'🍇 Grape','sun':'☀️ Sun','shadow':'🌑 Shadow','cheese':'🧀 Cheese','toothpaste':'🪥 Toothpaste','lucky':'🐈 Lucky','glitch':'🟩 Glitch','slime':'🟢 Slime','cyan':'🩵 Cyan','glass':'✨ Liquid Glass','lava':'🌋 Lava','galaxy':'🌌 Galaxy','blackhole':'🕳️ Black Hole','spider':'🕷️ Spider','bronze':'🥉 Bronze','silver':'🥈 Silver','gold':'🥇 Gold','radioactive':'☢️ Radioactive','snow':'❄️ Snow','money':'💵 Money','cottoncandy':'🍬 Cotton Candy','saber':'🔵 Saber','pizza':'🍕 Pizza','skin':'🩸 Skin','rainbowremastered':'🌈 Rainbow Neon Remastered','day':'🌤️ Day','night':'🌙 Night','emerald':'💚 Emerald','diamond':'💎 Diamond','seven':'7️⃣ Seven'};
-const ALL_CYCLE_THEMES=['light','dark','rainbow','banana','ketchup','lightning','whiteneon','ice','luxurious','rose','orange','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','cyan','glass','lava','galaxy','blackhole','spider','bronze','silver','gold','radioactive','snow','money','pizza','skin','rainbowremastered','day','night','luxurious','seven'];
+const CYCLE_THEME_NAMES={'light':'☀️ Light','dark':'🌙 Dark','rainbow':'🌈 Rainbow Neon','banana':'🍌 Banana','ketchup':'🍅 Ketchup','lightning':'⚡ Lightning','whiteneon':'⚪ White Neon','ice':'🧊 Ice','luxurious':'✨ Luxurious','rose':'🌹 Rose','orange':'🟠 Orange','water':'💧 Water','potato':'🥔 Potato','grape':'🍇 Grape','sun':'☀️ Sun','shadow':'🌑 Shadow','cheese':'🧀 Cheese','toothpaste':'🪥 Toothpaste','lucky':'🐈 Lucky','glitch':'🟩 Glitch','slime':'🟢 Slime','cyan':'🩵 Cyan','glass':'✨ Liquid Glass','lava':'🌋 Lava','galaxy':'🌌 Galaxy','blackhole':'🕳️ Black Hole','spider':'🕷️ Spider','bronze':'🥉 Bronze','silver':'🥈 Silver','gold':'🥇 Gold','radioactive':'☢️ Radioactive','snow':'❄️ Snow','money':'💵 Money','cottoncandy':'🍬 Cotton Candy','saber':'🔵 Saber','pizza':'🍕 Pizza','skin':'🩸 Skin','rainbowremastered':'🌈 Rainbow Neon Remastered','day':'🌤️ Day','night':'🌙 Night','emerald':'💚 Emerald','diamond':'💎 Diamond'};
+const ALL_CYCLE_THEMES=['light','dark','rainbow','banana','ketchup','lightning','whiteneon','ice','luxurious','rose','orange','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','cyan','glass','lava','galaxy','blackhole','spider','bronze','silver','gold','radioactive','snow','money','pizza','skin','rainbowremastered','day','night','luxurious'];
 let isCycling=false;
 function runThemeCycle(){
   if(isCycling)return;isCycling=true;closeCodeModal();
@@ -4251,7 +4254,7 @@ window.addEventListener('load',()=>{
   refreshCyanOption();refreshGlassOption();refreshLavaOption();refreshRoseOption();refreshOrangeOption();refreshWaterOption();refreshPotatoOption();refreshGrapeOption();refreshSunOption();refreshShadowOption();
   refreshCheeseOption();refreshToothpasteOption();refreshLuckyOption();refreshGlitchOption();refreshSlimeOption();refreshGalaxyOption();refreshSpiderOption();refreshBronzeOption();refreshSilverOption();
   refreshGoldOption();refreshRadioactiveOption();refreshSnowOption();refreshMoneyOption();refreshSkinOption();refreshRainbowRemasteredOption();refreshFireOption();
-  refreshEmeraldOption();refreshDiamondOption();refreshSevenOption();
+  refreshEmeraldOption();refreshDiamondOption();
   refreshCottonCandyOption();refreshSaberOption();
   refreshJediOption();refreshWatermelonOption();refreshBoneOption();
   syncPizzaUnlock();refreshPizzaOption();checkAllUnlocks();
@@ -4386,9 +4389,11 @@ volumeControl.addEventListener('input',()=>{bgSong.volume=volumeControl.value;})
       tryPlay();
       document.removeEventListener('click',onInteract);
       document.removeEventListener('keydown',onInteract);
+      document.removeEventListener('touchstart',onInteract);
     };
     document.addEventListener('click',onInteract);
     document.addEventListener('keydown',onInteract);
+    document.addEventListener('touchstart',onInteract,{passive:true});
   });
 })();
 function initDayClouds(){
