@@ -3850,8 +3850,9 @@ document.addEventListener('click',e=>{if(!settingsMenu.contains(e.target)&&e.tar
 const ALL_LOCKED_MODES=['banana','ketchup','lightning','luxurious','whiteneon','ice','coffee','darth','windu','jedi','watermelon','bone','blueberry','blackhole','day','night','cyan','glass','lava','rose','orange','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','spider','bronze','silver','gold','radioactive','snow','money','cottoncandy','saber','pizza','skin','rainbowremastered','fire','emerald','diamond'];
 
 function selectMode(m){
-  if(ALL_LOCKED_MODES.includes(m)&&!unlockedFeatures.includes(m))return;
-  applyMode(m);localStorage.setItem(MODE_KEY,m);closeThemesModal();
+  applyMode(m);
+  localStorage.setItem(MODE_KEY,m);
+  closeThemesModal();
 }
 function applyMode(m){
   stopSnowParticles();stopMoneyParticles();stopLightningParticles();stopFireParticles();stopEmeraldParticles();stopDiamondParticles();stopSevenParticles();
@@ -3965,8 +3966,9 @@ function setScrollbarTheme(mode){
 function refreshOption(id,lid,t){
   const o=document.getElementById(id),l=document.getElementById(lid);
   if(!o)return;
-  if(unlockedFeatures.includes(t)){o.classList.remove('locked');o.onclick=()=>{selectMode(t);closeThemesModal();};if(l)l.textContent='';}
-  else{o.classList.add('locked');o.onclick=null;if(l)l.textContent='🔒';}
+  o.onclick=()=>{selectMode(t);closeThemesModal();};
+  if(unlockedFeatures.includes(t)){o.classList.remove('locked');if(l)l.textContent='';}
+  else{o.classList.add('locked');if(l)l.textContent='🔒';}
 }
 function refreshLuxuriousOption(){refreshOption('luxuriousModeOption','luxuriousLock','luxurious');}
 function refreshBlueberryOption(){refreshOption('blueberryModeOption','blueberryLock','blueberry');}
