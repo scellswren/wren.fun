@@ -3308,6 +3308,111 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       --themes-active-text:#ff4fa3;
       --themes-dot-shadow:0 0 0 1px rgba(255,95,182,0.10), inset 0 0 10px rgba(255,255,255,0.18);
     }
+  
+
+    /* ===== STATIC THEMES MODAL OVERRIDE ===== */
+    #themesOverlay{
+      background:rgba(0,0,0,0.62) !important;
+      backdrop-filter:blur(10px) !important;
+    }
+    #themesModal{
+      background:linear-gradient(180deg,#17181d 0%,#111217 100%) !important;
+      color:#f4f5f7 !important;
+      border:1px solid rgba(255,255,255,0.08) !important;
+      box-shadow:0 28px 80px rgba(0,0,0,0.55) !important;
+    }
+    #themesModal::before{
+      background:linear-gradient(180deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.015) 35%,transparent 100%) !important;
+      opacity:1 !important;
+    }
+    #themesModal .themes-top{
+      background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0)) !important;
+      border-bottom:1px solid rgba(255,255,255,0.06) !important;
+      padding:18px 18px 12px !important;
+    }
+    #themesModal .themes-title{
+      color:#f5f7fb !important;
+      background:none !important;
+      -webkit-text-fill-color:initial !important;
+      filter:none !important;
+    }
+    #themesModal .themes-sub{
+      color:rgba(228,231,235,0.72) !important;
+      opacity:1 !important;
+    }
+    #themesModal .themes-close{
+      background:rgba(255,255,255,0.06) !important;
+      color:#ffffff !important;
+      box-shadow:none !important;
+    }
+    #themesModal .themes-close:hover{
+      background:rgba(255,255,255,0.11) !important;
+      transform:scale(1.05) !important;
+    }
+    #themesModal .theme-grid{
+      background:transparent !important;
+      padding:18px !important;
+      gap:14px !important;
+      scrollbar-color:rgba(255,255,255,0.28) rgba(255,255,255,0.04) !important;
+    }
+    #themesModal .theme-grid::-webkit-scrollbar-track{background:rgba(255,255,255,0.04) !important;}
+    #themesModal .theme-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.28) !important;border:3px solid rgba(255,255,255,0.04) !important;}
+    #themesModal .theme-grid .mode-option{
+      background:linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03)) !important;
+      border:1px solid rgba(255,255,255,0.07) !important;
+      border-radius:20px !important;
+      min-height:74px !important;
+      padding:16px 18px !important;
+      display:flex !important;
+      flex-direction:row !important;
+      align-items:center !important;
+      justify-content:space-between !important;
+      gap:14px !important;
+      color:#dfe3ea !important;
+      box-shadow:0 1px 0 rgba(255,255,255,0.02), inset 0 1px 0 rgba(255,255,255,0.03) !important;
+      backdrop-filter:none !important;
+    }
+    #themesModal .theme-grid .mode-option:hover{
+      background:linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.05)) !important;
+      transform:translateY(-1px) !important;
+      box-shadow:0 10px 26px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+    }
+    #themesModal .theme-grid .mode-option.active-mode{
+      background:linear-gradient(180deg,rgba(124,58,237,0.16),rgba(124,58,237,0.08)) !important;
+      border-color:rgba(124,58,237,0.30) !important;
+      color:#d9c8ff !important;
+    }
+    #themesModal .theme-grid .mode-option.locked{
+      opacity:0.78 !important;
+      filter:saturate(0.9) !important;
+    }
+    #themesModal .theme-grid .mode-option.locked:hover{
+      transform:none !important;
+      background:linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03)) !important;
+      box-shadow:0 1px 0 rgba(255,255,255,0.02), inset 0 1px 0 rgba(255,255,255,0.03) !important;
+    }
+    #themesModal .theme-grid .mode-option .mode-dot{
+      width:28px !important;
+      height:28px !important;
+      flex:0 0 28px !important;
+      margin-top:0 !important;
+      margin-left:10px !important;
+      border-radius:999px !important;
+      box-shadow:0 0 0 1px rgba(255,255,255,0.09), inset 0 0 10px rgba(255,255,255,0.16) !important;
+    }
+    #themesModal .theme-grid .mode-option > span,
+    #themesModal .theme-grid .mode-option{
+      font-weight:800 !important;
+      letter-spacing:0.1px !important;
+    }
+    #themesModal .theme-grid .mode-option > span{display:inline-flex;align-items:center;gap:6px;}
+    @media (max-width:720px){
+      #themesModal{width:min(100vw - 20px,1120px) !important;border-radius:24px !important;}
+      #themesModal .themes-top{padding:18px 16px 12px !important;}
+      #themesModal .theme-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr)) !important;padding:14px !important;gap:10px !important;max-height:calc(100vh - 132px) !important;}
+      #themesModal .theme-grid .mode-option{padding:13px 14px !important;min-height:68px !important;border-radius:18px !important;}
+    }
+
   </style>
 </head>
 <body class="mode-light">
@@ -3713,9 +3818,7 @@ const THEME_MODAL_SUBTEXTS={
 function updateThemesModalText(){
   const sub=document.querySelector('#themesModal .themes-sub');
   if(!sub)return;
-  const mode=(document.body.className.match(/mode-([a-z0-9-]+)/)||[])[1]||'light';
-  const name=CYCLE_THEME_NAMES[mode]||mode;
-  sub.textContent=`Current theme: ${name}. ${THEME_MODAL_SUBTEXTS[mode]||'Pick another one below.'}`;
+  sub.textContent='Pick a background. Some themes unlock as you explore the site.';
 }
 
 function setScrollbarTheme(mode){
