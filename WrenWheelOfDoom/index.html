@@ -980,49 +980,95 @@ function beginDontMove() {
 
 // ── SPEED TEST ──
 let speedActive = false, speedIsGreen = false, speedGreenTime = 0, speedRevealTimer = null, speedFailTimer = null, speedUsed = false;
+
+function clearSpeedTimers() {
+  clearTimeout(speedRevealTimer);
+  clearTimeout(speedFailTimer);
+  speedRevealTimer = null;
+  speedFailTimer = null;
+}
+
 function startSpeedTest() {
-  speedActive = false; speedIsGreen = false; speedUsed = false;
-  clearTimeout(speedRevealTimer); clearTimeout(speedFailTimer);
-  const overlay = document.getElementById("speedOverlay"), circle = document.getElementById("speedCircle"),
-        msg = document.getElementById("speedMsg"), sub = document.getElementById("speedSubMsg");
-  circle.className = ""; circle.textContent = "WAIT";
-  msg.textContent = "Wait for GREEN, then click as fast as you can!"; sub.textContent = "Click TOO EARLY = -20% 💀";
-  overlay.classList.add("active"); speedActive = true;
-  const poll = setInterval(() => {
-    if (!speedActive) { clearInterval(poll); return; }
-    if (Math.random() < 0.025) {
-      clearInterval(poll); speedIsGreen = true; speedGreenTime = Date.now();
-      circle.classList.add("go"); circle.textContent = "CLICK!";
-      msg.textContent = "NOW! CLICK AS FAST AS YOU CAN!"; sub.textContent = "";
-      speedFailTimer = setTimeout(() => {
-        if (!speedActive) return; speedActive = false;
-        overlay.classList.remove("active"); overlay.onclick = null;
-        showResult(0, "TOO SLOW! Nothing 😔");
-      }, 2000);
-    }
-  }, 500);
+  speedActive = false;
+  speedIsGreen = false;
+  speedUsed = false;
+  speedGreenTime = 0;
+  clearSpeedTimers();
+
+  const overlay = document.getElementById("speedOverlay");
+  const circle  = document.getElementById("speedCircle");
+  const msg     = document.getElementById("speedMsg");
+  const sub     = document.getElementById("speedSubMsg");
+
+  circle.className = "";
+  circle.textContent = "WAIT";
+  msg.textContent = "Wait for GREEN, then click as fast as you can!";
+  sub.textContent = "Under 1 second = reward | 1+ = nothing";
+  overlay.classList.add("active");
+  speedActive = true;
+
+  const revealDelay = 650 + Math.random() * 1850; // 0.65s - 2.5s
+  speedRevealTimer = setTimeout(() => {
+    if (!speedActive) return;
+
+    speedIsGreen = true;
+    speedGreenTime = performance.now();
+
+    circle.classList.add("go");
+    circle.textContent = "CLICK!";
+    msg.textContent = "NOW! CLICK AS FAST AS YOU CAN!";
+    sub.textContent = "";
+
+    speedFailTimer = setTimeout(() => {
+      if (!speedActive || !speedIsGreen) return;
+      speedActive = false;
+      speedUsed = true;
+      overlay.classList.remove("active");
+      overlay.onclick = null;
+      showResult(0, "TOO SLOW! Nothing 😔");
+    }, 1000);
+  }, revealDelay);
+
   overlay.onclick = handleSpeedClick;
 }
 
 function handleSpeedClick() {
-  if (!speedActive || speedUsed) return; speedUsed = true;
+  if (!speedActive || speedUsed) return;
+  speedUsed = true;
+
   const overlay = document.getElementById("speedOverlay");
+
   if (!speedIsGreen) {
-    speedActive = false; clearTimeout(speedRevealTimer); clearTimeout(speedFailTimer);
-    overlay.classList.remove("active"); overlay.onclick = null;
-    applyMultiplier(0.8, money < 0 ? "+20% debt 💀" : "-20% TOO EARLY! 💀"); return;
+    speedActive = false;
+    clearSpeedTimers();
+    overlay.classList.remove("active");
+    overlay.onclick = null;
+    applyMultiplier(0.8, money < 0 ? "+20% debt 💀" : "-20% TOO EARLY! 💀");
+    return;
   }
-  speedActive = false; clearTimeout(speedFailTimer);
-  overlay.classList.remove("active"); overlay.onclick = null;
-  const elapsed = (Date.now() - speedGreenTime) / 1000;
-  if      (elapsed < 0.1) applyMultiplier(3,   money < 0 ? "÷3 debt ⚡"   : "×3!! ⚡ INSANE!");
-  else if (elapsed < 0.2) applyMultiplier(2,   money < 0 ? "÷2 debt ⚡"   : "×2!! ⚡ FAST!");
-  else if (elapsed < 0.4) applyMultiplier(1.5, money < 0 ? "÷1.5 debt"    : "×1.5! 🔥 Quick!");
-  else if (elapsed < 1.0) applyMultiplier(1.1, money < 0 ? "÷1.1 debt"    : "×1.1 Not bad");
-  else showResult(0, "TOO SLOW! Nothing 😔");
+
+  speedActive = false;
+  clearSpeedTimers();
+  overlay.classList.remove("active");
+  overlay.onclick = null;
+
+  const elapsed = (performance.now() - speedGreenTime) / 1000;
+
+  if (elapsed < 0.1) {
+    applyMultiplier(3, money < 0 ? "÷3 debt ⚡" : "×3!! ⚡ INSANE!");
+  } else if (elapsed < 0.2) {
+    applyMultiplier(2, money < 0 ? "÷2 debt ⚡" : "×2!! ⚡ FAST!");
+  } else if (elapsed < 0.4) {
+    applyMultiplier(1.5, money < 0 ? "÷1.5 debt" : "×1.5! 🔥 Quick!");
+  } else if (elapsed < 1.0) {
+    applyMultiplier(1.1, money < 0 ? "÷1.1 debt" : "×1.1 Not bad");
+  } else {
+    showResult(0, "TOO SLOW! Nothing 😔");
+  }
 }
 
 // ── DOUBLE OR NOTHING ──
+
 function startDoubleOrNothing() {
   const area = document.getElementById("gameArea");
   function renderDON(round, runningMult) {
