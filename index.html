@@ -4170,6 +4170,7 @@ function markVisit(w,href){
   else if(w==='smallcreators')localStorage.setItem(VISIT_SMALLCREATORS_KEY,'1');
   else if(w==='wheel')localStorage.setItem(VISIT_WHEEL_KEY,'1');
   else if(w==='pongworldcup'){
+    sessionStorage.setItem('wren_skip_song_resume_once','1');
     if(localStorage.getItem(ORANGE_THEME_UNLOCK_KEY)!=='1'){localStorage.setItem(ORANGE_THEME_UNLOCK_KEY,'1');persistUnlocked('orange');refreshOrangeOption();announceUnlock('🟠 Orange unlocked!');}
     else{persistUnlocked('orange');refreshOrangeOption();}
   }
@@ -4351,11 +4352,12 @@ toggleSong.addEventListener('click',()=>{
   }
 });
 volumeControl.addEventListener('input',()=>{bgSong.volume=volumeControl.value;});
-// Auto-resume song only when the user left with music on, but not when returning from Pong World Cup
+// Auto-resume song when the user left with music on, except for a one-time skip after Pong World Cup
 (function initSongResumeAndBone(){
   const wasPlaying=localStorage.getItem(SONG_WAS_PLAYING_KEY)==='1';
-  const cameFromPongWorldCup=/PongWorldCup/i.test(document.referrer||'');
-  if(!wasPlaying||cameFromPongWorldCup)return;
+  const skipResume=sessionStorage.getItem('wren_skip_song_resume_once')==='1';
+  if(skipResume)sessionStorage.removeItem('wren_skip_song_resume_once');
+  if(!wasPlaying||skipResume)return;
 
   const unlockBone=()=>{
     if(localStorage.getItem(BONE_THEME_UNLOCK_KEY)!=='1'){
