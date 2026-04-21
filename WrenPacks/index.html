@@ -1810,8 +1810,9 @@
     }
 
     function syncUSAUnlockFromNull() {
+      if (typeof items === 'undefined' || !Array.isArray(items)) return;
       const inv = JSON.parse(localStorage.getItem("inventory") || "{}");
-      const hasNull = items.some(item => item.rarity === "Null" && Number(inv[item.name]) > 0);
+      const hasNull = items.some(item => item && item.rarity === "Null" && Number(inv[item.name]) > 0);
       if (hasNull) {
         localStorage.setItem(USA_UNLOCK_KEY, "1");
       }
@@ -1956,7 +1957,6 @@
 
       syncRadioactiveUnlockFromInventory();
       syncUSAUnlockFromNull();
-      syncUSAUnlockFromNull();
       updateThemeUnlocksFromMoney();
       buildRarityFilters();
     })();
@@ -2010,7 +2010,6 @@
 
         if (item.rarity === "Null") {
           localStorage.setItem(USA_UNLOCK_KEY, "1");
-          syncUSAUnlockFromNull();
           showNullReveal(item, isNew);
           setTimeout(() => { canOpen = true; }, 15000);
           return;
