@@ -3769,6 +3769,21 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       min-height:72px !important;
       box-shadow:inset 0 1px 0 rgba(255,255,255,0.02) !important;
     }
+    .theme-grid .mode-option > .theme-label{
+      white-space:normal !important;
+      overflow:visible !important;
+      text-overflow:clip !important;
+      flex-wrap:wrap !important;
+      line-height:1.2 !important;
+    }
+    .theme-grid .mode-option .theme-source{
+      white-space:normal !important;
+      overflow:visible !important;
+      text-overflow:clip !important;
+    }
+    .theme-grid .mode-option.theme-hidden{
+      display:none !important;
+    }
 
     @media (max-width:700px){
       .themes-top{
@@ -4217,7 +4232,9 @@ function applyThemeGridState(rebuild=true){
     if(!option.dataset.originalIndex) option.dataset.originalIndex=String(index);
     updateThemeOptionMeta(option);
     const locked=option.classList.contains('locked');
-    option.style.display=((locked && hideLocked) || (!locked && hideUnlocked)) ? 'none' : '';
+    const hidden=((locked && hideLocked) || (!locked && hideUnlocked));
+    option.classList.toggle('theme-hidden', hidden);
+    option.setAttribute('aria-hidden', hidden ? 'true' : 'false');
   });
   if(!rebuild) return;
   const sortFn = {
