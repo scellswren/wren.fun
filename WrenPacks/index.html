@@ -1169,6 +1169,16 @@
     }
     #nullReveal.active-reveal { animation: nullBgPulse 15s ease forwards; }
 
+    .nullExplodeOut {
+      animation: nullExplodeAnim 1.5s cubic-bezier(0.5, 0, 0.2, 1) forwards !important;
+    }
+    @keyframes nullExplodeAnim {
+      0% { transform: scale(1) rotate(0deg); opacity: 1; filter: drop-shadow(0 0 50px rgba(0, 85, 255, 1)); }
+      30% { transform: scale(0.3) rotate(-15deg); opacity: 1; filter: drop-shadow(0 0 10px rgba(0, 85, 255, 1)); }
+      80% { transform: scale(20) rotate(45deg); opacity: 1; filter: drop-shadow(0 0 100px rgba(0, 85, 255, 1)) brightness(2); }
+      100% { transform: scale(25) rotate(50deg); opacity: 0; }
+    }
+
     #voidReveal, #highlightReveal {
       position:        fixed;
       top:             0; left: 0;
@@ -1441,6 +1451,16 @@
           <div class="switch-track"></div>
         </label>
       </div>
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <span class="settings-row-title">Classic Click Sound</span>
+          <span class="settings-row-sub">Use the old button sound</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="classicSoundToggle" onchange="updateClassicSound(this.checked)">
+          <div class="switch-track"></div>
+        </label>
+      </div>
     </div>
 
     <div class="settings-section">
@@ -1552,7 +1572,9 @@
     sfx.preload       = "auto";
     let sfxVolume     = parseFloat(localStorage.getItem("sfxVolume") ?? "0.5");
     let sfxMuted      = localStorage.getItem("sfxMuted") === "true";
+    let useClassicSound = localStorage.getItem("useClassicSound") === "true";
     let audioUnlocked = false;
+    let globalAudioCtx = null;
 
     const LEGENDARY_NAMES = ['Wren', 'LuckyCat', 'TheFounder'];
     const RADIOACTIVE_UNLOCK_KEY = 'wren_theme_radioactive_unlocked';
@@ -1560,19 +1582,54 @@
     const SNOW_UNLOCK_KEY = 'wren_theme_snow_unlocked';
     const MONEY_BILLION_CODE = 'HHH2sksdne23';
 
+    function initAudioCtx() {
+      if (!globalAudioCtx) {
+        globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (globalAudioCtx.state === 'suspended') {
+        globalAudioCtx.resume();
+      }
+    }
+
     document.addEventListener("click", function unlockAudio() {
       if (audioUnlocked) return;
       audioUnlocked = true;
       const t = sfx.cloneNode();
       t.volume = 0;
       t.play().catch(() => {});
+      initAudioCtx();
     }, { once: true });
+
+    function playSynthClick() {
+      initAudioCtx();
+      if (!globalAudioCtx) return;
+      const osc = globalAudioCtx.createOscillator();
+      const gainNode = globalAudioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, globalAudioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, globalAudioCtx.currentTime + 0.08);
+      gainNode.gain.setValueAtTime(sfxVolume, globalAudioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, globalAudioCtx.currentTime + 0.08);
+      osc.connect(gainNode);
+      gainNode.connect(globalAudioCtx.destination);
+      osc.start();
+      osc.stop(globalAudioCtx.currentTime + 0.08);
+    }
 
     function playSound() {
       if (sfxMuted) return;
-      const s = sfx.cloneNode();
-      s.volume = sfxVolume;
-      s.play().catch(() => {});
+      if (useClassicSound) {
+        const s = sfx.cloneNode();
+        s.volume = sfxVolume;
+        s.play().catch(() => {});
+      } else {
+        playSynthClick();
+      }
+    }
+
+    function updateClassicSound(checked) {
+      useClassicSound = checked;
+      localStorage.setItem("useClassicSound", checked);
     }
 
     function triggerPackShine() {
@@ -1807,9 +1864,9 @@
       playSound();
     }
 
-    function openCharacterViewer(name, display, rarity) {
+    function openCharacterViewer(name, display, rarity, customImg = null) {
       playSound();
-      document.getElementById("characterViewerImg").src = name + ".jpg";
+      document.getElementById("characterViewerImg").src = customImg ? customImg : name + ".jpg";
       const nameEl = document.getElementById("characterViewerName");
       nameEl.textContent = display;
       nameEl.className   = rarity;
@@ -1861,6 +1918,7 @@
       sl.style.setProperty("--vol-pct", vp + "%");
       document.getElementById("volValue").textContent = vp + "%";
       document.getElementById("muteToggle").checked   = sfxMuted;
+      document.getElementById("classicSoundToggle").checked = useClassicSound;
 
       const classic = localStorage.getItem("classicButtons") === "true";
       document.getElementById("classicBtnToggle").checked = classic;
@@ -2099,7 +2157,7 @@
             <p class="char-name ${item.rarity}">${displayName}</p>
             <p class="char-rarity-label ${item.rarity}">${item.rarity}</p>
           </div>`;
-        card.onclick = () => openCharacterViewer(item.name, displayName, item.rarity);
+        card.onclick = () => openCharacterViewer(item.name, displayName, item.rarity, (item.rarity === "Null" && !owned) ? "questionmark.png" : null);
         container.appendChild(card);
       });
 
@@ -2411,7 +2469,7 @@
 
     function showAdminLegendaryReveal() { showLegendaryCardReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin" }, false); }
     function showAdminEpicReveal() { showEpicCardReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin" }, false); }
-    function showAdminNullReveal() { showNullReveal({ name: "OGWrenIsOld", display: "OG WrenIsOld", rarity: "Null" }, false); }
+    function showAdminNullReveal() { showNullReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin", rarity: "Null" }, false); }
 
     function showEpicCardReveal(item, isNew) {
       const el   = document.getElementById("epicCardResult");
@@ -2621,8 +2679,13 @@
       oscillator.stop(audioCtx.currentTime + 15);
 
       setTimeout(() => {
+        imgEl.classList.add("nullExplodeOut");
+      }, 13500);
+
+      setTimeout(() => {
         reveal.style.display = "none";
         reveal.classList.remove("active-reveal");
+        imgEl.classList.remove("nullExplodeOut");
         document.getElementById("nullParticles").innerHTML = "";
       }, 15000);
     }
