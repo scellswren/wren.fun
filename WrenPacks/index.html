@@ -1581,7 +1581,6 @@
     const RADIOACTIVE_UNLOCK_KEY = 'wren_theme_radioactive_unlocked';
     const MONEY_UNLOCK_KEY = 'wren_theme_money_unlocked';
     const SNOW_UNLOCK_KEY = 'wren_theme_snow_unlocked';
-    const USA_UNLOCK_KEY = 'wren_theme_usa_unlocked';
     const MONEY_BILLION_CODE = 'HHH2sksdne23';
 
     function initAudioCtx() {
@@ -1809,14 +1808,6 @@
       }
     }
 
-    function syncUSAUnlockFromNull() {
-      const inv = JSON.parse(localStorage.getItem("inventory") || "{}");
-      const hasNull = items.some(item => item.rarity === "Null" && Number(inv[item.name] || 0) > 0);
-      if (hasNull) {
-        localStorage.setItem(USA_UNLOCK_KEY, "1");
-      }
-    }
-
     function openInfo() {
       const inv = JSON.parse(localStorage.getItem("inventory")) || {};
       const totalChars = Object.values(inv).reduce((a, b) => a + b, 0);
@@ -1955,7 +1946,6 @@
       }
 
       syncRadioactiveUnlockFromInventory();
-      syncUSAUnlockFromNull();
       updateThemeUnlocksFromMoney();
       buildRarityFilters();
     })();
@@ -2008,8 +1998,6 @@
         addToInventory(item.name);
 
         if (item.rarity === "Null") {
-          localStorage.setItem(USA_UNLOCK_KEY, "1");
-          syncUSAUnlockFromNull();
           showNullReveal(item, isNew);
           setTimeout(() => { canOpen = true; }, 15000);
           return;
@@ -2184,7 +2172,6 @@
       inv[name] = (inv[name] || 0) + 1;
       localStorage.setItem("inventory", JSON.stringify(inv));
       syncRadioactiveUnlockFromInventory();
-      syncUSAUnlockFromNull();
     }
 
     const rarityGlow = {
