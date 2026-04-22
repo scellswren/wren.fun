@@ -1088,6 +1088,62 @@ body.mode-fire{background:linear-gradient(180deg,#220000 0%,#420500 34%,#7a1d00 
       background: rgba(255,255,255,0.25);
       box-shadow: 0 0 20px rgba(255,255,255,0.2);
     }
+    body.mode-vomit {
+      --accent: #a5b452;
+      background: linear-gradient(135deg, #4d5d1c 0%, #8b9a46 35%, #a5b452 65%, #6b7a2d 100%);
+      color: #f0f4d8;
+      overflow: hidden;
+    }
+    body.mode-vomit::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(139,154,70,0.3) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(107,122,45,0.4) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(165,180,82,0.25) 0%, transparent 35%);
+      filter: blur(20px);
+      z-index: -2;
+    }
+    body.mode-vomit::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.08;
+      z-index: -1;
+      mix-blend-mode: overlay;
+    }
+    body.mode-vomit h1 {
+      background: linear-gradient(135deg, #d4dc96 0%, #a5b452 50%, #4d5d1c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 8px rgba(165,180,82,0.4));
+    }
+    body.mode-vomit .btn, body.mode-vomit .settings-action-btn, body.mode-vomit #codeBtn, body.mode-vomit #themesBtn, body.mode-vomit .mini-btn {
+      background: rgba(139,154,70,0.25);
+      color: #f0f4d8;
+      border: 1px solid rgba(165,180,82,0.3);
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    body.mode-vomit .btn:hover {
+      background: rgba(165,180,82,0.4);
+      transform: scale(1.06) rotate(1deg);
+    }
+    .mode-dot.vomit-dot {
+      background: radial-gradient(circle at 35% 35%, #a5b452 0%, #4d5d1c 100%);
+      border: 1px solid rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .mode-dot.vomit-dot::after {
+      content: '';
+      position: absolute;
+      width: 4px; height: 4px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      top: 4px; left: 4px;
+    }
     body.mode-fire::before,
     body.mode-fire::after{content:none;}
     body.mode-fire h1{background:linear-gradient(135deg,#fffbe6,#ffd36a,#ff9f1a,#ff5f00,#fff2b5);background-size:280% 280%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 14px rgba(255,150,0,0.38)) drop-shadow(0 0 24px rgba(255,80,0,0.22));animation:fireTitle 8s linear infinite;}
@@ -3992,6 +4048,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       <div class="mode-option locked" id="diamondModeOption" data-mode="diamond"><span>💎 Diamond <span id="diamondLock">🔒</span></span><div class="mode-dot diamond-dot"></div></div>
       <div class="mode-option locked" id="sevenModeOption" data-mode="seven"><span>7️⃣ Seven <span id="sevenLock">🔒</span></span><div class="mode-dot seven-dot"></div></div>
       <div class="mode-option locked" id="usaModeOption" data-mode="usa"><span>🇺🇸 USA <span id="usaLock">🔒</span></span><div class="mode-dot usa-dot"></div></div>
+      <div class="mode-option locked" id="vomitModeOption" data-mode="vomit"><span>🤮 Vomit <span id="vomitLock">🔒</span></span><div class="mode-dot vomit-dot"></div></div>
     </div>
   </div>
 </div>
@@ -4022,6 +4079,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
 <script>
 // ── ORE THEME UNLOCK KEYS ──
 const USA_THEME_UNLOCK_KEY='wren_theme_usa_unlocked';
+const VOMIT_THEME_UNLOCK_KEY='wren_theme_vomit_unlocked';
 const EMERALD_THEME_UNLOCK_KEY='wren_theme_emerald_unlocked';
 const DIAMOND_THEME_UNLOCK_KEY='wren_theme_diamond_unlocked';
 // Storage keys for alternating switch counters
@@ -4374,6 +4432,7 @@ function refreshWatermelonOption(){refreshOption('watermelonModeOption','waterme
 function refreshBoneOption(){refreshOption('boneModeOption','boneLock','bone');}
 function refreshSevenOption(){refreshOption('sevenModeOption','sevenLock','seven');}
 function refreshUsaOption(){refreshOption('usaModeOption','usaLock','usa');}
+function refreshVomitOption(){refreshOption('vomitModeOption','vomitLock','vomit');}
 function unlockSevenTheme(forceNotice=true){
   localStorage.setItem(SEVEN_THEME_UNLOCK_KEY,'1');
   persistUnlocked('seven');
@@ -4595,8 +4654,8 @@ function startLightningParticles(){
 }
 function stopLightningParticles(){if(lightningInterval){clearInterval(lightningInterval);lightningInterval=null;}document.getElementById('lightningContainer').innerHTML='';}
 
-const CYCLE_THEME_NAMES={'light':'☀️ Light','dark':'🌙 Dark','rainbow':'🌈 Rainbow Neon','banana':'🍌 Banana','ketchup':'🍅 Ketchup','lightning':'⚡ Lightning','whiteneon':'⚪ White Neon','ice':'🧊 Ice','luxurious':'✨ Luxurious','rose':'🌹 Rose','orange':'🟠 Orange','caramal':'🍯 Caramal','water':'💧 Water','potato':'🥔 Potato','grape':'🍇 Grape','sun':'☀️ Sun','shadow':'🌑 Shadow','cheese':'🧀 Cheese','toothpaste':'🪥 Toothpaste','lucky':'🐈 Lucky','glitch':'🟩 Glitch','slime':'🟢 Slime','cyan':'🩵 Cyan','glass':'✨ Liquid Glass','lava':'🌋 Lava','galaxy':'🌌 Galaxy','blackhole':'🕳️ Black Hole','spider':'🕷️ Spider','bronze':'🥉 Bronze','silver':'🥈 Silver','gold':'🥇 Gold','radioactive':'☢️ Radioactive','snow':'❄️ Snow','money':'💵 Money','cottoncandy':'🍬 Cotton Candy','saber':'🔵 Saber','pizza':'🍕 Pizza','skin':'🩸 Skin','rainbowremastered':'🌈 Rainbow Neon Remastered','day':'🌤️ Day','night':'🌙 Night','emerald':'💚 Emerald','diamond':'💎 Diamond','usa':'🇺🇸 USA'};
-const ALL_CYCLE_THEMES=['light','dark','rainbow','banana','ketchup','lightning','whiteneon','ice','luxurious','rose','orange','caramal','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','cyan','glass','lava','galaxy','blackhole','spider','bronze','silver','gold','radioactive','snow','money','pizza','skin','rainbowremastered','day','night','usa'];
+const CYCLE_THEME_NAMES={'light':'☀️ Light','dark':'🌙 Dark','rainbow':'🌈 Rainbow Neon','banana':'🍌 Banana','ketchup':'🍅 Ketchup','lightning':'⚡ Lightning','whiteneon':'⚪ White Neon','ice':'🧊 Ice','luxurious':'✨ Luxurious','rose':'🌹 Rose','orange':'🟠 Orange','caramal':'🍯 Caramal','water':'💧 Water','potato':'🥔 Potato','grape':'🍇 Grape','sun':'☀️ Sun','shadow':'🌑 Shadow','cheese':'🧀 Cheese','toothpaste':'🪥 Toothpaste','lucky':'🐈 Lucky','glitch':'🟩 Glitch','slime':'🟢 Slime','cyan':'🩵 Cyan','glass':'✨ Liquid Glass','lava':'🌋 Lava','galaxy':'🌌 Galaxy','blackhole':'🕳️ Black Hole','spider':'🕷️ Spider','bronze':'🥉 Bronze','silver':'🥈 Silver','gold':'🥇 Gold','radioactive':'☢️ Radioactive','snow':'❄️ Snow','money':'💵 Money','cottoncandy':'🍬 Cotton Candy','saber':'🔵 Saber','pizza':'🍕 Pizza','skin':'🩸 Skin','rainbowremastered':'🌈 Rainbow Neon Remastered','day':'🌤️ Day','night':'🌙 Night','emerald':'💚 Emerald','diamond':'💎 Diamond','usa':'🇺🇸 USA','vomit':'🤮 Vomit'};
+const ALL_CYCLE_THEMES=['light','dark','rainbow','banana','ketchup','lightning','whiteneon','ice','luxurious','rose','orange','caramal','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','cyan','glass','lava','galaxy','blackhole','spider','bronze','silver','gold','radioactive','snow','money','pizza','skin','rainbowremastered','day','night','usa','vomit'];
 let isCycling=false;
 function runThemeCycle(){
   if(isCycling)return;isCycling=true;closeCodeModal();
@@ -4639,7 +4698,7 @@ window.addEventListener('load',()=>{
   refreshGoldOption();refreshRadioactiveOption();refreshSnowOption();refreshMoneyOption();refreshSkinOption();refreshRainbowRemasteredOption();refreshFireOption();
   refreshEmeraldOption();refreshDiamondOption();
   refreshCottonCandyOption();refreshSaberOption();
-  refreshJediOption();refreshWatermelonOption();refreshBoneOption();refreshUsaOption();
+  refreshJediOption();refreshWatermelonOption();refreshBoneOption();refreshUsaOption();refreshVomitOption();
   syncPizzaUnlock();refreshPizzaOption();checkAllUnlocks();
   const s=localStorage.getItem(MODE_KEY)||'light';
   const safe=(ALL_LOCKED_MODES.includes(s)&&!unlockedFeatures.includes(s))?'light':s;
@@ -4697,10 +4756,19 @@ function updateThemeGrid() {
   const items = Array.from(grid.children);
   
   items.forEach(item => {
+    // A theme is locked if it has the 'locked' class.
+    // However, some themes like light/dark/rainbow are always unlocked and don't have the 'locked' class.
     const isLocked = item.classList.contains('locked');
+    
     let show = true;
-    if(filter === 'unlocked' && !isLocked) show = false;
-    if(filter === 'locked' && isLocked) show = false;
+    if (filter === 'unlocked') {
+      // "Hide Unlocked" -> Hide if NOT locked
+      if (!isLocked) show = false;
+    } else if (filter === 'locked') {
+      // "Hide Locked" -> Hide if IS locked
+      if (isLocked) show = false;
+    }
+    
     item.style.display = show ? '' : 'none';
   });
   
@@ -4708,11 +4776,14 @@ function updateThemeGrid() {
   
   visibleItems.sort((a, b) => {
     if(sort === 'alpha') {
-      const nameA = a.innerText.toLowerCase().trim();
-      const nameB = b.innerText.toLowerCase().trim();
+      // Get the text content, removing any emojis/locks for better sorting
+      const nameA = a.textContent.replace(/[^\w\s]/g, '').toLowerCase().trim();
+      const nameB = b.textContent.replace(/[^\w\s]/g, '').toLowerCase().trim();
       return nameA.localeCompare(nameB);
     } else if(sort === 'length') {
-      return a.innerText.trim().length - b.innerText.trim().length;
+      const lenA = a.textContent.trim().length;
+      const lenB = b.textContent.trim().length;
+      return lenA - lenB;
     } else {
       return parseInt(a.getAttribute('data-order')) - parseInt(b.getAttribute('data-order'));
     }
