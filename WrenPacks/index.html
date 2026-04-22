@@ -59,25 +59,38 @@
       transition:  background 0.3s, color 0.3s;
     }
 
-    /* Custom Scrollbars */
+    /* Custom Scrollbars - white in dark mode, black in light mode */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #ffffff #333333;
+    }
     ::-webkit-scrollbar {
-      width: 14px;
+      width: 12px;
+      height: 12px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(128, 128, 128, 0.05);
+      background: #333333;
+      border-radius: 6px;
     }
     ::-webkit-scrollbar-thumb {
-      border-radius: 7px;
-      border: 3px solid transparent;
-      background-clip: content-box;
+      background: #ffffff;
+      border-radius: 6px;
+      border: none;
     }
-    body.dark-mode ::-webkit-scrollbar-thumb {
-      background-color: #ffffff;
-      border-color: var(--bg);
+    ::-webkit-scrollbar-corner {
+      background: #333333;
+    }
+    body.light-mode * {
+      scrollbar-color: #000000 #cccccc;
+    }
+    body.light-mode ::-webkit-scrollbar-track {
+      background: #cccccc;
     }
     body.light-mode ::-webkit-scrollbar-thumb {
-      background-color: #000000;
-      border-color: #f0f0f0;
+      background: #000000;
+    }
+    body.light-mode ::-webkit-scrollbar-corner {
+      background: #cccccc;
     }
 
     /* Selection Prevention */
@@ -1018,34 +1031,40 @@
       padding: 5px 14px;
       border-radius: 20px;
       border: 1px solid var(--card-border);
-      background: var(--card-bg);
+      background: rgba(255, 255, 255, 0.90);
+      color: var(--text);
       font-size: 0.78em;
       font-weight: bold;
       cursor: pointer;
       transition: background 0.2s, border-color 0.2s, transform 0.15s;
       letter-spacing: 0.5px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
     .rarity-pill:hover { transform: scale(1.06); }
-    .rarity-pill.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+    .rarity-pill.active { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); color: var(--text); }
     .rarity-pill.pill-All    { color: var(--text); }
     .rarity-pill.pill-Common { color: var(--text); }
-    .rarity-pill.pill-Uncommon { color: lime; border-color: rgba(0,255,80,0.25); }
-    .rarity-pill.pill-Uncommon.active { background: rgba(0,255,80,0.08); border-color: rgba(0,255,80,0.5); }
-    .rarity-pill.pill-Rare { color: dodgerblue; border-color: rgba(30,144,255,0.25); }
-    .rarity-pill.pill-Rare.active { background: rgba(30,144,255,0.08); border-color: rgba(30,144,255,0.5); }
-    .rarity-pill.pill-Epic { color: violet; border-color: rgba(180,80,255,0.25); }
-    .rarity-pill.pill-Epic.active { background: rgba(180,80,255,0.08); border-color: rgba(180,80,255,0.5); }
-    .rarity-pill.pill-Legendary { color: gold; border-color: rgba(255,200,0,0.25); }
-    .rarity-pill.pill-Legendary.active { background: rgba(255,200,0,0.08); border-color: rgba(255,200,0,0.5); }
-    .rarity-pill.pill-Omega { color: #ff88cc; border-color: rgba(255,100,200,0.25); }
-    .rarity-pill.pill-Omega.active { background: rgba(255,100,200,0.08); border-color: rgba(255,100,200,0.5); }
-    .rarity-pill.pill-Null { color: #0055ff; border-color: rgba(0,85,255,0.25); }
-    .rarity-pill.pill-Null.active { background: rgba(0,85,255,0.08); border-color: rgba(0,85,255,0.5); }
+    .rarity-pill.pill-Uncommon { color: #00cc00; border-color: rgba(0,255,0,0.4); }
+    .rarity-pill.pill-Uncommon.active { background: rgba(0,255,0,0.12); border-color: rgba(0,255,0,0.6); }
+    .rarity-pill.pill-Rare { color: #1e90ff; border-color: rgba(30,144,255,0.4); }
+    .rarity-pill.pill-Rare.active { background: rgba(30,144,255,0.12); border-color: rgba(30,144,255,0.6); }
+    .rarity-pill.pill-Epic { color: #dd77ff; border-color: rgba(180,80,255,0.4); }
+    .rarity-pill.pill-Epic.active { background: rgba(180,80,255,0.12); border-color: rgba(180,80,255,0.6); }
+    .rarity-pill.pill-Legendary { color: #ffd700; border-color: rgba(255,200,0,0.4); }
+    .rarity-pill.pill-Legendary.active { background: rgba(255,200,0,0.12); border-color: rgba(255,200,0,0.6); }
+    .rarity-pill.pill-Omega { color: #ff88cc; border-color: rgba(255,100,200,0.4); }
+    .rarity-pill.pill-Omega.active { background: rgba(255,100,200,0.12); border-color: rgba(255,100,200,0.6); }
+    .rarity-pill.pill-Null { color: #0088ff; border-color: rgba(0,136,255,0.4); }
+    .rarity-pill.pill-Null.active { background: rgba(0,136,255,0.12); border-color: rgba(0,136,255,0.6); }
 
-    body.light-mode .rarity-pill.pill-Uncommon { color: #009900; }
-    body.light-mode .rarity-pill.pill-Rare     { color: #0066cc; }
-    body.light-mode .rarity-pill.pill-Epic     { color: #8800cc; }
-    body.light-mode .rarity-pill.pill-Legendary { color: #b8860b; }
+    body.light-mode .rarity-pill { background: rgba(0, 0, 0, 0.08); }
+    body.light-mode .rarity-pill:hover { background: rgba(0, 0, 0, 0.15); }
+    body.light-mode .rarity-pill.active { background: rgba(0, 0, 0, 0.18); }
+    body.light-mode .rarity-pill.pill-Uncommon { color: #008800; }
+    body.light-mode .rarity-pill.pill-Rare     { color: #0044aa; }
+    body.light-mode .rarity-pill.pill-Epic     { color: #7700aa; }
+    body.light-mode .rarity-pill.pill-Legendary { color: #996600; }
 
     #resetBtn { padding: 9px 20px; background: transparent; border: 2px solid var(--reset-color); color: var(--reset-color); font-size: 0.85em; font-weight: bold; border-radius: 25px; cursor: pointer; letter-spacing: 1px; transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s; position: absolute; right: 0; }
     #resetBtn:hover { background: var(--reset-color); color: white; box-shadow: 0 0 16px var(--reset-color); transform: scale(1.07); }
@@ -1456,7 +1475,7 @@
         <option value="normal">Normal Pack</option>
         <option value="orin">The Mind Of Orin Pack *Goofy*</option>
       </select>
-      <button onclick="openPackInfo(); playSound()" style="background:var(--card-bg); border:2px solid var(--accent); border-radius:12px; color:var(--accent); font-size:1.4em; width:46px; height:46px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:transform 0.2s;" title="Pack Info" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🛈</button>
+      <button onclick="openPackInfo(); playSound()" style="background:var(--card-bg); border:2px solid var(--accent); border-radius:12px; color:var(--accent); font-size:1.4em; width:46px; height:46px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:transform 0.2s; user-select:none; -webkit-user-select:none;" title="Pack Info" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🛈</button>
     </div>
     <div class="pack" onclick="triggerPackShine(); openPack()">
       OPEN
@@ -1801,26 +1820,26 @@
 
     // Keep AudioContext alive by playing a very short silent buffer periodically
     function keepAudioAlive() {
-      if (globalAudioCtx && globalAudioCtx.state === 'running') {
+      if (globalAudioCtx) {
+        if (globalAudioCtx.state === 'suspended') {
+          globalAudioCtx.resume();
+        }
         const buffer = globalAudioCtx.createBuffer(1, 1, 22050);
         const source = globalAudioCtx.createBufferSource();
         source.buffer = buffer;
         source.connect(globalAudioCtx.destination);
         source.start(0);
       }
-      setTimeout(keepAudioAlive, 10000); // Every 10 seconds
+      setTimeout(keepAudioAlive, 8000); // Every 8 seconds
     }
     keepAudioAlive();
 
     document.addEventListener("mousedown", function unlockAudio() {
-      if (audioUnlocked) return;
-      audioUnlocked = true;
       initAudioCtx();
-      // Play silent sound to initialize on iOS/mobile
-      const s = sfx.cloneNode();
-      s.volume = 0;
-      s.play().catch(() => {});
-    }, { once: true });
+      if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
+        globalAudioCtx.resume();
+      }
+    });
 
     function playSynthClick() {
       if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
@@ -1854,6 +1873,9 @@
         sfx.volume = sfxVolume;
         sfx.play().catch(() => {});
       } else {
+        if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
+          globalAudioCtx.resume();
+        }
         playSynthClick();
       }
     }
