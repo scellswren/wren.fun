@@ -1031,7 +1031,7 @@
       padding: 5px 14px;
       border-radius: 20px;
       border: 1px solid var(--card-border);
-      background: rgba(255, 255, 255, 0.90);
+      background: rgba(255, 255, 255, 0.90); /* Solid white background */
       color: var(--text);
       font-size: 0.78em;
       font-weight: bold;
@@ -1043,7 +1043,8 @@
     }
     .rarity-pill:hover { transform: scale(1.06); }
     .rarity-pill.active { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); color: var(--text); }
-    .rarity-pill.pill-All    { color: var(--text); }
+    .rarity-pill.pill-All    { background: rgba(255, 255, 255, 0.90); color: black; border-color: rgba(0,0,0,0.2); }
+    .rarity-pill.pill-All.active { background: rgba(255, 255, 255, 1); color: black; border-color: rgba(0,0,0,0.4); }
     .rarity-pill.pill-Common { color: var(--text); }
     .rarity-pill.pill-Uncommon { color: #00cc00; border-color: rgba(0,255,0,0.4); }
     .rarity-pill.pill-Uncommon.active { background: rgba(0,255,0,0.12); border-color: rgba(0,255,0,0.6); }
@@ -1061,6 +1062,8 @@
     body.light-mode .rarity-pill { background: rgba(0, 0, 0, 0.08); }
     body.light-mode .rarity-pill:hover { background: rgba(0, 0, 0, 0.15); }
     body.light-mode .rarity-pill.active { background: rgba(0, 0, 0, 0.18); }
+    body.light-mode .rarity-pill.pill-All    { background: rgba(0, 0, 0, 0.90); color: white; border-color: rgba(255,255,255,0.2); }
+    body.light-mode .rarity-pill.pill-All.active { background: rgba(0, 0, 0, 1); color: white; border-color: rgba(255,255,255,0.4); }
     body.light-mode .rarity-pill.pill-Uncommon { color: #008800; }
     body.light-mode .rarity-pill.pill-Rare     { color: #0044aa; }
     body.light-mode .rarity-pill.pill-Epic     { color: #7700aa; }
@@ -1470,7 +1473,7 @@
   </div>
 
   <div id="pack" class="section active">
-    <div style="display:flex; align-items:center; justify-content:center; gap:15px; margin-bottom:30px;">
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; margin-bottom:30px;">
       <select id="packSelector" class="pack-select" onchange="updatePackSelection(); playSound()">
         <option value="normal">Normal Pack</option>
         <option value="orin">The Mind Of Orin Pack *Goofy*</option>
@@ -2193,6 +2196,17 @@
     }
 
     function openCharacterViewer(name, display, rarity, customImg = null) {
+      const item = items.find(i => i.name === name);
+      if (item && item.admin) { // Admin characters don't add to inventory
+        document.getElementById("characterViewerImg").src = `${name}.jpg`;
+        document.getElementById("characterViewerName").textContent = display;
+        document.getElementById("characterViewerName").className = display;
+        document.getElementById("characterViewerRarity").textContent = rarity;
+        document.getElementById("characterViewerRarity").className = rarity;
+        document.getElementById("characterViewer").style.display = "flex";
+        playSound();
+        return;
+      }
       playSound();
       document.getElementById("characterViewerImg").src = customImg ? customImg : name + ".jpg";
       const nameEl = document.getElementById("characterViewerName");
@@ -2422,12 +2436,14 @@
 
         const rarity = rollRarity();
         // Filter pool by rarity AND the selected pack
-        let pool = items.filter(i => i.rarity === rarity && i.pack === selectedPackId);
+        let pool = items.filter(i => i.rarity === rarity && i.pack === selectedPackId && !i.admin);
         
-        // Fallback: If no items of that rarity in the pack, roll again from common or something
-        // But in our case, all packs should have all rarities (except Void)
+        // If no items of that rarity in the pack, fallback to common or global if needed
         if (pool.length === 0) {
-           pool = items.filter(i => i.rarity === "Common" && i.pack === selectedPackId);
+           pool = items.filter(i => i.rarity === "Common" && i.pack === selectedPackId && !i.admin);
+        }
+        if (pool.length === 0 && selectedPackId !== "global") { // Fallback to global common if still empty
+          pool = items.filter(i => i.rarity === "Common" && i.pack === "normal" && !i.admin);
         }
         
         const item = pool[Math.floor(Math.random() * pool.length)];
@@ -2686,6 +2702,8 @@
       { name: "KSIWithBigHead",    display: "KSI Drawing",              rarity: "Omega",     pack: "normal" },
       { name: "BaldOrin",          display: "Bald Orin",                rarity: "Omega",     pack: "normal" },
       { name: "OGWrenIsOld",       display: "OG WrenIsOld",             rarity: "Null",      pack: "normal" },
+      { name: "Uncommon69Admin",   display: "Uncommon69Admin",          rarity: "Uncommon",  pack: "normal", admin: true },
+      { name: "Rare69Admin",       display: "Rare69Admin",              rarity: "Rare",      pack: "normal", admin: true },
 
       // The Mind Of Orin Pack *Goofy*
       { name: "TheMindOfOrin",     display: "The Mind Of Orin",        rarity: "Common",    pack: "orin" },
