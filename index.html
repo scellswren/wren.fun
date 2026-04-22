@@ -620,15 +620,6 @@
       filter:brightness(1.03) saturate(1.03);
       background-position:18% 18%,82% 82%,16% 20%,84% 18%,center center;
     }
-    body.mode-caramal .theme-grid .mode-option.active-mode .mode-dot{
-      background:radial-gradient(circle at 35% 30%,#ffffff 0 12%,#fff5e8 18%,#f1d8b0 34%,#c68a53 60%,#8a4d1a 100%);
-      border-color:rgba(255,250,242,0.92);
-      box-shadow:0 0 0 3px rgba(255,248,240,0.30), inset 0 0 8px rgba(255,255,255,0.18);
-    }
-    body.mode-caramal .theme-grid .mode-option.active-mode .mode-dot::after{
-      background:rgba(255,255,255,0.98);
-      opacity:0.92;
-    }
     body.mode-caramal #settingsPanel,body.mode-caramal #codeModal{
       background:linear-gradient(180deg,rgba(88,52,26,0.98) 0%,rgba(57,31,15,0.98) 100%);
       border:1px solid rgba(255,235,205,0.14);
@@ -827,6 +818,57 @@ body.mode-water h1{background:linear-gradient(135deg,#d8fbff,#6ddcff,#1c8ff5,#8c
     #themesOverlay.open{opacity:1;pointer-events:auto;}
     #themesModal{width:min(1120px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:hidden;border-radius:28px;transform:scale(0.95) translateY(18px);transition:transform 0.3s cubic-bezier(0.34,1.4,0.64,1);background:rgba(10,12,18,0.94);color:#f7f7fb;box-shadow:0 24px 70px rgba(0,0,0,0.34);border:1px solid rgba(255,255,255,0.12);}
     #themesOverlay.open #themesModal{transform:scale(1) translateY(0);}
+    .themes-controls {
+      display: flex;
+      gap: 16px;
+      padding: 10px 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .themes-controls .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .themes-controls label {
+      font-size: 0.8em;
+      font-weight: bold;
+      color: var(--themes-sub, rgba(255, 255, 255, 0.6));
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .themes-controls select {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.9em;
+      outline: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .themes-controls select:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .themes-controls select option {
+      background: #1a1a1a;
+      color: white;
+    }
+    @media (max-width: 600px) {
+      .themes-controls {
+        gap: 10px;
+        padding: 10px 16px;
+      }
+      .themes-controls label {
+        font-size: 0.7em;
+      }
+      .themes-controls select {
+        font-size: 0.8em;
+      }
+    }
     .themes-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:18px 18px 12px;border-bottom:1px solid rgba(255,255,255,0.10);}
     .themes-title{font-size:1.15em;font-weight:900;letter-spacing:0.2px;}
     .themes-sub{margin-top:4px;font-size:0.88em;opacity:0.72;line-height:1.35;}
@@ -3811,6 +3853,24 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       </div>
       <button class="themes-close" onclick="closeThemesModal()">✕</button>
     </div>
+    <div class="themes-controls">
+      <div class="control-group">
+        <label>Filter:</label>
+        <select id="themeFilter" onchange="updateThemeGrid()">
+          <option value="all">Show All</option>
+          <option value="unlocked">Show Unlocked</option>
+          <option value="locked">Show Locked</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Sort:</label>
+        <select id="themeSort" onchange="updateThemeGrid()">
+          <option value="normal">Normal</option>
+          <option value="alpha">Alphabetical</option>
+          <option value="length">Name Length</option>
+        </select>
+      </div>
+    </div>
     <div class="theme-grid">
       <div class="mode-option" data-mode="light" onclick="selectMode('light');closeThemesModal()">☀️ Light Mode<div class="mode-dot"></div></div>
       <div class="mode-option" data-mode="dark" onclick="selectMode('dark');closeThemesModal()">🌙 Dark Mode<div class="mode-dot"></div></div>
@@ -4200,6 +4260,7 @@ function refreshOption(id,lid,t){
   if(!o)return;
   if(unlockedFeatures.includes(t)){o.classList.remove('locked');o.onclick=()=>{selectMode(t);closeThemesModal();};if(l)l.textContent='';}
   else{o.classList.add('locked');o.onclick=null;if(l)l.textContent='🔒';}
+  updateThemeGrid();
 }
 function refreshLuxuriousOption(){refreshOption('luxuriousModeOption','luxuriousLock','luxurious');}
 function refreshBlueberryOption(){refreshOption('blueberryModeOption','blueberryLock','blueberry');}
@@ -4531,7 +4592,48 @@ function openThemesModal(){
   const overlay=document.getElementById('themesOverlay');
   overlay.classList.add('open');
   const grid=document.querySelector('#themesModal .theme-grid');
-  if(grid) grid.scrollTop = 0;
+  if(grid) {
+    grid.scrollTop = 0;
+    if(!grid.hasAttribute('data-original-order')) {
+      const items = Array.from(grid.children);
+      items.forEach((item, idx) => item.setAttribute('data-order', idx));
+      grid.setAttribute('data-original-order', 'true');
+    }
+  }
+  updateThemeGrid();
+}
+
+function updateThemeGrid() {
+  const grid = document.querySelector('#themesModal .theme-grid');
+  if(!grid) return;
+  
+  const filter = document.getElementById('themeFilter').value;
+  const sort = document.getElementById('themeSort').value;
+  const items = Array.from(grid.children);
+  
+  items.forEach(item => {
+    const isLocked = item.classList.contains('locked');
+    let show = true;
+    if(filter === 'unlocked' && isLocked) show = false;
+    if(filter === 'locked' && !isLocked) show = false;
+    item.style.display = show ? '' : 'none';
+  });
+  
+  const visibleItems = items.filter(item => item.style.display !== 'none');
+  
+  visibleItems.sort((a, b) => {
+    if(sort === 'alpha') {
+      const nameA = a.innerText.toLowerCase().trim();
+      const nameB = b.innerText.toLowerCase().trim();
+      return nameA.localeCompare(nameB);
+    } else if(sort === 'length') {
+      return a.innerText.trim().length - b.innerText.trim().length;
+    } else {
+      return parseInt(a.getAttribute('data-order')) - parseInt(b.getAttribute('data-order'));
+    }
+  });
+  
+  visibleItems.forEach(item => grid.appendChild(item));
 }
 function closeThemesModal(){
   document.getElementById('themesOverlay').classList.remove('open');
@@ -4631,13 +4733,14 @@ function rememberSongState(){
 
 window.addEventListener('pagehide',rememberSongState);
 window.addEventListener('beforeunload',rememberSongState);
-window.addEventListener('pageshow',()=>{
+
+function initMusic(){
   const shouldPlay=localStorage.getItem(SONG_WAS_PLAYING_KEY)==='1';
   syncSongState(shouldPlay);
-});
+}
 
-// Initial sync: only resume when the saved state says the song was on.
-syncSongState(localStorage.getItem(SONG_WAS_PLAYING_KEY)==='1');
+window.addEventListener('pageshow',initMusic);
+initMusic();
 
 // Keep the Bone unlock behavior tied to actual resumed music, without forcing music on.
 (function initSongResumeAndBone(){
@@ -4655,7 +4758,6 @@ syncSongState(localStorage.getItem(SONG_WAS_PLAYING_KEY)==='1');
 
   const maybeMarkBone=()=>{
     if(!bgSong.paused){
-      localStorage.setItem(SONG_WAS_PLAYING_KEY,'1');
       unlockBone();
     }
   };
