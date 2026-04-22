@@ -61,19 +61,29 @@
 
     /* Custom Scrollbars */
     ::-webkit-scrollbar {
-      width: 10px;
+      width: 14px;
     }
     ::-webkit-scrollbar-track {
-      background: transparent;
+      background: rgba(128, 128, 128, 0.05);
     }
     ::-webkit-scrollbar-thumb {
-      border-radius: 5px;
+      border-radius: 7px;
+      border: 3px solid transparent;
+      background-clip: content-box;
     }
     body.dark-mode ::-webkit-scrollbar-thumb {
-      background: #ffffff;
+      background-color: #ffffff;
+      border-color: var(--bg);
     }
     body.light-mode ::-webkit-scrollbar-thumb {
-      background: #000000;
+      background-color: #000000;
+      border-color: #f0f0f0;
+    }
+
+    /* Selection Prevention */
+    #packInfoBox, #overlay, #result, #legendaryCardResult, #rareCardResult, #uncommonCardResult, #epicCardResult, #omegaReveal, #nullReveal {
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     /* Better Dropdown Styles */
@@ -249,7 +259,7 @@
     body.dark-mode #packInfoBox {
       background: #ffffff !important;
       color: #000000 !important;
-      border: 2px solid #ddd !important;
+      border: 3px solid #000000 !important;
     }
     body.dark-mode #packInfoBox h2, 
     body.dark-mode #packInfoBox h3,
@@ -257,13 +267,14 @@
       color: #000000 !important;
     }
     body.dark-mode #packInfoBox .modal-header button {
-      color: #666 !important;
+      color: #000 !important;
+      font-weight: bold;
     }
 
     body.light-mode #packInfoBox {
       background: #000000 !important;
       color: #ffffff !important;
-      border: 2px solid #333 !important;
+      border: 3px solid #ffffff !important;
     }
     body.light-mode #packInfoBox h2, 
     body.light-mode #packInfoBox h3,
@@ -271,7 +282,8 @@
       color: #ffffff !important;
     }
     body.light-mode #packInfoBox .modal-header button {
-      color: #999 !important;
+      color: #fff !important;
+      font-weight: bold;
     }
 
     /* Modal Rarity Overrides for inverted background */
@@ -1483,18 +1495,9 @@
   </div>
 
   <div id="inventory" class="section">
-    <div class="section-header" style="justify-content: space-between; align-items: flex-start; margin-bottom: 25px;">
-      <h2 style="margin:0;">Your Inventory</h2>
-      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
-        <button id="resetBtn" onclick="showConfirm(); playSound()" style="margin:0; padding: 8px 16px; font-size: 0.85em; border-radius: 8px;">⟳ Reset</button>
-        <div style="display:flex; align-items:center; gap:10px; background:var(--card-bg); padding:8px 14px; border-radius:12px; border:1px solid var(--card-border); box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
-          <span style="font-size:0.7em; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--muted);">Group by Pack</span>
-          <label class="switch" style="transform: scale(0.8);">
-            <input type="checkbox" id="inventoryPackSortToggle" onchange="toggleInventoryPackSort(this.checked); playSound()">
-            <div class="switch-track"></div>
-          </label>
-        </div>
-      </div>
+    <div class="section-header">
+      <h2>Your Inventory</h2>
+      <button id="resetBtn" onclick="showConfirm(); playSound()">⟳ Reset</button>
     </div>
     <div class="inv-stats" id="invStats"></div>
     <div id="inventory-list" class="grid"></div>
@@ -1660,6 +1663,16 @@
           <span style="font-size:0.88em;font-weight:700;">Light</span>
         </div>
       </div>
+      <div class="settings-row" style="margin-top:16px;">
+        <div class="settings-row-info">
+          <span class="settings-row-title">Group Inventory by Pack</span>
+          <span class="settings-row-sub">Organize characters into pack sections</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="inventoryPackSortToggle" onchange="toggleInventoryPackSort(this.checked); playSound()">
+          <div class="switch-track"></div>
+        </label>
+      </div>
     </div>
 
     <div class="settings-section">
@@ -1777,44 +1790,69 @@
 
     function initAudioCtx() {
       if (!globalAudioCtx) {
-        globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)({
+          latencyHint: 'interactive'
+        });
       }
       if (globalAudioCtx.state === 'suspended') {
         globalAudioCtx.resume();
       }
     }
 
-    document.addEventListener("click", function unlockAudio() {
+    // Keep AudioContext alive by playing a very short silent buffer periodically
+    function keepAudioAlive() {
+      if (globalAudioCtx && globalAudioCtx.state === 'running') {
+        const buffer = globalAudioCtx.createBuffer(1, 1, 22050);
+        const source = globalAudioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(globalAudioCtx.destination);
+        source.start(0);
+      }
+      setTimeout(keepAudioAlive, 10000); // Every 10 seconds
+    }
+    keepAudioAlive();
+
+    document.addEventListener("mousedown", function unlockAudio() {
       if (audioUnlocked) return;
       audioUnlocked = true;
-      const t = sfx.cloneNode();
-      t.volume = 0;
-      t.play().catch(() => {});
       initAudioCtx();
+      // Play silent sound to initialize on iOS/mobile
+      const s = sfx.cloneNode();
+      s.volume = 0;
+      s.play().catch(() => {});
     }, { once: true });
 
     function playSynthClick() {
-      initAudioCtx();
+      if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
+        globalAudioCtx.resume();
+      }
+      if (!globalAudioCtx) initAudioCtx();
       if (!globalAudioCtx) return;
+      
+      const now = globalAudioCtx.currentTime;
       const osc = globalAudioCtx.createOscillator();
       const gainNode = globalAudioCtx.createGain();
+      
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, globalAudioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(100, globalAudioCtx.currentTime + 0.08);
-      gainNode.gain.setValueAtTime(sfxVolume, globalAudioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, globalAudioCtx.currentTime + 0.08);
+      osc.frequency.setValueAtTime(800, now);
+      osc.frequency.exponentialRampToValueAtTime(100, now + 0.08);
+      
+      gainNode.gain.setValueAtTime(sfxVolume, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      
       osc.connect(gainNode);
       gainNode.connect(globalAudioCtx.destination);
-      osc.start();
-      osc.stop(globalAudioCtx.currentTime + 0.08);
+      
+      osc.start(now);
+      osc.stop(now + 0.08);
     }
 
     function playSound() {
       if (sfxMuted) return;
       if (useClassicSound) {
-        const s = sfx.cloneNode();
-        s.volume = sfxVolume;
-        s.play().catch(() => {});
+        sfx.currentTime = 0;
+        sfx.volume = sfxVolume;
+        sfx.play().catch(() => {});
       } else {
         playSynthClick();
       }
