@@ -59,6 +59,52 @@
       transition:  background 0.3s, color 0.3s;
     }
 
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      border-radius: 5px;
+    }
+    body.dark-mode ::-webkit-scrollbar-thumb {
+      background: #ffffff;
+    }
+    body.light-mode ::-webkit-scrollbar-thumb {
+      background: #000000;
+    }
+
+    /* Better Dropdown Styles */
+    .pack-select {
+      padding: 10px 20px;
+      border-radius: 12px;
+      border: 2px solid var(--accent);
+      background: white !important; 
+      color: black !important;      
+      font-family: 'Rubik', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 14px;
+      padding-right: 40px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .pack-select:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+    .pack-select option {
+      color: black;
+      background: white;
+    }
+
     #homeText {
       position:    absolute;
       top:         15px;
@@ -198,6 +244,46 @@
     body.light-mode .tabs button::before {
       background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.25) 50%, transparent 100%);
     }
+
+    /* Modal Background Inversion for Pack Info */
+    body.dark-mode #packInfoBox {
+      background: #ffffff !important;
+      color: #000000 !important;
+      border: 2px solid #ddd !important;
+    }
+    body.dark-mode #packInfoBox h2, 
+    body.dark-mode #packInfoBox h3,
+    body.dark-mode #packInfoBox span {
+      color: #000000 !important;
+    }
+    body.dark-mode #packInfoBox .modal-header button {
+      color: #666 !important;
+    }
+
+    body.light-mode #packInfoBox {
+      background: #000000 !important;
+      color: #ffffff !important;
+      border: 2px solid #333 !important;
+    }
+    body.light-mode #packInfoBox h2, 
+    body.light-mode #packInfoBox h3,
+    body.light-mode #packInfoBox span {
+      color: #ffffff !important;
+    }
+    body.light-mode #packInfoBox .modal-header button {
+      color: #999 !important;
+    }
+
+    /* Modal Rarity Overrides for inverted background */
+    body.dark-mode #packInfoBox .Uncommon  { color: #008800 !important; text-shadow: none !important; }
+    body.dark-mode #packInfoBox .Rare      { color: #0055aa !important; text-shadow: none !important; }
+    body.dark-mode #packInfoBox .Epic      { color: #7700bb !important; text-shadow: none !important; }
+    body.dark-mode #packInfoBox .Legendary { color: #996600 !important; text-shadow: none !important; }
+
+    body.light-mode #packInfoBox .Uncommon  { color: #00ff00 !important; text-shadow: 0 0 5px rgba(0, 255, 0, 0.4) !important; }
+    body.light-mode #packInfoBox .Rare      { color: #1e90ff !important; text-shadow: 0 0 5px rgba(30, 144, 255, 0.4) !important; }
+    body.light-mode #packInfoBox .Epic      { color: #bb77ff !important; text-shadow: 0 0 8px rgba(180, 80, 255, 0.5) !important; }
+    body.light-mode #packInfoBox .Legendary { color: #ffd700 !important; text-shadow: 0 0 12px rgba(255, 215, 0, 0.6) !important; }
 
     body.classic-buttons .tabs button {
       box-shadow: none  !important;
@@ -1353,12 +1439,12 @@
   </div>
 
   <div id="pack" class="section active">
-    <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:30px;">
-      <select id="packSelector" onchange="updatePackSelection(); playSound()" style="padding:10px 20px; border-radius:12px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--text); font-family:'Rubik',sans-serif; font-weight:700; cursor:pointer;">
+    <div style="display:flex; align-items:center; justify-content:center; gap:15px; margin-bottom:30px;">
+      <select id="packSelector" class="pack-select" onchange="updatePackSelection(); playSound()">
         <option value="normal">Normal Pack</option>
         <option value="orin">The Mind Of Orin Pack *Goofy*</option>
       </select>
-      <button onclick="openPackInfo(); playSound()" style="background:transparent; border:none; color:var(--accent); font-size:1.6em; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="Pack Info">🛈</button>
+      <button onclick="openPackInfo(); playSound()" style="background:var(--card-bg); border:2px solid var(--accent); border-radius:12px; color:var(--accent); font-size:1.4em; width:46px; height:46px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:transform 0.2s;" title="Pack Info" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🛈</button>
     </div>
     <div class="pack" onclick="triggerPackShine(); openPack()">
       OPEN
@@ -1397,15 +1483,17 @@
   </div>
 
   <div id="inventory" class="section">
-    <div class="section-header">
-      <h2>Your Inventory</h2>
-      <div style="display:flex; align-items:center; gap:12px;">
-        <span style="font-size:0.85em; font-weight:700; color:var(--muted);">Group by Pack</span>
-        <label class="switch">
-          <input type="checkbox" id="inventoryPackSortToggle" onchange="toggleInventoryPackSort(this.checked); playSound()">
-          <div class="switch-track"></div>
-        </label>
-        <button id="resetBtn" onclick="showConfirm(); playSound()">⟳ Reset</button>
+    <div class="section-header" style="justify-content: space-between; align-items: flex-start; margin-bottom: 25px;">
+      <h2 style="margin:0;">Your Inventory</h2>
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+        <button id="resetBtn" onclick="showConfirm(); playSound()" style="margin:0; padding: 8px 16px; font-size: 0.85em; border-radius: 8px;">⟳ Reset</button>
+        <div style="display:flex; align-items:center; gap:10px; background:var(--card-bg); padding:8px 14px; border-radius:12px; border:1px solid var(--card-border); box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+          <span style="font-size:0.7em; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--muted);">Group by Pack</span>
+          <label class="switch" style="transform: scale(0.8);">
+            <input type="checkbox" id="inventoryPackSortToggle" onchange="toggleInventoryPackSort(this.checked); playSound()">
+            <div class="switch-track"></div>
+          </label>
+        </div>
       </div>
     </div>
     <div class="inv-stats" id="invStats"></div>
@@ -1637,7 +1725,7 @@
   <div id="index" class="section">
     <div class="section-header" style="flex-direction:column; gap:14px; align-items:center;">
       <h2>All Characters</h2>
-      <select id="indexPackSelector" onchange="updateIndexPackFilter(); playSound()" style="padding:8px 16px; border-radius:10px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--text); font-family:'Rubik',sans-serif; font-weight:700; cursor:pointer;">
+      <select id="indexPackSelector" class="pack-select" onchange="updateIndexPackFilter(); playSound()">
         <option value="all">All Packs</option>
         <option value="normal">Normal Pack</option>
         <option value="orin">The Mind Of Orin Pack *Goofy*</option>
@@ -1671,7 +1759,7 @@
     let activeFilter   = 'All';
     let selectedPackId = 'normal';
     let indexPackFilter = 'all';
-    let groupInventoryByPack = false;
+    let groupInventoryByPack = localStorage.getItem("wren_packs_group_by_pack") !== null ? localStorage.getItem("wren_packs_group_by_pack") === "true" : true;
 
     const sfx         = new Audio("SoundEffectButton.MP3");
     sfx.preload       = "auto";
@@ -2188,12 +2276,14 @@
 
     function toggleInventoryPackSort(checked) {
       groupInventoryByPack = checked;
+      localStorage.setItem("wren_packs_group_by_pack", checked);
       renderInventory();
     }
 
     (function init() {
       setTheme(localStorage.getItem("theme") || "dark");
       updatePackSelection(); // Initialize pack style
+      document.getElementById("inventoryPackSortToggle").checked = groupInventoryByPack;
       const vp = Math.round(sfxVolume * 100);
       const sl = document.getElementById("volSlider");
       sl.value = vp;
