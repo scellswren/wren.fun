@@ -2143,6 +2143,10 @@
     function openPack() {
       if (!canOpen) return;
       canOpen = false;
+      // Visually disable the pack during opening
+      document.querySelector(".pack").style.pointerEvents = "none";
+      document.querySelector(".pack").style.opacity = "0.7";
+      
       playSound();
 
       const overlay = document.getElementById("overlay");
@@ -2165,39 +2169,47 @@
         }
         addToInventory(item.name);
 
+        const resetPack = (delay) => {
+          setTimeout(() => { 
+            canOpen = true; 
+            document.querySelector(".pack").style.pointerEvents = "auto";
+            document.querySelector(".pack").style.opacity = "1";
+          }, delay);
+        };
+
         if (item.rarity === "Null") {
           showNullReveal(item, isNew);
-          setTimeout(() => { canOpen = true; }, 15000);
+          resetPack(15000);
           return;
         }
 
         if (item.rarity === "Omega") {
           showOmegaReveal(item, isNew);
-          setTimeout(() => { canOpen = true; }, 8600);
+          resetPack(8600);
           return;
         }
 
         if (item.rarity === "Legendary") {
           showLegendaryCardReveal(item, isNew);
-          setTimeout(() => { canOpen = true; }, 4500);
+          resetPack(4500);
           return;
         }
 
         if (item.rarity === "Epic") {
           showEpicCardReveal(item, isNew);
-          setTimeout(() => { canOpen = true; }, 3500);
+          resetPack(3500);
           return;
         }
 
         if (item.rarity === "Rare") {
           showRareCardReveal(item, isNew);
-          setTimeout(() => { canOpen = true; }, 2500);
+          resetPack(2500);
           return;
         }
 
         if (item.rarity === "Uncommon") {
           showUncommonCardReveal(item, isNew);
-          setTimeout(() => { canOpen = true; }, 2500);
+          resetPack(2500);
           return;
         }
 
@@ -2217,7 +2229,7 @@
         }, 1500);
         setTimeout(() => {
           result.style.display = "none";
-          canOpen = true;
+          resetPack(100);
         }, 2100);
 
       }, 2000);
