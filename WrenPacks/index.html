@@ -2197,7 +2197,7 @@
 
         if (item.rarity === "Uncommon") {
           showUncommonCardReveal(item, isNew);
-          setTimeout(() => { canOpen = true; }, 2000);
+          setTimeout(() => { canOpen = true; }, 2500);
           return;
         }
 
@@ -2558,6 +2558,30 @@
       const code      = document.getElementById("codeInput").value.trim();
       const usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || {};
 
+      if (code === "Rare69Admin") {
+        if (usedCodes["Rare69Admin"]) { alert("Already redeemed!"); closeCode(); return; }
+        usedCodes["Rare69Admin"] = true;
+        localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+        addToInventory("TheMindOfOrin");
+        newItems++;
+        updateNotif();
+        closeCode();
+        showRareCardReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin", rarity: "Rare" }, true);
+        return;
+      }
+
+      if (code === "Uncommon69Admin") {
+        if (usedCodes["Uncommon69Admin"]) { alert("Already redeemed!"); closeCode(); return; }
+        usedCodes["Uncommon69Admin"] = true;
+        localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+        addToInventory("TheMindOfOrin");
+        newItems++;
+        updateNotif();
+        closeCode();
+        showUncommonCardReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin", rarity: "Uncommon" }, true);
+        return;
+      }
+
       if (code === "Subscribe") {
         if (usedCodes["Subscribe"]) { alert("Already redeemed!"); closeCode(); return; }
         usedCodes["Subscribe"] = true;
@@ -2681,13 +2705,19 @@
       const el   = document.getElementById("rareCardResult");
       const img  = document.getElementById("rareCardImg");
       const name = document.getElementById("rareCardName");
+      const inner = document.getElementById("rareCardInner");
       img.src = item.name + ".jpg";
       const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
       name.innerHTML = item.display + " (Rare)" + newBadge;
       el.style.display = "block";
       setTimeout(() => {
+        if (inner) inner.classList.add("explodeOut");
+      }, 1500);
+      setTimeout(() => {
         el.style.display = "none";
-      }, 2000);
+        if (inner) inner.classList.remove("explodeOut");
+        canOpen = true;
+      }, 2100);
     }
 
     function showUncommonCardReveal(item, isNew) {
@@ -2695,13 +2725,19 @@
       const el   = document.getElementById("uncommonCardResult");
       const img  = document.getElementById("uncommonCardImg");
       const name = document.getElementById("uncommonCardName");
+      const inner = document.getElementById("uncommonCardInner");
       img.src = item.name + ".jpg";
       const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
       name.innerHTML = item.display + " (Uncommon)" + newBadge;
       el.style.display = "block";
       setTimeout(() => {
-        el.style.display = "none";
+        if (inner) inner.classList.add("explodeOut");
       }, 1500);
+      setTimeout(() => {
+        el.style.display = "none";
+        if (inner) inner.classList.remove("explodeOut");
+        canOpen = true;
+      }, 2100);
     }
 
     function spawnVioletConfetti() {
