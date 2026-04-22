@@ -4968,16 +4968,35 @@ const fullscreenBtn = document.getElementById('fullscreenBtn');
 if (fullscreenBtn) {
   fullscreenBtn.addEventListener('click', () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(err => {
+      document.documentElement.requestFullscreen().then(() => {
+        localStorage.setItem('fullscreen_preferred', 'true');
+      }).catch(err => {
         console.error(`Error attempting to enable full-screen mode: ${err.message}`);
       });
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen();
+        localStorage.setItem('fullscreen_preferred', 'false');
       }
     }
   });
 }
+
+// Persist fullscreen across navigation
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) {
+    localStorage.setItem('fullscreen_preferred', 'false');
+  } else {
+    localStorage.setItem('fullscreen_preferred', 'true');
+  }
+});
+
+// Auto-fullscreen on first click if preferred
+document.addEventListener('click', () => {
+  if (localStorage.getItem('fullscreen_preferred') === 'true' && !document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+}, { once: false });
 
 function setSongUi(isPlaying){
   toggleSong.textContent=isPlaying?'Pause':'Play';
