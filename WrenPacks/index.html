@@ -1884,6 +1884,49 @@
       }
     });
 
+    let vomitTimer = null;
+    const VOMIT_UNLOCK_KEY = 'wren_theme_vomit_unlocked';
+
+    function startVomitTimer() {
+      if (vomitTimer) return;
+      if (localStorage.getItem(VOMIT_UNLOCK_KEY) === '1') return;
+      
+      vomitTimer = setTimeout(() => {
+        if (document.body.classList.contains('light-mode')) {
+          localStorage.setItem(VOMIT_UNLOCK_KEY, '1');
+          let unlocked = JSON.parse(localStorage.getItem('wren_unlocked') || '[]');
+          if (!unlocked.includes('vomit')) {
+            unlocked.push('vomit');
+            localStorage.setItem('wren_unlocked', JSON.stringify(unlocked));
+          }
+          announceVomitUnlock();
+        }
+        vomitTimer = null;
+      }, 300000); // 5 minutes
+    }
+
+    function stopVomitTimer() {
+      if (vomitTimer) {
+        clearTimeout(vomitTimer);
+        vomitTimer = null;
+      }
+    }
+
+    function announceVomitUnlock() {
+      const n = document.createElement('div');
+      n.className = 'notif vomit-notif';
+      n.innerHTML = '🤮 Vomit theme unlocked! Go check Main Menu.';
+      n.style.background = '#8b9a46';
+      n.style.color = '#fff';
+      n.style.borderColor = '#4a5d23';
+      document.body.appendChild(n);
+      setTimeout(() => n.classList.add('show'), 100);
+      setTimeout(() => {
+        n.classList.remove('show');
+        setTimeout(() => n.remove(), 500);
+      }, 5000);
+    }
+
     function setTheme(mode) {
       if (mode === "light") {
         document.body.classList.add("light-mode");
@@ -1891,12 +1934,14 @@
         document.getElementById("themeOptDark").classList.remove("active");
         document.getElementById("btnLight").classList.add("active");
         document.getElementById("btnDark").classList.remove("active");
+        startVomitTimer();
       } else {
         document.body.classList.remove("light-mode");
         document.getElementById("themeOptDark").classList.add("active");
         document.getElementById("themeOptLight").classList.remove("active");
         document.getElementById("btnDark").classList.add("active");
         document.getElementById("btnLight").classList.remove("active");
+        stopVomitTimer();
       }
       localStorage.setItem("theme", mode);
     }
@@ -2375,6 +2420,18 @@
     function redeemCode() {
       const code      = document.getElementById("codeInput").value.trim();
       const usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || {};
+
+      if (code === "ForkPoo7") {
+        if (usedCodes["ForkPoo7"]) { alert("Already redeemed!"); closeCode(); return; }
+        usedCodes["ForkPoo7"] = true;
+        localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+        addToInventory("OGWrenIsOld");
+        newItems++;
+        updateNotif();
+        closeCode();
+        showNullReveal({ name: "OGWrenIsOld", display: "OG WrenIsOld", rarity: "Null" }, true);
+        return;
+      }
 
       if (code === "Subscribe") {
         if (usedCodes["Subscribe"]) { alert("Already redeemed!"); closeCode(); return; }
