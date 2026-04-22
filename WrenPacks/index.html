@@ -597,6 +597,40 @@
     }
     #legendaryCardInner img { width: 220px; animation: legendaryCardSpin 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards; filter: drop-shadow(0 0 22px rgba(255, 215, 0, 0.6)); }
     #legendaryCardInner h2 { font-family: 'Rubik', sans-serif; font-size: 1.6em; letter-spacing: 2px; margin-bottom: 15px; animation: textPop 0.5s 0.6s both; color: gold; text-shadow: 0 0 12px rgba(255,215,0,0.5); }
+
+    #rareCardResult, #uncommonCardResult {
+      position:  fixed;
+      top:       50%;
+      left:      50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      display:   none;
+      z-index:   1000;
+    }
+    #rareCardInner, #uncommonCardInner {
+      border-radius: 20px;
+      padding:       30px 40px;
+      backdrop-filter: blur(8px);
+      box-shadow:    0 0 40px rgba(255, 255, 255, 0.2);
+    }
+    #rareCardInner {
+      background:    rgba(30, 144, 255, 0.05);
+      border:        1px solid rgba(30, 144, 255, 0.25);
+      box-shadow:    0 0 40px rgba(30, 144, 255, 0.2);
+    }
+    #uncommonCardInner {
+      background:    rgba(50, 205, 50, 0.05);
+      border:        1px solid rgba(50, 205, 50, 0.25);
+      box-shadow:    0 0 40px rgba(50, 205, 50, 0.2);
+    }
+    #rareCardInner img, #uncommonCardInner img { width: 220px; animation: cardSpin 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    #rareCardInner img { filter: drop-shadow(0 0 18px rgba(30, 144, 255, 0.4)); }
+    #uncommonCardInner img { filter: drop-shadow(0 0 18px rgba(50, 205, 50, 0.4)); }
+    #rareCardInner h2, #uncommonCardInner h2 { font-family: 'Rubik', sans-serif; font-size: 1.6em; letter-spacing: 2px; margin-bottom: 15px; animation: textPop 0.5s 0.6s both; }
+    #rareCardInner h2 { color: dodgerblue; text-shadow: 0 0 8px rgba(30, 144, 255, 0.3); }
+    #uncommonCardInner h2 { color: lime; text-shadow: 0 0 8px rgba(50, 205, 50, 0.3); }
+    @keyframes cardSpin { 0% { transform: scale(0) rotate(-360deg); opacity: 0; } 60% { transform: scale(1.1) rotate(15deg); opacity: 1; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+    @keyframes textPop { 0% { opacity: 0; transform: translateY(10px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
     @keyframes legendaryCardSpin {
       0%   { transform: scale(0) rotate(-720deg); opacity: 0; }
       55%  { transform: scale(1.18) rotate(15deg); opacity: 1; }
@@ -1020,14 +1054,14 @@
     #darken { position: fixed; width: 100%; height: 100%; background: var(--darken-bg); display: none; z-index: 1500; }
 
     .Common    { color: var(--text); }
-    .Uncommon  { color: lime; }
-    .Rare      { color: dodgerblue; }
-    .Epic      { color: violet; }
-    .Legendary { color: gold; }
-    body.light-mode .Uncommon  { color: #009900; }
-    body.light-mode .Rare      { color: #0066cc; }
-    body.light-mode .Epic      { color: #8800cc; }
-    body.light-mode .Legendary { color: #b8860b; }
+    .Uncommon  { color: lime; text-shadow: 0 0 5px rgba(0, 255, 0, 0.2); }
+    .Rare      { color: dodgerblue; text-shadow: 0 0 5px rgba(30, 144, 255, 0.3); }
+    .Epic      { color: violet; text-shadow: 0 0 8px rgba(180, 80, 255, 0.4); }
+    .Legendary { color: gold; text-shadow: 0 0 12px rgba(255, 215, 0, 0.5); }
+    body.light-mode .Uncommon  { color: #009900; text-shadow: none; }
+    body.light-mode .Rare      { color: #0066cc; text-shadow: none; }
+    body.light-mode .Epic      { color: #8800cc; text-shadow: none; }
+    body.light-mode .Legendary { color: #b8860b; text-shadow: none; }
     .Omega {
       background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
       -webkit-background-clip: text;
@@ -1312,6 +1346,20 @@
     <div id="epicCardInner">
       <h2 id="epicCardName" class="Epic"></h2>
       <img id="epicCardImg" src="" alt="">
+    </div>
+  </div>
+
+  <div id="rareCardResult">
+    <div id="rareCardInner">
+      <h2 id="rareCardName" class="Rare"></h2>
+      <img id="rareCardImg" src="" alt="">
+    </div>
+  </div>
+
+  <div id="uncommonCardResult">
+    <div id="uncommonCardInner">
+      <h2 id="uncommonCardName" class="Uncommon"></h2>
+      <img id="uncommonCardImg" src="" alt="">
     </div>
   </div>
 
@@ -1625,6 +1673,81 @@
         s.play().catch(() => {});
       } else {
         playSynthClick();
+      }
+    }
+
+    function playRaritySound(rarity) {
+      if (sfxMuted) return;
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(sfxVolume, ctx.currentTime);
+      masterGain.connect(ctx.destination);
+
+      const playNote = (freq, start, dur, type = 'sine', vol = 1) => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+        g.gain.setValueAtTime(0, ctx.currentTime + start);
+        g.gain.linearRampToValueAtTime(vol, ctx.currentTime + start + 0.05);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+        osc.connect(g);
+        g.connect(masterGain);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + dur);
+      };
+
+      if (rarity === "Common") {
+        playNote(400, 0, 0.1, 'sine', 0.5);
+      } else if (rarity === "Uncommon") {
+        playNote(400, 0, 0.15, 'sine', 0.6);
+        playNote(600, 0.05, 0.2, 'sine', 0.4);
+      } else if (rarity === "Rare") {
+        playNote(523.25, 0, 0.3, 'triangle', 0.6); // C5
+        playNote(659.25, 0.1, 0.4, 'triangle', 0.5); // E5
+        playNote(783.99, 0.2, 0.5, 'triangle', 0.4); // G5
+      } else if (rarity === "Epic") {
+        // Less extreme, magical chord
+        [440, 554.37, 659.25, 880].forEach((f, i) => {
+          playNote(f, i * 0.05, 0.8, 'sine', 0.3);
+        });
+      } else if (rarity === "Legendary") {
+        // Triumphant gold
+        [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+          playNote(f, i * 0.1, 1.2, 'square', 0.2);
+        });
+      } else if (rarity === "Omega") {
+        // Cool low sweep + high sparkles
+        const sweep = ctx.createOscillator();
+        const sweepG = ctx.createGain();
+        sweep.type = 'sawtooth';
+        sweep.frequency.setValueAtTime(100, ctx.currentTime);
+        sweep.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 2);
+        sweepG.gain.setValueAtTime(0, ctx.currentTime);
+        sweepG.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.5);
+        sweepG.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2);
+        sweep.connect(sweepG);
+        sweepG.connect(masterGain);
+        sweep.start(); sweep.stop(ctx.currentTime + 2);
+
+        for (let i = 0; i < 10; i++) {
+          playNote(1000 + Math.random() * 2000, 0.5 + i * 0.1, 0.3, 'sine', 0.1);
+        }
+      } else if (rarity === "Void") {
+        // Deep resonant dark
+        const low = ctx.createOscillator();
+        const lowG = ctx.createGain();
+        low.type = 'sine';
+        low.frequency.setValueAtTime(60, ctx.currentTime);
+        low.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 3);
+        lowG.gain.setValueAtTime(0, ctx.currentTime);
+        lowG.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 1);
+        lowG.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3);
+        low.connect(lowG);
+        lowG.connect(masterGain);
+        low.start(); low.stop(ctx.currentTime + 3);
+      } else if (rarity === "Null") {
+        // Existing null reveal handles its own sound
       }
     }
 
@@ -2066,6 +2189,19 @@
           return;
         }
 
+        if (item.rarity === "Rare") {
+          showRareCardReveal(item, isNew);
+          setTimeout(() => { canOpen = true; }, 2500);
+          return;
+        }
+
+        if (item.rarity === "Uncommon") {
+          showUncommonCardReveal(item, isNew);
+          setTimeout(() => { canOpen = true; }, 2000);
+          return;
+        }
+
+        playRaritySound(item.rarity);
         const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
         const result = document.getElementById("result");
         result.innerHTML = `
@@ -2078,16 +2214,17 @@
         setTimeout(() => {
           const inner = document.getElementById("resultInner");
           if (inner) inner.classList.add("explodeOut");
-        }, 2000);
+        }, 1500);
         setTimeout(() => {
           result.style.display = "none";
           canOpen = true;
-        }, 2600);
+        }, 2100);
 
       }, 2000);
     }
 
     function showLegendaryCardReveal(item, isNew) {
+      playRaritySound("Legendary");
       const el    = document.getElementById("legendaryCardResult");
       const img   = document.getElementById("legendaryCardImg");
       const name  = document.getElementById("legendaryCardName");
@@ -2221,13 +2358,13 @@
 
     const rarityGlow = {
       Common:    "rgba(255, 255, 255, 0.06)",
-      Uncommon:  "rgba(0,   255,  80, 0.08)",
-      Rare:      "rgba(30,  144, 255, 0.12)",
-      Epic:      "rgba(180,  80, 255, 0.14)",
-      Legendary: "rgba(255, 200,   0, 0.14)",
-      Omega:     "rgba(255, 100, 200, 0.14)",
-      Null:      "rgba(0,    85, 255, 0.14)",
-      Void:      "rgba(200, 164,   0, 0.14)"
+      Uncommon:  "rgba(0,   255,  80, 0.12)",
+      Rare:      "rgba(30,  144, 255, 0.18)",
+      Epic:      "rgba(180,  80, 255, 0.22)",
+      Legendary: "rgba(255, 200,   0, 0.25)",
+      Omega:     "rgba(255, 100, 200, 0.28)",
+      Null:      "rgba(0,    85, 255, 0.28)",
+      Void:      "rgba(200, 164,   0, 0.28)"
     };
 
     const items = [
@@ -2421,18 +2558,6 @@
       const code      = document.getElementById("codeInput").value.trim();
       const usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || {};
 
-      if (code === "ForkPoo7") {
-        if (usedCodes["ForkPoo7"]) { alert("Already redeemed!"); closeCode(); return; }
-        usedCodes["ForkPoo7"] = true;
-        localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
-        addToInventory("OGWrenIsOld");
-        newItems++;
-        updateNotif();
-        closeCode();
-        showNullReveal({ name: "OGWrenIsOld", display: "OG WrenIsOld", rarity: "Null" }, true);
-        return;
-      }
-
       if (code === "Subscribe") {
         if (usedCodes["Subscribe"]) { alert("Already redeemed!"); closeCode(); return; }
         usedCodes["Subscribe"] = true;
@@ -2530,6 +2655,7 @@
     function showAdminNullReveal() { showNullReveal({ name: "TheMindOfOrin", display: "The Mind Of Orin", rarity: "Null" }, false); }
 
     function showEpicCardReveal(item, isNew) {
+      playRaritySound("Epic");
       const el   = document.getElementById("epicCardResult");
       const img  = document.getElementById("epicCardImg");
       const name = document.getElementById("epicCardName");
@@ -2548,6 +2674,34 @@
         if (inner) inner.classList.remove("epicCardExplode");
         document.querySelectorAll(".violet-confetti-piece").forEach(p => p.remove());
       }, 3000);
+    }
+
+    function showRareCardReveal(item, isNew) {
+      playRaritySound("Rare");
+      const el   = document.getElementById("rareCardResult");
+      const img  = document.getElementById("rareCardImg");
+      const name = document.getElementById("rareCardName");
+      img.src = item.name + ".jpg";
+      const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
+      name.innerHTML = item.display + " (Rare)" + newBadge;
+      el.style.display = "block";
+      setTimeout(() => {
+        el.style.display = "none";
+      }, 2000);
+    }
+
+    function showUncommonCardReveal(item, isNew) {
+      playRaritySound("Uncommon");
+      const el   = document.getElementById("uncommonCardResult");
+      const img  = document.getElementById("uncommonCardImg");
+      const name = document.getElementById("uncommonCardName");
+      img.src = item.name + ".jpg";
+      const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
+      name.innerHTML = item.display + " (Uncommon)" + newBadge;
+      el.style.display = "block";
+      setTimeout(() => {
+        el.style.display = "none";
+      }, 1500);
     }
 
     function spawnVioletConfetti() {
@@ -2580,6 +2734,7 @@
     }
 
     function showAdminOmegaReveal() {
+      playRaritySound("Omega");
       const reveal = document.getElementById("omegaReveal");
       const imgEl  = document.getElementById("omegaImg");
       const nameEl = document.getElementById("omegaName");
@@ -2597,6 +2752,7 @@
     }
 
     function showAdminVoidReveal() {
+      playRaritySound("Void");
       const reveal = document.getElementById("voidReveal");
       const imgEl  = document.getElementById("voidImg");
       const title  = reveal.querySelector("h2");
@@ -2614,6 +2770,7 @@
     }
 
     function showLegendaryReveal(item) {
+      playRaritySound("Legendary");
       const reveal  = document.getElementById("legendaryReveal");
       const imgEl   = document.getElementById("legendaryImg");
       const nameEl  = document.getElementById("legendaryName");
@@ -2645,6 +2802,7 @@
     }
 
     function showOmegaReveal(item, isNew) {
+      playRaritySound("Omega");
       const reveal = document.getElementById("omegaReveal");
       const imgEl  = document.getElementById("omegaImg");
       const nameEl = document.getElementById("omegaName");
