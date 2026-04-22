@@ -4756,20 +4756,20 @@ function updateThemeGrid() {
   const items = Array.from(grid.children);
   
   items.forEach(item => {
-    // A theme is locked if it has the 'locked' class.
-    // However, some themes like light/dark/rainbow are always unlocked and don't have the 'locked' class.
     const isLocked = item.classList.contains('locked');
+    let shouldHide = false;
     
-    let show = true;
-    if (filter === 'unlocked') {
-      // "Hide Unlocked" -> Hide if NOT locked
-      if (!isLocked) show = false;
-    } else if (filter === 'locked') {
-      // "Hide Locked" -> Hide if IS locked
-      if (isLocked) show = false;
+    if (filter === 'unlocked' && !isLocked) {
+      shouldHide = true;
+    } else if (filter === 'locked' && isLocked) {
+      shouldHide = true;
     }
     
-    item.style.display = show ? '' : 'none';
+    if (shouldHide) {
+      item.style.setProperty('display', 'none', 'important');
+    } else {
+      item.style.setProperty('display', '', '');
+    }
   });
   
   const visibleItems = items.filter(item => item.style.display !== 'none');
