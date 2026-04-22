@@ -2646,6 +2646,12 @@
     }
 
     function showNullReveal(item, isNew) {
+      localStorage.setItem('wren_theme_usa_unlocked', '1');
+      let unlocked = JSON.parse(localStorage.getItem('wren_unlocked') || '[]');
+      if (!unlocked.includes('usa')) {
+        unlocked.push('usa');
+        localStorage.setItem('wren_unlocked', JSON.stringify(unlocked));
+      }
       const reveal = document.getElementById("nullReveal");
       const imgEl  = document.getElementById("nullImg");
       const nameEl = document.getElementById("nullName");
