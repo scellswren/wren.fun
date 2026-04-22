@@ -128,7 +128,14 @@
     body.mode-skin input[type="range"]{accent-color:#f1b4a8;}
     body.mode-skin .mode-option.active-mode{color:#fffaf8;}
     body.mode-skin .mode-option:hover{background:rgba(255,255,255,0.05);}
-    body.mode-skin .mode-dot.skin-dot{background:radial-gradient(circle at 35% 30%,#ffe7e1 0 16%,#d98f82 34%,#8d4d43 68%,#5d302b 100%);border:1px solid rgba(255,255,255,0.10);box-shadow:0 0 0 1px rgba(60,20,18,0.10), inset 0 0 8px rgba(255,255,255,0.12);}
+    body.mode-skin .mode-dot.skin-dot{
+      background:#ffdbac !important;
+      border:1px solid rgba(0,0,0,0.1);
+    }
+    body.mode-skin .mode-option.active-mode .mode-dot.skin-dot::after {
+      opacity: 1;
+      background: white;
+    }
     body.mode-rainbowremastered{
       background:linear-gradient(135deg,#ff4d78 0%,#ff9a2e 16%,#ffe85b 32%,#35d39b 49%,#49d9ff 66%,#8b63ff 82%,#ff5ed2 100%);
       background-size:220% 220%;
@@ -534,7 +541,7 @@
     body.mode-orange .btn{background:linear-gradient(145deg,#ffb14d,#d45a00);color:#fff7ef;box-shadow:0 8px 28px rgba(255,120,0,0.25);}
     body.mode-orange .settings-action-btn,body.mode-orange .mini-btn{background:linear-gradient(145deg,#ffb14d,#d45a00);color:#fff7ef;}
     body.mode-caramal{
-      --accent:#8a4f1c;
+      --accent:white;
       background:
         radial-gradient(circle at 14% 16%, rgba(255,250,240,0.30) 0%, transparent 18%),
         radial-gradient(circle at 80% 20%, rgba(255,216,170,0.20) 0%, transparent 20%),
@@ -769,7 +776,20 @@ body.mode-water h1{background:linear-gradient(135deg,#d8fbff,#6ddcff,#1c8ff5,#8c
     .mode-dot.glass-dot{background:linear-gradient(135deg,rgba(120,80,255,0.5),rgba(0,200,255,0.5),rgba(255,100,180,0.4));border:1px solid rgba(255,255,255,0.7);}
     .mode-dot.cyan-dot{background:linear-gradient(135deg,#eaffff,#79efff,#12cfff,#0a7fa1);border:1px solid rgba(110,240,255,0.72);}
     .mode-dot.spider-dot{background:radial-gradient(circle at 35% 35%,#e6e6e6 0 28%,#000000 29% 100%);border:1px solid rgba(255,255,255,0.16);box-shadow:0 0 0 1px rgba(255,255,255,0.06);}
-    body.mode-skin .mode-dot.skin-dot{background:linear-gradient(135deg,#c58a63 0%,#9b6140 42%,#6d3d24 72%,#3f2214 100%) !important;border:1px solid rgba(255,236,214,0.20);box-shadow:0 0 0 1px rgba(60,20,18,0.18), inset 0 0 8px rgba(255,255,255,0.08);opacity:1;}
+    .mode-dot.skin-dot {
+      background: #ffdbac;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    .mode-option.active-mode .mode-dot.skin-dot {
+      background: white;
+      border-color: white;
+    }
+    .mode-option.active-mode .mode-dot.skin-dot::after {
+      opacity: 1;
+      background: white;
+    }
+    body.mode-skin .mode-dot.skin-dot{background:#ffdbac !important;border:1px solid rgba(0,0,0,0.1);box-shadow:none;opacity:1;}
+    body.mode-skin .mode-option.active-mode .mode-dot.skin-dot{background:white !important;border-color:white !important;}
     .mode-dot.lava-dot{background:linear-gradient(135deg,#ffb347,#ff6a00,#ff2a00);}
     .mode-dot.rose-dot{background:linear-gradient(135deg,#ffd1e8,#ff6fb1,#c2187a);}
     .mode-dot.water-dot{background:linear-gradient(135deg,#b9f4ff,#58d0ff,#1079ff);}
@@ -1050,23 +1070,51 @@ body.mode-water h1{background:linear-gradient(135deg,#d8fbff,#6ddcff,#1c8ff5,#8c
     footer a{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;gap:8px;text-decoration:none;font-weight:800;padding:10px 14px;border-radius:16px;opacity:0.86;transition:transform 0.22s ease,opacity 0.22s ease;}
     footer a:hover{opacity:1;transform:translateY(-2px) scale(1.03);}
     footer img{width:22px;height:22px;display:block;}
+    #fullscreenBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s;
+      z-index: 999;
+    }
+    #fullscreenBtn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+    #fullscreenBtn:active {
+      transform: scale(0.95);
+    }
     #toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.86);background:rgba(16,185,129,0.96);color:white;padding:22px 34px;border-radius:28px;font-family:'Rubik',sans-serif;font-weight:900;font-size:clamp(1.15em,2.5vw,1.8em);line-height:1.25;box-shadow:0 18px 60px rgba(16,185,129,0.45),0 0 0 1px rgba(255,255,255,0.10);opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;z-index:9999;white-space:normal;max-width:min(720px,92vw);text-align:center;}
     #toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
   
 body.mode-fire{background:linear-gradient(180deg,#220000 0%,#420500 34%,#7a1d00 62%,#160300 100%);color:#fff6e8;overflow:hidden;}
     body.mode-usa {
-      --accent: #002868;
+      --accent: white;
       background: radial-gradient(circle at 50% 50%, #002868 0%, #001a4d 100%);
       color: #ffffff;
     }
-    body.mode-usa .mode-option.active-mode .mode-dot.usa-dot::after {
+    body.mode-usa .mode-dot.usa-dot::after {
       background: white;
+      opacity: 0;
+    }
+    body.mode-usa .mode-option.active-mode .mode-dot.usa-dot::after {
       opacity: 1;
-      content: '';
-      position: absolute;
       inset: 3px;
-      border-radius: 50%;
-      z-index: 5;
+    }
+    body.mode-usa .mode-option.active-mode .mode-dot.usa-dot::before {
+      opacity: 0;
     }
     body.mode-usa::before {
       content: '';
@@ -1100,8 +1148,14 @@ body.mode-fire{background:linear-gradient(180deg,#220000 0%,#420500 34%,#7a1d00 
       background: rgba(255,255,255,0.25);
       box-shadow: 0 0 20px rgba(255,255,255,0.2);
     }
+    body.mode-usa #settingsPanel, body.mode-usa #codeModal {
+      background: rgba(0, 40, 104, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      backdrop-filter: blur(15px);
+    }
     body.mode-vomit {
-      --accent: #8b9a46;
+      --accent: white;
       background: linear-gradient(135deg, #4d5d1c 0%, #8b9a46 35%, #a5b452 65%, #6b7a2d 100%);
       color: #f0f4d8;
       overflow: hidden;
@@ -1112,6 +1166,13 @@ body.mode-fire{background:linear-gradient(180deg,#220000 0%,#420500 34%,#7a1d00 
     }
     body.mode-vomit .mode-option.active-mode .mode-dot.vomit-dot::after {
       opacity: 1;
+      inset: 3px;
+    }
+    body.mode-vomit #settingsPanel, body.mode-vomit #codeModal {
+      background: rgba(77, 93, 28, 0.96);
+      border: 1px solid rgba(165, 180, 82, 0.3);
+      color: #f0f4d8;
+      backdrop-filter: blur(10px);
     }
     body.mode-vomit::before {
       content: '';
@@ -1149,6 +1210,23 @@ body.mode-fire{background:linear-gradient(180deg,#220000 0%,#420500 34%,#7a1d00 
     body.mode-vomit .btn:hover {
       background: rgba(165,180,82,0.4);
       transform: scale(1.06) rotate(1deg);
+    }
+    body.mode-vomit #settingsPanel, body.mode-vomit #codeModal {
+      background: rgba(77, 93, 28, 0.96);
+      border: 1px solid rgba(165, 180, 82, 0.3);
+      color: #f0f4d8;
+      backdrop-filter: blur(10px);
+    }
+    body.mode-vomit .mode-option.active-mode .mode-dot.vomit-dot {
+      background: white;
+      border-color: white;
+    }
+    body.mode-vomit .mode-option.active-mode .mode-dot.vomit-dot::after {
+      opacity: 1;
+      background: white;
+      inset: 3px;
+      width: auto;
+      height: auto;
     }
     .mode-dot.vomit-dot {
       background: radial-gradient(circle at 35% 35%, #a5b452 0%, #4d5d1c 100%);
@@ -4091,6 +4169,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     <a id="creditsBtn" href="Credits/"               class="btn game-btn" onclick="return markVisit('credits', this.href)">Credits</a>
   </div>
 </div>
+<button id="fullscreenBtn" title="Toggle Fullscreen">⛶</button>
 <footer>
   <span id="footerText">Thanks for visiting my website</span>
   <a href="https://www.youtube.com/@WrenIsOld" target="_blank" rel="noopener noreferrer" onclick="markVisit('youtube')"><img src="youtube.png" alt="YouTube"> YouTube</a>
@@ -4926,6 +5005,21 @@ document.addEventListener('click',(e)=>{
 });
 
 const bgSong=document.getElementById('bgSong'),toggleSong=document.getElementById('toggleSong'),volumeControl=document.getElementById('volumeControl');
+
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+if (fullscreenBtn) {
+  fullscreenBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  });
+}
 
 function setSongUi(isPlaying){
   toggleSong.textContent=isPlaying?'Pause':'Play';
