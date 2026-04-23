@@ -170,14 +170,14 @@
       border-color: #9d50ff;
     }
     .dropdown-btn.selected-glow {
-      border-color: #00ff88 !important;
-      box-shadow: 0 0 25px rgba(0, 255, 136, 0.5), 0 0 10px rgba(0, 255, 136, 0.3);
-      animation: pulseGreen 2s infinite;
+      border-color: var(--glow-color, #00ff88) !important;
+      box-shadow: 0 0 25px var(--glow-rgba, rgba(0, 255, 136, 0.5)), 0 0 10px var(--glow-rgba, rgba(0, 255, 136, 0.3));
+      animation: pulseGlow 2s infinite;
     }
-    @keyframes pulseGreen {
-      0% { box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
-      50% { box-shadow: 0 0 30px rgba(0, 255, 136, 0.7); }
-      100% { box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 15px var(--glow-rgba, rgba(0, 255, 136, 0.4)); }
+      50% { box-shadow: 0 0 30px var(--glow-rgba, rgba(0, 255, 136, 0.7)); }
+      100% { box-shadow: 0 0 15px var(--glow-rgba, rgba(0, 255, 136, 0.4)); }
     }
     .dropdown-btn:active {
       transform: translateY(0) scale(0.98);
@@ -968,6 +968,28 @@
       transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
       display: flex;
       flex-direction: column;
+      font-family: 'Rubik', sans-serif;
+    }
+    .character.locked {
+      filter: grayscale(1) brightness(0.7);
+      opacity: 0.6;
+      cursor: default;
+    }
+    .character.locked:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: var(--card-border);
+    }
+    .lock-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5em;
+      z-index: 10;
+      pointer-events: none;
+      text-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
     .character:hover {
       transform: translateY(-5px) scale(1.02);
@@ -1109,112 +1131,103 @@
 
     .section-header {
       position: relative;
-      padding: 28px 28px 0;
+      padding: 40px 28px 20px;
       display: flex;
       align-items: center;
       justify-content: center;
       max-width: 1100px;
       margin: 0 auto;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 20px;
     }
     .section-header h2 {
       margin: 0;
       font-family: 'Rubik', sans-serif;
-      letter-spacing: 2px;
-      font-size: 1.8em;
+      letter-spacing: 3px;
+      font-size: 2.2em;
+      text-transform: uppercase;
+      background: linear-gradient(to right, var(--text), var(--muted));
+      -webkit-background-clip: text;
+      color: transparent;
     }
 
     .inv-stats {
       display: flex;
-      gap: 12px;
+      gap: 15px;
       justify-content: center;
       flex-wrap: wrap;
-      padding: 14px 28px 0;
+      padding: 10px 28px;
       max-width: 1100px;
-      margin: 0 auto;
+      margin: 0 auto 20px;
     }
     .inv-stat {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 5px 14px;
-      font-size: 0.78em;
-      font-weight: bold;
-      letter-spacing: 0.5px;
+      border-radius: 12px;
+      padding: 8px 18px;
+      font-size: 0.85em;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      font-family: 'Rubik', sans-serif;
+      color: var(--text);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
     }
+    .inv-stat:hover { transform: translateY(-2px); }
 
     .rarity-filters {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       justify-content: center;
       flex-wrap: wrap;
-      padding: 14px 28px 0;
+      padding: 20px;
       max-width: 1100px;
-      margin: 0 auto;
+      margin: 0 auto 30px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
     }
     .rarity-pill {
-      padding: 6px 16px;
-      border-radius: 25px;
-      border: 2px solid transparent;
-      background: rgba(255, 255, 255, 0.95);
-      color: #000000;
-      font-size: 0.82em;
-      font-weight: 800;
+      padding: 8px 20px;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 0.85em;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       letter-spacing: 0.5px;
       text-transform: uppercase;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      font-family: 'Rubik', sans-serif;
     }
-    .rarity-pill:hover { transform: translateY(-3px) scale(1.08); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
-    .rarity-pill.active { background: #000000; color: #ffffff; border-color: #000000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transform: translateY(-1px); }
-    .rarity-pill.pill-All    { border-color: rgba(0,0,0,0.15); }
-    .rarity-pill.pill-Common { border-color: rgba(0,0,0,0.1); }
-    .rarity-pill.pill-Uncommon { border-color: #00cc00; color: #006600; }
-    .rarity-pill.pill-Rare { border-color: #1e90ff; color: #0044aa; }
-    .rarity-pill.pill-Epic { border-color: #bb77ff; color: #7700aa; }
-    .rarity-pill.pill-Legendary { border-color: #ffd700; color: #996600; }
-    .rarity-pill.pill-Omega { border-color: #ff88cc; color: #aa0066; }
-    .rarity-pill.pill-Null { border-color: #0088ff; color: #0044bb; }
-    .rarity-pill.pill-Uncommon.active { background: #00cc00; color: #fff; border-color: #00cc00; }
-    .rarity-pill.pill-Rare.active { background: #1e90ff; color: #fff; border-color: #1e90ff; }
-    .rarity-pill.pill-Epic.active { background: #bb77ff; color: #fff; border-color: #bb77ff; }
-    .rarity-pill.pill-Legendary.active { background: #ffd700; color: #fff; border-color: #ffd700; }
-    .rarity-pill.pill-Omega.active { background: #ff88cc; color: #fff; border-color: #ff88cc; }
-    .rarity-pill.pill-Null.active { background: #0088ff; color: #fff; border-color: #0088ff; }
+    .rarity-pill:hover { background: var(--card-border-hover); transform: translateY(-2px); }
+    .rarity-pill.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3); }
+    
+    .rarity-pill.pill-Uncommon { border-color: #00cc00; color: #00cc00; }
+    .rarity-pill.pill-Rare { border-color: #1e90ff; color: #1e90ff; }
+    .rarity-pill.pill-Epic { border-color: #bb77ff; color: #bb77ff; }
+    .rarity-pill.pill-Legendary { border-color: #ffd700; color: #ffd700; }
+    .rarity-pill.pill-Omega { border-color: #ff88cc; color: #ff88cc; }
+    .rarity-pill.pill-Null { border-color: #0088ff; color: #0088ff; }
 
-    body.light-mode .rarity-pill { background: rgba(0, 0, 0, 0.92); color: #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-    body.light-mode .rarity-pill:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-    body.light-mode .rarity-pill.active { background: #ffffff; color: #000000; border-color: #000000; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-    body.light-mode .rarity-pill.pill-Common { border-color: rgba(255,255,255,0.2); }
-    body.light-mode .rarity-pill.pill-Uncommon { border-color: #00ff00; color: #00ff00; }
-    body.light-mode .rarity-pill.pill-Rare { border-color: #1e90ff; color: #1e90ff; }
-    body.light-mode .rarity-pill.pill-Epic { border-color: #dd77ff; color: #dd77ff; }
-    body.light-mode .rarity-pill.pill-Legendary { border-color: #ffd700; color: #ffd700; }
-    body.light-mode .rarity-pill.pill-Omega { border-color: #ff88cc; color: #ff88cc; }
-    body.light-mode .rarity-pill.pill-Null { border-color: #0088ff; color: #0088ff; }
-    body.light-mode .rarity-pill.pill-Uncommon.active { background: #00ff00; color: #000; border-color: #00ff00; }
-    body.light-mode .rarity-pill.pill-Rare.active { background: #1e90ff; color: #000; border-color: #1e90ff; }
-    body.light-mode .rarity-pill.pill-Epic.active { background: #dd77ff; color: #000; border-color: #dd77ff; }
-    body.light-mode .rarity-pill.pill-Legendary.active { background: #ffd700; color: #000; border-color: #ffd700; }
-    body.light-mode .rarity-pill.pill-Omega.active { background: #ff88cc; color: #000; border-color: #ff88cc; }
-    body.light-mode .rarity-pill.pill-Null.active { background: #0088ff; color: #000; border-color: #0088ff; }
+    .rarity-pill.pill-Uncommon.active { background: #00cc00; color: #fff; }
+    .rarity-pill.pill-Rare.active { background: #1e90ff; color: #fff; }
+    .rarity-pill.pill-Epic.active { background: #bb77ff; color: #fff; }
+    .rarity-pill.pill-Legendary.active { background: #ffd700; color: #fff; }
+    .rarity-pill.pill-Omega.active { background: #ff88cc; color: #fff; }
+    .rarity-pill.pill-Null.active { background: #0088ff; color: #fff; }
 
-    .rarity-filters {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-      margin: 25px auto;
-      padding: 16px;
-      background: var(--card-bg);
-      border-radius: 20px;
-      border: 1px solid var(--card-border);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-      width: fit-content;
-      max-width: min(900px, 95vw);
-    }
+    body.light-mode .rarity-pill { background: #fff; color: #222; }
+    body.light-mode .rarity-pill:hover { background: #f0f0f0; }
+    body.light-mode .rarity-pill.active { background: var(--accent); color: #fff; }
+    body.light-mode .rarity-pill.pill-Uncommon { color: #008800; }
+    body.light-mode .rarity-pill.pill-Rare { color: #0066cc; }
+    body.light-mode .rarity-pill.pill-Epic { color: #8800cc; }
+    body.light-mode .rarity-pill.pill-Legendary { color: #b8860b; }
+    body.light-mode .rarity-pill.pill-Omega { color: #aa0066; }
+    body.light-mode .rarity-pill.pill-Null { color: #0044bb; }
 
     #resetBtn { padding: 9px 20px; background: transparent; border: 2px solid var(--reset-color); color: var(--reset-color); font-size: 0.85em; font-weight: bold; border-radius: 25px; cursor: pointer; letter-spacing: 1px; transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s; position: absolute; right: 0; }
     #resetBtn:hover { background: var(--reset-color); color: white; box-shadow: 0 0 16px var(--reset-color); transform: scale(1.07); }
@@ -1879,7 +1892,10 @@
   <div id="inventory" class="section">
     <div class="section-header">
       <h2>Your Inventory</h2>
-      <button id="resetBtn" onclick="showConfirm(); playSound()">⟳ Reset</button>
+      <div style="display:flex; gap:10px; position:absolute; right:0;">
+        <button id="toggleLockedBtn" onclick="toggleInventoryMode(); playSound()" style="padding:9px 20px; background:var(--accent); border:none; color:white; font-size:0.85em; font-weight:bold; border-radius:25px; cursor:pointer; letter-spacing:1px; transition:all 0.2s;">🔒 Locked</button>
+        <button id="resetBtn" onclick="showConfirm(); playSound()" style="position:relative; right:0;">⟳ Reset</button>
+      </div>
     </div>
     <div class="inv-stats" id="invStats"></div>
     <div id="inventory-list" class="grid"></div>
@@ -2254,6 +2270,7 @@
     let activeFilter   = 'All';
     let selectedPackId = 'normal';
     let indexPackFilter = 'all';
+    let inventoryMode = 'owned'; // 'owned' or 'locked'
     let groupInventoryByPack = localStorage.getItem("wren_packs_group_by_pack") !== null ? localStorage.getItem("wren_packs_group_by_pack") === "true" : true;
     
     // Streak tracking for PixelArtCheese
@@ -2779,7 +2796,20 @@
       localStorage.setItem("wren_packs_selected_pack", value);
       const btn = document.getElementById('packDropdownBtn');
       btn.textContent = label;
-      btn.classList.add('selected-glow'); // Add green glow
+      
+      // Update glow color
+      if (value === 'normal') {
+        btn.style.setProperty('--glow-color', '#ffffff');
+        btn.style.setProperty('--glow-rgba', 'rgba(255, 255, 255, 0.5)');
+      } else if (value === 'orin') {
+        btn.style.setProperty('--glow-color', '#ff8c00');
+        btn.style.setProperty('--glow-rgba', 'rgba(255, 140, 0, 0.5)');
+      } else {
+        btn.style.setProperty('--glow-color', '#00ff88');
+        btn.style.setProperty('--glow-rgba', 'rgba(0, 255, 136, 0.5)');
+      }
+      
+      btn.classList.add('selected-glow'); 
       document.getElementById('packDropdown').classList.remove('open');
       
       // Update active state in items
@@ -2796,7 +2826,20 @@
       localStorage.setItem("wren_packs_index_filter", value);
       const btn = document.getElementById('indexPackDropdownBtn');
       btn.textContent = label;
-      btn.classList.add('selected-glow'); // Add green glow
+      
+      // Update glow color
+      if (value === 'normal') {
+        btn.style.setProperty('--glow-color', '#ffffff');
+        btn.style.setProperty('--glow-rgba', 'rgba(255, 255, 255, 0.5)');
+      } else if (value === 'orin') {
+        btn.style.setProperty('--glow-color', '#ff8c00');
+        btn.style.setProperty('--glow-rgba', 'rgba(255, 140, 0, 0.5)');
+      } else {
+        btn.style.setProperty('--glow-color', '#00ff88');
+        btn.style.setProperty('--glow-rgba', 'rgba(0, 255, 136, 0.5)');
+      }
+      
+      btn.classList.add('selected-glow'); 
       document.getElementById('indexPackDropdown').classList.remove('open');
       
       // Update active state in items
@@ -3126,10 +3169,26 @@
       });
     }
 
+    function toggleInventoryMode() {
+      inventoryMode = inventoryMode === 'owned' ? 'locked' : 'owned';
+      const btn = document.getElementById("toggleLockedBtn");
+      if (inventoryMode === 'locked') {
+        btn.textContent = "🔓 Owned";
+        btn.style.background = "#4ade80";
+        document.querySelector("#inventory h2").textContent = "Locked Characters";
+      } else {
+        btn.textContent = "🔒 Locked";
+        btn.style.background = "var(--accent)";
+        document.querySelector("#inventory h2").textContent = "Your Inventory";
+      }
+      renderInventory();
+    }
+
     function renderIndex() {
       const container = document.getElementById("index-list");
       container.innerHTML = "";
       const inv = JSON.parse(localStorage.getItem("inventory")) || {};
+      const starred = getStarred();
       const filtered = items.filter(i => {
         if (i.rarity === "Void" && !inv[i.name]) return false;
         if (activeFilter !== 'All' && i.rarity !== activeFilter) return false;
@@ -3141,29 +3200,8 @@
       });
 
       filtered.forEach(item => {
-        const owned = !!inv[item.name];
-        const card = document.createElement("div");
-        card.className = "character";
-        const glowColor = rarityGlow[item.rarity] || 'transparent';
-
-        let displayImg = item.name + ".jpg";
-        let displayName = item.display;
-        if (item.rarity === "Null" && !owned) {
-          displayImg = "questionmark.png";
-          displayName = "???";
-        }
-
-        card.innerHTML = `
-          <div class="characterRarityGlow" style="box-shadow: inset 0 0 20px ${glowColor};"></div>
-          <div class="char-img-wrap">
-            <img src="${displayImg}" alt="${displayName}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\'><text x=\\'50%\\' y=\\'50%\\' font-size=\\'40\\' text-anchor=\\'middle\\' dy=\\'.3em\\' fill=\\'white\\'>?</text></svg>'">
-            ${owned ? '<span class="ownedBadge">✓ Owned</span>' : ''}
-          </div>
-          <div class="char-info">
-            <p class="char-name ${item.rarity}">${displayName}</p>
-            <p class="char-rarity-label ${item.rarity}">${item.rarity}</p>
-          </div>`;
-        card.onclick = () => openCharacterViewer(item.name, displayName, item.rarity, (item.rarity === "Null" && !owned) ? "questionmark.png" : null);
+        const qty = inv[item.name] || 0;
+        const card = createCharacterCard(item, qty, starred, true); // Added indexMode flag
         container.appendChild(card);
       });
 
@@ -3187,10 +3225,11 @@
       const rarityOrder = ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Omega", "Null", "Void"];
       
       const statsEl = document.getElementById("invStats");
-      const allOwned = items.filter(i => inv[i.name]);
+      const uniqueOwned = items.filter(i => inv[i.name]);
+      
       if (statsEl) {
         const totalCharacters = Object.values(inv).reduce((a, b) => a + b, 0);
-        const uniqueCount = allOwned.length;
+        const uniqueCount = uniqueOwned.length;
         const totalPossible = items.length;
         statsEl.innerHTML = `
           <span class="inv-stat">🎴 ${totalCharacters} character${totalCharacters !== 1 ? 's' : ''}</span>
@@ -3198,16 +3237,25 @@
         `;
       }
 
-      if (allOwned.length === 0) {
-        container.innerHTML = `<p style="color:var(--muted2); font-size:1.1em; margin-top:60px; width:100%;">No characters yet — open some packs!</p>`;
-        return;
+      let displayItems = [];
+      if (inventoryMode === 'owned') {
+        displayItems = items.filter(i => inv[i.name]);
+        if (displayItems.length === 0) {
+          container.innerHTML = `<p style="color:var(--muted2); font-size:1.1em; margin-top:60px; width:100%;">No characters yet — open some packs!</p>`;
+          return;
+        }
+      } else {
+        displayItems = items.filter(i => !inv[i.name] && i.rarity !== "Void");
+        if (displayItems.length === 0) {
+          container.innerHTML = `<p style="color:var(--muted2); font-size:1.1em; margin-top:60px; width:100%;">Wow! You've collected everything!</p>`;
+          return;
+        }
       }
 
       if (groupInventoryByPack) {
-        // Group by packs
         const packOrder = ["normal", "orin", "global"];
         packOrder.forEach(pId => {
-          const packItems = allOwned.filter(i => {
+          const packItems = displayItems.filter(i => {
             const pArr = (typeof i.pack === 'string') ? i.pack.split(',') : [i.pack];
             return pArr.includes(pId);
           });
@@ -3222,62 +3270,65 @@
             const packHeader = document.createElement("div");
             packHeader.className = "pack-group-header";
             packHeader.style.gridColumn = "1 / -1";
-            packHeader.innerHTML = `<h3 style="margin: 30px 0 15px; font-size: 1.1em; text-align: left; border-left: 4px solid var(--accent); padding-left: 12px; color: var(--text);">${groupName}</h3>`;
+            packHeader.innerHTML = `<h3 style="margin: 30px 0 15px; font-family: 'Rubik', sans-serif; font-size: 1.2em; text-align: left; border-left: 4px solid var(--accent); padding-left: 12px; color: var(--text); letter-spacing: 1px;">${groupName}</h3>`;
             container.appendChild(packHeader);
             
             packItems.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity))
-                     .forEach(i => container.appendChild(createCharacterCard(i, inv[i.name], starred)));
+                     .forEach(i => container.appendChild(createCharacterCard(i, inv[i.name] || 0, starred)));
           }
         });
       } else {
-        // Normal sorting by rarity
-        allOwned.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity))
-                .forEach(i => container.appendChild(createCharacterCard(i, inv[i.name], starred)));
+        displayItems.sort((a, b) => rarityOrder.indexOf(a.rarity) - rarityOrder.indexOf(b.rarity))
+                .forEach(i => container.appendChild(createCharacterCard(i, inv[i.name] || 0, starred)));
       }
     }
 
-    function createCharacterCard(i, qty, starred) {
+    function createCharacterCard(i, qty, starred, indexMode = false) {
+      const isOwned = qty > 0;
+      const isLocked = !isOwned;
       const isStarred = starred.includes(i.name);
       const card = document.createElement("div");
-      card.className = "character";
+      
+      // In index mode, we don't grey out if not owned, just show owned badge
+      const applyLockedStyle = isLocked && !indexMode;
+      card.className = "character" + (applyLockedStyle ? " locked" : "");
+      
       const glowColor = rarityGlow[i.rarity] || 'transparent';
+      
+      let displayImg = i.name + ".jpg";
+      let displayName = i.display;
+      if (isLocked && i.rarity === "Null") {
+        displayImg = "questionmark.png";
+        displayName = "???";
+      }
+
       card.innerHTML = `
-        <div class="characterRarityGlow" style="box-shadow: inset 0 0 20px ${glowColor};"></div>
+        ${isOwned ? `<div class="characterRarityGlow" style="box-shadow: inset 0 0 20px ${glowColor};"></div>` : ''}
+        ${applyLockedStyle ? `<div class="lock-overlay">🔒</div>` : ''}
         <div class="char-img-wrap">
-          <img src="${i.name}.jpg" alt="${i.display}">
-          <span class="qtyBadge">×${qty}</span>
+          <img src="${displayImg}" alt="${displayName}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\'><text x=\\'50%\\' y=\\'50%\\' font-size=\\'40\\' text-anchor=\\'middle\\' dy=\\'.3em\\' fill=\\'white\\'>?</text></svg>'">
+          ${isOwned ? `<span class="qtyBadge">×${qty}</span>` : ''}
+          ${indexMode && isOwned ? '<span class="ownedBadge">✓ Owned</span>' : ''}
         </div>
         <div class="char-info">
-          <p class="char-name ${i.rarity}">${i.display}</p>
+          <p class="char-name ${i.rarity}">${displayName}</p>
           <p class="char-rarity-label ${i.rarity}">${i.rarity}</p>
-        </div>`;
-
-      const starBtn = document.createElement("div");
-      starBtn.className = "starBtn" + (isStarred ? " starred" : "");
-      starBtn.innerHTML = "★";
-      starBtn.title = isStarred ? "Unstar this character" : "Star this character";
-      starBtn.onclick = (e) => {
-        e.stopPropagation();
-        playSound();
-        toggleStar(i.name, starBtn);
-      };
-      card.appendChild(starBtn);
-
-      card.onclick = (e) => {
-        if (e.target.classList.contains("deleteBtn") || e.target.classList.contains("starBtn")) return;
-        openCharacterViewer(i.name, i.display, i.rarity);
-      };
-      const delBtn     = document.createElement("div");
-      delBtn.className = "deleteBtn";
-      delBtn.innerText = "×";
-      delBtn.onclick   = (e) => {
-        e.stopPropagation();
-        playSound();
-        deleteItem = i;
-        openDeletePrompt(qty);
-      };
-      card.appendChild(delBtn);
+        </div>
+        ${isOwned && !indexMode ? `
+        <button class="starBtn ${isStarred ? 'starred' : ''}" onclick="event.stopPropagation(); toggleStar('${i.name}', this); playSound()" title="${isStarred ? 'Unstar this character' : 'Star this character'}">★</button>
+        <button class="deleteBtn" onclick="event.stopPropagation(); askDelete('${i.name}'); playSound()" title="Delete some of these">✕</button>
+        ` : ''}
+      `;
+      
+      if (!applyLockedStyle) {
+        card.onclick = () => openCharacterViewer(i.name, displayName, i.rarity, (isLocked && i.rarity === "Null") ? "questionmark.png" : null);
+      }
       return card;
+    }
+
+    function askDelete(name, qty) {
+      deleteItem = items.find(item => item.name === name);
+      openDeletePrompt(qty);
     }
 
     function openDeletePrompt(maxQty) {
