@@ -147,91 +147,101 @@
     }
     .dropdown-btn {
       width: 100%;
-      padding: 12px 24px;
-      background: white !important;
-      color: black !important;
-      border: 2px solid var(--accent);
-      border-radius: 16px;
+      padding: 14px 28px;
+      background: #ffffff !important;
+      color: #111111 !important;
+      border: 3px solid #7c3aed;
+      border-radius: 20px;
       font-family: 'Rubik', sans-serif;
-      font-weight: 700;
-      font-size: 1.05em;
+      font-weight: 800;
+      font-size: 1.1em;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
     .dropdown-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-      border-color: var(--accent);
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+      border-color: #9d50ff;
     }
     .dropdown-btn.selected-glow {
-      border-color: #4ade80;
-      box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+      border-color: #00ff88 !important;
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.5), 0 0 10px rgba(0, 255, 136, 0.3);
+      animation: pulseGreen 2s infinite;
+    }
+    @keyframes pulseGreen {
+      0% { box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
+      50% { box-shadow: 0 0 30px rgba(0, 255, 136, 0.7); }
+      100% { box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
     }
     .dropdown-btn:active {
-      transform: translateY(0);
+      transform: translateY(0) scale(0.98);
     }
     .dropdown-btn::after {
       content: '▼';
-      font-size: 0.8em;
-      margin-left: 10px;
-      transition: transform 0.3s;
-      color: black; /* Ensure arrow is visible */
+      font-size: 0.9em;
+      margin-left: 12px;
+      transition: transform 0.4s;
+      color: #111111;
     }
     .custom-dropdown.open .dropdown-btn::after {
       transform: rotate(180deg);
     }
     .dropdown-content {
       position: absolute;
-      top: calc(100% + 8px);
+      top: calc(100% + 12px);
       left: 0;
       width: 100%;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 12px 36px rgba(0,0,0,0.25);
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 15px 45px rgba(0,0,0,0.3);
       opacity: 0;
       visibility: hidden;
-      transform: translateY(-10px);
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform: translateY(-15px) scale(0.95);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 10000;
       overflow: hidden;
-      border: 1px solid rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.08);
     }
     .custom-dropdown.open .dropdown-content {
       opacity: 1;
       visibility: visible;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
     .dropdown-item {
-      padding: 14px 20px;
-      color: #111; /* Ensure text is dark on white background */
+      padding: 16px 24px;
+      color: #222222;
       cursor: pointer;
       font-family: 'Rubik', sans-serif;
-      font-weight: 600;
-      font-size: 0.95em;
-      transition: all 0.2s;
+      font-weight: 700;
+      font-size: 1em;
+      transition: all 0.25s;
       text-align: left;
       background: white;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
     }
+    .dropdown-item:last-child { border-bottom: none; }
     .dropdown-item:hover {
-      background: rgba(0,0,0,0.04);
-      padding-left: 26px;
-      color: var(--accent);
+      background: #f8f8f8;
+      padding-left: 32px;
+      color: #7c3aed;
     }
     .dropdown-item.active {
-      background: #4ade80; /* Green background for active item */
-      color: black; /* Black text on green */
+      background: #00ff88;
+      color: #000000;
     }
     
-    body.light-mode .dropdown-btn { background: #fff; color: #111; }
+    body.light-mode .dropdown-btn { background: #fff !important; color: #111 !important; border-color: #7c3aed; }
     body.light-mode .dropdown-btn::after { color: #111; }
     body.light-mode .dropdown-content { background: #fff; }
-    body.light-mode .dropdown-item { color: #111; background: white; }
-    body.light-mode .dropdown-item:hover { background: rgba(0,0,0,0.04); }
-    body.light-mode .dropdown-item.active { background: #4ade80; color: black; }
+    body.light-mode .dropdown-item { color: #222; background: white; }
+    body.light-mode .dropdown-item:hover { background: #f8f8f8; }
+    body.light-mode .dropdown-item.active { background: #00ff88; color: #000; }
 
     #homeText {
       position:    absolute;
@@ -1427,15 +1437,18 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     .info-starred-name {
-      font-size: 0.65em;
+      font-size: 0.6em;
       font-weight: 800;
       color: var(--text);
       text-align: center;
       width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      letter-spacing: 0.2px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      line-height: 1.2;
+      letter-spacing: 0.1px;
     }
     .info-starred-empty {
       grid-column: 1 / -1;
@@ -2218,6 +2231,17 @@
       { rarity: "Common",    chance: 45 }
     ];
 
+    function rollRarity() {
+      let r = Math.random() * 100;
+      let sum = 0;
+      // Reverse order to check rarest first
+      for (let i = 0; i < chances.length; i++) {
+        sum += chances[i].chance;
+        if (r <= sum) return chances[i].rarity;
+      }
+      return "Common";
+    }
+
     // --- State Variables ---
     let canOpen        = true;
     let newItems       = 0;
@@ -2858,18 +2882,25 @@
       if (!canOpen) return;
       canOpen = false;
       // Visually disable the pack during opening
-      document.querySelector(".pack").style.pointerEvents = "none";
-      document.querySelector(".pack").style.opacity = "0.7";
+      const packEl = document.querySelector(".pack");
+      if (packEl) {
+        packEl.style.pointerEvents = "none";
+        packEl.style.opacity = "0.7";
+      }
       
       playSound();
 
       const overlay = document.getElementById("overlay");
-      overlay.style.display = "flex";
-      overlay.classList.add("fade");
+      if (overlay) {
+        overlay.style.display = "flex";
+        overlay.classList.add("fade");
+      }
 
       setTimeout(() => {
-        overlay.style.display = "none";
-        overlay.classList.remove("fade");
+        if (overlay) {
+          overlay.style.display = "none";
+          overlay.classList.remove("fade");
+        }
 
         const rarity = rollRarity();
         // Filter pool by rarity AND the selected pack
@@ -2887,11 +2918,21 @@
              return pArr.includes(selectedPackId);
            });
         }
-        if (pool.length === 0 && selectedPackId !== "global") { // Fallback to global common if still empty
-          pool = items.filter(i => i.rarity === "Common" && i.pack === "normal" && !i.admin);
+        
+        // Final fallback to any common if pack is totally empty (should not happen)
+        if (pool.length === 0) {
+          pool = items.filter(i => i.rarity === "Common" && !i.admin);
         }
         
         const item = pool[Math.floor(Math.random() * pool.length)];
+        if (!item) { // Critical safety
+          canOpen = true;
+          if (packEl) {
+            packEl.style.pointerEvents = "auto";
+            packEl.style.opacity = "1";
+          }
+          return;
+        }
 
         let inv = JSON.parse(localStorage.getItem("inventory")) || {};
         const isNew = !inv[item.name];
@@ -2904,8 +2945,10 @@
         const resetPack = (delay) => {
           setTimeout(() => { 
             canOpen = true; 
-            document.querySelector(".pack").style.pointerEvents = "auto";
-            document.querySelector(".pack").style.opacity = "1";
+            if (packEl) {
+              packEl.style.pointerEvents = "auto";
+              packEl.style.opacity = "1";
+            }
           }, delay);
         };
 
@@ -2948,21 +2991,25 @@
         playRaritySound(item.rarity);
         const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
         const result = document.getElementById("result");
-        result.innerHTML = `
-          <div id="resultInner">
-            <h2 class="${rarity}">${item.display} (${rarity})${newBadge}</h2>
-            <img src="${item.name}.jpg" alt="${item.display}">
-          </div>`;
-        result.style.display = "block";
+        if (result) {
+          result.innerHTML = `
+            <div id="resultInner">
+              <h2 class="${item.rarity}">${item.display} (${item.rarity})${newBadge}</h2>
+              <img src="${item.name}.jpg" alt="${item.display}">
+            </div>`;
+          result.style.display = "block";
 
-        setTimeout(() => {
-          const inner = document.getElementById("resultInner");
-          if (inner) inner.classList.add("explodeOut");
-        }, 1500);
-        setTimeout(() => {
-          result.style.display = "none";
+          setTimeout(() => {
+            const inner = document.getElementById("resultInner");
+            if (inner) inner.classList.add("explodeOut");
+          }, 1500);
+          setTimeout(() => {
+            result.style.display = "none";
+            resetPack(100);
+          }, 2100);
+        } else {
           resetPack(100);
-        }, 2100);
+        }
 
       }, 2000);
     }
