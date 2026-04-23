@@ -155,6 +155,8 @@
       padding-right: 40px;
       transition: transform 0.2s, box-shadow 0.2s;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      user-select: none;
+      -webkit-user-select: none;
     }
     .pack-select:hover {
       transform: translateY(-2px);
@@ -1103,10 +1105,14 @@
     body.light-mode .rarity-pill.pill-Rare { border-color: #1e90ff; color: #1e90ff; }
     body.light-mode .rarity-pill.pill-Epic { border-color: #dd77ff; color: #dd77ff; }
     body.light-mode .rarity-pill.pill-Legendary { border-color: #ffd700; color: #ffd700; }
+    body.light-mode .rarity-pill.pill-Omega { border-color: #ff88cc; color: #ff88cc; }
+    body.light-mode .rarity-pill.pill-Null { border-color: #0088ff; color: #0088ff; }
     body.light-mode .rarity-pill.pill-Uncommon.active { background: #00ff00; color: #000; border-color: #00ff00; }
     body.light-mode .rarity-pill.pill-Rare.active { background: #1e90ff; color: #000; border-color: #1e90ff; }
     body.light-mode .rarity-pill.pill-Epic.active { background: #dd77ff; color: #000; border-color: #dd77ff; }
     body.light-mode .rarity-pill.pill-Legendary.active { background: #ffd700; color: #000; border-color: #ffd700; }
+    body.light-mode .rarity-pill.pill-Omega.active { background: #ff88cc; color: #000; border-color: #ff88cc; }
+    body.light-mode .rarity-pill.pill-Null.active { background: #0088ff; color: #000; border-color: #0088ff; }
 
     .rarity-filters {
       display: flex;
@@ -1255,6 +1261,8 @@
     body.light-mode .info-stat-value.Rare      { color: #2563eb; }
     body.light-mode .info-stat-value.Epic      { color: #9333ea; }
     body.light-mode .info-stat-value.Legendary { color: #d97706; }
+    body.light-mode .info-stat-value.Omega     { color: #aa0066; background: none; -webkit-background-clip: unset; }
+    body.light-mode .info-stat-value.Null      { color: #0044bb; text-shadow: none; animation: none; }
 
     .info-username-wrap { 
       display: flex; 
@@ -1666,12 +1674,14 @@
 
   <div id="pack" class="section active">
     <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; margin-bottom:30px; width:100%;">
-      <div style="display:flex; align-items:center; justify-content:center; gap:15px;">
-        <select id="packSelector" class="pack-select" onchange="updatePackSelection(); playSound()">
-          <option value="normal">Normal Pack</option>
-          <option value="orin">The Mind Of Orin Pack *Goofy*</option>
-        </select>
-        <button onclick="openPackInfo(); playSound()" style="background:var(--card-bg); border:2px solid var(--accent); border-radius:12px; color:var(--accent); font-size:1.4em; width:46px; height:46px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:transform 0.2s; user-select:none; -webkit-user-select:none;" title="Pack Info" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🛈</button>
+      <div style="display:flex; align-items:center; justify-content:center; gap:15px; position:relative; width:100%; max-width:400px;">
+        <div style="flex:1; display:flex; justify-content:center;">
+          <select id="packSelector" class="pack-select" onchange="updatePackSelection(); playSound()" style="user-select:none; -webkit-user-select:none;">
+            <option value="normal">Normal Pack</option>
+            <option value="orin">The Mind Of Orin Pack *Goofy*</option>
+          </select>
+        </div>
+        <button onclick="openPackInfo(); playSound()" style="position:absolute; right:0; background:var(--card-bg); border:2px solid var(--accent); border-radius:12px; color:var(--accent); font-size:1.4em; width:46px; height:46px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:transform 0.2s; user-select:none; -webkit-user-select:none;" title="Pack Info" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🛈</button>
       </div>
     </div>
     <div class="pack" onclick="triggerPackShine(); openPack()">
@@ -1817,8 +1827,8 @@
       </div>
     </div>
 
-    <div class="modal-footer">
-      <button class="neutral" onclick="closeInfo(); playSound()" style="padding: 18px; font-size: 1.05em; color: var(--muted);">Dismiss</button>
+    <div class="modal-footer" style="border-top: none; padding: 0;">
+      <button class="neutral" onclick="closeInfo(); playSound()" style="padding: 20px; font-size: 1.1em; color: white; width: 100%; background: #ff4444; border-radius: 0 0 24px 24px; border: none; font-weight: 800; letter-spacing: 1px; transition: background 0.2s;">DISMISS</button>
     </div>
   </div>
 
@@ -2874,13 +2884,13 @@
       { name: "TheRealBaldCena72", display: "Bald Cena",               rarity: "Common",    pack: "normal" },
       { name: "Edunzie",           display: "Edunzie",                  rarity: "Common",    pack: "normal" },
       { name: "Wren.fun",          display: "Wren.fun",                 rarity: "Common",    pack: "normal" },
+      { name: "Blake",             display: "Blake",                    rarity: "Uncommon",  pack: "normal" },
       { name: "Juju2y",            display: "Juju2y",                   rarity: "Uncommon",  pack: "normal" },
       { name: "Scratch",           display: "Scratch",                  rarity: "Uncommon",  pack: "normal" },
       { name: "BlockOfCheese",     display: "Block Of Cheese",          rarity: "Uncommon",  pack: "normal" },
       { name: "TheDairyKing",      display: "The Dairy King",           rarity: "Uncommon",  pack: "normal" },
       { name: "TheSack",           display: "The Sack",                 rarity: "Uncommon",  pack: "normal" },
       { name: "MouldyBready",      display: "Mouldy Bready",            rarity: "Uncommon",  pack: "normal" },
-      { name: "Blake",             display: "Blake",                    rarity: "Uncommon",  pack: "normal" },
       { name: "Zxno",              display: "Zxno",                     rarity: "Rare",      pack: "normal" },
       { name: "EthansHalfTable",   display: "EthansHalfTable",          rarity: "Rare",      pack: "normal" },
       { name: "TheTurtleKid2012",  display: "Turtle Kid 2012",          rarity: "Rare",      pack: "normal" },
@@ -2896,10 +2906,10 @@
       { name: "Wren",              display: "Wren",                     rarity: "Legendary", pack: "normal" },
       { name: "LuckyCat",          display: "Lucky",                    rarity: "Legendary", pack: "normal" },
       { name: "TheFounder",        display: "The Founder",              rarity: "Legendary", pack: "normal" },
+      { name: "SantaBlake",        display: "Blake's Sleigh",           rarity: "Omega",     pack: "normal" },
       { name: "FatWren",           display: "Fat Wren",                 rarity: "Omega",     pack: "normal" },
       { name: "KSIWithBigHead",    display: "KSI Drawing",              rarity: "Omega",     pack: "normal" },
       { name: "BaldOrin",          display: "Bald Orin",                rarity: "Omega",     pack: "normal" },
-      { name: "SantaBlake",        display: "Blake's Sleigh",           rarity: "Omega",     pack: "normal" },
       { name: "OGWrenIsOld",       display: "OG WrenIsOld",             rarity: "Null",      pack: "normal" },
 
       // The Mind Of Orin Pack *Goofy*
