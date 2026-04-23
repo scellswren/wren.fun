@@ -1447,8 +1447,10 @@
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
-      line-height: 1.2;
+      line-height: 1.1;
       letter-spacing: 0.1px;
+      max-height: 2.2em; /* Ensure it doesn't push the card height */
+      overflow: hidden;
     }
     .info-starred-empty {
       grid-column: 1 / -1;
@@ -1805,8 +1807,8 @@
 
   <div id="voidReveal">
     <div class="particles" id="voidParticles"></div>
-    <img id="voidImg" src="OrinFlower.jpg" alt="">
-    <h2>✦ ORIN FLOWER ✦</h2>
+    <img id="voidImg" src="" alt="">
+    <h2 id="voidName">✦ VOID ✦</h2>
   </div>
 
   <div id="highlightReveal">
@@ -2217,7 +2219,8 @@
 
       // Voids (Global / No specific pack)
       { name: "OrinFlower",        display: "Orin Flower",              rarity: "Void",      pack: "global" },
-      { name: "HighlightLucky",    display: "Highlight Lucky",          rarity: "Void",      pack: "global" }
+      { name: "HighlightLucky",    display: "Highlight Lucky",          rarity: "Void",      pack: "global" },
+      { name: "PixelArtCheese",    display: "Pixel Cheese",             rarity: "Void",      pack: "global" }
     ];
 
     const chances = [
@@ -2228,7 +2231,7 @@
       { rarity: "Epic",      chance: 7 },
       { rarity: "Rare",      chance: 12 },
       { rarity: "Uncommon",  chance: 30 },
-      { rarity: "Common",    chance: 45 }
+      { rarity: "Common",    chance: 49.895 } // Adjusted to sum to exactly 100%
     ];
 
     function rollRarity() {
@@ -2252,6 +2255,10 @@
     let selectedPackId = 'normal';
     let indexPackFilter = 'all';
     let groupInventoryByPack = localStorage.getItem("wren_packs_group_by_pack") !== null ? localStorage.getItem("wren_packs_group_by_pack") === "true" : true;
+    
+    // Streak tracking for PixelArtCheese
+    let lastOpenedItemName = localStorage.getItem("wren_last_opened") || null;
+    let consecutiveCount = parseInt(localStorage.getItem("wren_consecutive_count") || "0", 10);
 
     const sfx         = new Audio("SoundEffectButton.MP3");
     sfx.preload       = "auto";
@@ -2934,6 +2941,16 @@
           return;
         }
 
+        // Streak tracking
+        if (item.name === lastOpenedItemName) {
+          consecutiveCount++;
+        } else {
+          consecutiveCount = 1;
+          lastOpenedItemName = item.name;
+        }
+        localStorage.setItem("wren_last_opened", lastOpenedItemName);
+        localStorage.setItem("wren_consecutive_count", consecutiveCount);
+
         let inv = JSON.parse(localStorage.getItem("inventory")) || {};
         const isNew = !inv[item.name];
         if (isNew) {
@@ -2948,6 +2965,17 @@
             if (packEl) {
               packEl.style.pointerEvents = "auto";
               packEl.style.opacity = "1";
+            }
+            
+            // Check for PixelArtCheese unlock
+            if (consecutiveCount >= 5) {
+              const cheese = items.find(i => i.name === "PixelArtCheese");
+              if (cheese) {
+                consecutiveCount = 0; // Reset streak
+                localStorage.setItem("wren_consecutive_count", 0);
+                showVoidReveal(cheese);
+                addToInventory(cheese.name);
+              }
             }
           }, delay);
         };
@@ -3704,8 +3732,15 @@
       }
     }
 
-    function showVoidReveal() {
+    function showVoidReveal(item) {
+      if (!item) { // Fallback for existing calls
+        item = items.find(i => i.name === "OrinFlower") || { name: "OrinFlower", display: "Orin Flower" };
+      }
       const reveal = document.getElementById("voidReveal");
+      const imgEl  = document.getElementById("voidImg");
+      const nameEl = document.getElementById("voidName");
+      imgEl.src = item.name + ".jpg";
+      nameEl.textContent = "✦ " + item.display.toUpperCase() + " ✦";
       reveal.style.display = "flex";
       spawnParticles("voidParticles");
       setTimeout(() => {
