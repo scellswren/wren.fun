@@ -834,6 +834,19 @@
     @keyframes spinIn { 0% { transform: scale(0) rotate(-540deg); opacity: 0; } 60% { transform: scale(1.15) rotate(20deg); opacity: 1; } 80% { transform: scale(0.95) rotate(-5deg); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
     .explodeOut { animation: explodeOutAnim 0.6s forwards; }
     @keyframes explodeOutAnim { 0% { transform: scale(1) rotate(0deg); opacity: 1; } 50% { transform: scale(1.5) rotate(20deg); opacity: 1; } 100% { transform: scale(2.5) rotate(40deg); opacity: 0; } }
+    .skip-hint {
+      position: fixed;
+      bottom: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.9em;
+      opacity: 0;
+      color: rgba(255,255,255,0.7);
+      text-shadow: 0 0 10px rgba(0,0,0,0.5);
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .skip-hint.visible { opacity: 1; }
 
     #legendaryCardResult {
       position:  fixed;
@@ -1136,19 +1149,32 @@
       align-items: center;
       justify-content: center;
       max-width: 1100px;
-      margin: 0 auto;
+      margin: 0 auto 25px;
       border-bottom: 1px solid var(--card-border);
-      margin-bottom: 20px;
+    }
+    .section-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      border-radius: 2px;
     }
     .section-header h2 {
       margin: 0;
       font-family: 'Rubik', sans-serif;
-      letter-spacing: 3px;
+      letter-spacing: 4px;
       font-size: 2.2em;
       text-transform: uppercase;
-      background: linear-gradient(to right, var(--text), var(--muted));
+      background: linear-gradient(135deg, var(--text), var(--accent), var(--muted));
       -webkit-background-clip: text;
-      color: transparent;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      filter: drop-shadow(0 0 20px rgba(124, 58, 237, 0.3));
     }
 
     .inv-stats {
@@ -1156,54 +1182,102 @@
       gap: 15px;
       justify-content: center;
       flex-wrap: wrap;
-      padding: 10px 28px;
+      padding: 15px 28px;
       max-width: 1100px;
-      margin: 0 auto 20px;
+      margin: 0 auto 25px;
     }
     .inv-stat {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 8px 18px;
-      font-size: 0.85em;
+      background: linear-gradient(135deg, var(--card-bg), rgba(124, 58, 237, 0.15));
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      border-radius: 16px;
+      padding: 12px 24px;
+      font-size: 0.9em;
       font-weight: 700;
-      letter-spacing: 0.8px;
+      letter-spacing: 1px;
       font-family: 'Rubik', sans-serif;
       color: var(--text);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 15px rgba(124, 58, 237, 0.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
     }
-    .inv-stat:hover { transform: translateY(-2px); }
+    .inv-stat::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s;
+    }
+    .inv-stat:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 25px rgba(124, 58, 237, 0.2);
+      border-color: var(--accent);
+    }
+    .inv-stat:hover::before {
+      left: 100%;
+    }
 
     .rarity-filters {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       justify-content: center;
       flex-wrap: wrap;
-      padding: 20px;
+      padding: 20px 25px;
       max-width: 1100px;
       margin: 0 auto 30px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      background: linear-gradient(135deg, var(--card-bg), rgba(124, 58, 237, 0.08));
+      border: 1px solid rgba(124, 58, 237, 0.2);
       border-radius: 20px;
       backdrop-filter: blur(10px);
+      box-shadow: 0 4px 25px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.05);
     }
     .rarity-pill {
-      padding: 8px 20px;
-      border-radius: 14px;
+      padding: 10px 22px;
+      border-radius: 25px;
       border: 1px solid var(--card-border);
-      background: var(--card-bg);
+      background: rgba(255,255,255,0.03);
       color: var(--text);
       font-size: 0.85em;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      letter-spacing: 0.5px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      letter-spacing: 0.8px;
       text-transform: uppercase;
       font-family: 'Rubik', sans-serif;
+      position: relative;
+      overflow: hidden;
     }
-    .rarity-pill:hover { background: var(--card-border-hover); transform: translateY(-2px); }
-    .rarity-pill.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3); }
+    .rarity-pill::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(124, 58, 237, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s;
+    }
+    .rarity-pill:hover {
+      background: rgba(124, 58, 237, 0.1);
+      transform: translateY(-3px);
+      border-color: var(--accent);
+    }
+    .rarity-pill:hover::before {
+      width: 200px;
+      height: 200px;
+    }
+    .rarity-pill.active {
+      background: linear-gradient(135deg, var(--accent), #9333ea);
+      color: white;
+      border-color: var(--accent);
+      box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4), 0 0 30px rgba(124, 58, 237, 0.2);
+      transform: translateY(-2px);
+    }
     
     .rarity-pill.pill-Uncommon { border-color: #00cc00; color: #00cc00; }
     .rarity-pill.pill-Rare { border-color: #1e90ff; color: #1e90ff; }
@@ -1799,6 +1873,7 @@
   </div>
 
   <div id="overlay">✨ PACK OPENING ✨</div>
+  <div id="skipHint" class="skip-hint">Click to skip (1s delay)</div>
 
   <div id="legendaryReveal">
     <div class="legendaryParticles" id="legendaryParticles"></div>
@@ -2188,7 +2263,6 @@
       { name: "TheRealBaldCena72", display: "Bald Cena",               rarity: "Common",    pack: "normal" },
       { name: "Edunzie",           display: "Edunzie",                  rarity: "Common",    pack: "normal" },
       { name: "Wren.fun",          display: "Wren.fun",                 rarity: "Common",    pack: "normal" },
-      { name: "Blake",             display: "Blake",                    rarity: "Uncommon",  pack: "orin" },
       { name: "Juju2y",            display: "Juju2y",                   rarity: "Uncommon",  pack: "normal" },
       { name: "Scratch",           display: "Scratch",                  rarity: "Uncommon",  pack: "normal" },
       { name: "BlockOfCheese",     display: "Block Of Cheese",          rarity: "Uncommon",  pack: "normal" },
@@ -2210,13 +2284,14 @@
       { name: "Wren",              display: "Wren",                     rarity: "Legendary", pack: "normal" },
       { name: "LuckyCat",          display: "Lucky",                    rarity: "Legendary", pack: "normal" },
       { name: "TheFounder",        display: "The Founder",              rarity: "Legendary", pack: "normal" },
-      { name: "SantaBlake",        display: "Blake's Sleigh",           rarity: "Omega",     pack: "orin" },
       { name: "FatWren",           display: "Fat Wren",                 rarity: "Omega",     pack: "normal" },
       { name: "KSIWithBigHead",    display: "KSI Drawing",              rarity: "Omega",     pack: "normal" },
       { name: "BaldOrin",          display: "Bald Orin",                rarity: "Omega",     pack: "normal" },
       { name: "OGWrenIsOld",       display: "OG WrenIsOld",             rarity: "Null",      pack: "normal" },
 
       // The Mind Of Orin Pack *Goofy*
+      { name: "Blake",             display: "Blake",                    rarity: "Uncommon",  pack: "orin" },
+      { name: "SantaBlake",        display: "Blake's Sleigh",           rarity: "Omega",     pack: "orin" },
       { name: "TheMindOfOrin",     display: "The Mind Of Orin",        rarity: "Common",    pack: "orin" },
       { name: "VGACable",          display: "VGA Cable",               rarity: "Common",    pack: "orin" },
       { name: "Windows8.1",        display: "Windows 8.1",             rarity: "Common",    pack: "orin" },
@@ -2272,6 +2347,8 @@
     let indexPackFilter = 'all';
     let inventoryMode = 'owned'; // 'owned' or 'locked'
     let groupInventoryByPack = localStorage.getItem("wren_packs_group_by_pack") !== null ? localStorage.getItem("wren_packs_group_by_pack") === "true" : true;
+    let canSkipReveal = false;
+    let skipRevealTimeout = null;
     
     // Streak tracking for PixelArtCheese
     let lastOpenedItemName = localStorage.getItem("wren_last_opened") || null;
@@ -2856,6 +2933,23 @@
       if (!e.target.closest('.custom-dropdown')) {
         document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
       }
+      // Skip reveal if canSkipReveal is true and not clicking on dropdown
+      if (canSkipReveal && !e.target.closest('.custom-dropdown')) {
+        clearTimeout(skipRevealTimeout);
+        canSkipReveal = false;
+        document.getElementById("skipHint").classList.remove("visible");
+        const inner = document.getElementById("resultInner");
+        if (inner) inner.classList.add("explodeOut");
+        setTimeout(() => {
+          document.getElementById("result").style.display = "none";
+          canOpen = true;
+          const packEl = document.querySelector(".pack");
+          if (packEl) {
+            packEl.style.pointerEvents = "auto";
+            packEl.style.opacity = "1";
+          }
+        }, 300);
+      }
     });
 
     function updatePackSelection() {
@@ -3069,6 +3163,12 @@
               <img src="${item.name}.jpg" alt="${item.display}">
             </div>`;
           result.style.display = "block";
+          if (!isNew) {
+            setTimeout(() => {
+              canSkipReveal = true;
+              document.getElementById("skipHint").classList.add("visible");
+            }, 1000);
+          }
 
           setTimeout(() => {
             const inner = document.getElementById("resultInner");
@@ -3076,6 +3176,8 @@
           }, 1500);
           setTimeout(() => {
             result.style.display = "none";
+            document.getElementById("skipHint").classList.remove("visible");
+            canSkipReveal = false;
             resetPack(100);
           }, 2100);
         } else {
