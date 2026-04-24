@@ -4133,6 +4133,21 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
 <div id="content">
   <h1>Wren.fun</h1>
   <p class="tagline"><span id="iceUnlockTarget">Vewy Cool 😎</span></p>
+  
+  <!-- UnOh Infinity Stats & Settings -->
+  <div style="margin: 20px auto; padding: 15px; max-width: 400px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); font-family: 'Rubik', sans-serif;">
+    <div style="font-size: 1.1em; font-weight: 700; margin-bottom: 10px; color: var(--accent);">UnOh Infinity</div>
+    <div style="margin-bottom: 10px;">Wins: <span id="unohWins">0</span></div>
+    <div>
+      <label for="botCountSelect">Opponents: </label>
+      <select id="botCountSelect" style="padding: 5px 10px; border-radius: 8px; background: rgba(255,255,255,0.1); color: inherit; border: 1px solid rgba(255,255,255,0.2); outline: none; cursor: pointer;">
+        <option value="1">1 Bot</option>
+        <option value="2">2 Bots</option>
+        <option value="3">3 Bots</option>
+      </select>
+    </div>
+  </div>
+
   <div class="button-container">
     <a href="LuckyGenerator/"        class="btn game-btn" onclick="return markVisit('lucky', this.href)">Lucky Generator</a>
     <a href="WrenPacks/"             class="btn game-btn" onclick="return markVisit('wrenpacks', this.href)">Wren Packs</a>
@@ -4143,7 +4158,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     <a href="HallOfFame/"            class="btn game-btn" onclick="return markVisit('halloffame', this.href)">The Hall of Fame</a>
     <a href="ObjectAttack/"          class="btn game-btn" onclick="return markVisit('objectattack', this.href)">Object Attack</a>
     <div class="btn-wrap pong-wrap"><a href="PongWorldCup/index.html" class="btn game-btn" onclick="return markVisit('pongworldcup', this.href)">The Pong World Cup</a></div>
-    <a href="Wren.fun%20Space/" class="btn game-btn" onclick="return markVisit('wrenfunspace', this.href)">✨ Wren.fun Space</a>
+    <a href="UnOhInfinity/index.html" class="btn game-btn" onclick="return startUnOhInfinity(this.href)">✨ UnOh Infinity</a>
     <a id="creditsBtn" href="Credits/"               class="btn game-btn" onclick="return markVisit('credits', this.href)">Credits</a>
   </div>
 </div>
@@ -4218,6 +4233,8 @@ const SEVEN_THEME_UNLOCK_KEY='wren_theme_seven_unlocked';
 const PONG_CUP_WIN_KEY='pong_cup_won';
 const PONG_PRACTICE_PLAYED_KEY='pong_practice_played';
 const SONG_WAS_PLAYING_KEY='wren_song_was_playing';
+const UNOH_WINS_KEY = 'unoh_infinity_wins';
+const UNOH_BOTS_KEY = 'unoh_infinity_bots';
 
 let unlockedFeatures=JSON.parse(localStorage.getItem(UNLOCK_KEY)||'[]');
 const cog=document.getElementById('settingsCog'),settingsMenu=document.getElementById('settingsMenu');
@@ -4660,6 +4677,27 @@ function checkAllUnlocks(){
   unlockJediIfEligible();unlockWatermelonIfEligible();unlockBoneIfEligible();
   checkObjectAttackThemes();
 }
+function startUnOhInfinity(url) {
+  const bots = document.getElementById('botCountSelect').value;
+  localStorage.setItem(UNOH_BOTS_KEY, bots);
+  markVisit('unohinfinity', url);
+  return true;
+}
+
+function initUnOhInfinity() {
+  const winDisplay = document.getElementById('unohWins');
+  const botSelect = document.getElementById('botCountSelect');
+  if (winDisplay) {
+    winDisplay.textContent = localStorage.getItem(UNOH_WINS_KEY) || '0';
+  }
+  if (botSelect) {
+    botSelect.value = localStorage.getItem(UNOH_BOTS_KEY) || '1';
+    botSelect.addEventListener('change', () => {
+      localStorage.setItem(UNOH_BOTS_KEY, botSelect.value);
+    });
+  }
+}
+
 function markVisit(w,href){
   if(w==='youtube')localStorage.setItem(VISIT_YT_KEY,'1');
   else if(w==='discord')localStorage.setItem(VISIT_DISCORD_KEY,'1');
@@ -4798,6 +4836,7 @@ window.addEventListener('load',()=>{
   if(brightnessControl)brightnessControl.value=savedBrightness;
   applyBrightness(savedBrightness);
   initDayClouds();
+  initUnOhInfinity();
 });
 window.addEventListener('pageshow',e=>{if(e.persisted){syncCatchThemeUnlocks();showStoredUnlockNotice();checkAllUnlocks();}});
 function openCodeModal(){const i=document.getElementById('codeInput'),f=document.getElementById('codeFeedback');i.value='';i.className='';f.textContent='';f.className='';document.getElementById('codeOverlay').classList.add('open');setTimeout(()=>i.focus(),350);}
