@@ -1,1 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>UnOh Infinity</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #ff4757;
+      --blue: #2e86de;
+      --yellow: #ffa502;
+      --green: #2ed573;
+      --purple: #a55eea;
+      --wild: #2f3542;
+      --bg: #0a0a0f;
+      --accent: #7c3aed;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Rubik', sans-serif;
+      background-color: var(--bg);
+      color: white;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Header & Fullscreen */
+    #homeText {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-weight: 900;
+      font-size: 1.2em;
+      cursor: pointer;
+      z-index: 1000;
+      color: white;
+      text-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+      transition: var(--transition);
+    }
+    #homeText:hover { transform: scale(1.1); color: var(--accent); }
+
+    #fullscreenBtn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      font-size: 1.5em;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: var(--transition);
+    }
+    #fullscreenBtn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.1); }
+
+    /* Game Layout */
+    .game-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 60px 20px 20px;
+      position: relative;
+    }
+
+    /* Bots Hands */
+    .bots-container {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+    }
+    .bot-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .bot-name { font-weight: 700; font-size: 0.9em; opacity: 0.8; }
+    .bot-hand { display: flex; gap: -20px; }
+    .card-back {
+      width: 40px;
+      height: 60px;
+      background: linear-gradient(135deg, #2f3542, #1e272e);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 5px;
+      margin-left: -25px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+    .bot-hand div:first-child { margin-left: 0; }
+
+    /* Center Pile */
+    .center-pile {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      position: relative;
+    }
+    .draw-pile {
+      width: 100px;
+      height: 150px;
+      background: linear-gradient(135deg, #2f3542, #1e272e);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.2em;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+      transition: var(--transition);
+      position: relative;
+    }
+    .draw-pile:hover { transform: translateY(-5px) scale(1.05); border-color: white; }
+    .draw-pile::before {
+      content: 'PICK UP';
+      opacity: 0.5;
+    }
+
+    .discard-pile {
+      width: 100px;
+      height: 150px;
+      position: relative;
+    }
+
+    /* Player Hand */
+    .player-area {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .player-hand {
+      display: flex;
+      gap: 10px;
+      padding: 20px;
+      overflow-x: auto;
+      width: 100%;
+      justify-content: center;
+      min-height: 200px;
+      scrollbar-width: none;
+    }
+    .player-hand::-webkit-scrollbar { display: none; }
+
+    /* Card Styling */
+    .card {
+      width: 100px;
+      height: 150px;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 2em;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s, top 0.2s;
+      flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.1);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .card:hover { transform: translateY(-10px); z-index: 10; }
+    .card.playable { box-shadow: 0 0 20px 5px white; border-color: white; }
+    .card.selected { transform: translateY(-30px); border-color: var(--accent); }
+
+    .card-red { background-color: var(--red); }
+    .card-blue { background-color: var(--blue); }
+    .card-yellow { background-color: var(--yellow); }
+    .card-green { background-color: var(--green); }
+    .card-purple { background-color: var(--purple); }
+    .card-wild { background: linear-gradient(45deg, var(--red), var(--blue), var(--yellow), var(--green), var(--purple)); }
+
+    .card-type-label {
+      position: absolute;
+      bottom: 10px;
+      font-size: 0.3em;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .card-top-left {
+      position: absolute;
+      top: 5px;
+      left: 8px;
+      font-size: 0.4em;
+    }
+
+    /* Modals */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      backdrop-filter: blur(5px);
+    }
+    .modal-content {
+      background: #1e272e;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .btn {
+      padding: 12px 30px;
+      background: var(--accent);
+      border: none;
+      color: white;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: var(--transition);
+    }
+    .btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+    .color-picker {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .color-opt {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: var(--transition);
+    }
+    .color-opt:hover { transform: scale(1.1); }
+
+    /* Animations */
+    @keyframes drawCard {
+      from { transform: translate(-100px, -100px) rotate(-20deg); opacity: 0; }
+      to { transform: translate(0, 0) rotate(0); opacity: 1; }
+    }
+    @keyframes playCard {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .card-draw { animation: drawCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+    .card-play { animation: playCard 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+
+    /* Custom Scrollbar for Hand */
+    .player-hand::-webkit-scrollbar {
+      height: 8px;
+    }
+    .player-hand::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+    .player-hand::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 4px;
+    }
+    
+    .bot-area {
+      transition: var(--transition);
+      padding: 10px;
+      border-radius: 15px;
+    }
+    .bot-area.active {
+      background: rgba(124, 58, 237, 0.2);
+      box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+    }
+
+    .status-msg {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3em;
+      font-weight: 900;
+      text-transform: uppercase;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 1500;
+      text-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    .status-msg.show { opacity: 1; }
+
+    /* Current Turn Indicator */
+    .turn-indicator {
+      position: fixed;
+      bottom: 250px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div id="homeText" onclick="goHome()">Wren.fun</div>
+  <button id="fullscreenBtn" title="Toggle Fullscreen">⛶</button>
+
+  <!-- Start Menu Modal -->
+  <div class="modal" id="startMenuModal" style="display: flex;">
+    <div class="modal-content">
+      <h1 style="font-size: 3em; margin-bottom: 10px; color: var(--accent); font-weight: 900;">UnOh Infinity</h1>
+      <p style="margin-bottom: 30px; opacity: 0.8;">The ultimate card face-off</p>
+      
+      <div style="margin-bottom: 20px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 15px;">
+        <div style="font-size: 1.2em; margin-bottom: 15px;">Wins: <span id="unohWinsDisplay">0</span></div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+          <label for="botCountSelect">Opponents:</label>
+          <select id="botCountSelect" style="padding: 10px 15px; border-radius: 10px; background: #2f3542; color: white; border: 1px solid rgba(255,255,255,0.2); outline: none; cursor: pointer; font-family: inherit;">
+            <option value="1">1 Bot</option>
+            <option value="2">2 Bots</option>
+            <option value="3">3 Bots</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn" onclick="startGameFromMenu()" style="font-size: 1.2em; padding: 15px 40px;">START GAME</button>
+    </div>
+  </div>
+
+  <div class="game-container" style="display:none;">
+    <div class="bots-container" id="botsContainer"></div>
+
+    <div class="center-pile">
+      <div class="draw-pile" id="drawPile" onclick="playerDraw()"></div>
+      <div class="discard-pile" id="discardPile"></div>
+    </div>
+
+    <div class="turn-indicator" id="turnIndicator">Player Turn</div>
+
+    <div class="player-area">
+      <div class="player-hand" id="playerHand"></div>
+      <button class="btn" id="playBtn" onclick="playerPlaySelected()" style="display:none;">Play Selected</button>
+    </div>
+  </div>
+
+  <div class="status-msg" id="statusMsg"></div>
+
+  <!-- Color Choice Modal -->
+  <div class="modal" id="colorModal">
+    <div class="modal-content">
+      <h2>Choose a Color</h2>
+      <div class="color-picker" id="colorPicker">
+        <div class="color-opt" style="background:var(--red);" onclick="selectColor('red')"></div>
+        <div class="color-opt" style="background:var(--blue);" onclick="selectColor('blue')"></div>
+        <div class="color-opt" style="background:var(--yellow);" onclick="selectColor('yellow')"></div>
+        <div class="color-opt" style="background:var(--green);" onclick="selectColor('green')"></div>
+        <div class="color-opt" style="background:var(--purple);" onclick="selectColor('purple')"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Win Modal -->
+  <div class="modal" id="winModal">
+    <div class="modal-content">
+      <h2 id="winTitle">You Win!</h2>
+      <p id="winDesc">Congratulations!</p>
+      <button class="btn" onclick="goHome()">Back to Menu</button>
+    </div>
+  </div>
+
+  <script>
+    const COLORS = ['red', 'blue', 'yellow', 'green', 'purple'];
+    const CARD_WEIGHTS = {
+      basic: 70,        // 1-12
+      action: 10,       // Reverse, Skip, +1, +2, +3, +4, +5
+      rareAction: 5,    // Skip All, +6, Double Skip
+      special: 4,       // Color Transform, +8, +10
+      wild: 15,         // Base Wild
+      wildAction: 5,    // Wild Reverse, Wild Skip, Wild +1..+5
+      wildRare: 2.5     // Wild +6, +8, +10, Wild Skip All, Pick up until Color
+    };
+
+    const ACTION_TYPES = ['Reverse', 'Skip', '+1', '+2', '+3', '+4', '+5'];
+    const RARE_ACTION_TYPES = ['Skip All', '+6', 'Double Skip'];
+    const SPECIAL_TYPES = ['Color Transform', '+8', '+10'];
+    const WILD_ACTION_TYPES = ['Wild Reverse', 'Wild Skip', 'Wild +1', 'Wild +2', 'Wild +3', 'Wild +4', 'Wild +5'];
+    const WILD_RARE_TYPES = ['Wild +6', 'Wild +8', 'Wild +10', 'Wild Skip All', 'Pick up until Color'];
+
+    let deck = [];
+    let players = []; // 0 is player, 1-3 are bots
+    let currentPlayerIndex = 0;
+    let turnDirection = 1; // 1 for clockwise, -1 for counter-clockwise
+    let discardPile = [];
+    let currentColor = '';
+    let currentNumber = '';
+    let selectedCards = [];
+    let botsCount = 1;
+
+    const UNOH_WINS_KEY = 'unoh_infinity_wins';
+    const UNOH_BOTS_KEY = 'unoh_infinity_bots';
+
+    function goHome() {
+      window.location.href = "../Main Menu";
+    }
+
+    function initMenu() {
+      const wins = localStorage.getItem(UNOH_WINS_KEY) || '0';
+      const bots = localStorage.getItem(UNOH_BOTS_KEY) || '1';
+      document.getElementById('unohWinsDisplay').textContent = wins;
+      document.getElementById('botCountSelect').value = bots;
+    }
+
+    function startGameFromMenu() {
+      botsCount = parseInt(document.getElementById('botCountSelect').value);
+      localStorage.setItem(UNOH_BOTS_KEY, botsCount);
+      document.getElementById('startMenuModal').style.display = 'none';
+      document.querySelector('.game-container').style.display = 'flex';
+      initGame();
+    }
+
+    // Call initMenu on load
+    window.addEventListener('DOMContentLoaded', initMenu);
+
+    // Fullscreen logic
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (fullscreenBtn) {
+      fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        } else {
+          if (document.exitFullscreen) document.exitFullscreen();
+        }
+      });
+    }
+
+    function createCard() {
+      const totalWeight = Object.values(CARD_WEIGHTS).reduce((a, b) => a + b, 0);
+      let rand = Math.random() * totalWeight;
+      
+      let type = '';
+      for (const [key, weight] of Object.entries(CARD_WEIGHTS)) {
+        if (rand < weight) {
+          type = key;
+          break;
+        }
+        rand -= weight;
+      }
+
+      const card = { type, color: '', value: '', label: '' };
+
+      if (['basic', 'action', 'rareAction', 'special'].includes(type)) {
+        card.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+      } else {
+        card.color = 'wild';
+      }
+
+      switch (type) {
+        case 'basic':
+          card.value = Math.floor(Math.random() * 12) + 1;
+          card.label = card.value.toString();
+          break;
+        case 'action':
+          card.value = ACTION_TYPES[Math.floor(Math.random() * ACTION_TYPES.length)];
+          card.label = card.value;
+          break;
+        case 'rareAction':
+          card.value = RARE_ACTION_TYPES[Math.floor(Math.random() * RARE_ACTION_TYPES.length)];
+          card.label = card.value;
+          break;
+        case 'special':
+          card.value = SPECIAL_TYPES[Math.floor(Math.random() * SPECIAL_TYPES.length)];
+          card.label = card.value;
+          break;
+        case 'wild':
+          card.value = 'Wild';
+          card.label = 'Wild';
+          break;
+        case 'wildAction':
+          card.value = WILD_ACTION_TYPES[Math.floor(Math.random() * WILD_ACTION_TYPES.length)];
+          card.label = card.value;
+          break;
+        case 'wildRare':
+          card.value = WILD_RARE_TYPES[Math.floor(Math.random() * WILD_RARE_TYPES.length)];
+          card.label = card.value;
+          break;
+      }
+      return card;
+    }
+
+    function initGame() {
+      players = [{ name: 'Player', hand: [], isBot: false }];
+      for (let i = 1; i <= botsCount; i++) {
+        players.push({ name: `Bot ${i}`, hand: [], isBot: true });
+      }
+
+      // Initial deal
+      for (let i = 0; i < 7; i++) {
+        players.forEach(p => p.hand.push(createCard()));
+      }
+
+      // First card to discard pile (must not be special/wild for simplicity)
+      let firstCard = createCard();
+      while (firstCard.color === 'wild' || isNaN(firstCard.value)) {
+        firstCard = createCard();
+      }
+      discardPile.push(firstCard);
+      currentColor = firstCard.color;
+      currentNumber = firstCard.value;
+
+      renderBots();
+      renderPlayerHand();
+      renderDiscardPile();
+      updateTurnIndicator();
+    }
+
+    function renderBots() {
+      const container = document.getElementById('botsContainer');
+      container.innerHTML = '';
+      players.slice(1).forEach((bot, idx) => {
+        const botArea = document.createElement('div');
+        botArea.className = `bot-area ${currentPlayerIndex === idx + 1 ? 'active' : ''}`;
+        botArea.innerHTML = `
+          <div class="bot-name">${bot.name} (${bot.hand.length})</div>
+          <div class="bot-hand">
+            ${Array(bot.hand.length).fill('<div class="card-back"></div>').join('')}
+          </div>
+        `;
+        container.appendChild(botArea);
+      });
+    }
+
+    function renderDiscardPile() {
+      const pileEl = document.getElementById('discardPile');
+      pileEl.innerHTML = '';
+      if (discardPile.length > 0) {
+        const topCard = discardPile[discardPile.length - 1];
+        const cardEl = document.createElement('div');
+        cardEl.className = `card card-${currentColor} card-play`;
+        cardEl.innerHTML = `
+          <div class="card-top-left">${topCard.label}</div>
+          <div>${topCard.label}</div>
+          <div class="card-type-label">${topCard.type}</div>
+        `;
+        pileEl.appendChild(cardEl);
+      }
+    }
+
+    function isPlayable(card) {
+      if (currentPlayerIndex !== 0) return false;
+      
+      // Base rules for a single card
+      if (card.color === 'wild') return true;
+      if (card.color === currentColor) return true;
+      if (card.value === currentNumber) return true;
+      
+      return false;
+    }
+
+    function toggleSelectCard(index) {
+      if (currentPlayerIndex !== 0) return;
+      const card = players[0].hand[index];
+      
+      if (selectedCards.includes(index)) {
+        selectedCards = selectedCards.filter(i => i !== index);
+      } else {
+        // If we already have selection, new card must match the value
+        if (selectedCards.length > 0) {
+          const firstSelected = players[0].hand[selectedCards[0]];
+          if (card.value === firstSelected.value) {
+            selectedCards.push(index);
+          } else {
+            // If it's playable on its own, replace selection
+            if (isPlayable(card)) {
+              selectedCards = [index];
+            } else {
+              // Check if it's part of a group where at least one is playable
+              const value = card.value;
+              const hasPlayableInGroup = players[0].hand.some(c => c.value === value && isPlayable(c));
+              if (hasPlayableInGroup) {
+                selectedCards = [index];
+              }
+            }
+          }
+        } else {
+          // No selection, check if playable
+          if (isPlayable(card)) {
+            selectedCards = [index];
+          } else {
+            // Check if it's part of a group where at least one is playable
+            const value = card.value;
+            const hasPlayableInGroup = players[0].hand.some(c => c.value === value && isPlayable(c));
+            if (hasPlayableInGroup) {
+              selectedCards = [index];
+            }
+          }
+        }
+      }
+      renderPlayerHand();
+    }
+
+    function renderPlayerHand() {
+      const handEl = document.getElementById('playerHand');
+      handEl.innerHTML = '';
+      
+      // Determine which cards are playable/glow
+      const hand = players[0].hand;
+      const playableValues = new Set();
+      hand.forEach(c => {
+        if (isPlayable(c)) playableValues.add(c.value);
+      });
+
+      hand.forEach((card, index) => {
+        const cardEl = document.createElement('div');
+        const canBePartOfPlay = playableValues.has(card.value) || card.color === 'wild';
+        
+        cardEl.className = `card card-${card.color} ${canBePartOfPlay ? 'playable' : ''} ${selectedCards.includes(index) ? 'selected' : ''}`;
+        cardEl.innerHTML = `
+          <div class="card-top-left">${card.label}</div>
+          <div>${card.label}</div>
+          <div class="card-type-label">${card.type}</div>
+        `;
+        cardEl.onclick = () => toggleSelectCard(index);
+        handEl.appendChild(cardEl);
+      });
+      
+      // Only show play button if the group is actually playable (at least one matches current)
+      const isGroupPlayable = selectedCards.length > 0 && selectedCards.some(i => isPlayable(players[0].hand[i]));
+      document.getElementById('playBtn').style.display = isGroupPlayable ? 'block' : 'none';
+    }
+
+    function playerPlaySelected() {
+      if (selectedCards.length === 0) return;
+      
+      const cardsToPlay = selectedCards.map(i => players[0].hand[i]);
+      // Remove from hand (sort descending to not mess up indices)
+      selectedCards.sort((a, b) => b - a).forEach(i => players[0].hand.splice(i, 1));
+      
+      playCards(cardsToPlay);
+      selectedCards = [];
+    }
+
+    function playCards(cards) {
+      const lastCard = cards[cards.length - 1];
+      discardPile.push(...cards);
+      
+      currentColor = lastCard.color;
+      currentNumber = lastCard.value;
+
+      // Special effects
+      cards.forEach(card => applyCardEffect(card));
+
+      if (checkWin()) return;
+
+      if (currentColor === 'wild') {
+        if (players[currentPlayerIndex].isBot) {
+          currentColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+          nextTurn();
+        } else {
+          showColorModal();
+        }
+      } else {
+        nextTurn();
+      }
+    }
+
+    function applyCardEffect(card) {
+      const effect = card.value;
+      const nextPlayerIdx = (currentPlayerIndex + turnDirection + players.length) % players.length;
+
+      if (effect === 'Reverse' || effect === 'Wild Reverse') {
+        turnDirection *= -1;
+        showStatus('REVERSE!');
+      } else if (effect === 'Skip' || effect === 'Wild Skip') {
+        skipTurns(1);
+        showStatus('SKIP!');
+      } else if (effect === 'Double Skip') {
+        skipTurns(2);
+        showStatus('DOUBLE SKIP!');
+      } else if (effect === 'Skip All' || effect === 'Wild Skip All') {
+        skipTurns(players.length - 1);
+        showStatus('SKIP ALL!');
+      } else if (effect.includes('+')) {
+        const amount = parseInt(effect.match(/\d+/)[0]);
+        drawForPlayer(nextPlayerIdx, amount);
+        showStatus(`+${amount}!`);
+        skipTurns(1);
+      } else if (effect === 'Color Transform') {
+        if (!players[currentPlayerIndex].isBot) {
+          showStatus('TRANSFORMING...');
+          setTimeout(showColorTransformModal, 1000);
+        } else {
+          // Bot logic for color transform
+          const counts = {};
+          players[currentPlayerIndex].hand.forEach(c => {
+            if (c.color !== 'wild') counts[c.color] = (counts[c.color] || 0) + 1;
+          });
+          const bestColor = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b, COLORS[0]);
+          players[currentPlayerIndex].hand.forEach(c => {
+            if (c.color !== 'wild') c.color = bestColor;
+          });
+        }
+      } else if (effect === 'Pick up until Color') {
+        // This is a wild card effect, it will be handled when color is selected
+        // Or if it's a bot, it happens now.
+        if (players[currentPlayerIndex].isBot) {
+          const targetColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+          drawUntilColor(nextPlayerIdx, targetColor);
+          showStatus(`PICK UNTIL ${targetColor.toUpperCase()}!`);
+          skipTurns(1);
+        }
+      }
+    }
+
+    function drawUntilColor(playerIdx, color) {
+      let drawn = [];
+      let found = false;
+      while (!found) {
+        const c = createCard();
+        drawn.push(c);
+        if (c.color === color) found = true;
+        if (drawn.length > 50) break; // Safety
+      }
+      players[playerIdx].hand.push(...drawn);
+    }
+
+    function showColorTransformModal() {
+      const modal = document.getElementById('colorModal');
+      modal.querySelector('h2').textContent = "Transform cards to:";
+      modal.style.display = 'flex';
+      // Temporarily override selectColor
+      const oldSelect = selectColor;
+      window.selectColor = (color) => {
+        players[0].hand.forEach(c => {
+          if (c.color !== 'wild') c.color = color;
+        });
+        document.getElementById('colorModal').style.display = 'none';
+        window.selectColor = oldSelect;
+        modal.querySelector('h2').textContent = "Choose a Color";
+        nextTurn();
+      };
+    }
+
+    function skipTurns(n) {
+      for(let i=0; i<n; i++) {
+        currentPlayerIndex = (currentPlayerIndex + turnDirection + players.length) % players.length;
+      }
+    }
+
+    function drawForPlayer(playerIdx, amount) {
+      for (let i = 0; i < amount; i++) {
+        players[playerIdx].hand.push(createCard());
+      }
+    }
+
+    function playerDraw() {
+      if (currentPlayerIndex !== 0) return;
+      
+      // Check if player can actually play anything
+      const playable = players[0].hand.some(c => isPlayable(c));
+      
+      players[0].hand.push(createCard());
+      showStatus('Drawing...');
+      
+      setTimeout(() => {
+        renderPlayerHand();
+        // After drawing, if still no playable cards, move to next turn
+        // Or if the drawn card is playable, let them play it (standard Uno)
+        // For simplicity, we'll just end turn if they had to draw
+        nextTurn();
+      }, 500);
+    }
+
+    function nextTurn() {
+      currentPlayerIndex = (currentPlayerIndex + turnDirection + players.length) % players.length;
+      updateTurnIndicator();
+      renderBots();
+      renderPlayerHand();
+      renderDiscardPile();
+
+      if (players[currentPlayerIndex].isBot) {
+        setTimeout(botTurn, 1500);
+      }
+    }
+
+    function botTurn() {
+      const bot = players[currentPlayerIndex];
+      // Try to find same number groups
+      const hand = bot.hand;
+      let playableGroups = {};
+      
+      hand.forEach((card, idx) => {
+        if (card.color === currentColor || card.value === currentNumber || card.color === 'wild') {
+          if (!playableGroups[card.value]) playableGroups[card.value] = [];
+          playableGroups[card.value].push(idx);
+        }
+      });
+
+      const values = Object.keys(playableGroups);
+      if (values.length > 0) {
+        // Prefer playing larger groups
+        const randomValue = values.reduce((a, b) => playableGroups[a].length > playableGroups[b].length ? a : b);
+        const indices = playableGroups[randomValue];
+        const cardsToPlay = indices.map(i => bot.hand[i]);
+        
+        // Remove from hand
+        indices.sort((a, b) => b - a).forEach(i => bot.hand.splice(i, 1));
+        playCards(cardsToPlay);
+      } else {
+        // Draw
+        const c = createCard();
+        bot.hand.push(c);
+        showStatus(`${bot.name} draws`);
+        setTimeout(nextTurn, 1000);
+      }
+    }
+
+    function showColorModal() {
+      document.getElementById('colorModal').style.display = 'flex';
+    }
+
+    function selectColor(color) {
+      currentColor = color;
+      document.getElementById('colorModal').style.display = 'none';
+      
+      const lastCard = discardPile[discardPile.length - 1];
+      if (lastCard.value === 'Pick up until Color') {
+        const nextPlayerIdx = (currentPlayerIndex + turnDirection + players.length) % players.length;
+        drawUntilColor(nextPlayerIdx, color);
+        showStatus(`PICK UNTIL ${color.toUpperCase()}!`);
+        skipTurns(1);
+      }
+      
+      nextTurn();
+    }
+
+    function showStatus(msg) {
+      const el = document.getElementById('statusMsg');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 1000);
+    }
+
+    function updateTurnIndicator() {
+      const el = document.getElementById('turnIndicator');
+      el.textContent = players[currentPlayerIndex].isBot ? `${players[currentPlayerIndex].name}'s Turn` : "Your Turn";
+      el.style.color = players[currentPlayerIndex].isBot ? 'white' : 'var(--accent)';
+    }
+
+    function checkWin() {
+      const winner = players.find(p => p.hand.length === 0);
+      if (winner) {
+        const winModal = document.getElementById('winModal');
+        const winTitle = document.getElementById('winTitle');
+        const winDesc = document.getElementById('winDesc');
+        
+        if (!winner.isBot) {
+          winTitle.textContent = "YOU WIN!";
+          winDesc.textContent = "You've mastered UnOh Infinity!";
+          let wins = parseInt(localStorage.getItem(UNOH_WINS_KEY) || '0');
+          localStorage.setItem(UNOH_WINS_KEY, wins + 1);
+        } else {
+          winTitle.textContent = "GAME OVER";
+          winDesc.textContent = `${winner.name} won this time.`;
+        }
+        
+        winModal.style.display = 'flex';
+        return true;
+      }
+      return false;
+    }
+
+    // initGame(); removed - called from menu
+  </script>
+</body>
+</html>
