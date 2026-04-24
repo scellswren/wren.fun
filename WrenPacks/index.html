@@ -1316,42 +1316,6 @@
       z-index: 5;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-    .char-actions {
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      display: flex;
-      gap: 6px;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 5;
-    }
-    .character:hover .char-actions {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .char-actions button {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9em;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
-      color: white;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .char-actions button:hover {
-      background: var(--accent);
-      transform: scale(1.15);
-      border-color: white;
-    }
-    .char-actions .starBtn.starred { color: gold; border-color: gold; }
 
     .ownedBadge {
       position: absolute;
@@ -2332,6 +2296,10 @@
             <div class="dropdown-content">
               <div class="dropdown-item active" data-value="normal" onclick="selectPackOption('normal', 'Normal Pack')">Normal Pack</div>
               <div class="dropdown-item" data-value="orin" onclick="selectPackOption('orin', 'The Mind Of Orin Pack *Goofy*')">The Mind Of Orin Pack *Goofy*</div>
+              <div class="dropdown-item locked" style="opacity:0.5; cursor:not-allowed; display:flex; justify-content:space-between; align-items:center; background: rgba(0,0,0,0.2);">
+                <span>Bald Cena Pack</span>
+                <span style="font-size:0.65em; background:rgba(255,0,0,0.3); color:#ff8888; padding:3px 8px; border-radius:6px; font-weight:900; letter-spacing:1px;">COMING SOON</span>
+              </div>
             </div>
           </div>
         </div>
@@ -2666,7 +2634,8 @@
 
     const packs = [
       { id: "normal", name: "Normal Pack", color: "linear-gradient(135deg, #333, #000)" },
-      { id: "orin", name: "The Mind Of Orin Pack *Goofy*", color: "linear-gradient(135deg, #ff8c00, #ff4500)" }
+      { id: "orin", name: "The Mind Of Orin Pack *Goofy*", color: "linear-gradient(135deg, #ff8c00, #ff4500)" },
+      { id: "baldcena", name: "Bald Cena Pack", color: "linear-gradient(135deg, #444, #222)", locked: true }
     ];
 
     const items = [
@@ -3928,10 +3897,8 @@
           <p class="char-name ${i.rarity}">${displayName}</p>
         </div>
         ${isOwned && !indexMode ? `
-        <div class="char-actions">
           <button class="starBtn ${isStarred ? 'starred' : ''}" onclick="event.stopPropagation(); toggleStar('${i.name}', this); playSound()" title="${isStarred ? 'Unstar' : 'Star'}">★</button>
           <button class="deleteBtn" onclick="event.stopPropagation(); askDelete('${i.name}'); playSound()" title="Delete">✕</button>
-        </div>
         ` : ''}
       `;
       
