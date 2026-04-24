@@ -232,16 +232,19 @@
       color: #7c3aed;
     }
     .dropdown-item.active {
-      background: #00ff88;
-      color: #000000;
+      background: var(--active-bg, #00ff88);
+      color: var(--active-text, #000000);
     }
+    .dropdown-item.active[data-value="normal"] { --active-bg: #ffffff; --active-text: #000; }
+    .dropdown-item.active[data-value="orin"] { --active-bg: #ff8c00; --active-text: #fff; }
+    .dropdown-item.active[data-value="all"] { --active-bg: #7c3aed; --active-text: #fff; }
     
     body.light-mode .dropdown-btn { background: #fff !important; color: #111 !important; border-color: #7c3aed; }
     body.light-mode .dropdown-btn::after { color: #111; }
     body.light-mode .dropdown-content { background: #fff; }
     body.light-mode .dropdown-item { color: #222; background: white; }
     body.light-mode .dropdown-item:hover { background: #f8f8f8; }
-    body.light-mode .dropdown-item.active { background: #00ff88; color: #000; }
+    body.light-mode .dropdown-item.active { background: var(--active-bg, #00ff88); color: var(--active-text, #000); }
 
     #homeText {
       position:    absolute;
@@ -973,50 +976,47 @@
 
     .character {
       position: relative;
-      background: var(--card-bg);
+      background: linear-gradient(180deg, var(--card-bg), rgba(255,255,255,0.01));
       border: 1px solid var(--card-border);
-      border-radius: 14px;
+      border-radius: 20px;
       overflow: hidden;
       cursor: pointer;
-      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
       font-family: 'Rubik', sans-serif;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
     }
-    .character.locked {
-      filter: grayscale(1) brightness(0.7);
-      opacity: 0.6;
-      cursor: default;
-    }
-    .character.locked:hover {
-      transform: none;
-      box-shadow: none;
-      border-color: var(--card-border);
-    }
-    .lock-overlay {
+    .character::before {
+      content: '';
       position: absolute;
       inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3.5em;
-      z-index: 10;
-      pointer-events: none;
-      text-shadow: 0 0 20px rgba(0,0,0,0.5);
+      background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
     }
-    .character:hover {
-      transform: translateY(-5px) scale(1.02);
-      border-color: var(--card-border-hover);
-      box-shadow: 0 10px 32px rgba(0,0,0,0.45);
+    .character:not(.locked):hover::before { opacity: 1; }
+    
+    .character.locked {
+      filter: grayscale(1) brightness(0.5);
+      opacity: 0.4;
+      cursor: default;
     }
-    .character:hover .characterRarityGlow { opacity: 1; }
+    .character:not(.locked):hover {
+      transform: translateY(-12px) scale(1.05);
+      border-color: var(--accent);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.6), 0 0 30px rgba(124, 58, 237, 0.3);
+    }
+    .character:not(.locked):hover .characterRarityGlow { opacity: 0.5; }
     .characterRarityGlow {
       position: absolute;
       inset: 0;
-      border-radius: 14px;
+      border-radius: 20px;
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: opacity 0.5s;
       pointer-events: none;
+      box-shadow: inset 0 0 40px currentColor;
     }
 
     .char-img-wrap {
@@ -1024,49 +1024,115 @@
       width: 100%;
       aspect-ratio: 1 / 1;
       overflow: hidden;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      background: rgba(0,0,0,0.2);
     }
     .char-img-wrap img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
-      transition: transform 0.3s ease;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .character:hover .char-img-wrap img { transform: scale(1.06); }
+    .character:not(.locked):hover .char-img-wrap img { transform: scale(1.15); }
 
     .char-info {
-      padding: 10px 12px 12px;
+      padding: 14px 16px 16px;
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 5px;
+      background: rgba(0,0,0,0.15);
+      position: relative;
+      z-index: 2;
     }
     .char-name {
-      font-size: 0.82em;
-      font-weight: bold;
-      letter-spacing: 0.4px;
+      font-size: 1em;
+      font-weight: 900;
+      letter-spacing: 0.8px;
       margin: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      color: var(--text);
+      text-transform: uppercase;
     }
     .char-rarity-label {
-      font-size: 0.68em;
+      font-size: 0.72em;
+      font-weight: 900;
       opacity: 0.6;
       margin: 0;
-      letter-spacing: 0.5px;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
+      color: var(--muted);
     }
 
     .qtyBadge {
       position: absolute;
-      top: 8px;
-      right: 8px;
-      background: rgba(0,0,0,0.72);
-      border: 1px solid rgba(255,255,255,0.2);
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.25);
       border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.75em;
+      font-weight: 900;
+      color: white;
+      z-index: 5;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .char-actions {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      display: flex;
+      gap: 6px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 5;
+    }
+    .character:hover .char-actions {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .char-actions button {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9em;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .char-actions button:hover {
+      background: var(--accent);
+      transform: scale(1.15);
+      border-color: white;
+    }
+    .char-actions .starBtn.starred { color: gold; border-color: gold; }
+
+    .ownedBadge {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(74, 222, 128, 0.85);
+      backdrop-filter: blur(4px);
+      color: #000;
+      font-size: 0.65em;
+      font-weight: 900;
       padding: 2px 8px;
-      font-size: 0.72em;
+      border-radius: 10px;
+      z-index: 5;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
       font-weight: bold;
       color: rgba(255,255,255,0.9);
       letter-spacing: 0.5px;
@@ -2290,14 +2356,13 @@
       { name: "OGWrenIsOld",       display: "OG WrenIsOld",             rarity: "Null",      pack: "normal" },
 
       // The Mind Of Orin Pack *Goofy*
-      { name: "Blake",             display: "Blake",                    rarity: "Uncommon",  pack: "orin" },
-      { name: "SantaBlake",        display: "Blake's Sleigh",           rarity: "Omega",     pack: "orin" },
       { name: "TheMindOfOrin",     display: "The Mind Of Orin",        rarity: "Common",    pack: "orin" },
       { name: "VGACable",          display: "VGA Cable",               rarity: "Common",    pack: "orin" },
       { name: "Windows8.1",        display: "Windows 8.1",             rarity: "Common",    pack: "orin" },
       { name: "WindowsVista",      display: "Windows Vista",           rarity: "Uncommon",  pack: "orin" },
       { name: "OrinLogo",          display: "Orin Profile",            rarity: "Uncommon",  pack: "orin" },
       { name: "YoutubeThumbnailOrin", display: "Youtube Thumbnail Orin", rarity: "Uncommon",  pack: "orin" },
+      { name: "Blake",             display: "Blake",                    rarity: "Uncommon",  pack: "orin" },
       { name: "SCP-ORIN",          display: "SCP-ORIN",                rarity: "Rare",      pack: "orin" },
       { name: "WindowsXP",         display: "Windows XP",              rarity: "Rare",      pack: "orin" },
       { name: "RickRollOrin",      display: "Rick Roll Orin",          rarity: "Rare",      pack: "orin" },
@@ -2306,6 +2371,7 @@
       { name: "Windows7",          display: "Windows 7",               rarity: "Legendary", pack: "orin" },
       { name: "OGOrin",            display: "OG Orin",                 rarity: "Legendary", pack: "orin" },
       { name: "Windows0989.9",     display: "Windows 0989.9",          rarity: "Omega",     pack: "orin" },
+      { name: "SantaBlake",        display: "Blake's Sleigh",           rarity: "Omega",     pack: "orin" },
       { name: "ehfrkjeilopfijbuhrf", display: "ehfrkjeilopfijbuhrf",    rarity: "Null",      pack: "orin" },
 
       // Voids (Global / No specific pack)
@@ -2935,20 +3001,36 @@
       }
       // Skip reveal if canSkipReveal is true and not clicking on dropdown
       if (canSkipReveal && !e.target.closest('.custom-dropdown')) {
-        clearTimeout(skipRevealTimeout);
         canSkipReveal = false;
         document.getElementById("skipHint").classList.remove("visible");
-        const inner = document.getElementById("resultInner");
-        if (inner) inner.classList.add("explodeOut");
-        setTimeout(() => {
-          document.getElementById("result").style.display = "none";
-          canOpen = true;
-          const packEl = document.querySelector(".pack");
-          if (packEl) {
-            packEl.style.pointerEvents = "auto";
-            packEl.style.opacity = "1";
+        
+        // Handle all possible reveal modals
+        const results = [
+          { el: document.getElementById("result"), inner: document.getElementById("resultInner"), anim: "explodeOut" },
+          { el: document.getElementById("rareCardResult"), inner: document.getElementById("rareCardInner"), anim: "explodeOut" },
+          { el: document.getElementById("uncommonCardResult"), inner: document.getElementById("uncommonCardInner"), anim: "explodeOut" },
+          { el: document.getElementById("epicCardResult"), inner: document.getElementById("epicCardInner"), anim: "epicCardExplode" },
+          { el: document.getElementById("legendaryCardResult"), inner: document.getElementById("legendaryCardInner"), anim: "legendaryCardExplode" },
+          { el: document.getElementById("omegaReveal"), inner: null, anim: null },
+          { el: document.getElementById("nullReveal"), inner: document.getElementById("nullImg"), anim: "nullExplodeOut" },
+          { el: document.getElementById("legendaryReveal"), inner: null, anim: null }
+        ];
+
+        results.forEach(r => {
+          if (r.el && r.el.style.display !== "none") {
+            if (r.inner && r.anim) r.inner.classList.add(r.anim);
+            setTimeout(() => {
+              r.el.style.display = "none";
+              if (r.inner && r.anim) r.inner.classList.remove(r.anim);
+              // Clean up specific reveal effects
+              document.querySelectorAll(".gold-confetti-piece, .violet-confetti-piece").forEach(p => p.remove());
+              const pContainers = ["omegaParticles", "nullParticles", "legendaryParticles", "voidParticles"];
+              pContainers.forEach(id => { const c = document.getElementById(id); if (c) c.innerHTML = ""; });
+              
+              resetPack(100);
+            }, 300);
           }
-        }, 300);
+        });
       }
     });
 
@@ -3163,22 +3245,31 @@
               <img src="${item.name}.jpg" alt="${item.display}">
             </div>`;
           result.style.display = "block";
+          canOpen = false; // Ensure it stays false during animation
+
           if (!isNew) {
+            // Skip logic: enabled after 1 second
             setTimeout(() => {
               canSkipReveal = true;
               document.getElementById("skipHint").classList.add("visible");
             }, 1000);
           }
 
+          // Natural ending
           setTimeout(() => {
             const inner = document.getElementById("resultInner");
-            if (inner) inner.classList.add("explodeOut");
+            if (inner && !inner.classList.contains("explodeOut")) {
+              inner.classList.add("explodeOut");
+            }
           }, 1500);
+          
           setTimeout(() => {
-            result.style.display = "none";
-            document.getElementById("skipHint").classList.remove("visible");
-            canSkipReveal = false;
-            resetPack(100);
+            if (result.style.display !== "none") {
+              result.style.display = "none";
+              document.getElementById("skipHint").classList.remove("visible");
+              canSkipReveal = false;
+              resetPack(100);
+            }
           }, 2100);
         } else {
           resetPack(100);
@@ -3197,18 +3288,31 @@
       const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
       name.innerHTML = item.display + " (Legendary)" + newBadge;
       el.style.display = "block";
+      canOpen = false;
+
+      if (!isNew) {
+        setTimeout(() => {
+          canSkipReveal = true;
+          document.getElementById("skipHint").classList.add("visible");
+        }, 1000);
+      }
 
       setTimeout(() => spawnGoldConfetti(), 400);
 
       setTimeout(() => {
         const inner = document.getElementById("legendaryCardInner");
-        if (inner) inner.classList.add("legendaryCardExplode");
+        if (inner && !inner.classList.contains("legendaryCardExplode")) inner.classList.add("legendaryCardExplode");
       }, 3200);
       setTimeout(() => {
-        el.style.display = "none";
-        const inner = document.getElementById("legendaryCardInner");
-        if (inner) inner.classList.remove("legendaryCardExplode");
-        document.querySelectorAll(".gold-confetti-piece").forEach(p => p.remove());
+        if (el.style.display !== "none") {
+          el.style.display = "none";
+          const inner = document.getElementById("legendaryCardInner");
+          if (inner) inner.classList.remove("legendaryCardExplode");
+          document.querySelectorAll(".gold-confetti-piece").forEach(p => p.remove());
+          document.getElementById("skipHint").classList.remove("visible");
+          canSkipReveal = false;
+          resetPack(100);
+        }
       }, 3800);
     }
 
@@ -3391,7 +3495,6 @@
       const isStarred = starred.includes(i.name);
       const card = document.createElement("div");
       
-      // In index mode, we don't grey out if not owned, just show owned badge
       const applyLockedStyle = isLocked && !indexMode;
       card.className = "character" + (applyLockedStyle ? " locked" : "");
       
@@ -3405,20 +3508,22 @@
       }
 
       card.innerHTML = `
-        ${isOwned ? `<div class="characterRarityGlow" style="box-shadow: inset 0 0 20px ${glowColor};"></div>` : ''}
+        <div class="characterRarityGlow" style="color: ${glowColor};"></div>
         ${applyLockedStyle ? `<div class="lock-overlay">🔒</div>` : ''}
         <div class="char-img-wrap">
           <img src="${displayImg}" alt="${displayName}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\'><text x=\\'50%\\' y=\\'50%\\' font-size=\\'40\\' text-anchor=\\'middle\\' dy=\\'.3em\\' fill=\\'white\\'>?</text></svg>'">
           ${isOwned ? `<span class="qtyBadge">×${qty}</span>` : ''}
-          ${indexMode && isOwned ? '<span class="ownedBadge">✓ Owned</span>' : ''}
+          ${indexMode && isOwned ? '<span class="ownedBadge">✓</span>' : ''}
         </div>
         <div class="char-info">
-          <p class="char-name ${i.rarity}">${displayName}</p>
           <p class="char-rarity-label ${i.rarity}">${i.rarity}</p>
+          <p class="char-name ${i.rarity}">${displayName}</p>
         </div>
         ${isOwned && !indexMode ? `
-        <button class="starBtn ${isStarred ? 'starred' : ''}" onclick="event.stopPropagation(); toggleStar('${i.name}', this); playSound()" title="${isStarred ? 'Unstar this character' : 'Star this character'}">★</button>
-        <button class="deleteBtn" onclick="event.stopPropagation(); askDelete('${i.name}'); playSound()" title="Delete some of these">✕</button>
+        <div class="char-actions">
+          <button class="starBtn ${isStarred ? 'starred' : ''}" onclick="event.stopPropagation(); toggleStar('${i.name}', this); playSound()" title="${isStarred ? 'Unstar' : 'Star'}">★</button>
+          <button class="deleteBtn" onclick="event.stopPropagation(); askDelete('${i.name}'); playSound()" title="Delete">✕</button>
+        </div>
         ` : ''}
       `;
       
@@ -3624,16 +3729,30 @@
       const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
       name.innerHTML = item.display + " (Epic)" + newBadge;
       el.style.display = "block";
+      canOpen = false;
+
+      if (!isNew) {
+        setTimeout(() => {
+          canSkipReveal = true;
+          document.getElementById("skipHint").classList.add("visible");
+        }, 1000);
+      }
+
       setTimeout(() => spawnVioletConfetti(), 350);
       setTimeout(() => {
         const inner = document.getElementById("epicCardInner");
-        if (inner) inner.classList.add("epicCardExplode");
+        if (inner && !inner.classList.contains("epicCardExplode")) inner.classList.add("epicCardExplode");
       }, 2400);
       setTimeout(() => {
-        el.style.display = "none";
-        const inner = document.getElementById("epicCardInner");
-        if (inner) inner.classList.remove("epicCardExplode");
-        document.querySelectorAll(".violet-confetti-piece").forEach(p => p.remove());
+        if (el.style.display !== "none") {
+          el.style.display = "none";
+          const inner = document.getElementById("epicCardInner");
+          if (inner) inner.classList.remove("epicCardExplode");
+          document.querySelectorAll(".violet-confetti-piece").forEach(p => p.remove());
+          document.getElementById("skipHint").classList.remove("visible");
+          canSkipReveal = false;
+          resetPack(100);
+        }
       }, 3000);
     }
 
@@ -3647,13 +3766,26 @@
       const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
       name.innerHTML = item.display + " (Rare)" + newBadge;
       el.style.display = "block";
+      canOpen = false;
+
+      if (!isNew) {
+        setTimeout(() => {
+          canSkipReveal = true;
+          document.getElementById("skipHint").classList.add("visible");
+        }, 1000);
+      }
+
       setTimeout(() => {
-        if (inner) inner.classList.add("explodeOut");
+        if (inner && !inner.classList.contains("explodeOut")) inner.classList.add("explodeOut");
       }, 1500);
       setTimeout(() => {
-        el.style.display = "none";
-        if (inner) inner.classList.remove("explodeOut");
-        canOpen = true;
+        if (el.style.display !== "none") {
+          el.style.display = "none";
+          if (inner) inner.classList.remove("explodeOut");
+          document.getElementById("skipHint").classList.remove("visible");
+          canSkipReveal = false;
+          resetPack(100);
+        }
       }, 2100);
     }
 
@@ -3667,13 +3799,26 @@
       const newBadge = isNew ? '<span class="new-badge">✦ NEW</span>' : '';
       name.innerHTML = item.display + " (Uncommon)" + newBadge;
       el.style.display = "block";
+      canOpen = false;
+
+      if (!isNew) {
+        setTimeout(() => {
+          canSkipReveal = true;
+          document.getElementById("skipHint").classList.add("visible");
+        }, 1000);
+      }
+
       setTimeout(() => {
-        if (inner) inner.classList.add("explodeOut");
+        if (inner && !inner.classList.contains("explodeOut")) inner.classList.add("explodeOut");
       }, 1500);
       setTimeout(() => {
-        el.style.display = "none";
-        if (inner) inner.classList.remove("explodeOut");
-        canOpen = true;
+        if (el.style.display !== "none") {
+          el.style.display = "none";
+          if (inner) inner.classList.remove("explodeOut");
+          document.getElementById("skipHint").classList.remove("visible");
+          canSkipReveal = false;
+          resetPack(100);
+        }
       }, 2100);
     }
 
@@ -3783,11 +3928,25 @@
       nameEl.textContent = "★ " + item.display.toUpperCase() + (isNew ? " ★  ✦ NEW" : " ★");
       reveal.style.display = "flex";
       reveal.classList.add("active-reveal");
+      canOpen = false;
+
+      if (!isNew) {
+        setTimeout(() => {
+          canSkipReveal = true;
+          document.getElementById("skipHint").classList.add("visible");
+        }, 1000);
+      }
+
       spawnOmegaParticles();
       setTimeout(() => {
-        reveal.style.display = "none";
-        reveal.classList.remove("active-reveal");
-        document.getElementById("omegaParticles").innerHTML = "";
+        if (reveal.style.display !== "none") {
+          reveal.style.display = "none";
+          reveal.classList.remove("active-reveal");
+          document.getElementById("omegaParticles").innerHTML = "";
+          document.getElementById("skipHint").classList.remove("visible");
+          canSkipReveal = false;
+          resetPack(100);
+        }
       }, 8000);
     }
 
@@ -3826,6 +3985,15 @@
       nameEl.textContent = "★ " + item.display.toUpperCase() + (isNew ? " ★  ✦ NEW" : " ★");
       reveal.style.display = "flex";
       reveal.classList.add("active-reveal");
+      canOpen = false;
+
+      if (!isNew) {
+        setTimeout(() => {
+          canSkipReveal = true;
+          document.getElementById("skipHint").classList.add("visible");
+        }, 1000);
+      }
+
       spawnNullParticles();
       
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -3853,14 +4021,22 @@
       oscillator.stop(audioCtx.currentTime + 15);
 
       setTimeout(() => {
-        imgEl.classList.add("nullExplodeOut");
+        if (reveal.style.display !== "none") {
+          imgEl.classList.add("nullExplodeOut");
+        }
       }, 13500);
 
       setTimeout(() => {
-        reveal.style.display = "none";
-        reveal.classList.remove("active-reveal");
-        imgEl.classList.remove("nullExplodeOut");
-        document.getElementById("nullParticles").innerHTML = "";
+        if (reveal.style.display !== "none") {
+          reveal.style.display = "none";
+          reveal.classList.remove("active-reveal");
+          imgEl.classList.remove("nullExplodeOut");
+          document.getElementById("nullParticles").innerHTML = "";
+          document.getElementById("skipHint").classList.remove("visible");
+          canSkipReveal = false;
+          resetPack(100);
+          oscillator.stop();
+        }
       }, 15000);
     }
 
