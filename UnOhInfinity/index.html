@@ -327,24 +327,36 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   font-family:'Fredoka One',cursive;font-size:1.7em;
   position:relative;border:3px solid rgba(255,255,255,0.3);
-  box-shadow:0 4px 15px rgba(0,0,0,0.4);transition:all 0.15s;cursor:default;user-select:none;overflow:hidden;
+  box-shadow:0 6px 15px rgba(0,0,0,0.4), inset 0 0 25px rgba(0,0,0,0.15);
+  transition:all 0.15s;cursor:default;user-select:none;overflow:hidden;
 }
-.game-card::before{content:'';position:absolute;inset:6px;border-radius:8px;border:2px solid rgba(255,255,255,0.2);pointer-events:none;}
-.game-card .card-tl{position:absolute;top:7px;left:9px;font-size:0.44em;line-height:1.1;text-align:left;}
-.game-card .card-br{position:absolute;bottom:7px;right:9px;font-size:0.44em;line-height:1.1;transform:rotate(180deg);text-align:left;}
-.game-card .card-center{font-size:1em;z-index:1;text-align:center;line-height:1;}
-.game-card .card-shine{position:absolute;top:-50%;left:-60%;width:35%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transform:skewX(-20deg);pointer-events:none;animation:cardShine 4s ease-in-out infinite;}
-@keyframes cardShine{0%,100%{left:-60%}50%{left:120%}}
+.game-card::before{
+  content:'';position:absolute;inset:5px;border-radius:10px;
+  border:2px solid rgba(255,255,255,0.2);pointer-events:none;
+}
+.game-card::after{
+  content:'';position:absolute;inset:0;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 1px, transparent 1px),
+    linear-gradient(135deg,rgba(255,255,255,0.15) 0%,transparent 50%,rgba(0,0,0,0.1) 100%);
+  background-size: 8px 8px, 100% 100%;
+  pointer-events:none;
+}
+.game-card .card-tl{position:absolute;top:8px;left:10px;font-size:0.42em;line-height:1.1;text-align:left;text-shadow:0 2px 4px rgba(0,0,0,0.4);}
+.game-card .card-br{position:absolute;bottom:8px;right:10px;font-size:0.42em;line-height:1.1;transform:rotate(180deg);text-align:left;text-shadow:0 2px 4px rgba(0,0,0,0.4);}
+.game-card .card-center{font-size:1.2em;z-index:1;text-align:center;line-height:1;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.4));}
+.game-card .card-shine{position:absolute;top:-50%;left:-60%;width:40%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);transform:skewX(-25deg);pointer-events:none;animation:cardShine 3.5s ease-in-out infinite;}
 
-.card-red{background:linear-gradient(145deg,#c01818,#FF3B3B);color:white;}
-.card-blue{background:linear-gradient(145deg,#1040c0,#2B7FFF);color:white;}
-.card-yellow{background:linear-gradient(145deg,#b88800,#FFD600);color:#1a1000;}
-.card-green{background:linear-gradient(145deg,#0e6830,#22D46B);color:white;}
-.card-purple{background:linear-gradient(145deg,#5010a0,#A855F7);color:white;}
-.card-wild{background:linear-gradient(145deg,#1a1a38,#2d2d5e);color:white;border-color:rgba(255,255,255,0.35)!important;}
+.card-red{background:linear-gradient(145deg,#ff5f6d,#ffc371);color:white;border-color:rgba(255,255,255,0.45);}
+.card-blue{background:linear-gradient(145deg,#2193b0,#6dd5ed);color:white;border-color:rgba(255,255,255,0.45);}
+.card-yellow{background:linear-gradient(145deg,#fceeb5,#fba100);color:#1a1000;border-color:rgba(255,255,255,0.5);}
+.card-green{background:linear-gradient(145deg,#00b09b,#96c93d);color:white;border-color:rgba(255,255,255,0.45);}
+.card-purple{background:linear-gradient(145deg,#8e2de2,#4a00e0);color:white;border-color:rgba(255,255,255,0.45);}
+.card-wild{background:linear-gradient(145deg,#1e1e2f,#3e3e5f);color:white;border-color:rgba(255,255,255,0.5)!important;}
 .card-wild .card-center{
   background:conic-gradient(from 0deg,#FF3B3B 0deg 72deg,#FFD600 72deg 144deg,#22D46B 144deg 216deg,#2B7FFF 216deg 288deg,#A855F7 288deg 360deg);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
 /* RARE card style */
@@ -361,6 +373,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 }
 .card-rare .card-shine{animation:rareShine 1.8s ease-in-out infinite!important;}
 @keyframes rareShine{0%,100%{left:-60%;opacity:0.4}50%{left:120%;opacity:0.9}}
+@keyframes discardBump{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+.discard-bump{animation:discardBump 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
 
 /* ── PLAYER HAND ── */
 .player-area{width:100%;padding:6px 12px 12px;position:relative;z-index:2;}
@@ -381,8 +395,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 @keyframes rarePlayableGlow{0%,100%{filter:drop-shadow(0 0 12px rgba(168,85,247,0.9))}50%{filter:drop-shadow(0 0 26px rgba(168,85,247,1)) drop-shadow(0 0 50px rgba(210,130,255,0.7))}}
 .hand-card.playable:hover{transform:translateY(-55px) scale(1.3) rotate(3deg)!important;z-index:100!important;filter:drop-shadow(0 20px 40px rgba(0,0,0,0.7));}
 .hand-card:not(.playable):not(.not-playable):hover{transform:translateY(-20px) scale(1.1)!important;}
-.hand-card.not-playable{opacity:0.55;cursor:not-allowed;filter:grayscale(0.3) brightness(0.6);transition:all 0.3s ease;}
-.hand-card.not-playable:hover{transform:translateY(-8px)!important;opacity:0.75;filter:grayscale(0.1) brightness(0.8);}
+.hand-card.not-playable{opacity:0.75;cursor:not-allowed;filter:grayscale(0.1) brightness(0.8);transition:all 0.3s ease;}
+.hand-card.not-playable:hover{transform:translateY(-8px)!important;opacity:0.9;filter:grayscale(0) brightness(0.95);}
 
 /* ── STATUS ── */
 .status-bar{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;pointer-events:none;}
@@ -794,7 +808,20 @@ function playSound(type){
     o.connect(g);g.connect(AC.destination);
     const now=AC.currentTime;
     switch(type){
-      case 'card': o.type='sine';o.frequency.setValueAtTime(380,now);o.frequency.exponentialRampToValueAtTime(200,now+0.12);g.gain.setValueAtTime(0.28,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.14);o.start(now);o.stop(now+0.15);break;
+      case 'card': 
+        o.type='sine';
+        o.frequency.setValueAtTime(440,now);
+        o.frequency.exponentialRampToValueAtTime(220,now+0.08);
+        g.gain.setValueAtTime(0.35,now);
+        g.gain.exponentialRampToValueAtTime(0.001,now+0.1);
+        o.start(now);o.stop(now+0.12);
+        // Add a small "click" or "thump"
+        const o2=AC.createOscillator(),g2=AC.createGain();
+        o2.connect(g2);g2.connect(AC.destination);
+        o2.type='triangle';o2.frequency.setValueAtTime(100,now);
+        g2.gain.setValueAtTime(0.2,now);g2.gain.exponentialRampToValueAtTime(0.001,now+0.05);
+        o2.start(now);o2.stop(now+0.06);
+        break;
       case 'draw': o.type='triangle';o.frequency.setValueAtTime(220,now);o.frequency.exponentialRampToValueAtTime(150,now+0.1);g.gain.setValueAtTime(0.18,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.12);o.start(now);o.stop(now+0.13);break;
       case 'wild': for(let i=0;i<4;i++){const o2=AC.createOscillator(),g2=AC.createGain();o2.connect(g2);g2.connect(AC.destination);const fr=[440,554,659,880];o2.type='sine';o2.frequency.setValueAtTime(fr[i],now+i*0.07);g2.gain.setValueAtTime(0.22,now+i*0.07);g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.07+0.18);o2.start(now+i*0.07);o2.stop(now+i*0.07+0.2);}break;
       case 'skip': o.type='sawtooth';o.frequency.setValueAtTime(600,now);o.frequency.exponentialRampToValueAtTime(100,now+0.18);g.gain.setValueAtTime(0.2,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.2);o.start(now);o.stop(now+0.22);break;
@@ -1084,40 +1111,50 @@ function updateOpponentsAll(){for(let i=1;i<state.players.length;i++) updateOppo
 
 /* ═══ PLAY RULES ═══ */
 function isPlayable(card){
-  const top=state.discard[state.discard.length-1];const cc=state.currentColor;
-  // Rare cards are always playable (wild-like)
+  const top=state.discard[state.discard.length-1];
+  const cc=state.currentColor;
+  
+  // If there's a pending draw stack
+  if(state.pendingDraw>0){
+    // STACKING LOGIC:
+    // 1. If top card is a plus card, you can only stack a plus card of the EXACT same number.
+    // 2. If you are holding a card that matches the pendingDrawNum, it's playable.
+    if((card.type==='plus'||card.type==='wildPlus') && card.num===state.pendingDrawNum) return true;
+    return false; // Rare cards cannot bypass a draw stack unless they are a matching plus card
+  }
+
+  // Rare cards are always playable (wild-like) when no stack is active
   if(card.isRare||card.color==='rare') return true;
   if(card.color==='wild') return true;
   
-  if(state.pendingDraw>0){
-    // STRICT STACKING: Only same value + cards can stack
-    if((card.type==='plus'||card.type==='wildPlus') && card.num===state.pendingDrawNum) return true;
-    return false;
-  }
-
-  // Plus cards: strict rules even when no stack
-  if(card.type==='plus'||card.type==='wildPlus'){
-    if(top.type==='plus'||top.type==='wildPlus') return card.num===top.num;
-    return card.color===cc;
-  }
-
+  // Normal play (no stack)
+  // 1. Color match
   if(card.color===cc) return true;
-  if(card.value===top.value) return true;
   
-  // Same type action cards (skip, reverse, skipAll, targetDraw2, doublePlay, etc.)
-  const actionTypes=['skip','reverse','skipAll','targetDraw2','doublePlay','wildSkip','wildReverse','wildSkipAll','discardColor'];
-  if(actionTypes.includes(card.type) && card.type===top.type) return true;
-  
-  // Color rules: purple on purple, etc. 
+  // 2. Number match (for number cards)
   if(card.type==='number' && top.type==='number' && card.label===top.label) return true;
+  
+  // 3. Action type match (skip on skip, reverse on reverse, etc.)
+  const actionTypes=['skip','reverse','skipAll','targetDraw2','doublePlay','discardColor','plus'];
+  const baseType=card.type.replace('wild','').toLowerCase().replace('Plus','plus');
+  const topBaseType=top.type.replace('wild','').toLowerCase().replace('Plus','plus');
+
+  if(actionTypes.includes(baseType) && baseType===topBaseType){
+    // Special case for plus cards: even without a stack, stacking rules apply (must match value)
+    if(baseType==='plus'){
+       return card.num === top.num;
+    }
+    return true;
+  }
   
   return false;
 }
 function canStackDraw(card){
   if(state.pendingDraw<=0) return false;
-  if(card.isRare||card.color==='rare') return false; 
-  if(card.type==='plus'&&card.num===state.pendingDrawNum) return true;
-  if(card.type==='wildPlus'&&card.num===state.pendingDrawNum) return true;
+  // Rare cards can also stack if they are plus cards
+  if(card.type==='plus'||card.type==='wildPlus'){
+    return card.num===state.pendingDrawNum;
+  }
   return false;
 }
 
@@ -1173,7 +1210,14 @@ async function executePlayCard(playerIdx,cardIdx){
   else if(card.type==='skip'||card.type==='skipAll') playSound('skip');
   else if(card.type==='reverse'||card.type==='wildReverse') playSound('reverse');
   else playSound('card');
-  const pile=document.getElementById('discard-pile');pile.classList.remove('discard-glow');void pile.offsetWidth;pile.classList.add('discard-glow');
+  const pile=document.getElementById('discard-pile');
+  pile.classList.remove('discard-glow','discard-bump');
+  void pile.offsetWidth;
+  pile.classList.add('discard-glow','discard-bump');
+  
+  // SATISFACTION: Particles
+  if(typeof spawnPlayParticles==='function') spawnPlayParticles(playerIdx);
+
   spawnFloatMsg(card.label,COLOR_HEX[card.color]||'#fff',playerIdx);
 
   // Rare cards: always need colour pick (they are wild-like) OR special handling
@@ -1199,6 +1243,23 @@ async function executePlayCard(playerIdx,cardIdx){
     else{const bc=botPickColor(state.players[playerIdx]);state.currentColor=bc;await applyCardEffect(card,playerIdx,bc);}
   } else {
     state.currentColor=card.color;await applyCardEffect(card,playerIdx,card.color);
+  }
+}
+
+function spawnPlayParticles(pIdx){
+  const dr=document.getElementById('discard-pile').getBoundingClientRect();
+  const centerX=dr.left+dr.width/2;
+  const centerY=dr.top+dr.height/2;
+  const colors=['#FF3B3B','#FFD600','#22D46B','#2B7FFF','#A855F7'];
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div');
+    p.style.cssText=`position:fixed;z-index:200;width:6px;height:6px;border-radius:50%;background:${colors[Math.floor(Math.random()*colors.length)]};pointer-events:none;left:${centerX}px;top:${centerY}px;`;
+    document.body.appendChild(p);
+    const angle=Math.random()*Math.PI*2;
+    const dist=Math.random()*80+40;
+    const tx=Math.cos(angle)*dist;
+    const ty=Math.sin(angle)*dist;
+    p.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${tx}px,${ty}px) scale(0)`,opacity:0}],{duration:600,easing:'cubic-bezier(0,0,0.2,1)'}).onfinish=()=>p.remove();
   }
 }
 
