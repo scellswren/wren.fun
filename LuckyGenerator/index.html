@@ -153,28 +153,33 @@
 
     #fullscreenBtn {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
+      bottom: 16px;
+      right: 16px;
       z-index: 1000;
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      color: white;
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
+      border-radius: 10px;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 1.1em;
       cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 1.2em;
+      transition: all 0.2s;
+      backdrop-filter: blur(10px);
+      color: white;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     #fullscreenBtn:hover {
-      background: rgba(56, 189, 248, 0.2);
-      border-color: rgba(56, 189, 248, 0.5);
-      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.12);
+      transform: scale(1.05);
+    }
+
+    #fullscreenBtn:active {
+      transform: scale(0.95);
     }
 
     #homeText {
@@ -214,7 +219,7 @@
 <br>
 <button class="btn" onclick="generateCat()">Show Lucky!</button>
 
-<button id="fullscreenBtn" onclick="toggleFullscreen()">↗️</button>
+<button id="fullscreenBtn" onclick="toggleFullscreen()" title="Toggle Fullscreen">⛶</button>
 
 <div class="footer">LUCKY IS MY CAT :)</div>
 
@@ -347,15 +352,10 @@
   }
 
   document.addEventListener('fullscreenchange', () => {
-    const btn = document.getElementById('fullscreenBtn');
-    if (btn) {
-      if (document.fullscreenElement) {
-        btn.innerHTML = '↙️'; // Shrink icon
-        localStorage.setItem('fullscreen_preferred', 'true');
-      } else {
-        btn.innerHTML = '↗️'; // Expand icon
-        localStorage.setItem('fullscreen_preferred', 'false');
-      }
+    if (!document.fullscreenElement) {
+      localStorage.setItem('fullscreen_preferred', 'false');
+    } else {
+      localStorage.setItem('fullscreen_preferred', 'true');
     }
   });
 
