@@ -395,7 +395,45 @@
     .preview-owned-badge{display:inline-flex;align-items:center;justify-content:center;gap:4px;margin-top:4px;font-size:0.62em;font-weight:800;color:#60a5fa;}
 
     /* ===== BUTTONS ===== */
-    .crate-preview-btn,.upg-btn-small,.anim-btn,.upg-btn,.big-btn,.sec-btn,.pick-btn,.code-btn{
+    .crate-preview-btn{
+      margin-top:12px;
+      padding:10px 16px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid var(--border);
+      border-radius:14px;
+      color:var(--muted);
+      font-size:0.85em;
+      width:100%;
+      transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      cursor:pointer;
+      font-weight:600;
+      backdrop-filter:blur(4px);
+    }
+    .crate-preview-btn:hover{
+      background:rgba(168,85,247,0.12);
+      border-color:var(--accent1);
+      color:var(--text);
+      transform:translateY(-2px);
+      box-shadow:0 8px 25px rgba(0,0,0,0.5);
+    }
+    .crate-preview-btn:active{
+      transform:translateY(0);
+    }
+    .crate-preview-btn::before{
+      content:'👁️';
+      font-size:1.1em;
+      filter:grayscale(1) opacity(0.7);
+      transition:filter 0.3s, opacity 0.3s;
+    }
+    .crate-preview-btn:hover::before{
+      filter:none;
+      opacity:1;
+    }
+    .upg-btn-small,.anim-btn,.upg-btn,.big-btn,.sec-btn,.pick-btn,.code-btn{
       cursor:pointer;border:none;border-radius:16px;
       font-family:'Exo 2',sans-serif;font-weight:700;
       transition:transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),opacity 0.2s,background 0.2s,box-shadow 0.2s, filter 0.2s;
@@ -433,7 +471,6 @@
     }
     .big-btn:active{transform:translateY(0);}
     .big-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
-    .crate-preview-btn:hover{background:rgba(59,130,246,0.28);}
     .upg-btn-small{margin-top:7px;padding:5px 8px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.35);border-radius:8px;font-size:0.68em;color:var(--accent1);width:100%;}
     .upg-btn-small:hover{background:rgba(124,58,237,0.3);}
     .big-btn{
@@ -532,7 +569,24 @@
     }
     body.big-hit{animation:screenShake 0.35s;}
 
+    /* Emoji Animations */
     .fighter-emoji{font-size:3em;display:block;margin-bottom:6px;transition:transform 0.2s;}
+    .lunge-player{animation:lungePlayer 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .lunge-enemy{animation:lungeEnemy 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    @keyframes lungePlayer{0%{transform:translateX(0)}30%{transform:translateX(50px) scale(1.2) rotate(10deg)}100%{transform:translateX(0)}}
+    @keyframes lungeEnemy{0%{transform:translateX(0)}30%{transform:translateX(-50px) scale(1.2) rotate(-10deg)}100%{transform:translateX(0)}}
+
+    /* Particles */
+    .particle{
+      position:fixed;pointer-events:none;z-index:900;
+      width:6px;height:6px;border-radius:50%;
+      animation:particleOut 0.6s ease-out forwards;
+    }
+    @keyframes particleOut{
+      0%{transform:translate(0,0) scale(1);opacity:1}
+      100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}
+    }
+
     .fighter-box:not(.dead) .fighter-emoji{animation:fighterFloat 3s ease-in-out infinite;}
     @keyframes fighterFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
     .fighter-hp-bar{height:12px;border-radius:12px;background:rgba(255,255,255,0.08);margin:8px 0 4px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.4);}
@@ -797,7 +851,6 @@
     <button class="big-btn" onclick="showScreen('screenModeSelect')" style="margin-top:0;">⚔️ Fight</button>
     <button class="big-btn" onclick="showScreen('screenCrates')" style="margin-top:0;background:linear-gradient(135deg,#d97706,#b45309);">📦 Crates</button>
   </div>
-  <button class="big-btn" onclick="showScreen('screenPlayWithFriend')" style="margin-top:0;margin-bottom:8px;background:linear-gradient(135deg,#06b6d4,#0891b2);">👥 Play with Friend</button>
   <div class="inline-grid" style="margin-bottom:8px;">
     <button class="sec-btn" onclick="showScreen('screenMyObjects')" style="margin-top:0;">🎒 My Objects</button>
     <button class="sec-btn" onclick="showScreen('screenTeam')" style="margin-top:0;">👥 My Team</button>
@@ -885,38 +938,6 @@
   <button class="sec-btn" onclick="showScreen('screenHome')">← Back</button>
 </div>
 
-<!-- ===== PLAY WITH FRIEND ===== -->
-<div class="screen" id="screenPlayWithFriend">
-  <h1>👥 Play with Friend</h1>
-  <p class="sub">Create a party or join a friend's party</p>
-  
-  <div id="p2pHome">
-    <div style="background:var(--surface);padding:15px;border-radius:15px;border:1px solid var(--border);margin-bottom:20px;">
-      <p style="margin-bottom:8px;font-size:0.9em;color:var(--muted);">Your Name:</p>
-      <input id="playerNameInput" type="text" placeholder="Enter name..." maxlength="12" onchange="updatePlayerName(this.value)" style="background:rgba(0,0,0,0.3);border:1px solid var(--border);color:#fff;width:100%;padding:8px;border-radius:8px;text-align:center;" />
-    </div>
-    <button class="big-btn" onclick="createParty()" style="margin-top:0;">✨ Create Party</button>
-    <div style="margin:20px 0;text-align:center;color:var(--muted);font-weight:700;">OR</div>
-    <div style="background:var(--surface);padding:20px;border-radius:20px;border:1px solid var(--border);">
-      <p style="margin-bottom:12px;font-size:0.9em;">Enter Friend's Code:</p>
-      <input id="joinCodeInput" type="text" placeholder="5-digit code" maxlength="5" style="text-align:center;font-size:1.5em;letter-spacing:4px;background:rgba(0,0,0,0.3);border:1px solid var(--border);color:#fff;width:100%;padding:10px;border-radius:12px;margin-bottom:12px;" />
-      <button class="big-btn" onclick="joinParty()" style="margin-top:0;background:linear-gradient(135deg,#22c55e,#16a34a);">Join Party ➡️</button>
-    </div>
-  </div>
-
-  <div id="p2pLobby" style="display:none;">
-    <div style="background:var(--surface);padding:30px;border-radius:24px;border:2px solid var(--accent1);text-align:center;box-shadow:0 0 40px var(--glow);">
-      <p style="color:var(--muted);margin-bottom:8px;">Your Party Code:</p>
-      <div id="partyCodeDisplay" class="pulse-glow" style="font-family:'Russo One',sans-serif;font-size:3.5em;color:var(--accent1);letter-spacing:6px;margin-bottom:10px;text-shadow:0 0 20px var(--glow);">-----</div>
-      <p id="partyStatus" style="font-size:0.9em;color:var(--muted);">Waiting for friend to join...</p>
-    </div>
-    <button id="startP2PBtn" class="big-btn" onclick="startP2PBattle()" style="display:none;margin-top:20px;background:linear-gradient(135deg,#f59e0b,#d97706);">Start Battle! ⚔️</button>
-    <button class="sec-btn" onclick="leaveParty()" style="margin-top:15px;">Leave Party</button>
-  </div>
-
-  <button class="sec-btn" onclick="showScreen('screenHome')" style="margin-top:20px;">← Back</button>
-</div>
-
 <!-- ===== STARTER ===== -->
 <div class="screen" id="screenStarter">
   <h1>📦 Choose Your Starter Crates</h1>
@@ -933,10 +954,10 @@
 const OPPONENT_NAMES=['WrenIsOld','Zxno','Block Of Cheese','Edunzie','The Dairy King','Nathan8028','The Mind of Orin','Katsurchicken','Juju2y','Random_Jhony','Brayden Coldicutt','Tikitheg','Mr Sivvy','George21z','Cocomelon','Turtlekid2012','TheRealBaldCena72','EthansHalfTable','AustinsHalfTable','MouldyBready','Bingus165'];
 
 const MODES=[
-  {id:'easy',name:'Easy',emoji:'🟢',trophies:10,power:100,unlockHp:0,crateId:'easy'},
-  {id:'normal',name:'Normal',emoji:'🟡',trophies:100,power:1000,unlockHp:200,crateId:'normal'},
-  {id:'hard',name:'Hard',emoji:'🔴',trophies:1000,power:10000,unlockHp:2000,crateId:'hard'},
-  {id:'grandmaster',name:'Grandmaster',emoji:'👑',trophies:10000,power:100000,unlockHp:30000,crateId:'grandmaster'},
+  {id:'easy',name:'Easy',emoji:'🟢',trophies:10,power:100,unlockPower:0,crateId:'easy'},
+  {id:'normal',name:'Normal',emoji:'🟡',trophies:100,power:1000,unlockPower:5000,crateId:'normal'},
+  {id:'hard',name:'Hard',emoji:'🔴',trophies:1000,power:10000,unlockPower:100000,crateId:'hard'},
+  {id:'grandmaster',name:'Grandmaster',emoji:'👑',trophies:10000,power:100000,unlockPower:2500000,crateId:'grandmaster'},
 ];
 
 const OBJECTS_BY_CRATE={
@@ -980,10 +1001,10 @@ const OBJECTS_BY_CRATE={
 };
 
 const CRATE_DEFS=[
-  {id:'easy',name:'Easy Crate',emoji:'📦',cost:30,unlockHp:0,tier:'easy'},
-  {id:'normal',name:'Normal Crate',emoji:'🗃️',cost:600,unlockHp:200,tier:'normal'},
-  {id:'hard',name:'Hard Crate',emoji:'💼',cost:9000,unlockHp:2000,tier:'hard'},
-  {id:'grandmaster',name:'Grandmaster Crate',emoji:'👑',cost:50000,unlockHp:30000,tier:'grandmaster'},
+  {id:'easy',name:'Easy Crate',emoji:'📦',cost:30,unlockPower:0,tier:'easy'},
+  {id:'normal',name:'Normal Crate',emoji:'🗃️',cost:600,unlockPower:5000,tier:'normal'},
+  {id:'hard',name:'Hard Crate',emoji:'💼',cost:9000,unlockPower:100000,tier:'hard'},
+  {id:'grandmaster',name:'Grandmaster Crate',emoji:'👑',cost:50000,unlockPower:2500000,tier:'grandmaster'},
 ];
 
 const STARTER_CHOICES=[
@@ -1193,224 +1214,6 @@ function redeemCode(){
 }
 
 /* ============================================================
-   MULTIPLAYER / P2P (SIMULATED VIA LOCALSTORAGE)
-============================================================ */
-let p2pPartyCode = null;
-let p2pRole = null; // 'host' or 'guest'
-let p2pPollInterval = null;
-
-function updatePlayerName(val) {
-  state.playerName = val.trim() || 'Player';
-  saveState();
-}
-
-function createParty() {
-  const code = Math.floor(10000 + Math.random() * 90000).toString();
-  p2pPartyCode = code;
-  p2pRole = 'host';
-  
-  const partyData = {
-    code: code,
-    hostName: state.playerName,
-    hostTeam: state.team.map(id => {
-      const obj = state.inventory[id];
-      if (!obj) return null;
-      return { ...obj, currentHp: getObjectHp(id), maxHp: getObjectHp(id) };
-    }).filter(Boolean),
-    guestJoined: false,
-    status: 'waiting',
-    lastUpdate: Date.now()
-  };
-  
-  localStorage.setItem(`p2p_party_${code}`, JSON.stringify(partyData));
-  
-  document.getElementById('p2pHome').style.display = 'none';
-  document.getElementById('p2pLobby').style.display = 'block';
-  document.getElementById('partyCodeDisplay').textContent = code;
-  document.getElementById('partyStatus').textContent = 'Waiting for friend to join...';
-  document.getElementById('startP2PBtn').style.display = 'none';
-  
-  startP2PPoll();
-}
-
-function joinParty() {
-  const code = document.getElementById('joinCodeInput').value.trim();
-  if (code.length !== 5) {
-    showToast('Enter a 5-digit code!');
-    return;
-  }
-  
-  const raw = localStorage.getItem(`p2p_party_${code}`);
-  if (!raw) {
-    showToast('Party not found!');
-    return;
-  }
-  
-  const partyData = JSON.parse(raw);
-  if (partyData.guestJoined) {
-    showToast('Party is full!');
-    return;
-  }
-  
-  p2pPartyCode = code;
-  p2pRole = 'guest';
-  
-  partyData.guestJoined = true;
-  partyData.guestName = state.playerName;
-  partyData.guestTeam = state.team.map(id => {
-    const obj = state.inventory[id];
-    if (!obj) return null;
-    return { ...obj, currentHp: getObjectHp(id), maxHp: getObjectHp(id) };
-  }).filter(Boolean);
-  partyData.status = 'ready';
-  partyData.lastUpdate = Date.now();
-  
-  localStorage.setItem(`p2p_party_${code}`, JSON.stringify(partyData));
-  
-  document.getElementById('p2pHome').style.display = 'none';
-  document.getElementById('p2pLobby').style.display = 'block';
-  document.getElementById('partyCodeDisplay').textContent = code;
-  document.getElementById('partyStatus').textContent = 'Connected to friend!';
-  document.getElementById('startP2PBtn').style.display = 'none'; // Guest waits for host
-  
-  startP2PPoll();
-}
-
-function leaveParty() {
-  if (p2pPartyCode) {
-    if (p2pRole === 'host') {
-      localStorage.removeItem(`p2p_party_${p2pPartyCode}`);
-    } else {
-      const raw = localStorage.getItem(`p2p_party_${p2pPartyCode}`);
-      if (raw) {
-        const partyData = JSON.parse(raw);
-        partyData.guestJoined = false;
-        partyData.status = 'waiting';
-        localStorage.setItem(`p2p_party_${p2pPartyCode}`, JSON.stringify(partyData));
-      }
-    }
-  }
-  stopP2PPoll();
-  p2pPartyCode = null;
-  p2pRole = null;
-  document.getElementById('p2pHome').style.display = 'block';
-  document.getElementById('p2pLobby').style.display = 'none';
-}
-
-function startP2PPoll() {
-  stopP2PPoll();
-  p2pPollInterval = setInterval(() => {
-    const raw = localStorage.getItem(`p2p_party_${p2pPartyCode}`);
-    if (!raw) {
-      if (p2pRole === 'guest') {
-        showToast('Host ended the party');
-        leaveParty();
-      }
-      return;
-    }
-    
-    const partyData = JSON.parse(raw);
-    
-    if (p2pRole === 'host') {
-      if (partyData.guestJoined) {
-        document.getElementById('partyStatus').textContent = 'Friend joined! Ready to battle.';
-        document.getElementById('startP2PBtn').style.display = 'block';
-      } else {
-        document.getElementById('partyStatus').textContent = 'Waiting for friend to join...';
-        document.getElementById('startP2PBtn').style.display = 'none';
-      }
-    }
-    
-    if (partyData.status === 'battling' && state.battleMode !== 'p2p') {
-      startP2PBattleInternal(partyData);
-    }
-    
-    // Handle P2P moves during battle
-    if (state.battleMode === 'p2p' && state.battleState) {
-      const bs = state.battleState;
-      if (partyData.lastMove && partyData.lastMove.id !== bs.lastHandledMoveId) {
-        handleP2PMove(partyData.lastMove);
-        bs.lastHandledMoveId = partyData.lastMove.id;
-      }
-    }
-  }, 1000);
-}
-
-function stopP2PPoll() {
-  if (p2pPollInterval) clearInterval(p2pPollInterval);
-}
-
-function startP2PBattle() {
-  const raw = localStorage.getItem(`p2p_party_${p2pPartyCode}`);
-  if (!raw) return;
-  const partyData = JSON.parse(raw);
-  partyData.status = 'battling';
-  partyData.lastUpdate = Date.now();
-  localStorage.setItem(`p2p_party_${p2pPartyCode}`, JSON.stringify(partyData));
-  startP2PBattleInternal(partyData);
-}
-
-function startP2PBattleInternal(partyData) {
-  state.battleMode = 'p2p';
-  const isHost = p2pRole === 'host';
-  
-  state.battleState = {
-    mode: { id: 'p2p', name: 'Friend Battle', trophies: 0, power: 0 },
-    oppName: isHost ? partyData.guestName : partyData.hostName,
-    playerTeam: isHost ? partyData.hostTeam : partyData.guestTeam,
-    enemyTeam: isHost ? partyData.guestTeam : partyData.hostTeam,
-    playerIdx: 0,
-    enemyIdx: 0,
-    phase: 'fight',
-    currentTurn: 'host', // Host always goes first in this simple sync
-    isFirstTurn: true,
-    lastHandledMoveId: null
-  };
-  
-  showScreen('battleScreen');
-  renderBattle();
-}
-
-function handleP2PMove(move) {
-  const bs = state.battleState;
-  if (!bs) return;
-  
-  // Update local state based on remote move
-  if (move.type === 'attack') {
-    const pf = bs.playerTeam[bs.playerIdx];
-    const ef = bs.enemyTeam[bs.enemyIdx];
-    
-    // If the remote player (enemy) attacked
-    pf.currentHp = move.playerHp;
-    ef.currentHp = move.enemyHp; // In case of self-damage or other logic
-    
-    animateHit('player', move.damage, move.damage > pf.maxHp * 0.4);
-    addLog(`${ef.emoji} ${ef.name} attacks for ${move.damage.toLocaleString()}!`, 'log-enemy-hit');
-    
-    if (pf.currentHp <= 0) {
-      addLog(`${pf.emoji} ${pf.name} was defeated!`, 'log-warn');
-      bs.playerIdx++;
-      if (bs.playerIdx >= bs.playerTeam.length) {
-        checkBattleEnd();
-      }
-    }
-    
-    bs.currentTurn = p2pRole;
-    renderBattle();
-  }
-}
-
-function sendP2PMove(move) {
-  const raw = localStorage.getItem(`p2p_party_${p2pPartyCode}`);
-  if (!raw) return;
-  const partyData = JSON.parse(raw);
-  move.id = Date.now() + Math.random();
-  partyData.lastMove = move;
-  partyData.lastUpdate = Date.now();
-  localStorage.setItem(`p2p_party_${p2pPartyCode}`, JSON.stringify(partyData));
-}
-
-/* ============================================================
    HELPERS
 ============================================================ */
 function getRandomFromPool(pool){if(!Array.isArray(pool)||pool.length===0)return null;return pool[Math.floor(Math.random()*pool.length)];}
@@ -1418,8 +1221,8 @@ function getHpAtLevel(baseHp, level){return Math.floor(baseHp+(Math.max(1,level)
 function getObjectHp(id){const obj=state.inventory[id];if(!obj)return 0;return getHpAtLevel(obj.baseHp,obj.level);}
 function getUpgradeCost(id){const obj=state.inventory[id];if(!obj)return 0;const crate=CRATE_DEFS.find(c=>c.id===obj.crate);const base=crate?Math.floor(crate.cost*0.20):10;const effectiveLevel=Math.min(obj.level,8);return Math.max(1,Math.floor(base*Math.pow(1.10,effectiveLevel-1)));}
 function getMaxHpInInventory(){let max=0;for(const id in state.inventory)max=Math.max(max,getObjectHp(id));return max;}
-function isModeUnlocked(modeId){const mode=MODES.find(m=>m.id===modeId);if(!mode||mode.unlockHp===0)return true;return getMaxHpInInventory()>=mode.unlockHp;}
-function isCrateUnlocked(crateId){const crate=CRATE_DEFS.find(c=>c.id===crateId);if(!crate||crate.unlockHp===0)return true;return getMaxHpInInventory()>=crate.unlockHp;}
+function isModeUnlocked(modeId){const mode=MODES.find(m=>m.id===modeId);if(!mode||mode.unlockPower===0)return true;return state.power>=mode.unlockPower;}
+function isCrateUnlocked(crateId){const crate=CRATE_DEFS.find(c=>c.id===crateId);if(!crate||crate.unlockPower===0)return true;return state.power>=crate.unlockPower;}
 
 /* ============================================================
    AUDIO
@@ -1459,9 +1262,6 @@ function showScreen(id){
   if(id==='screenCrates')renderCrates();
   if(id==='screenMyObjects')renderMyObjects();
   if(id==='screenStarter')renderStarterSelection();
-  if(id==='screenPlayWithFriend') {
-    document.getElementById('playerNameInput').value = state.playerName || 'Player';
-  }
 }
 function renderHome(){
   const boost=state.trophyBoost||1;
@@ -1492,7 +1292,7 @@ function renderModes(){
     const locked=!isModeUnlocked(m.id);
     const div=document.createElement('div');
     div.className='mode-card'+(locked?' locked':'');
-    const req=m.unlockHp>0?`Unlock: ${m.unlockHp.toLocaleString()}+ HP`:'Always available';
+    const req=m.unlockPower>0?`Unlock: ${m.unlockPower.toLocaleString()}+ Power`:'Always available';
     const boost=state.trophyBoost&&state.trophyBoost>1?`<div style="font-size:0.65em;color:#86efac;margin-top:2px;">×${state.trophyBoost} boost active!</div>`:'';
     const rewardText=m.id==='grandmaster'?'Choose Level 1 / 10 / 50':`+${m.trophies.toLocaleString()} 🏆 · +${m.power.toLocaleString()} ⚡`;
     const extraText=m.id==='grandmaster'?'Tap to pick a Grandmaster level':(locked?req:'');
@@ -1631,7 +1431,7 @@ function renderCrates(){
     const cantAfford=state.trophies<c.cost;
     const div=document.createElement('div');
     div.className='crate-card'+(locked?' locked':'');
-    const req=c.unlockHp>0?`Requires ${c.unlockHp.toLocaleString()}+ HP`:'';
+    const req=c.unlockPower>0?`Requires ${c.unlockPower.toLocaleString()}+ Power`:'';
     div.innerHTML=`<div class="crate-emoji">${c.emoji}</div><div class="crate-name">${c.name}</div><div class="crate-cost">🏆 ${c.cost.toLocaleString()} trophies</div><div class="crate-req">${locked?req:(cantAfford?'Not enough trophies':'')}</div><div style="font-size:0.72em;color:var(--muted);margin-top:8px;">Tap the crate to open it</div><button class="crate-preview-btn" onclick="event.stopPropagation();openCratePreview('${c.id}')">View contents</button>`;
     if(!locked&&!cantAfford)div.onclick=()=>openCrate(c.id);
     grid.appendChild(div);
@@ -1878,6 +1678,25 @@ function triggerScreenShake(){
   setTimeout(()=>document.body.classList.remove('big-hit'),380);
 }
 
+function createParticles(x, y, color, count = 12) {
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 6 + 2;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.background = color;
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    const tx = (Math.random() - 0.5) * 200;
+    const ty = (Math.random() - 0.5) * 200;
+    p.style.setProperty('--tx', tx + 'px');
+    p.style.setProperty('--ty', ty + 'px');
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 600);
+  }
+}
+
 function animateHit(side,damage,isBig=false){
   const box=document.getElementById(side==='player'?'playerFighterBox':'enemyFighterBox');
   box.classList.remove('shake','impact');
@@ -1885,10 +1704,20 @@ function animateHit(side,damage,isBig=false){
   box.classList.add('shake','impact');
   setTimeout(()=>{box.classList.remove('shake','impact');},420);
 
+  const rect=box.getBoundingClientRect();
+  const centerX=rect.left+rect.width/2;
+  const centerY=rect.top+rect.height/2;
+  createParticles(centerX,centerY,side==='player'?'#ef4444':'#3b82f6',isBig?20:12);
+
   const float=document.createElement('div');
   float.className='dmg-float '+(side==='player'?'enemy-dmg':'player-dmg');
-  float.textContent='-'+damage.toLocaleString();
-  if(isBig)float.style.fontSize='2.2em';
+  float.textContent=(isBig?'💥 ':'')+'-'+damage.toLocaleString();
+  if(isBig){
+    float.style.fontSize='2.8em';
+    float.style.color='#facc15';
+    float.style.textShadow='0 0 15px rgba(234,179,8,0.8)';
+    float.style.fontWeight='900';
+  }
   box.appendChild(float);
   setTimeout(()=>float.remove(),1050);
 
@@ -1947,25 +1776,14 @@ function battleAction(){
   const bs=state.battleState;
   if(!bs||bs.phase!=='fight')return;
   
-  // P2P: Only allow action if it's our turn
-  if(state.battleMode === 'p2p' && bs.currentTurn !== p2pRole) {
-    showToast("Wait for friend's move!");
-    return;
-  }
-  
   const btn=document.getElementById('battleActionBtn');
   btn.disabled=true;
   const pf=bs.playerTeam[bs.playerIdx];const ef=bs.enemyTeam[bs.enemyIdx];
   if(!pf||!ef){checkBattleEnd();btn.disabled=false;return;}
   
-  if(state.battleMode === 'p2p') {
-    // In P2P, we always attack (or handle our turn logic)
-    doPlayerAttack(p2pRole === 'host' ? 'guest' : 'host', ()=>{btn.disabled=false;});
-  } else {
-    const nextTurn=Math.random()<0.5?'player':'enemy';
-    if(bs.currentTurn==='player')doPlayerAttack(nextTurn,()=>{btn.disabled=false;});
-    else doEnemyAttack(nextTurn,()=>{btn.disabled=false;});
-  }
+  const nextTurn=Math.random()<0.5?'player':'enemy';
+  if(bs.currentTurn==='player')doPlayerAttack(nextTurn,()=>{btn.disabled=false;});
+  else doEnemyAttack(nextTurn,()=>{btn.disabled=false;});
 }
 
 function doPlayerAttack(nextTurn,onDone){
@@ -1974,6 +1792,13 @@ function doPlayerAttack(nextTurn,onDone){
   const dmg=pf.currentHp;
   showDiceRoll('player',()=>{
     if(!ef){onDone();return;}
+    
+    const pEmoji=document.getElementById('playerFighterEmoji');
+    pEmoji.classList.remove('lunge-player');
+    void pEmoji.offsetWidth;
+    pEmoji.classList.add('lunge-player');
+    setTimeout(()=>pEmoji.classList.remove('lunge-player'),450);
+
     ef.currentHp=Math.max(0,ef.currentHp-dmg);
     const isBig=dmg>ef.maxHp*0.4;
     animateHit('enemy',dmg,isBig);
@@ -1981,16 +1806,6 @@ function doPlayerAttack(nextTurn,onDone){
     if(consecutivePlayerHits>=2)showCombo(consecutivePlayerHits);
     addLog(`${pf.emoji} ${pf.name} attacks ${ef.emoji} ${ef.name} for ${dmg.toLocaleString()} damage!`,'log-hit');
     
-    if(state.battleMode === 'p2p') {
-      sendP2PMove({
-        type: 'attack',
-        damage: dmg,
-        playerHp: ef.currentHp, // Enemy's HP from our perspective is their playerHp
-        enemyHp: pf.currentHp,  // Our HP is their enemyHp
-        nextTurn: nextTurn
-      });
-    }
-
     if(ef.currentHp<=0){
       addLog(`${ef.emoji} ${ef.name} was defeated! 💥`,'log-warn');
       playKillSound();
@@ -2012,6 +1827,13 @@ function doEnemyAttack(nextTurn,onDone){
   consecutivePlayerHits=0; // reset combo
   showDiceRoll('enemy',()=>{
     if(!pf){onDone();return;}
+    
+    const eEmoji=document.getElementById('enemyFighterEmoji');
+    eEmoji.classList.remove('lunge-enemy');
+    void eEmoji.offsetWidth;
+    eEmoji.classList.add('lunge-enemy');
+    setTimeout(()=>eEmoji.classList.remove('lunge-enemy'),450);
+
     pf.currentHp=Math.max(0,pf.currentHp-dmg);
     const isBig=dmg>pf.maxHp*0.4;
     animateHit('player',dmg,isBig);
@@ -2037,13 +1859,6 @@ function checkBattleEnd(){
   if(allEnemyDead){
     bs.phase='done';const mode=bs.mode;
     
-    if(state.battleMode === 'p2p') {
-      addLog(`🎉 You won the friend battle! (No rewards)`,'log-info');
-      renderBattle();
-      setTimeout(()=>{playVictorySound();showResult(true,mode,0,0);},450);
-      return true;
-    }
-
     const boost=state.trophyBoost&&state.trophyBoost>1?state.trophyBoost:1;
     const trophyGain=Math.floor(mode.trophies*boost);
     state.trophies+=trophyGain;state.power+=mode.power;
@@ -2058,13 +1873,6 @@ function checkBattleEnd(){
   if(allPlayerDead){
     bs.phase='done';const mode=bs.mode;
     
-    if(state.battleMode === 'p2p') {
-      addLog(`💀 You were defeated in the friend battle!`,'log-enemy-hit');
-      renderBattle();
-      setTimeout(()=>{showResult(false,mode,0,0);},450);
-      return true;
-    }
-
     const powerLoss=Math.floor(mode.power*0.5);
     state.power=Math.max(0,state.power-powerLoss);saveState();
     addLog(`💀 You were defeated... -${powerLoss.toLocaleString()} ⚡`,'log-enemy-hit');
@@ -2079,16 +1887,10 @@ function showResult(won,mode,powerLoss=0,trophyGain=0){
   document.getElementById('resultEmojiWrap').textContent=won?'🏆':'💀';
   document.getElementById('resultTitle').textContent=won?'Victory!':'Defeated!';
   
-  if(state.battleMode === 'p2p') {
-    document.getElementById('resultSub').textContent = won 
-      ? `You beat ${state.battleState.oppName} in a friend battle!`
-      : `You lost to ${state.battleState.oppName} in a friend battle.`;
-  } else {
-    const boost=state.trophyBoost&&state.trophyBoost>1?state.trophyBoost:1;
-    document.getElementById('resultSub').textContent=won
-      ?(boost>1?`You beat ${state.battleState.oppName}! (×${boost} trophy boost applied!)`:` You beat ${state.battleState.oppName}!`)
-      :`You lost to ${state.battleState.oppName}. -${powerLoss.toLocaleString()} ⚡ penalty`;
-  }
+  const boost=state.trophyBoost&&state.trophyBoost>1?state.trophyBoost:1;
+  document.getElementById('resultSub').textContent=won
+    ?(boost>1?`You beat ${state.battleState.oppName}! (×${boost} trophy boost applied!)`:` You beat ${state.battleState.oppName}!`)
+    :`You lost to ${state.battleState.oppName}. -${powerLoss.toLocaleString()} ⚡ penalty`;
   
   document.getElementById('resultTrophies').textContent=state.trophies.toLocaleString()+' total';
   document.getElementById('resultPower').textContent=state.power.toLocaleString()+' total';
