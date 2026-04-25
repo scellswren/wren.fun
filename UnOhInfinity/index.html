@@ -367,7 +367,16 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 }
 .game-card .card-tl{position:absolute;top:8px;left:10px;font-size:0.42em;line-height:1.1;text-align:left;text-shadow:0 2px 4px rgba(0,0,0,0.4);}
 .game-card .card-br{position:absolute;bottom:8px;right:10px;font-size:0.42em;line-height:1.1;transform:rotate(180deg);text-align:left;text-shadow:0 2px 4px rgba(0,0,0,0.4);}
-.game-card .card-center{font-size:1.2em;z-index:1;text-align:center;line-height:1;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.4));}
+.game-card .card-center{
+  font-size:1.2em;z-index:1;text-align:center;line-height:1;
+  filter:drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+  max-width: 85%;
+  word-wrap: break-word;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
 .game-card .card-shine{position:absolute;top:-50%;left:-60%;width:40%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);transform:skewX(-25deg);pointer-events:none;animation:cardShine 3.5s ease-in-out infinite;}
 
 .card-red{background:linear-gradient(145deg,#ff5f6d,#ffc371);color:white;border-color:rgba(255,255,255,0.45);}
@@ -874,6 +883,28 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
+            <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🍌✨</div>
+            <div class="guide-card-info">
+              <div class="rare-badge">RARE · WILD</div>
+              <div class="guide-card-name">Super Banana</div>
+              <div class="guide-card-desc">Swaps a target's hand into colored Banana cards.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">LEGENDARY</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🚫🌈</div>
+            <div class="guide-card-info">
+              <div class="rare-badge">RARE · WILD</div>
+              <div class="guide-card-name">Disarm Wilds</div>
+              <div class="guide-card-desc">Forces all players to discard every wild in their hand.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">LEGENDARY</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
             <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">👑</div>
             <div class="guide-card-info">
               <div class="rare-badge">MYTHIC</div>
@@ -1078,6 +1109,11 @@ function submitCode(){
     status.style.color = orinCheatActive ? '#22D46B' : '#FFD600';
     status.textContent = orinCheatActive ? 'Cheat Activated! 👑' : 'Cheat Deactivated! ❌';
     setTimeout(closeCodes, 1500);
+  } else if(code === 'IHateYou1234567890'){
+    localStorage.setItem('unoh_cheat_plus99', 'true');
+    status.style.color = '#22D46B';
+    status.textContent = 'Chaos is coming... +99! 😈';
+    setTimeout(closeCodes, 1500);
   } else if(code === ''){
     status.textContent = '';
   } else {
@@ -1169,6 +1205,8 @@ function buildDeck(){
   deck.push({color:'rare',value:'hotPotato',type:'hotPotato',label:'🥔',isRare:true});
   deck.push({color:'rare',value:'communism',type:'communism',label:'☭',isRare:true});
   deck.push({color:'rare',value:'targetPlus4',type:'targetPlus4',label:'🎯+4',isRare:true});
+  deck.push({color:'rare',value:'superBanana',type:'superBanana',label:'🍌✨',isRare:true});
+  deck.push({color:'rare',value:'disarmWilds',type:'disarmWilds',label:'🚫🌈',isRare:true});
 
   // 5. ORIN CARD (Rare, 0.25% chance)
   if(Math.random() < 0.0025) {
@@ -1189,6 +1227,10 @@ function drawCard(st){
   if(st.deck.length===0){
     if(st.discard.length>1){const top=st.discard.pop();st.deck=shuffle(st.discard);st.discard=[top];showStatus('Deck reshuffled! ♻️',1200);}
     else{st.deck=shuffle(buildDeck());showStatus('New deck! ♻️',1000);}
+  }
+  const plus99Cheat = localStorage.getItem('unoh_cheat_plus99') === 'true';
+  if(plus99Cheat && st.currentPlayer === 0 && gameRunning) {
+     return {color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true};
   }
   return st.deck.pop();
 }
@@ -1234,11 +1276,18 @@ async function startGame(){
   if(botTimer) clearTimeout(botTimer);
   const games=parseInt(localStorage.getItem('unoh_games')||'0')+1;
   localStorage.setItem('unoh_games',games);
+  const plus99Cheat = localStorage.getItem('unoh_cheat_plus99') === 'true';
   const deck=shuffle(buildDeck());
   const allNames=['Jim','Bob','Tod','Wren','Ben','Ken','Jimmy','Ming','Yao','Austin','Julian','Luca','Luka','Ethan','James','Jordon','Michael','Tom','Thomas','Tim','Barry','Larry','Emily','Karen','Lib','Emma','Maria','Mary','Denise','Linda','Taylor','Missy','Juan','John','Dawyne','Karry','Ceecee','Coco','Leigh','Orin','Little Angry Child'];
   const botNames=shuffle(allNames);
   const players=[{name:'You',isBot:false,cards:[]}];
   for(let i=0;i<selectedBots;i++) players.push({name:botNames[i]||(`Bot ${i+1}`),isBot:true,cards:[]});
+  
+  if(plus99Cheat){
+    players[0].cards = [];
+    for(let i=0;i<7;i++) players[0].cards.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
+  }
+
   let firstIdx=deck.findIndex(c=>c.type==='number');if(firstIdx<0) firstIdx=0;
   const firstCard=deck.splice(firstIdx,1)[0];
   state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},stealWildOwner:null,hasDrawn:false};
@@ -1247,9 +1296,12 @@ async function startGame(){
   document.getElementById('player-name-label').textContent='YOU';
   await dealAnimation(players);
   for(let i=0;i<7;i++) {
-    for(const p of state.players) {
-      if(p.name === 'You' && orinCheatActive) {
+    for(let pi=0; pi<state.players.length; pi++) {
+      const p = state.players[pi];
+      if(pi === 0 && orinCheatActive) {
         p.cards.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});
+      } else if(pi === 0 && plus99Cheat) {
+        p.cards.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
       } else {
         p.cards.push(drawCard(state));
       }
@@ -1264,6 +1316,7 @@ async function startGame(){
   // Reset cheat after one use
   orinCheatActive = false;
   localStorage.setItem('unoh_orin_cheat', 'false');
+  localStorage.setItem('unoh_cheat_plus99', 'false');
 
   renderPlayerHand();renderOpponents();scheduleBot();
 }
@@ -1335,6 +1388,18 @@ function buildCardEl(card){
   const tl=document.createElement('div');tl.className='card-tl';tl.textContent=card.label;
   const center=document.createElement('div');center.className='card-center';center.textContent=card.label;
   const br=document.createElement('div');br.className='card-br';br.textContent=card.label;
+  
+  // Clean up long labels
+  if(card.label.length > 3) {
+    center.style.fontSize = '0.9em';
+    tl.style.fontSize = '0.35em';
+    br.style.fontSize = '0.35em';
+  }
+  if(card.label.length > 5) {
+    center.style.fontSize = '0.75em';
+    center.style.letterSpacing = '-1px';
+  }
+
   const shine=document.createElement('div');shine.className='card-shine';
   el.append(tl,center,br,shine);
   
@@ -1404,13 +1469,17 @@ function isPlayable(card){
   if(card.color==='wild') return true;
   
   // Normal play (no stack)
+  // Banana rule: cannot stack bananas (cannot play banana on banana)
+  if(card.type === 'banana' && top.type === 'banana') return false;
+
   // 1. Color match
   if(card.color===cc) return true;
   
-  // 2. Number match (for number cards)
-    if(card.type==='number' && top.type==='number' && card.label===top.label) return true;
+  // 2. Number match (for number cards and bananas)
+  const isNumOrBanana = (c) => c.type === 'number' || c.type === 'banana';
+  if(isNumOrBanana(card) && isNumOrBanana(top) && card.value === top.value) return true;
     
-    // Copycat is always playable if it's wild
+  // Copycat is always playable if it's wild
     if(card.type==='copycat') return true;
     
     // Action type match (skip on skip, reverse on reverse, etc.)
@@ -1541,19 +1610,14 @@ async function executePlayCard(playerIdx,cardIdx){
 
   spawnFloatMsg(card.label,COLOR_HEX[card.color]||'#fff',playerIdx);
 
-  // Rare cards (color: 'rare')
-  if(card.isRare || card.color==='rare'){
-    if(playerIdx===0){
-      await applyRareEffect(card,playerIdx,null);
-    } else {
-      await applyRareBotEffect(card,playerIdx);
-    }
-    return;
-  }
-
   // Wild cards (color: 'wild')
-  if(card.color==='wild'){
+  if(card.color==='wild'||card.color==='rare'){
     if(playerIdx===0){
+      // Rare cards (color: 'rare')
+      if(card.isRare || card.color==='rare'){
+        await applyRareEffect(card,playerIdx,null);
+        return;
+      }
       // Check steal wild for player play
       if(state.stealWildOwner!==null&&state.stealWildOwner!==0){
         const thief=state.stealWildOwner;state.stealWildOwner=null;
@@ -1569,6 +1633,11 @@ async function executePlayCard(playerIdx,cardIdx){
       pendingWild={card,playerIdx};
       showColorPicker('Choose a Color');
     } else {
+      // Rare cards (color: 'rare') for bot
+      if(card.isRare || card.color==='rare'){
+        await applyRareBotEffect(card,playerIdx);
+        return;
+      }
       // Check steal wild for bot play
       if(state.stealWildOwner!==null&&state.stealWildOwner!==playerIdx){
         const thief=state.stealWildOwner;state.stealWildOwner=null;
@@ -1672,6 +1741,35 @@ async function applyRareEffect(card,playerIdx,_){
       await animateShuffleStorm();
       break;
     }
+    case 'superBanana':{
+      const target=await pickPlayer('🍌 Swaps whose cards to Bananas?',[]);
+      const p=state.players[target];
+      const count=p.cards.length;
+      p.cards=[];
+      const colors=['red','blue','yellow','green','purple'];
+      for(let i=0;i<count;i++){
+        const col=colors[Math.floor(Math.random()*colors.length)];
+        const val=Math.floor(Math.random()*12)+1;
+        p.cards.push({color:col,value:String(val),type:'banana',label:val+'🍌'});
+      }
+      showStatus(`🍌 ${p.name}'s cards turned into Bananas!`,2000);
+      if(target===0) renderPlayerHand(); else updateOpponentZone(target);
+      break;
+    }
+    case 'disarmWilds':{
+      showStatus('🚫 Disarming all Wilds!',2000);
+      for(let i=0;i<state.players.length;i++){
+        const p=state.players[i];
+        const initialCount=p.cards.length;
+        p.cards=p.cards.filter(c=>c.color!=='wild' && c.color!=='rare');
+        const removed=initialCount-p.cards.length;
+        if(removed>0){
+          if(i===0) renderPlayerHand(); else updateOpponentZone(i);
+          spawnFloatMsg(`-${removed} Wilds`, '#ff00ff', i);
+        }
+      }
+      break;
+    }
   }
 
   // After rare effect, pick a color (all rare cards are wild)
@@ -1721,6 +1819,40 @@ async function applyRareBotEffect(card,playerIdx){
     }
     case 'shuffleStorm':{
       await animateShuffleStorm();
+      break;
+    }
+    case 'superBanana':{
+      // Bot targets whoever has the fewest cards (except themselves)
+      let target=0; let minCards=Infinity;
+      for(let i=0;i<state.players.length;i++){
+        if(i===playerIdx) continue;
+        if(state.players[i].cards.length<minCards){minCards=state.players[i].cards.length;target=i;}
+      }
+      const p=state.players[target];
+      const count=p.cards.length;
+      p.cards=[];
+      const colors=['red','blue','yellow','green','purple'];
+      for(let i=0;i<count;i++){
+        const col=colors[Math.floor(Math.random()*colors.length)];
+        const val=Math.floor(Math.random()*12)+1;
+        p.cards.push({color:col,value:String(val),type:'banana',label:val+'🍌'});
+      }
+      showStatus(`🍌 ${state.players[playerIdx].name} turned ${p.name}'s cards to Bananas!`,2000);
+      if(target===0) renderPlayerHand(); else updateOpponentZone(target);
+      break;
+    }
+    case 'disarmWilds':{
+      showStatus(`🚫 ${state.players[playerIdx].name} disarmed all Wilds!`,2000);
+      for(let i=0;i<state.players.length;i++){
+        const p=state.players[i];
+        const initialCount=p.cards.length;
+        p.cards=p.cards.filter(c=>c.color!=='wild' && c.color!=='rare');
+        const removed=initialCount-p.cards.length;
+        if(removed>0){
+          if(i===0) renderPlayerHand(); else updateOpponentZone(i);
+          spawnFloatMsg(`-${removed} Wilds`, '#ff00ff', i);
+        }
+      }
       break;
     }
   }
