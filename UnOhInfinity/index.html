@@ -380,23 +380,25 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 .player-area{width:100%;padding:6px 12px 12px;position:relative;z-index:2;}
 .player-info{display:flex;align-items:center;justify-content:space-between;padding:0 4px 6px;}
 .player-name-label{font-weight:800;font-size:0.92em;display:flex;align-items:center;gap:6px;transition:color 0.3s;}
-.hand-scroll-container{position:relative;overflow:hidden;width:100%;}
-.hand-container{display:flex;overflow:visible;gap:0;padding:10px 6px 6px;justify-content:center;flex-wrap:nowrap;width:100%;}
+.hand-scroll-container{position:relative;overflow:visible;width:100%;margin-top:60px;}
+.hand-container{display:flex;overflow:visible;gap:0;padding:50px 6px 40px;justify-content:center;flex-wrap:nowrap;width:100%;}
 .hand-card{
   width:74px;height:104px;border-radius:13px;flex-shrink:0;cursor:pointer;position:relative;z-index:1;
-  transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   filter:drop-shadow(0 6px 12px rgba(0,0,0,0.5));
 }
 .hand-card:first-child{margin-left:0!important;}
-.hand-card .game-card{width:100%;height:100%;}
+.hand-card .game-card{width:100%;height:100%;transition:all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
+
 .hand-card.playable{filter:drop-shadow(0 0 10px rgba(255,255,255,0.8));animation:playableGlow 2s ease-in-out infinite;}
 .hand-card.playable.rare-playable{filter:drop-shadow(0 0 15px rgba(168,85,247,1));animation:rarePlayableGlow 1.6s ease-in-out infinite;}
 @keyframes playableGlow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,255,255,0.6))}50%{filter:drop-shadow(0 0 20px rgba(255,255,255,1)) drop-shadow(0 0 40px rgba(255,255,255,0.5))}}
 @keyframes rarePlayableGlow{0%,100%{filter:drop-shadow(0 0 12px rgba(168,85,247,0.9))}50%{filter:drop-shadow(0 0 26px rgba(168,85,247,1)) drop-shadow(0 0 50px rgba(210,130,255,0.7))}}
-.hand-card.playable:hover{transform:translateY(-55px) scale(1.3) rotate(3deg)!important;z-index:100!important;filter:drop-shadow(0 20px 40px rgba(0,0,0,0.7));}
-.hand-card:not(.playable):not(.not-playable):hover{transform:translateY(-20px) scale(1.1)!important;}
+
+.hand-card.playable:hover .game-card{transform:translateY(-35px) scale(1.15) rotate(2deg);filter:drop-shadow(0 20px 40px rgba(0,0,0,0.7));}
+.hand-card:not(.playable):not(.not-playable):hover .game-card{transform:translateY(-15px) scale(1.08);}
+.hand-card.playable:hover{z-index:100!important;}
 .hand-card.not-playable{opacity:0.75;cursor:not-allowed;filter:grayscale(0.1) brightness(0.8);transition:all 0.3s ease;}
-.hand-card.not-playable:hover{transform:translateY(-8px)!important;opacity:0.9;filter:grayscale(0) brightness(0.95);}
+.hand-card.not-playable:hover .game-card{transform:translateY(-8px);opacity:0.9;filter:grayscale(0) brightness(0.95);}
 
 /* ── STATUS ── */
 .status-bar{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;pointer-events:none;}
@@ -1135,9 +1137,9 @@ function isPlayable(card){
   if(card.type==='number' && top.type==='number' && card.label===top.label) return true;
   
   // 3. Action type match (skip on skip, reverse on reverse, etc.)
-  const actionTypes=['skip','reverse','skipAll','targetDraw2','doublePlay','discardColor','plus'];
-  const baseType=card.type.replace('wild','').toLowerCase().replace('Plus','plus');
-  const topBaseType=top.type.replace('wild','').toLowerCase().replace('Plus','plus');
+  const actionTypes=['skip','reverse','skipall','targetdraw2','doubleplay','discardcolor','plus'];
+  const baseType=card.type.toLowerCase().replace('wild','');
+  const topBaseType=top.type.toLowerCase().replace('wild','');
 
   if(actionTypes.includes(baseType) && baseType===topBaseType){
     // Special case for plus cards: even without a stack, stacking rules apply (must match value)
