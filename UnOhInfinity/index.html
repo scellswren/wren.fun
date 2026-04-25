@@ -598,6 +598,18 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
             <div class="guide-card-desc">Play on a matching colour or the same number. The bread and butter of every hand.</div>
           </div>
         </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">🎨</div>
+          <div class="guide-card-info"><div class="guide-card-name">Color Shift</div><div class="guide-card-desc">Instantly changes the current game color to the next one in the sequence.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">🪞</div>
+          <div class="guide-card-info"><div class="guide-card-name">Mirror</div><div class="guide-card-desc">Reflects a draw penalty back to the previous player, or acts as a Skip if no penalty.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">💥</div>
+          <div class="guide-card-info"><div class="guide-card-name">Chaos Draw</div><div class="guide-card-desc">Forces every other player to draw 1 card from the deck. Pure chaos!</div></div>
+        </div>
       </div>
     </div>
 
@@ -688,6 +700,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
           <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">🎲🌈</div>
           <div class="guide-card-info"><div class="guide-card-name">Pick Until</div><div class="guide-card-desc">Pick a colour. The next player draws cards until they find one of that colour!</div></div>
         </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">❓🌈</div>
+          <div class="guide-card-info"><div class="guide-card-name">Mystery Wild</div><div class="guide-card-desc">A wild card with a random surprise effect! Who knows what will happen?</div></div>
+        </div>
       </div>
     </div>
 
@@ -724,6 +740,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
             <div class="rare-badge">✦ Rare · Wild</div>
             <div class="guide-card-name">Shuffle Storm</div>
             <div class="guide-card-desc">All players' hands get shuffled and randomly redistributed. Chaos ensues!</div>
+          </div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">👑</div>
+          <div class="guide-card-info">
+            <div class="rare-badge">✦ Mythic Rare</div>
+            <div class="guide-card-name">Orin Card</div>
+            <div class="guide-card-desc">0.25% chance to find. The Mind of Orin descends, transforming the very world of UnOh.</div>
           </div>
         </div>
       </div>
@@ -918,6 +942,14 @@ function buildDeck(){
     // New "Interesting" cards
     deck.push({color,value:'targetDraw2',type:'targetDraw2',label:'🎯+2'});
     if(Math.random()>0.6) deck.push({color,value:'doublePlay',type:'doublePlay',label:'2x'});
+
+    // 5 NEW UNIQUE CARDS
+    // 1. Color Shift (Normal) - Changes color to next in sequence
+    deck.push({color,value:'colorShift',type:'colorShift',label:'🎨'});
+    // 2. Mirror (Normal) - Reflects draw penalty back or skips
+    deck.push({color,value:'mirror',type:'mirror',label:'🪞'});
+    // 3. Chaos Draw (Normal) - Everyone draws 1
+    if(Math.random()>0.7) deck.push({color,value:'chaosDraw',type:'chaosDraw',label:'💥'});
   }
   // Wild
   for(let i=0;i<4;i++) deck.push({color:'wild',value:'wild',type:'wild',label:'🌈'});
@@ -925,6 +957,9 @@ function buildDeck(){
   for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildSkip',type:'wildSkip',label:'⊘🌈'});
   for(let i=0;i<2;i++) deck.push({color:'wild',value:'discardColor',type:'discardColor',label:'🗑️🌈'});
   
+  // 4. Mystery Wild (New Wild) - Random effect when played
+  deck.push({color:'wild',value:'mysteryWild',type:'mysteryWild',label:'❓🌈'});
+
   // Wild Plus are also fewer
   deck.push({color:'wild',value:'wild+2',type:'wildPlus',num:2,label:'+2🌈'});
   deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4🌈'});
@@ -937,6 +972,12 @@ function buildDeck(){
   deck.push({color:'rare',value:'handFreeze',type:'handFreeze',label:'❄️',isRare:true});
   deck.push({color:'rare',value:'stealWild',type:'stealWild',label:'🎭',isRare:true});
   deck.push({color:'rare',value:'shuffleStorm',type:'shuffleStorm',label:'🌪️',isRare:true});
+
+  // 5. ORIN CARD (Rare, 0.25% chance)
+  if(Math.random() < 0.0025) {
+    deck.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});
+  }
+
   return deck;
 }
 
@@ -1064,6 +1105,13 @@ function buildCardEl(card){
   const br=document.createElement('div');br.className='card-br';br.textContent=card.label;
   const shine=document.createElement('div');shine.className='card-shine';
   el.append(tl,center,br,shine);
+  if(card.type==='orinCard' || (card.isRare && card.label==='👑')){
+    el.style.backgroundImage = "url('TheMindOfOrin.jpg')";
+    el.style.backgroundSize = "100% 100%";
+    el.style.backgroundPosition = "center";
+    el.style.backgroundRepeat = "no-repeat";
+  }
+  
   return el;
 }
 function renderDiscard(){
@@ -1235,9 +1283,38 @@ async function executePlayCard(playerIdx,cardIdx){
   // Wild cards (color: 'wild')
   if(card.color==='wild'){
     if(playerIdx===0){
+      // Check steal wild for player play
+      if(state.stealWildOwner!==null&&state.stealWildOwner!==0){
+        const thief=state.stealWildOwner;state.stealWildOwner=null;
+        showStatus(`🎭 ${state.players[thief].name} steals the wild!`,2000);
+        const banner=document.createElement('div');banner.className='steal-wild-banner';
+        banner.textContent=`🎭 ${state.players[thief].name} STEALS THE WILD!`;document.body.appendChild(banner);setTimeout(()=>banner.remove(),2600);
+        
+        const bc=botPickColor(state.players[thief]);state.currentColor=bc;
+        showStatus(`${state.players[thief].name} chose ${bc}!`,1500);
+        await applyCardEffect(card,thief,bc);
+        return;
+      }
       pendingWild={card,playerIdx};
       showColorPicker('Choose a Color');
     } else {
+      // Check steal wild for bot play
+      if(state.stealWildOwner!==null&&state.stealWildOwner!==playerIdx){
+        const thief=state.stealWildOwner;state.stealWildOwner=null;
+        showStatus(`🎭 ${state.players[thief].name} steals the wild!`,2000);
+        const banner=document.createElement('div');banner.className='steal-wild-banner';
+        banner.textContent=`🎭 ${state.players[thief].name} STEALS THE WILD!`;document.body.appendChild(banner);setTimeout(()=>banner.remove(),2600);
+        
+        if(thief===0){
+          pendingWild={card,playerIdx: 0};
+          showColorPicker('🎭 You stole the wild! Choose color:');
+        } else {
+          const bc=botPickColor(state.players[thief]);state.currentColor=bc;
+          showStatus(`${state.players[thief].name} chose ${bc}!`,1500);
+          await applyCardEffect(card,thief,bc);
+        }
+        return;
+      }
       const bc=botPickColor(state.players[playerIdx]);
       state.currentColor=bc;
       await applyCardEffect(card,playerIdx,bc);
@@ -1279,6 +1356,21 @@ async function applyRareEffect(card,playerIdx,_){
   document.getElementById('player-picker').classList.add('hidden');
 
   switch(card.type){
+    case 'orinCard': {
+      // Background change to TheMindOfOrin.jpg
+      document.body.style.backgroundImage = "url('TheMindOfOrin.jpg')";
+      document.body.style.backgroundSize = "cover";
+      document.body.style.backgroundPosition = "center";
+      document.body.style.backgroundAttachment = "fixed";
+      // Flash effect
+      const flash = document.createElement('div');
+      flash.style.cssText = "position:fixed;inset:0;background:#fff;z-index:1000;pointer-events:none;opacity:0.8;transition:opacity 1s;";
+      document.body.appendChild(flash);
+      setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 1000); }, 50);
+      showStatus('👑 THE MIND OF ORIN HAS DESCENDED! 👑', 3000);
+      playSound('rare');
+      break;
+    }
     case 'swapDecks':{
       const target=await pickPlayer('🔀 Swap decks with whom?',[]);
       if(target===playerIdx){showStatus('You swapped with yourself... 😅',1500);}
@@ -1317,6 +1409,19 @@ async function applyRareEffect(card,playerIdx,_){
 /* ═══ RARE BOT EFFECTS ═══ */
 async function applyRareBotEffect(card,playerIdx){
   switch(card.type){
+    case 'orinCard': {
+      document.body.style.backgroundImage = "url('TheMindOfOrin.jpg')";
+      document.body.style.backgroundSize = "cover";
+      document.body.style.backgroundPosition = "center";
+      document.body.style.backgroundAttachment = "fixed";
+      const flash = document.createElement('div');
+      flash.style.cssText = "position:fixed;inset:0;background:#fff;z-index:1000;pointer-events:none;opacity:0.8;transition:opacity 1s;";
+      document.body.appendChild(flash);
+      setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 1000); }, 50);
+      showStatus(`👑 ${state.players[playerIdx].name} SUMMONED ORIN! 👑`, 3000);
+      playSound('rare');
+      break;
+    }
     case 'swapDecks':{
       let target=0;let minCards=Infinity;
       for(let i=0;i<state.players.length;i++){
@@ -1346,6 +1451,23 @@ async function applyRareBotEffect(card,playerIdx){
   }
   
   // Bot picks a color
+  if(state.stealWildOwner!==null && state.stealWildOwner!==playerIdx){
+    const thief=state.stealWildOwner; state.stealWildOwner=null;
+    showStatus(`🎭 ${state.players[thief].name} steals the wild!`, 2000);
+    const banner=document.createElement('div'); banner.className='steal-wild-banner';
+    banner.textContent=`🎭 ${state.players[thief].name} STEALS THE WILD!`; document.body.appendChild(banner); setTimeout(()=>banner.remove(),2600);
+    
+    if(thief===0){
+      pendingWild={card, playerIdx: 0};
+      showColorPicker('🎭 You stole the wild! Choose color:');
+    } else {
+      const bc=botPickColor(state.players[thief]); state.currentColor=bc;
+      showStatus(`${state.players[thief].name} chose ${bc}!`, 1500);
+      await applyCardEffect(card, thief, bc);
+    }
+    return;
+  }
+
   const bc=botPickColor(state.players[playerIdx]);
   state.currentColor=bc;
   showStatus(`${state.players[playerIdx].name} chose ${bc}!`,1500);
@@ -1448,6 +1570,44 @@ async function applyCardEffect(card,playerIdx,chosenColor){
     case 'plus': case 'wildPlus':
       state.pendingDraw+=card.num;state.pendingDrawNum=card.num;
       showStatus(`+${card.num} stacked! Total: +${state.pendingDraw} 😬`,1600);break;
+
+    case 'colorShift': {
+      const colors = ['red','blue','yellow','green','purple'];
+      const curIdx = colors.indexOf(state.currentColor);
+      const nextColor = colors[(curIdx + 1) % colors.length];
+      state.currentColor = nextColor;
+      updateColorBar();
+      showStatus(`🎨 Color shifted to ${nextColor}!`, 1500);
+      break;
+    }
+    case 'mirror': {
+      if(state.pendingDraw > 0) {
+        showStatus(`🪞 Draw penalty mirrored!`, 2000);
+        state.direction *= -1;
+        updateDirectionBadge();
+      } else {
+        showStatus(`🪞 Mirror used as Skip!`, 1500);
+        advanceTurn();
+      }
+      break;
+    }
+    case 'chaosDraw': {
+      showStatus(`💥 CHAOS! Everyone draws 1!`, 2000);
+      for(let i=0; i<state.players.length; i++) {
+        if(i !== playerIdx) await animateDraw(i, 1);
+      }
+      break;
+    }
+    case 'mysteryWild': {
+      const effects = ['skipAll', 'reverse', 'plus2', 'plus4'];
+      const rand = effects[Math.floor(Math.random()*effects.length)];
+      showStatus(`❓ Mystery: ${rand.toUpperCase()}!`, 2000);
+      if(rand === 'plus2') { state.pendingDraw += 2; }
+      else if(rand === 'plus4') { state.pendingDraw += 4; }
+      else if(rand === 'skipAll') { extraTurn = true; }
+      else if(rand === 'reverse') { state.direction *= -1; updateDirectionBadge(); }
+      break;
+    }
 
     case 'targetDraw2': {
       let target;
@@ -1580,6 +1740,7 @@ function botDrawOne(idx){
 async function botTakePenalty(idx){
   const n=state.pendingDraw;
   await showPlusAlert(n);
+  await animateDrawCards(n, 150, idx); // ADDED ANIMATION HERE
   for(let i=0;i<n;i++) state.players[idx].cards.push(drawCard(state));
   playSound('draw');showStatus(`${state.players[idx].name} drew ${n} cards! 😬`,1600);
   spawnFloatMsg(`+${n}`,'#FF3B3B',idx);state.pendingDraw=0;state.pendingDrawNum=null;
@@ -1622,7 +1783,7 @@ async function drawFromDeck(){
   if(state.pendingDraw>0){
     const n=state.pendingDraw;autoDrawing=true;
     await showPlusAlert(n);
-    await animateDrawCards(n,150);
+    await animateDrawCards(n,150,0); // Passing 0 for player
     for(let i=0;i<n;i++) state.players[0].cards.push(drawCard(state));
     state.pendingDraw=0;state.pendingDrawNum=null;autoDrawing=false;
     // Unfreeze on draw
@@ -1642,7 +1803,7 @@ async function drawFromDeck(){
   playSound('draw');spawnFloatMsg('+1','#aaa',0);
   // Unfreeze the player
   if(state.frozenPlayers&&state.frozenPlayers[0]) delete state.frozenPlayers[0];
-  await animateDrawCards(1,0);
+  await animateDrawCards(1,0,0); // Passing 0 for player
   if(isPlayable(drawn)){
     showStatus(`Drew ${drawn.label} — you can play it!`, 2200);
     renderPlayerHand();
@@ -1661,23 +1822,34 @@ async function triggerAutoDrawForPlayer(){
   if(!gameRunning||state.gameOver||state.currentPlayer!==0){autoDrawing=false;return;}
   const n=state.pendingDraw;
   await showPlusAlert(n);
-  await animateDrawCards(n,200);
+  await animateDrawCards(n,200,0); // Passing 0 for player
   for(let i=0;i<n;i++) state.players[0].cards.push(drawCard(state));
   state.pendingDraw=0;state.pendingDrawNum=null;autoDrawing=false;
   if(state.frozenPlayers) for(const k of Object.keys(state.frozenPlayers)) delete state.frozenPlayers[k];
   advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();
 }
 
-function animateDrawCards(count,intervalMs){
+function animateDrawCards(count,intervalMs,targetIdx=0){
   return new Promise(resolve=>{
     const deckEl=document.getElementById('deck-pile');let completed=0;
     for(let i=0;i<count;i++){
       setTimeout(()=>{
         const dr=deckEl.getBoundingClientRect();
-        const hand=document.getElementById('player-hand');const hr=hand.getBoundingClientRect();
-        const destX=hr.left+hr.width/2+(Math.random()-0.5)*60,destY=hr.top+20;
+        let destX, destY;
+        if(targetIdx===0){
+          const hand=document.getElementById('player-hand');const hr=hand.getBoundingClientRect();
+          destX=hr.left+hr.width/2+(Math.random()-0.5)*60; destY=hr.top+20;
+        } else {
+          const zone=document.getElementById(`opp-zone-${targetIdx}`);
+          if(zone){const zr=zone.getBoundingClientRect(); destX=zr.left+zr.width/2; destY=zr.top+20;}
+          else{destX=window.innerWidth/2; destY=80;}
+        }
+
         const el=document.createElement('div');el.className='draw-fly';el.textContent='🂠';
         el.style.cssText=`width:52px;height:74px;left:${dr.left}px;top:${dr.top}px;font-size:1.4em;`;
+        if(targetIdx!==0) el.style.boxShadow = "0 0 15px #22D46B"; // Green glow for others
+        else el.style.boxShadow = "0 0 15px #FF3B3B"; // Red glow for player
+
         document.body.appendChild(el);
         const startX=dr.left,startY=dr.top,dx=destX-startX,dy=destY-startY,dur=400+i*30,start=performance.now();
         function step(now){
@@ -1709,15 +1881,16 @@ function pickColor(color){
       showStatus(`🎭 ${state.players[thief].name} steals the wild!`,2000);
       const banner=document.createElement('div');banner.className='steal-wild-banner';
       banner.textContent=`🎭 ${state.players[thief].name} STEALS THE WILD!`;document.body.appendChild(banner);setTimeout(()=>banner.remove(),2600);
-      // Now the thief picks colour
+      
       if(thief===0){
-        pendingWild={card,playerIdx};
+        pendingWild={card,playerIdx: 0}; 
         setTimeout(()=>showColorPicker('🎭 You stole the wild! Choose color:'),300);
         return;
       } else {
         const bc=botPickColor(state.players[thief]);state.currentColor=bc;
         showStatus(`${state.players[thief].name} chose ${bc}!`,1500);
-        applyCardEffect(card,playerIdx,bc);return;
+        applyCardEffect(card,thief,bc);
+        return;
       }
     }
     state.stealWildOwner=null;
@@ -1729,6 +1902,36 @@ function pickColor(color){
 
 /* ═══ WIN CARD EXPLOSION ═══ */
 async function triggerWinExplosion(winnerIdx){
+  // 1. FLASH EFFECT
+  const flash = document.createElement('div');
+  flash.style.cssText = "position:fixed;inset:0;background:#fff;z-index:2000;pointer-events:none;opacity:0;transition:opacity 0.1s;";
+  document.body.appendChild(flash);
+  requestAnimationFrame(() => {
+    flash.style.opacity = '1';
+    setTimeout(() => {
+      flash.style.opacity = '0';
+      setTimeout(() => flash.remove(), 500);
+    }, 100);
+  });
+
+  // Massive confetti effect
+  const confettiCount = 150;
+  const colorsConfetti = ['#FF3B3B', '#2B7FFF', '#FFD600', '#22D46B', '#A855F7'];
+  for(let i=0; i<confettiCount; i++) {
+    const p = document.createElement('div');
+    p.style.cssText = `position:fixed;left:50%;top:50%;width:10px;height:10px;background:${colorsConfetti[i%5]};z-index:1000;border-radius:2px;pointer-events:none;`;
+    document.body.appendChild(p);
+    const angle = Math.random() * Math.PI * 2;
+    const velocity = 5 + Math.random() * 15;
+    const tx = Math.cos(angle) * velocity * 50;
+    const ty = Math.sin(angle) * velocity * 50 - 200; // Shoot upwards
+    p.animate([
+      { transform: 'translate(0,0) rotate(0)', opacity: 1 },
+      { transform: `translate(${tx}px, ${ty}px) rotate(${Math.random()*720}deg)`, opacity: 1, offset: 0.4 },
+      { transform: `translate(${tx*1.2}px, ${window.innerHeight}px) rotate(${Math.random()*1440}deg)`, opacity: 0 }
+    ], { duration: 2000 + Math.random()*1000, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }).onfinish = () => p.remove();
+  }
+
   // Gather all card positions and shoot them to center
   const cx=window.innerWidth/2,cy=window.innerHeight/2;
   const allCardEls=[];
@@ -1759,8 +1962,8 @@ async function triggerWinExplosion(winnerIdx){
     const p=new Promise(res=>{
       const anim=el.animate([
         {transform:'translate(0,0) rotate(0deg) scale(1)',opacity:1},
-        {transform:`translate(${tx}px,${ty}px) rotate(${Math.random()*720-360}deg) scale(1.3)`,opacity:1,offset:0.7},
-        {transform:`translate(${tx+(Math.random()-0.5)*200}px,${ty+(Math.random()-0.5)*200}px) rotate(${Math.random()*1080-540}deg) scale(0)`,opacity:0}
+        {transform:`translate(${tx}px,${ty}px) rotate(${Math.random()*1440-720}deg) scale(2.5)`,opacity:1,offset:0.7},
+        {transform:`translate(${tx+(Math.random()-0.5)*400}px,${ty+(Math.random()-0.5)*400}px) rotate(${Math.random()*2160-1080}deg) scale(0)`,opacity:0}
       ],{duration:dur,delay:delay2,easing:'cubic-bezier(0.25,0.46,0.45,0.94)',fill:'forwards'});
       anim.onfinish=()=>{el.remove();res();};
     });
