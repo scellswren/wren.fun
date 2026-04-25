@@ -44,28 +44,36 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 .logo-wrap{position:relative;display:inline-block;}
 .menu-logo{
   font-family:'Fredoka One',cursive;
-  font-size:clamp(3.2em,10vw,6.5em);
+  font-size:clamp(3.5em,12vw,7em);
   background:linear-gradient(135deg,#FF3B3B 0%,#FFD600 30%,#22D46B 55%,#2B7FFF 75%,#A855F7 100%);
+  background-size:200% auto;
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 40px rgba(168,85,247,0.5));
-  animation:logoFloat 4s ease-in-out infinite;
-  letter-spacing:-1px;line-height:1;
+  filter:drop-shadow(0 0 50px rgba(168,85,247,0.6));
+  animation:logoFloat 4s ease-in-out infinite, logoGradient 6s linear infinite;
+  letter-spacing:-2px;line-height:1;
 }
+@keyframes logoGradient{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 .logo-shine{
   position:absolute;top:0;left:-60%;width:40%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
-  animation:logoShine 4s ease-in-out infinite;pointer-events:none;mix-blend-mode:overlay;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+  animation:logoShine 3.5s ease-in-out infinite;pointer-events:none;mix-blend-mode:overlay;
 }
-@keyframes logoFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-10px) rotate(1deg)}}
+@keyframes logoFloat{0%,100%{transform:translateY(0) rotate(-1.5deg) scale(1)}50%{transform:translateY(-15px) rotate(1.5deg) scale(1.02)}}
 @keyframes logoShine{0%{left:-60%}60%,100%{left:130%}}
 
 .menu-stats{display:flex;gap:14px;align-items:center;}
 .stat-pill{
-  background:var(--glass);border:1px solid var(--border);
-  border-radius:50px;padding:8px 20px;font-size:0.9em;font-weight:800;
-  display:flex;align-items:center;gap:8px;backdrop-filter:blur(10px);
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+  border-radius:50px;padding:10px 24px;font-size:0.95em;font-weight:900;
+  display:flex;align-items:center;gap:10px;backdrop-filter:blur(12px);
+  transition:all 0.3s ease;
 }
-.stat-pill span{color:#FFD600;}
+.stat-pill:hover{
+  background:rgba(255,255,255,0.12);
+  transform:translateY(-2px);
+  border-color:rgba(255,255,255,0.3);
+}
+.stat-pill span{color:#FFD600;text-shadow:0 0 10px rgba(255,214,0,0.5);}
 
 .menu-cards-deco{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
 .deco-card{
@@ -81,45 +89,67 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 .section-label{font-weight:800;font-size:0.8em;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
 .bot-grid{display:flex;gap:10px;}
 .bot-btn{
-  padding:11px 26px;border-radius:14px;border:2px solid var(--border);background:var(--glass);
-  color:var(--text);font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95em;cursor:pointer;
-  transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);backdrop-filter:blur(10px);
+  padding:12px 30px;border-radius:16px;border:2px solid var(--border);background:rgba(255,255,255,0.05);
+  color:var(--text);font-family:'Nunito',sans-serif;font-weight:900;font-size:1em;cursor:pointer;
+  transition:all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);backdrop-filter:blur(10px);
 }
-.bot-btn:hover{background:rgba(255,255,255,0.1);transform:translateY(-3px);}
+.bot-btn:hover{background:rgba(255,255,255,0.12);transform:translateY(-4px);border-color:rgba(255,255,255,0.3);}
 .bot-btn.selected{
-  background:linear-gradient(135deg,rgba(168,85,247,0.4),rgba(99,102,241,0.4));
-  border-color:#A855F7;box-shadow:0 0 20px rgba(168,85,247,0.4);transform:translateY(-3px);
+  background:linear-gradient(135deg,rgba(168,85,247,0.5),rgba(99,102,241,0.5));
+  border-color:#A855F7;box-shadow:0 0 30px rgba(168,85,247,0.5);transform:translateY(-4px) scale(1.05);
 }
 
 .menu-btn-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:center;}
 
 .play-btn{
-  padding:17px 65px;border-radius:60px;border:none;
-  background:linear-gradient(135deg,#FF3B3B,#A855F7,#2B7FFF);
-  color:white;font-family:'Fredoka One',cursive;font-size:1.55em;cursor:pointer;
-  box-shadow:0 8px 40px rgba(168,85,247,0.55);
-  transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);
-  letter-spacing:1px;background-size:200% 200%;animation:btnGradient 3s ease infinite;
-  position:relative;overflow:hidden;
+  padding:18px 80px;border-radius:60px;border:none;
+  background:linear-gradient(135deg,#FF3B3B,#FFD600,#22D46B,#2B7FFF,#A855F7);
+  color:white;font-family:'Fredoka One',cursive;font-size:1.8em;cursor:pointer;
+  box-shadow:0 10px 50px rgba(168,85,247,0.7), inset 0 0 20px rgba(255,255,255,0.4);
+  transition:all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  letter-spacing:2px;background-size:200% 200%;animation:btnGradient 4s ease infinite;
+  position:relative;overflow:hidden;text-shadow:0 2px 10px rgba(0,0,0,0.4);
 }
-.play-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.2),transparent);border-radius:inherit;}
-.play-btn:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 14px 55px rgba(168,85,247,0.75);}
-.play-btn:active{transform:scale(0.96);}
+.play-btn::after{
+  content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.6),transparent);
+  transform:skewX(-25deg);transition:none;
+}
+.play-btn:hover{
+  transform:translateY(-8px) scale(1.1);
+  box-shadow:0 20px 80px rgba(168,85,247,0.9), inset 0 0 40px rgba(255,255,255,0.5);
+}
+.play-btn:hover::after{
+  left:150%;transition:left 0.7s ease-in-out;
+}
+.play-btn:active{transform:scale(0.94) translateY(2px);}
 @keyframes btnGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
 .cards-btn{
-  padding:14px 28px;border-radius:50px;border:2px solid var(--border);
-  background:var(--glass);color:var(--text);
-  font-family:'Nunito',sans-serif;font-weight:800;font-size:1em;cursor:pointer;
-  backdrop-filter:blur(10px);
-  transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  padding:15px 32px;border-radius:50px;border:2px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.08);color:white;
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:1.1em;cursor:pointer;
+  backdrop-filter:blur(12px);
+  transition:all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-transform:uppercase;letter-spacing:1px;
 }
-.cards-btn:hover{background:rgba(255,255,255,0.12);transform:translateY(-3px);border-color:rgba(255,255,255,0.25);}
+.cards-btn:hover{
+  background:rgba(255,255,255,0.15);
+  transform:translateY(-6px) scale(1.05);
+  border-color:rgba(255,255,255,0.5);
+  box-shadow:0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(255,255,255,0.1);
+}
 
 .how-to{
-  background:var(--glass);border:1px solid var(--border);border-radius:16px;
-  padding:14px 22px;max-width:440px;font-size:0.82em;line-height:1.7;
-  color:var(--muted);backdrop-filter:blur(10px);text-align:center;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:20px;
+  padding:16px 26px;max-width:480px;font-size:0.85em;line-height:1.8;
+  color:var(--muted);backdrop-filter:blur(12px);text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  transition:all 0.3s ease;
+}
+.how-to:hover{
+  background:rgba(255,255,255,0.05);
+  border-color:rgba(255,255,255,0.2);
 }
 .how-to strong{color:var(--text);}
 
@@ -227,15 +257,25 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
   font-weight:800;font-size:0.82em;padding:4px 12px;
   border-radius:20px;background:var(--glass);border:1px solid var(--border);transition:all 0.3s;
 }
-.opp-name.active{background:rgba(34,212,107,0.15);border-color:rgba(34,212,107,0.5);color:#22D46B;}
-.opp-name.frozen{background:rgba(100,200,255,0.15);border-color:rgba(100,200,255,0.5);color:#88ddff;}
+.opp-name.active{
+  background:rgba(34,212,107,0.2);border-color:rgba(34,212,107,0.8);color:#22D46B;
+  box-shadow:0 0 15px rgba(34,212,107,0.3);
+  transform:scale(1.1);
+}
+.opp-name.frozen{background:rgba(100,200,255,0.2);border-color:rgba(100,200,255,0.8);color:#88ddff;box-shadow:0 0 15px rgba(100,200,255,0.3);}
 .opp-cards{display:flex;position:relative;height:60px;min-width:50px;justify-content:center;align-items:flex-end;}
 .opp-card-mini{
   width:36px;height:52px;border-radius:7px;
   background:linear-gradient(145deg,#1a1a38,#252550);
   border:2px solid rgba(255,255,255,0.18);margin-left:-14px;
   box-shadow:2px 2px 8px rgba(0,0,0,0.5);
-  display:flex;align-items:center;justify-content:center;font-size:1em;transition:all 0.3s;
+  display:flex;align-items:center;justify-content:center;font-size:1em;
+  transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.opp-card-mini:hover{
+  transform:translateY(-15px) scale(1.2) rotate(-5deg);
+  z-index:10;
+  border-color:rgba(255,255,255,0.4);
 }
 .opp-card-mini:first-child{margin-left:0;}
 .opp-info{font-size:0.75em;color:var(--muted);}
@@ -270,10 +310,11 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
   border:3px solid rgba(255,255,255,0.18);
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   font-size:2em;position:relative;
-  transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  transition:all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow:0 4px 20px rgba(0,0,0,0.5);user-select:none;
 }
-.deck-pile:hover{transform:translateY(-5px) scale(1.06);border-color:rgba(255,255,255,0.5);box-shadow:0 10px 35px rgba(168,85,247,0.45);}
+.deck-pile:hover{transform:translateY(-8px) scale(1.1);border-color:rgba(255,255,255,0.6);box-shadow:0 15px 45px rgba(168,85,247,0.6);}
+.deck-pile:active{transform:scale(0.95);}
 .deck-pile::after{content:'DRAW';position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);font-size:0.32em;font-weight:800;color:var(--muted);white-space:nowrap;letter-spacing:1px;}
 .deck-label{font-size:0.72em;font-weight:800;color:var(--muted);margin-top:16px;}
 .discard-zone{display:flex;flex-direction:column;align-items:center;gap:6px;}
@@ -327,17 +368,21 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 .player-name-label{font-weight:800;font-size:0.92em;display:flex;align-items:center;gap:6px;transition:color 0.3s;}
 .hand-scroll-container{position:relative;overflow:hidden;width:100%;}
 .hand-container{display:flex;overflow:visible;gap:0;padding:10px 6px 6px;justify-content:center;flex-wrap:nowrap;width:100%;}
-.hand-card{width:74px;height:104px;border-radius:13px;flex-shrink:0;cursor:pointer;position:relative;z-index:1;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4));}
+.hand-card{
+  width:74px;height:104px;border-radius:13px;flex-shrink:0;cursor:pointer;position:relative;z-index:1;
+  transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  filter:drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+}
 .hand-card:first-child{margin-left:0!important;}
 .hand-card .game-card{width:100%;height:100%;}
-.hand-card.playable{filter:drop-shadow(0 0 8px rgba(255,255,255,0.7));animation:playableGlow 1.8s ease-in-out infinite;}
-.hand-card.playable.rare-playable{filter:drop-shadow(0 0 12px rgba(168,85,247,1));animation:rarePlayableGlow 1.4s ease-in-out infinite;}
-@keyframes playableGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(255,255,255,0.5))}50%{filter:drop-shadow(0 0 16px rgba(255,255,255,0.9)) drop-shadow(0 0 30px rgba(255,255,255,0.4))}}
-@keyframes rarePlayableGlow{0%,100%{filter:drop-shadow(0 0 10px rgba(168,85,247,0.8))}50%{filter:drop-shadow(0 0 22px rgba(168,85,247,1)) drop-shadow(0 0 40px rgba(210,130,255,0.6))}}
-.hand-card.playable:hover{transform:translateY(-24px) scale(1.1) rotate(-2deg)!important;z-index:20!important;}
-.hand-card:not(.playable):not(.not-playable):hover{transform:translateY(-12px)!important;}
-.hand-card.not-playable{opacity:0.5;cursor:not-allowed;}
-.hand-card.not-playable:hover{transform:translateY(-4px)!important;}
+.hand-card.playable{filter:drop-shadow(0 0 10px rgba(255,255,255,0.8));animation:playableGlow 2s ease-in-out infinite;}
+.hand-card.playable.rare-playable{filter:drop-shadow(0 0 15px rgba(168,85,247,1));animation:rarePlayableGlow 1.6s ease-in-out infinite;}
+@keyframes playableGlow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,255,255,0.6))}50%{filter:drop-shadow(0 0 20px rgba(255,255,255,1)) drop-shadow(0 0 40px rgba(255,255,255,0.5))}}
+@keyframes rarePlayableGlow{0%,100%{filter:drop-shadow(0 0 12px rgba(168,85,247,0.9))}50%{filter:drop-shadow(0 0 26px rgba(168,85,247,1)) drop-shadow(0 0 50px rgba(210,130,255,0.7))}}
+.hand-card.playable:hover{transform:translateY(-55px) scale(1.3) rotate(3deg)!important;z-index:100!important;filter:drop-shadow(0 20px 40px rgba(0,0,0,0.7));}
+.hand-card:not(.playable):not(.not-playable):hover{transform:translateY(-20px) scale(1.1)!important;}
+.hand-card.not-playable{opacity:0.35;cursor:not-allowed;filter:grayscale(0.8);transition:all 0.3s ease;}
+.hand-card.not-playable:hover{transform:translateY(-5px)!important;opacity:0.5;}
 
 /* ── STATUS ── */
 .status-bar{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;pointer-events:none;}
@@ -449,8 +494,35 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 .your-turn-flash{position:fixed;inset:0;z-index:5;pointer-events:none;background:rgba(34,212,107,0.07);animation:turnFlash 0.6s ease-out forwards;}
 @keyframes turnFlash{0%{opacity:1}100%{opacity:0}}
 
-.auto-draw-msg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:160;pointer-events:none;font-family:'Fredoka One',cursive;font-size:clamp(1.5em,5vw,2.5em);color:#FF3B3B;text-shadow:0 0 30px rgba(255,59,59,0.8);background:rgba(0,0,0,0.8);padding:16px 32px;border-radius:20px;border:2px solid #FF3B3B;animation:autoDraw 1.8s ease-out forwards;}
+.auto-draw-msg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:160;pointer-events:none;font-family:'Fredoka One',cursive;font-size:clamp(1.5em,5vw,2.5em);color:#FF3B3B;text-shadow:0 0 30px rgba(255,59,59,0.8);background:rgba(0,0,0,0.8);padding:16px 32px;border-radius:20px;border:2px solid #FF3B3B;animation:autoDraw 2.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;}
 @keyframes autoDraw{0%{opacity:0;transform:translate(-50%,-50%) scale(0.8)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(0.9)}}
+
+/* ══ PLUS ALERT (Cool & Slow) ══ */
+.plus-alert{
+  position:fixed;inset:0;z-index:400;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);
+  pointer-events:none;opacity:0;transition:opacity 0.6s ease;
+}
+.plus-alert.show{opacity:1;}
+.plus-alert-content{
+  background:linear-gradient(135deg,#181830,#0b0b18);
+  border:2px solid #FF3B3B;border-radius:30px;
+  padding:40px 60px;text-align:center;
+  box-shadow:0 0 60px rgba(255,59,59,0.4),inset 0 0 30px rgba(255,59,59,0.1);
+  transform:scale(0.8) rotate(-5deg);transition:transform 0.8s cubic-bezier(0.34,1.56,0.64,1);
+}
+.plus-alert.show .plus-alert-content{transform:scale(1) rotate(0deg);}
+.plus-alert-title{
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:1.2em;
+  color:rgba(255,255,255,0.6);letter-spacing:4px;text-transform:uppercase;margin-bottom:10px;
+}
+.plus-alert-value{
+  font-family:'Fredoka One',cursive;font-size:6em;color:#FF3B3B;
+  text-shadow:0 0 40px rgba(255,59,59,0.6);line-height:1;
+  animation:plusValuePulse 2s ease-in-out infinite;
+}
+@keyframes plusValuePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 
 .draw-fly{position:fixed;z-index:150;pointer-events:none;border-radius:13px;background:linear-gradient(145deg,#1a1a38,#2d2d5e);border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.8em;box-shadow:0 4px 15px rgba(0,0,0,0.5);}
 
@@ -533,12 +605,20 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
           <div class="guide-card-info"><div class="guide-card-name">Draw +2</div><div class="guide-card-desc">Next player draws 2 cards. Can be stacked with another +2.</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple">+5</div>
-          <div class="guide-card-info"><div class="guide-card-name">Draw +5</div><div class="guide-card-desc">Next player draws 5 cards. Can be stacked with another +5.</div></div>
+          <div class="guide-card-mini gcm-purple">+3</div>
+          <div class="guide-card-info"><div class="guide-card-name">Draw +3</div><div class="guide-card-desc">Next player draws 3 cards. Can be stacked with another +3.</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple">+6</div>
-          <div class="guide-card-info"><div class="guide-card-name">Draw +6</div><div class="guide-card-desc">Next player draws 6 cards. Can be stacked with another +6.</div></div>
+          <div class="guide-card-mini gcm-purple">+4</div>
+          <div class="guide-card-info"><div class="guide-card-name">Draw +4</div><div class="guide-card-desc">Next player draws 4 cards. Can be stacked with another +4.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">🎯+2</div>
+          <div class="guide-card-info"><div class="guide-card-name">Target Draw +2</div><div class="guide-card-desc">Choose ANY player to draw 2 cards. Does not stack.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple">2x</div>
+          <div class="guide-card-info"><div class="guide-card-name">Double Play</div><div class="guide-card-desc">Take an extra turn immediately after playing this card.</div></div>
         </div>
         <div class="guide-card-item">
           <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">⊘⊘</div>
@@ -583,6 +663,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
         <div class="guide-card-item">
           <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">+4🌈</div>
           <div class="guide-card-info"><div class="guide-card-name">Wild +4</div><div class="guide-card-desc">Play any time. Next player draws 4. Stackable with other +4s.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">🗑️🌈</div>
+          <div class="guide-card-info"><div class="guide-card-name">Discard Color</div><div class="guide-card-desc">Choose a color. All cards of that color in your hand are discarded!</div></div>
         </div>
         <div class="guide-card-item">
           <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">🎲🌈</div>
@@ -657,6 +741,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 </div>
 
 <div class="status-bar"><div class="status-msg" id="status-msg"></div></div>
+
+<div id="plus-alert" class="plus-alert hidden">
+  <div class="plus-alert-content">
+    <div class="plus-alert-title">DRAW STACK</div>
+    <div class="plus-alert-value" id="plus-alert-value">+2</div>
+  </div>
+</div>
 <div class="pending-draw-badge" id="pending-draw-badge"></div>
 
 <!-- COLOR PICKER -->
@@ -776,24 +867,42 @@ const COLOR_HEX={red:'#FF3B3B',blue:'#2B7FFF',yellow:'#FFD600',green:'#22D46B',p
 function buildDeck(){
   const deck=[];
   for(const color of COLORS){
-    for(let n=1;n<=12;n++) for(let i=0;i<2;i++) deck.push({color,value:String(n),type:'number',label:String(n)});
+    // More normal cards (1-12) - now 4 sets of 1-12 per color
+    for(let n=1;n<=12;n++) for(let i=0;i<4;i++) deck.push({color,value:String(n),type:'number',label:String(n)});
+    
+    // Fewer action cards
     for(let i=0;i<2;i++) deck.push({color,value:'reverse',type:'reverse',label:'↩'});
     for(let i=0;i<2;i++) deck.push({color,value:'skip',type:'skip',label:'⊘'});
-    for(let i=0;i<2;i++) deck.push({color,value:'+1',type:'plus',num:1,label:'+1'});
-    for(let i=0;i<2;i++) deck.push({color,value:'+2',type:'plus',num:2,label:'+2'});
-    for(let i=0;i<2;i++) deck.push({color,value:'+5',type:'plus',num:5,label:'+5'});
-    for(let i=0;i<2;i++) deck.push({color,value:'+6',type:'plus',num:6,label:'+6'});
-    deck.push({color,value:'+8',type:'plus',num:8,label:'+8'});
-    deck.push({color,value:'+10',type:'plus',num:10,label:'+10'});
+    
+    // Fewer + cards (Only 1 of each type per color)
+    deck.push({color,value:'+1',type:'plus',num:1,label:'+1'});
+    deck.push({color,value:'+2',type:'plus',num:2,label:'+2'});
+    deck.push({color,value:'+3',type:'plus',num:3,label:'+3'});
+    deck.push({color,value:'+4',type:'plus',num:4,label:'+4'});
+    
+    // Higher + cards are rarer
+    if(Math.random()>0.7) deck.push({color,value:'+8',type:'plus',num:8,label:'+8'});
+    if(Math.random()>0.9) deck.push({color,value:'+10',type:'plus',num:10,label:'+10'});
+    
     deck.push({color,value:'skipAll',type:'skipAll',label:'⊘⊘'});
+    
+    // New "Interesting" cards
+    deck.push({color,value:'targetDraw2',type:'targetDraw2',label:'🎯+2'});
+    if(Math.random()>0.6) deck.push({color,value:'doublePlay',type:'doublePlay',label:'2x'});
   }
   // Wild
   for(let i=0;i<4;i++) deck.push({color:'wild',value:'wild',type:'wild',label:'🌈'});
   for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildReverse',type:'wildReverse',label:'↩🌈'});
   for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildSkip',type:'wildSkip',label:'⊘🌈'});
-  for(let i=0;i<2;i++) deck.push({color:'wild',value:'wild+2',type:'wildPlus',num:2,label:'+2🌈'});
+  for(let i=0;i<2;i++) deck.push({color:'wild',value:'discardColor',type:'discardColor',label:'🗑️🌈'});
+  
+  // Wild Plus are also fewer
+  deck.push({color:'wild',value:'wild+2',type:'wildPlus',num:2,label:'+2🌈'});
   deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4🌈'});
+  
+  deck.push({color:'wild',value:'wildSkipAll',type:'wildSkipAll',label:'⊘⊘🌈'});
   deck.push({color:'wild',value:'pickUntil',type:'pickUntil',label:'🎲🌈'});
+  
   // RARE (only 1 each)
   deck.push({color:'rare',value:'swapDecks',type:'swapDecks',label:'🔀',isRare:true});
   deck.push({color:'rare',value:'handFreeze',type:'handFreeze',label:'❄️',isRare:true});
@@ -851,7 +960,7 @@ async function startGame(){
   for(let i=0;i<selectedBots;i++) players.push({name:botNames[i],isBot:true,cards:[]});
   let firstIdx=deck.findIndex(c=>c.type==='number');if(firstIdx<0) firstIdx=0;
   const firstCard=deck.splice(firstIdx,1)[0];
-  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},stealWildOwner:null};
+  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},stealWildOwner:null,hasDrawn:false};
   renderOpponents();renderDiscard();updateColorBar();
   document.getElementById('player-hand').innerHTML='';
   document.getElementById('player-name-label').textContent='YOU';
@@ -979,21 +1088,36 @@ function isPlayable(card){
   // Rare cards are always playable (wild-like)
   if(card.isRare||card.color==='rare') return true;
   if(card.color==='wild') return true;
+  
   if(state.pendingDraw>0){
-    if(card.type==='plus'&&card.num===state.pendingDrawNum) return true;
+    // STRICT STACKING: Only same value + cards can stack
+    if((card.type==='plus'||card.type==='wildPlus') && card.num===state.pendingDrawNum) return true;
     return false;
   }
+
+  // Plus cards: strict rules even when no stack
+  if(card.type==='plus'||card.type==='wildPlus'){
+    if(top.type==='plus'||top.type==='wildPlus') return card.num===top.num;
+    return card.color===cc;
+  }
+
   if(card.color===cc) return true;
   if(card.value===top.value) return true;
-  if(card.type!=='number'&&card.type===top.type) return true;
-  if(card.type==='number'&&top.type==='number'&&card.label===top.label) return true;
+  
+  // Same type action cards (skip, reverse, skipAll, targetDraw2, doublePlay, etc.)
+  const actionTypes=['skip','reverse','skipAll','targetDraw2','doublePlay','wildSkip','wildReverse','wildSkipAll','discardColor'];
+  if(actionTypes.includes(card.type) && card.type===top.type) return true;
+  
+  // Color rules: purple on purple, etc. 
+  if(card.type==='number' && top.type==='number' && card.label===top.label) return true;
+  
   return false;
 }
 function canStackDraw(card){
   if(state.pendingDraw<=0) return false;
-  if(card.isRare||card.color==='rare') return false; // rare cards don't stack draws
-  if(card.color==='wild') return false;
+  if(card.isRare||card.color==='rare') return false; 
   if(card.type==='plus'&&card.num===state.pendingDrawNum) return true;
+  if(card.type==='wildPlus'&&card.num===state.pendingDrawNum) return true;
   return false;
 }
 
@@ -1017,7 +1141,7 @@ function pickPlayer(title,exclude=[]){
 }
 
 /* ═══ ATTEMPT PLAY ═══ */
-function attemptPlay(idx){
+async function attemptPlay(idx){
   if(state.currentPlayer!==0||state.gameOver) return;
   const card=state.players[0].cards[idx];
   if(!isPlayable(card)){playSound('error');shakeCard(idx);return;}
@@ -1031,7 +1155,7 @@ function attemptPlay(idx){
     flyEl.style.setProperty('--tr',(Math.random()*30-15)+'deg');
     document.body.appendChild(flyEl);setTimeout(()=>flyEl.remove(),450);
   }
-  executePlayCard(0,idx);
+  await executePlayCard(0,idx);
 }
 function shakeCard(idx){
   const hand=document.getElementById('player-hand');const w=hand.children[idx];if(!w) return;
@@ -1039,7 +1163,7 @@ function shakeCard(idx){
 }
 
 /* ═══ EXECUTE PLAY ═══ */
-function executePlayCard(playerIdx,cardIdx){
+async function executePlayCard(playerIdx,cardIdx){
   const player=state.players[playerIdx];
   const card=player.cards.splice(cardIdx,1)[0];
   state.discard.push(card);
@@ -1057,24 +1181,24 @@ function executePlayCard(playerIdx,cardIdx){
   if(card.isRare||card.color==='rare'){
     if(playerIdx===0){
       // Shuffle storm doesn't need colour pick
-      if(card.type==='shuffleStorm'){applyCardEffect(card,playerIdx,null);return;}
+      if(card.type==='shuffleStorm'){await applyCardEffect(card,playerIdx,null);return;}
       // Others need player pick first (then colour for wild behaviour)
       pendingWild={card,playerIdx};
       if(card.type==='stealWild'||card.type==='shuffleStorm'){
         // No colour needed, but still wild (colour doesn't matter for game state)
-        applyRareEffect(card,playerIdx,null);return;
+        await applyRareEffect(card,playerIdx,null);return;
       }
       if(card.type==='swapDecks'||card.type==='handFreeze'){
-        applyRareEffect(card,playerIdx,null);return;
+        await applyRareEffect(card,playerIdx,null);return;
       }
     } else {
-      applyRareBotEffect(card,playerIdx);return;
+      await applyRareBotEffect(card,playerIdx);return;
     }
   } else if(card.color==='wild'){
     if(playerIdx===0){pendingWild={card,playerIdx};showColorPicker('Choose a Color');return;}
-    else{const bc=botPickColor(state.players[playerIdx]);state.currentColor=bc;applyCardEffect(card,playerIdx,bc);}
+    else{const bc=botPickColor(state.players[playerIdx]);state.currentColor=bc;await applyCardEffect(card,playerIdx,bc);}
   } else {
-    state.currentColor=card.color;applyCardEffect(card,playerIdx,card.color);
+    state.currentColor=card.color;await applyCardEffect(card,playerIdx,card.color);
   }
 }
 
@@ -1241,7 +1365,7 @@ async function animateShuffleStorm(){
 }
 
 /* ═══ APPLY CARD EFFECT ═══ */
-function applyCardEffect(card,playerIdx,chosenColor){
+async function applyCardEffect(card,playerIdx,chosenColor){
   const n=state.players.length;let extraTurn=false;
   switch(card.type){
     case 'number': break;
@@ -1255,13 +1379,57 @@ function applyCardEffect(card,playerIdx,chosenColor){
       state.pendingDraw+=card.num;state.pendingDrawNum=card.num;
       showStatus(`+${card.num} stacked! Total: +${state.pendingDraw} 😬`,1600);break;
 
+    case 'targetDraw2': {
+      let target;
+      if(playerIdx===0){
+        target=await pickPlayer('🎯 Who draws +2?');
+      } else {
+        // Bot targets someone else, usually the player with fewest cards or human
+        const others=state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
+        target=others[Math.floor(Math.random()*others.length)];
+      }
+      showStatus(`🎯 ${state.players[target].name} draws +2!`, 1800);
+      const targetPlayer=state.players[target];
+      for(let i=0;i<2;i++) targetPlayer.cards.push(drawCard(state));
+      if(target===0) renderPlayerHand(); else updateOpponentZone(target);
+      break;
+    }
+    case 'doublePlay': {
+      showStatus(playerIdx===0?"Play another card! 🔥":`${state.players[playerIdx].name} plays again! 🔥`, 1800);
+      extraTurn=true; break;
+    }
+    case 'discardColor': {
+      const chosen=playerIdx===0?await pickColor():botPickColor(state.players[playerIdx]);
+      state.currentColor=chosen;
+      updateColorBar(); // Ensure color bar updates
+      const player=state.players[playerIdx];
+      const initialCount=player.cards.length;
+      player.cards=player.cards.filter(c=>c.color!==chosen);
+      const discarded=initialCount-player.cards.length;
+      if(discarded>0) {
+        showStatus(`🗑️ ${state.players[playerIdx].name} discarded ${discarded} ${chosen} cards!`, 2200);
+        playSound('draw'); // reuse draw sound for discard
+      } else {
+        showStatus(`${state.players[playerIdx].name} had no ${chosen} cards to discard.`, 1800);
+      }
+      if(playerIdx===0) renderPlayerHand(); else updateOpponentZone(playerIdx);
+      break;
+    }
+
     case 'pickUntil': doPickUntil(nextPlayerIdx(),chosenColor);break;
   }
   if(!extraTurn) advanceTurn();
   finishTurn(playerIdx);
+  renderDiscard(); // Ensure discard pile is always up to date
 }
 
-function advanceTurn(){const n=state.players.length;state.currentPlayer=(state.currentPlayer+state.direction+n)%n;}
+function advanceTurn(){
+  const n=state.players.length;
+  state.currentPlayer=(state.currentPlayer+state.direction+n)%n;
+  state.hasDrawn=false; // Reset draw flag for new player
+  // Clear any active bot timer when turn advances to avoid double turns or overlaps
+  if(botTimer){clearTimeout(botTimer); botTimer=null;}
+}
 function nextPlayerIdx(){const n=state.players.length;return(state.currentPlayer+state.direction+n)%n;}
 
 function doPickUntil(targetIdx,targetColor){
@@ -1302,10 +1470,10 @@ function finishTurn(playerIdx){
 function scheduleBot(){
   if(!gameRunning||state.gameOver) return;
   if(!state.players[state.currentPlayer].isBot) return;
-  const delay=900+Math.random()*900;
+  const delay=1500+Math.random()*1500; // Slower bots
   botTimer=setTimeout(()=>{if(!gameRunning||state.gameOver) return;botTurn(state.currentPlayer);},delay);
 }
-function botTurn(idx){
+async function botTurn(idx){
   if(!gameRunning||state.gameOver||state.currentPlayer!==idx) return;
   // Check frozen
   if(state.frozenPlayers&&state.frozenPlayers[idx]){
@@ -1315,8 +1483,8 @@ function botTurn(idx){
   const bot=state.players[idx];
   if(state.pendingDraw>0){
     const stackable=bot.cards.filter(c=>canStackDraw(c));
-    if(stackable.length>0&&Math.random()>0.35){const ci=bot.cards.indexOf(stackable[0]);executePlayCard(idx,ci);}
-    else botTakePenalty(idx);
+    if(stackable.length>0&&Math.random()>0.35){const ci=bot.cards.indexOf(stackable[0]);await executePlayCard(idx,ci);}
+    else await botTakePenalty(idx);
     return;
   }
   const playable=bot.cards.map((c,i)=>({c,i})).filter(({c})=>isPlayable(c));
@@ -1329,18 +1497,20 @@ function botTurn(idx){
   if(matching.length>0) chosen=matching[Math.floor(Math.random()*matching.length)];
   else if(others.length>0) chosen=others[Math.floor(Math.random()*others.length)];
   else chosen=wilds[0];
-  executePlayCard(idx,chosen.i);
+  await executePlayCard(idx,chosen.i);
 }
 function botDrawOne(idx){
   const drawn=drawCard(state);state.players[idx].cards.push(drawn);
   playSound('draw');spawnFloatMsg('+1','#888',idx);updateOpponentZone(idx);
   if(isPlayable(drawn)){
-    setTimeout(()=>{if(!gameRunning) return;const ci=state.players[idx].cards.indexOf(drawn);
-    if(ci>=0) executePlayCard(idx,ci);else{advanceTurn();finishTurn(idx);}},500);
+    setTimeout(async ()=>{if(!gameRunning) return;const ci=state.players[idx].cards.indexOf(drawn);
+    if(ci>=0) await executePlayCard(idx,ci);else{advanceTurn();finishTurn(idx);}},500);
   } else {advanceTurn();finishTurn(idx);}
 }
-function botTakePenalty(idx){
-  const n=state.pendingDraw;for(let i=0;i<n;i++) state.players[idx].cards.push(drawCard(state));
+async function botTakePenalty(idx){
+  const n=state.pendingDraw;
+  await showPlusAlert(n);
+  for(let i=0;i<n;i++) state.players[idx].cards.push(drawCard(state));
   playSound('draw');showStatus(`${state.players[idx].name} drew ${n} cards! 😬`,1600);
   spawnFloatMsg(`+${n}`,'#FF3B3B',idx);state.pendingDraw=0;state.pendingDrawNum=null;
   // Unfreeze the drawer
@@ -1349,33 +1519,78 @@ function botTakePenalty(idx){
 }
 
 /* ═══ DRAW FROM DECK ═══ */
+async function showPlusAlert(n){
+  const el=document.getElementById('plus-alert');
+  const val=document.getElementById('plus-alert-value');
+  val.textContent=`+${n}`;
+  el.classList.remove('hidden');
+  void el.offsetWidth;
+  el.classList.add('show');
+  playSound('plus');
+  await new Promise(r=>setTimeout(r,1600));
+  el.classList.remove('show');
+  setTimeout(()=>el.classList.add('hidden'),600);
+}
+
 async function drawFromDeck(){
   resumeAC();
-  if(state.currentPlayer!==0||state.gameOver||autoDrawing) return;
+  if(!gameRunning||state.gameOver||autoDrawing) return;
+  
+  // Check if it's actually the player's turn
+  if(state.currentPlayer!==0){
+    showStatus("Wait your turn! ✋", 1000);
+    return;
+  }
+
+  // Prevent drawing while bot is thinking or acting
+  if(botTimer){
+    showStatus("Wait... ⏳", 800);
+    return;
+  }
+
+  // Handle draw penalty (can always draw to take penalty)
   if(state.pendingDraw>0){
-    const n=state.pendingDraw;autoDrawing=true;playSound('autodraw');
+    const n=state.pendingDraw;autoDrawing=true;
+    await showPlusAlert(n);
     await animateDrawCards(n,150);
     for(let i=0;i<n;i++) state.players[0].cards.push(drawCard(state));
     state.pendingDraw=0;state.pendingDrawNum=null;autoDrawing=false;
     // Unfreeze on draw
     if(state.frozenPlayers) for(const k of Object.keys(state.frozenPlayers)) delete state.frozenPlayers[k];
-    showStatus(`Drew ${n} cards! 😬`,1800);spawnFloatMsg(`+${n}`,'#FF3B3B',0);
+    showStatus(`Drew ${n} cards! 😬`, 1800);spawnFloatMsg(`+${n}`,'#FF3B3B',0);
     advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();return;
   }
+  
+  // Normal draw: only once per turn
+  if(state.hasDrawn){
+    showStatus("You already drew this turn! 🛑", 1200);
+    return;
+  }
+
+  state.hasDrawn=true;
   const drawn=drawCard(state);state.players[0].cards.push(drawn);
   playSound('draw');spawnFloatMsg('+1','#aaa',0);
   // Unfreeze the player
   if(state.frozenPlayers&&state.frozenPlayers[0]) delete state.frozenPlayers[0];
   await animateDrawCards(1,0);
-  if(isPlayable(drawn)){showStatus(`Drew ${drawn.label} — you can play it!`,2200);renderPlayerHand();}
-  else{showStatus(`Drew: ${drawn.label}`,1200);advanceTurn();renderPlayerHand();scheduleBot();}
+  if(isPlayable(drawn)){
+    showStatus(`Drew ${drawn.label} — you can play it!`, 2200);
+    renderPlayerHand();
+  } else {
+    showStatus(`Drew: ${drawn.label}. Ending turn...`, 1500);
+    // If not playable, turn ends automatically
+    setTimeout(() => {
+      advanceTurn();
+      renderPlayerHand();
+      scheduleBot();
+    }, 1500);
+  }
 }
 
 async function triggerAutoDrawForPlayer(){
   if(!gameRunning||state.gameOver||state.currentPlayer!==0){autoDrawing=false;return;}
-  const n=state.pendingDraw;playSound('autodraw');
-  const msg=document.createElement('div');msg.className='auto-draw-msg';msg.textContent=`No stackable card! Drawing +${n}...`;
-  document.body.appendChild(msg);setTimeout(()=>msg.remove(),1900);
+  const n=state.pendingDraw;
+  await showPlusAlert(n);
   await animateDrawCards(n,200);
   for(let i=0;i<n;i++) state.players[0].cards.push(drawCard(state));
   state.pendingDraw=0;state.pendingDrawNum=null;autoDrawing=false;
