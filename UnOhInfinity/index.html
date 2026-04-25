@@ -723,7 +723,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
           <div class="guide-card-info">
             <div class="rare-badge">✦ Rare · Wild</div>
             <div class="guide-card-name">Hand Freeze</div>
-            <div class="guide-card-desc">Pick a player to freeze. They skip every turn until someone draws a card.</div>
+            <div class="guide-card-desc">Pick a player to freeze. They skip every turn until ANY player draws a card (or they are hit with a + penalty)!</div>
           </div>
         </div>
         <div class="guide-card-item">
@@ -1594,8 +1594,13 @@ async function applyCardEffect(card,playerIdx,chosenColor){
     case 'chaosDraw': {
       showStatus(`💥 CHAOS! Everyone draws 1!`, 2000);
       for(let i=0; i<state.players.length; i++) {
-        if(i !== playerIdx) await animateDraw(i, 1);
+        if(i !== playerIdx) {
+          state.players[i].cards.push(drawCard(state));
+          await animateDrawCards(1, 0, i);
+          if(i === 0) renderPlayerHand(); else updateOpponentZone(i);
+        }
       }
+      unfreezeAll();
       break;
     }
     case 'mysteryWild': {
@@ -1620,7 +1625,9 @@ async function applyCardEffect(card,playerIdx,chosenColor){
       }
       showStatus(`🎯 ${state.players[target].name} draws +2!`, 1800);
       const targetPlayer=state.players[target];
+      await animateDrawCards(2, 100, target);
       for(let i=0;i<2;i++) targetPlayer.cards.push(drawCard(state));
+      unfreezeAll();
       if(target===0) renderPlayerHand(); else updateOpponentZone(target);
       break;
     }
@@ -1653,6 +1660,17 @@ async function applyCardEffect(card,playerIdx,chosenColor){
   renderDiscard(); // Ensure discard pile is always up to date
 }
 
+function unfreezeAll(){
+  if(!state.frozenPlayers) return;
+  const frozenCount = Object.keys(state.frozenPlayers).length;
+  if(frozenCount > 0){
+    state.frozenPlayers = {};
+    showStatus("Everyone is unfrozen! ❄️🔥", 1500);
+    updateOpponentsAll();
+    renderPlayerHand();
+  }
+}
+
 function advanceTurn(){
   const n=state.players.length;
   state.currentPlayer=(state.currentPlayer+state.direction+n)%n;
@@ -1667,6 +1685,7 @@ function doPickUntil(targetIdx,targetColor){
   while(draws<25){const d=drawCard(state);target.cards.push(d);draws++;if(d.color===targetColor) break;}
   showStatus(`${target.name} drew ${draws} cards hunting for ${targetColor}! 😬`,2200);
   spawnFloatMsg(`+${draws}`,'#FF3B3B',targetIdx);
+  unfreezeAll();
 }
 
 /* ═══ FINISH TURN ═══ */
@@ -1683,8 +1702,8 @@ function finishTurn(playerIdx){
     if(!hasStackable&&!autoDrawing){autoDrawing=true;setTimeout(()=>triggerAutoDrawForPlayer(),800);return;}
   }
 
-  // Skip frozen player
-  if(state.frozenPlayers&&state.frozenPlayers[state.currentPlayer]){
+  // Skip frozen player (only if no draw penalty)
+  if(state.frozenPlayers&&state.frozenPlayers[state.currentPlayer]&&state.pendingDraw===0){
     const frozenIdx=state.currentPlayer;
     setTimeout(()=>{
       showStatus(`${state.players[frozenIdx].name} is frozen! ❄️`,1400);
@@ -1705,8 +1724,8 @@ function scheduleBot(){
 }
 async function botTurn(idx){
   if(!gameRunning||state.gameOver||state.currentPlayer!==idx) return;
-  // Check frozen
-  if(state.frozenPlayers&&state.frozenPlayers[idx]){
+  // Check frozen (only if no draw penalty)
+  if(state.frozenPlayers&&state.frozenPlayers[idx]&&state.pendingDraw===0){
     showStatus(`${state.players[idx].name} is still frozen! ❄️`,1200);
     advanceTurn();finishTurn(idx);return;
   }
@@ -1732,6 +1751,7 @@ async function botTurn(idx){
 function botDrawOne(idx){
   const drawn=drawCard(state);state.players[idx].cards.push(drawn);
   playSound('draw');spawnFloatMsg('+1','#888',idx);updateOpponentZone(idx);
+  unfreezeAll();
   if(isPlayable(drawn)){
     setTimeout(async ()=>{if(!gameRunning) return;const ci=state.players[idx].cards.indexOf(drawn);
     if(ci>=0) await executePlayCard(idx,ci);else{advanceTurn();finishTurn(idx);}},500);
@@ -1744,8 +1764,7 @@ async function botTakePenalty(idx){
   for(let i=0;i<n;i++) state.players[idx].cards.push(drawCard(state));
   playSound('draw');showStatus(`${state.players[idx].name} drew ${n} cards! 😬`,1600);
   spawnFloatMsg(`+${n}`,'#FF3B3B',idx);state.pendingDraw=0;state.pendingDrawNum=null;
-  // Unfreeze the drawer
-  if(state.frozenPlayers) for(const k of Object.keys(state.frozenPlayers)) delete state.frozenPlayers[k];
+  unfreezeAll();
   updateOpponentZone(idx);advanceTurn();finishTurn(idx);updatePendingDrawBadge();
 }
 
@@ -1786,8 +1805,7 @@ async function drawFromDeck(){
     await animateDrawCards(n,150,0); // Passing 0 for player
     for(let i=0;i<n;i++) state.players[0].cards.push(drawCard(state));
     state.pendingDraw=0;state.pendingDrawNum=null;autoDrawing=false;
-    // Unfreeze on draw
-    if(state.frozenPlayers) for(const k of Object.keys(state.frozenPlayers)) delete state.frozenPlayers[k];
+    unfreezeAll();
     showStatus(`Drew ${n} cards! 😬`, 1800);spawnFloatMsg(`+${n}`,'#FF3B3B',0);
     advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();return;
   }
@@ -1801,8 +1819,7 @@ async function drawFromDeck(){
   state.hasDrawn=true;
   const drawn=drawCard(state);state.players[0].cards.push(drawn);
   playSound('draw');spawnFloatMsg('+1','#aaa',0);
-  // Unfreeze the player
-  if(state.frozenPlayers&&state.frozenPlayers[0]) delete state.frozenPlayers[0];
+  unfreezeAll();
   await animateDrawCards(1,0,0); // Passing 0 for player
   if(isPlayable(drawn)){
     showStatus(`Drew ${drawn.label} — you can play it!`, 2200);
@@ -1825,7 +1842,7 @@ async function triggerAutoDrawForPlayer(){
   await animateDrawCards(n,200,0); // Passing 0 for player
   for(let i=0;i<n;i++) state.players[0].cards.push(drawCard(state));
   state.pendingDraw=0;state.pendingDrawNum=null;autoDrawing=false;
-  if(state.frozenPlayers) for(const k of Object.keys(state.frozenPlayers)) delete state.frozenPlayers[k];
+  unfreezeAll();
   advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();
 }
 
