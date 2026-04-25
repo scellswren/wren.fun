@@ -242,6 +242,7 @@
     }
     .dropdown-item.active[data-value="normal"] { --active-bg: #ffffff; --active-text: #000; }
     .dropdown-item.active[data-value="orin"] { --active-bg: #ff8c00; --active-text: #fff; }
+    .dropdown-item.active[data-value="baldcena"] { --active-bg: #1565c0; --active-text: #fff; }
     .dropdown-item.active[data-value="all"] { --active-bg: #7c3aed; --active-text: #fff; }
     
     body.light-mode .dropdown-btn { background: #fff !important; color: #111 !important; border-color: #7c3aed; }
@@ -1007,10 +1008,12 @@
     body.pack-orin {
       --pack-gradient: linear-gradient(135deg, #ff8c00, #ff4500);
       --pack-text: #ffffff;
-      --pack-color: #ffcc00 !important;
-      --pack-color-shadow: #ff8c00;
     }
-    body.pack-orin .pack { box-shadow: 0 0 30px var(--pack-color-shadow); }
+
+    body.pack-baldcena {
+      --pack-gradient: linear-gradient(135deg, #0d3b6e, #1565c0);
+      --pack-text: #ffffff;
+    }
 
     .pack:hover { transform: scale(1.04) translateY(-5px); }
     .pack::before {
@@ -2346,10 +2349,7 @@
             <div class="dropdown-content">
               <div class="dropdown-item active" data-value="normal" onclick="selectPackOption('normal', 'Normal Pack')">Normal Pack</div>
               <div class="dropdown-item" data-value="orin" onclick="selectPackOption('orin', 'The Mind Of Orin Pack *Goofy*')">The Mind Of Orin Pack *Goofy*</div>
-              <div class="dropdown-item locked" style="opacity:0.6; cursor:not-allowed; display:flex; justify-content:space-between; align-items:center; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); margin: 2px 0;">
-                <span style="color:rgba(255,255,255,0.4);">Bald Cena Pack</span>
-                <span style="font-size:0.7em; background:#ff4444; color:white; padding:4px 10px; border-radius:8px; font-weight:900; letter-spacing:1px; box-shadow: 0 0 15px rgba(255,68,68,0.4); font-family: 'Luckiest Guy', cursive;">COMING SOON</span>
-              </div>
+              <div class="dropdown-item" data-value="baldcena" onclick="selectPackOption('baldcena', 'Bald Cena Pack')">Bald Cena Pack</div>
             </div>
           </div>
         </div>
@@ -2645,6 +2645,7 @@
           <div class="dropdown-item active" data-value="all" onclick="selectIndexPackOption('all', 'All Packs')">All Packs</div>
           <div class="dropdown-item" data-value="normal" onclick="selectIndexPackOption('normal', 'Normal Pack')">Normal Pack</div>
           <div class="dropdown-item" data-value="orin" onclick="selectIndexPackOption('orin', 'The Mind Of Orin Pack *Goofy*')">The Mind Of Orin Pack *Goofy*</div>
+          <div class="dropdown-item" data-value="baldcena" onclick="selectIndexPackOption('baldcena', 'Bald Cena Pack')">Bald Cena Pack</div>
         </div>
       </div>
     </div>
@@ -2683,67 +2684,81 @@
     };
 
     const packs = [
-      { id: "normal", name: "Normal Pack", color: "linear-gradient(135deg, #333, #000)" },
-      { id: "orin", name: "The Mind Of Orin Pack *Goofy*", color: "linear-gradient(135deg, #ff8c00, #ff4500)" },
-      { id: "baldcena", name: "Bald Cena Pack", color: "linear-gradient(135deg, #444, #222)", locked: true }
+      { id: "normal",   name: "Normal Pack",                       color: "linear-gradient(135deg, #333, #000)" },
+      { id: "orin",     name: "The Mind Of Orin Pack *Goofy*",     color: "linear-gradient(135deg, #ff8c00, #ff4500)" },
+      { id: "baldcena", name: "Bald Cena Pack",                    color: "linear-gradient(135deg, #0d3b6e, #1565c0)" }
     ];
 
     const items = [
+      // ── Normal Pack ──────────────────────────────────────────────────────────
       { name: "WrenIsOld",         display: "WrenIsOld",               rarity: "Common",    pack: "normal" },
-      { name: "TheRealBaldCena72", display: "Bald Cena",               rarity: "Common",    pack: "normal" },
       { name: "Edunzie",           display: "Edunzie",                  rarity: "Common",    pack: "normal" },
       { name: "Wren.fun",          display: "Wren.fun",                 rarity: "Common",    pack: "normal" },
       { name: "Juju2y",            display: "Juju2y",                   rarity: "Uncommon",  pack: "normal" },
       { name: "Scratch",           display: "Scratch",                  rarity: "Uncommon",  pack: "normal" },
       { name: "BlockOfCheese",     display: "Block Of Cheese",          rarity: "Uncommon",  pack: "normal" },
       { name: "TheDairyKing",      display: "The Dairy King",           rarity: "Uncommon",  pack: "normal" },
-      { name: "TheSack",           display: "The Sack",                 rarity: "Uncommon",  pack: "normal" },
-      { name: "MouldyBready",      display: "Mouldy Bready",            rarity: "Uncommon",  pack: "normal" },
       { name: "Zxno",              display: "Zxno",                     rarity: "Rare",      pack: "normal" },
-      { name: "EthansHalfTable",   display: "EthansHalfTable",          rarity: "Rare",      pack: "normal" },
       { name: "TheTurtleKid2012",  display: "Turtle Kid 2012",          rarity: "Rare",      pack: "normal" },
       { name: "ThomasMini",        display: "Thomas & Friends Minis",   rarity: "Rare",      pack: "normal" },
       { name: "Cuneiform",         display: "𒐪",                        rarity: "Rare",      pack: "normal" },
       { name: "TikiTheG",          display: "Tikitheg",                 rarity: "Epic",      pack: "normal" },
       { name: "Nathan8028",        display: "Nathan",                   rarity: "Epic",      pack: "normal" },
-      { name: "Pigmaxv",           display: "Pigmaxv",                  rarity: "Epic",      pack: "normal" },
-      { name: "AustinsHalfTable",  display: "AustinsHalfTable",         rarity: "Epic",      pack: "normal" },
       { name: "Switch2",           display: "Nintendo Switch 2",        rarity: "Epic",      pack: "normal" },
       { name: "KSIBalloon",        display: "KSI Hot Air Balloon",      rarity: "Epic",      pack: "normal" },
       { name: "RawSpaghetti",      display: "Raw Spaghetti",            rarity: "Epic",      pack: "normal" },
       { name: "Wren",              display: "Wren",                     rarity: "Legendary", pack: "normal" },
       { name: "LuckyCat",          display: "Lucky",                    rarity: "Legendary", pack: "normal" },
-      { name: "TheFounder",        display: "The Founder",              rarity: "Legendary", pack: "normal" },
       { name: "FatWren",           display: "Fat Wren",                 rarity: "Omega",     pack: "normal" },
       { name: "KSIWithBigHead",    display: "KSI Drawing",              rarity: "Omega",     pack: "normal" },
-      { name: "BaldOrin",          display: "Bald Orin",                rarity: "Omega",     pack: "normal" },
       { name: "OGWrenIsOld",       display: "OG WrenIsOld",             rarity: "Null",      pack: "normal" },
 
-      // The Mind Of Orin Pack *Goofy*
-      { name: "TheMindOfOrin",     display: "The Mind Of Orin",        rarity: "Common",    pack: "orin" },
-      { name: "VGACable",          display: "VGA Cable",               rarity: "Common",    pack: "orin" },
-      { name: "Windows8.1",        display: "Windows 8.1",             rarity: "Common",    pack: "orin" },
-      { name: "WindowsVista",      display: "Windows Vista",           rarity: "Uncommon",  pack: "orin" },
-      { name: "OrinLogo",          display: "Orin Profile",            rarity: "Uncommon",  pack: "orin" },
+      // ── The Mind Of Orin Pack ────────────────────────────────────────────────
+      { name: "TheMindOfOrin",     display: "The Mind Of Orin",         rarity: "Common",    pack: "orin" },
+      { name: "VGACable",          display: "VGA Cable",                rarity: "Common",    pack: "orin" },
+      { name: "Windows8.1",        display: "Windows 8.1",              rarity: "Common",    pack: "orin" },
+      { name: "WindowsVista",      display: "Windows Vista",            rarity: "Uncommon",  pack: "orin" },
+      { name: "OrinLogo",          display: "Orin Profile",             rarity: "Uncommon",  pack: "orin" },
       { name: "YoutubeThumbnailOrin", display: "Youtube Thumbnail Orin", rarity: "Uncommon",  pack: "orin" },
       { name: "Blake",             display: "Blake",                    rarity: "Uncommon",  pack: "orin" },
-      { name: "SCP-ORIN",          display: "SCP-ORIN",                rarity: "Rare",      pack: "orin" },
-      { name: "WindowsXP",         display: "Windows XP",              rarity: "Rare",      pack: "orin" },
-      { name: "RickRollOrin",      display: "Rick Roll Orin",          rarity: "Rare",      pack: "orin" },
+      { name: "SCP-ORIN",          display: "SCP-ORIN",                 rarity: "Rare",      pack: "orin" },
+      { name: "WindowsXP",         display: "Windows XP",               rarity: "Rare",      pack: "orin" },
+      { name: "RickRollOrin",      display: "Rick Roll Orin",           rarity: "Rare",      pack: "orin" },
       { name: "TheMindOfGhost",    display: "The Mind Of Orin Ghost Busters Remix", rarity: "Epic", pack: "orin" },
-      { name: "SadOrin",           display: "Sad Orin",                rarity: "Epic",      pack: "orin" },
+      { name: "SadOrin",           display: "Sad Orin",                 rarity: "Epic",      pack: "orin" },
       { name: "Windows7",          display: "Windows 7",               rarity: "Legendary", pack: "orin" },
       { name: "OGOrin",            display: "OG Orin",                 rarity: "Legendary", pack: "orin" },
       { name: "Windows0989.9",     display: "Windows 0989.9",          rarity: "Omega",     pack: "orin" },
       { name: "SantaBlake",        display: "Blake's Sleigh",           rarity: "Omega",     pack: "orin" },
       { name: "ehfrkjeilopfijbuhrf", display: "ehfrkjeilopfijbuhrf",    rarity: "Null",      pack: "orin" },
 
-      // Voids (Global / No specific pack)
+      // ── Bald Cena Pack ────────────────────────────────────────────────────────
+      { name: "TheRealBaldCena72", display: "Bald Cena",               rarity: "Common",    pack: "baldcena" },
+      { name: "BaldCena72",        display: "BaldCena72",              rarity: "Common",    pack: "baldcena" },
+      { name: "TheSecondBaldOne",  display: "The Second Bald One",     rarity: "Common",    pack: "baldcena" },
+      { name: "Jerry15",           display: "Jerry15",                 rarity: "Uncommon",  pack: "baldcena" },
+      { name: "Katsu",             display: "Katsu",                   rarity: "Uncommon",  pack: "baldcena" },
+      { name: "MouldyBready",      display: "Mouldy Bready",           rarity: "Uncommon",  pack: "baldcena" },
+      { name: "TheSack",           display: "The Sack",                rarity: "Uncommon",  pack: "baldcena" },
+      { name: "AdensHalfTable",    display: "AdensHalfTable",          rarity: "Rare",      pack: "baldcena" },
+      { name: "CheeseGuy",         display: "Cheese Guy",              rarity: "Rare",      pack: "baldcena" },
+      { name: "EthansHalfTable",   display: "EthansHalfTable",         rarity: "Rare",      pack: "baldcena" },
+      { name: "JuliansHalfTable",  display: "JuliansHalfTable",        rarity: "Rare",      pack: "baldcena" },
+      { name: "Tumnum1",           display: "The Mind Of Orin (Tumnum1)", rarity: "Rare",   pack: "baldcena" },
+      { name: "AustinsHalfTable",  display: "AustinsHalfTable",        rarity: "Epic",      pack: "baldcena" },
+      { name: "MrsHaysHalfTable",  display: "MrsHaysHalfTable",        rarity: "Epic",      pack: "baldcena" },
+      { name: "Pigmaxv",           display: "Pigmaxv",                 rarity: "Epic",      pack: "baldcena" },
+      { name: "Random_Jhony",      display: "Random_Jhony",            rarity: "Epic",      pack: "baldcena" },
+      { name: "TheFounder",        display: "The Founder",             rarity: "Legendary", pack: "baldcena" },
+      { name: "LucasHalfTable",    display: "LucasHalfTable",          rarity: "Legendary", pack: "baldcena" },
+      { name: "BaldOrin",          display: "Bald Orin",               rarity: "Omega",     pack: "baldcena" },
+      { name: "TheApexWarden",     display: "The Apex Warden",         rarity: "Omega",     pack: "baldcena" },
+
+      // ── Void / Global ─────────────────────────────────────────────────────────
       { name: "OrinFlower",        display: "Orin Flower",              rarity: "Void",      pack: "global" },
       { name: "HighlightLucky",    display: "Highlight Lucky",          rarity: "Void",      pack: "global" },
       { name: "PixelArtCheese",    display: "Pixel Cheese",             rarity: "Void",      pack: "global" }
     ];
-
     const chances = [
       { rarity: "Void",      chance: 0 },
       { rarity: "Null",      chance: 0.005 },
@@ -2803,7 +2818,7 @@
     let audioUnlocked = false;
     let globalAudioCtx = null;
 
-    const LEGENDARY_NAMES = ['Wren', 'LuckyCat', 'TheFounder'];
+    const LEGENDARY_NAMES = ['Wren', 'LuckyCat', 'TheFounder', 'LucasHalfTable'];
     const RADIOACTIVE_UNLOCK_KEY = 'wren_theme_radioactive_unlocked';
     const MONEY_UNLOCK_KEY = 'wren_theme_money_unlocked';
     const SNOW_UNLOCK_KEY = 'wren_theme_snow_unlocked';
@@ -3358,12 +3373,9 @@
       btn.textContent = label;
       
       // Update glow color
-      if (value === 'normal') {
+      if (value === 'normal' || value === 'orin' || value === 'baldcena') {
         btn.style.setProperty('--glow-color', '#ffffff');
         btn.style.setProperty('--glow-rgba', 'rgba(255, 255, 255, 0.5)');
-      } else if (value === 'orin') {
-        btn.style.setProperty('--glow-color', '#ff8c00');
-        btn.style.setProperty('--glow-rgba', 'rgba(255, 140, 0, 0.5)');
       } else {
         btn.style.setProperty('--glow-color', '#00ff88');
         btn.style.setProperty('--glow-rgba', 'rgba(0, 255, 136, 0.5)');
@@ -3390,12 +3402,9 @@
       btn.textContent = label;
       
       // Update glow color
-      if (value === 'normal') {
+      if (value === 'normal' || value === 'orin' || value === 'baldcena') {
         btn.style.setProperty('--glow-color', '#ffffff');
         btn.style.setProperty('--glow-rgba', 'rgba(255, 255, 255, 0.5)');
-      } else if (value === 'orin') {
-        btn.style.setProperty('--glow-color', '#ff8c00');
-        btn.style.setProperty('--glow-rgba', 'rgba(255, 140, 0, 0.5)');
       } else {
         btn.style.setProperty('--glow-color', '#00ff88');
         btn.style.setProperty('--glow-rgba', 'rgba(0, 255, 136, 0.5)');
@@ -3483,9 +3492,11 @@
 
     function updatePackSelection() {
       // Update pack visual style
-      document.body.classList.remove("pack-orin");
+      document.body.classList.remove("pack-orin", "pack-baldcena");
       if (selectedPackId === "orin") {
         document.body.classList.add("pack-orin");
+      } else if (selectedPackId === "baldcena") {
+        document.body.classList.add("pack-baldcena");
       }
     }
 
