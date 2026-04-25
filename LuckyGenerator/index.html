@@ -143,12 +143,38 @@
     .footer {
       position: fixed;
       bottom: 20px;
-      right: 20px;
+      left: 20px;
       font-family: 'Rubik', sans-serif;
       font-size: 1.1em;
       color: rgba(255, 255, 255, 0.3);
       z-index: 1;
       letter-spacing: 2px;
+    }
+
+    #fullscreenBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.2em;
+    }
+
+    #fullscreenBtn:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: rgba(56, 189, 248, 0.5);
+      transform: scale(1.1);
     }
 
     #homeText {
@@ -187,6 +213,8 @@
 
 <br>
 <button class="btn" onclick="generateCat()">Show Lucky!</button>
+
+<button id="fullscreenBtn" onclick="toggleFullscreen()">↗️</button>
 
 <div class="footer">LUCKY IS MY CAT :)</div>
 
@@ -254,40 +282,82 @@
   }
 
   function generateCat() {
+    if (images.length === 0) return;
+
     clickCount += 1;
     localStorage.setItem(LUCKY_CLICK_COUNT_KEY, String(clickCount));
 
-    let availableCats = images.filter((img, idx) => !lastCats.includes(idx));
-    if (availableCats.length === 0) availableCats = images;
-
-    const randomIdx = Math.floor(Math.random() * availableCats.length);
-    const selectedCat = availableCats[randomIdx];
-
-    const catIndex = images.indexOf(selectedCat);
-    lastCats.push(catIndex);
-    if (lastCats.length > 5) lastCats.shift();
-
     const img = document.getElementById("cat-img");
+    
+    // Start fade out
     img.classList.remove('show');
     
-    // Use the preloaded image directly to ensure instant appearance
-    const preloadedImg = preloaded.find(i => i.src.endsWith(selectedCat));
-    if (preloadedImg && preloadedImg.complete) {
-      img.src = selectedCat;
-      img.style.display = 'block';
-      setTimeout(() => img.classList.add('show'), 50);
-    } else {
-      // Fallback if not preloaded for some reason
-      img.src = selectedCat;
-      img.onload = () => {
-        img.style.display = 'block';
-        setTimeout(() => img.classList.add('show'), 50);
-      };
-    }
+    // Delay selection and fade in slightly for a smoother transition
+    setTimeout(() => {
+      let availableIndices = images.map((_, idx) => idx).filter(idx => !lastCats.includes(idx));
+      
+      if (availableIndices.length === 0) {
+        lastCats = [];
+        availableIndices = images.map((_, idx) => idx);
+      }
 
-    updateUI();
-    unlockLuckyTheme();
+      const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+      const selectedCat = images[randomIndex];
+
+      lastCats.push(randomIndex);
+      if (lastCats.length > 5) lastCats.shift();
+
+      // Use the preloaded image directly
+      const preloadedImg = preloaded.find(i => i.src.endsWith(selectedCat));
+      if (preloadedImg && preloadedImg.complete) {
+        img.src = selectedCat;
+        img.style.display = 'block';
+        // Trigger fade in
+        requestAnimationFrame(() => {
+          img.classList.add('show');
+        });
+      } else {
+        img.src = selectedCat;
+        img.onload = () => {
+          img.style.display = 'block';
+          requestAnimationFrame(() => {
+            img.classList.add('show');
+          });
+        };
+      }
+      
+      updateUI();
+      unlockLuckyTheme();
+    }, 200); // Wait for fade out to complete slightly
   }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        localStorage.setItem('fullscreen_preferred', 'true');
+      }).catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        localStorage.setItem('fullscreen_preferred', 'false');
+      }
+    }
+  }
+
+  document.addEventListener('fullscreenchange', () => {
+    const btn = document.getElementById('fullscreenBtn');
+    if (btn) {
+      if (document.fullscreenElement) {
+        btn.innerHTML = '↙️'; // Shrink icon
+        localStorage.setItem('fullscreen_preferred', 'true');
+      } else {
+        btn.innerHTML = '↗️'; // Expand icon
+        localStorage.setItem('fullscreen_preferred', 'false');
+      }
+    }
+  });
 
   window.addEventListener('load', () => {
     localStorage.setItem(VISIT_LUCKY_KEY, '1');
