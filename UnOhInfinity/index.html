@@ -366,6 +366,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
   box-shadow:0 4px 20px rgba(168,85,247,0.6),0 0 0 1px rgba(210,130,255,0.3)!important;
   animation:rareCardPulse 2.5s ease-in-out infinite;
 }
+.orin-card{
+  background-image:url('TheMindOfOrin.jpg')!important;
+  background-size:100% 100%!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  border-color:rgba(255,255,255,0.6)!important;
+}
+.orin-card::before, .orin-card::after{display:none!important;}
+.orin-card .card-tl, .orin-card .card-br, .orin-card .card-center{display:none!important;}
 @keyframes rareCardPulse{
   0%,100%{box-shadow:0 4px 20px rgba(168,85,247,0.6),0 0 0 1px rgba(210,130,255,0.3)}
   50%{box-shadow:0 4px 30px rgba(168,85,247,0.9),0 0 20px rgba(210,130,255,0.5),0 0 0 2px rgba(210,130,255,0.5)}
@@ -928,11 +937,11 @@ function openCardGuide(){document.getElementById('card-guide').classList.remove(
 function closeCardGuide(){document.getElementById('card-guide').classList.add('hidden');}
 
 /* ═══ CODES ═══ */
-let orinCheatActive = false;
+let orinCheatActive = localStorage.getItem('unoh_orin_cheat') === 'true';
 function openCodes(){
   document.getElementById('codes-modal').classList.remove('hidden');
   document.getElementById('code-input').value = '';
-  document.getElementById('code-status').textContent = '';
+  document.getElementById('code-status').textContent = orinCheatActive ? 'Cheat is currently ACTIVE 👑' : '';
   document.getElementById('code-input').focus();
 }
 function closeCodes(){document.getElementById('codes-modal').classList.add('hidden');}
@@ -942,9 +951,10 @@ function submitCode(){
   const code = input.value.trim();
   
   if(code === 'OrinIsLittle555'){
-    orinCheatActive = true;
-    status.style.color = '#22D46B';
-    status.textContent = 'Cheat Activated: 7 Orin Cards next game! 👑';
+    orinCheatActive = !orinCheatActive;
+    localStorage.setItem('unoh_orin_cheat', orinCheatActive);
+    status.style.color = orinCheatActive ? '#22D46B' : '#FFD600';
+    status.textContent = orinCheatActive ? 'Cheat Activated! 👑' : 'Cheat Deactivated! ❌';
     setTimeout(closeCodes, 1500);
   } else if(code === ''){
     status.textContent = '';
@@ -1053,6 +1063,12 @@ function showMenu(){
   document.getElementById('game-screen').classList.add('hidden');
   document.getElementById('end-screen').classList.add('hidden');
   gameRunning=false;if(botTimer) clearTimeout(botTimer);updateMenuStats();
+  
+  // Reset background
+  const canvas = document.getElementById('bg-canvas');
+  if(canvas) canvas.style.display = 'block';
+  document.body.style.backgroundImage = '';
+  document.body.style.backgroundColor = '#080812';
 }
 function updateMenuStats(){
   document.getElementById('win-count').textContent=localStorage.getItem('unoh_wins')||'0';
@@ -1090,7 +1106,12 @@ async function startGame(){
       }
     }
   }
-  orinCheatActive = false;
+  // Reset background
+  const canvas = document.getElementById('bg-canvas');
+  if(canvas) canvas.style.display = 'block';
+  document.body.style.backgroundImage = '';
+  document.body.style.backgroundColor = '#080812';
+
   renderPlayerHand();renderOpponents();scheduleBot();
 }
 
@@ -1155,17 +1176,13 @@ function buildCardEl(card){
   const el=document.createElement('div');
   const isRare=card.isRare||card.color==='rare';
   el.className=`game-card card-${isRare?'rare':card.color}`;
+  if(card.type==='orinCard' || (card.isRare && card.label==='👑')) el.classList.add('orin-card');
+  
   const tl=document.createElement('div');tl.className='card-tl';tl.textContent=card.label;
   const center=document.createElement('div');center.className='card-center';center.textContent=card.label;
   const br=document.createElement('div');br.className='card-br';br.textContent=card.label;
   const shine=document.createElement('div');shine.className='card-shine';
   el.append(tl,center,br,shine);
-  if(card.type==='orinCard' || (card.isRare && card.label==='👑')){
-    el.style.backgroundImage = "url('TheMindOfOrin.jpg')";
-    el.style.backgroundSize = "100% 100%";
-    el.style.backgroundPosition = "center";
-    el.style.backgroundRepeat = "no-repeat";
-  }
   
   return el;
 }
@@ -1413,6 +1430,8 @@ async function applyRareEffect(card,playerIdx,_){
   switch(card.type){
     case 'orinCard': {
       // Background change to TheMindOfOrin.jpg
+      const canvas = document.getElementById('bg-canvas');
+      if(canvas) canvas.style.display = 'none';
       document.body.style.backgroundImage = "url('TheMindOfOrin.jpg')";
       document.body.style.backgroundSize = "cover";
       document.body.style.backgroundPosition = "center";
@@ -1465,6 +1484,8 @@ async function applyRareEffect(card,playerIdx,_){
 async function applyRareBotEffect(card,playerIdx){
   switch(card.type){
     case 'orinCard': {
+      const canvas = document.getElementById('bg-canvas');
+      if(canvas) canvas.style.display = 'none';
       document.body.style.backgroundImage = "url('TheMindOfOrin.jpg')";
       document.body.style.backgroundSize = "cover";
       document.body.style.backgroundPosition = "center";
