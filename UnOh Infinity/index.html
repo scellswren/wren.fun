@@ -532,12 +532,30 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
           <div class="guide-card-info"><div class="guide-card-name">Draw +2</div><div class="guide-card-desc">Next player draws 2 cards. Can be stacked with another +2.</div></div>
         </div>
         <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple">+5</div>
+          <div class="guide-card-info"><div class="guide-card-name">Draw +5</div><div class="guide-card-desc">Next player draws 5 cards. Can be stacked with another +5.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple">+6</div>
+          <div class="guide-card-info"><div class="guide-card-name">Draw +6</div><div class="guide-card-desc">Next player draws 6 cards. Can be stacked with another +6.</div></div>
+        </div>
+        <div class="guide-card-item">
           <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">⊘⊘</div>
           <div class="guide-card-info"><div class="guide-card-name">Skip All</div><div class="guide-card-desc">Every other player is skipped. You get to play again!</div></div>
         </div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="guide-section-title">Rare Action Cards <span style="font-size:0.75em;color:#d0a0ff;font-weight:700;letter-spacing:0;">(very few in deck)</span></div>
+      <div class="guide-cards">
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🔄</div>
-          <div class="guide-card-info"><div class="guide-card-name">Colour Transform</div><div class="guide-card-desc">All your coloured cards transform into a colour you choose.</div></div>
+          <div class="guide-card-mini gcm-rare">+8</div>
+          <div class="guide-card-info"><div class="rare-badge">✦ Rare · Plus</div><div class="guide-card-name">Draw +8</div><div class="guide-card-desc">Next player draws 8 cards. A rare heavy hit.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-rare">+10</div>
+          <div class="guide-card-info"><div class="rare-badge">✦ Rare · Plus</div><div class="guide-card-name">Draw +10</div><div class="guide-card-desc">Next player draws 10 cards. One of the rarer cards in the deck.</div></div>
         </div>
       </div>
     </div>
@@ -762,8 +780,11 @@ function buildDeck(){
     for(let i=0;i<2;i++) deck.push({color,value:'skip',type:'skip',label:'⊘'});
     for(let i=0;i<2;i++) deck.push({color,value:'+1',type:'plus',num:1,label:'+1'});
     for(let i=0;i<2;i++) deck.push({color,value:'+2',type:'plus',num:2,label:'+2'});
+    for(let i=0;i<2;i++) deck.push({color,value:'+5',type:'plus',num:5,label:'+5'});
+    for(let i=0;i<2;i++) deck.push({color,value:'+6',type:'plus',num:6,label:'+6'});
+    deck.push({color,value:'+8',type:'plus',num:8,label:'+8'});
+    deck.push({color,value:'+10',type:'plus',num:10,label:'+10'});
     deck.push({color,value:'skipAll',type:'skipAll',label:'⊘⊘'});
-    deck.push({color,value:'colorTransform',type:'colorTransform',label:'🔄'});
   }
   // Wild
   for(let i=0;i<4;i++) deck.push({color:'wild',value:'wild',type:'wild',label:'🌈'});
@@ -1232,8 +1253,7 @@ function applyCardEffect(card,playerIdx,chosenColor){
     case 'plus': case 'wildPlus':
       state.pendingDraw+=card.num;state.pendingDrawNum=card.num;
       showStatus(`+${card.num} stacked! Total: +${state.pendingDraw} 😬`,1600);break;
-    case 'colorTransform':
-      if(playerIdx===0){state.players[0].cards=state.players[0].cards.map(c=>c.color!=='wild'&&c.color!=='rare'?{...c,color:chosenColor}:c);showStatus(`All your cards are now ${chosenColor}! 🔄`,2000);}break;
+
     case 'pickUntil': doPickUntil(nextPlayerIdx(),chosenColor);break;
   }
   if(!extraTurn) advanceTurn();
@@ -1416,7 +1436,7 @@ function pickColor(color){
     }
     state.stealWildOwner=null;
     if(card.type==='pickUntil'){doPickUntil(nextPlayerIdx(),color);advanceTurn();finishTurn(playerIdx);}
-    else if(card.type==='colorTransform'){state.players[0].cards=state.players[0].cards.map(c=>c.color!=='wild'&&c.color!=='rare'?{...c,color}:c);showStatus(`All your cards transformed to ${color}! 🔄`,2200);advanceTurn();finishTurn(playerIdx);}
+
     else{applyCardEffect(card,playerIdx,color);}
   }
 }
