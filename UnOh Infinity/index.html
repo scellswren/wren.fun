@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UnOh Infinity</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&family=Rubik:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
   --red: #FF3B3B;
@@ -24,13 +24,21 @@
 html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);}
 
 #bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
-
 .screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .screen.hidden{display:none!important;}
 
+/* ══ HOME BUTTON (Wren.fun style) ══ */
+#homeText{
+  position:fixed;top:14px;left:16px;
+  font-family:'Rubik',sans-serif;font-size:1.6em;font-weight:700;
+  color:white;cursor:pointer;z-index:1000;
+  transition:transform 0.2s ease;user-select:none;
+}
+#homeText:hover{transform:scale(1.15);}
+
 /* ══ MENU ══ */
 #menu-screen{gap:0;}
-.menu-inner{display:flex;flex-direction:column;align-items:center;gap:22px;position:relative;z-index:2;}
+.menu-inner{display:flex;flex-direction:column;align-items:center;gap:18px;position:relative;z-index:2;}
 
 .logo-wrap{position:relative;display:inline-block;}
 .menu-logo{
@@ -45,8 +53,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 .logo-shine{
   position:absolute;top:0;left:-60%;width:40%;height:100%;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
-  animation:logoShine 4s ease-in-out infinite;
-  pointer-events:none;mix-blend-mode:overlay;
+  animation:logoShine 4s ease-in-out infinite;pointer-events:none;mix-blend-mode:overlay;
 }
 @keyframes logoFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-10px) rotate(1deg)}}
 @keyframes logoShine{0%{left:-60%}60%,100%{left:130%}}
@@ -54,10 +61,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 .menu-stats{display:flex;gap:14px;align-items:center;}
 .stat-pill{
   background:var(--glass);border:1px solid var(--border);
-  border-radius:50px;padding:8px 20px;
-  font-size:0.9em;font-weight:800;
-  display:flex;align-items:center;gap:8px;
-  backdrop-filter:blur(10px);
+  border-radius:50px;padding:8px 20px;font-size:0.9em;font-weight:800;
+  display:flex;align-items:center;gap:8px;backdrop-filter:blur(10px);
 }
 .stat-pill span{color:#FFD600;}
 
@@ -65,79 +70,147 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 .deco-card{
   position:absolute;width:55px;height:77px;border-radius:9px;
   border:2px solid rgba(255,255,255,0.15);
-  animation:decoFloat linear infinite;
-  opacity:0.35;
+  animation:decoFloat linear infinite;opacity:0.35;
 }
 @keyframes decoFloat{
-  0%{transform:translateY(110vh) rotate(var(--r));opacity:0}
-  5%{opacity:0.35}95%{opacity:0.35}
-  100%{transform:translateY(-30vh) rotate(calc(var(--r) + 40deg));opacity:0}
+  0%{transform:translateY(110vh) rotate(var(--r));opacity:0}5%{opacity:0.35}
+  95%{opacity:0.35}100%{transform:translateY(-30vh) rotate(calc(var(--r) + 40deg));opacity:0}
 }
 
 .section-label{font-weight:800;font-size:0.8em;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
 .bot-grid{display:flex;gap:10px;}
 .bot-btn{
-  padding:11px 26px;border-radius:14px;
-  border:2px solid var(--border);background:var(--glass);
-  color:var(--text);font-family:'Nunito',sans-serif;
-  font-weight:800;font-size:0.95em;cursor:pointer;
-  transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);
-  backdrop-filter:blur(10px);
+  padding:11px 26px;border-radius:14px;border:2px solid var(--border);background:var(--glass);
+  color:var(--text);font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95em;cursor:pointer;
+  transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);backdrop-filter:blur(10px);
 }
 .bot-btn:hover{background:rgba(255,255,255,0.1);transform:translateY(-3px);}
 .bot-btn.selected{
   background:linear-gradient(135deg,rgba(168,85,247,0.4),rgba(99,102,241,0.4));
-  border-color:#A855F7;
-  box-shadow:0 0 20px rgba(168,85,247,0.4);
-  transform:translateY(-3px);
+  border-color:#A855F7;box-shadow:0 0 20px rgba(168,85,247,0.4);transform:translateY(-3px);
 }
+
+.menu-btn-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:center;}
 
 .play-btn{
   padding:17px 65px;border-radius:60px;border:none;
   background:linear-gradient(135deg,#FF3B3B,#A855F7,#2B7FFF);
-  color:white;font-family:'Fredoka One',cursive;
-  font-size:1.55em;cursor:pointer;
+  color:white;font-family:'Fredoka One',cursive;font-size:1.55em;cursor:pointer;
   box-shadow:0 8px 40px rgba(168,85,247,0.55);
   transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);
-  letter-spacing:1px;
-  background-size:200% 200%;
-  animation:btnGradient 3s ease infinite;
+  letter-spacing:1px;background-size:200% 200%;animation:btnGradient 3s ease infinite;
   position:relative;overflow:hidden;
 }
-.play-btn::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(255,255,255,0.2),transparent);
-  border-radius:inherit;
-}
+.play-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.2),transparent);border-radius:inherit;}
 .play-btn:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 14px 55px rgba(168,85,247,0.75);}
 .play-btn:active{transform:scale(0.96);}
 @keyframes btnGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
+.cards-btn{
+  padding:14px 28px;border-radius:50px;border:2px solid var(--border);
+  background:var(--glass);color:var(--text);
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:1em;cursor:pointer;
+  backdrop-filter:blur(10px);
+  transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.cards-btn:hover{background:rgba(255,255,255,0.12);transform:translateY(-3px);border-color:rgba(255,255,255,0.25);}
+
 .how-to{
-  background:var(--glass);border:1px solid var(--border);
-  border-radius:16px;padding:14px 22px;
-  max-width:440px;font-size:0.82em;line-height:1.7;
-  color:var(--muted);backdrop-filter:blur(10px);
-  text-align:center;
+  background:var(--glass);border:1px solid var(--border);border-radius:16px;
+  padding:14px 22px;max-width:440px;font-size:0.82em;line-height:1.7;
+  color:var(--muted);backdrop-filter:blur(10px);text-align:center;
 }
 .how-to strong{color:var(--text);}
 
-.back-link{
-  position:fixed;top:14px;left:14px;z-index:200;
-  background:var(--glass);border:1px solid var(--border);
-  border-radius:12px;padding:8px 16px;
-  font-weight:800;font-size:0.88em;
-  text-decoration:none;color:var(--text);cursor:pointer;
+/* ══ CARD GUIDE MODAL ══ */
+#card-guide{
+  position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,0.88);backdrop-filter:blur(16px);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+}
+#card-guide.hidden{display:none;}
+.guide-box{
+  background:var(--surface);border:1px solid var(--border);border-radius:24px;
+  width:100%;max-width:680px;max-height:90vh;overflow-y:auto;
+  padding:28px 24px;
+  animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  scrollbar-width:thin;scrollbar-color:rgba(168,85,247,0.4) transparent;
+}
+.guide-box::-webkit-scrollbar{width:4px;}
+.guide-box::-webkit-scrollbar-thumb{background:rgba(168,85,247,0.4);border-radius:4px;}
+.guide-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:22px;
+}
+.guide-title{font-family:'Fredoka One',cursive;font-size:1.8em;
+  background:linear-gradient(135deg,#FF3B3B,#FFD600,#22D46B,#2B7FFF,#A855F7);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.guide-close{
+  width:36px;height:36px;border-radius:50%;border:1px solid var(--border);
+  background:var(--glass);color:var(--text);font-size:1.1em;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
   transition:all 0.2s;backdrop-filter:blur(10px);
 }
-.back-link:hover{background:rgba(255,255,255,0.12);transform:translateX(-2px);}
+.guide-close:hover{background:rgba(255,255,255,0.15);}
+
+.guide-section{margin-bottom:22px;}
+.guide-section-title{
+  font-weight:900;font-size:0.75em;color:var(--muted);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.guide-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.guide-cards{display:flex;flex-wrap:wrap;gap:10px;}
+.guide-card-item{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--glass);border:1px solid var(--border);border-radius:14px;
+  padding:12px 14px;width:calc(50% - 5px);min-width:200px;flex:1;
+  transition:all 0.2s;
+}
+.guide-card-item:hover{background:rgba(255,255,255,0.1);transform:translateY(-2px);}
+.guide-card-mini{
+  width:44px;height:62px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka One',cursive;font-size:1.1em;
+  border:2px solid rgba(255,255,255,0.25);
+  position:relative;overflow:hidden;
+}
+.guide-card-mini::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
+}
+.gcm-purple{background:linear-gradient(145deg,#5010a0,#A855F7);color:white;}
+.gcm-wild{
+  background:linear-gradient(145deg,#1a1a38,#2d2d5e);color:white;
+}
+.gcm-rare{
+  background:linear-gradient(145deg,#1a0030,#4a0080);color:white;
+  border-color:rgba(200,100,255,0.6)!important;
+  box-shadow:0 0 12px rgba(168,85,247,0.4);
+}
+.guide-card-info{flex:1;}
+.guide-card-name{font-weight:900;font-size:0.88em;margin-bottom:3px;}
+.guide-card-desc{font-size:0.76em;color:var(--muted);line-height:1.45;}
+
+/* Rare card badge */
+.rare-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:linear-gradient(135deg,rgba(168,85,247,0.3),rgba(99,50,200,0.3));
+  border:1px solid rgba(168,85,247,0.5);border-radius:20px;
+  padding:2px 8px;font-size:0.68em;font-weight:900;color:#d0a0ff;
+  margin-bottom:5px;
+}
+
+/* ══ FULLSCREEN BTN ══ */
 .fullscreen-btn{
   position:fixed;bottom:16px;right:16px;z-index:200;
   background:var(--glass);border:1px solid var(--border);
   border-radius:10px;width:40px;height:40px;
   display:flex;align-items:center;justify-content:center;
-  font-size:1.1em;cursor:pointer;transition:all 0.2s;
-  backdrop-filter:blur(10px);
+  font-size:1.1em;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(10px);
 }
 .fullscreen-btn:hover{background:rgba(255,255,255,0.12);}
 
@@ -148,62 +221,47 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
   width:100%;display:flex;justify-content:center;gap:16px;
   padding:8px 12px 4px;z-index:2;flex-wrap:wrap;
 }
-.opponent-zone{
-  display:flex;flex-direction:column;align-items:center;gap:4px;
-  min-width:110px;
-}
+.opponent-zone{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:110px;}
 .opp-name{
   font-weight:800;font-size:0.82em;padding:4px 12px;
-  border-radius:20px;background:var(--glass);
-  border:1px solid var(--border);transition:all 0.3s;
+  border-radius:20px;background:var(--glass);border:1px solid var(--border);transition:all 0.3s;
 }
-.opp-name.active{
-  background:rgba(34,212,107,0.15);
-  border-color:rgba(34,212,107,0.5);
-  color:#22D46B;
-}
-.opp-cards{
-  display:flex;position:relative;height:60px;
-  min-width:50px;justify-content:center;align-items:flex-end;
-}
+.opp-name.active{background:rgba(34,212,107,0.15);border-color:rgba(34,212,107,0.5);color:#22D46B;}
+.opp-name.frozen{background:rgba(100,200,255,0.15);border-color:rgba(100,200,255,0.5);color:#88ddff;}
+.opp-cards{display:flex;position:relative;height:60px;min-width:50px;justify-content:center;align-items:flex-end;}
 .opp-card-mini{
   width:36px;height:52px;border-radius:7px;
   background:linear-gradient(145deg,#1a1a38,#252550);
-  border:2px solid rgba(255,255,255,0.18);
-  margin-left:-14px;
+  border:2px solid rgba(255,255,255,0.18);margin-left:-14px;
   box-shadow:2px 2px 8px rgba(0,0,0,0.5);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1em;
-  transition:all 0.3s;
+  display:flex;align-items:center;justify-content:center;font-size:1em;transition:all 0.3s;
 }
 .opp-card-mini:first-child{margin-left:0;}
 .opp-info{font-size:0.75em;color:var(--muted);}
+.frozen-indicator{
+  font-size:0.72em;color:#88ddff;
+  animation:frozenPulse 1.5s ease-in-out infinite;
+}
+@keyframes frozenPulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
 .turn-dot{
   display:inline-block;width:8px;height:8px;border-radius:50%;
   background:#22D46B;box-shadow:0 0 8px #22D46B;
-  animation:pulse 1s ease-in-out infinite;
-  margin-right:4px;
+  animation:pulse 1s ease-in-out infinite;margin-right:4px;
 }
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:0.7}}
 
 .direction-badge{
   position:fixed;top:50%;left:20px;transform:translateY(-50%);
   font-size:1.5em;opacity:0.25;pointer-events:none;z-index:1;
-  transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
 }
 
-.center-area{
-  flex:1;display:flex;align-items:center;justify-content:center;
-  gap:28px;width:100%;padding:0 20px;position:relative;
-}
-
+.center-area{flex:1;display:flex;align-items:center;justify-content:center;gap:28px;width:100%;padding:0 20px;position:relative;}
 .color-bar{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   width:4px;height:80px;border-radius:4px;
-  transition:background 0.4s ease,box-shadow 0.4s ease;
-  pointer-events:none;z-index:0;display:none;
+  transition:background 0.4s ease,box-shadow 0.4s ease;pointer-events:none;z-index:0;display:none;
 }
-
 .deck-zone{display:flex;flex-direction:column;align-items:center;gap:8px;}
 .deck-pile{
   width:74px;height:104px;border-radius:13px;
@@ -212,29 +270,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   font-size:2em;position:relative;
   transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);
-  box-shadow:0 4px 20px rgba(0,0,0,0.5);
-  user-select:none;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);user-select:none;
 }
-.deck-pile:hover{
-  transform:translateY(-5px) scale(1.06);
-  border-color:rgba(255,255,255,0.5);
-  box-shadow:0 10px 35px rgba(168,85,247,0.45);
-}
-.deck-pile::after{
-  content:'DRAW';
-  position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);
-  font-size:0.32em;font-weight:800;color:var(--muted);
-  white-space:nowrap;letter-spacing:1px;
-}
+.deck-pile:hover{transform:translateY(-5px) scale(1.06);border-color:rgba(255,255,255,0.5);box-shadow:0 10px 35px rgba(168,85,247,0.45);}
+.deck-pile::after{content:'DRAW';position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);font-size:0.32em;font-weight:800;color:var(--muted);white-space:nowrap;letter-spacing:1px;}
 .deck-label{font-size:0.72em;font-weight:800;color:var(--muted);margin-top:16px;}
-
 .discard-zone{display:flex;flex-direction:column;align-items:center;gap:6px;}
-.discard-pile{
-  width:82px;height:116px;border-radius:14px;
-  display:flex;align-items:center;justify-content:center;
-  position:relative;box-shadow:0 8px 30px rgba(0,0,0,0.5);
-  transition:all 0.3s;
-}
+.discard-pile{width:82px;height:116px;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 8px 30px rgba(0,0,0,0.5);transition:all 0.3s;}
 .discard-label{font-size:0.72em;font-weight:800;color:var(--muted);}
 
 /* ── CARDS ── */
@@ -243,23 +285,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   font-family:'Fredoka One',cursive;font-size:1.7em;
   position:relative;border:3px solid rgba(255,255,255,0.3);
-  box-shadow:0 4px 15px rgba(0,0,0,0.4);
-  transition:all 0.15s;cursor:default;user-select:none;
-  overflow:hidden;
+  box-shadow:0 4px 15px rgba(0,0,0,0.4);transition:all 0.15s;cursor:default;user-select:none;overflow:hidden;
 }
-.game-card::before{
-  content:'';position:absolute;inset:6px;border-radius:8px;
-  border:2px solid rgba(255,255,255,0.2);pointer-events:none;
-}
+.game-card::before{content:'';position:absolute;inset:6px;border-radius:8px;border:2px solid rgba(255,255,255,0.2);pointer-events:none;}
 .game-card .card-tl{position:absolute;top:7px;left:9px;font-size:0.44em;line-height:1.1;text-align:left;}
 .game-card .card-br{position:absolute;bottom:7px;right:9px;font-size:0.44em;line-height:1.1;transform:rotate(180deg);text-align:left;}
 .game-card .card-center{font-size:1em;z-index:1;text-align:center;line-height:1;}
-.game-card .card-shine{
-  position:absolute;top:-50%;left:-60%;width:35%;height:200%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
-  transform:skewX(-20deg);pointer-events:none;
-  animation:cardShine 4s ease-in-out infinite;
-}
+.game-card .card-shine{position:absolute;top:-50%;left:-60%;width:35%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transform:skewX(-20deg);pointer-events:none;animation:cardShine 4s ease-in-out infinite;}
 @keyframes cardShine{0%,100%{left:-60%}50%{left:120%}}
 
 .card-red{background:linear-gradient(145deg,#c01818,#FF3B3B);color:white;}
@@ -267,231 +299,171 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 .card-yellow{background:linear-gradient(145deg,#b88800,#FFD600);color:#1a1000;}
 .card-green{background:linear-gradient(145deg,#0e6830,#22D46B);color:white;}
 .card-purple{background:linear-gradient(145deg,#5010a0,#A855F7);color:white;}
-.card-wild{
-  background:linear-gradient(145deg,#1a1a38,#2d2d5e);
-  color:white;border-color:rgba(255,255,255,0.35)!important;
-}
+.card-wild{background:linear-gradient(145deg,#1a1a38,#2d2d5e);color:white;border-color:rgba(255,255,255,0.35)!important;}
 .card-wild .card-center{
   background:conic-gradient(from 0deg,#FF3B3B 0deg 72deg,#FFD600 72deg 144deg,#22D46B 144deg 216deg,#2B7FFF 216deg 288deg,#A855F7 288deg 360deg);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
 
-/* Player hand — adaptive overlap */
-.player-area{
-  width:100%;padding:6px 12px 12px;
-  position:relative;z-index:2;
+/* RARE card style */
+.card-rare{
+  background:linear-gradient(145deg,#1a0030,#6b00c8,#A855F7)!important;
+  color:white!important;
+  border-color:rgba(210,130,255,0.7)!important;
+  box-shadow:0 4px 20px rgba(168,85,247,0.6),0 0 0 1px rgba(210,130,255,0.3)!important;
+  animation:rareCardPulse 2.5s ease-in-out infinite;
 }
-.player-info{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 4px 6px;
+@keyframes rareCardPulse{
+  0%,100%{box-shadow:0 4px 20px rgba(168,85,247,0.6),0 0 0 1px rgba(210,130,255,0.3)}
+  50%{box-shadow:0 4px 30px rgba(168,85,247,0.9),0 0 20px rgba(210,130,255,0.5),0 0 0 2px rgba(210,130,255,0.5)}
 }
-.player-name-label{font-weight:800;font-size:0.92em;display:flex;align-items:center;gap:6px;transition:color 0.3s;}
+.card-rare .card-shine{animation:rareShine 1.8s ease-in-out infinite!important;}
+@keyframes rareShine{0%,100%{left:-60%;opacity:0.4}50%{left:120%;opacity:0.9}}
 
+/* ── PLAYER HAND ── */
+.player-area{width:100%;padding:6px 12px 12px;position:relative;z-index:2;}
+.player-info{display:flex;align-items:center;justify-content:space-between;padding:0 4px 6px;}
+.player-name-label{font-weight:800;font-size:0.92em;display:flex;align-items:center;gap:6px;transition:color 0.3s;}
 .hand-scroll-container{position:relative;overflow:hidden;width:100%;}
-.hand-container{
-  display:flex;overflow:visible;gap:0;padding:10px 6px 6px;
-  justify-content:center;flex-wrap:nowrap;
-  width:100%;
-}
-.hand-card{
-  width:74px;height:104px;border-radius:13px;
-  flex-shrink:0;
-  cursor:pointer;position:relative;z-index:1;
-  transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
-  filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4));
-}
+.hand-container{display:flex;overflow:visible;gap:0;padding:10px 6px 6px;justify-content:center;flex-wrap:nowrap;width:100%;}
+.hand-card{width:74px;height:104px;border-radius:13px;flex-shrink:0;cursor:pointer;position:relative;z-index:1;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4));}
 .hand-card:first-child{margin-left:0!important;}
 .hand-card .game-card{width:100%;height:100%;}
-
-.hand-card.playable{
-  filter:drop-shadow(0 0 8px rgba(255,255,255,0.7));
-  animation:playableGlow 1.8s ease-in-out infinite;
-}
-@keyframes playableGlow{
-  0%,100%{filter:drop-shadow(0 0 6px rgba(255,255,255,0.5))}
-  50%{filter:drop-shadow(0 0 16px rgba(255,255,255,0.9)) drop-shadow(0 0 30px rgba(255,255,255,0.4))}
-}
+.hand-card.playable{filter:drop-shadow(0 0 8px rgba(255,255,255,0.7));animation:playableGlow 1.8s ease-in-out infinite;}
+.hand-card.playable.rare-playable{filter:drop-shadow(0 0 12px rgba(168,85,247,1));animation:rarePlayableGlow 1.4s ease-in-out infinite;}
+@keyframes playableGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(255,255,255,0.5))}50%{filter:drop-shadow(0 0 16px rgba(255,255,255,0.9)) drop-shadow(0 0 30px rgba(255,255,255,0.4))}}
+@keyframes rarePlayableGlow{0%,100%{filter:drop-shadow(0 0 10px rgba(168,85,247,0.8))}50%{filter:drop-shadow(0 0 22px rgba(168,85,247,1)) drop-shadow(0 0 40px rgba(210,130,255,0.6))}}
 .hand-card.playable:hover{transform:translateY(-24px) scale(1.1) rotate(-2deg)!important;z-index:20!important;}
 .hand-card:not(.playable):not(.not-playable):hover{transform:translateY(-12px)!important;}
 .hand-card.not-playable{opacity:0.5;cursor:not-allowed;}
 .hand-card.not-playable:hover{transform:translateY(-4px)!important;}
-.hand-card.selected-card{transform:translateY(-28px) scale(1.12)!important;z-index:30!important;}
 
-/* Draw card bounce animation */
-.hand-card.just-drawn{
-  animation:cardBounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
-}
-@keyframes cardBounceIn{
-  0%{transform:translateY(40px) scale(0.7);opacity:0}
-  60%{transform:translateY(-12px) scale(1.05);opacity:1}
-  100%{transform:translateY(0) scale(1);opacity:1}
-}
-
-/* Flying draw card animation */
-.draw-fly{
-  position:fixed;z-index:150;pointer-events:none;
-  border-radius:13px;
-  background:linear-gradient(145deg,#1a1a38,#2d2d5e);
-  border:2px solid rgba(255,255,255,0.2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.8em;
-  box-shadow:0 4px 15px rgba(0,0,0,0.5);
-}
-
+/* ── STATUS ── */
 .status-bar{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;pointer-events:none;}
-.status-msg{
-  background:rgba(0,0,0,0.88);backdrop-filter:blur(12px);
-  border:1px solid rgba(255,255,255,0.15);border-radius:20px;
-  padding:12px 26px;font-weight:800;font-size:1em;
-  text-align:center;opacity:0;transform:translateY(14px) scale(0.95);
-  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);max-width:300px;
-}
+.status-msg{background:rgba(0,0,0,0.88);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:12px 26px;font-weight:800;font-size:1em;text-align:center;opacity:0;transform:translateY(14px) scale(0.95);transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);max-width:320px;}
 .status-msg.show{opacity:1;transform:translateY(0) scale(1);}
 
-#color-picker{
-  position:fixed;inset:0;z-index:100;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);
-}
+/* ── COLOR PICKER ── */
+#color-picker{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);}
 #color-picker.hidden{display:none;}
-.color-picker-box{
-  background:var(--surface);border-radius:24px;
-  padding:30px 28px;border:1px solid var(--border);
-  text-align:center;
-  animation:popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
-}
+.color-picker-box{background:var(--surface);border-radius:24px;padding:30px 28px;border:1px solid var(--border);text-align:center;animation:popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);}
 @keyframes popIn{0%{transform:scale(0.7);opacity:0}100%{transform:scale(1);opacity:1}}
 .color-picker-title{font-family:'Fredoka One',cursive;font-size:1.35em;margin-bottom:20px;}
 .color-options{display:flex;gap:14px;justify-content:center;}
-.color-opt{
-  width:58px;height:58px;border-radius:14px;
-  border:3px solid rgba(255,255,255,0.2);cursor:pointer;
-  transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);
-  display:flex;align-items:center;justify-content:center;font-size:1.3em;
-}
+.color-opt{width:58px;height:58px;border-radius:14px;border:3px solid rgba(255,255,255,0.2);cursor:pointer;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;justify-content:center;font-size:1.3em;}
 .color-opt:hover{transform:scale(1.2) rotate(-5deg);border-color:white;box-shadow:0 0 24px rgba(255,255,255,0.5);}
 
-#end-screen{
-  z-index:200;background:rgba(0,0,0,0.92);
-  backdrop-filter:blur(24px);gap:22px;
+/* ── PLAYER PICKER ── */
+#player-picker{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);}
+#player-picker.hidden{display:none;}
+.player-picker-box{background:var(--surface);border-radius:24px;padding:30px 28px;border:1px solid var(--border);text-align:center;animation:popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);min-width:280px;}
+.player-picker-title{font-family:'Fredoka One',cursive;font-size:1.35em;margin-bottom:20px;}
+.player-options{display:flex;flex-direction:column;gap:12px;}
+.player-opt{
+  padding:14px 24px;border-radius:16px;border:2px solid var(--border);
+  background:var(--glass);color:var(--text);font-family:'Nunito',sans-serif;
+  font-weight:800;font-size:1em;cursor:pointer;
+  transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);
 }
+.player-opt:hover{background:rgba(168,85,247,0.25);border-color:#A855F7;transform:translateX(4px);}
+
+/* ── END SCREEN ── */
+#end-screen{z-index:200;background:rgba(0,0,0,0.92);backdrop-filter:blur(24px);gap:22px;}
 .end-icon{font-size:5em;animation:endBounce 0.6s cubic-bezier(0.34,1.56,0.64,1);}
 @keyframes endBounce{0%{transform:scale(0) rotate(-25deg)}100%{transform:scale(1) rotate(0)}}
 .end-title{font-family:'Fredoka One',cursive;font-size:clamp(2.5em,8vw,4em);}
 .end-sub{color:var(--muted);font-size:1em;font-weight:600;}
 .end-btns{display:flex;gap:14px;margin-top:8px;}
-.end-btn{
-  padding:14px 34px;border-radius:50px;border:none;
-  font-family:'Nunito',sans-serif;font-weight:800;font-size:1em;cursor:pointer;
-  transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);
-}
-.end-btn.primary{
-  background:linear-gradient(135deg,#A855F7,#2B7FFF);color:white;
-  box-shadow:0 4px 20px rgba(168,85,247,0.5);
-}
+.end-btn{padding:14px 34px;border-radius:50px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:1em;cursor:pointer;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);}
+.end-btn.primary{background:linear-gradient(135deg,#A855F7,#2B7FFF);color:white;box-shadow:0 4px 20px rgba(168,85,247,0.5);}
 .end-btn.primary:hover{transform:translateY(-3px);box-shadow:0 8px 35px rgba(168,85,247,0.75);}
-.end-btn.secondary{
-  background:var(--glass);color:var(--text);
-  border:1px solid var(--border);
-}
+.end-btn.secondary{background:var(--glass);color:var(--text);border:1px solid var(--border);}
 .end-btn.secondary:hover{background:rgba(255,255,255,0.14);}
 
-.float-msg{
-  position:fixed;font-family:'Fredoka One',cursive;
-  font-size:1.5em;pointer-events:none;z-index:200;
-  animation:floatUp 1.1s ease-out forwards;
-  text-shadow:0 2px 10px rgba(0,0,0,0.6);
+/* ── FLOAT MSG ── */
+.float-msg{position:fixed;font-family:'Fredoka One',cursive;font-size:1.5em;pointer-events:none;z-index:200;animation:floatUp 1.1s ease-out forwards;text-shadow:0 2px 10px rgba(0,0,0,0.6);}
+@keyframes floatUp{0%{transform:translateY(0) scale(1.2);opacity:1}100%{transform:translateY(-65px) scale(0.8);opacity:0}}
+
+/* ── CARD FLY ── */
+.card-fly{position:fixed;z-index:150;pointer-events:none;animation:cardFlyAnim 0.4s cubic-bezier(0.4,0,0.2,1) forwards;}
+@keyframes cardFlyAnim{0%{transform:translate(0,0) scale(1) rotate(0deg);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(0.7) rotate(var(--tr));opacity:0}}
+
+/* Win card explosion */
+.win-card-fly{
+  position:fixed;z-index:250;pointer-events:none;
+  animation:winCardFly var(--dur) cubic-bezier(0.2,0.8,0.4,1) var(--delay) both;
 }
-@keyframes floatUp{
-  0%{transform:translateY(0) scale(1.2);opacity:1}
-  100%{transform:translateY(-65px) scale(0.8);opacity:0}
+@keyframes winCardFly{
+  0%{transform:translate(0,0) rotate(0deg) scale(1);opacity:1}
+  60%{opacity:1}
+  100%{transform:translate(var(--tx),var(--ty)) rotate(var(--tr)) scale(var(--ts));opacity:0}
 }
 
-.card-fly{
-  position:fixed;z-index:150;pointer-events:none;
-  animation:cardFlyAnim 0.4s cubic-bezier(0.4,0,0.2,1) forwards;
-}
-@keyframes cardFlyAnim{
-  0%{transform:translate(0,0) scale(1) rotate(0deg);opacity:1}
-  100%{transform:translate(var(--tx),var(--ty)) scale(0.7) rotate(var(--tr));opacity:0}
+/* Swap decks animation */
+.swap-fly{
+  position:fixed;z-index:250;pointer-events:none;
+  border-radius:10px;width:52px;height:74px;
+  display:flex;align-items:center;justify-content:center;font-size:1.5em;
+  box-shadow:0 4px 15px rgba(0,0,0,0.5);
 }
 
-.pending-draw-badge{
-  position:fixed;top:calc(50% - 80px);left:50%;transform:translateX(-50%);
-  background:rgba(255,59,59,0.15);border:2px solid #FF3B3B;
-  border-radius:12px;padding:7px 18px;
-  font-weight:800;color:#FF3B3B;z-index:50;
-  pointer-events:none;font-size:0.88em;
-  opacity:0;transition:opacity 0.3s;
+/* Steal wild flash */
+.steal-wild-banner{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:300;pointer-events:none;
+  font-family:'Fredoka One',cursive;font-size:clamp(1.8em,5vw,3em);
+  color:#fff;text-shadow:0 0 40px rgba(168,85,247,1),0 0 80px rgba(168,85,247,0.7);
+  background:rgba(80,0,150,0.85);
+  padding:16px 36px;border-radius:20px;
+  border:2px solid rgba(210,130,255,0.8);
+  animation:stealBanner 2.5s ease-out forwards;
 }
+@keyframes stealBanner{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(0.6)}
+  20%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}
+  70%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(0.85)}
+}
+
+/* Shuffle storm */
+.shuffle-card{
+  position:fixed;z-index:260;pointer-events:none;
+  width:52px;height:74px;border-radius:9px;
+  background:linear-gradient(145deg,#1a1a38,#2d2d5e);
+  border:2px solid rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;font-size:1.4em;
+  box-shadow:0 4px 15px rgba(0,0,0,0.5);
+}
+
+.pending-draw-badge{position:fixed;top:calc(50% - 80px);left:50%;transform:translateX(-50%);background:rgba(255,59,59,0.15);border:2px solid #FF3B3B;border-radius:12px;padding:7px 18px;font-weight:800;color:#FF3B3B;z-index:50;pointer-events:none;font-size:0.88em;opacity:0;transition:opacity 0.3s;}
 .pending-draw-badge.show{opacity:1;}
 
 #deal-overlay{position:fixed;inset:0;z-index:150;pointer-events:none;}
-.deal-card{
-  position:absolute;
-  width:74px;height:104px;border-radius:13px;
-  background:linear-gradient(145deg,#1a1a38,#2d2d5e);
-  border:2px solid rgba(255,255,255,0.2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.8em;
-  box-shadow:0 4px 15px rgba(0,0,0,0.5);
-  animation:dealFly var(--dur) cubic-bezier(0.22,1,0.36,1) var(--delay) both;
-}
-@keyframes dealFly{
-  0%{transform:translate(var(--sx),var(--sy)) scale(0.4) rotate(var(--sr));opacity:0.8}
-  80%{opacity:1}
-  100%{transform:translate(var(--ex),var(--ey)) scale(var(--es)) rotate(var(--er));opacity:0}
-}
+.deal-card{position:absolute;width:74px;height:104px;border-radius:13px;background:linear-gradient(145deg,#1a1a38,#2d2d5e);border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.8em;box-shadow:0 4px 15px rgba(0,0,0,0.5);animation:dealFly var(--dur) cubic-bezier(0.22,1,0.36,1) var(--delay) both;}
+@keyframes dealFly{0%{transform:translate(var(--sx),var(--sy)) scale(0.4) rotate(var(--sr));opacity:0.8}80%{opacity:1}100%{transform:translate(var(--ex),var(--ey)) scale(var(--es)) rotate(var(--er));opacity:0}}
 
 .discard-glow{animation:discardBurst 0.5s ease-out;}
-@keyframes discardBurst{
-  0%{box-shadow:0 0 0 0 rgba(255,255,255,0.8);transform:scale(1.12)}
-  100%{box-shadow:0 8px 30px rgba(0,0,0,0.5);transform:scale(1)}
-}
+@keyframes discardBurst{0%{box-shadow:0 0 0 0 rgba(255,255,255,0.8);transform:scale(1.12)}100%{box-shadow:0 8px 30px rgba(0,0,0,0.5);transform:scale(1)}}
 
-.your-turn-flash{
-  position:fixed;inset:0;z-index:5;pointer-events:none;
-  background:rgba(34,212,107,0.07);
-  animation:turnFlash 0.6s ease-out forwards;
-}
+.your-turn-flash{position:fixed;inset:0;z-index:5;pointer-events:none;background:rgba(34,212,107,0.07);animation:turnFlash 0.6s ease-out forwards;}
 @keyframes turnFlash{0%{opacity:1}100%{opacity:0}}
 
-/* Auto-draw overlay message */
-.auto-draw-msg{
-  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
-  z-index:160;pointer-events:none;
-  font-family:'Fredoka One',cursive;
-  font-size:clamp(1.5em,5vw,2.5em);
-  color:#FF3B3B;
-  text-shadow:0 0 30px rgba(255,59,59,0.8);
-  background:rgba(0,0,0,0.8);
-  padding:16px 32px;border-radius:20px;
-  border:2px solid #FF3B3B;
-  animation:autoDraw 1.8s ease-out forwards;
-}
-@keyframes autoDraw{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(0.8)}
-  15%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}
-  70%{opacity:1;transform:translate(-50%,-50%) scale(1)}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(0.9)}
-}
+.auto-draw-msg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:160;pointer-events:none;font-family:'Fredoka One',cursive;font-size:clamp(1.5em,5vw,2.5em);color:#FF3B3B;text-shadow:0 0 30px rgba(255,59,59,0.8);background:rgba(0,0,0,0.8);padding:16px 32px;border-radius:20px;border:2px solid #FF3B3B;animation:autoDraw 1.8s ease-out forwards;}
+@keyframes autoDraw{0%{opacity:0;transform:translate(-50%,-50%) scale(0.8)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(0.9)}}
 
-@media(max-width:500px){
-  .hand-card{width:60px;height:85px;}
-  .game-card{font-size:1.3em;}
-  .deck-pile{width:64px;height:90px;}
-  .discard-pile{width:70px;height:98px;}
-}
+.draw-fly{position:fixed;z-index:150;pointer-events:none;border-radius:13px;background:linear-gradient(145deg,#1a1a38,#2d2d5e);border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.8em;box-shadow:0 4px 15px rgba(0,0,0,0.5);}
+
+@media(max-width:500px){.hand-card{width:60px;height:85px;}.game-card{font-size:1.3em;}.deck-pile{width:64px;height:90px;}.discard-pile{width:70px;height:98px;}}
 </style>
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
 <div id="deal-overlay"></div>
 
-<a class="back-link" onclick="goBack()">← Wren.fun</a>
+<div id="homeText" onclick="goHome()">Wren.fun</div>
 <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
 
-<!-- MENU -->
+<!-- ═══ MENU ═══ -->
 <div class="screen" id="menu-screen">
   <div class="menu-cards-deco" id="menu-cards-deco"></div>
   <div class="menu-inner">
@@ -499,32 +471,151 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
       <div class="menu-logo">UnOh Infinity</div>
       <div class="logo-shine"></div>
     </div>
-
     <div class="menu-stats">
       <div class="stat-pill">🏆 Wins: <span id="win-count">0</span></div>
       <div class="stat-pill">🎮 Games: <span id="game-count">0</span></div>
     </div>
-
     <div class="section-label" style="margin-top:6px;">Opponents</div>
     <div class="bot-grid">
       <button class="bot-btn selected" onclick="selectBots(1)" data-bots="1">1 Bot</button>
       <button class="bot-btn" onclick="selectBots(2)" data-bots="2">2 Bots</button>
       <button class="bot-btn" onclick="selectBots(3)" data-bots="3">3 Bots</button>
     </div>
-
-    <button class="play-btn" onclick="startGame()">▶ Play</button>
-
+    <div class="menu-btn-row">
+      <button class="play-btn" onclick="startGame()">▶ Play</button>
+      <button class="cards-btn" onclick="openCardGuide()">📖 Cards</button>
+    </div>
     <div class="how-to">
-      <strong>How to play:</strong> Match the <strong>colour OR number</strong> of the top card. Wild cards can always be played. Stack draw cards of the <strong>same type</strong> to pass the pain on. First to empty their hand wins! 🎯
+      <strong>How to play:</strong> Match <strong>colour OR number</strong>. Stack draw cards of the <strong>same type</strong>. Watch out for rare ✦ cards! First to empty their hand wins! 🎯
     </div>
   </div>
 </div>
 
-<!-- GAME -->
+<!-- ═══ CARD GUIDE ═══ -->
+<div id="card-guide" class="hidden">
+  <div class="guide-box">
+    <div class="guide-header">
+      <div class="guide-title">Card Guide ✦</div>
+      <button class="guide-close" onclick="closeCardGuide()">✕</button>
+    </div>
+
+    <div class="guide-section">
+      <div class="guide-section-title">Number Cards</div>
+      <div class="guide-cards">
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple" style="font-size:1.3em;">7</div>
+          <div class="guide-card-info">
+            <div class="guide-card-name">Numbers 1–12</div>
+            <div class="guide-card-desc">Play on a matching colour or the same number. The bread and butter of every hand.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="guide-section-title">Action Cards</div>
+      <div class="guide-cards">
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple">↩</div>
+          <div class="guide-card-info"><div class="guide-card-name">Reverse</div><div class="guide-card-desc">Flips the turn direction. In a 2-player game, acts as a Skip.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple">⊘</div>
+          <div class="guide-card-info"><div class="guide-card-name">Skip</div><div class="guide-card-desc">The next player loses their turn entirely.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple">+1</div>
+          <div class="guide-card-info"><div class="guide-card-name">Draw +1</div><div class="guide-card-desc">Next player draws 1 card. Can be stacked with another +1.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple">+2</div>
+          <div class="guide-card-info"><div class="guide-card-name">Draw +2</div><div class="guide-card-desc">Next player draws 2 cards. Can be stacked with another +2.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">⊘⊘</div>
+          <div class="guide-card-info"><div class="guide-card-name">Skip All</div><div class="guide-card-desc">Every other player is skipped. You get to play again!</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🔄</div>
+          <div class="guide-card-info"><div class="guide-card-name">Colour Transform</div><div class="guide-card-desc">All your coloured cards transform into a colour you choose.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="guide-section-title">Wild Cards</div>
+      <div class="guide-cards">
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-wild" style="font-size:0.9em;">🌈</div>
+          <div class="guide-card-info"><div class="guide-card-name">Wild</div><div class="guide-card-desc">Play any time. Choose the next colour.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">↩🌈</div>
+          <div class="guide-card-info"><div class="guide-card-name">Wild Reverse</div><div class="guide-card-desc">Play any time. Reverses direction and you choose the colour.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">⊘🌈</div>
+          <div class="guide-card-info"><div class="guide-card-name">Wild Skip</div><div class="guide-card-desc">Play any time. Skips the next player and you choose the colour.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">+2🌈</div>
+          <div class="guide-card-info"><div class="guide-card-name">Wild +2</div><div class="guide-card-desc">Play any time. Next player draws 2. Stackable with other +2s.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">+4🌈</div>
+          <div class="guide-card-info"><div class="guide-card-name">Wild +4</div><div class="guide-card-desc">Play any time. Next player draws 4. Stackable with other +4s.</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">🎲🌈</div>
+          <div class="guide-card-info"><div class="guide-card-name">Pick Until</div><div class="guide-card-desc">Pick a colour. The next player draws cards until they find one of that colour!</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="guide-section-title">✦ Rare Cards <span style="font-size:0.75em;color:#d0a0ff;font-weight:700;letter-spacing:0;">(very few in deck)</span></div>
+      <div class="guide-cards">
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🔀</div>
+          <div class="guide-card-info">
+            <div class="rare-badge">✦ Rare · Wild</div>
+            <div class="guide-card-name">Swap Decks</div>
+            <div class="guide-card-desc">Choose a player to swap your entire hand with theirs. Both hands fly across the screen!</div>
+          </div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">❄️</div>
+          <div class="guide-card-info">
+            <div class="rare-badge">✦ Rare · Wild</div>
+            <div class="guide-card-name">Hand Freeze</div>
+            <div class="guide-card-desc">Pick a player to freeze. They skip every turn until someone draws a card.</div>
+          </div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🎭</div>
+          <div class="guide-card-info">
+            <div class="rare-badge">✦ Rare · Wild</div>
+            <div class="guide-card-name">Steal Wild</div>
+            <div class="guide-card-desc">The next time any opponent plays a wild card, YOU choose the colour instead of them!</div>
+          </div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🌪️</div>
+          <div class="guide-card-info">
+            <div class="rare-badge">✦ Rare · Wild</div>
+            <div class="guide-card-name">Shuffle Storm</div>
+            <div class="guide-card-desc">All players' hands get shuffled and randomly redistributed. Chaos ensues!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME ═══ -->
 <div class="screen hidden" id="game-screen">
   <div class="direction-badge" id="direction-badge">↻</div>
   <div class="opponents-area" id="opponents-area"></div>
-
   <div class="center-area">
     <div class="deck-zone">
       <div class="deck-pile" id="deck-pile" onclick="drawFromDeck()">🂠</div>
@@ -536,7 +627,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
       <div class="discard-label">DISCARD</div>
     </div>
   </div>
-
   <div class="player-area">
     <div class="player-info">
       <div class="player-name-label" id="player-name-label">YOU</div>
@@ -564,6 +654,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
   </div>
 </div>
 
+<!-- PLAYER PICKER -->
+<div id="player-picker" class="hidden">
+  <div class="player-picker-box">
+    <div class="player-picker-title" id="player-picker-title">Choose a Player</div>
+    <div class="player-options" id="player-options"></div>
+  </div>
+</div>
+
 <!-- END -->
 <div class="screen hidden" id="end-screen">
   <div class="end-icon" id="end-icon">🎉</div>
@@ -577,98 +675,46 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 
 <script>
 /* ═══ AUDIO ═══ */
-const AC = new (window.AudioContext || window.webkitAudioContext)();
-function resumeAC(){ if(AC.state==='suspended') AC.resume(); }
-document.addEventListener('click', resumeAC, {once:true});
-
+const AC=new(window.AudioContext||window.webkitAudioContext)();
+function resumeAC(){if(AC.state==='suspended')AC.resume();}
+document.addEventListener('click',resumeAC,{once:true});
 function playSound(type){
   try{
-    const o=AC.createOscillator(), g=AC.createGain();
-    o.connect(g); g.connect(AC.destination);
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.connect(g);g.connect(AC.destination);
     const now=AC.currentTime;
     switch(type){
-      case 'card':
-        o.type='sine'; o.frequency.setValueAtTime(380,now); o.frequency.exponentialRampToValueAtTime(200,now+0.12);
-        g.gain.setValueAtTime(0.28,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.14);
-        o.start(now); o.stop(now+0.15); break;
-      case 'draw':
-        o.type='triangle'; o.frequency.setValueAtTime(220,now); o.frequency.exponentialRampToValueAtTime(150,now+0.1);
-        g.gain.setValueAtTime(0.18,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.12);
-        o.start(now); o.stop(now+0.13); break;
-      case 'wild':
-        for(let i=0;i<4;i++){
-          const o2=AC.createOscillator(),g2=AC.createGain();
-          o2.connect(g2);g2.connect(AC.destination);
-          const freqs=[440,554,659,880];
-          o2.type='sine'; o2.frequency.setValueAtTime(freqs[i],now+i*0.07);
-          g2.gain.setValueAtTime(0.22,now+i*0.07); g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.07+0.18);
-          o2.start(now+i*0.07); o2.stop(now+i*0.07+0.2);
-        } break;
-      case 'skip':
-        o.type='sawtooth'; o.frequency.setValueAtTime(600,now); o.frequency.exponentialRampToValueAtTime(100,now+0.18);
-        g.gain.setValueAtTime(0.2,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.2);
-        o.start(now); o.stop(now+0.22); break;
-      case 'reverse':
-        o.type='sine'; o.frequency.setValueAtTime(300,now); o.frequency.linearRampToValueAtTime(500,now+0.1); o.frequency.linearRampToValueAtTime(300,now+0.2);
-        g.gain.setValueAtTime(0.22,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.25);
-        o.start(now); o.stop(now+0.28); break;
-      case 'plus':
-        for(let i=0;i<2;i++){
-          const o2=AC.createOscillator(),g2=AC.createGain();
-          o2.connect(g2);g2.connect(AC.destination);
-          o2.type='square'; o2.frequency.setValueAtTime(200+i*80,now+i*0.08);
-          g2.gain.setValueAtTime(0.15,now+i*0.08); g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.08+0.15);
-          o2.start(now+i*0.08); o2.stop(now+i*0.08+0.18);
-        } break;
-      case 'win':
-        [523,659,784,1046].forEach((f,i)=>{
-          const o2=AC.createOscillator(),g2=AC.createGain();
-          o2.connect(g2);g2.connect(AC.destination);
-          o2.type='sine'; o2.frequency.setValueAtTime(f,now+i*0.12);
-          g2.gain.setValueAtTime(0.3,now+i*0.12); g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.12+0.35);
-          o2.start(now+i*0.12); o2.stop(now+i*0.12+0.4);
-        }); break;
-      case 'lose':
-        o.type='sawtooth'; o.frequency.setValueAtTime(400,now); o.frequency.exponentialRampToValueAtTime(100,now+0.5);
-        g.gain.setValueAtTime(0.25,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.55);
-        o.start(now); o.stop(now+0.6); break;
-      case 'deal':
-        o.type='triangle'; o.frequency.setValueAtTime(300+Math.random()*200,now);
-        o.frequency.exponentialRampToValueAtTime(150,now+0.08);
-        g.gain.setValueAtTime(0.12,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.1);
-        o.start(now); o.stop(now+0.12); break;
-      case 'error':
-        o.type='sawtooth'; o.frequency.setValueAtTime(200,now); o.frequency.exponentialRampToValueAtTime(80,now+0.15);
-        g.gain.setValueAtTime(0.15,now); g.gain.exponentialRampToValueAtTime(0.001,now+0.18);
-        o.start(now); o.stop(now+0.2); break;
-      case 'autodraw':
-        // Multiple descending tones for penalty draw
-        for(let i=0;i<3;i++){
-          const o2=AC.createOscillator(),g2=AC.createGain();
-          o2.connect(g2);g2.connect(AC.destination);
-          o2.type='triangle';
-          o2.frequency.setValueAtTime(350-i*80,now+i*0.1);
-          g2.gain.setValueAtTime(0.2,now+i*0.1); g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.1+0.2);
-          o2.start(now+i*0.1); o2.stop(now+i*0.1+0.25);
-        } break;
+      case 'card': o.type='sine';o.frequency.setValueAtTime(380,now);o.frequency.exponentialRampToValueAtTime(200,now+0.12);g.gain.setValueAtTime(0.28,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.14);o.start(now);o.stop(now+0.15);break;
+      case 'draw': o.type='triangle';o.frequency.setValueAtTime(220,now);o.frequency.exponentialRampToValueAtTime(150,now+0.1);g.gain.setValueAtTime(0.18,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.12);o.start(now);o.stop(now+0.13);break;
+      case 'wild': for(let i=0;i<4;i++){const o2=AC.createOscillator(),g2=AC.createGain();o2.connect(g2);g2.connect(AC.destination);const fr=[440,554,659,880];o2.type='sine';o2.frequency.setValueAtTime(fr[i],now+i*0.07);g2.gain.setValueAtTime(0.22,now+i*0.07);g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.07+0.18);o2.start(now+i*0.07);o2.stop(now+i*0.07+0.2);}break;
+      case 'skip': o.type='sawtooth';o.frequency.setValueAtTime(600,now);o.frequency.exponentialRampToValueAtTime(100,now+0.18);g.gain.setValueAtTime(0.2,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.2);o.start(now);o.stop(now+0.22);break;
+      case 'reverse': o.type='sine';o.frequency.setValueAtTime(300,now);o.frequency.linearRampToValueAtTime(500,now+0.1);o.frequency.linearRampToValueAtTime(300,now+0.2);g.gain.setValueAtTime(0.22,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.25);o.start(now);o.stop(now+0.28);break;
+      case 'plus': for(let i=0;i<2;i++){const o2=AC.createOscillator(),g2=AC.createGain();o2.connect(g2);g2.connect(AC.destination);o2.type='square';o2.frequency.setValueAtTime(200+i*80,now+i*0.08);g2.gain.setValueAtTime(0.15,now+i*0.08);g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.08+0.15);o2.start(now+i*0.08);o2.stop(now+i*0.08+0.18);}break;
+      case 'win': [523,659,784,1046].forEach((f,i)=>{const o2=AC.createOscillator(),g2=AC.createGain();o2.connect(g2);g2.connect(AC.destination);o2.type='sine';o2.frequency.setValueAtTime(f,now+i*0.12);g2.gain.setValueAtTime(0.3,now+i*0.12);g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.12+0.35);o2.start(now+i*0.12);o2.stop(now+i*0.12+0.4);});break;
+      case 'lose': o.type='sawtooth';o.frequency.setValueAtTime(400,now);o.frequency.exponentialRampToValueAtTime(100,now+0.5);g.gain.setValueAtTime(0.25,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.55);o.start(now);o.stop(now+0.6);break;
+      case 'deal': o.type='triangle';o.frequency.setValueAtTime(300+Math.random()*200,now);o.frequency.exponentialRampToValueAtTime(150,now+0.08);g.gain.setValueAtTime(0.12,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.1);o.start(now);o.stop(now+0.12);break;
+      case 'error': o.type='sawtooth';o.frequency.setValueAtTime(200,now);o.frequency.exponentialRampToValueAtTime(80,now+0.15);g.gain.setValueAtTime(0.15,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.18);o.start(now);o.stop(now+0.2);break;
+      case 'autodraw': for(let i=0;i<3;i++){const o2=AC.createOscillator(),g2=AC.createGain();o2.connect(g2);g2.connect(AC.destination);o2.type='triangle';o2.frequency.setValueAtTime(350-i*80,now+i*0.1);g2.gain.setValueAtTime(0.2,now+i*0.1);g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.1+0.2);o2.start(now+i*0.1);o2.stop(now+i*0.1+0.25);}break;
+      case 'rare':
+        // Magical sparkle sound
+        for(let i=0;i<6;i++){const o2=AC.createOscillator(),g2=AC.createGain();o2.connect(g2);g2.connect(AC.destination);const fr=[600,800,1000,1200,900,700];o2.type='sine';o2.frequency.setValueAtTime(fr[i],now+i*0.06);g2.gain.setValueAtTime(0.18,now+i*0.06);g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.06+0.2);o2.start(now+i*0.06);o2.stop(now+i*0.06+0.25);}break;
+      case 'swap': for(let i=0;i<3;i++){const o2=AC.createOscillator(),g2=AC.createGain();o2.connect(g2);g2.connect(AC.destination);o2.type='sine';o2.frequency.setValueAtTime(400+i*150,now+i*0.1);o2.frequency.exponentialRampToValueAtTime(600+i*100,now+i*0.1+0.15);g2.gain.setValueAtTime(0.25,now+i*0.1);g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.1+0.22);o2.start(now+i*0.1);o2.stop(now+i*0.1+0.25);}break;
+      case 'freeze': o.type='sine';o.frequency.setValueAtTime(800,now);o.frequency.exponentialRampToValueAtTime(200,now+0.4);g.gain.setValueAtTime(0.3,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.45);o.start(now);o.stop(now+0.5);break;
+      case 'steal': for(const[f,t] of [[500,0],[700,0.1],[900,0.2],[1100,0.3]]){const o2=AC.createOscillator(),g2=AC.createGain();o2.connect(g2);g2.connect(AC.destination);o2.type='sine';o2.frequency.setValueAtTime(f,now+t);g2.gain.setValueAtTime(0.22,now+t);g2.gain.exponentialRampToValueAtTime(0.001,now+t+0.18);o2.start(now+t);o2.stop(now+t+0.22);}break;
+      case 'shuffle': for(let i=0;i<8;i++){const o2=AC.createOscillator(),g2=AC.createGain();o2.connect(g2);g2.connect(AC.destination);o2.type='triangle';o2.frequency.setValueAtTime(200+Math.random()*600,now+i*0.05);g2.gain.setValueAtTime(0.15,now+i*0.05);g2.gain.exponentialRampToValueAtTime(0.001,now+i*0.05+0.12);o2.start(now+i*0.05);o2.stop(now+i*0.05+0.15);}break;
     }
-  } catch(e){}
+  }catch(e){}
 }
 
-/* ═══ BACKGROUND CANVAS ═══ */
+/* ═══ BG CANVAS ═══ */
 const bgCanvas=document.getElementById('bg-canvas');
 const bgCtx=bgCanvas.getContext('2d');
 let bgW,bgH;
 const BG_COLORS=['#FF3B3B','#2B7FFF','#FFD600','#22D46B','#A855F7'];
-let bgParticles=[];
+const bgParticles=[];
 function resizeBg(){bgW=bgCanvas.width=window.innerWidth;bgH=bgCanvas.height=window.innerHeight;}
-resizeBg();
-window.addEventListener('resize',resizeBg);
-for(let i=0;i<50;i++) bgParticles.push({
-  x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
-  r:1.5+Math.random()*3.5,color:BG_COLORS[Math.floor(Math.random()*5)],
-  vx:(Math.random()-0.5)*0.35,vy:(Math.random()-0.5)*0.35,alpha:0.1+Math.random()*0.2
-});
+resizeBg();window.addEventListener('resize',resizeBg);
+for(let i=0;i<50;i++) bgParticles.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:1.5+Math.random()*3.5,color:BG_COLORS[Math.floor(Math.random()*5)],vx:(Math.random()-0.5)*0.35,vy:(Math.random()-0.5)*0.35,alpha:0.1+Math.random()*0.2});
 function drawBg(){
   bgCtx.clearRect(0,0,bgW,bgH);
   const grd=bgCtx.createRadialGradient(bgW/2,bgH/2,0,bgW/2,bgH/2,Math.max(bgW,bgH)*0.8);
@@ -686,84 +732,60 @@ function drawBg(){
 }
 drawBg();
 
-/* ═══ MENU DECO CARDS ═══ */
-const CARD_COLORS_CSS={
-  red:'linear-gradient(145deg,#c01818,#FF3B3B)',
-  blue:'linear-gradient(145deg,#1040c0,#2B7FFF)',
-  yellow:'linear-gradient(145deg,#b88800,#FFD600)',
-  green:'linear-gradient(145deg,#0e6830,#22D46B)',
-  purple:'linear-gradient(145deg,#5010a0,#A855F7)',
-  wild:'linear-gradient(145deg,#1a1a38,#2d2d5e)'
-};
+/* ═══ MENU DECO ═══ */
+const CARD_COLORS_CSS={red:'linear-gradient(145deg,#c01818,#FF3B3B)',blue:'linear-gradient(145deg,#1040c0,#2B7FFF)',yellow:'linear-gradient(145deg,#b88800,#FFD600)',green:'linear-gradient(145deg,#0e6830,#22D46B)',purple:'linear-gradient(145deg,#5010a0,#A855F7)',wild:'linear-gradient(145deg,#1a1a38,#2d2d5e)'};
 const COLORS=['red','blue','yellow','green','purple'];
 function spawnDecoCard(){
   const deco=document.getElementById('menu-cards-deco');
   const keys=Object.keys(CARD_COLORS_CSS);
   const color=keys[Math.floor(Math.random()*keys.length)];
-  const card=document.createElement('div');
-  card.className='deco-card';
-  card.style.background=CARD_COLORS_CSS[color];
-  card.style.left=(Math.random()*100)+'%';
-  card.style.bottom='-100px';
+  const card=document.createElement('div');card.className='deco-card';
+  card.style.background=CARD_COLORS_CSS[color];card.style.left=(Math.random()*100)+'%';card.style.bottom='-100px';
   card.style.setProperty('--r',(Math.random()*60-30)+'deg');
-  const dur=8+Math.random()*12;
-  card.style.animationDuration=dur+'s';
-  card.style.animationDelay=(Math.random()*-dur)+'s';
-  deco.appendChild(card);
-  setTimeout(()=>card.remove(),(dur+2)*1000);
+  const dur=8+Math.random()*12;card.style.animationDuration=dur+'s';card.style.animationDelay=(Math.random()*-dur)+'s';
+  deco.appendChild(card);setTimeout(()=>card.remove(),(dur+2)*1000);
 }
-setInterval(spawnDecoCard,2000);
-for(let i=0;i<6;i++) setTimeout(()=>spawnDecoCard(),i*400);
+setInterval(spawnDecoCard,2000);for(let i=0;i<6;i++) setTimeout(()=>spawnDecoCard(),i*400);
+
+/* ═══ CARD GUIDE ═══ */
+function openCardGuide(){document.getElementById('card-guide').classList.remove('hidden');}
+function closeCardGuide(){document.getElementById('card-guide').classList.add('hidden');}
 
 /* ═══ CARD DEFINITIONS ═══ */
-const COLOR_HEX={red:'#FF3B3B',blue:'#2B7FFF',yellow:'#FFD600',green:'#22D46B',purple:'#A855F7',wild:'#A855F7'};
+const COLOR_HEX={red:'#FF3B3B',blue:'#2B7FFF',yellow:'#FFD600',green:'#22D46B',purple:'#A855F7',wild:'#A855F7',rare:'#A855F7'};
 
 function buildDeck(){
   const deck=[];
   for(const color of COLORS){
-    // Numbers 1–12, 2 copies each
     for(let n=1;n<=12;n++) for(let i=0;i<2;i++) deck.push({color,value:String(n),type:'number',label:String(n)});
-    // Action cards
     for(let i=0;i<2;i++) deck.push({color,value:'reverse',type:'reverse',label:'↩'});
     for(let i=0;i<2;i++) deck.push({color,value:'skip',type:'skip',label:'⊘'});
-    // Draw cards: +1 and +2 only (reduced frequency, no stacking across types)
     for(let i=0;i<2;i++) deck.push({color,value:'+1',type:'plus',num:1,label:'+1'});
     for(let i=0;i<2;i++) deck.push({color,value:'+2',type:'plus',num:2,label:'+2'});
-    // Rare special
     deck.push({color,value:'skipAll',type:'skipAll',label:'⊘⊘'});
     deck.push({color,value:'colorTransform',type:'colorTransform',label:'🔄'});
   }
-  // Wild cards
+  // Wild
   for(let i=0;i<4;i++) deck.push({color:'wild',value:'wild',type:'wild',label:'🌈'});
   for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildReverse',type:'wildReverse',label:'↩🌈'});
   for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildSkip',type:'wildSkip',label:'⊘🌈'});
-  // Wild draw cards: only +2 and +4 (rare)
   for(let i=0;i<2;i++) deck.push({color:'wild',value:'wild+2',type:'wildPlus',num:2,label:'+2🌈'});
-  for(let i=0;i<1;i++) deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4🌈'});
-  for(let i=0;i<1;i++) deck.push({color:'wild',value:'pickUntil',type:'pickUntil',label:'🎲🌈'});
+  deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4🌈'});
+  deck.push({color:'wild',value:'pickUntil',type:'pickUntil',label:'🎲🌈'});
+  // RARE (only 1 each)
+  deck.push({color:'rare',value:'swapDecks',type:'swapDecks',label:'🔀',isRare:true});
+  deck.push({color:'rare',value:'handFreeze',type:'handFreeze',label:'❄️',isRare:true});
+  deck.push({color:'rare',value:'stealWild',type:'stealWild',label:'🎭',isRare:true});
+  deck.push({color:'rare',value:'shuffleStorm',type:'shuffleStorm',label:'🌪️',isRare:true});
   return deck;
 }
 
-function shuffle(arr){
-  const a=[...arr];
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function drawCard(st){
   if(st.deck.length===0){
-    if(st.discard.length>1){
-      const top=st.discard.pop();
-      st.deck=shuffle(st.discard);
-      st.discard=[top];
-      showStatus('Deck reshuffled! ♻️',1200);
-    } else {
-      st.deck=shuffle(buildDeck());
-      showStatus('New deck! ♻️',1000);
-    }
+    if(st.discard.length>1){const top=st.discard.pop();st.deck=shuffle(st.discard);st.discard=[top];showStatus('Deck reshuffled! ♻️',1200);}
+    else{st.deck=shuffle(buildDeck());showStatus('New deck! ♻️',1000);}
   }
   return st.deck.pop();
 }
@@ -772,126 +794,72 @@ function drawCard(st){
 let state={};
 let selectedBots=1;
 let pendingWild=null;
+let pendingPlayerPick=null; // {resolve, title, exclude}
 let gameRunning=false;
 let botTimer=null;
-// Track if player has already been auto-drawn this "pending draw" resolution
 let autoDrawing=false;
 
-function selectBots(n){
-  selectedBots=n;
-  document.querySelectorAll('.bot-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.dataset.bots)===n));
-}
+function selectBots(n){selectedBots=n;document.querySelectorAll('.bot-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.dataset.bots)===n));}
 
 function showMenu(){
   document.getElementById('menu-screen').classList.remove('hidden');
   document.getElementById('game-screen').classList.add('hidden');
   document.getElementById('end-screen').classList.add('hidden');
-  gameRunning=false;
-  if(botTimer) clearTimeout(botTimer);
-  updateMenuStats();
+  gameRunning=false;if(botTimer) clearTimeout(botTimer);updateMenuStats();
 }
-
 function updateMenuStats(){
   document.getElementById('win-count').textContent=localStorage.getItem('unoh_wins')||'0';
   document.getElementById('game-count').textContent=localStorage.getItem('unoh_games')||'0';
 }
 
-/* ═══ START GAME ═══ */
+/* ═══ START ═══ */
 async function startGame(){
   resumeAC();
   document.getElementById('menu-screen').classList.add('hidden');
   document.getElementById('end-screen').classList.add('hidden');
   document.getElementById('game-screen').classList.remove('hidden');
-  gameRunning=true;
-  autoDrawing=false;
+  document.getElementById('card-guide').classList.add('hidden');
+  gameRunning=true;autoDrawing=false;pendingWild=null;pendingPlayerPick=null;
   if(botTimer) clearTimeout(botTimer);
-
   const games=parseInt(localStorage.getItem('unoh_games')||'0')+1;
   localStorage.setItem('unoh_games',games);
-
   const deck=shuffle(buildDeck());
   const botNames=['🤖 Botto','👾 Glitch','🎮 Zapper'];
   const players=[{name:'You',isBot:false,cards:[]}];
   for(let i=0;i<selectedBots;i++) players.push({name:botNames[i],isBot:true,cards:[]});
-
-  // First card must be a number card
-  let firstIdx=deck.findIndex(c=>c.type==='number');
-  if(firstIdx<0) firstIdx=0;
+  let firstIdx=deck.findIndex(c=>c.type==='number');if(firstIdx<0) firstIdx=0;
   const firstCard=deck.splice(firstIdx,1)[0];
-
-  state={
-    players,deck,
-    discard:[firstCard],
-    currentPlayer:0,direction:1,
-    currentColor:firstCard.color,
-    gameOver:false,
-    pendingDraw:0,
-    pendingDrawType:null, // track which draw card type is stacked
-  };
-
-  renderOpponents();
-  renderDiscard();
-  updateColorBar();
+  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},stealWildOwner:null};
+  renderOpponents();renderDiscard();updateColorBar();
   document.getElementById('player-hand').innerHTML='';
   document.getElementById('player-name-label').textContent='YOU';
-
-  await dealAnimation(players,deck);
-
-  // Deal 7 cards each
+  await dealAnimation(players);
   for(let i=0;i<7;i++) for(const p of state.players) p.cards.push(drawCard(state));
-
-  renderPlayerHand();
-  renderOpponents();
-  scheduleBot();
+  renderPlayerHand();renderOpponents();scheduleBot();
 }
 
-/* ═══ DEAL ANIMATION (slower) ═══ */
+/* ═══ DEAL ANIMATION ═══ */
 function dealAnimation(players){
   return new Promise(resolve=>{
-    const overlay=document.getElementById('deal-overlay');
-    overlay.innerHTML='';
+    const overlay=document.getElementById('deal-overlay');overlay.innerHTML='';
     const deckRect=document.getElementById('deck-pile').getBoundingClientRect();
-    const sx=deckRect.left+deckRect.width/2;
-    const sy=deckRect.top+deckRect.height/2;
+    const sx=deckRect.left+deckRect.width/2,sy=deckRect.top+deckRect.height/2;
     let count=0;
-
-    const getDest=(playerIdx,cardNum)=>{
-      if(playerIdx===0){
-        const hand=document.getElementById('player-hand');
-        const hr=hand.getBoundingClientRect();
-        const cardW=74;
-        const totalW=Math.min(players[0].cards.length||7,7)*cardW;
-        const startX=hr.left+(hr.width-totalW)/2;
-        return {x:startX+cardNum*cardW, y:hr.top+hr.height/2};
-      } else {
-        const zone=document.getElementById(`opp-zone-${playerIdx}`);
-        if(zone){const r=zone.getBoundingClientRect();return {x:r.left+r.width/2+cardNum*8-20,y:r.top+r.height/2};}
-        return {x:window.innerWidth/2,y:50};
-      }
+    const getDest=(pi,ci)=>{
+      if(pi===0){const hand=document.getElementById('player-hand');const hr=hand.getBoundingClientRect();return{x:hr.left+40+ci*40,y:hr.top+hr.height/2};}
+      const zone=document.getElementById(`opp-zone-${pi}`);
+      if(zone){const r=zone.getBoundingClientRect();return{x:r.left+r.width/2+ci*8-20,y:r.top+r.height/2};}
+      return{x:window.innerWidth/2,y:50};
     };
-
-    // Deal round-robin, slower (180ms between cards)
-    for(let card=0;card<7;card++){
-      for(let pi=0;pi<players.length;pi++){
-        const delay=count*180; // was 80ms, now 180ms
-        const dest=getDest(pi,card);
-        const dc=document.createElement('div');
-        dc.className='deal-card';
-        dc.textContent='🂠';
-        dc.style.left='0';dc.style.top='0';
-        dc.style.setProperty('--sx',(sx-37)+'px');
-        dc.style.setProperty('--sy',(sy-52)+'px');
-        dc.style.setProperty('--ex',(dest.x-37)+'px');
-        dc.style.setProperty('--ey',(dest.y-52)+'px');
-        dc.style.setProperty('--dur','0.55s'); // slightly longer arc
-        dc.style.setProperty('--delay',delay+'ms');
-        dc.style.setProperty('--sr',(Math.random()*20-10)+'deg');
-        dc.style.setProperty('--es','0.6');
-        dc.style.setProperty('--er',(Math.random()*20-10)+'deg');
-        overlay.appendChild(dc);
-        setTimeout(()=>playSound('deal'),delay);
-        count++;
-      }
+    for(let card=0;card<7;card++) for(let pi=0;pi<players.length;pi++){
+      const delay=count*180;const dest=getDest(pi,card);
+      const dc=document.createElement('div');dc.className='deal-card';dc.textContent='🂠';
+      dc.style.left='0';dc.style.top='0';
+      dc.style.setProperty('--sx',(sx-37)+'px');dc.style.setProperty('--sy',(sy-52)+'px');
+      dc.style.setProperty('--ex',(dest.x-37)+'px');dc.style.setProperty('--ey',(dest.y-52)+'px');
+      dc.style.setProperty('--dur','0.55s');dc.style.setProperty('--delay',delay+'ms');
+      dc.style.setProperty('--sr',(Math.random()*20-10)+'deg');dc.style.setProperty('--es','0.6');dc.style.setProperty('--er',(Math.random()*20-10)+'deg');
+      overlay.appendChild(dc);setTimeout(()=>playSound('deal'),delay);count++;
     }
     setTimeout(()=>{overlay.innerHTML='';resolve();},count*180+600);
   });
@@ -899,20 +867,15 @@ function dealAnimation(players){
 
 /* ═══ RENDER ═══ */
 function renderOpponents(){
-  const area=document.getElementById('opponents-area');
-  area.innerHTML='';
+  const area=document.getElementById('opponents-area');area.innerHTML='';
   for(let i=1;i<state.players.length;i++){
-    const zone=document.createElement('div');
-    zone.className='opponent-zone';zone.id=`opp-zone-${i}`;
+    const zone=document.createElement('div');zone.className='opponent-zone';zone.id=`opp-zone-${i}`;
     const name=document.createElement('div');name.className='opp-name';name.id=`opp-name-${i}`;
     const cards=document.createElement('div');cards.className='opp-cards';cards.id=`opp-cards-${i}`;
     const info=document.createElement('div');info.className='opp-info';info.id=`opp-info-${i}`;
-    zone.append(name,cards,info);
-    area.appendChild(zone);
-    updateOpponentZone(i);
+    zone.append(name,cards,info);area.appendChild(zone);updateOpponentZone(i);
   }
 }
-
 function updateOpponentZone(idx){
   const p=state.players[idx];
   const cardsEl=document.getElementById(`opp-cards-${idx}`);
@@ -921,25 +884,21 @@ function updateOpponentZone(idx){
   if(!cardsEl) return;
   cardsEl.innerHTML='';
   const show=Math.min(p.cards.length,10);
-  for(let i=0;i<show;i++){
-    const mc=document.createElement('div');mc.className='opp-card-mini';mc.textContent='🂠';
-    cardsEl.appendChild(mc);
+  for(let i=0;i<show;i++){const mc=document.createElement('div');mc.className='opp-card-mini';mc.textContent='🂠';cardsEl.appendChild(mc);}
+  if(p.cards.length>show){const more=document.createElement('span');more.style.cssText='font-size:0.65em;color:rgba(255,255,255,0.4);margin-left:4px;';more.textContent='+'+(p.cards.length-show);cardsEl.appendChild(more);}
+  infoEl.innerHTML=`${p.cards.length} card${p.cards.length!==1?'s':''}`;
+  if(state.frozenPlayers&&state.frozenPlayers[idx]){
+    const fi=document.createElement('div');fi.className='frozen-indicator';fi.textContent='❄️ Frozen';infoEl.appendChild(fi);
   }
-  if(p.cards.length>show){
-    const more=document.createElement('span');
-    more.style.cssText='font-size:0.65em;color:rgba(255,255,255,0.4);margin-left:4px;';
-    more.textContent='+'+(p.cards.length-show);
-    cardsEl.appendChild(more);
-  }
-  infoEl.textContent=`${p.cards.length} card${p.cards.length!==1?'s':''}`;
   const isTurn=idx===state.currentPlayer;
-  nameEl.className='opp-name'+(isTurn?' active':'');
+  const isFrozen=state.frozenPlayers&&state.frozenPlayers[idx];
+  nameEl.className='opp-name'+(isTurn?' active':'')+(isFrozen?' frozen':'');
   nameEl.innerHTML=(isTurn?'<span class="turn-dot"></span>':'')+p.name;
 }
-
 function buildCardEl(card){
   const el=document.createElement('div');
-  el.className=`game-card card-${card.color}`;
+  const isRare=card.isRare||card.color==='rare';
+  el.className=`game-card card-${isRare?'rare':card.color}`;
   const tl=document.createElement('div');tl.className='card-tl';tl.textContent=card.label;
   const center=document.createElement('div');center.className='card-center';center.textContent=card.label;
   const br=document.createElement('div');br.className='card-br';br.textContent=card.label;
@@ -947,144 +906,113 @@ function buildCardEl(card){
   el.append(tl,center,br,shine);
   return el;
 }
-
 function renderDiscard(){
-  const pile=document.getElementById('discard-pile');
-  pile.innerHTML='';
-  const top=state.discard[state.discard.length-1];
-  if(!top) return;
+  const pile=document.getElementById('discard-pile');pile.innerHTML='';
+  const top=state.discard[state.discard.length-1];if(!top) return;
   pile.appendChild(buildCardEl(top));
 }
-
 function updateColorBar(){
   const bar=document.getElementById('color-bar');
   const col=COLOR_HEX[state.currentColor]||'#fff';
-  bar.style.background=col;
-  bar.style.boxShadow=`0 0 12px ${col}`;
-  bar.style.display='block';
+  bar.style.background=col;bar.style.boxShadow=`0 0 12px ${col}`;bar.style.display='block';
 }
-
-/* ─── Adaptive hand overlap ─── */
 function renderPlayerHand(){
-  const hand=document.getElementById('player-hand');
-  hand.innerHTML='';
+  const hand=document.getElementById('player-hand');hand.innerHTML='';
   const player=state.players[0];
   const isMyTurn=state.currentPlayer===0&&!state.gameOver;
-
-  // Calculate overlap so cards always fit
-  const containerW=hand.parentElement.offsetWidth-24; // padding
-  const cardW=74;
-  const count=player.cards.length;
-  let overlap=20; // default
-  if(count>1){
-    const needed=cardW+(count-1)*(cardW-overlap);
-    if(needed>containerW){
-      // solve: cardW + (count-1)*(cardW-overlap) = containerW
-      overlap=cardW-(containerW-cardW)/(count-1);
-      overlap=Math.max(overlap,2); // minimum 2px visible per card
-    }
-  }
-
+  const containerW=hand.parentElement.offsetWidth-24;
+  const cardW=74;const count=player.cards.length;
+  let overlap=20;
+  if(count>1){const needed=cardW+(count-1)*(cardW-overlap);if(needed>containerW){overlap=cardW-(containerW-cardW)/(count-1);overlap=Math.max(overlap,2);}}
   player.cards.forEach((card,idx)=>{
-    const wrapper=document.createElement('div');
-    wrapper.className='hand-card';
-    wrapper.style.zIndex=idx+1;
+    const wrapper=document.createElement('div');wrapper.className='hand-card';wrapper.style.zIndex=idx+1;
     if(idx>0) wrapper.style.marginLeft=`-${overlap}px`;
     wrapper.appendChild(buildCardEl(card));
     const canPlay=isMyTurn&&isPlayable(card);
     if(isMyTurn){
       wrapper.classList.add(canPlay?'playable':'not-playable');
+      if(canPlay&&card.isRare) wrapper.classList.add('rare-playable');
       if(canPlay) wrapper.onclick=()=>attemptPlay(idx);
     }
     hand.appendChild(wrapper);
   });
-
-  // Turn indicator
   const label=document.getElementById('player-name-label');
   if(isMyTurn){
-    label.innerHTML='<span class="turn-dot"></span> YOU';
-    label.style.color='#22D46B';
-    const flash=document.createElement('div');
-    flash.className='your-turn-flash';
-    document.body.appendChild(flash);
-    setTimeout(()=>flash.remove(),650);
-  } else {
-    label.textContent='YOU';
-    label.style.color='';
-  }
-
+    label.innerHTML='<span class="turn-dot"></span> YOU';label.style.color='#22D46B';
+    const flash=document.createElement('div');flash.className='your-turn-flash';document.body.appendChild(flash);setTimeout(()=>flash.remove(),650);
+  } else {label.textContent='YOU';label.style.color='';}
   updatePendingDrawBadge();
 }
-
 function updatePendingDrawBadge(){
   const badge=document.getElementById('pending-draw-badge');
-  if(state.pendingDraw>0){
-    badge.textContent=`⚠️ Draw stack: +${state.pendingDraw} — play a matching draw card or take it!`;
-    badge.classList.add('show');
-  } else {
-    badge.classList.remove('show');
-  }
+  if(state.pendingDraw>0){badge.textContent=`⚠️ Draw stack: +${state.pendingDraw} — stack matching or take it!`;badge.classList.add('show');}
+  else badge.classList.remove('show');
 }
+function updateDirectionBadge(){document.getElementById('direction-badge').textContent=state.direction===1?'↻':'↺';}
+function updateOpponentsAll(){for(let i=1;i<state.players.length;i++) updateOpponentZone(i);}
 
-function updateDirectionBadge(){
-  document.getElementById('direction-badge').textContent=state.direction===1?'↻':'↺';
-}
-
-/* ═══ PLAY RULES ═══
-   Stack rule: draw cards can only stack if exact same value (e.g. +2 on +2, not +2 on +4)
-   Wild draw cards CAN be stacked on top of matching coloured draw cards
-*/
+/* ═══ PLAY RULES ═══ */
 function isPlayable(card){
-  const top=state.discard[state.discard.length-1];
-  const cc=state.currentColor;
-
+  const top=state.discard[state.discard.length-1];const cc=state.currentColor;
+  // Rare cards are always playable (wild-like)
+  if(card.isRare||card.color==='rare') return true;
   if(card.color==='wild') return true;
-
-  // Pending draw: can only stack EXACT same draw value OR wild draw
   if(state.pendingDraw>0){
-    if(card.type==='plus' && card.num===state.pendingDrawNum) return true;
+    if(card.type==='plus'&&card.num===state.pendingDrawNum) return true;
     return false;
   }
-
   if(card.color===cc) return true;
   if(card.value===top.value) return true;
   if(card.type!=='number'&&card.type===top.type) return true;
   if(card.type==='number'&&top.type==='number'&&card.label===top.label) return true;
   return false;
 }
+function canStackDraw(card){
+  if(state.pendingDraw<=0) return false;
+  if(card.isRare||card.color==='rare') return false; // rare cards don't stack draws
+  if(card.color==='wild') return false;
+  if(card.type==='plus'&&card.num===state.pendingDrawNum) return true;
+  return false;
+}
 
-// Same as isPlayable but for bots (uses isPlayable directly)
-function isPlayableFor(card){ return isPlayable(card); }
+/* ═══ PLAYER PICKER (Promise-based) ═══ */
+function pickPlayer(title,exclude=[]){
+  return new Promise(resolve=>{
+    const picker=document.getElementById('player-picker');
+    const titleEl=document.getElementById('player-picker-title');
+    const opts=document.getElementById('player-options');
+    titleEl.textContent=title;opts.innerHTML='';
+    for(let i=0;i<state.players.length;i++){
+      if(exclude.includes(i)) continue;
+      const btn=document.createElement('button');btn.className='player-opt';
+      btn.textContent=i===0?'You (yourself)':state.players[i].name;
+      btn.onclick=()=>{picker.classList.add('hidden');resolve(i);};
+      opts.appendChild(btn);
+    }
+    picker.classList.remove('hidden');
+    pendingPlayerPick=resolve;
+  });
+}
 
 /* ═══ ATTEMPT PLAY ═══ */
 function attemptPlay(idx){
   if(state.currentPlayer!==0||state.gameOver) return;
   const card=state.players[0].cards[idx];
-  if(!isPlayable(card)){ playSound('error'); shakeCard(idx); return; }
-
-  // Fly animation
-  const hand=document.getElementById('player-hand');
-  const wrapper=hand.children[idx];
+  if(!isPlayable(card)){playSound('error');shakeCard(idx);return;}
+  const hand=document.getElementById('player-hand');const wrapper=hand.children[idx];
   if(wrapper){
-    const wr=wrapper.getBoundingClientRect();
-    const dr=document.getElementById('discard-pile').getBoundingClientRect();
-    const flyEl=buildCardEl(card);
-    flyEl.className+=' card-fly';
+    const wr=wrapper.getBoundingClientRect();const dr=document.getElementById('discard-pile').getBoundingClientRect();
+    const flyEl=buildCardEl(card);flyEl.className+=' card-fly';
     flyEl.style.cssText+=`;left:${wr.left}px;top:${wr.top}px;width:${wr.width}px;height:${wr.height}px;`;
     flyEl.style.setProperty('--tx',(dr.left-wr.left+dr.width/2-wr.width/2)+'px');
     flyEl.style.setProperty('--ty',(dr.top-wr.top+dr.height/2-wr.height/2)+'px');
     flyEl.style.setProperty('--tr',(Math.random()*30-15)+'deg');
-    document.body.appendChild(flyEl);
-    setTimeout(()=>flyEl.remove(),450);
+    document.body.appendChild(flyEl);setTimeout(()=>flyEl.remove(),450);
   }
-
   executePlayCard(0,idx);
 }
-
 function shakeCard(idx){
-  const hand=document.getElementById('player-hand');
-  const w=hand.children[idx];
-  if(!w) return;
+  const hand=document.getElementById('player-hand');const w=hand.children[idx];if(!w) return;
   w.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(-4px)'},{transform:'translateX(0)'}],{duration:280,easing:'ease-out'});
 }
 
@@ -1093,462 +1021,495 @@ function executePlayCard(playerIdx,cardIdx){
   const player=state.players[playerIdx];
   const card=player.cards.splice(cardIdx,1)[0];
   state.discard.push(card);
-
-  if(card.color==='wild') playSound('wild');
+  if(card.isRare||card.color==='rare') playSound('rare');
+  else if(card.color==='wild') playSound('wild');
   else if(card.type==='plus') playSound('plus');
   else if(card.type==='skip'||card.type==='skipAll') playSound('skip');
   else if(card.type==='reverse'||card.type==='wildReverse') playSound('reverse');
   else playSound('card');
-
-  const pile=document.getElementById('discard-pile');
-  pile.classList.remove('discard-glow');
-  void pile.offsetWidth;
-  pile.classList.add('discard-glow');
-
+  const pile=document.getElementById('discard-pile');pile.classList.remove('discard-glow');void pile.offsetWidth;pile.classList.add('discard-glow');
   spawnFloatMsg(card.label,COLOR_HEX[card.color]||'#fff',playerIdx);
 
-  if(card.color==='wild'){
+  // Rare cards: always need colour pick (they are wild-like) OR special handling
+  const needsColorPick=['swapDecks','handFreeze','stealWild','shuffleStorm'];
+  if(card.isRare||card.color==='rare'){
     if(playerIdx===0){
+      // Shuffle storm doesn't need colour pick
+      if(card.type==='shuffleStorm'){applyCardEffect(card,playerIdx,null);return;}
+      // Others need player pick first (then colour for wild behaviour)
       pendingWild={card,playerIdx};
-      const titles={pickUntil:'🎲 Pick a color to hunt!',colorTransform:'🔄 Transform your hand!'};
-      showColorPicker(titles[card.type]||'Choose a Color');
-      return;
+      if(card.type==='stealWild'||card.type==='shuffleStorm'){
+        // No colour needed, but still wild (colour doesn't matter for game state)
+        applyRareEffect(card,playerIdx,null);return;
+      }
+      if(card.type==='swapDecks'||card.type==='handFreeze'){
+        applyRareEffect(card,playerIdx,null);return;
+      }
     } else {
-      const botColor=botPickColor(state.players[playerIdx]);
-      state.currentColor=botColor;
-      applyCardEffect(card,playerIdx,botColor);
+      applyRareBotEffect(card,playerIdx);return;
     }
+  } else if(card.color==='wild'){
+    if(playerIdx===0){pendingWild={card,playerIdx};showColorPicker('Choose a Color');return;}
+    else{const bc=botPickColor(state.players[playerIdx]);state.currentColor=bc;applyCardEffect(card,playerIdx,bc);}
   } else {
-    state.currentColor=card.color;
-    applyCardEffect(card,playerIdx,card.color);
+    state.currentColor=card.color;applyCardEffect(card,playerIdx,card.color);
   }
 }
 
 function botPickColor(player){
-  const counts={};
-  for(const c of player.cards) if(c.color!=='wild') counts[c.color]=(counts[c.color]||0)+1;
-  let best='red',max=0;
-  for(const [col,n] of Object.entries(counts)) if(n>max){max=n;best=col;}
-  return best;
+  const counts={};for(const c of player.cards) if(c.color!=='wild'&&c.color!=='rare') counts[c.color]=(counts[c.color]||0)+1;
+  let best='red',max=0;for(const [col,n] of Object.entries(counts)) if(n>max){max=n;best=col;}return best;
 }
 
-/* ═══ APPLY EFFECT ═══ */
-function applyCardEffect(card,playerIdx,chosenColor){
-  const n=state.players.length;
-  let extraTurn=false;
+/* ═══ RARE EFFECT (Player) ═══ */
+async function applyRareEffect(card,playerIdx,_){
+  pendingWild=null;
+  document.getElementById('color-picker').classList.add('hidden');
+  document.getElementById('player-picker').classList.add('hidden');
 
   switch(card.type){
-    case 'number': break;
-
-    case 'reverse':
-    case 'wildReverse':
-      state.direction*=-1;
-      updateDirectionBadge();
-      if(n===2) advanceTurn();
-      break;
-
-    case 'skip':
-    case 'wildSkip':
-      advanceTurn();
-      showStatus(`${state.players[state.currentPlayer].name} is skipped!`,1400);
-      break;
-
-    case 'skipAll':
-    case 'wildSkipAll':
-      extraTurn=true;
-      showStatus('Everyone skipped! Play again! 😈',1600);
-      break;
-
-    case 'plus':
-    case 'wildPlus':
-      // Track the draw type for stacking rules
-      state.pendingDraw+=card.num;
-      state.pendingDrawNum=card.num; // only same num can stack
-      showStatus(`+${card.num} stacked! Total: +${state.pendingDraw} 😬`,1600);
-      break;
-
-    case 'colorTransform':
-      if(playerIdx===0){
-        state.players[0].cards=state.players[0].cards.map(c=>c.color!=='wild'?{...c,color:chosenColor}:c);
-        showStatus(`All your cards are now ${chosenColor}! 🔄`,2000);
-      }
-      break;
-
-    case 'pickUntil':
-      doPickUntil(nextPlayerIdx(),chosenColor);
-      break;
+    case 'swapDecks':{
+      const target=await pickPlayer('🔀 Swap decks with whom?',[]);
+      if(target===playerIdx){showStatus('You swapped with yourself... 😅',1500);}
+      else{await animateSwapDecks(playerIdx,target);}
+      state.currentColor=state.currentColor||'red';
+      advanceTurn();finishTurn(playerIdx);break;
+    }
+    case 'handFreeze':{
+      const target=await pickPlayer('❄️ Freeze whose hand?',[playerIdx]);
+      state.frozenPlayers[target]=true;
+      playSound('freeze');
+      showStatus(`${state.players[target].name} is frozen! ❄️`,2000);
+      const el=document.createElement('div');el.className='steal-wild-banner';el.textContent=`❄️ ${state.players[target].name} FROZEN!`;
+      el.style.borderColor='rgba(100,200,255,0.8)';el.style.textShadow='0 0 40px rgba(100,200,255,1)';
+      document.body.appendChild(el);setTimeout(()=>el.remove(),2600);
+      state.currentColor=state.currentColor||'red';
+      advanceTurn();finishTurn(playerIdx);break;
+    }
+    case 'stealWild':{
+      state.stealWildOwner=playerIdx;
+      playSound('steal');
+      showStatus('🎭 You will steal the next wild! 👀',2200);
+      const el=document.createElement('div');el.className='steal-wild-banner';el.textContent='🎭 Wild Thief Activated!';
+      document.body.appendChild(el);setTimeout(()=>el.remove(),2600);
+      state.currentColor=state.currentColor||'red';
+      advanceTurn();finishTurn(playerIdx);break;
+    }
+    case 'shuffleStorm':{
+      await animateShuffleStorm();
+      state.currentColor=state.currentColor||'red';
+      advanceTurn();finishTurn(playerIdx);break;
+    }
   }
+}
 
+/* ═══ RARE BOT EFFECTS ═══ */
+async function applyRareBotEffect(card,playerIdx){
+  switch(card.type){
+    case 'swapDecks':{
+      // Bot swaps with player who has fewest cards (to take their small hand)
+      let target=0;let minCards=Infinity;
+      for(let i=0;i<state.players.length;i++){
+        if(i===playerIdx) continue;
+        if(state.players[i].cards.length<minCards){minCards=state.players[i].cards.length;target=i;}
+      }
+      await animateSwapDecks(playerIdx,target);
+      advanceTurn();finishTurn(playerIdx);break;
+    }
+    case 'handFreeze':{
+      state.frozenPlayers[0]=true;playSound('freeze');
+      showStatus(`${state.players[playerIdx].name} froze you! ❄️`,2000);
+      const el=document.createElement('div');el.className='steal-wild-banner';el.textContent='❄️ YOU ARE FROZEN!';
+      el.style.borderColor='rgba(100,200,255,0.8)';el.style.textShadow='0 0 40px rgba(100,200,255,1)';
+      el.style.color='#88ddff';document.body.appendChild(el);setTimeout(()=>el.remove(),2600);
+      advanceTurn();finishTurn(playerIdx);break;
+    }
+    case 'stealWild':{
+      state.stealWildOwner=playerIdx;playSound('steal');
+      showStatus(`${state.players[playerIdx].name} is stealing the next wild! 🎭`,2000);
+      advanceTurn();finishTurn(playerIdx);break;
+    }
+    case 'shuffleStorm':{
+      await animateShuffleStorm();advanceTurn();finishTurn(playerIdx);break;
+    }
+    default: advanceTurn();finishTurn(playerIdx);
+  }
+}
+
+/* ═══ SWAP DECKS ANIMATION ═══ */
+async function animateSwapDecks(a,b){
+  return new Promise(resolve=>{
+    playSound('swap');
+    const pA=state.players[a],pB=state.players[b];
+    const getZoneRect=(idx)=>{
+      if(idx===0){const h=document.getElementById('player-hand');return h.getBoundingClientRect();}
+      const z=document.getElementById(`opp-zone-${idx}`);return z?z.getBoundingClientRect():{x:window.innerWidth/2,y:window.innerHeight/2,width:0,height:0};
+    };
+    const rA=getZoneRect(a),rB=getZoneRect(b);
+    const cAx=rA.left+rA.width/2,cAy=rA.top+rA.height/2;
+    const cBx=rB.left+rB.width/2,cBy=rB.top+rB.height/2;
+    const count=Math.min(Math.max(pA.cards.length,pB.cards.length),8);
+    const colors=[CARD_COLORS_CSS.red,CARD_COLORS_CSS.blue,CARD_COLORS_CSS.green,CARD_COLORS_CSS.purple,CARD_COLORS_CSS.yellow];
+    for(let i=0;i<count;i++){
+      const offset=(i-count/2)*12;
+      // A's cards fly to B
+      const eA=document.createElement('div');eA.className='shuffle-card';
+      eA.style.cssText=`left:${cAx-26+offset}px;top:${cAy-37}px;background:${colors[i%colors.length]};`;
+      eA.textContent='🂠';document.body.appendChild(eA);
+      const tAx=cBx-cAx+offset*-0.5,tAy=cBy-cAy;
+      const dur=0.7+Math.random()*0.2;const rot=(Math.random()*400-200);
+      eA.animate([{transform:'translate(0,0) rotate(0deg) scale(1)',opacity:1},{transform:`translate(${tAx}px,${tAy}px) rotate(${rot}deg) scale(0.6)`,opacity:0}],{duration:dur*1000,easing:'cubic-bezier(0.4,0,0.2,1)',fill:'forwards'});
+      setTimeout(()=>eA.remove(),(dur+0.1)*1000);
+      // B's cards fly to A
+      const eB=document.createElement('div');eB.className='shuffle-card';
+      eB.style.cssText=`left:${cBx-26+offset}px;top:${cBy-37}px;background:${colors[(i+2)%colors.length]};`;
+      eB.textContent='🂠';document.body.appendChild(eB);
+      const tBx=cAx-cBx+offset*-0.5,tBy=cAy-cBy;
+      const dur2=0.7+Math.random()*0.2;const rot2=(Math.random()*400-200);
+      eB.animate([{transform:'translate(0,0) rotate(0deg) scale(1)',opacity:1},{transform:`translate(${tBx}px,${tBy}px) rotate(${rot2}deg) scale(0.6)`,opacity:0}],{duration:dur2*1000,easing:'cubic-bezier(0.4,0,0.2,1)',fill:'forwards'});
+      setTimeout(()=>eB.remove(),(dur2+0.1)*1000);
+    }
+    // Show banner
+    const banner=document.createElement('div');banner.className='steal-wild-banner';
+    banner.textContent=`🔀 ${pA.name} ↔ ${pB.name}`;document.body.appendChild(banner);
+    setTimeout(()=>banner.remove(),2600);
+    // Actually swap
+    setTimeout(()=>{
+      const tmp=pA.cards;pA.cards=pB.cards;pB.cards=tmp;
+      showStatus(`${pA.name} and ${pB.name} swapped hands!`,1800);
+      resolve();
+    },800);
+  });
+}
+
+/* ═══ SHUFFLE STORM ANIMATION ═══ */
+async function animateShuffleStorm(){
+  return new Promise(resolve=>{
+    playSound('shuffle');
+    // Collect all cards
+    const allCards=[];
+    for(const p of state.players) allCards.push(...p.cards);
+    const total=allCards.length;
+    const cx=window.innerWidth/2,cy=window.innerHeight/2;
+    // Create flying cards
+    for(let i=0;i<Math.min(total,20);i++){
+      const el=document.createElement('div');el.className='shuffle-card';
+      const angle=Math.random()*Math.PI*2;const dist=80+Math.random()*150;
+      const sx2=cx+Math.cos(angle)*dist-26,sy2=cy+Math.sin(angle)*dist-37;
+      el.style.cssText=`left:${cx-26}px;top:${cy-37}px;`;
+      el.textContent='🂠';document.body.appendChild(el);
+      const colors=[CARD_COLORS_CSS.red,CARD_COLORS_CSS.blue,CARD_COLORS_CSS.green,CARD_COLORS_CSS.purple,CARD_COLORS_CSS.yellow];
+      el.style.background=colors[i%colors.length];
+      el.animate([
+        {transform:`translate(0,0) rotate(0deg) scale(0.5)`,opacity:0},
+        {transform:`translate(${sx2-cx+26}px,${sy2-cy+37}px) rotate(${Math.random()*720-360}deg) scale(1)`,opacity:1,offset:0.5},
+        {transform:`translate(${-cx+26}px,${-cy+37}px) rotate(${Math.random()*720-360}deg) scale(0.3)`,opacity:0}
+      ],{duration:1200,easing:'ease-in-out',fill:'forwards'});
+      setTimeout(()=>el.remove(),1350);
+    }
+    const banner=document.createElement('div');banner.className='steal-wild-banner';
+    banner.textContent='🌪️ SHUFFLE STORM!';document.body.appendChild(banner);setTimeout(()=>banner.remove(),2600);
+    // Actually shuffle
+    setTimeout(()=>{
+      const shuffled=shuffle(allCards);let idx2=0;
+      for(const p of state.players){const cnt=p.cards.length;p.cards=shuffled.slice(idx2,idx2+cnt);idx2+=cnt;}
+      showStatus('All hands shuffled! 🌪️',2000);resolve();
+    },700);
+  });
+}
+
+/* ═══ APPLY CARD EFFECT ═══ */
+function applyCardEffect(card,playerIdx,chosenColor){
+  const n=state.players.length;let extraTurn=false;
+  switch(card.type){
+    case 'number': break;
+    case 'reverse': case 'wildReverse':
+      state.direction*=-1;updateDirectionBadge();if(n===2) advanceTurn();break;
+    case 'skip': case 'wildSkip':
+      advanceTurn();showStatus(`${state.players[state.currentPlayer].name} is skipped!`,1400);break;
+    case 'skipAll': case 'wildSkipAll':
+      extraTurn=true;showStatus('Everyone skipped! Play again! 😈',1600);break;
+    case 'plus': case 'wildPlus':
+      state.pendingDraw+=card.num;state.pendingDrawNum=card.num;
+      showStatus(`+${card.num} stacked! Total: +${state.pendingDraw} 😬`,1600);break;
+    case 'colorTransform':
+      if(playerIdx===0){state.players[0].cards=state.players[0].cards.map(c=>c.color!=='wild'&&c.color!=='rare'?{...c,color:chosenColor}:c);showStatus(`All your cards are now ${chosenColor}! 🔄`,2000);}break;
+    case 'pickUntil': doPickUntil(nextPlayerIdx(),chosenColor);break;
+  }
   if(!extraTurn) advanceTurn();
   finishTurn(playerIdx);
 }
 
-function advanceTurn(){
-  const n=state.players.length;
-  state.currentPlayer=(state.currentPlayer+state.direction+n)%n;
-}
-
-function nextPlayerIdx(){
-  const n=state.players.length;
-  return (state.currentPlayer+state.direction+n)%n;
-}
+function advanceTurn(){const n=state.players.length;state.currentPlayer=(state.currentPlayer+state.direction+n)%n;}
+function nextPlayerIdx(){const n=state.players.length;return(state.currentPlayer+state.direction+n)%n;}
 
 function doPickUntil(targetIdx,targetColor){
-  const target=state.players[targetIdx];
-  let draws=0;
-  while(draws<25){
-    const d=drawCard(state);
-    target.cards.push(d);
-    draws++;
-    if(d.color===targetColor) break;
-  }
+  const target=state.players[targetIdx];let draws=0;
+  while(draws<25){const d=drawCard(state);target.cards.push(d);draws++;if(d.color===targetColor) break;}
   showStatus(`${target.name} drew ${draws} cards hunting for ${targetColor}! 😬`,2200);
   spawnFloatMsg(`+${draws}`,'#FF3B3B',targetIdx);
 }
 
+/* ═══ FINISH TURN ═══ */
 function finishTurn(playerIdx){
   const player=state.players[playerIdx];
+  if(player.cards.length===0){endGame(playerIdx);return;}
+  renderDiscard();updateColorBar();updateDirectionBadge();
+  if(playerIdx===0){renderPlayerHand();updateOpponentsAll();}
+  else{updateOpponentZone(playerIdx);renderPlayerHand();}
 
-  if(player.cards.length===0){
-    endGame(playerIdx);
+  // Auto-draw check
+  if(!state.gameOver&&state.currentPlayer===0&&state.pendingDraw>0){
+    const hasStackable=state.players[0].cards.some(c=>canStackDraw(c));
+    if(!hasStackable&&!autoDrawing){autoDrawing=true;setTimeout(()=>triggerAutoDrawForPlayer(),800);return;}
+  }
+
+  // Skip frozen player
+  if(state.frozenPlayers&&state.frozenPlayers[state.currentPlayer]){
+    const frozenIdx=state.currentPlayer;
+    setTimeout(()=>{
+      showStatus(`${state.players[frozenIdx].name} is frozen! ❄️`,1400);
+      advanceTurn();finishTurn(frozenIdx);
+    },600);
     return;
   }
 
-  renderDiscard();
-  updateColorBar();
-  updateDirectionBadge();
-
-  if(playerIdx===0){
-    renderPlayerHand();
-    updateOpponentsAll();
-  } else {
-    updateOpponentZone(playerIdx);
-    renderPlayerHand();
-  }
-
-  // Check if player (human) now needs to auto-draw (current player is human, has pending draw, no matching card)
-  if(!state.gameOver && state.currentPlayer===0 && state.pendingDraw>0){
-    const hasStackable=state.players[0].cards.some(c=>canStackDraw(c));
-    if(!hasStackable && !autoDrawing){
-      autoDrawing=true;
-      setTimeout(()=>triggerAutoDrawForPlayer(),800);
-      return;
-    }
-  }
-
   scheduleBot();
-}
-
-// Check if a card can stack on current pending draw
-function canStackDraw(card){
-  if(state.pendingDraw<=0) return false;
-  if(card.color==='wild') return true; // wild draw always stacks? No — per rules only same num
-  // Actually per our rules: only same draw num stacks
-  if(card.type==='plus' && card.num===state.pendingDrawNum) return true;
-  return false;
-}
-
-function updateOpponentsAll(){
-  for(let i=1;i<state.players.length;i++) updateOpponentZone(i);
-}
-
-/* ═══ AUTO DRAW (player has no stackable card) ═══ */
-async function triggerAutoDrawForPlayer(){
-  if(!gameRunning||state.gameOver||state.currentPlayer!==0) { autoDrawing=false; return; }
-  const n=state.pendingDraw;
-  playSound('autodraw');
-
-  // Show message
-  const msg=document.createElement('div');
-  msg.className='auto-draw-msg';
-  msg.textContent=`No stackable card! Drawing +${n}...`;
-  document.body.appendChild(msg);
-  setTimeout(()=>msg.remove(),1900);
-
-  // Animate cards flying from deck to hand
-  await animateDrawCards(0, n, 200);
-
-  // Actually add to hand
-  for(let i=0;i<n;i++) state.players[0].cards.push(drawCard(state));
-  state.pendingDraw=0;
-  state.pendingDrawNum=null;
-  autoDrawing=false;
-
-  advanceTurn();
-  renderPlayerHand();
-  renderDiscard();
-  updateColorBar();
-  updatePendingDrawBadge();
-  scheduleBot();
-}
-
-/* ═══ DRAW CARD ANIMATION (deck → hand) ═══ */
-function animateDrawCards(playerIdx, count, intervalMs){
-  return new Promise(resolve=>{
-    const deckEl=document.getElementById('deck-pile');
-    let completed=0;
-    for(let i=0;i<count;i++){
-      setTimeout(()=>{
-        const dr=deckEl.getBoundingClientRect();
-        // destination: player hand area
-        const hand=document.getElementById('player-hand');
-        const hr=hand.getBoundingClientRect();
-        const destX=hr.left+hr.width/2+(Math.random()-0.5)*60;
-        const destY=hr.top+20;
-
-        const el=document.createElement('div');
-        el.className='draw-fly';
-        el.textContent='🂠';
-        el.style.cssText=`width:52px;height:74px;left:${dr.left}px;top:${dr.top}px;font-size:1.4em;`;
-        document.body.appendChild(el);
-
-        // Animate with JS
-        const startX=dr.left;
-        const startY=dr.top;
-        const dx=destX-startX;
-        const dy=destY-startY;
-        const dur=400+i*30;
-        const start=performance.now();
-
-        function step(now){
-          const t=Math.min((now-start)/dur,1);
-          const ease=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
-          el.style.left=(startX+dx*ease)+'px';
-          el.style.top=(startY+dy*ease)+'px';
-          el.style.transform=`rotate(${ease*15}deg) scale(${0.9+0.2*(1-Math.abs(ease-0.5)*2)})`;
-          el.style.opacity=t>0.85?(1-(t-0.85)/0.15):1;
-          if(t<1){requestAnimationFrame(step);}
-          else{
-            el.remove();
-            playSound('draw');
-            completed++;
-            if(completed>=count) resolve();
-          }
-        }
-        requestAnimationFrame(step);
-      }, i*intervalMs);
-    }
-    if(count===0) resolve();
-  });
 }
 
 /* ═══ BOT LOGIC ═══ */
 function scheduleBot(){
   if(!gameRunning||state.gameOver) return;
   if(!state.players[state.currentPlayer].isBot) return;
-  const delay=900+Math.random()*900; // slower bots
-  botTimer=setTimeout(()=>{
-    if(!gameRunning||state.gameOver) return;
-    botTurn(state.currentPlayer);
-  },delay);
+  const delay=900+Math.random()*900;
+  botTimer=setTimeout(()=>{if(!gameRunning||state.gameOver) return;botTurn(state.currentPlayer);},delay);
 }
-
 function botTurn(idx){
   if(!gameRunning||state.gameOver||state.currentPlayer!==idx) return;
+  // Check frozen
+  if(state.frozenPlayers&&state.frozenPlayers[idx]){
+    showStatus(`${state.players[idx].name} is still frozen! ❄️`,1200);
+    advanceTurn();finishTurn(idx);return;
+  }
   const bot=state.players[idx];
-
   if(state.pendingDraw>0){
     const stackable=bot.cards.filter(c=>canStackDraw(c));
-    if(stackable.length>0&&Math.random()>0.35){
-      const ci=bot.cards.indexOf(stackable[0]);
-      executePlayCard(idx,ci);
-    } else {
-      botTakePenalty(idx);
-    }
+    if(stackable.length>0&&Math.random()>0.35){const ci=bot.cards.indexOf(stackable[0]);executePlayCard(idx,ci);}
+    else botTakePenalty(idx);
     return;
   }
-
-  const playable=bot.cards.map((c,i)=>({c,i})).filter(({c})=>isPlayableFor(c));
-  if(playable.length===0){ botDrawOne(idx); return; }
-
-  // Strategy: prefer colour match, avoid wilds unless needed
-  const matching=playable.filter(({c})=>c.color===state.currentColor);
-  const wilds=playable.filter(({c})=>c.color==='wild');
-  const others=playable.filter(({c})=>c.color!=='wild');
+  const playable=bot.cards.map((c,i)=>({c,i})).filter(({c})=>isPlayable(c));
+  if(playable.length===0){botDrawOne(idx);return;}
+  // Prefer colour match, avoid rares/wilds unless nothing else
+  const matching=playable.filter(({c})=>c.color===state.currentColor&&c.color!=='wild'&&c.color!=='rare');
+  const others=playable.filter(({c})=>c.color!=='wild'&&c.color!=='rare');
+  const wilds=playable.filter(({c})=>c.color==='wild'||c.color==='rare');
   let chosen=null;
   if(matching.length>0) chosen=matching[Math.floor(Math.random()*matching.length)];
   else if(others.length>0) chosen=others[Math.floor(Math.random()*others.length)];
   else chosen=wilds[0];
-
   executePlayCard(idx,chosen.i);
 }
-
-async function botDrawOne(idx){
-  const drawn=drawCard(state);
-  state.players[idx].cards.push(drawn);
-  playSound('draw');
-  spawnFloatMsg('+1','#888',idx);
-  updateOpponentZone(idx);
-
-  if(isPlayableFor(drawn)){
-    setTimeout(()=>{
-      if(!gameRunning) return;
-      const ci=state.players[idx].cards.indexOf(drawn);
-      if(ci>=0) executePlayCard(idx,ci);
-      else{ advanceTurn(); finishTurn(idx); }
-    },500);
-  } else {
-    advanceTurn();
-    finishTurn(idx);
-  }
+function botDrawOne(idx){
+  const drawn=drawCard(state);state.players[idx].cards.push(drawn);
+  playSound('draw');spawnFloatMsg('+1','#888',idx);updateOpponentZone(idx);
+  if(isPlayable(drawn)){
+    setTimeout(()=>{if(!gameRunning) return;const ci=state.players[idx].cards.indexOf(drawn);
+    if(ci>=0) executePlayCard(idx,ci);else{advanceTurn();finishTurn(idx);}},500);
+  } else {advanceTurn();finishTurn(idx);}
 }
-
 function botTakePenalty(idx){
-  const n=state.pendingDraw;
-  for(let i=0;i<n;i++) state.players[idx].cards.push(drawCard(state));
-  playSound('draw');
-  showStatus(`${state.players[idx].name} drew ${n} cards! 😬`,1600);
-  spawnFloatMsg(`+${n}`,'#FF3B3B',idx);
-  state.pendingDraw=0;
-  state.pendingDrawNum=null;
-  updateOpponentZone(idx);
-  advanceTurn();
-  finishTurn(idx);
-  updatePendingDrawBadge();
+  const n=state.pendingDraw;for(let i=0;i<n;i++) state.players[idx].cards.push(drawCard(state));
+  playSound('draw');showStatus(`${state.players[idx].name} drew ${n} cards! 😬`,1600);
+  spawnFloatMsg(`+${n}`,'#FF3B3B',idx);state.pendingDraw=0;state.pendingDrawNum=null;
+  // Unfreeze the drawer
+  if(state.frozenPlayers) for(const k of Object.keys(state.frozenPlayers)) delete state.frozenPlayers[k];
+  updateOpponentZone(idx);advanceTurn();finishTurn(idx);updatePendingDrawBadge();
 }
 
-/* ═══ PLAYER DRAW FROM DECK ═══ */
+/* ═══ DRAW FROM DECK ═══ */
 async function drawFromDeck(){
   resumeAC();
   if(state.currentPlayer!==0||state.gameOver||autoDrawing) return;
-
   if(state.pendingDraw>0){
-    // Check if they have a stackable card — if so, they chose to draw voluntarily
-    const hasStackable=state.players[0].cards.some(c=>canStackDraw(c));
-    // Either way, take the penalty
-    const n=state.pendingDraw;
-    autoDrawing=true;
-    playSound('autodraw');
-
-    await animateDrawCards(0, n, 150);
-
+    const n=state.pendingDraw;autoDrawing=true;playSound('autodraw');
+    await animateDrawCards(n,150);
     for(let i=0;i<n;i++) state.players[0].cards.push(drawCard(state));
-    state.pendingDraw=0;
-    state.pendingDrawNum=null;
-    autoDrawing=false;
-
-    showStatus(`Drew ${n} cards! 😬`,1800);
-    spawnFloatMsg(`+${n}`,'#FF3B3B',0);
-    advanceTurn();
-    renderPlayerHand();
-    renderDiscard();
-    updateColorBar();
-    updatePendingDrawBadge();
-    scheduleBot();
-    return;
+    state.pendingDraw=0;state.pendingDrawNum=null;autoDrawing=false;
+    // Unfreeze on draw
+    if(state.frozenPlayers) for(const k of Object.keys(state.frozenPlayers)) delete state.frozenPlayers[k];
+    showStatus(`Drew ${n} cards! 😬`,1800);spawnFloatMsg(`+${n}`,'#FF3B3B',0);
+    advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();return;
   }
+  const drawn=drawCard(state);state.players[0].cards.push(drawn);
+  playSound('draw');spawnFloatMsg('+1','#aaa',0);
+  // Unfreeze the player
+  if(state.frozenPlayers&&state.frozenPlayers[0]) delete state.frozenPlayers[0];
+  await animateDrawCards(1,0);
+  if(isPlayable(drawn)){showStatus(`Drew ${drawn.label} — you can play it!`,2200);renderPlayerHand();}
+  else{showStatus(`Drew: ${drawn.label}`,1200);advanceTurn();renderPlayerHand();scheduleBot();}
+}
 
-  // Normal draw
-  const drawn=drawCard(state);
-  state.players[0].cards.push(drawn);
-  playSound('draw');
-  spawnFloatMsg('+1','#aaa',0);
+async function triggerAutoDrawForPlayer(){
+  if(!gameRunning||state.gameOver||state.currentPlayer!==0){autoDrawing=false;return;}
+  const n=state.pendingDraw;playSound('autodraw');
+  const msg=document.createElement('div');msg.className='auto-draw-msg';msg.textContent=`No stackable card! Drawing +${n}...`;
+  document.body.appendChild(msg);setTimeout(()=>msg.remove(),1900);
+  await animateDrawCards(n,200);
+  for(let i=0;i<n;i++) state.players[0].cards.push(drawCard(state));
+  state.pendingDraw=0;state.pendingDrawNum=null;autoDrawing=false;
+  if(state.frozenPlayers) for(const k of Object.keys(state.frozenPlayers)) delete state.frozenPlayers[k];
+  advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();
+}
 
-  // Quick fly animation for single card
-  await animateDrawCards(0,1,0);
-
-  if(isPlayable(drawn)){
-    showStatus(`Drew ${drawn.label} — you can play it!`,2200);
-    renderPlayerHand();
-  } else {
-    showStatus(`Drew: ${drawn.label}`,1200);
-    advanceTurn();
-    renderPlayerHand();
-    scheduleBot();
-  }
+function animateDrawCards(count,intervalMs){
+  return new Promise(resolve=>{
+    const deckEl=document.getElementById('deck-pile');let completed=0;
+    for(let i=0;i<count;i++){
+      setTimeout(()=>{
+        const dr=deckEl.getBoundingClientRect();
+        const hand=document.getElementById('player-hand');const hr=hand.getBoundingClientRect();
+        const destX=hr.left+hr.width/2+(Math.random()-0.5)*60,destY=hr.top+20;
+        const el=document.createElement('div');el.className='draw-fly';el.textContent='🂠';
+        el.style.cssText=`width:52px;height:74px;left:${dr.left}px;top:${dr.top}px;font-size:1.4em;`;
+        document.body.appendChild(el);
+        const startX=dr.left,startY=dr.top,dx=destX-startX,dy=destY-startY,dur=400+i*30,start=performance.now();
+        function step(now){
+          const t=Math.min((now-start)/dur,1);const ease=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+          el.style.left=(startX+dx*ease)+'px';el.style.top=(startY+dy*ease)+'px';
+          el.style.transform=`rotate(${ease*15}deg) scale(${0.9+0.2*(1-Math.abs(ease-0.5)*2)})`;
+          el.style.opacity=t>0.85?(1-(t-0.85)/0.15):1;
+          if(t<1){requestAnimationFrame(step);}else{el.remove();playSound('draw');completed++;if(completed>=count) resolve();}
+        }
+        requestAnimationFrame(step);
+      },i*intervalMs);
+    }
+    if(count===0) resolve();
+  });
 }
 
 /* ═══ COLOR PICKER ═══ */
-function showColorPicker(title){
-  document.getElementById('color-picker-title').textContent=title;
-  document.getElementById('color-picker').classList.remove('hidden');
-}
-
+function showColorPicker(title){document.getElementById('color-picker-title').textContent=title;document.getElementById('color-picker').classList.remove('hidden');}
 function pickColor(color){
   document.getElementById('color-picker').classList.add('hidden');
   state.currentColor=color;
   if(pendingWild){
-    const {card,playerIdx}=pendingWild;
-    pendingWild=null;
-    renderDiscard();
-    updateColorBar();
-    if(card.type==='pickUntil'){
-      doPickUntil(nextPlayerIdx(),color);
-      advanceTurn();
-      finishTurn(playerIdx);
-    } else if(card.type==='colorTransform'){
-      state.players[0].cards=state.players[0].cards.map(c=>c.color!=='wild'?{...c,color}:c);
-      showStatus(`All your cards transformed to ${color}! 🔄`,2200);
-      advanceTurn();
-      finishTurn(playerIdx);
-    } else {
-      applyCardEffect(card,playerIdx,color);
+    const{card,playerIdx}=pendingWild;pendingWild=null;
+    renderDiscard();updateColorBar();
+
+    // Check steal wild
+    if(state.stealWildOwner!==null&&state.stealWildOwner!==playerIdx){
+      const thief=state.stealWildOwner;state.stealWildOwner=null;
+      showStatus(`🎭 ${state.players[thief].name} steals the wild!`,2000);
+      const banner=document.createElement('div');banner.className='steal-wild-banner';
+      banner.textContent=`🎭 ${state.players[thief].name} STEALS THE WILD!`;document.body.appendChild(banner);setTimeout(()=>banner.remove(),2600);
+      // Now the thief picks colour
+      if(thief===0){
+        pendingWild={card,playerIdx};
+        setTimeout(()=>showColorPicker('🎭 You stole the wild! Choose color:'),300);
+        return;
+      } else {
+        const bc=botPickColor(state.players[thief]);state.currentColor=bc;
+        showStatus(`${state.players[thief].name} chose ${bc}!`,1500);
+        applyCardEffect(card,playerIdx,bc);return;
+      }
     }
+    state.stealWildOwner=null;
+    if(card.type==='pickUntil'){doPickUntil(nextPlayerIdx(),color);advanceTurn();finishTurn(playerIdx);}
+    else if(card.type==='colorTransform'){state.players[0].cards=state.players[0].cards.map(c=>c.color!=='wild'&&c.color!=='rare'?{...c,color}:c);showStatus(`All your cards transformed to ${color}! 🔄`,2200);advanceTurn();finishTurn(playerIdx);}
+    else{applyCardEffect(card,playerIdx,color);}
   }
 }
 
+/* ═══ WIN CARD EXPLOSION ═══ */
+async function triggerWinExplosion(winnerIdx){
+  // Gather all card positions and shoot them to center
+  const cx=window.innerWidth/2,cy=window.innerHeight/2;
+  const allCardEls=[];
+  // Player hand
+  const hand=document.getElementById('player-hand');
+  if(hand){
+    const cards=hand.querySelectorAll('.hand-card');
+    cards.forEach(c=>{const r=c.getBoundingClientRect();allCardEls.push({x:r.left+r.width/2,y:r.top+r.height/2});});
+  }
+  // Opponent zones
+  for(let i=1;i<state.players.length;i++){
+    const zone=document.getElementById(`opp-cards-${i}`);
+    if(zone){const minis=zone.querySelectorAll('.opp-card-mini');minis.forEach(m=>{const r=m.getBoundingClientRect();allCardEls.push({x:r.left+r.width/2,y:r.top+r.height/2});});}
+  }
+  // Discard
+  const discardEl=document.getElementById('discard-pile');
+  if(discardEl){const r=discardEl.getBoundingClientRect();allCardEls.push({x:r.left+r.width/2,y:r.top+r.height/2});}
+
+  const colors=[CARD_COLORS_CSS.red,CARD_COLORS_CSS.blue,CARD_COLORS_CSS.green,CARD_COLORS_CSS.purple,CARD_COLORS_CSS.yellow];
+  const promises=[];
+
+  allCardEls.forEach((pos,i)=>{
+    const el=document.createElement('div');el.className='shuffle-card';
+    el.style.cssText=`left:${pos.x-26}px;top:${pos.y-37}px;background:${colors[i%colors.length]};z-index:260;`;
+    el.textContent='🂠';document.body.appendChild(el);
+    const tx=cx-pos.x,ty=cy-pos.y;
+    const dur=400+Math.random()*300;const delay2=i*30;
+    const p=new Promise(res=>{
+      const anim=el.animate([
+        {transform:'translate(0,0) rotate(0deg) scale(1)',opacity:1},
+        {transform:`translate(${tx}px,${ty}px) rotate(${Math.random()*720-360}deg) scale(1.3)`,opacity:1,offset:0.7},
+        {transform:`translate(${tx+(Math.random()-0.5)*200}px,${ty+(Math.random()-0.5)*200}px) rotate(${Math.random()*1080-540}deg) scale(0)`,opacity:0}
+      ],{duration:dur,delay:delay2,easing:'cubic-bezier(0.25,0.46,0.45,0.94)',fill:'forwards'});
+      anim.onfinish=()=>{el.remove();res();};
+    });
+    promises.push(p);
+  });
+
+  await Promise.all(promises);
+}
+
 /* ═══ END GAME ═══ */
-function endGame(winnerIdx){
-  state.gameOver=true;gameRunning=false;
-  if(botTimer) clearTimeout(botTimer);
+async function endGame(winnerIdx){
+  state.gameOver=true;gameRunning=false;if(botTimer) clearTimeout(botTimer);
+  // Win explosion first
+  if(winnerIdx===0) playSound('win');else playSound('lose');
+  await triggerWinExplosion(winnerIdx);
   setTimeout(()=>{
     const winner=state.players[winnerIdx];
     document.getElementById('game-screen').classList.add('hidden');
-    const es=document.getElementById('end-screen');
-    es.classList.remove('hidden');
+    const es=document.getElementById('end-screen');es.classList.remove('hidden');
     if(winnerIdx===0){
-      playSound('win');
-      document.getElementById('end-icon').textContent='🎉';
-      document.getElementById('end-title').textContent='You Win!';
-      document.getElementById('end-sub').textContent='Incredible! You crushed it!';
-      document.getElementById('end-title').style.color='#FFD600';
-      const wins=parseInt(localStorage.getItem('unoh_wins')||'0')+1;
-      localStorage.setItem('unoh_wins',wins);
+      document.getElementById('end-icon').textContent='🎉';document.getElementById('end-title').textContent='You Win!';
+      document.getElementById('end-sub').textContent='Incredible! You crushed it!';document.getElementById('end-title').style.color='#FFD600';
+      const wins=parseInt(localStorage.getItem('unoh_wins')||'0')+1;localStorage.setItem('unoh_wins',wins);
     } else {
-      playSound('lose');
-      document.getElementById('end-icon').textContent='😭';
-      document.getElementById('end-title').textContent=winner.name+' Wins!';
-      document.getElementById('end-sub').textContent='Better luck next time!';
-      document.getElementById('end-title').style.color='#FF3B3B';
+      document.getElementById('end-icon').textContent='😭';document.getElementById('end-title').textContent=winner.name+' Wins!';
+      document.getElementById('end-sub').textContent='Better luck next time!';document.getElementById('end-title').style.color='#FF3B3B';
     }
-  },400);
+  },200);
 }
+
+/* ═══ WILD STEAL interception for bot wilds ═══ */
+// Intercept bot wild plays — wrap executePlayCard to check steal
+const _origExecute=executePlayCard;
+// (steal wild is handled in pickColor and in bot colour choice below)
 
 /* ═══ UI HELPERS ═══ */
 let statusTimer=null;
 function showStatus(msg,dur=2000){
-  const el=document.getElementById('status-msg');
-  el.textContent=msg;el.classList.add('show');
-  if(statusTimer) clearTimeout(statusTimer);
-  statusTimer=setTimeout(()=>el.classList.remove('show'),dur);
+  const el=document.getElementById('status-msg');el.textContent=msg;el.classList.add('show');
+  if(statusTimer) clearTimeout(statusTimer);statusTimer=setTimeout(()=>el.classList.remove('show'),dur);
 }
-
 function spawnFloatMsg(text,color,playerIdx){
-  const el=document.createElement('div');
-  el.className='float-msg';el.textContent=text;el.style.color=color;
+  const el=document.createElement('div');el.className='float-msg';el.textContent=text;el.style.color=color;
   let x,y;
-  if(playerIdx===0){
-    x=window.innerWidth/2+(Math.random()-0.5)*80;
-    y=window.innerHeight-170;
-  } else {
-    const zone=document.getElementById(`opp-zone-${playerIdx}`);
-    if(zone){const r=zone.getBoundingClientRect();x=r.left+r.width/2;y=r.bottom+10;}
-    else{x=window.innerWidth/2;y=80;}
-  }
-  el.style.left=x+'px';el.style.top=y+'px';
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),1200);
+  if(playerIdx===0){x=window.innerWidth/2+(Math.random()-0.5)*80;y=window.innerHeight-170;}
+  else{const zone=document.getElementById(`opp-zone-${playerIdx}`);if(zone){const r=zone.getBoundingClientRect();x=r.left+r.width/2;y=r.bottom+10;}else{x=window.innerWidth/2;y=80;}}
+  el.style.left=x+'px';el.style.top=y+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),1200);
 }
+function goHome(){window.location.href='../index.html';}
+function toggleFullscreen(){if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen&&document.exitFullscreen();}
+updateMenuStats();updateDirectionBadge();
 
-/* ═══ NAV ═══ */
-function goBack(){window.location.href='../index.html';}
-function toggleFullscreen(){
-  if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
-  else document.exitFullscreen&&document.exitFullscreen();
-}
-
-updateMenuStats();
-updateDirectionBadge();
+// Also handle steal wild for bots playing wild cards
+// Override the bot colour choice to check if player has steal wild
+const origApplyCard=applyCardEffect;
 </script>
 </body>
 </html>
