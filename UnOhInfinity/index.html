@@ -1222,30 +1222,32 @@ async function executePlayCard(playerIdx,cardIdx){
 
   spawnFloatMsg(card.label,COLOR_HEX[card.color]||'#fff',playerIdx);
 
-  // Rare cards: always need colour pick (they are wild-like) OR special handling
-  const needsColorPick=['swapDecks','handFreeze','stealWild','shuffleStorm'];
-  if(card.isRare||card.color==='rare'){
+  // Rare cards (color: 'rare')
+  if(card.isRare || card.color==='rare'){
     if(playerIdx===0){
-      // Shuffle storm doesn't need colour pick
-      if(card.type==='shuffleStorm'){await applyCardEffect(card,playerIdx,null);return;}
-      // Others need player pick first (then colour for wild behaviour)
-      pendingWild={card,playerIdx};
-      if(card.type==='stealWild'||card.type==='shuffleStorm'){
-        // No colour needed, but still wild (colour doesn't matter for game state)
-        await applyRareEffect(card,playerIdx,null);return;
-      }
-      if(card.type==='swapDecks'||card.type==='handFreeze'){
-        await applyRareEffect(card,playerIdx,null);return;
-      }
+      await applyRareEffect(card,playerIdx,null);
     } else {
-      await applyRareBotEffect(card,playerIdx);return;
+      await applyRareBotEffect(card,playerIdx);
     }
-  } else if(card.color==='wild'){
-    if(playerIdx===0){pendingWild={card,playerIdx};showColorPicker('Choose a Color');return;}
-    else{const bc=botPickColor(state.players[playerIdx]);state.currentColor=bc;await applyCardEffect(card,playerIdx,bc);}
-  } else {
-    state.currentColor=card.color;await applyCardEffect(card,playerIdx,card.color);
+    return;
   }
+
+  // Wild cards (color: 'wild')
+  if(card.color==='wild'){
+    if(playerIdx===0){
+      pendingWild={card,playerIdx};
+      showColorPicker('Choose a Color');
+    } else {
+      const bc=botPickColor(state.players[playerIdx]);
+      state.currentColor=bc;
+      await applyCardEffect(card,playerIdx,bc);
+    }
+    return;
+  }
+
+  // Normal color cards
+  state.currentColor=card.color;
+  await applyCardEffect(card,playerIdx,card.color);
 }
 
 function spawnPlayParticles(pIdx){
@@ -1281,8 +1283,7 @@ async function applyRareEffect(card,playerIdx,_){
       const target=await pickPlayer('🔀 Swap decks with whom?',[]);
       if(target===playerIdx){showStatus('You swapped with yourself... 😅',1500);}
       else{await animateSwapDecks(playerIdx,target);}
-      state.currentColor=state.currentColor||'red';
-      advanceTurn();finishTurn(playerIdx);break;
+      break;
     }
     case 'handFreeze':{
       const target=await pickPlayer('❄️ Freeze whose hand?',[playerIdx]);
@@ -1292,8 +1293,7 @@ async function applyRareEffect(card,playerIdx,_){
       const el=document.createElement('div');el.className='steal-wild-banner';el.textContent=`❄️ ${state.players[target].name} FROZEN!`;
       el.style.borderColor='rgba(100,200,255,0.8)';el.style.textShadow='0 0 40px rgba(100,200,255,1)';
       document.body.appendChild(el);setTimeout(()=>el.remove(),2600);
-      state.currentColor=state.currentColor||'red';
-      advanceTurn();finishTurn(playerIdx);break;
+      break;
     }
     case 'stealWild':{
       state.stealWildOwner=playerIdx;
@@ -1301,29 +1301,30 @@ async function applyRareEffect(card,playerIdx,_){
       showStatus('🎭 You will steal the next wild! 👀',2200);
       const el=document.createElement('div');el.className='steal-wild-banner';el.textContent='🎭 Wild Thief Activated!';
       document.body.appendChild(el);setTimeout(()=>el.remove(),2600);
-      state.currentColor=state.currentColor||'red';
-      advanceTurn();finishTurn(playerIdx);break;
+      break;
     }
     case 'shuffleStorm':{
       await animateShuffleStorm();
-      state.currentColor=state.currentColor||'red';
-      advanceTurn();finishTurn(playerIdx);break;
+      break;
     }
   }
+
+  // After rare effect, pick a color (all rare cards are wild)
+  pendingWild = { card, playerIdx };
+  showColorPicker(`✦ ${card.label} used! Choose Color:`);
 }
 
 /* ═══ RARE BOT EFFECTS ═══ */
 async function applyRareBotEffect(card,playerIdx){
   switch(card.type){
     case 'swapDecks':{
-      // Bot swaps with player who has fewest cards (to take their small hand)
       let target=0;let minCards=Infinity;
       for(let i=0;i<state.players.length;i++){
         if(i===playerIdx) continue;
         if(state.players[i].cards.length<minCards){minCards=state.players[i].cards.length;target=i;}
       }
       await animateSwapDecks(playerIdx,target);
-      advanceTurn();finishTurn(playerIdx);break;
+      break;
     }
     case 'handFreeze':{
       state.frozenPlayers[0]=true;playSound('freeze');
@@ -1331,18 +1332,24 @@ async function applyRareBotEffect(card,playerIdx){
       const el=document.createElement('div');el.className='steal-wild-banner';el.textContent='❄️ YOU ARE FROZEN!';
       el.style.borderColor='rgba(100,200,255,0.8)';el.style.textShadow='0 0 40px rgba(100,200,255,1)';
       el.style.color='#88ddff';document.body.appendChild(el);setTimeout(()=>el.remove(),2600);
-      advanceTurn();finishTurn(playerIdx);break;
+      break;
     }
     case 'stealWild':{
       state.stealWildOwner=playerIdx;playSound('steal');
       showStatus(`${state.players[playerIdx].name} is stealing the next wild! 🎭`,2000);
-      advanceTurn();finishTurn(playerIdx);break;
+      break;
     }
     case 'shuffleStorm':{
-      await animateShuffleStorm();advanceTurn();finishTurn(playerIdx);break;
+      await animateShuffleStorm();
+      break;
     }
-    default: advanceTurn();finishTurn(playerIdx);
   }
+  
+  // Bot picks a color
+  const bc=botPickColor(state.players[playerIdx]);
+  state.currentColor=bc;
+  showStatus(`${state.players[playerIdx].name} chose ${bc}!`,1500);
+  await applyCardEffect(card,playerIdx,bc);
 }
 
 /* ═══ SWAP DECKS ANIMATION ═══ */
@@ -1462,7 +1469,7 @@ async function applyCardEffect(card,playerIdx,chosenColor){
       extraTurn=true; break;
     }
     case 'discardColor': {
-      const chosen=playerIdx===0?await pickColor():botPickColor(state.players[playerIdx]);
+      const chosen=chosenColor;
       state.currentColor=chosen;
       updateColorBar(); // Ensure color bar updates
       const player=state.players[playerIdx];
