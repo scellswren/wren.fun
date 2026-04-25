@@ -730,10 +730,31 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple">2x</div>
+            <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">2x</div>
             <div class="guide-card-info"><div class="guide-card-name">Double Play</div><div class="guide-card-desc">Grants an immediate second action.</div></div>
           </div>
           <div class="price-tag"><div class="rarity-label">UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">↩️+4</div>
+            <div class="guide-card-info"><div class="guide-card-name">Combo Reverse</div><div class="guide-card-desc">Inverts flow and adds +2 or +4 to stack.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">↩️⊘</div>
+            <div class="guide-card-info"><div class="guide-card-name">Skip Reverse</div><div class="guide-card-desc">Inverts flow and skips the next player.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">🎯+4</div>
+            <div class="guide-card-info"><div class="guide-card-name">Heavy Strike</div><div class="guide-card-desc">Pick an opponent to draw +4.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">RARE</div></div>
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
@@ -776,6 +797,20 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
           </div>
           <div class="price-tag"><div class="rarity-label">RARE</div></div>
         </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">🐱🌈</div>
+            <div class="guide-card-info"><div class="guide-card-name">Copycat</div><div class="guide-card-desc">Copies the last card played with a wild twist.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">🌈↩️⊘+2</div>
+            <div class="guide-card-info"><div class="guide-card-name">Chaos Wild</div><div class="guide-card-desc">Wild + Reverse + Skip + Draw 2 stack.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">EPIC</div></div>
+        </div>
       </div>
     </div>
 
@@ -800,6 +835,39 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
               <div class="rare-badge">RARE · WILD</div>
               <div class="guide-card-name">Hand Freeze</div>
               <div class="guide-card-desc">Stops a player until someone draws.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">LEGENDARY</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">⚔️</div>
+            <div class="guide-card-info">
+              <div class="rare-badge">RARE · WILD</div>
+              <div class="guide-card-name">Double Edge</div>
+              <div class="guide-card-desc">You draw 2, but the next player draws 5.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">LEGENDARY</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🥔</div>
+            <div class="guide-card-info">
+              <div class="rare-badge">RARE · WILD</div>
+              <div class="guide-card-name">Hot Potato</div>
+              <div class="guide-card-desc">2s timer! Play a card or take +4 penalty.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">LEGENDARY</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">☭</div>
+            <div class="guide-card-info">
+              <div class="rare-badge">RARE · WILD</div>
+              <div class="guide-card-name">Communism</div>
+              <div class="guide-card-desc">Equalizes card counts across all players.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label">LEGENDARY</div></div>
@@ -1060,6 +1128,11 @@ function buildDeck(){
     deck.push({color,value:'mirror',type:'mirror',label:'🪞'});
     // 3. Chaos Draw (Normal) - Everyone draws 1
     if(Math.random()>0.7) deck.push({color,value:'chaosDraw',type:'chaosDraw',label:'💥'});
+
+    // NEW COMBO CARDS
+    deck.push({color,value:'reversePlus2',type:'reversePlus2',label:'↩️+2'});
+    if(Math.random()>0.7) deck.push({color,value:'reversePlus4',type:'reversePlus4',label:'↩️+4'});
+    deck.push({color,value:'skipReverse',type:'skipReverse',label:'↩️⊘'});
   }
   // Wild
   for(let i=0;i<4;i++) deck.push({color:'wild',value:'wild',type:'wild',label:'🌈'});
@@ -1076,12 +1149,26 @@ function buildDeck(){
   
   deck.push({color:'wild',value:'wildSkipAll',type:'wildSkipAll',label:'⊘⊘🌈'});
   deck.push({color:'wild',value:'pickUntil',type:'pickUntil',label:'🎲🌈'});
+
+  // NEW WILD VARIANTS
+  deck.push({color:'wild',value:'copycat',type:'copycat',label:'🐱🌈'});
+  deck.push({color:'wild',value:'wildReversePlus2',type:'reversePlus2',label:'↩️+2🌈'});
+  deck.push({color:'wild',value:'wildReversePlus4',type:'reversePlus4',label:'↩️+4🌈'});
+  deck.push({color:'wild',value:'wildSkipReverse',type:'skipReverse',label:'↩️⊘🌈'});
+  deck.push({color:'wild',value:'wildPlus2SkipReverse',type:'wildPlus2SkipReverse',label:'🌈↩️⊘+2'});
+  deck.push({color:'wild',value:'doubleEdgeWild',type:'doubleEdge',label:'⚔️🌈'});
   
   // RARE (only 1 each)
   deck.push({color:'rare',value:'swapDecks',type:'swapDecks',label:'🔀',isRare:true});
   deck.push({color:'rare',value:'handFreeze',type:'handFreeze',label:'❄️',isRare:true});
   deck.push({color:'rare',value:'stealWild',type:'stealWild',label:'🎭',isRare:true});
   deck.push({color:'rare',value:'shuffleStorm',type:'shuffleStorm',label:'🌪️',isRare:true});
+
+  // NEW RARE CARDS
+  deck.push({color:'rare',value:'doubleEdge',type:'doubleEdge',label:'⚔️',isRare:true});
+  deck.push({color:'rare',value:'hotPotato',type:'hotPotato',label:'🥔',isRare:true});
+  deck.push({color:'rare',value:'communism',type:'communism',label:'☭',isRare:true});
+  deck.push({color:'rare',value:'targetPlus4',type:'targetPlus4',label:'🎯+4',isRare:true});
 
   // 5. ORIN CARD (Rare, 0.25% chance)
   if(Math.random() < 0.0025) {
@@ -1114,6 +1201,8 @@ let pendingPlayerPick=null; // {resolve, title, exclude}
 let gameRunning=false;
 let botTimer=null;
 let autoDrawing=false;
+let hotPotatoTimer=null;
+let lastMove=null; // {type, value, num, color, playerIdx}
 
 function selectBots(n){selectedBots=n;document.querySelectorAll('.bot-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.dataset.bots)===n));}
 
@@ -1319,10 +1408,13 @@ function isPlayable(card){
   if(card.color===cc) return true;
   
   // 2. Number match (for number cards)
-  if(card.type==='number' && top.type==='number' && card.label===top.label) return true;
-  
-  // 3. Action type match (skip on skip, reverse on reverse, etc.)
-  const actionTypes=['skip','reverse','skipall','targetdraw2','doubleplay','discardcolor','plus'];
+    if(card.type==='number' && top.type==='number' && card.label===top.label) return true;
+    
+    // Copycat is always playable if it's wild
+    if(card.type==='copycat') return true;
+    
+    // Action type match (skip on skip, reverse on reverse, etc.)
+  const actionTypes=['skip','reverse','skipall','targetdraw2','doubleplay','discardcolor','plus','reverseplus2','reverseplus4','skipreverse','targetplus4','wildplus2skipreverse','doubleedge','hotpotato','communism'];
   const baseType=card.type.toLowerCase().replace('wild','');
   const topBaseType=top.type.toLowerCase().replace('wild','');
 
@@ -1388,8 +1480,12 @@ function shakeCard(idx){
 
 /* ═══ EXECUTE PLAY ═══ */
 async function executePlayCard(playerIdx,cardIdx){
+  if(hotPotatoTimer){clearTimeout(hotPotatoTimer);hotPotatoTimer=null;document.getElementById('potato-timer')?.remove();}
   const player=state.players[playerIdx];
   const card=player.cards.splice(cardIdx,1)[0];
+  
+  // Update last move before effect
+  const moveInfo = {type:card.type, value:card.value, num:card.num, color:card.color, playerIdx};
   
   // Animation for bots (player 0 handled in attemptPlay)
   if(playerIdx!==0){
@@ -1407,6 +1503,28 @@ async function executePlayCard(playerIdx,cardIdx){
   }
 
   state.discard.push(card);
+  
+  // Copycat check
+  if(card.type==='copycat' && lastMove){
+    showStatus(`🐱 Copycat copied ${lastMove.type}!`, 1500);
+    const fakeCard = {...card, type: lastMove.type, num: lastMove.num, value: lastMove.value};
+    lastMove = moveInfo; // Still record the copycat as the last move for the next person
+    if(fakeCard.color==='wild'||fakeCard.color==='rare'){
+      if(playerIdx===0){
+        pendingWild={card:fakeCard, playerIdx};
+        showColorPicker(`Copycat ${fakeCard.type}! Choose Color:`);
+      } else {
+        const bc=botPickColor(state.players[playerIdx]);
+        state.currentColor=bc;
+        await applyCardEffect(fakeCard, playerIdx, bc);
+      }
+    } else {
+      await applyCardEffect(fakeCard, playerIdx, fakeCard.color);
+    }
+    return;
+  }
+  lastMove = moveInfo;
+
   if(card.isRare||card.color==='rare') playSound('rare');
   else if(card.color==='wild') playSound('wild');
   else if(card.type==='plus') playSound('plus');
@@ -1715,6 +1833,10 @@ async function animateShuffleStorm(){
 
 /* ═══ APPLY CARD EFFECT ═══ */
 async function applyCardEffect(card,playerIdx,chosenColor){
+  if(chosenColor && (card.color==='wild'||card.color==='rare')){
+    state.currentColor = chosenColor;
+    updateColorBar();
+  }
   const n=state.players.length;let extraTurn=false;
   switch(card.type){
     case 'number': break;
@@ -1811,6 +1933,84 @@ async function applyCardEffect(card,playerIdx,chosenColor){
     }
 
     case 'pickUntil': doPickUntil(nextPlayerIdx(),chosenColor);break;
+    
+    case 'doubleEdge': {
+      showStatus(`⚔️ Double Edge! You draw 2, next draws 5!`, 2000);
+      const player = state.players[playerIdx];
+      await animateDrawCards(2, 80, playerIdx);
+      for(let i=0; i<2; i++) player.cards.push(drawCard(state));
+      if(playerIdx===0) renderPlayerHand(); else updateOpponentZone(playerIdx);
+      
+      const nextIdx = nextPlayerIdx();
+      const nextPlayer = state.players[nextIdx];
+      await animateDrawCards(5, 80, nextIdx);
+      for(let i=0; i<5; i++) nextPlayer.cards.push(drawCard(state));
+      if(nextIdx===0) renderPlayerHand(); else updateOpponentZone(nextIdx);
+      break;
+    }
+    case 'hotPotato': {
+      showStatus(`🥔 HOT POTATO! Next player has 2s!`, 2000);
+      const nextIdx = nextPlayerIdx();
+      startHotPotato(nextIdx);
+      break;
+    }
+    case 'communism': {
+      showStatus(`☭ Communism! Everyone has the same card count!`, 2500);
+      let totalCards = 0;
+      state.players.forEach(p => totalCards += p.cards.length);
+      const avg = Math.ceil(totalCards / state.players.length);
+      
+      for(let i=0; i<state.players.length; i++){
+        const p = state.players[i];
+        if(p.cards.length < avg){
+          const needed = avg - p.cards.length;
+          await animateDrawCards(needed, 50, i);
+          for(let j=0; j<needed; j++) p.cards.push(drawCard(state));
+        } else if(p.cards.length > avg){
+          p.cards = p.cards.slice(0, avg);
+        }
+        if(i===0) renderPlayerHand(); else updateOpponentZone(i);
+      }
+      break;
+    }
+
+    case 'reversePlus2':
+      state.direction *= -1; updateDirectionBadge();
+      state.pendingDraw += 2; state.pendingDrawNum = 2;
+      showStatus(`↩️+2 Reverse! Next draws 2!`, 1800);
+      break;
+    case 'reversePlus4':
+      state.direction *= -1; updateDirectionBadge();
+      state.pendingDraw += 4; state.pendingDrawNum = 4;
+      showStatus(`↩️+4 Reverse! Next draws 4!`, 1800);
+      break;
+    case 'skipReverse':
+      state.direction *= -1; updateDirectionBadge();
+      advanceTurn();
+      showStatus(`↩️⊘ Skip Reverse!`, 1600);
+      break;
+    case 'targetPlus4': {
+      let target;
+      if(playerIdx===0){
+        target = await pickPlayer('🎯 Who draws +4?');
+      } else {
+        const others = state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
+        target = others[Math.floor(Math.random()*others.length)];
+      }
+      showStatus(`🎯 ${state.players[target].name} draws +4!`, 1800);
+      const targetPlayer = state.players[target];
+      await animateDrawCards(4, 100, target);
+      for(let i=0; i<4; i++) targetPlayer.cards.push(drawCard(state));
+      unfreezeAll();
+      if(target===0) renderPlayerHand(); else updateOpponentZone(target);
+      break;
+    }
+    case 'wildPlus2SkipReverse':
+      state.direction *= -1; updateDirectionBadge();
+      advanceTurn();
+      state.pendingDraw += 2; state.pendingDrawNum = 2;
+      showStatus(`🌈↩️⊘+2 Ultimate Chaos!`, 2000);
+      break;
   }
   if(!extraTurn) advanceTurn();
   finishTurn(playerIdx);
@@ -1843,6 +2043,43 @@ function doPickUntil(targetIdx,targetColor){
   showStatus(`${target.name} drew ${draws} cards hunting for ${targetColor}! 😬`,2200);
   spawnFloatMsg(`+${draws}`,'#FF3B3B',targetIdx);
   unfreezeAll();
+}
+
+function startHotPotato(targetIdx){
+  if(hotPotatoTimer) clearTimeout(hotPotatoTimer);
+  const startTime = Date.now();
+  const duration = 2000;
+  
+  const timerEl = document.createElement('div');
+  timerEl.id = 'potato-timer';
+  timerEl.style.cssText = "position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(255,0,0,0.8);color:white;padding:10px 30px;border-radius:20px;font-family:'Fredoka One',cursive;font-size:2em;z-index:1000;box-shadow:0 0 20px rgba(255,0,0,0.5);border:3px solid white;";
+  document.body.appendChild(timerEl);
+  
+  function updateTimer(){
+    const remaining = Math.max(0, duration - (Date.now() - startTime));
+    timerEl.textContent = `🥔 ${(remaining/1000).toFixed(2)}s`;
+    if(remaining > 0 && hotPotatoTimer){
+      requestAnimationFrame(updateTimer);
+    }
+  }
+  requestAnimationFrame(updateTimer);
+
+  hotPotatoTimer = setTimeout(async () => {
+    const p = state.players[targetIdx];
+    showStatus(`💥 BOOM! ${p.name} was too slow!`, 2000);
+    playSound('lose');
+    timerEl.style.background = 'black';
+    timerEl.textContent = '💥 BOOM!';
+    
+    await animateDrawCards(4, 100, targetIdx);
+    for(let i=0; i<4; i++) p.cards.push(drawCard(state));
+    if(targetIdx===0) renderPlayerHand(); else updateOpponentZone(targetIdx);
+    
+    setTimeout(() => timerEl.remove(), 1000);
+    hotPotatoTimer = null;
+    advanceTurn();
+    finishTurn(targetIdx);
+  }, duration);
 }
 
 /* ═══ FINISH TURN ═══ */
@@ -1895,6 +2132,17 @@ async function botTurn(idx){
   }
   const playable=bot.cards.map((c,i)=>({c,i})).filter(({c})=>isPlayable(c));
   if(playable.length===0){botDrawOne(idx);return;}
+  
+  // Hot Potato Bot Logic: 75% chance to play instantly if they have a card
+  if(hotPotatoTimer && Math.random() < 0.75){
+    const chosen = playable[Math.floor(Math.random()*playable.length)];
+    await executePlayCard(idx, chosen.i);
+    return;
+  } else if(hotPotatoTimer) {
+    // Fail: Wait for timer to explode
+    return;
+  }
+
   // Prefer colour match, avoid rares/wilds unless nothing else
   const matching=playable.filter(({c})=>c.color===state.currentColor&&c.color!=='wild'&&c.color!=='rare');
   const others=playable.filter(({c})=>c.color!=='wild'&&c.color!=='rare');
