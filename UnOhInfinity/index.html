@@ -156,62 +156,93 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 /* ══ CARD GUIDE MODAL ══ */
 #card-guide{
   position:fixed;inset:0;z-index:300;
-  background:rgba(0,0,0,0.88);backdrop-filter:blur(16px);
+  background:rgba(0,0,0,0.88);backdrop-filter:blur(24px);
   display:flex;align-items:center;justify-content:center;
   padding:20px;
 }
 .guide-box{
-  background:var(--surface);border:1px solid var(--border);border-radius:24px;
-  width:100%;max-width:680px;max-height:90vh;overflow-y:auto;
-  padding:28px 24px;
-  animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
-  scrollbar-width:thin;scrollbar-color:rgba(168,85,247,0.4) transparent;
+  background:linear-gradient(165deg, #151525 0%, #0a0a12 100%);
+  border:2px solid rgba(168,85,247,0.3);
+  border-radius:32px;
+  width:100%;max-width:850px;max-height:85vh;overflow-y:auto;
+  padding:32px;
+  animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 0 100px rgba(168,85,247,0.15), inset 0 0 40px rgba(0,0,0,0.5);
 }
-.guide-box::-webkit-scrollbar{width:4px;}
-.guide-box::-webkit-scrollbar-thumb{background:rgba(168,85,247,0.4);border-radius:4px;}
 .guide-header{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:22px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  margin-bottom:32px;position:relative;
 }
-.guide-title{font-family:'Fredoka One',cursive;font-size:1.8em;
-  background:linear-gradient(135deg,#FF3B3B,#FFD600,#22D46B,#2B7FFF,#A855F7);
+.guide-title{
+  font-family:'Fredoka One',cursive;font-size:2.8em;
+  background:linear-gradient(to bottom, #fff 30%, #a855f7 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter: drop-shadow(0 0 15px rgba(168,85,247,0.5));
+}
+.guide-subtitle{
+  font-size:0.9em;color:rgba(168,85,247,0.8);text-transform:uppercase;letter-spacing:4px;font-weight:900;
 }
 .guide-close{
-  width:36px;height:36px;border-radius:50%;border:1px solid var(--border);
-  background:var(--glass);color:var(--text);font-size:1.1em;cursor:pointer;
+  position:absolute;top:0;right:0;
+  width:44px;height:44px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.05);color:var(--text);font-size:1.2em;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  transition:all 0.2s;backdrop-filter:blur(10px);
+  transition:all 0.3s;
 }
-.guide-close:hover{background:rgba(255,255,255,0.15);}
+.guide-close:hover{background:#FF3B3B;color:white;transform:rotate(90deg);border-color:transparent;}
 
-.guide-section{margin-bottom:22px;}
+.guide-section{margin-bottom:40px;}
 .guide-section-title{
-  font-weight:900;font-size:0.75em;color:var(--muted);
-  letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;
-  display:flex;align-items:center;gap:8px;
+  font-weight:900;font-size:1em;color:#fff;
+  letter-spacing:1px;margin-bottom:20px;
+  display:flex;align-items:center;gap:12px;
 }
-.guide-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.guide-section-title span{
+  padding:4px 12px;background:rgba(168,85,247,0.2);border-radius:8px;color:#d0a0ff;font-size:0.8em;
+}
 
-.guide-cards{display:flex;flex-wrap:wrap;gap:10px;}
-.guide-card-item{
-  display:flex;align-items:flex-start;gap:12px;
-  background:var(--glass);border:1px solid var(--border);border-radius:14px;
-  padding:12px 14px;width:calc(50% - 5px);min-width:200px;flex:1;
-  transition:all 0.2s;
+.guide-cards{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap:16px;
 }
-.guide-card-item:hover{background:rgba(255,255,255,0.1);transform:translateY(-2px);}
-.guide-card-mini{
-  width:44px;height:62px;border-radius:9px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Fredoka One',cursive;font-size:1.1em;
-  border:2px solid rgba(255,255,255,0.25);
+.guide-card-item{
+  display:flex;flex-direction:column;gap:14px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:20px;
+  padding:20px;transition:all 0.3s ease;
   position:relative;overflow:hidden;
 }
-.guide-card-mini::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
+.guide-card-item:hover{
+  background:rgba(255,255,255,0.07);border-color:rgba(168,85,247,0.4);
+  transform:translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
+.guide-card-top{display:flex;align-items:center;gap:15px;}
+.guide-card-mini{
+  width:54px;height:76px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka One',cursive;font-size:1.5em;
+  box-shadow:0 5px 15px rgba(0,0,0,0.3);
+  flex-shrink:0;
+}
+.guide-card-info{display:flex;flex-direction:column;gap:4px;}
+.guide-card-name{font-weight:900;font-size:1.1em;color:#fff;}
+.guide-card-desc{font-size:0.82em;color:rgba(255,255,255,0.5);line-height:1.5;}
+.rare-badge{
+  font-size:0.65em;font-weight:900;text-transform:uppercase;letter-spacing:1px;
+  color:#A855F7;margin-bottom:2px;display:flex;align-items:center;gap:4px;
+}
+.rare-badge::before{content:'✦';}
+
+.price-tag{
+  margin-top:auto;padding-top:12px;border-top:1px solid rgba(255,255,255,0.05);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.rarity-label{font-size:0.75em;font-weight:800;color:rgba(255,255,255,0.3);}
+.stock-label{font-size:0.75em;font-weight:800;color:#22D46B;}
+.stock-label.limited{color:#FFD600;}
+.stock-label.rare{color:#A855F7;}
+
 .gcm-purple{background:linear-gradient(145deg,#5010a0,#A855F7);color:white;}
 .gcm-wild{
   background:linear-gradient(145deg,#1a1a38,#2d2d5e);color:white;
@@ -220,18 +251,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
   background:linear-gradient(145deg,#1a0030,#4a0080);color:white;
   border-color:rgba(200,100,255,0.6)!important;
   box-shadow:0 0 12px rgba(168,85,247,0.4);
-}
-.guide-card-info{flex:1;}
-.guide-card-name{font-weight:900;font-size:0.88em;margin-bottom:3px;}
-.guide-card-desc{font-size:0.76em;color:var(--muted);line-height:1.45;}
-
-/* Rare card badge */
-.rare-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  background:linear-gradient(135deg,rgba(168,85,247,0.3),rgba(99,50,200,0.3));
-  border:1px solid rgba(168,85,247,0.5);border-radius:20px;
-  padding:2px 8px;font-size:0.68em;font-weight:900;color:#d0a0ff;
-  margin-bottom:5px;
 }
 
 /* ══ FULLSCREEN BTN ══ */
@@ -375,6 +394,18 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 }
 .orin-card::before, .orin-card::after{display:none!important;}
 .orin-card .card-tl, .orin-card .card-br, .orin-card .card-center{display:none!important;}
+
+.card-plus99 {
+  background: linear-gradient(145deg, #000, #333) !important;
+  color: #FFD600 !important;
+  border-color: #FFD600 !important;
+  box-shadow: 0 0 25px rgba(255, 214, 0, 0.4), inset 0 0 15px rgba(255, 214, 0, 0.2) !important;
+}
+.card-plus99 .card-tl, .card-plus99 .card-br, .card-plus99 .card-center {
+  background: none !important;
+  -webkit-text-fill-color: #FFD600 !important;
+  color: #FFD600 !important;
+}
 @keyframes rareCardPulse{
   0%,100%{box-shadow:0 4px 20px rgba(168,85,247,0.6),0 0 0 1px rgba(210,130,255,0.3)}
   50%{box-shadow:0 4px 30px rgba(168,85,247,0.9),0 0 20px rgba(210,130,255,0.5),0 0 0 2px rgba(210,130,255,0.5)}
@@ -575,6 +606,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
       <button class="bot-btn selected" onclick="selectBots(1)" data-bots="1">1 Bot</button>
       <button class="bot-btn" onclick="selectBots(2)" data-bots="2">2 Bots</button>
       <button class="bot-btn" onclick="selectBots(3)" data-bots="3">3 Bots</button>
+      <button class="bot-btn" onclick="selectBots(4)" data-bots="4">4 Bots</button>
+      <button class="bot-btn" onclick="selectBots(5)" data-bots="5">5 Bots</button>
+      <button class="bot-btn" onclick="selectBots(6)" data-bots="6">6 Bots</button>
+      <button class="bot-btn" onclick="selectBots(7)" data-bots="7">7 Bots</button>
     </div>
     <div class="menu-btn-row">
       <button class="play-btn" onclick="startGame()">▶ Play</button>
@@ -606,171 +641,185 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 <div id="card-guide" class="hidden">
   <div class="guide-box">
     <div class="guide-header">
-      <div class="guide-title">Card Guide ✦</div>
+      <div class="guide-subtitle">UnOh Infinity Collection</div>
+      <div class="guide-title">Card Gallery ✦</div>
       <button class="guide-close" onclick="closeCardGuide()">✕</button>
     </div>
 
     <div class="guide-section">
-      <div class="guide-section-title">Number Cards</div>
+      <div class="guide-section-title">Common Stock <span>Standard Cards</span></div>
       <div class="guide-cards">
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple" style="font-size:1.3em;">7</div>
-          <div class="guide-card-info">
-            <div class="guide-card-name">Numbers 1–12</div>
-            <div class="guide-card-desc">Play on a matching colour or the same number. The bread and butter of every hand.</div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:1.3em;">7</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Numbers 1–12</div>
+              <div class="guide-card-desc">Standard numeric distribution. Match color or number.</div>
+            </div>
           </div>
+          <div class="price-tag"><div class="rarity-label">COMMON</div><div class="stock-label">IN STOCK</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">🎨</div>
-          <div class="guide-card-info"><div class="guide-card-name">Color Shift</div><div class="guide-card-desc">Instantly changes the current game color to the next one in the sequence.</div></div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">🎨</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Color Shift</div>
+              <div class="guide-card-desc">Cycles the game color to the next in the prism.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">COMMON</div><div class="stock-label">IN STOCK</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">🪞</div>
-          <div class="guide-card-info"><div class="guide-card-name">Mirror</div><div class="guide-card-desc">Reflects a draw penalty back to the previous player, or acts as a Skip if no penalty.</div></div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">🪞</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Mirror</div>
+              <div class="guide-card-desc">Reflects draw penalties back to the source.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">COMMON</div><div class="stock-label">IN STOCK</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">💥</div>
-          <div class="guide-card-info"><div class="guide-card-name">Chaos Draw</div><div class="guide-card-desc">Forces every other player to draw 1 card from the deck. Pure chaos!</div></div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">💥</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Chaos Draw</div>
+              <div class="guide-card-desc">Forces all opponents to pull from the deck.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">UNCOMMON</div><div class="stock-label limited">LIMITED</div></div>
         </div>
       </div>
     </div>
 
     <div class="guide-section">
-      <div class="guide-section-title">Action Cards</div>
+      <div class="guide-section-title">Tactical Gear <span>Action Cards</span></div>
       <div class="guide-cards">
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple">↩</div>
-          <div class="guide-card-info"><div class="guide-card-name">Reverse</div><div class="guide-card-desc">Flips the turn direction. In a 2-player game, acts as a Skip.</div></div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple">↩</div>
+            <div class="guide-card-info"><div class="guide-card-name">Reverse</div><div class="guide-card-desc">Inverts the flow of play direction.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">COMMON</div><div class="stock-label">IN STOCK</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple">⊘</div>
-          <div class="guide-card-info"><div class="guide-card-name">Skip</div><div class="guide-card-desc">The next player loses their turn entirely.</div></div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple">⊘</div>
+            <div class="guide-card-info"><div class="guide-card-name">Skip</div><div class="guide-card-desc">Bypasses the next player's turn.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">COMMON</div><div class="stock-label">IN STOCK</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple">+1</div>
-          <div class="guide-card-info"><div class="guide-card-name">Draw +1</div><div class="guide-card-desc">Next player draws 1 card. Can be stacked with another +1.</div></div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple">+4</div>
+            <div class="guide-card-info"><div class="guide-card-name">Draw Series</div><div class="guide-card-desc">Stackable penalties from +1 up to +4.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">COMMON</div><div class="stock-label">IN STOCK</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple">+2</div>
-          <div class="guide-card-info"><div class="guide-card-name">Draw +2</div><div class="guide-card-desc">Next player draws 2 cards. Can be stacked with another +2.</div></div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">🎯+2</div>
+            <div class="guide-card-info"><div class="guide-card-name">Target Draw</div><div class="guide-card-desc">Precision strike. Pick who draws +2.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">UNCOMMON</div><div class="stock-label limited">LIMITED</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple">+3</div>
-          <div class="guide-card-info"><div class="guide-card-name">Draw +3</div><div class="guide-card-desc">Next player draws 3 cards. Can be stacked with another +3.</div></div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple">2x</div>
+            <div class="guide-card-info"><div class="guide-card-name">Double Play</div><div class="guide-card-desc">Grants an immediate second action.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">UNCOMMON</div><div class="stock-label limited">LIMITED</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple">+4</div>
-          <div class="guide-card-info"><div class="guide-card-name">Draw +4</div><div class="guide-card-desc">Next player draws 4 cards. Can be stacked with another +4.</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">🎯+2</div>
-          <div class="guide-card-info"><div class="guide-card-name">Target Draw +2</div><div class="guide-card-desc">Choose ANY player to draw 2 cards. Does not stack.</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple">2x</div>
-          <div class="guide-card-info"><div class="guide-card-name">Double Play</div><div class="guide-card-desc">Take an extra turn immediately after playing this card.</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">⊘⊘</div>
-          <div class="guide-card-info"><div class="guide-card-name">Skip All</div><div class="guide-card-desc">Every other player is skipped. You get to play again!</div></div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">⊘⊘</div>
+            <div class="guide-card-info"><div class="guide-card-name">Skip All</div><div class="guide-card-desc">Silences all opponents for one round.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">UNCOMMON</div><div class="stock-label limited">LIMITED</div></div>
         </div>
       </div>
     </div>
 
     <div class="guide-section">
-      <div class="guide-section-title">Rare Action Cards <span style="font-size:0.75em;color:#d0a0ff;font-weight:700;letter-spacing:0;">(very few in deck)</span></div>
+      <div class="guide-section-title">Prism Tech <span>Wild Cards</span></div>
       <div class="guide-cards">
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-rare">+8</div>
-          <div class="guide-card-info"><div class="rare-badge">✦ Rare · Plus</div><div class="guide-card-name">Draw +8</div><div class="guide-card-desc">Next player draws 8 cards. A rare heavy hit.</div></div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.9em;">🌈</div>
+            <div class="guide-card-info"><div class="guide-card-name">Classic Wild</div><div class="guide-card-desc">Universal match. Changes game color.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">UNCOMMON</div><div class="stock-label">IN STOCK</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-rare">+10</div>
-          <div class="guide-card-info"><div class="rare-badge">✦ Rare · Plus</div><div class="guide-card-name">Draw +10</div><div class="guide-card-desc">Next player draws 10 cards. One of the rarer cards in the deck.</div></div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">+4🌈</div>
+            <div class="guide-card-info"><div class="guide-card-name">Wild Draw</div><div class="guide-card-desc">Wild match with stackable penalties.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">UNCOMMON</div><div class="stock-label">IN STOCK</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">🗑️🌈</div>
+            <div class="guide-card-info"><div class="guide-card-name">Purge</div><div class="guide-card-desc">Discards all cards of a chosen color.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">RARE</div><div class="stock-label rare">BOUTIQUE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">🎲🌈</div>
+            <div class="guide-card-info"><div class="guide-card-name">The Hunt</div><div class="guide-card-desc">Forces draw until a color is found.</div></div>
+          </div>
+          <div class="price-tag"><div class="rarity-label">RARE</div><div class="stock-label rare">BOUTIQUE</div></div>
         </div>
       </div>
     </div>
 
     <div class="guide-section">
-      <div class="guide-section-title">Wild Cards</div>
+      <div class="guide-section-title">Vault Items <span>Mythic & Rare</span></div>
       <div class="guide-cards">
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-wild" style="font-size:0.9em;">🌈</div>
-          <div class="guide-card-info"><div class="guide-card-name">Wild</div><div class="guide-card-desc">Play any time. Choose the next colour.</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">↩🌈</div>
-          <div class="guide-card-info"><div class="guide-card-name">Wild Reverse</div><div class="guide-card-desc">Play any time. Reverses direction and you choose the colour.</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">⊘🌈</div>
-          <div class="guide-card-info"><div class="guide-card-name">Wild Skip</div><div class="guide-card-desc">Play any time. Skips the next player and you choose the colour.</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">+2🌈</div>
-          <div class="guide-card-info"><div class="guide-card-name">Wild +2</div><div class="guide-card-desc">Play any time. Next player draws 2. Stackable with other +2s.</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">+4🌈</div>
-          <div class="guide-card-info"><div class="guide-card-name">Wild +4</div><div class="guide-card-desc">Play any time. Next player draws 4. Stackable with other +4s.</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">🗑️🌈</div>
-          <div class="guide-card-info"><div class="guide-card-name">Discard Color</div><div class="guide-card-desc">Choose a color. All cards of that color in your hand are discarded!</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">🎲🌈</div>
-          <div class="guide-card-info"><div class="guide-card-name">Pick Until</div><div class="guide-card-desc">Pick a colour. The next player draws cards until they find one of that colour!</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">❓🌈</div>
-          <div class="guide-card-info"><div class="guide-card-name">Mystery Wild</div><div class="guide-card-desc">A wild card with a random surprise effect! Who knows what will happen?</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="guide-section">
-      <div class="guide-section-title">✦ Rare Cards <span style="font-size:0.75em;color:#d0a0ff;font-weight:700;letter-spacing:0;">(very few in deck)</span></div>
-      <div class="guide-cards">
-        <div class="guide-card-item">
-          <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🔀</div>
-          <div class="guide-card-info">
-            <div class="rare-badge">✦ Rare · Wild</div>
-            <div class="guide-card-name">Swap Decks</div>
-            <div class="guide-card-desc">Choose a player to swap your entire hand with theirs. Both hands fly across the screen!</div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🔀</div>
+            <div class="guide-card-info">
+              <div class="rare-badge">RARE · WILD</div>
+              <div class="guide-card-name">Swap Decks</div>
+              <div class="guide-card-desc">Full hand exchange with any target.</div>
+            </div>
           </div>
+          <div class="price-tag"><div class="rarity-label">LEGENDARY</div><div class="stock-label rare">VAULTED</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">❄️</div>
-          <div class="guide-card-info">
-            <div class="rare-badge">✦ Rare · Wild</div>
-            <div class="guide-card-name">Hand Freeze</div>
-            <div class="guide-card-desc">Pick a player to freeze. They skip every turn until ANY player draws a card (or they are hit with a + penalty)!</div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">❄️</div>
+            <div class="guide-card-info">
+              <div class="rare-badge">RARE · WILD</div>
+              <div class="guide-card-name">Hand Freeze</div>
+              <div class="guide-card-desc">Stops a player until someone draws.</div>
+            </div>
           </div>
+          <div class="price-tag"><div class="rarity-label">LEGENDARY</div><div class="stock-label rare">VAULTED</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🎭</div>
-          <div class="guide-card-info">
-            <div class="rare-badge">✦ Rare · Wild</div>
-            <div class="guide-card-name">Steal Wild</div>
-            <div class="guide-card-desc">The next time any opponent plays a wild card, YOU choose the colour instead of them!</div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">👑</div>
+            <div class="guide-card-info">
+              <div class="rare-badge">MYTHIC</div>
+              <div class="guide-card-name">Orin Card</div>
+              <div class="guide-card-desc">0.25% Drop. Reshapes reality itself.</div>
+            </div>
           </div>
+          <div class="price-tag"><div class="rarity-label">MYTHIC</div><div class="stock-label rare">UNIQUE</div></div>
         </div>
         <div class="guide-card-item">
-          <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🌪️</div>
-          <div class="guide-card-info">
-            <div class="rare-badge">✦ Rare · Wild</div>
-            <div class="guide-card-name">Shuffle Storm</div>
-            <div class="guide-card-desc">All players' hands get shuffled and randomly redistributed. Chaos ensues!</div>
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-rare" style="font-size:0.7em;background:linear-gradient(145deg,#000,#333);color:#FFD600;border-color:#FFD600!important;">+99</div>
+            <div class="guide-card-info">
+              <div class="rare-badge" style="color:#FFD600;border-color:#FFD600;">EXTREME</div>
+              <div class="guide-card-name">The Obliterator</div>
+              <div class="guide-card-desc">0.25% Drop. Forces a massive +99 draw.</div>
+            </div>
           </div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">👑</div>
-          <div class="guide-card-info">
-            <div class="rare-badge">✦ Mythic Rare</div>
-            <div class="guide-card-name">Orin Card</div>
-            <div class="guide-card-desc">0.25% chance to find. The Mind of Orin descends, transforming the very world of UnOh.</div>
-          </div>
+          <div class="price-tag"><div class="rarity-label">BEYOND</div><div class="stock-label rare">VOID</div></div>
         </div>
       </div>
     </div>
@@ -1034,6 +1083,11 @@ function buildDeck(){
     deck.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});
   }
 
+  // 6. +99 CARD (Rare, 0.25% chance)
+  if(Math.random() < 0.0025) {
+    deck.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
+  }
+
   return deck;
 }
 
@@ -1087,7 +1141,7 @@ async function startGame(){
   const games=parseInt(localStorage.getItem('unoh_games')||'0')+1;
   localStorage.setItem('unoh_games',games);
   const deck=shuffle(buildDeck());
-  const botNames=['🤖 Botto','👾 Glitch','🎮 Zapper'];
+  const botNames=['🤖 Botto','👾 Glitch','🎮 Zapper','💾 Diskette','🔋 Sparky','🛰️ Rover','📡 Signal'];
   const players=[{name:'You',isBot:false,cards:[]}];
   for(let i=0;i<selectedBots;i++) players.push({name:botNames[i],isBot:true,cards:[]});
   let firstIdx=deck.findIndex(c=>c.type==='number');if(firstIdx<0) firstIdx=0;
@@ -1111,6 +1165,10 @@ async function startGame(){
   if(canvas) canvas.style.display = 'block';
   document.body.style.backgroundImage = '';
   document.body.style.backgroundColor = '#080812';
+
+  // Reset cheat after one use
+  orinCheatActive = false;
+  localStorage.setItem('unoh_orin_cheat', 'false');
 
   renderPlayerHand();renderOpponents();scheduleBot();
 }
@@ -1177,6 +1235,7 @@ function buildCardEl(card){
   const isRare=card.isRare||card.color==='rare';
   el.className=`game-card card-${isRare?'rare':card.color}`;
   if(card.type==='orinCard' || (card.isRare && card.label==='👑')) el.classList.add('orin-card');
+  if(card.value==='wild+99') el.classList.add('card-plus99');
   
   const tl=document.createElement('div');tl.className='card-tl';tl.textContent=card.label;
   const center=document.createElement('div');center.className='card-center';center.textContent=card.label;
