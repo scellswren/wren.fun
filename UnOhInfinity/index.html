@@ -1493,6 +1493,7 @@ function buildDeck(){
   deck.push({color:'rare',value:'disarmWilds',type:'disarmWilds',label:'🚫🌈',isRare:true});
   // Mythic cards (0.25% chance each)
   if(Math.random() < 0.0025) deck.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});
+  // Ultra-rare +99 card for normal games (0.1% chance per deck)
   if(Math.random() < 0.001) deck.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
   return deck;
 }
@@ -1504,8 +1505,7 @@ function drawCard(st){
     if(st.discard.length>1){const top=st.discard.pop();st.deck=shuffle(st.discard);st.discard=[top];showStatus('Deck reshuffled! ♻️',1200);}
     else{st.deck=shuffle(buildDeck());showStatus('New deck! ♻️',1000);}
   }
-  const plus99Cheat = localStorage.getItem('unoh_cheat_plus99') === 'true';
-  if(plus99Cheat && st.currentPlayer === 0 && gameRunning){
+  if(st.plus99Cheat && st.currentPlayer === 0 && gameRunning){
      return {color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true};
   }
   return st.deck.pop();
@@ -1558,7 +1558,7 @@ async function startGame(){
   for(let i=0;i<selectedBots;i++) players.push({name:botNames[i]||(`Bot ${i+1}`),isBot:true,cards:[]});
   let firstIdx=deck.findIndex(c=>c.type==='number');if(firstIdx<0) firstIdx=0;
   const firstCard=deck.splice(firstIdx,1)[0];
-  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},stealWildOwner:null,hasDrawn:false};
+  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat};
   renderOpponents();renderDiscard();updateColorBar();
   document.getElementById('player-hand').innerHTML='';
   document.getElementById('player-name-label').textContent='YOU';
