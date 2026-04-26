@@ -895,7 +895,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
             <div class="guide-card-mini gcm-purple" style="font-size:0.72em;">🪞</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Mirror</div>
-              <div class="guide-card-desc">Reflects a draw penalty back OR acts as a Skip. Can be played when targeted by a Skip or + card even if colour doesn't match!</div>
+              <div class="guide-card-desc">Reflects a draw penalty back OR acts as a Skip. If a reflected Mirror is mirrored again, the draw stack cancels out. Can be played when targeted by a Skip or + card even if colour doesn't match!</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1212,7 +1212,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
             <div class="guide-card-mini gcm-wild" style="font-size:0.65em;">🪞🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Mirror</div>
-              <div class="guide-card-desc">Wild version of Mirror. Can be played when targeted by Skip or + cards of any colour!</div>
+              <div class="guide-card-desc">Wild version of Mirror. A reflected Wild Mirror mirrored again cancels the draw stack. Can be played when targeted by Skip or + cards of any colour!</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -2265,7 +2265,7 @@ async function startGame(isClassic = false){
 
   let firstIdx=deck.findIndex(c=>c.type==='number');if(firstIdx<0) firstIdx=0;
   const firstCard=deck.splice(firstIdx,1)[0];
-  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},eternalSkips:{},skipNext:{},frenzyMode:false,suppressWildTurns:0,stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat,onlyDrawOnes:sandboxSettings.alwaysDrawOnes};
+  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,pendingDrawReflected:false,frozenPlayers:{},eternalSkips:{},skipNext:{},frenzyMode:false,suppressWildTurns:0,stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat,onlyDrawOnes:sandboxSettings.alwaysDrawOnes};
   renderOpponents();renderDiscard();updateColorBar();
   document.getElementById('player-hand').innerHTML='';
   document.getElementById('player-name-label').textContent='YOU';
@@ -2881,7 +2881,7 @@ async function doPickUntil(targetIdx, targetColor){
 /* ═══ APPLY CARD EFFECT ═══ */
 async function applyCardEffect(card, playerIdx, chosenColor){
   if(chosenColor&&(card.color==='wild'||card.color==='rare'||card.type==='mirror')){state.currentColor=chosenColor;updateColorBar();}
-  const n=state.players.length;let extraTurn=false;
+  const n=state.players.length;let extraTurn=false;let skipAdvance=false;
 
   switch(card.type){
     case 'number': break;
@@ -2896,21 +2896,34 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       extraTurn=true;showStatus('Everyone skipped! Play again! 😈',1600);break;
 
     case 'plus': case 'wildPlus':
-      state.pendingDraw+=card.num;state.pendingDrawNum=card.num;
+      state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;
       showStatus(`+${card.num} stacked! Total: +${state.pendingDraw} 😬`,1600);break;
 
     case 'mirror': case 'wildMirror':{
       if(state.pendingDraw>0){
-        // Bounce the whole draw stack back to the player who should receive it next.
+        if(state.pendingDrawReflected){
+          state.pendingDraw=0;
+          state.pendingDrawNum=null;
+          state.pendingDrawReflected=false;
+          state.onlyDrawOnes=false;
+          showStatus('Mirror meets Mirror! The draw stack is canceled!',2200);
+          playSound('reverse');
+          updatePendingDrawBadge();
+        } else {
+        // Bounce the whole draw stack back to the player who sent it.
         const prevPlayer=(playerIdx - state.direction + n)%n;
         const reflectedAmt=state.pendingDraw;
+        const reflectedNum=state.pendingDrawNum;
         state.currentPlayer=prevPlayer;
         state.pendingDraw=reflectedAmt;
-        state.pendingDrawNum=reflectedAmt;
+        state.pendingDrawNum=reflectedNum;
+        state.pendingDrawReflected=true;
+        skipAdvance=true;
         showStatus(`🪞 Mirror bounces +${reflectedAmt} to ${state.players[prevPlayer].name}!`,2200);
         playSound('reverse');
         updatePendingDrawBadge();
         if(prevPlayer===0) renderPlayerHand(); else updateOpponentZone(prevPlayer);
+        }
       } else {
         // Act as a skip
         advanceTurn();showStatus(`🪞 Mirror skips ${state.players[state.currentPlayer].name}!`,1400);
@@ -2919,7 +2932,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       // MIRROR SPECIAL: if it's a wild mirror or a colored mirror that was played, 
       // let the player choose a new color IF it's their turn or if they played it out of turn?
       // Actually, mirrors usually keep the color or change it if wild.
-      if(card.type==='wildMirror' && (playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot))){
+      if(card.type==='wildMirror' && !chosenColor && (playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot))){
         pendingWild={card,playerIdx};
         showColorPicker('🪞 Mirror used! Choose Color:');
         return;
@@ -2967,8 +2980,8 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       const effects=['skipAll','reverse','plus2','plus4'];
       const rand=effects[Math.floor(Math.random()*effects.length)];
       showStatus(`❓ Mystery: ${rand.toUpperCase()}!`,2000);
-      if(rand==='plus2'){state.pendingDraw+=2;state.pendingDrawNum=2;}
-      else if(rand==='plus4'){state.pendingDraw+=4;state.pendingDrawNum=4;}
+      if(rand==='plus2'){state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;}
+      else if(rand==='plus4'){state.pendingDraw+=4;state.pendingDrawNum=4;state.pendingDrawReflected=false;}
       else if(rand==='skipAll'){extraTurn=true;}
       else if(rand==='reverse'){state.direction*=-1;updateDirectionBadge();}
       break;
@@ -3027,11 +3040,11 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
 
     case 'reversePlus2':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=2;state.pendingDrawNum=2;
+      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;
       showStatus(`↩️+2 Reverse! Next draws 2!`,1800);break;
 
     case 'reversePlus4':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=4;state.pendingDrawNum=4;
+      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=4;state.pendingDrawNum=4;state.pendingDrawReflected=false;
       showStatus(`↩️+4 Reverse! Next draws 4!`,1800);break;
 
     case 'skipReverse':
@@ -3106,7 +3119,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
 
     case 'wildPlus2SkipReverse':
-      state.direction*=-1;updateDirectionBadge();advanceTurn();state.pendingDraw+=2;state.pendingDrawNum=2;
+      state.direction*=-1;updateDirectionBadge();advanceTurn();state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;
       showStatus(`🌈↩️⊘+2 Ultimate Chaos!`,2000);break;
 
     case 'instantWin':
@@ -3120,6 +3133,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       showStatus(`+${nToDraw} (1s) stacked!`, 1600);
       state.pendingDraw += nToDraw;
       state.pendingDrawNum = nToDraw;
+      state.pendingDrawReflected = false;
       state.onlyDrawOnes = true; // Flag to only draw '1's
       break;
     }
@@ -3214,7 +3228,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
   }
 
-  if(!extraTurn) advanceTurn();
+  if(!extraTurn && !skipAdvance) advanceTurn();
   finishTurn(playerIdx);
   renderDiscard();
 }
@@ -3336,7 +3350,7 @@ async function botTakePenalty(idx){
   const n=state.pendingDraw;await showPlusAlert(n);await animateDrawCards(n,40,idx);
   for(let i=0;i<n;i++) state.players[idx].cards.push(drawCard(state));
   playSound('draw');showStatus(`${state.players[idx].name} drew ${n} cards! 😬`,1600);
-  spawnFloatMsg(`+${n}`,'#FF3B3B',idx);state.pendingDraw=0;state.pendingDrawNum=null;
+  spawnFloatMsg(`+${n}`,'#FF3B3B',idx);state.pendingDraw=0;state.pendingDrawNum=null;state.pendingDrawReflected=false;
   state.onlyDrawOnes=false; // Reset flag
   unfreezeAll();updateOpponentZone(idx);advanceTurn();finishTurn(idx);updatePendingDrawBadge();
 }
@@ -3358,7 +3372,7 @@ async function drawFromDeck(){
   if(state.pendingDraw>0){
     const n=state.pendingDraw;autoDrawing=true;await showPlusAlert(n);
     await animateDrawCards(n,40,pIdx);for(let i=0;i<n;i++) state.players[pIdx].cards.push(drawCard(state));
-    state.pendingDraw=0;state.pendingDrawNum=null;autoDrawing=false;unfreezeAll();
+    state.pendingDraw=0;state.pendingDrawNum=null;state.pendingDrawReflected=false;state.onlyDrawOnes=false;autoDrawing=false;unfreezeAll();
     showStatus(`Drew ${n} cards! 😬`,1800);spawnFloatMsg(`+${n}`,'#FF3B3B',pIdx);
     advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();return;
   }
@@ -3375,7 +3389,7 @@ async function triggerAutoDrawForPlayer(){
   if(!gameRunning||state.gameOver||(pIdx!==0 && (!player || !player.isControlledBot))){autoDrawing=false;return;}
   const n=state.pendingDraw;await showPlusAlert(n);await animateDrawCards(n,40,pIdx);
   for(let i=0;i<n;i++) state.players[pIdx].cards.push(drawCard(state));
-  state.pendingDraw=0;state.pendingDrawNum=null;state.onlyDrawOnes=false;autoDrawing=false;unfreezeAll();
+  state.pendingDraw=0;state.pendingDrawNum=null;state.pendingDrawReflected=false;state.onlyDrawOnes=false;autoDrawing=false;unfreezeAll();
   advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();
 }
 
