@@ -43,9 +43,12 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 #homeText:hover{transform:scale(1.15);}
 
 #menu-screen{gap:0; padding-bottom: 50px; justify-content: flex-start;}
-.menu-inner{display:flex;flex-direction:column;align-items:center;gap:18px;position:relative;z-index:2; padding: 20px 0; width: 100%;}
-
-.logo-wrap{position:relative;display:inline-block;}
+.menu-inner{display:flex;flex-direction:column;align-items:center;gap:18px;position:relative;z-index:2; padding: 20px 0; width: 100%; max-width: 1000px; margin: 0 auto;}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:30px;width:100%;padding:20px;max-width:900px;}
+.menu-section{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:15px;align-items:center;backdrop-filter:blur(10px);transition:all 0.3s ease;}
+.menu-section:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.15);transform:translateY(-5px);}
+.menu-section .section-label{margin-top:0 !important;}
+.bot-grid{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
 .menu-logo{
   font-family:'Fredoka One',cursive;
   font-size:clamp(3.5em,12vw,7em);
@@ -374,21 +377,27 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   box-shadow:0 6px 15px rgba(0,0,0,0.4), inset 0 0 25px rgba(0,0,0,0.15);
   transition:all 0.15s;cursor:default;user-select:none;overflow:hidden;
 }
-.game-card.card-complex{
+.game-card.card-complex::before{
+  content:'';position:absolute;inset:0;
   background-image:linear-gradient(180deg,rgba(255,255,255,0.08),transparent 35%), linear-gradient(135deg, rgba(255,255,255,0.05), transparent 55%);
-}
-.game-card.card-complex .card-tl,
-.game-card.card-complex .card-br{
-  font-size:0.32em;
-  letter-spacing:0.2px;
-  opacity:0.95;
+  pointer-events:none;z-index:0;
 }
 .game-card.card-complex .card-center{
   font-size:0.77em;
   letter-spacing:-0.4px;
   line-height:1.02;
   padding:0 6px;
+  z-index:2;
 }
+.game-card.card-complex .card-tl,
+.game-card.card-complex .card-br{
+  font-size:0.32em;
+  letter-spacing:0.2px;
+  opacity:0.95;
+  z-index:2;
+}
+.game-card .card-tl, .game-card .card-br, .game-card .card-center { z-index: 2; }
+.game-card .card-shine { z-index: 3; }
 .game-card::before{
   content:'';position:absolute;inset:5px;border-radius:10px;
   border:2px solid rgba(255,255,255,0.2);pointer-events:none;
@@ -642,32 +651,39 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
       <div class="stat-pill">🏆 Wins: <span id="win-count">0</span></div>
       <div class="stat-pill">🎮 Games: <span id="game-count">0</span></div>
     </div>
-    <div class="section-label" style="margin-top:6px;">Opponents</div>
-    <div class="bot-grid">
-      <button class="bot-btn selected" onclick="selectBots(1)" data-bots="1">1 Bot</button>
-      <button class="bot-btn" onclick="selectBots(2)" data-bots="2">2 Bots</button>
-      <button class="bot-btn" onclick="selectBots(3)" data-bots="3">3 Bots</button>
-      <button class="bot-btn" onclick="selectBots(4)" data-bots="4">4 Bots</button>
-      <button class="bot-btn" onclick="selectBots(5)" data-bots="5">5 Bots</button>
-      <button class="bot-btn" onclick="selectBots(6)" data-bots="6">6 Bots</button>
-      <button class="bot-btn" onclick="selectBots(7)" data-bots="7">7 Bots</button>
-    </div>
-    <div class="section-label" style="margin-top:6px;">Classic Mode</div>
-    <div class="menu-btn-row">
-      <button class="play-btn" onclick="startGame(true)">▶ Play</button>
-    </div>
-    
-    <div class="section-label" style="margin-top:6px;">Other Modes</div>
-    <div class="menu-btn-row">
-      <button class="cards-btn" onclick="openSandboxSettings()">🛠️ Sandbox</button>
-      <button class="cards-btn" onclick="openTeamSettings()" id="team-mode-btn">👥 Team Mode</button>
+
+    <div class="menu-grid">
+      <div class="menu-section">
+        <div class="section-label">Opponents</div>
+        <div class="bot-grid">
+          <button class="bot-btn selected" onclick="selectBots(1)" data-bots="1">1 Bot</button>
+          <button class="bot-btn" onclick="selectBots(2)" data-bots="2">2 Bots</button>
+          <button class="bot-btn" onclick="selectBots(3)" data-bots="3">3 Bots</button>
+          <button class="bot-btn" onclick="selectBots(4)" data-bots="4">4 Bots</button>
+          <button class="bot-btn" onclick="selectBots(5)" data-bots="5">5 Bots</button>
+          <button class="bot-btn" onclick="selectBots(6)" data-bots="6">6 Bots</button>
+          <button class="bot-btn" onclick="selectBots(7)" data-bots="7">7 Bots</button>
+        </div>
+        <div class="section-label" style="margin-top:10px;">Classic Mode</div>
+        <div class="menu-btn-row">
+          <button class="play-btn" onclick="startGame(true)">▶ Play Classic</button>
+        </div>
+      </div>
+
+      <div class="menu-section">
+        <div class="section-label">Game Modes</div>
+        <div class="menu-btn-row">
+          <button class="cards-btn" onclick="openSandboxSettings()">🛠️ Sandbox</button>
+          <button class="cards-btn" onclick="openTeamSettings()" id="team-mode-btn">👥 Team Mode</button>
+        </div>
+        <div class="section-label" style="margin-top:10px;">Information & Extras</div>
+        <div class="menu-btn-row">
+          <button class="cards-btn" onclick="openCardGuide()">📖 Cards</button>
+          <button class="cards-btn" onclick="openCodes()">🎁 Codes</button>
+        </div>
+      </div>
     </div>
 
-    <div class="section-label" style="margin-top:6px;">Information & Extras</div>
-    <div class="menu-btn-row">
-      <button class="cards-btn" onclick="openCardGuide()">📖 Cards</button>
-      <button class="cards-btn" onclick="openCodes()">🎁 Codes</button>
-    </div>
     <div class="how-to">
       <strong>How to play:</strong> Match <strong>colour OR number</strong>. Stack draw cards of the <strong>same type</strong>. Watch out for rare ✦ cards! First to empty their hand wins! 🎯
     </div>
@@ -700,10 +716,10 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 
 <!-- ═══ SANDBOX MODAL ═══ -->
 <div id="sandbox-modal" class="hidden" style="position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;">
-  <div class="guide-box" style="max-width:500px;text-align:center;">
+  <div class="guide-box" style="max-width:550px;text-align:center;">
     <div class="guide-title" style="font-size:2em;">Sandbox Mode</div>
     <div class="guide-subtitle">Customise Your Chaos</div>
-    <div style="margin:20px 0;display:flex;flex-direction:column;gap:15px;text-align:left;">
+    <div style="margin:20px 0;display:flex;flex-direction:column;gap:12px;text-align:left;max-height:60vh;overflow-y:auto;padding-right:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <label style="font-weight:700;">Starting Cards:</label>
         <input type="number" id="sb-starting-cards" value="7" min="1" max="50" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 10px;border-radius:8px;width:60px;">
@@ -720,20 +736,22 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
         <label style="font-weight:700;">Control Teammate (Team Mode):</label>
         <input type="checkbox" id="sb-control-team" style="width:20px;height:20px;">
       </div>
-      <div style="display:flex;flex-direction:column;gap:5px;">
-        <label style="font-weight:700;">Custom Starting Hand (Optional):</label>
-        <input type="text" id="sb-custom-hand" placeholder="e.g. wild+4, targetSkip, skipAll" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:8px 12px;border-radius:8px;font-size:0.85em;">
-        <div style="font-size:0.7em;color:var(--muted);">Comma-separated card types (wildPlus, skip, targetPlus4, etc.)</div>
-      </div>
+
       <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
-        <label style="font-weight:700;display:block;margin-bottom:10px;">Card Pool:</label>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <label style="font-size:0.9em;"><input type="checkbox" id="sb-pool-numbers" checked> Numbers</label>
-          <label style="font-size:0.9em;"><input type="checkbox" id="sb-pool-specials" checked> Specials</label>
-          <label style="font-size:0.9em;"><input type="checkbox" id="sb-pool-draws" checked> Draws</label>
-          <label style="font-size:0.9em;"><input type="checkbox" id="sb-pool-wilds" checked> Wilds</label>
-          <label style="font-size:0.9em;"><input type="checkbox" id="sb-pool-rares" checked> Rares</label>
+        <label style="font-weight:700;display:block;margin-bottom:8px;">Custom Starting Hand:</label>
+        <div id="sb-hand-preview" style="display:flex;gap:5px;flex-wrap:wrap;min-height:40px;background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;margin-bottom:8px;"></div>
+        <button class="cards-btn" style="width:100%;" onclick="openCardSelector('hand')">✨ Select Hand Cards</button>
+      </div>
+
+      <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
+        <label style="font-weight:700;display:block;margin-bottom:8px;">Card Pool Filters:</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+          <label style="font-size:0.85em;display:flex;align-items:center;gap:5px;"><input type="checkbox" id="sb-pool-numbers" checked onchange="refreshPoolFilters()"> Numbers</label>
+          <label style="font-size:0.85em;display:flex;align-items:center;gap:5px;"><input type="checkbox" id="sb-pool-wilds" checked onchange="refreshPoolFilters()"> Wilds</label>
+          <label style="font-size:0.85em;display:flex;align-items:center;gap:5px;"><input type="checkbox" id="sb-pool-plus" checked onchange="refreshPoolFilters()"> + Cards</label>
         </div>
+        <button class="cards-btn" style="width:100%;" onclick="openCardSelector('pool')">🃏 Select Specific Pool Cards</button>
+        <div id="pool-status" style="font-size:0.7em;color:var(--muted);margin-top:5px;text-align:center;">All cards are currently selected</div>
       </div>
     </div>
     <div class="menu-btn-row">
@@ -742,6 +760,23 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
     <div class="menu-btn-row" style="margin-top:10px;">
       <button class="cards-btn" onclick="closeSandbox()">Save & Back</button>
       <button class="cards-btn" style="background:rgba(255,59,59,0.2);" onclick="resetSandbox()">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CARD SELECTOR MODAL ═══ -->
+<div id="card-selector-modal" class="hidden" style="position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.9);backdrop-filter:blur(15px);display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div class="guide-box" style="max-width:800px;width:100%;max-height:90vh;display:flex;flex-direction:column;">
+    <div class="guide-header">
+      <div class="guide-title" id="selector-title">Select Cards</div>
+      <button class="guide-close" onclick="closeCardSelector()">✕</button>
+    </div>
+    <div style="padding:10px 20px;font-size:0.9em;color:var(--muted);" id="selector-desc"></div>
+    <div id="selector-grid" style="flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill, minmax(90px, 1fr));gap:15px;padding:20px;justify-items:center;align-content:start;">
+      <!-- Cards will be injected here -->
+    </div>
+    <div class="menu-btn-row" style="padding:20px;border-top:1px solid rgba(255,255,255,0.1);">
+      <button class="play-btn" style="width:100%;" onclick="closeCardSelector()">Confirm Selection</button>
     </div>
   </div>
 </div>
@@ -1803,6 +1838,8 @@ function buildDeck(){
       deck.push({color,value:'mirror',type:'mirror',label:'🪞'});
       // Skip Reverse
       deck.push({color,value:'skipReverse',type:'skipReverse',label:'↩️ ⊘'});
+      // Suppress Wild
+      deck.push({color,value:'suppressWild',type:'suppressWild',label:'🚫🌈'});
     }
     // Draw cards +1 through +4
     if(pool.draws){
@@ -1844,6 +1881,8 @@ function buildDeck(){
     for(let i=0;i<2;i++) deck.push({color:'wild',value:'discardColor',type:'discardColor',label:'🗑️🌈'});
     // Wild Mirror
     deck.push({color:'wild',value:'wildMirror',type:'wildMirror',label:'🪞🌈'});
+    // Wild Suppress Wild
+    deck.push({color:'wild',value:'wildSuppressWild',type:'suppressWild',label:'🚫🌈🌈'});
     // Mystery Wild
     deck.push({color:'wild',value:'mysteryWild',type:'mysteryWild',label:'❓🌈'});
     // Wild Plus series
@@ -1941,15 +1980,146 @@ let sandboxSettings = {
   chaosFactor: 1.0,
   alwaysDrawOnes: false,
   controlTeammate: false,
-  customHand: "",
+  customHand: [],
+  customPool: null,
   pool: {
     numbers: true,
-    specials: true,
-    draws: true,
     wilds: true,
-    rares: true
+    plus: true
   }
 };
+
+let selectorMode = 'hand'; // 'hand' or 'pool'
+
+function openCardSelector(mode){
+  selectorMode = mode;
+  document.getElementById('card-selector-modal').classList.remove('hidden');
+  document.getElementById('selector-title').textContent = mode === 'hand' ? 'Select Starting Hand' : 'Customize Card Pool';
+  document.getElementById('selector-desc').textContent = mode === 'hand' ? 
+    'Click cards to add them to your starting hand. Click again to remove.' : 
+    'All cards are included by default. Click to exclude specific cards from the deck.';
+  
+  renderSelectorGrid();
+}
+
+function closeCardSelector(){
+  document.getElementById('card-selector-modal').classList.add('hidden');
+  updateSandboxPreviews();
+}
+
+function renderSelectorGrid(){
+  const grid = document.getElementById('selector-grid');
+  grid.innerHTML = '';
+  
+  // Get all unique card types from a "full" deck
+  const fullDeck = buildDeck(true); // true to bypass pool filters
+  const uniqueCards = [];
+  const seen = new Set();
+  
+  for(const c of fullDeck){
+    const id = c.type + (c.num || '') + (c.color === 'wild' ? 'wild' : (c.color === 'rare' ? 'rare' : 'col'));
+    if(!seen.has(id)){
+      seen.add(id);
+      uniqueCards.push(c);
+    }
+  }
+
+  uniqueCards.forEach(card => {
+    const el = buildCardEl(card);
+    el.style.cursor = 'pointer';
+    el.style.transform = 'scale(0.8)';
+    
+    const isSelected = selectorMode === 'hand' ? 
+      sandboxSettings.customHand.some(c => c.type === card.type && c.value === card.value) :
+      (sandboxSettings.customPool ? !sandboxSettings.customPool.some(c => c.type === card.type && c.value === card.value) : true);
+
+    if(!isSelected) el.style.opacity = '0.3';
+    
+    el.onclick = () => {
+      if(selectorMode === 'hand'){
+        const idx = sandboxSettings.customHand.findIndex(c => c.type === card.type && c.value === card.value);
+        if(idx >= 0) sandboxSettings.customHand.splice(idx, 1);
+        else sandboxSettings.customHand.push(JSON.parse(JSON.stringify(card)));
+      } else {
+        if(!sandboxSettings.customPool) sandboxSettings.customPool = [];
+        const idx = sandboxSettings.customPool.findIndex(c => c.type === card.type && c.value === card.value);
+        if(idx >= 0) sandboxSettings.customPool.splice(idx, 1);
+        else sandboxSettings.customPool.push(JSON.parse(JSON.stringify(card)));
+        
+        if(sandboxSettings.customPool.length === 0) sandboxSettings.customPool = null;
+      }
+      renderSelectorGrid();
+    };
+    grid.appendChild(el);
+  });
+}
+
+function updateSandboxPreviews(){
+  const handPreview = document.getElementById('sb-hand-preview');
+  handPreview.innerHTML = '';
+  sandboxSettings.customHand.forEach(card => {
+    const mini = document.createElement('div');
+    mini.style.cssText = `width:20px;height:28px;background:${CARD_COLORS_CSS[card.color]};border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:white;border:1px solid rgba(255,255,255,0.2);`;
+    mini.textContent = card.label.substring(0, 3);
+    handPreview.appendChild(mini);
+  });
+  if(sandboxSettings.customHand.length === 0) handPreview.textContent = 'Random (Default)';
+
+  const poolStatus = document.getElementById('pool-status');
+  if(sandboxSettings.customPool){
+    poolStatus.textContent = `${sandboxSettings.customPool.length} specific cards excluded from pool`;
+  } else {
+    poolStatus.textContent = 'All cards are currently selected';
+  }
+}
+
+function refreshPoolFilters(){
+  sandboxSettings.pool.numbers = document.getElementById('sb-pool-numbers').checked;
+  sandboxSettings.pool.wilds = document.getElementById('sb-pool-wilds').checked;
+  sandboxSettings.pool.plus = document.getElementById('sb-pool-plus').checked;
+}
+
+function openSandboxSettings(){
+  document.getElementById('sandbox-modal').classList.remove('hidden');
+  document.getElementById('sb-starting-cards').value = sandboxSettings.startingCards;
+  document.getElementById('sb-chaos').value = sandboxSettings.chaosFactor;
+  document.getElementById('sb-ones').checked = sandboxSettings.alwaysDrawOnes;
+  document.getElementById('sb-control-team').checked = sandboxSettings.controlTeammate;
+  document.getElementById('sb-pool-numbers').checked = sandboxSettings.pool.numbers;
+  document.getElementById('sb-pool-wilds').checked = sandboxSettings.pool.wilds;
+  document.getElementById('sb-pool-plus').checked = sandboxSettings.pool.plus;
+  updateSandboxPreviews();
+}
+
+function closeSandbox(){
+  sandboxSettings.startingCards = parseInt(document.getElementById('sb-starting-cards').value) || 7;
+  sandboxSettings.chaosFactor = parseFloat(document.getElementById('sb-chaos').value) || 1.0;
+  sandboxSettings.alwaysDrawOnes = document.getElementById('sb-ones').checked;
+  sandboxSettings.controlTeammate = document.getElementById('sb-control-team').checked;
+  refreshPoolFilters();
+  document.getElementById('sandbox-modal').classList.add('hidden');
+}
+
+function resetSandbox(){
+  sandboxSettings = {
+    startingCards: 7,
+    chaosFactor: 1.0,
+    alwaysDrawOnes: false,
+    controlTeammate: false,
+    customHand: [],
+    customPool: null,
+    pool: { numbers: true, wilds: true, plus: true }
+  };
+  openSandboxSettings();
+}
+
+function startSandboxMode(){
+  isSandboxGame = true;
+  closeSandbox();
+  startGame();
+}
+
+let isSandboxGame = false;
 
 function openTeamSettings(){
   document.getElementById('team-modal').classList.remove('hidden');
@@ -1977,74 +2147,52 @@ function startTeamMode(){
   startGame();
 }
 
-function startSandboxMode(){
-  // teamMode is not explicitly forced here, depends on if they want teams in sandbox
-  // But usually sandbox is its own thing. Let's keep teamMode as it was.
-  closeSandbox();
-  startGame();
-}
-
-function openSandboxSettings(){
-  document.getElementById('sandbox-modal').classList.remove('hidden');
-  document.getElementById('sb-starting-cards').value = sandboxSettings.startingCards;
-  document.getElementById('sb-chaos').value = sandboxSettings.chaosFactor;
-  document.getElementById('sb-ones').checked = sandboxSettings.alwaysDrawOnes;
-  document.getElementById('sb-control-team').checked = sandboxSettings.controlTeammate;
-  document.getElementById('sb-custom-hand').value = sandboxSettings.customHand || "";
-  document.getElementById('sb-pool-numbers').checked = sandboxSettings.pool.numbers;
-  document.getElementById('sb-pool-specials').checked = sandboxSettings.pool.specials;
-  document.getElementById('sb-pool-draws').checked = sandboxSettings.pool.draws;
-  document.getElementById('sb-pool-wilds').checked = sandboxSettings.pool.wilds;
-  document.getElementById('sb-pool-rares').checked = sandboxSettings.pool.rares;
-}
-
-function closeSandbox(){
-  sandboxSettings.startingCards = parseInt(document.getElementById('sb-starting-cards').value) || 7;
-  sandboxSettings.chaosFactor = parseFloat(document.getElementById('sb-chaos').value) || 1.0;
-  sandboxSettings.alwaysDrawOnes = document.getElementById('sb-ones').checked;
-  sandboxSettings.controlTeammate = document.getElementById('sb-control-team').checked;
-  sandboxSettings.customHand = document.getElementById('sb-custom-hand').value.trim();
-  sandboxSettings.pool.numbers = document.getElementById('sb-pool-numbers').checked;
-  sandboxSettings.pool.specials = document.getElementById('sb-pool-specials').checked;
-  sandboxSettings.pool.draws = document.getElementById('sb-pool-draws').checked;
-  sandboxSettings.pool.wilds = document.getElementById('sb-pool-wilds').checked;
-  sandboxSettings.pool.rares = document.getElementById('sb-pool-rares').checked;
-  document.getElementById('sandbox-modal').classList.add('hidden');
-}
-
-function resetSandbox(){
-  document.getElementById('sb-starting-cards').value = 7;
-  document.getElementById('sb-chaos').value = 1.0;
-  document.getElementById('sb-ones').checked = false;
-  document.getElementById('sb-control-team').checked = false;
-  document.getElementById('sb-custom-hand').value = "";
-  document.getElementById('sb-pool-numbers').checked = true;
-  document.getElementById('sb-pool-specials').checked = true;
-  document.getElementById('sb-pool-draws').checked = true;
-  document.getElementById('sb-pool-wilds').checked = true;
-  document.getElementById('sb-pool-rares').checked = true;
-}
-
 function selectBots(n){selectedBots=n;document.querySelectorAll('.bot-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.dataset.bots)===n));}
 
 function showMenu(){
   document.getElementById('menu-screen').classList.remove('hidden');
   document.getElementById('game-screen').classList.add('hidden');
   document.getElementById('end-screen').classList.add('hidden');
-  gameRunning=false;if(botTimer) clearTimeout(botTimer);updateMenuStats();
+  gameRunning=false;
+  isSandboxGame = false; // Reset sandbox flag
+  if(botTimer) clearTimeout(botTimer);
+  updateMenuStats();
   const canvas = document.getElementById('bg-canvas');
   if(canvas) canvas.style.display = 'block';
   document.body.style.backgroundImage = '';
   document.body.style.backgroundColor = '#080812';
 }
+
 function updateMenuStats(){
   document.getElementById('win-count').textContent=localStorage.getItem('unoh_wins')||'0';
   document.getElementById('game-count').textContent=localStorage.getItem('unoh_games')||'0';
+  
+  // Add Team Stats to Menu if they exist
+  const teamWins = localStorage.getItem('unoh_team_wins') || '0';
+  const teamGames = localStorage.getItem('unoh_team_games') || '0';
+  
+  let statsArea = document.querySelector('.stats-area');
+  if(statsArea){
+    let teamStats = document.getElementById('team-stats-display');
+    if(!teamStats){
+      teamStats = document.createElement('div');
+      teamStats.id = 'team-stats-display';
+      teamStats.style.cssText = "margin-top:10px;font-size:0.85em;opacity:0.8;display:flex;gap:15px;justify-content:center;";
+      statsArea.appendChild(teamStats);
+    }
+    teamStats.innerHTML = `<span>Team Wins: <b>${teamWins}</b></span> <span>Team Games: <b>${teamGames}</b></span>`;
+  }
 }
 
 /* ═══ START ═══ */
 async function startGame(isClassic = false){
-  if(isClassic) teamMode = false;
+  if(isClassic) {
+    teamMode = false;
+    isSandboxGame = false;
+  }
+  // Reset sandbox flag if not specifically set
+  if(!isSandboxGame) isSandboxGame = false; 
+  
   resumeAC();
   document.getElementById('menu-screen').classList.add('hidden');
   document.getElementById('end-screen').classList.add('hidden');
@@ -2052,8 +2200,16 @@ async function startGame(isClassic = false){
   document.getElementById('card-guide').classList.add('hidden');
   gameRunning=true;autoDrawing=false;pendingWild=null;pendingPlayerPick=null;
   if(botTimer) clearTimeout(botTimer);
-  const games=parseInt(localStorage.getItem('unoh_games')||'0')+1;
-  localStorage.setItem('unoh_games',games);
+  
+  if(!isSandboxGame){
+    const games=parseInt(localStorage.getItem('unoh_games')||'0')+1;
+    localStorage.setItem('unoh_games',games);
+    if(teamMode){
+      const teamGames=parseInt(localStorage.getItem('unoh_team_games')||'0')+1;
+      localStorage.setItem('unoh_team_games',teamGames);
+    }
+  }
+
   const plus99Cheat = localStorage.getItem('unoh_cheat_plus99') === 'true';
   const deck=shuffle(buildDeck());
   const allNames=['Jim','Bob','Tod','Wren','Ben','Ken','Jimmy','Ming','Yao','Austin','Julian','Luca','Luka','Ethan','James','Jordon','Michael','Tom','Thomas','Tim','Barry','Larry','Emily','Karen','Lib','Emma','Maria','Mary','Denise','Linda','Taylor','Missy','Juan','John','Dawyne','Karry','Ceecee','Coco','Leigh','Orin','Little Angry Child'];
@@ -2071,13 +2227,13 @@ async function startGame(isClassic = false){
     if(sandboxSettings.controlTeammate && players[2]){
       players[2].isBot = false;
       players[2].isControlledBot = true;
-      players[2].name = 'Teammate (You)';
+      players[2].name = 'Friend';
     }
   }
 
   let firstIdx=deck.findIndex(c=>c.type==='number');if(firstIdx<0) firstIdx=0;
   const firstCard=deck.splice(firstIdx,1)[0];
-  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},eternalSkips:{},skipNext:{},frenzyMode:false,stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat,onlyDrawOnes:sandboxSettings.alwaysDrawOnes};
+  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},eternalSkips:{},skipNext:{},frenzyMode:false,suppressWildTurns:0,stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat,onlyDrawOnes:sandboxSettings.alwaysDrawOnes};
   renderOpponents();renderDiscard();updateColorBar();
   document.getElementById('player-hand').innerHTML='';
   document.getElementById('player-name-label').textContent='YOU';
@@ -2085,18 +2241,8 @@ async function startGame(isClassic = false){
   
   // Custom Starting Hand Logic
   let customCards = [];
-  if(sandboxSettings.customHand){
-    const types = sandboxSettings.customHand.split(',').map(s=>s.trim().toLowerCase()).filter(s=>s);
-    const fullDeck = buildDeck(); // Get all possible cards
-    for(const type of types){
-      // Try to find a card that matches the type or value or label
-      const card = fullDeck.find(c => 
-        c.type.toLowerCase() === type || 
-        c.value.toLowerCase() === type || 
-        c.label.toLowerCase() === type
-      );
-      if(card) customCards.push(JSON.parse(JSON.stringify(card))); // Clone it
-    }
+  if(sandboxSettings.customHand && sandboxSettings.customHand.length > 0){
+    customCards = JSON.parse(JSON.stringify(sandboxSettings.customHand));
   }
 
   const startCards = sandboxSettings.startingCards;
@@ -2208,13 +2354,29 @@ function updateOpponentZone(idx){
   }
   const isTurn=idx===state.currentPlayer;
   const isFrozen=state.frozenPlayers&&state.frozenPlayers[idx];
+  
+  // Highlight teammate differently
+  if(isTeammate){
+    nameEl.style.color = '#00E5FF';
+    nameEl.style.fontWeight = '900';
+  } else {
+    nameEl.style.color = '';
+    nameEl.style.fontWeight = '';
+  }
+
   nameEl.className='opp-name'+(isTurn?' active':'')+(isFrozen?' frozen':'');
-  nameEl.innerHTML=(isTurn?'<span class="turn-dot"></span>':'')+p.name;
+  
+  let nameText = p.name;
+  if(isTurn){
+    nameText = `<span class="turn-dot"></span> <span class="turn-label" style="font-size:0.7em;text-transform:uppercase;letter-spacing:1px;background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:4px;margin-right:5px;">Playing</span> ${p.name}`;
+  }
+  
+  nameEl.innerHTML=nameText;
 }
 function buildCardEl(card){
   const el=document.createElement('div');
   const isRare=card.isRare||card.color==='rare';
-  const complexTypes=new Set(['reversePlus2','reversePlus4','skipReverse','wildSkipReverse','wildPlus2SkipReverse','doubleEdge','doubleEdgeWild','mirror','wildMirror','wildPlus','wildReverse','wildSkip','discardColor','wildSkipAll','pickUntil','copycat','instantWin','plusOne','eternalSkip','frenzy','helper']);
+  const complexTypes=new Set(['reversePlus2','reversePlus4','skipReverse','wildSkipReverse','wildPlus2SkipReverse','doubleEdge','doubleEdgeWild','mirror','wildMirror','wildPlus','wildReverse','wildSkip','discardColor','wildSkipAll','pickUntil','copycat','instantWin','plusOne','eternalSkip','frenzy','helper','suppressWild']);
   el.className=`game-card card-${isRare?'rare':card.color}`;
   if(complexTypes.has(card.type) || String(card.label||'').length>4) el.classList.add('card-complex');
   if(card.type==='orinCard'||(card.isRare&&card.label==='👑')) el.classList.add('orin-card');
@@ -2283,7 +2445,7 @@ function renderPlayerHand(){
   
   const label=document.getElementById('player-name-label');
   if(isActiveTurn){
-    label.innerHTML=`<span class="turn-dot"></span> ${player.name.toUpperCase()}`;
+    label.innerHTML=`<span class="turn-dot"></span> <span class="turn-label" style="font-size:0.7em;text-transform:uppercase;letter-spacing:1px;background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:4px;margin-right:5px;">Playing</span> ${player.name.toUpperCase()}`;
     label.style.color='#22D46B';
     if (displayIdx === state.currentPlayer) {
       const flash=document.createElement('div');flash.className='your-turn-flash';document.body.appendChild(flash);setTimeout(()=>flash.remove(),650);
@@ -2304,6 +2466,7 @@ function updateOpponentsAll(){for(let i=1;i<state.players.length;i++) updateOppo
 
 /* ═══ PLAY RULES ═══ */
 function isPlayable(card){
+  if(state.suppressWildTurns > 0) return true;
   const top=state.discard[state.discard.length-1];
   const cc=state.currentColor;
 
@@ -3012,6 +3175,12 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       counter.textContent = `🌀 ${secondsLeft}s`;
       break;
     }
+
+    case 'suppressWild': {
+      state.suppressWildTurns = state.players.length;
+      showStatus('🚫🌈 SUPPRESS WILD! Any color can be played for one round!', 3000);
+      break;
+    }
   }
 
   if(!extraTurn) advanceTurn();
@@ -3028,6 +3197,10 @@ function unfreezeAll(){
 
 function advanceTurn(){
   const n=state.players.length;
+  if(state.suppressWildTurns > 0){
+    state.suppressWildTurns--;
+    if(state.suppressWildTurns === 0) showStatus('🚫🌈 Suppress Wild ended!', 1500);
+  }
   state.currentPlayer=(state.currentPlayer+state.direction+n)%n;
   state.hasDrawn=false;
   if(botTimer){clearTimeout(botTimer);botTimer=null;}
@@ -3290,10 +3463,25 @@ async function endGame(winnerIdx){
     if(winnerIdx===0){
       document.getElementById('end-icon').textContent='🎉';document.getElementById('end-title').textContent='You Win!';
       document.getElementById('end-sub').textContent='Incredible! You crushed it!';document.getElementById('end-title').style.color='#FFD600';
-      const wins=parseInt(localStorage.getItem('unoh_wins')||'0')+1;localStorage.setItem('unoh_wins',wins);
+      if(!isSandboxGame){
+        const wins=parseInt(localStorage.getItem('unoh_wins')||'0')+1;localStorage.setItem('unoh_wins',wins);
+        if(teamMode){
+          const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0')+1;localStorage.setItem('unoh_team_wins',teamWins);
+        }
+      }
     } else {
-      document.getElementById('end-icon').textContent='😭';document.getElementById('end-title').textContent=winner.name+' Wins!';
-      document.getElementById('end-sub').textContent='Better luck next time!';document.getElementById('end-title').style.color='#FF3B3B';
+      const winner=state.players[winnerIdx];
+      // Check if teammate won in team mode
+      if(teamMode && winner.team === state.players[0].team){
+        document.getElementById('end-icon').textContent='🤝';document.getElementById('end-title').textContent='Team Wins!';
+        document.getElementById('end-sub').textContent=`${winner.name} finished the game for your team!`;document.getElementById('end-title').style.color='#00E5FF';
+        if(!isSandboxGame){
+          const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0')+1;localStorage.setItem('unoh_team_wins',teamWins);
+        }
+      } else {
+        document.getElementById('end-icon').textContent='😭';document.getElementById('end-title').textContent=winner.name+' Wins!';
+        document.getElementById('end-sub').textContent='Better luck next time!';document.getElementById('end-title').style.color='#FF3B3B';
+      }
     }
   },200);
 }
