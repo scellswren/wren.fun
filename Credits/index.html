@@ -168,6 +168,43 @@
       transition: transform 0.2s ease;
     }
 
+
+
+    /* Fullscreen button */
+    #fullscreenBtn {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.78);
+      border: 1px solid rgba(255,255,255,0.18);
+      padding: 9px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.85em;
+      font-weight: 700;
+      transition: background 0.2s, color 0.2s;
+      z-index: 1000;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      appearance: none;
+      outline: none;
+    }
+
+    #fullscreenBtn:hover {
+      background: rgba(255,255,255,0.16);
+      color: white;
+    }
+
+    #fullscreenBtn:active {
+      background: rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.78);
+      transform: none;
+      box-shadow: none;
+      filter: none;
+    }
+
   </style>
 </head>
 <body>
@@ -232,6 +269,9 @@
   </div>
 </div>
 
+
+<button id="fullscreenBtn" onclick="toggleFullscreen()">⛶</button>
+
 <audio id="bgMusic" loop preload="auto">
   <source src="SongLong.mp3" type="audio/mpeg">
 </audio>
@@ -243,6 +283,24 @@ const endScreen    = document.getElementById("endScreen");
 const bgMusic      = document.getElementById("bgMusic");
 const track        = document.getElementById("creditsTrack");
 const sentinel     = document.getElementById("sentinel");
+
+const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+function updateFullscreenButton() {
+  if (!fullscreenBtn) return;
+  fullscreenBtn.textContent = document.fullscreenElement ? "🗗" : "⛶";
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen?.().catch(() => {});
+  } else {
+    document.exitFullscreen?.().catch(() => {});
+  }
+}
+
+document.addEventListener("fullscreenchange", updateFullscreenButton);
+updateFullscreenButton();
 
 function loadWatchCount() {
   const saved = parseInt(localStorage.getItem("creditsWatchCount") || "0", 10);
