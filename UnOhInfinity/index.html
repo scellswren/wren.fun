@@ -640,10 +640,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
       <button class="bot-btn" onclick="selectBots(6)" data-bots="6">6 Bots</button>
       <button class="bot-btn" onclick="selectBots(7)" data-bots="7">7 Bots</button>
     </div>
+    <div class="section-label" style="margin-top:6px;">Classic Mode</div>
     <div class="menu-btn-row">
-      <button class="play-btn" onclick="startGame()">▶ Play</button>
+      <button class="play-btn" onclick="startGame(true)">▶ Play</button>
+    </div>
+    <div class="section-label" style="margin-top:6px;">Other Modes</div>
+    <div class="menu-btn-row">
       <button class="cards-btn" onclick="openSandboxSettings()">🛠️ Sandbox</button>
-      <button class="cards-btn" onclick="toggleTeamMode()" id="team-mode-btn">👥 Team: OFF</button>
+      <button class="cards-btn" onclick="openTeamSettings()" id="team-mode-btn">👥 Team Mode</button>
     </div>
     <div class="menu-btn-row" style="margin-top:-5px;">
       <button class="cards-btn" onclick="openCardGuide()">📖 Cards</button>
@@ -651,6 +655,30 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
     </div>
     <div class="how-to">
       <strong>How to play:</strong> Match <strong>colour OR number</strong>. Stack draw cards of the <strong>same type</strong>. Watch out for rare ✦ cards! First to empty their hand wins! 🎯
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TEAM MODE MODAL ═══ -->
+<div id="team-modal" class="hidden" style="position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div class="guide-box" style="max-width:400px;text-align:center;">
+    <div class="guide-title" style="font-size:2em;">Team Mode</div>
+    <div class="guide-subtitle">2v2 Cooperative Play</div>
+    <div style="margin:20px 0;display:flex;flex-direction:column;gap:15px;text-align:left;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <label style="font-weight:700;">Teammate Control:</label>
+        <div class="bot-grid" style="grid-template-columns: 1fr 1fr;">
+          <button class="bot-btn selected" id="team-type-bot" onclick="setTeamType('bot')">🤖 Bot</button>
+          <button class="bot-btn" id="team-type-friend" onclick="setTeamType('friend')">🎮 Friend</button>
+        </div>
+        <div id="team-desc" style="font-size:0.75em;color:var(--muted);margin-top:5px;">Your teammate will be an AI-controlled bot.</div>
+      </div>
+    </div>
+    <div class="menu-btn-row">
+      <button class="play-btn" onclick="startTeamMode()">▶ Play Team Mode</button>
+    </div>
+    <div class="menu-btn-row" style="margin-top:10px;">
+      <button class="cards-btn" onclick="closeTeamSettings()">Back to Menu</button>
     </div>
   </div>
 </div>
@@ -694,7 +722,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
       </div>
     </div>
     <div class="menu-btn-row">
-      <button class="cards-btn" onclick="closeSandbox()">Save & Close</button>
+      <button class="play-btn" onclick="startSandboxMode()">▶ Play Sandbox</button>
+    </div>
+    <div class="menu-btn-row" style="margin-top:10px;">
+      <button class="cards-btn" onclick="closeSandbox()">Save & Back</button>
       <button class="cards-btn" style="background:rgba(255,59,59,0.2);" onclick="resetSandbox()">Reset</button>
     </div>
   </div>
@@ -1905,6 +1936,39 @@ let sandboxSettings = {
   }
 };
 
+function openTeamSettings(){
+  document.getElementById('team-modal').classList.remove('hidden');
+  setTeamType(sandboxSettings.controlTeammate ? 'friend' : 'bot');
+}
+
+function closeTeamSettings(){
+  document.getElementById('team-modal').classList.add('hidden');
+}
+
+function setTeamType(type){
+  const isFriend = type === 'friend';
+  sandboxSettings.controlTeammate = isFriend;
+  document.getElementById('team-type-bot').classList.toggle('selected', !isFriend);
+  document.getElementById('team-type-friend').classList.toggle('selected', isFriend);
+  document.getElementById('team-desc').textContent = isFriend ? 
+    'You will control your teammate manually during their turn.' : 
+    'Your teammate will be an AI-controlled bot.';
+}
+
+function startTeamMode(){
+  teamMode = true;
+  if(selectedBots < 3) selectBots(3);
+  closeTeamSettings();
+  startGame();
+}
+
+function startSandboxMode(){
+  // teamMode is not explicitly forced here, depends on if they want teams in sandbox
+  // But usually sandbox is its own thing. Let's keep teamMode as it was.
+  closeSandbox();
+  startGame();
+}
+
 function openSandboxSettings(){
   document.getElementById('sandbox-modal').classList.remove('hidden');
   document.getElementById('sb-starting-cards').value = sandboxSettings.startingCards;
@@ -1946,18 +2010,6 @@ function resetSandbox(){
   document.getElementById('sb-pool-rares').checked = true;
 }
 
-function toggleTeamMode(){
-  teamMode = !teamMode;
-  const btn = document.getElementById('team-mode-btn');
-  btn.textContent = teamMode ? '👥 Team: ON' : '👥 Team: OFF';
-  btn.style.borderColor = teamMode ? '#A855F7' : '';
-  btn.style.boxShadow = teamMode ? '0 0 20px rgba(168,85,247,0.4)' : '';
-  if(teamMode && selectedBots < 3){
-    selectBots(3);
-    showStatus('Team Mode requires at least 4 players! (3 Bots)', 2000);
-  }
-}
-
 function selectBots(n){selectedBots=n;document.querySelectorAll('.bot-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.dataset.bots)===n));}
 
 function showMenu(){
@@ -1976,7 +2028,8 @@ function updateMenuStats(){
 }
 
 /* ═══ START ═══ */
-async function startGame(){
+async function startGame(isClassic = false){
+  if(isClassic) teamMode = false;
   resumeAC();
   document.getElementById('menu-screen').classList.add('hidden');
   document.getElementById('end-screen').classList.add('hidden');
