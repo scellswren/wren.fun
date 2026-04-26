@@ -95,13 +95,13 @@
 
   #app { position: relative; z-index: 2; max-width: 960px; margin: 0 auto; padding: 72px 16px 100px; }
 
-  html { scrollbar-color: #050505 #111111; }
+  html { scrollbar-color: #8a8a8a #101016; }
   * { scrollbar-width: thin; }
   *::-webkit-scrollbar { width: 12px; height: 12px; }
-  *::-webkit-scrollbar-track { background: #050505; }
-  *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #2b2b2b 0%, #000000 100%); border: 2px solid #050505; border-radius: 999px; }
-  *::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #404040 0%, #0a0a0a 100%); }
-  *::-webkit-scrollbar-corner { background: #050505; }
+  *::-webkit-scrollbar-track { background: #101016; }
+  *::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #8e8e8e 0%, #6e6e6e 100%); border: 2px solid #101016; border-radius: 999px; }
+  *::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #a6a6a6 0%, #7f7f7f 100%); }
+  *::-webkit-scrollbar-corner { background: #101016; }
 
   /* ── TOP XP DOCK ── */
   .xp-dock {
@@ -110,22 +110,38 @@
   }
   .xp-dock-inner {
     pointer-events: auto; display: flex; align-items: center; gap: 10px;
-    height: 34px; padding: 0 12px;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.20); backdrop-filter: blur(10px);
-    cursor: pointer; transition: box-shadow 0.2s;
+    height: 40px; padding: 0 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 999px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.24), 0 0 0 1px rgba(124,58,237,0.10) inset;
+    backdrop-filter: blur(14px);
+    cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    position: relative; overflow: hidden;
   }
-  .xp-dock-inner:hover { box-shadow: 0 8px 32px rgba(124,58,237,0.3); }
+  .xp-dock-inner::before {
+    content: ''; position: absolute; inset: -40% -20%;
+    background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.18) 50%, transparent 65%);
+    transform: translateX(-45%); animation: xpDockShine 3.4s linear infinite;
+    pointer-events: none;
+  }
+  .xp-dock-inner:hover { transform: translateY(-1px); box-shadow: 0 14px 36px rgba(124,58,237,0.24), 0 0 24px rgba(6,182,212,0.10); }
+  @keyframes xpDockShine { 0%{transform:translateX(-55%)} 100%{transform:translateX(120%)} }
   .xp-dock-level { flex: 0 0 auto; font-size: 0.8em; font-weight: 900; letter-spacing: 0.4px; white-space: nowrap; }
   .xp-dock-meta { flex: 0 0 auto; font-size: 0.74em; font-weight: 700; color: var(--muted); white-space: nowrap; }
   .xp-dock-bar {
-    position: relative; flex: 1; height: 8px; border-radius: 999px;
-    overflow: hidden; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+    position: relative; flex: 1; height: 10px; border-radius: 999px;
+    overflow: hidden; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 0 18px rgba(124,58,237,0.08);
   }
   .xp-dock-fill {
     position: absolute; inset: 0 auto 0 0; width: 0%; border-radius: 999px;
-    background: linear-gradient(90deg, #06b6d4, #7c3aed, #34d399);
-    box-shadow: 0 0 12px rgba(6,182,212,0.45); transition: width 0.28s ease;
+    background: linear-gradient(90deg, #06b6d4 0%, #7c3aed 55%, #34d399 100%);
+    box-shadow: 0 0 14px rgba(6,182,212,0.5), 0 0 28px rgba(124,58,237,0.16); transition: width 0.28s ease;
+  }
+  .xp-dock-fill::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.45), transparent 40%, rgba(255,255,255,0.20));
+    mix-blend-mode: screen; opacity: 0.9;
   }
   .xp-dock-pulse {
     position: absolute; inset: 0;
@@ -224,17 +240,35 @@
   }
   #homeText:hover { transform: scale(1.06); opacity: 1; }
 
-  #modeToggle {
-    position: fixed; top: 12px; right: 12px; z-index: 1002;
-    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+  #modeToggle, #fsToggle {
+    position: fixed; top: 12px; z-index: 1002;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+    border: 1px solid var(--border); color: var(--text);
     font-family: 'Rubik', sans-serif; font-weight: 700; font-size: 0.82em; padding: 0 14px;
     height: 44px; border-radius: var(--radius-sm); cursor: pointer;
-    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s, border-color 0.2s;
     display: flex; align-items: center; gap: 7px;
-    backdrop-filter: blur(10px); letter-spacing: 0.3px; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    backdrop-filter: blur(12px); letter-spacing: 0.3px; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    overflow: hidden;
   }
-  #modeToggle:hover { transform: scale(1.05); }
-  .toggle-icon { font-size: 1.2em; line-height: 1; }
+  #modeToggle::before, #fsToggle::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(120deg, rgba(255,255,255,0.18), transparent 42%, rgba(255,255,255,0.06));
+    opacity: 0.55; pointer-events: none;
+  }
+  #modeToggle:hover, #fsToggle:hover { transform: translateY(-1px) scale(1.04); border-color: rgba(255,255,255,0.18); }
+  #modeToggle { right: 62px; }
+  #fsToggle {
+    right: 12px;
+    bottom: 12px;
+    top: auto;
+    width: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+  #fsToggle .toggle-label { display: none; }
+  .toggle-icon { font-size: 1.2em; line-height: 1; position: relative; z-index: 1; }
+  .toggle-label { position: relative; z-index: 1; }
 
   /* ── PAGE TITLE ── */
   .header { text-align: center; padding: 34px 0 26px; }
@@ -579,8 +613,10 @@
     min-height: min(62vh, 560px);
     border-radius: 30px;
     border: 1px solid rgba(251,191,36,0.45);
-    background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
-    box-shadow: 0 24px 90px rgba(0,0,0,0.62), 0 0 60px rgba(251,191,36,0.12);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(251,191,36,0.18), transparent 34%),
+      linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+    box-shadow: 0 24px 90px rgba(0,0,0,0.62), 0 0 60px rgba(251,191,36,0.12), inset 0 0 0 1px rgba(255,255,255,0.04);
     backdrop-filter: blur(18px);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 14px;
@@ -703,6 +739,10 @@
 <button id="modeToggle" onclick="toggleMode()">
   <span class="toggle-icon" id="modeIcon">☀️</span>
   <span class="toggle-label" id="modeLabel">Day</span>
+</button>
+<button id="fsToggle" onclick="toggleFullscreen()" aria-label="Toggle fullscreen">
+  <span class="toggle-icon" id="fsIcon">⛶</span>
+  <span class="toggle-label" id="fsLabel">Full</span>
 </button>
 
 <div class="xp-dock" id="xpDock">
@@ -975,102 +1015,235 @@
    DATA — Full character lists with updated rarities
    ══════════════════════════════════════════════ */
 const THINGS = {
-  easy: { rate:0.60, weight:60, items:["Pig","Cow","Sheep","Dog","Cat","Goat","Monkey","Ant","Beetle","Cockroach","Hamster","Mouse","Rat","Racoon","Guinea pig","armadillo","bee","wasp","hornet","deer","spider","Pen","paper","blanket","chair","table","tennis racket","shelf","door","roof","bed","pillow","ipad","phone","tv","vr head set","radio","fan","pencil","golf ball","ball","golf club","toy","basketball","basketball hoop","deodorant","fly spray","fly","mosquito","moon boot","glue stick","money","coin","chocolate","chocolate coin","kitkat","banana","apple","pear","orange","mango","kiwi fruit","kiwi","chicken","hen","rooster","duck","shag","sea pig","fish","salmon","crab lobster","baby polar bear","sandworm","worm","lego brick","stick man","pringles can","cup","glass","hook","book","diary","journal","lamp","lantern","helmet","bike","hat","cap","military uniform","shirt","pants","sock","grave","dirt","grass","koala","turtle","ferret","blobfish","panda","red panda","frog","axolotl","hedgehog","sloth","squirrel","wombat","beaver","otter","meerkat","goldfish","clownfish","starfish","eel","flamingo","hawk","eagle","swan","owl","penguin","parrot","woodpecker","butterfly","ladybug","dragonfly","grasshopper","caterpillar","praying mantis","bottle","lid","squishy","slime","jar","lotion","lube","rubik's cube","flower","toothpaste","toothbrush","dental floss","knife","fork","spoon","spork","toothpick","iphone","samsung phone","ear plug","headphones","plug","switch","button","crowbar","hammer","jaw","bone","stone","rock","tree","shoe","soap","water","gum","stick","straw","big mac","cheeseburger","hamburger","french fries","chips","lays","cheetos","doritos","egg","christmas tree","lid opener","funko pop","curtain","blinds","carpet","limestone","greenstone","diamond","emerald","copper","copper bar","prison bar","beer","sand","sandpaper","pebble","captain crunch","tardigrade","butter","A Wren","bread","Plankton","Nemo","Dory","Marlin (finding nemo)","Magickarp","Minecraft Chicken","Minecraft Sheep","Minecraft Pig","Snail","Slug","Maggot","Tick","Flea","Termite","Silverfish","Centipede","Millipede","Moth","Seagull","Pigeon","Crow","Sparrow","Finch","Jellyfish","Sea cucumber","Shrimp","Krill","Minnow","Notebook","Sticky note","Envelope","Backpack","Suitcase","Remote control","Keyboard","Computer mouse","USB stick","Charger","Extension cord","Power strip","Light bulb","Flashlight","Battery","Clock","Alarm clock","Watch","Calendar","Whiteboard","Toast","Jam","Peanut butter","Honey","Pancake","Waffle","Muffin","Cupcake","Donut","Popcorn","Rice","Noodles","Spaghetti","Soup","Cereal","Leaf","Twig","Branch","Bush","Moss","Puddle","Mud","Clay","Ash","Charcoal","Toilet paper","Towel","Dish sponge","Bucket","Mop","Broom","Dustpan","Laundry basket","Hanger","Mirror","Dice","Playing card","Board game piece","Puzzle piece","Yo-yo","Kite","Balloon","Bubble","Paper airplane","Sticker","Nail","Screw","Bolt","Nut","Washer","Juice box","Milk carton","Water bottle","Ice cube","Lollipop","Key","Lock","Chain","Rope","Rubber band", "rubik’s cube", "toorhpick", "Alpaca", "Bison", "Camel", "Capybara", "Chipmunk", "Cheetah", "Cobra", "Cricket", "Dolphin", "Duckling", "Emu", "Fox", "Gecko", "Giraffe", "Hippo", "Iguana", "Jaguar", "Llama", "Lynx", "Mole", "Newt", "Octopus", "Opossum", "Ostrich", "Peacock", "Pelican", "Porcupine", "Quail", "Rabbit", "Reindeer", "Rhinoceros", "Salamander", "Seal", "Skunk", "Walrus", "Whale", "Woodchuck", "Yak", "Antelope", "Badger", "Bat", "Buffalo", "Caribou", "Chinchilla", "Crabapple", "Damselfly", "Fawn", "Gazelle", "Gibbon", "Gull", "Heron", "Hummingbird", "Ibex", "Jackal", "Kingfisher", "Leopard", "Manatee", "Mink", "Moose", "Partridge", "Puffin", "Stoat", "Toucan", "Vulture", "Warbler", "Woodcock", "Zebu", "Aloe", "Bamboo", "Barley", "Basil", "Bean", "Beet", "Berry", "Broccoli", "Cabbage", "Carrot", "Cauliflower", "Celery", "Cherry", "Coconut", "Corn", "Cucumber", "Date", "Fig", "Garlic", "Grape", "Lettuce", "Lime", "Lychee", "Mushroom", "Onion", "Pea", "Peach", "Plum", "Pumpkin", "Radish", "Spinach", "Strawberry", "Tomato", "Turnip", "Apron", "Bagel", "Banister", "Basket", "Beacon", "Bench", "Binder", "Blender", "Bookcase", "Bottlecap", "Bowl", "Brush", "Bun", "Cabinet", "Candle", "Canopy", "Cart", "Carton", "Casserole", "Cement", "Chalk", "Chandelier", "Clipboard", "Coaster", "Coffeepot", "Comb", "Console", "Cork", "Crayon", "Cupboard", "Desk", "Doormat", "Eraser", "Faucet", "Feather", "Fence", "Filter", "Folder", "Forklift", "Fridge", "Glove", "Grapefruit", "Guitar", "Hairbrush", "Hammock", "Handle", "Hatchet", "Hose", "Inkwell", "Joystick", "Kettle", "Latch", "Leash", "Lemon", "Letter", "Linen", "Lunchbox", "Magazine", "Marker", "Mask", "Mat", "Melon", "Microphone", "Mixer", "Mug", "Napkin", "Needle", "Oatmeal", "Oven", "Paintbrush", "Pajamas", "Pan", "Pepper", "Perfume", "Picture", "Pillowcase", "Plate", "Platter", "Pocket", "Pot", "Potato", "Printer", "Quilt", "Rake", "Rug", "Saucepan", "Scarf", "Screwdriver", "Seeds", "Shovel", "Shoelace", "Shopping", "Shower", "Soapdish", "Sockdrawer", "Sofa", "Spraybottle", "Stapler", "Stepladder", "Stickersheet", "Stool", "Suit", "Sweater", "Teacup", "Teapot", "Tissuebox", "Toaster", "Tongs", "Trampoline", "Tray", "Umbrella", "Vacuum", "Vase", "Wallet", "Wardrobe", "Whisk", "Window", "Wok", "Wrapper", "Yarn", "Zipper", "Alarm", "Anchor", "Anvil", "Armchair", "Ashtray", "Axle", "Badge", "Bandage", "Barrel", "Base", "Belt", "Binoculars", "Blouse", "Board", "Boiler", "Boot", "Bow", "Box", "Bracelet", "Brick", "Cable", "Camera", "Candlestick", "Carafe", "Case", "Cassette", "Chainmail", "Chimney", "Clamp", "Clip", "Cloth", "Collar", "Compass", "Cookbook", "Cooler", "Couch", "Crate", "Crutch", "Dart", "Diaper", "Doll", "Drum", "Eggshell", "File", "Flute", "Frame", "Gasket", "Gate", "Glasses", "Goblet", "Grater", "Harp", "Hood", "Ice", "Ladder", "Lens", "Mailbox", "Mallet", "Map", "Megaphone", "Mittens", "Mosaic", "Net", "Ornament", "Pack", "Padlock", "Palette", "Parchment", "Pasta", "Pedal", "Pipe", "Pitcher", "Pod", "Postcard", "Prism", "Pump", "Quiver", "Ribbon", "Sail", "Sandwich", "Sandals", "Satchel", "Scale", "Scissors", "Screen", "Shield", "Sink", "Skillet", "Slide", "Slippers", "Spatula", "Spool", "Spyglass", "Stairs", "Stencil", "Strainer", "Sunshade", "Tarp", "Thermos", "Thread", "Thumbtack", "Tile", "Toolbox", "Tube", "Tweezers", "Valve", "Vent", "Violin", "Visor", "Wallpaper", "Warmers", "Wire", "Workbench", "Wreath", "Yolk", "Zucchini", "Amethyst", "Aquamarine", "Amber", "Basalt", "Bronze", "Calcite", "Chalkstone", "Coal", "Coral", "Crystal", "Flint", "Granite", "Graphite", "Gypsum", "Jade", "Obsidian", "Opal", "Pearl", "Quartz", "Ruby", "Sandstone", "Slate", "Sapphire", "Soapstone", "Topaz", "Turquoise", "Velvet", "Wool", "Canvas", "Cotton", "Denim", "Felt", "Fleece", "Lace", "Leather", "Mesh", "Nylon", "Paperclip", "Parasol", "Pinecone", "Pumice", "Quartzite", "Silk", "String", "Tinsel", "Whetstone", "Birch", "Cedar", "Fir", "Maple", "Oak", "Palm", "Willow", "Fern", "Ivy", "Lily", "Lotus", "Petal", "Reed", "Seaweed", "Sprout", "Sunflower", "Thistle", "Vine", "Beanbag", "Chessboard", "Domino", "Top", "Marble", "Puzzle", "Frisbee", "Hula", "Jump", "Pogo", "Sled", "Skateboard", "Scooter", "Bell", "Tie", "Cape", "Coat", "Crown", "Earmuff", "Goggles", "Kneepad", "Necklace", "Overalls", "Poncho", "Raincoat", "Ring", "Sash", "Tutu", "Uniform", "Vest", "Bookmark", "Bylines", "Caption", "Chapter", "Checklist", "Diagram", "Draft", "Glossary", "Index", "Label", "Menu", "Memo", "Newsletter", "Outline", "Paragraph", "Poster", "Receipt", "Schedule", "Script", "Slogan", "Summary", "Ticket", "Transcript", "Airplane", "Ambulance", "Blimp", "Bus", "Convertible", "Drone", "Glider", "Helicopter", "Limo", "Minivan", "Motorcycle", "Rocket", "Rowboat", "Submarine", "Taxi", "Tram", "Truck", "Unicycle", "Van", "Yacht", "Atlas", "Calculator", "Cartridge", "Earbud", "Headset", "Laptop", "Monitor", "Projector", "Router", "Scanner", "Smartwatch", "Speaker", "Tablet", "Webcam"] },
-  normal: { rate:0.40, weight:30, items:["12 tons of kitkat","human","WrenIsOld","Cyatr9 (Block of Cheese)","Edunzie","The Dairy king","The Mind of Orin","Tikitheg","Nathan8028","Katsurchicken","Juju2y","Zxno","kevin hart","bruce lee","the rock","car","honda","toyota","RDJ","Chris Evens","Chris hemsworth","timothee chalamet","theo von","joe rogan","the weeknd","kanye west","kanye east","nikocado avocado","IShowSpeed","KSI","Mrbeast","Nolan (Mrbeast)","Kai Cenat","lacy","marlon","Miniminter","Jacksuckatlife","deji","sabrina carpenter","bruno mars","Pewdiepie","Eminem","Tupac","drake","kendrick lamar","Juice wrld","Travis scott","D4vd","Ronaldo","Messi","Haaland","Neymar jr.","Denzel Washington","Michael B jordan","Michael Jackson","Biggie","Ice cube","Dylan Page","New Rockstars","EthansHalfTable","AustinsHalfTable","Elephant","tiger","zebra","lion","polar bear","brown bear","black bear","A Van","caterpie","butterfree","rattata","Pak'nsave Stick Man","J. K Rowling","Albert Einstein","Steve jobs","Bill Gates","Steven Hawking","neil degrasse tyson","Bob marley","Isaac newton","ray william johnson","sambucha","Killer bee","buzz aldrin","Channing tatum","Emma stone","Scarlett Johansson","amelia earhart","taika waititi","John Cena","Randy orton","Ninja","Nikeh30","Jamal Watkins","Harrison Ford","Queen Elizabeth II","King Charles","Vin Diesel","Donald Glover","Chris Pratt","Tom Holland","Snoop Dogg","Katy Perry","67 Kid","The Rizzler","Ipad Kid","1 2 buckle my shoe guy","Ed sheeran","Paul Rudd","Jack Black","Jim Carrey","Adam Sandler","Chris Rock","Will Smith","Elon Musk","William Shakespeare","Christopher Columbus","Leonardo da Vinci","Michelangelo","Vincent van Gogh","Samuel L Jackson","Caseoh","R2-D2","C3-PO","Grogu (Baby Yoda)","Ted","Windows 7","Windows 11","A Donkey","Donkey (Shrek)","Gorilla","Ape","Eevee","Diglit","Cinderella","Mike Wazowski","King Julien","Marty the Zebra","Alex the Lion","Gloria (Madagascar)","Hammy","Jigglypuff","Meowth","Psyduck","Ash (pokemon)","Gordon Ramsay","Simon Cowell","Andrew Tate","Dream (Youtuber)","Daddy Speed","Fanum","Jawed","AdizzPro","Zombie (Minecraft)","Skeleton (minecraft)","Thanos (Squid games)","Taylor Swift","Ariana Grande","Justin Bieber","Selena Gomez","Doja Cat","Olivia Rodrigo","Billie Eilish","Post Malone","Jack Harlow","Central Cee","Ryan Reynolds","Ryan Gosling","Margot Robbie","Jenna Ortega","Zendaya","Millie Bobby Brown","Tom Cruise","Leonardo DiCaprio","Brad Pitt","Keanu Reeves","Markiplier","DanTDM","SSSniperWolf","Pokimane","xQc","Ludwig","Sykkuno","Valkyrae","TommyInnit","Tubbo","Ice Spice","Jeff Bezos","Mark Zuckerberg","Sundar Pichai","Tim Cook","Kevin McCallister","Forrest Gump","Ned Flanders","Milhouse","Gregory","Dora","Caillou","Kim Kardashian","Kylie Jenner","Kendall Jenner","Khloe Kardashian","Kourtney Kardashian","Addison Rae","Charli D'Amelio","Dixie D'Amelio","Bella Poarch","Alix Earle","Logan Paul","Jake Paul","GeorgeNotFound","Sapnap","Quackity","Karl Jacobs","DreamXD","Corpse Husband","Disguised Toast","Fuslie","Myth","NickMercs","Tfue","Clix","Mongraal","Ali-A","LazarBeam","Typical Gamer","Unspeakable","PrestonPlayz","SSundee","JeromeASF","PopularMMOs","Stampylonghead","LDShadowLady","SmallishBeans","Grian","Mumbo Jumbo","Technoblade","MrSavage","Benjyfishy","NinjaHyper","David Dobrik","Zach King","Khaby Lame","Mrwhosetheboss","Unbox Therapy","Austin Evans","Marques Brownlee","iJustine","Safiya Nygaard","Lilly Singh","James Charles","Jeffree Star","MrBeast Gaming","Sydney Sweeney","Anya Taylor-Joy","Florence Pugh","Hailee Steinfeld","Tim Allen","Owen Wilson","Ben Stiller","Eddie Murphy","Mike Myers","Rowan Atkinson","Steve Carell","Ricky Gervais","Jason Statham","Gal Gadot","Henry Cavill","Arnold Schwarzenegger","Sylvester Stallone","Chris Pine","Zac Efron","Andrew Garfield","Tobey Maguire","Daniel Radcliffe","Rupert Grint","Emma Watson","Johnny Depp","Orlando Bloom","Kit Harington","Pedro Pascal","Jensen Ackles","Jared Padalecki","Gordon Cormier","Iain Armitage","Walker Scobell","Toyota Corolla","Honda Civic","Mazda MX-5","Subaru Impreza","BMW M3", "Pak’nsave Stick Man", "Scarlet Johanson", "Chris Prat", "Katey Parey", "Andew Tate", "Ryan Gosling. Margot Robbie", "Tom Cruise Leonardo DiCaprio", "Pokimane xQc", "Mark Zuckerberg Sundar Pichai", "Gregory Dora", "Baby Groot", "LeBron James", "Stephen Curry", "Kevin Durant", "Giannis Antetokounmpo", "Nikola Jokic", "Jayson Tatum", "Michael Jordan", "Kobe Bryant", "Shaquille O'Neal", "Kareem Abdul-Jabbar", "Larry Bird", "Magic Johnson", "Ming Yao", "Charles Barkley", "Patrick Mahomes", "Tom Brady", "Aaron Rodgers", "Lamar Jackson", "Tyreek Hill", "Derrick Henry", "Aaron Judge", "Mike Trout", "Bryce Harper", "Wayne Gretzky", "Sidney Crosby", "Connor McDavid", "Alex Ovechkin", "Jaromir Jagr", "Mario Lemieux", "Novak Djokovic", "Roger Federer", "Rafael Nadal", "Carlos Alcaraz", "Iga Swiatek", "Naomi Osaka", "Coco Gauff", "Aryna Sabalenka", "Jannik Sinner", "Andy Murray", "Lewis Hamilton", "Max Verstappen", "Charles Leclerc", "Lando Norris", "Fernando Alonso", "Sebastian Vettel", "Michael Schumacher", "Ayrton Senna", "Phil Mickelson", "Tiger Woods", "Rory McIlroy", "Scottie Scheffler", "Muhammad Ali", "Mike Tyson", "Floyd Mayweather", "Manny Pacquiao", "Conor McGregor", "Jon Jones", "Khabib Nurmagomedov", "Israel Adesanya", "Tyson Fury", "Oleksandr Usyk", "Canelo Alvarez", "Francis Ngannou", "Georges St-Pierre", "David Beckham", "Ronaldinho", "Zlatan Ibrahimovic", "Andres Iniesta", "Xavi", "Thierry Henry", "Sadio Mane", "Son Heung-min", "Harry Kane", "Kevin De Bruyne", "Robert Lewandowski", "Kylian Mbappe", "Jude Bellingham", "Vinicius Junior", "Luka Modric", "Erling Haaland", "Gareth Bale", "N'Golo Kante", "Paul Pogba", "Sergio Ramos", "Gerard Pique", "Manuel Neuer", "Serena Williams", "Venus Williams", "Simone Biles", "Usain Bolt", "Michael Phelps", "Katie Ledecky", "Shaun White", "Tony Hawk", "Kelly Slater", "Beyoncé", "Rihanna", "Adele", "Madonna", "Lady Gaga", "Elvis Presley", "JAY-Z", "Dolly Parton", "Kacey Musgraves", "Carrie Underwood", "Luke Bryan", "Blake Shelton", "Keith Urban", "Hank Williams Jr.", "Johnny Cash", "Willie Nelson", "Garth Brooks", "Elton John", "Paul Simon", "Billy Joel", "Stevie Wonder", "Whitney Houston", "Aaliyah", "Chance the Rapper", "Kid Cudi", "SZA", "H.E.R.", "J. Cole", "Lil Wayne", "Future", "Pharrell Williams", "Travis Barker", "Mark Ronson", "John Legend", "Shakira", "Ariana DeBose", "Chris Martin", "Bono", "BTS", "Meryl Streep", "Benedict Cumberbatch", "Nicole Kidman", "Jennifer Lawrence", "Anne Hathaway", "Natalie Portman", "Julia Roberts", "Sandra Bullock", "Charlize Theron", "Angelina Jolie", "Matthew McConaughey", "Hugh Jackman", "Idris Elba", "Will Ferrell", "Drew Barrymore", "Reese Witherspoon", "Shailene Woodley", "Bradley Cooper", "Nicolas Cage", "Seth Rogen", "Jonah Hill", "Viola Davis", "Octavia Spencer", "Taraji P. Henson", "Lupita Nyong'o", "Danai Gurira", "Angela Bassett", "Regina King", "Kerry Washington", "Issa Rae", "Quinta Brunson", "Mindy Kaling", "Marlon Wayans", "Lakeith Stanfield", "Tessa Thompson", "Ayo Edebiri", "Bill Hader", "Fred Armisen", "Leslie Jones", "Keegan-Michael Key", "Jordan Peele", "Dua lipa", "Oprah Winfrey", "Conan O'Brien", "Jimmy Fallon", "Stephen Colbert", "Trevor Noah", "John Oliver", "Seth Meyers", "Jimmy Kimmel", "Ellen DeGeneres", "Amy Poehler", "Tina Fey", "Maya Rudolph", "Kristen Bell", "Kaley Cuoco", "Sarah Michelle Gellar", "Courteney Cox", "Jennifer Aniston", "David Schwimmer", "Matt LeBlanc", "Bryan Cranston", "Aaron Paul", "Bob Odenkirk", "George Washington", "Thomas Jefferson", "Theodore Roosevelt", "Franklin D. Roosevelt", "John F. Kennedy", "Martin Luther King Jr.", "Malcolm X", "Rosa Parks", "Mahatma Gandhi", "Nelson Mandela", "Winston Churchill", "Cleopatra", "Julius Caesar", "Napoleon Bonaparte", "Genghis Khan", "Alexander the Great", "Queen Victoria", "Marie Curie", "Galileo Galilei", "Neil Armstrong", "Mark Twain", "Charles Dickens", "H.G. Wells", "Aldous Huxley", "Pablo Picasso", "Richard Feynman", "Carl Sagan", "Charles Darwin"] },
-  decent: { rate:0.25, weight:20, items:["TheRealBaldCena72","Bluey","Black Widow","Hawkeye","Red Guardian","Black Cat","Catwoman","The Joker","The Riddler","Iron Man","Spider-man","Captain America","Batman","Batgirl","Bane","Rey Skywalker","Han Solo","Drax","Gamora","Rocket Raccoon","War Machine","Peppa Pig","Thomas the tank engine","Tails","Knuckles","Shrek","Fiji","Samoa","Black Panther","Killmonger","Kraven the Hunter","Doc Ock","Green Goblin","The Lizard","Mario","Luigi","Bowser","Princess Peach","Toad","Sandman","Harry Potter","The Thing","Homer Simpson","Peter Griffin","Lara Croft","Solid Snake","Meh (Emoji Movie)","John Wick","Walter White","Spongebob","Patrick","Mr Krabs","Plankton (Spongebob)","Donkey Kong","Yoshi","Gru","Bob the Minion","Moana","T-rex","Megalodon","Chun-Li","Link","Zelda","Pikachu","Charmander","Bulbasaur","Squirtle","Mankey","Onix","Steelix","Geodude","Gambit","Fall Guy","Stumble Guy","Jake (subway surfers)","Captain Price","Fix-It Felix","Mufasa","Simba","Scar","Aladdin","Beast (Beauty and the beast)","Lightning McQueen","Mater","Peter Pan","Tinker Bell","Vanellope von Schweetz","Wall-E","EVE","Captain Hook","Sully","Puss in Boots","Tigress","Master Shifu","Lord Farquaad","Princess Fiona","Toothless","Grug","Guy (The Croods)","Oh (Home)","Captain Smek","B.O.B.","Susan Murphy","Squidward","Sheen Estevez","Machamp","Snorlax","Vaporeon","Jolteon","Flareon","Pinsir","Tauros","Boba Fett","Jango Fett","Chewbacca","Captain Carter","Nightwing","Spider-Gwen","Spider-Noir","Miles Morales","Robin","Iron Golem","Wither Skeleton (Minecraft)","The Principal (Baldi)","Sweeping Time","Huggy Wuggy","Freddy Fazbear","Bonnie","Chica","Foxy","Morty","Star-Lord","Ant-Man","Wasp","Falcon","Winter Soldier","Shuri","Ned Leeds","MJ","Dobby","Neville Longbottom","Luna Lovegood","Draco Malfoy","Ginny Weasley","Poison Ivy","Harley Quinn","Penguin (Batman)","Two-Face","Sandy Cheeks","Meg Griffin","Chris Griffin","Squid Game Guard","Toadette","Waluigi","Wario","Mr Ping","King Candy","Judy Hopps","Nick Wilde","The Reacher","Dexter","Ethan Hunt","Ronald McDonald","Hamburglar", "Rocket Racoon", "Kilmonger", "Doc Oct", "Luiji", "Mr Crabs", "jake subway surfers", "Fix it felix", "The Princible (Baldi)", "Doctor Octopus", "Ham burglar", "Groot", "Green arrow", "Marge Simpson", "Bart Simpson", "Lisa Simpson", "Mr Burns", "Krusty the Clown", "Moe Szyslak", "Chief Wiggum", "Ralph Wiggum", "Sideshow Bob", "Groundskeeper Willie", "Principal Skinner", "Lois Griffin", "Brian Griffin", "Stewie Griffin", "Cleveland Brown", "Joe Swanson", "Consuela", "Herbert", "Tom Tucker", "Carter Pewterschmidt", "Bender", "Philip J Fry", "Leela", "Doctor Zoidberg", "Amy Wong", "Hermes Conrad", "Professor Farnsworth", "Nibbler", "Calculon", "Scruffy", "Kif Kroker", "Zap Brannigan", "Cubert Farnsworth", "Stan Marsh", "Kyle Broflovski", "Eric Cartman", "Kenny McCormick", "Butters Stotch", "Randy Marsh", "Chef", "Mr Garrison", "Wendy Testaburger", "Tolkien Black", "Towelie", "Bebe Stevens", "Clyde Donovan", "Craig Tucker", "Timmy Burch", "Jimmy Valmer", "Scott Malkinson", "Randy Broflovski", "Kermit the Frog", "Miss Piggy", "Fozzie Bear", "Gonzo", "Animal", "Rowlf the Dog", "Beaker", "Dr Bunsen Honeydew", "Statler", "Waldorf", "Swedish Chef", "Sam Eagle", "Scooter", "Sweetums", "Pepe the King Prawn", "Elmo", "Big Bird", "Cookie Monster", "Oscar the Grouch", "Bert", "Ernie", "Grover", "The Count", "Abby Cadabby", "Zoe", "Porky Pig", "Tweety", "Sylvester", "Road Runner", "Wile E Coyote", "Elmer Fudd", "Yosemite Sam", "Marvin the Martian", "Tasmanian Devil", "Lola Bunny", "Pepé Le Pew", "Speedy Gonzales", "Foghorn Leghorn", "Daphne Blake", "Scrappy-Doo", "Shaggy Rogers", "Tommy Pickles", "Chuckie Finster", "Angelica Pickles", "Phil DeVille", "Lil DeVille", "Susie Carmichael", "Dil Pickles", "Spike", "Phineas Flynn", "Ferb Fletcher", "Candace Flynn", "Perry the Platypus", "Dr Heinz Doofenshmirtz", "Isabella Garcia-Shapiro", "Baljeet Tjinder", "Buford Van Stomm", "Vanessa Doofenshmirtz", "Major Monogram", "Carl Karl", "Norm", "Stacy Hirano", "Jeremy Johnson", "Linda Flynn-Fletcher", "Gideon Gleeful", "Candy Chiu", "Grenda", "Pacifica Northwest", "Sherif Blubs", "Deputy Durland", "Wirt", "Greg", "Beatrice", "The Woodsman", "Auntie Whispers", "Adelaide", "Scrooge McDuck", "Huey Duck", "Dewey Duck", "Louie Duck", "Webby Vanderquack", "Launchpad McQuack", "Gyro Gearloose", "Flintheart Glomgold", "Magica De Spell", "Duckworth", "Mr Potato Head", "Bo Peep", "Forky", "Duke Caboom", "Lotso", "Al", "Bonnie Anderson", "Carl Fredricksen", "Russell", "Dug", "Kevin", "Charles Muntz", "Heimlich", "Flik", "Dot", "Hopper", "Agnes", "Edith", "Margo", "Lucy Wilde", "Dr Nefario", "Vector", "El Macho", "Dru", "Silas Ramsbottom", "Scarlet Overkill", "Miss Hattie", "Stuart", "Kevin the Minion", "Phil the Minion", "Hiccup Haddock", "Astrid Hofferson", "Stoick the Vast", "Gobber the Belch", "Valka", "Fishlegs", "Ruffnut", "Tuffnut", "Snotlout", "Heather", "Manny", "Sid", "Diego", "Scrat", "Ellie", "Buck", "Shira", "Crash", "Eddie", "Granny", "Melman", "Maurice", "Mort", "Private", "Skipper", "Kowalski", "Rico", "Crane", "Viper", "Mantis", "Zhen", "Li Shan", "Ping", "Gingy", "Prince Charming", "Fairy Godmother", "Rumpelstiltskin", "Pinocchio", "Big Bad Wolf", "King Harold", "Queen Lillian", "Dragon", "Tarzan", "Jane Porter", "Clayton", "Captain Gantu", "Pleakley", "Jumba", "Nala", "Kiara", "Zazu", "Timon", "Pumbaa", "Kion", "Bunga", "Rani", "Milo Thatch", "Kida Nedakh", "Deadshot", "Red Hood", "Constantine", "Zatanna", "Firestorm", "Blue Beetle", "Booster Gold", "Hawkman", "Hawkgirl", "Plastic Man", "Black Lightning", "Vixen", "Stargirl", "Doctor Mid-Nite", "Hourman", "Azrael", "Huntress", "Batwing", "Spoiler", "Black Canary", "Red Tornado", "Mr Terrific", "Killer Frost", "Aqualad", "Static Shock", "Cyborg", "Daredevil", "Punisher", "Luke Cage", "Jessica Jones", "Iron Fist", "Ms Marvel", "She-Hulk", "Moon Knight", "Kingpin", "Bullseye", "Elektra", "Coulson", "Melinda May", "Daisy Johnson", "Fitz", "Simmons", "Mockingbird", "Nova", "Black Bolt", "Medusa", "Gorgon", "Karnak", "Lockjaw", "Crystal", "Sif", "Valkyrie", "Jane Foster", "Nick Fury", "Maria Hill", "Captain Rex", "Commander Cody", "Ezra Bridger", "Kanan Jarrus", "Sabine Wren", "Bo-Katan Kryze", "Grand Admiral Thrawn", "Hondo Ohnaka", "Fennec Shand", "Cassian Andor", "Jyn Erso", "Director Krennic", "Saw Gerrera", "IG-11", "Moff Gideon", "Poe Dameron", "Finn", "Rose Tico", "BB-8", "General Hux", "Maz Kanata", "Qi'ra", "Doctor Aphra", "Chopper", "K-2SO", "Babu Frik", "Nien Nunb", "Bix Caleen", "Syril Karn", "Sokka", "Suki", "Iroh", "Mai", "Ty Lee", "Appa", "Momo", "Bolin", "Mako", "Asami Sato", "Lin Beifong", "Bumi", "Kya", "Pema", "Varrick", "Gwen Tennyson", "Kevin Levin", "Heatblast", "Four Arms", "XLR8", "Diamondhead", "Cannonbolt", "Wildmutt", "Upgrade", "Ghostfreak", "Ripjaws", "Stinkfly", "Blitzwolfer", "Snare-oh", "Frankenstrike", "Eye Guy", "Daisy", "Rosalina", "Bowser Jr.", "Pauline", "King Boo", "Birdo", "Toadsworth", "Kamek", "Geno", "Diddy Kong", "Dixie Kong", "Cranky Kong", "Funky Kong", "King K Rool", "Meta Knight", "King Dedede", "Bandana Waddle Dee", "Adeleine", "Marx", "Amy Rose", "Cream the Rabbit", "Big the Cat", "Rouge the Bat", "Espio the Chameleon", "Vector the Crocodile", "Charmy Bee", "Blaze the Cat", "Silver the Hedgehog", "Tikal the Echidna", "Isabelle", "Tom Nook", "K K Slider", "Kapp'n", "Blathers", "Celeste", "Brewster", "Timmy", "Tommy", "Cyrus", "Reese", "Mabel Sable", "Inkling", "Octoling", "Marie", "Callie", "Marina", "Judd", "Mr Grizz", "Cap'n Cuttlefish", "Misty", "Brock", "Jessie", "James", "Nurse Joy", "Officer Jenny", "Professor Oak", "Gary Oak"] },
-  hard: { rate:0.15, weight:10, items:["The Apex Warden","Luke Skywalker","Darth Vader","Kylo Ren","Yoda","Darth Maul","Lex Luthor","Loki","Hulk","Thor","SCP 002","Sonic","Shadow","United States of America","New Zealand","Australia","Canada","UK","Russia","China","Brazil","Mexico","Germany","Spain","France","Poland","Ukraine","Venom","Carnage","Mario (star)","Gandalf","Voldemort","Reed Richards","Megamind","Maui","Mr Incredible","Invisible Woman","Po","Tai Lung","Charizard","Dr Eggman","Oogway","Japan","India","Italy","Wolverine","Deadpool","Merlin","The Bride","Wreck-It Ralph","Elsa","Elastigirl","Baymax","Jack Frost","Aang","Katara","Zuko","Timmy Turner","Jimmy Neutron","Dragonite","Gyarados","Darth Plagueis","Count Dooku","General Grievous","The Mandalorian","Zoro","Luffy","Wonder Woman","Wonder Man","Green Lantern","Mongol Empire","Raven","Katana","Ben Dover","Warden","Ender Dragon","Wither","Baldi","Springtrap","SCP 049","Optimus Prime","Megatron","Greninja","Sasuke","Kakashi","Ben 10 (base)","Vilgax","Electro","Vision","Quicksilver","Scarlet Spider","Anakin Skywalker","Qui-Gon Jinn","Padmé Amidala","Mace Windu","Ahsoka","Obi-Wan Kenobi","Deathstroke","Percy Jackson","Annabeth Chase","Shoto Todoroki","Bakugo","Inosuke","Zenitsu","Gon","Killua","Dwayne Johnson (young)", "Lex Luther", "Gandolf", "Wreck it Ralph", "King Groot", "Magneto", "Professor X", "Mystique", "Juggernaut", "Sabretooth", "Emma Frost", "Rogue", "Storm", "Cyclops", "Jean Grey", "Beast", "Colossus", "Nightcrawler", "Bishop", "Forge", "Havok", "Polaris", "Banshee", "Sunfire", "Warpath", "X-23", "Kitty Pryde", "Domino", "Cable", "Stryfe", "Omega Red", "Mr Sinister", "Sebastian Shaw", "Blob", "Avalanche", "Pyro", "Red Skull", "Baron Zemo", "Taskmaster", "Crossbones", "Ghost", "MODOK", "Abomination", "Leader", "Razor Fist", "Blade", "Ghost Rider", "Morbius", "Red Hulk", "Beta Ray Bill", "Sentry", "Hyperion", "Blue Marvel", "Nebula", "Yondu", "Adam Warlock", "Ronan the Accuser", "Korath", "Talos", "Attuma", "Namor", "Super-Skrull", "Annihilus", "Blastaar", "Klaw", "Fin Fang Foom", "Black Knight", "Hercules", "Malekith", "Gorr the God Butcher", "Kang the Conqueror", "Immortus", "The Hood", "Doc Samson", "Shang-Chi", "Katy", "Elsa Bloodstone", "Nico Minoru", "Wiccan", "Speed", "Patriot", "Kate Bishop", "Riri Williams", "Ironheart", "Moonstone", "Titania", "Phyla-Vell", "Moondragon", "Quasar", "Tigra", "Dazzler", "Firestar", "Darkhawk", "Sersi", "Thena", "Ikaris", "Makkari", "Druig", "Kingo", "Phastos", "Sprite", "Gilgamesh", "Starfox", "Agatha Harkness", "Emperor Palpatine", "Darth Revan", "Darth Nihilus", "Darth Malak", "Darth Bane", "Starkiller", "Asajj Ventress", "Grand Inquisitor", "Commander Wolffe", "Commander Gree", "Captain Phasma", "IG-88", "4-LOM", "Zuckuss", "Bossk", "Dengar", "Aurra Sing", "Admiral Piett", "General Pryde", "Nute Gunray", "Sauron", "Saruman", "Witch-king", "Smaug", "Balrog", "Galadriel", "Elrond", "Arwen", "Eomer", "Eowyn", "Faramir", "Boromir", "Frodo Baggins", "Bilbo Baggins", "Gollum", "Treebeard", "Denethor", "Grima Wormtongue", "Radagast", "Legolas", "Sirius Black", "Remus Lupin", "Bellatrix Lestrange", "Lucius Malfoy", "Gellert Grindelwald", "Dolores Umbridge", "Kingsley Shacklebolt", "Mad-Eye Moody", "Peter Pettigrew", "Rita Skeeter", "Cornelius Fudge", "Newt Scamander", "Leta Lestrange", "Credence Barebone", "Queenie Goldstein", "Jacob Kowalski", "Alastor Moody", "Aberforth Dumbledore", "Xenophilius Lovegood", "Griphook", "Jotaro Kujo", "DIO", "Giorno Giovanna", "Josuke Higashikata", "Jonathan Joestar", "Joseph Joestar", "Jolyne Cujoh", "Bruno Bucciarati", "Diavolo", "Kars", "Wamuu", "Esidisi", "Rohan Kishibe", "Noriaki Kakyoin", "Jean Pierre Polnareff", "Okuyasu Nijimura", "Koichi Hirose", "Guido Mista", "Narancia Ghirga", "Pannacotta Fugo", "Itachi Uchiha", "Obito Uchiha", "Pain", "Nagato", "Orochimaru", "Jiraiya", "Tsunade", "Minato Namikaze", "Gaara", "Shikamaru Nara", "Rock Lee", "Might Guy", "Kisame Hoshigaki", "Kakuzu", "Hidan", "Konan", "Kabuto Yakushi", "Deidara", "Sasori", "Momoshiki Otsutsuki", "Frieza", "Cell", "Majin Buu", "Bardock", "Raditz", "Nappa", "Krillin", "Shanks", "Marshall D. Teach", "Trafalgar Law", "Eustass Kid", "Portgas D. Ace", "Sabo", "Donquixote Doflamingo", "Charlotte Katakuri", "Crocodile", "Gecko Moria", "Boa Hancock", "Smoker", "Marco", "Jinbe", "Monkey D. Dragon", "Silvers Rayleigh", "Kuma", "Enel", "Akainu", "Kizaru", "The Flash", "Martian Manhunter", "Black Manta", "Captain Cold", "Heat Wave", "Mister Freeze", "Scarecrow", "Bizarro", "Ra's al Ghul", "Talia al Ghul", "Starfire", "Beast Boy", "Killer Croc", "The Question", "Mister Miracle", "Big Barda", "Superboy", "Captain Boomerang", "Clayface", "The Spectre", "Master Chief", "The Arbiter", "Atriox", "Sergeant Johnson", "Captain Keyes", "Lord Hood", "343 Guilty Spark", "Tartarus", "Prophet of Truth", "Prophet of Mercy", "Prophet of Regret", "Commander Palmer", "Buck", "Jun-A266", "Jorge-052", "Kelly-087", "Linda-058", "Fred-104", "Miranda Keyes", "Doctor Halsey", "Scorpion", "Sub-Zero", "Raiden", "Liu Kang", "Kitana", "Mileena", "Johnny Cage", "Sonya Blade", "Shang Tsung", "Shao Kahn", "Akuma", "M. Bison", "Guile", "Cammy", "Dhalsim", "Sagat", "Blanka", "Zangief", "Juri Han", "Ryu"] },
-  superhard: { rate:0.07, weight:4, items:["The Founder","Dr Strange","Scarlet Witch","Superman","Omni Man","Invincible","Adam Eve","Zod","Godzilla","Goku","Vegeta","One Punch Man","SCP 173","SCP 096","Dr Doom","Galactus","Mephisto","Thomas The Tank Engine EXE","The Moon","Pluto","Mars","Venus","Earth","Mercury","Titan (Moon)","Makemake","Knull Slicer of Worlds","Hela","Odin","The Milky Way","King Kong","Kirby","Zeus","Mew","Mewtwo","Ben 10","Kratos","Silver Surfer","Lucky The Cat","Genie","Jack-Jack","Franklin Richards","Metro Man","Titan (megamind)","Pitch Black (the boogeyman)","Danny Phantom","Cosmo (Fairly OddParents)","Wanda (Fairly OddParents)","Rayquaza","Palkia","Giratina","Dialga","Homelander","The Void (Thunderbolts)","Gohan","Beerus","Naruto","Goku (Mastered Ultra Instinct)","Shenron","Captain Carter (Watcher Power)","Supergirl","Shazam","Black Adam","Doctor Fate","Captain Marvel","Power Girl","Thanos","King Thanos","The Watcher","Infinity Ultron","Infinity Hulk","Minecraft Steve","Minecraft Alex","Wither Storm","Null (Baldi's Basics)","Slenderman","Siren Head","The Backrooms Entity","Cartoon Cat","SCP 4666","Darkseid","Brainiac","Reverse Flash","Dormammu","Apocalypse","Onslaught","Jiren","Broly","Madara Uchiha","Kaguya","Aizen","Ichigo","Meliodas","Escanor","Saitama seriously","Grimace","Ultron", "Vageta", "Ben Ten", "Pitch Black (the boogyman)", "Null (Baldi’s Basics)"] },
-  impossible: { rate:0.01, weight:1, items:["God","The Devil","Santa","Unicorn","Gravity","God of Stories Loki","The One Above All","The Universe","Azathoth","Zeno","God Emperor Doom","Chuck Norris","Daddy Pig","The Multiverse","Tooth Fairy","Easter Bunny","Jesus","A Black Hole","Arceus","Rick Sanchez","Death","Death (Puss in Boots)","Super Shenron","Molecule Man","Beyonder","Living Tribunal","The Presence","The Omniverse","Dr Manhattan","Lady Death","Herobrine","Entity 303","Null (Minecraft)","The Backrooms","The Writer","The One Below All","Oblivion","Eternity (Marvel)","Infinity (Marvel)","The Endless","Catch Anything"] }
+  easy: { rate:0.60, weight:60, items:["Pig", "Cow", "Sheep", "Dog", "Cat", "Goat", "Monkey", "Ant", "Beetle", "Cockroach", "Hamster", "Mouse", "Rat", "Racoon", "Guinea pig", "armadillo", "bee", "wasp", "hornet", "deer", "spider", "Pen", "paper", "blanket", "chair", "table", "tennis racket", "shelf", "door", "roof", "bed", "pillow", "ipad", "phone", "tv", "vr head set", "radio", "fan", "pencil", "golf ball", "ball", "golf club", "toy", "basketball", "basketball hoop", "deodorant", "fly spray", "fly", "mosquito", "moon boot", "glue stick", "money", "coin", "chocolate", "chocolate coin", "kitkat", "banana", "apple", "pear", "orange", "mango", "kiwi fruit", "kiwi", "chicken", "hen", "rooster", "duck", "shag", "sea pig", "fish", "salmon", "crab lobster", "baby polar bear", "worm", "lego brick", "stick man", "pringles can", "cup", "glass", "hook", "book", "diary", "lamp", "lantern", "helmet", "bike", "hat", "military uniform", "shirt", "pants", "sock", "grave", "dirt", "grass", "koala", "turtle", "ferret", "blobfish", "panda", "red panda", "frog", "axolotl", "hedgehog", "sloth", "squirrel", "wombat", "beaver", "otter", "meerkat", "goldfish", "clownfish", "starfish", "eel", "flamingo", "hawk", "eagle", "swan", "owl", "penguin", "parrot", "woodpecker", "butterfly", "ladybug", "dragonfly", "grasshopper", "caterpillar", "praying mantis", "bottle", "lid", "squishy", "slime", "jar", "lotion", "lube", "rubik’s cube", "flower", "toothpaste", "toothbrush", "dental floss", "knife", "fork", "spoon", "spork", "toorhpick", "iphone", "samsung phone", "ear plug", "headphones", "plug", "switch", "crowbar", "hammer", "jaw", "bone", "stone", "rock", "tree", "shoe", "soap", "water", "gum", "stick", "straw", "big mac", "cheeseburger", "hamburger", "french fries", "chips", "lays", "cheetos", "doritos", "egg", "christmas tree", "lid opener", "funko pop", "blinds", "carpet", "greenstone", "diamond", "emerald", "copper", "copper bar", "prison bar", "beer", "sand", "sandpaper", "captain crunch", "tardigrade", "butter", "A Wren", "bread", "Plankton", "Nemo", "Dory", "Marlin (finding nemo)", "Magickarp", "Minecraft Chicken", "Minecraft Sheep", "Minecraft Pig", "Snail", "Slug", "Maggot", "Tick", "Flea", "Termite", "Silverfish", "Centipede", "Millipede", "Moth", "Seagull", "Pigeon", "Crow", "Sparrow", "Finch", "Jellyfish", "Sea cucumber", "Shrimp", "Krill", "Minnow", "Notebook", "Sticky note", "Envelope", "Backpack", "Remote control", "Keyboard", "Computer mouse", "USB stick", "Charger", "Extension cord", "Power strip", "Light bulb", "Flashlight", "Clock", "Alarm clock", "Watch", "Calendar", "Whiteboard", "Toast", "Jam", "Peanut butter", "Honey", "Pancake", "Waffle", "Muffin", "Cupcake", "Donut", "Popcorn", "Rice", "Noodles", "Spaghetti", "Soup", "Cereal", "Leaf", "Twig", "Branch", "Bush", "Moss", "Puddle", "Mud", "Ash", "Charcoal", "Toilet paper", "Towel", "Dish sponge", "Mop", "Dustpan", "Laundry basket", "Playing card", "Board game piece", "Puzzle piece", "Yo-yo", "Kite", "Balloon", "Bubble", "Paper airplane", "Sticker", "Nail", "Screw", "Bolt", "Nut", "Juice box", "Milk carton", "Water bottle", "Ice cube", "Lollipop", "Key", "Chain", "Rope", "Rubber band", "Alpaca", "Bison", "Camel", "Capybara", "Chipmunk", "Cheetah", "Cobra", "Cricket", "Dolphin", "Duckling", "Emu", "Fox", "Gecko", "Giraffe", "Hippo", "Iguana", "Jaguar", "Llama", "Lynx", "Mole", "Newt", "Octopus", "Opossum", "Ostrich", "Peacock", "Pelican", "Porcupine", "Quail", "Rabbit", "Reindeer", "Rhinoceros", "Salamander", "Seal", "Skunk", "Walrus", "Whale", "Woodchuck", "Yak", "Antelope", "Badger", "Bat", "Buffalo", "Caribou", "Chinchilla", "Crabapple", "Damselfly", "Fawn", "Gazelle", "Gibbon", "Gull", "Heron", "Hummingbird", "Ibex", "Jackal", "Kingfisher", "Leopard", "Manatee", "Mink", "Moose", "Partridge", "Puffin", "Stoat", "Toucan", "Vulture", "Warbler", "Woodcock", "Zebu", "Aloe", "Bamboo", "Barley", "Basil", "Bean", "Beet", "Berry", "Broccoli", "Cabbage", "Carrot", "Cauliflower", "Celery", "Cherry", "Coconut", "Corn", "Cucumber", "Date", "Fig", "Garlic", "Grape", "Lettuce", "Lime", "Lychee", "Mushroom", "Onion", "Pea", "Peach", "Plum", "Pumpkin", "Radish", "Spinach", "Strawberry", "Tomato", "Turnip", "Apron", "Bagel", "Banister", "Basket", "Beacon", "Bench", "Binder", "Blender", "Bookcase", "Bottlecap", "Bowl", "Brush", "Bucket", "Bun", "Cabinet", "Candle", "Canopy", "Cart", "Carton", "Casserole", "Cement", "Chalk", "Chandelier", "Clipboard", "Coaster", "Coffeepot", "Comb", "Console", "Cork", "Crayon", "Cupboard", "Curtain", "Desk", "Doormat", "Eraser", "Faucet", "Feather", "Fence", "Filter", "Folder", "Forklift", "Fridge", "Glove", "Grapefruit", "Guitar", "Hairbrush", "Hammock", "Handle", "Hatchet", "Hose", "Inkwell", "Joystick", "Kettle", "Latch", "Leash", "Lemon", "Letter", "Linen", "Lunchbox", "Magazine", "Marker", "Mask", "Mat", "Melon", "Microphone", "Mixer", "Mug", "Napkin", "Needle", "Oatmeal", "Oven", "Paintbrush", "Pajamas", "Pan", "Pepper", "Perfume", "Picture", "Pillowcase", "Plate", "Platter", "Pocket", "Pot", "Potato", "Printer", "Quilt", "Rake", "Rug", "Saucepan", "Scarf", "Screwdriver", "Seeds", "Shovel", "Shoelace", "Shopping", "Shower", "Soapdish", "Sockdrawer", "Sofa", "Spraybottle", "Stapler", "Stepladder", "Stickersheet", "Stool", "Suit", "Sweater", "Teacup", "Teapot", "Tissuebox", "Toaster", "Tongs", "Trampoline", "Tray", "Umbrella", "Vacuum", "Vase", "Wallet", "Wardrobe", "Washer", "Whisk", "Window", "Wok", "Wrapper", "Yarn", "Zipper", "Alarm", "Anchor", "Anvil", "Armchair", "Ashtray", "Axle", "Badge", "Bandage", "Barrel", "Base", "Battery", "Belt", "Binoculars", "Blouse", "Board", "Boiler", "Boot", "Bow", "Box", "Bracelet", "Brick", "Broom", "Cable", "Camera", "Candlestick", "Cap", "Carafe", "Case", "Cassette", "Chainmail", "Chimney", "Clamp", "Clip", "Cloth", "Collar", "Compass", "Cookbook", "Cooler", "Couch", "Crate", "Crutch", "Dart", "Diaper", "Doll", "Drum", "Eggshell", "File", "Flute", "Frame", "Gasket", "Gate", "Glasses", "Goblet", "Grater", "Hanger", "Harp", "Hood", "Ice", "Ladder", "Lens", "Lock", "Mailbox", "Mallet", "Map", "Megaphone", "Mirror", "Mittens", "Mosaic", "Net", "Ornament", "Pack", "Padlock", "Palette", "Parchment", "Pasta", "Pedal", "Pipe", "Pitcher", "Pod", "Postcard", "Prism", "Pump", "Quiver", "Ribbon", "Sail", "Sandals", "Satchel", "Scale", "Scissors", "Screen", "Shield", "Sink", "Skillet", "Slide", "Slippers", "Spatula", "Spool", "Spyglass", "Stairs", "Stencil", "Strainer", "Suitcase", "Sunshade", "Tarp", "Thermos", "Thread", "Thumbtack", "Tile", "Toolbox", "Tube", "Tweezers", "Valve", "Vent", "Violin", "Visor", "Wallpaper", "Warmers", "Wire", "Workbench", "Wreath", "Yolk", "Zucchini", "Amethyst", "Aquamarine", "Amber", "Basalt", "Bronze", "Calcite", "Chalkstone", "Clay", "Coal", "Coral", "Crystal", "Flint", "Granite", "Graphite", "Gypsum", "Jade", "Limestone", "Obsidian", "Opal", "Pearl", "Quartz", "Ruby", "Sandstone", "Slate", "Sapphire", "Soapstone", "Topaz", "Turquoise", "Velvet", "Wool", "Canvas", "Cotton", "Denim", "Felt", "Fleece", "Lace", "Leather", "Mesh", "Nylon", "Paperclip", "Parasol", "Pebble", "Pinecone", "Pumice", "Quartzite", "Silk", "String", "Tinsel", "Whetstone", "Birch", "Cedar", "Fir", "Maple", "Oak", "Palm", "Willow", "Fern", "Ivy", "Lily", "Lotus", "Petal", "Reed", "Seaweed", "Sprout", "Sunflower", "Thistle", "Vine", "Beanbag", "Chessboard", "Domino", "Dice", "Top", "Marble", "Puzzle", "Frisbee", "Hula", "Jump", "Pogo", "Sled", "Skateboard", "Scooter", "Bell", "Bat", "Tie", "Button", "Cape", "Coat", "Crown", "Earmuff", "Goggles", "Kneepad", "Necklace", "Overalls", "Poncho", "Raincoat", "Ring", "Sandwich", "Sash", "Tutu", "Uniform", "Vest", "Bookmark", "Bylines", "Caption", "Chapter", "Checklist", "Diagram", "Draft", "Glossary", "Index", "Journal", "Label", "Menu", "Memo", "Newsletter", "Outline", "Paragraph", "Poster", "Receipt", "Schedule", "Script", "Slogan", "Summary", "Ticket", "Transcript", "Glider", "Unicycle", "Atlas", "Calculator", "Cartridge", "Earbud", "Headset", "Laptop", "Monitor", "Projector", "Router", "Scanner", "Smartwatch", "Speaker", "Tablet", "Webcam"] },
+  normal: { rate:0.40, weight:30, items:["12 tons of kitkat", "human", "WrenIsOld", "Cyatr9 (Block of Cheese)", "Edunzie", "The Dairy king", "The Mind of Orin", "Tikitheg", "Nathan8028", "Katsurchicken", "Juju2y", "Zxno", "kevin hart", "bruce lee", "the rock", "car", "honda", "toyota", "RDJ", "Chris Evens", "Chris hemsworth", "timothee chalamet", "theo von", "joe rogan", "the weeknd", "kanye west", "kanye east", "nikocado avocado", "IShowSpeed", "KSI", "Mrbeast", "Nolan (Mrbeast)", "Kai Cenat", "Miniminter", "Jacksuckatlife", "deji", "sabrina carpenter", "bruno mars", "Pewdiepie", "Eminem", "Tupac", "drake", "kendrick lamar", "Juice wrld", "Travis scott", "D4vd", "Ronaldo", "Messi", "Haaland", "Neymar jr.", "Denzel Washington", "Michael B jordan", "Michael Jackson", "Biggie", "Ice cube", "Dylan Page", "New Rockstars", "EthansHalfTable", "AustinsHalfTable", "Elephant", "tiger", "zebra", "lion", "polar bear", "brown bear", "black bear", "A Van", "caterpie", "butterfree", "rattata", "Pak’nsave Stick Man", "J. K Rowling", "Albert Einstein", "Steve jobs", "Bill Gates", "Steven Hawking", "neil degrasse tyson", "Bob marley", "Isaac newton", "ray william johnson", "sambucha", "Killer bee", "buzz aldrin", "Channing tatum", "Emma stone", "Scarlet Johanson", "amelia earhart", "taika waititi", "John Cena", "Randy orton", "Ninja", "Nikeh30", "Jamal Watkins", "Harrison Ford", "Queen Elizabeth II", "King Charles", "Donald Glover", "Chris Prat", "Tom Holland", "Snoop Dogg", "Katey Parey", "67 Kid", "The Rizzler", "Ipad Kid", "1 2 buckle my shoe guy", "Ed sheeran", "Paul Rudd", "Jack Black", "Jim Carrey", "Adam Sandler", "Chris Rock", "Will Smith", "Elon Musk", "William Shakespeare", "Christopher Columbus", "Leonardo da Vinci", "Michelangelo", "Vincent van Gogh", "Samuel L Jackson", "Caseoh", "R2-D2", "C3-PO", "Grogu (Baby Yoda)", "Ted", "Windows 7", "Windows 11", "A Donkey", "Donkey (Shrek)", "Gorilla", "Ape", "Eevee", "Diglit", "Cinderella", "Marlon", "Lacy", "Mike Wazowski", "King Julien", "Marty the Zebra", "Alex the Lion", "Gloria (Madagascar)", "Hammy", "Jigglypuff", "Meowth", "Psyduck", "Ash (pokemon)", "Gordon Ramsay", "Simon Cowell", "Andew Tate", "Dream (Youtuber)", "Daddy Speed", "Fanum", "Jawed", "AdizzPro", "Zombie (Minecraft)", "Skeleton (minecraft)", "Thanos (Squid games)", "Taylor Swift", "Ariana Grande", "Justin Bieber", "Selena Gomez", "Doja Cat", "Olivia Rodrigo", "Billie Eilish", "Post Malone", "Jack Harlow", "Central Cee", "Ryan Reynolds", "Ryan Gosling. Margot Robbie", "Jenna Ortega", "Zendaya", "Millie Bobby Brown", "Tom Cruise Leonardo DiCaprio", "Brad Pitt", "Keanu Reeves", "Markiplier", "DanTDM", "SSSniperWolf", "Pokimane xQc", "Ludwig", "Sykkuno", "Valkyrae", "TommyInnit", "Tubbo", "Ice Spice", "Jeff Bezos", "Mark Zuckerberg Sundar Pichai", "Tim Cook", "Kevin McCallister", "Forrest Gump", "Ned Flanders", "Milhouse", "Gregory Dora", "Caillou", "Kim Kardashian", "Kylie Jenner", "Kendall Jenner", "Khloe Kardashian", "Kourtney Kardashian", "Addison Rae", "Charli D'Amelio", "Dixie D'Amelio", "Bella Poarch", "Alix Earle", "Logan Paul", "Jake Paul", "GeorgeNotFound", "Sapnap", "Quackity", "Karl Jacobs", "DreamXD", "Corpse Husband", "Disguised Toast", "Fuslie", "Myth", "NickMercs", "Tfue", "Clix", "Mongraal", "Ali-A", "LazarBeam", "Typical Gamer", "Unspeakable", "PrestonPlayz", "SSundee", "JeromeASF", "PopularMMOs", "Stampylonghead", "LDShadowLady", "SmallishBeans", "Grian", "Mumbo Jumbo", "Technoblade", "MrSavage", "Benjyfishy", "NinjaHyper", "David Dobrik", "Zach King", "Khaby Lame", "Mrwhosetheboss", "Unbox Therapy", "Austin Evans", "Marques Brownlee", "iJustine", "Safiya Nygaard", "Lilly Singh", "James Charles", "Jeffree Star", "MrBeast Gaming", "Sydney Sweeney", "Anya Taylor-Joy", "Florence Pugh", "Hailee Steinfeld", "Tim Allen", "Owen Wilson", "Ben Stiller", "Eddie Murphy", "Mike Myers", "Rowan Atkinson", "Steve Carell", "Ricky Gervais", "Jason Statham", "Vin Diesel", "Gal Gadot", "Henry Cavill", "Dwayne Johnson (young)", "Arnold Schwarzenegger", "Sylvester Stallone", "Chris Pine", "Zac Efron", "Andrew Garfield", "Tobey Maguire", "Daniel Radcliffe", "Rupert Grint", "Emma Watson", "Johnny Depp", "Orlando Bloom", "Kit Harington", "Pedro Pascal", "Jensen Ackles", "Jared Padalecki", "Gordon Cormier", "Iain Armitage", "Walker Scobell", "Toyota Corolla", "Honda Civic", "Mazda MX-5", "Subaru Impreza", "BMW M3", "Baby Groot", "LeBron James", "Stephen Curry", "Kevin Durant", "Giannis Antetokounmpo", "Nikola Jokic", "Jayson Tatum", "Michael Jordan", "Kobe Bryant", "Shaquille O'Neal", "Kareem Abdul-Jabbar", "Larry Bird", "Magic Johnson", "Ming Yao", "Charles Barkley", "Patrick Mahomes", "Tom Brady", "Aaron Rodgers", "Lamar Jackson", "Tyreek Hill", "Derrick Henry", "Aaron Judge", "Mike Trout", "Bryce Harper", "Wayne Gretzky", "Sidney Crosby", "Connor McDavid", "Alex Ovechkin", "Jaromir Jagr", "Mario Lemieux", "Novak Djokovic", "Roger Federer", "Rafael Nadal", "Carlos Alcaraz", "Iga Swiatek", "Naomi Osaka", "Coco Gauff", "Aryna Sabalenka", "Jannik Sinner", "Andy Murray", "Lewis Hamilton", "Max Verstappen", "Charles Leclerc", "Lando Norris", "Fernando Alonso", "Sebastian Vettel", "Michael Schumacher", "Ayrton Senna", "Phil Mickelson", "Tiger Woods", "Rory McIlroy", "Scottie Scheffler", "Muhammad Ali", "Mike Tyson", "Floyd Mayweather", "Manny Pacquiao", "Conor McGregor", "Jon Jones", "Khabib Nurmagomedov", "Israel Adesanya", "Tyson Fury", "Oleksandr Usyk", "Canelo Alvarez", "Francis Ngannou", "Georges St-Pierre", "David Beckham", "Ronaldinho", "Zlatan Ibrahimovic", "Andres Iniesta", "Xavi", "Thierry Henry", "Sadio Mane", "Son Heung-min", "Harry Kane", "Kevin De Bruyne", "Robert Lewandowski", "Kylian Mbappe", "Jude Bellingham", "Vinicius Junior", "Luka Modric", "Erling Haaland", "Gareth Bale", "N'Golo Kante", "Paul Pogba", "Sergio Ramos", "Gerard Pique", "Manuel Neuer", "Serena Williams", "Venus Williams", "Simone Biles", "Usain Bolt", "Michael Phelps", "Katie Ledecky", "Shaun White", "Tony Hawk", "Kelly Slater", "Beyoncé", "Rihanna", "Adele", "Madonna", "Lady Gaga", "Elvis Presley", "JAY-Z", "Dolly Parton", "Kacey Musgraves", "Carrie Underwood", "Luke Bryan", "Blake Shelton", "Keith Urban", "Hank Williams Jr.", "Johnny Cash", "Willie Nelson", "Garth Brooks", "Elton John", "Paul Simon", "Billy Joel", "Stevie Wonder", "Whitney Houston", "Aaliyah", "Chance the Rapper", "Kid Cudi", "SZA", "H.E.R.", "J. Cole", "Lil Wayne", "Future", "Pharrell Williams", "Travis Barker", "Mark Ronson", "John Legend", "Shakira", "Ariana DeBose", "Chris Martin", "Bono", "BTS", "Meryl Streep", "Benedict Cumberbatch", "Nicole Kidman", "Jennifer Lawrence", "Anne Hathaway", "Natalie Portman", "Julia Roberts", "Sandra Bullock", "Charlize Theron", "Angelina Jolie", "Matthew McConaughey", "Hugh Jackman", "Idris Elba", "Will Ferrell", "Drew Barrymore", "Reese Witherspoon", "Shailene Woodley", "Bradley Cooper", "Nicolas Cage", "Seth Rogen", "Jonah Hill", "Viola Davis", "Octavia Spencer", "Taraji P. Henson", "Lupita Nyong'o", "Danai Gurira", "Angela Bassett", "Regina King", "Kerry Washington", "Issa Rae", "Quinta Brunson", "Mindy Kaling", "Marlon Wayans", "Lakeith Stanfield", "Tessa Thompson", "Ayo Edebiri", "Bill Hader", "Fred Armisen", "Leslie Jones", "Keegan-Michael Key", "Jordan Peele", "Dua lipa", "Oprah Winfrey", "Conan O'Brien", "Jimmy Fallon", "Stephen Colbert", "Trevor Noah", "John Oliver", "Seth Meyers", "Jimmy Kimmel", "Ellen DeGeneres", "Amy Poehler", "Tina Fey", "Maya Rudolph", "Kristen Bell", "Kaley Cuoco", "Sarah Michelle Gellar", "Courteney Cox", "Jennifer Aniston", "David Schwimmer", "Matt LeBlanc", "Bryan Cranston", "Aaron Paul", "Bob Odenkirk", "George Washington", "Thomas Jefferson", "Theodore Roosevelt", "Franklin D. Roosevelt", "John F. Kennedy", "Martin Luther King Jr.", "Malcolm X", "Rosa Parks", "Mahatma Gandhi", "Nelson Mandela", "Winston Churchill", "Cleopatra", "Julius Caesar", "Napoleon Bonaparte", "Genghis Khan", "Alexander the Great", "Queen Victoria", "Marie Curie", "Galileo Galilei", "Neil Armstrong", "Mark Twain", "Charles Dickens", "H.G. Wells", "Aldous Huxley", "Pablo Picasso", "Richard Feynman", "Carl Sagan", "Charles Darwin", "Submarine", "Taxi", "Tram", "Truck", "Airplane", "Ambulance", "Blimp", "Bus", "Convertible", "Drone", "Van", "Yacht", "Helicopter", "Limo", "Minivan", "Motorcycle"] },
+  decent: { rate:0.25, weight:20, items:["TheRealBaldCena72", "Black Widow", "Hawkeye", "Red Guardian", "Black Cat", "Catwoman", "The Joker", "The Riddler", "Iron Man", "Spider-man", "Captain America", "Batman", "Batgirl", "Bane", "Rey Skywalker", "Han Solo", "Drax", "Gamora", "Rocket Racoon", "War Machine", "Peppa Pig", "Bluey", "Thomas the tank engine", "Tails", "Knuckles", "Shrek", "Fiji", "Samoa", "Black Panther", "Kilmonger", "Kraven the hunter", "Doc Oct", "Green Goblin", "The Lizard", "Mario", "Luiji", "Bowser", "Princess Peach", "Toad", "Sandman", "Harry Potter", "The Thing", "Homer Simpson", "Peter Griffin", "Lara Croft", "Solid Snake", "Meh (Emoji Movie)", "John Wick", "Walter White", "Spongebob", "Patrick", "Mr Crabs", "Plankton (Spongebob)", "Donkey Kong", "Yoshi", "Gru", "Bob the Minion", "Moana", "T-rex", "Megalodon", "Chun-li", "Link", "Zelda", "Pikachu", "Charmander", "bulbasaur", "Squirtle", "Mankey", "Onix", "Steelix", "Geodude", "Gambit", "Fall Guy", "Stumble Guy", "jake subway surfers", "Captain Price", "Fix it felix", "Mufasa", "Simba", "Scar", "Aladdin", "Beast (Beauty and the beast)", "Lightning McQueen", "Mater", "Peter pan", "Tinker Bell", "Vanellope von Schweetz", "Wall-E", "EVE", "Captain Hook", "Sully", "Puss in Boots", "Tigress", "Master Shifu", "Lord Farquaad", "Princess Fiona", "Toothless", "Grug", "Guy (The croods)", "Oh (Home)", "Captain Smek", "B.O.B.", "Susan Murphy", "Squidward", "Sheen Estevez", "Machamp", "Snorlax", "Vaporeon", "Jolteon", "Flareon", "Pinsir", "Tauros", "Boba Fett", "Jango Fett", "Chewbacca", "Captain Carter", "Nightwing", "Spider-Gwen", "Spider-Noir", "Miles Morales", "Robin", "Iron Golem", "Wither Skeleton (Minecraft)", "The Princible (Baldi)", "Sweeping Time", "Huggy Wuggy", "Freddy Fazbear", "Bonnie", "Chica", "Foxy", "Morty", "Doctor Octopus", "Star-Lord", "Ant-Man", "Wasp", "Falcon", "Winter Soldier", "Shuri", "Ned Leeds", "MJ", "Dobby", "Neville Longbottom", "Luna Lovegood", "Draco Malfoy", "Ginny Weasley", "Poison Ivy", "Harley Quinn", "Penguin", "Two-Face", "Sandy Cheeks", "Meg Griffin", "Chris Griffin", "Squid Game Guard", "Toadette", "Waluigi", "Wario", "Mr Ping", "King Candy", "Judy Hopps", "Nick Wilde", "The Reacher", "Dexter", "Ethan Hunt", "Ronald McDonald", "Ham burglar", "Groot", "Green arrow", "Marge Simpson", "Bart Simpson", "Lisa Simpson", "Mr Burns", "Krusty the Clown", "Moe Szyslak", "Chief Wiggum", "Ralph Wiggum", "Sideshow Bob", "Groundskeeper Willie", "Principal Skinner", "Lois Griffin", "Brian Griffin", "Stewie Griffin", "Cleveland Brown", "Joe Swanson", "Consuela", "Herbert", "Tom Tucker", "Carter Pewterschmidt", "Bender", "Philip J Fry", "Leela", "Doctor Zoidberg", "Amy Wong", "Hermes Conrad", "Professor Farnsworth", "Nibbler", "Calculon", "Scruffy", "Kif Kroker", "Zap Brannigan", "Cubert Farnsworth", "Stan Marsh", "Kyle Broflovski", "Eric Cartman", "Kenny McCormick", "Butters Stotch", "Randy Marsh", "Chef", "Mr Garrison", "Wendy Testaburger", "Tolkien Black", "Towelie", "Bebe Stevens", "Clyde Donovan", "Craig Tucker", "Timmy Burch", "Jimmy Valmer", "Scott Malkinson", "Randy Broflovski", "Kermit the Frog", "Miss Piggy", "Fozzie Bear", "Gonzo", "Animal", "Rowlf the Dog", "Beaker", "Dr Bunsen Honeydew", "Statler", "Waldorf", "Swedish Chef", "Sam Eagle", "Scooter", "Sweetums", "Pepe the King Prawn", "Elmo", "Big Bird", "Cookie Monster", "Oscar the Grouch", "Bert", "Ernie", "Grover", "The Count", "Abby Cadabby", "Zoe", "Porky Pig", "Tweety", "Sylvester", "Road Runner", "Wile E Coyote", "Elmer Fudd", "Yosemite Sam", "Marvin the Martian", "Tasmanian Devil", "Lola Bunny", "Pepé Le Pew", "Speedy Gonzales", "Foghorn Leghorn", "Daphne Blake", "Scrappy-Doo", "Shaggy Rogers", "Tommy Pickles", "Chuckie Finster", "Angelica Pickles", "Phil DeVille", "Lil DeVille", "Susie Carmichael", "Dil Pickles", "Spike", "Phineas Flynn", "Ferb Fletcher", "Candace Flynn", "Perry the Platypus", "Dr Heinz Doofenshmirtz", "Isabella Garcia-Shapiro", "Baljeet Tjinder", "Buford Van Stomm", "Vanessa Doofenshmirtz", "Major Monogram", "Carl Karl", "Norm", "Stacy Hirano", "Jeremy Johnson", "Linda Flynn-Fletcher", "Gideon Gleeful", "Candy Chiu", "Grenda", "Pacifica Northwest", "Sherif Blubs", "Deputy Durland", "Wirt", "Greg", "Beatrice", "The Woodsman", "Auntie Whispers", "Adelaide", "Scrooge McDuck", "Huey Duck", "Dewey Duck", "Louie Duck", "Webby Vanderquack", "Launchpad McQuack", "Gyro Gearloose", "Flintheart Glomgold", "Magica De Spell", "Duckworth", "Mr Potato Head", "Bo Peep", "Forky", "Duke Caboom", "Lotso", "Al", "Bonnie Anderson", "Carl Fredricksen", "Russell", "Dug", "Kevin", "Charles Muntz", "Heimlich", "Flik", "Dot", "Hopper", "Agnes", "Edith", "Margo", "Lucy Wilde", "Dr Nefario", "Vector", "El Macho", "Dru", "Silas Ramsbottom", "Scarlet Overkill", "Miss Hattie", "Stuart", "Kevin the Minion", "Phil the Minion", "Hiccup Haddock", "Astrid Hofferson", "Stoick the Vast", "Gobber the Belch", "Valka", "Fishlegs", "Ruffnut", "Tuffnut", "Snotlout", "Heather", "Manny", "Sid", "Diego", "Scrat", "Ellie", "Buck", "Shira", "Crash", "Eddie", "Granny", "Melman", "Maurice", "Mort", "Private", "Skipper", "Kowalski", "Rico", "Crane", "Viper", "Monkey", "Mantis", "Zhen", "Li Shan", "Ping", "Gingy", "Prince Charming", "Fairy Godmother", "Rumpelstiltskin", "Pinocchio", "Big Bad Wolf", "King Harold", "Queen Lillian", "Dragon", "Tarzan", "Jane Porter", "Clayton", "Captain Gantu", "Pleakley", "Jumba", "Nala", "Kiara", "Zazu", "Timon", "Pumbaa", "Kion", "Bunga", "Rani", "Milo Thatch", "Kida Nedakh", "Deadshot", "Red Hood", "Constantine", "Zatanna", "Firestorm", "Blue Beetle", "Booster Gold", "Hawkman", "Hawkgirl", "Plastic Man", "Black Lightning", "Vixen", "Stargirl", "Doctor Mid-Nite", "Hourman", "Azrael", "Huntress", "Batwing", "Spoiler", "Black Canary", "Red Tornado", "Mr Terrific", "Killer Frost", "Aqualad", "Static Shock", "Cyborg", "Daredevil", "Punisher", "Luke Cage", "Jessica Jones", "Iron Fist", "Ms Marvel", "She-Hulk", "Moon Knight", "Kingpin", "Bullseye", "Elektra", "Coulson", "Melinda May", "Daisy Johnson", "Fitz", "Simmons", "Mockingbird", "Nova", "Black Bolt", "Medusa", "Gorgon", "Karnak", "Lockjaw", "Crystal", "Sif", "Valkyrie", "Jane Foster", "Nick Fury", "Maria Hill", "Captain Rex", "Commander Cody", "Ezra Bridger", "Kanan Jarrus", "Sabine Wren", "Bo-Katan Kryze", "Grand Admiral Thrawn", "Hondo Ohnaka", "Fennec Shand", "Cassian Andor", "Jyn Erso", "Director Krennic", "Saw Gerrera", "IG-11", "Moff Gideon", "Poe Dameron", "Finn", "Rose Tico", "BB-8", "General Hux", "Maz Kanata", "Qi'ra", "Doctor Aphra", "Chopper", "K-2SO", "Babu Frik", "Nien Nunb", "Bix Caleen", "Syril Karn", "Sokka", "Suki", "Iroh", "Mai", "Ty Lee", "Appa", "Momo", "Bolin", "Mako", "Asami Sato", "Lin Beifong", "Bumi", "Kya", "Pema", "Varrick", "Gwen Tennyson", "Kevin Levin", "Heatblast", "Four Arms", "XLR8", "Diamondhead", "Cannonbolt", "Wildmutt", "Upgrade", "Ghostfreak", "Ripjaws", "Stinkfly", "Blitzwolfer", "Snare-oh", "Frankenstrike", "Eye Guy", "Daisy", "Rosalina", "Bowser Jr.", "Pauline", "King Boo", "Birdo", "Toadsworth", "Kamek", "Geno", "Diddy Kong", "Dixie Kong", "Cranky Kong", "Funky Kong", "King K Rool", "Meta Knight", "King Dedede", "Bandana Waddle Dee", "Adeleine", "Marx", "Amy Rose", "Cream the Rabbit", "Big the Cat", "Rouge the Bat", "Espio the Chameleon", "Vector the Crocodile", "Charmy Bee", "Blaze the Cat", "Silver the Hedgehog", "Tikal the Echidna", "Isabelle", "Tom Nook", "K K Slider", "Kapp'n", "Blathers", "Celeste", "Brewster", "Timmy", "Tommy", "Cyrus", "Reese", "Mabel Sable", "Inkling", "Octoling", "Marie", "Callie", "Marina", "Judd", "Mr Grizz", "Cap'n Cuttlefish", "Misty", "Brock", "Jessie", "James", "Nurse Joy", "Officer Jenny", "Professor Oak", "Gary Oak", "Rocket", "Rowboat", "sandworm"] },
+  hard: { rate:0.15, weight:10, items:["The Apex Warden", "Luke Skywalker", "Darth Vader", "Kylo Ren", "Yoda", "Darth Maul", "Lex Luther", "Loki", "Hulk", "Thor", "SCP 002", "Sonic", "Shadow", "United States of America", "New Zealand", "Australia", "Canada", "Uk", "Russia", "China", "Brazil", "Mexico", "Germany", "Spain", "France", "Poland", "Ukraine", "Venom", "Carnage", "Mario (star)", "Gandolf", "Voldemort", "Reed Richards", "Megamind", "Maui", "Mr Incredible", "Invisible Woman", "Po", "Tai Lung", "Charizard", "Dr Eggman", "Oogway", "Japan", "India", "Italy", "Wolverine", "Deadpool", "Merlin", "The Bride", "Wreck it Ralph", "Elsa", "Elastigirl", "Baymax", "Jack Frost", "Aang", "Katara", "Zuko", "Timmy Turner", "Jimmy Neutron", "Dragonite", "Gyarados", "Darth Plagueis", "Count Dooku", "General Grievous", "The Mandalorian", "Zoro", "Luffy", "Wonder Woman", "Wonder Man", "Green Lantern", "Mongol Empire", "Raven", "Katana", "Ben Dover", "Warden", "Ender dragon", "Wither", "Baldi", "Springtrap", "SCP 049", "Optimus Prime", "Megatron", "Greninja", "Sasuke", "Kakashi", "Ben 10 (base)", "Vilgax", "Electro", "Vision", "Quicksilver", "Scarlet Spider", "Anakin Skywalker", "Qui-Gon Jinn", "Padmé Amidala", "Mace Windu", "Ahsoka", "Obi-wan Kenobi", "Deathstroke", "Percy Jackson", "Annabeth Chase", "Shoto Todoroki", "Bakugo", "Inosuke", "Zenitsu", "Gon", "Killua", "King Groot", "Magneto", "Professor X", "Mystique", "Juggernaut", "Sabretooth", "Emma Frost", "Rogue", "Storm", "Cyclops", "Jean Grey", "Beast", "Colossus", "Nightcrawler", "Bishop", "Forge", "Havok", "Polaris", "Banshee", "Sunfire", "Warpath", "X-23", "Kitty Pryde", "Domino", "Cable", "Stryfe", "Omega Red", "Mr Sinister", "Sebastian Shaw", "Toad", "Blob", "Avalanche", "Pyro", "Red Skull", "Baron Zemo", "Taskmaster", "Crossbones", "Ghost", "MODOK", "Abomination", "Leader", "Razor Fist", "Blade", "Ghost Rider", "Morbius", "Red Hulk", "Beta Ray Bill", "Sentry", "Hyperion", "Blue Marvel", "Nebula", "Yondu", "Adam Warlock", "Ronan the Accuser", "Korath", "Talos", "Attuma", "Namor", "Super-Skrull", "Annihilus", "Blastaar", "Klaw", "Fin Fang Foom", "Black Knight", "Hercules", "Malekith", "Gorr the God Butcher", "Kang the Conqueror", "Immortus", "The Hood", "Doc Samson", "Shang-Chi", "Katy", "Elsa Bloodstone", "Nico Minoru", "Wiccan", "Speed", "Patriot", "Kate Bishop", "Riri Williams", "Ironheart", "Moonstone", "Titania", "Phyla-Vell", "Moondragon", "Quasar", "Tigra", "Dazzler", "Firestar", "Darkhawk", "Sersi", "Thena", "Ikaris", "Makkari", "Druig", "Kingo", "Phastos", "Sprite", "Gilgamesh", "Starfox", "Agatha Harkness", "Emperor Palpatine", "Darth Revan", "Darth Nihilus", "Darth Malak", "Darth Bane", "Starkiller", "Asajj Ventress", "Grand Inquisitor", "Commander Wolffe", "Commander Gree", "Captain Phasma", "IG-88", "4-LOM", "Zuckuss", "Bossk", "Dengar", "Aurra Sing", "Admiral Piett", "General Pryde", "Nute Gunray", "Sauron", "Saruman", "Witch-king", "Smaug", "Balrog", "Galadriel", "Elrond", "Arwen", "Eomer", "Eowyn", "Faramir", "Boromir", "Frodo Baggins", "Bilbo Baggins", "Gollum", "Treebeard", "Denethor", "Grima Wormtongue", "Radagast", "Legolas", "Sirius Black", "Remus Lupin", "Bellatrix Lestrange", "Lucius Malfoy", "Gellert Grindelwald", "Dolores Umbridge", "Kingsley Shacklebolt", "Mad-Eye Moody", "Peter Pettigrew", "Rita Skeeter", "Cornelius Fudge", "Newt Scamander", "Leta Lestrange", "Credence Barebone", "Queenie Goldstein", "Jacob Kowalski", "Alastor Moody", "Aberforth Dumbledore", "Xenophilius Lovegood", "Griphook", "Jotaro Kujo", "DIO", "Giorno Giovanna", "Josuke Higashikata", "Jonathan Joestar", "Joseph Joestar", "Jolyne Cujoh", "Bruno Bucciarati", "Diavolo", "Kars", "Wamuu", "Esidisi", "Rohan Kishibe", "Noriaki Kakyoin", "Jean Pierre Polnareff", "Okuyasu Nijimura", "Koichi Hirose", "Guido Mista", "Narancia Ghirga", "Pannacotta Fugo", "Itachi Uchiha", "Obito Uchiha", "Pain", "Nagato", "Orochimaru", "Jiraiya", "Tsunade", "Minato Namikaze", "Gaara", "Shikamaru Nara", "Rock Lee", "Might Guy", "Kisame Hoshigaki", "Kakuzu", "Hidan", "Konan", "Kabuto Yakushi", "Deidara", "Sasori", "Momoshiki Otsutsuki", "Frieza", "Cell", "Majin Buu", "Bardock", "Raditz", "Nappa", "Krillin", "Shanks", "Marshall D. Teach", "Trafalgar Law", "Eustass Kid", "Portgas D. Ace", "Sabo", "Donquixote Doflamingo", "Charlotte Katakuri", "Crocodile", "Gecko Moria", "Boa Hancock", "Smoker", "Marco", "Jinbe", "Monkey D. Dragon", "Silvers Rayleigh", "Kuma", "Enel", "Akainu", "Kizaru", "The Flash", "Martian Manhunter", "Black Manta", "Captain Cold", "Heat Wave", "Mister Freeze", "Scarecrow", "Bizarro", "Ra's al Ghul", "Talia al Ghul", "Starfire", "Beast Boy", "Killer Croc", "The Question", "Mister Miracle", "Big Barda", "Superboy", "Captain Boomerang", "Clayface", "The Spectre", "Master Chief", "The Arbiter", "Atriox", "Sergeant Johnson", "Captain Keyes", "Lord Hood", "343 Guilty Spark", "Tartarus", "Prophet of Truth", "Prophet of Mercy", "Prophet of Regret", "Commander Palmer", "Buck", "Jun-A266", "Jorge-052", "Kelly-087", "Linda-058", "Fred-104", "Miranda Keyes", "Doctor Halsey", "Scorpion", "Sub-Zero", "Raiden", "Liu Kang", "Kitana", "Mileena", "Johnny Cage", "Sonya Blade", "Shang Tsung", "Shao Kahn", "Akuma", "M. Bison", "Guile", "Cammy", "Dhalsim", "Sagat", "Blanka", "Zangief", "Juri Han", "Ryu"] },
+  superhard: { rate:0.07, weight:4, items:["The Founder", "Dr Strange", "Scarlet Witch", "Superman", "Omni Man", "Invincible", "Adam Eve", "Zod", "Godzilla", "Goku", "Vageta", "One Punch Man", "SCP 173", "SCP 096", "Dr Doom", "Galactus", "mephisto", "Thomas The Tank Engine EXE", "The Moon", "Pluto", "Mars", "Venus", "Earth", "Mercury", "Titan (Moon)", "Makemake", "Knull Slicer of worlds", "Hela", "Odin", "The Milky Way", "King Kong", "Kirby", "Zeus", "Mew", "Mewtwo", "Ben Ten", "Kratos", "Silver Surfer", "Lucky The Cat", "Genie", "Jack-jack", "Franklin Richards", "Metro Man", "Titan (megamind)", "Pitch Black (the boogyman)", "Danny Phantom", "Cosmo (Fairly OddParents)", "Wanda (Fairly OddParents)", "Rayquaza", "Palkia", "Giratina", "Dialga", "Homelander", "The Void (Thunderbolts)", "Gohan", "Beerus", "Naruto", "Goku (Mastered Ultra Instinct)", "Shenron", "Captain Carter (Watcher Power)", "Supergirl", "Shazam", "Black Adam", "Doctor Fate", "Captain Marvel", "Power Girl", "Thanos", "King Thanos", "The Watcher", "Infinity Ultron", "Infinity Hulk", "Minecraft Steve", "Minecraft Alex", "Wither Storm", "Null (Baldi’s Basics)", "Slenderman", "Siren Head", "The Backrooms Entity", "Cartoon Cat", "SCP 4666", "darkseid", "brainiac", "reverse flash", "dormammu", "apocalypse", "onslaught", "jiren", "broly", "madara uchiha", "kaguya", "aizen", "ichigo", "meliodas", "escanor", "saitama seriously", "Grimace", "Ultron"] },
+  impossible: { rate:0.01, weight:1, items:["God", "The Devil", "Santa", "Unicorn", "Gravity", "God of Stories Loki", "The One Above All", "The Universe", "azathoth", "Zeno", "God Emperor Doom", "Chuck Norris", "Daddy Pig", "The Multiverse", "Tooth fairy", "Easter Bunny", "Jesus", "A Black Hole", "Arceus", "Rick Sanchez", "Death", "Death (Puss in boots)", "Super Shenron", "Molecule Man", "Beyonder", "Living Tribunal", "The Presence", "The Omniverse", "Dr Manhattan", "Lady Death", "Herobrine", "Entity 303", "Null (Minecraft)", "The Backrooms", "The Writer", "The One Below All", "Oblivion", "Eternity (Marvel)", "Infinity (Marvel)", "The Endless", "Catch Anything"] },
 };
 
 /* ── RARITY MIGRATION MAP: items whose rarity changed ── */
 const RARITY_MIGRATION = {
-  // Name -> correct rarity from updated list
-  "Morty": "decent",
-  "Star-Lord": "decent",
-  "Ant-Man": "decent",
-  "Wasp": "decent",
-  "Falcon": "decent",
-  "Winter Soldier": "decent",
-  "Shuri": "decent",
-  "Ned Leeds": "decent",
-  "MJ": "decent",
-  "Dobby": "decent",
-  "Neville Longbottom": "decent",
-  "Luna Lovegood": "decent",
-  "Draco Malfoy": "decent",
-  "Ginny Weasley": "decent",
-  "Poison Ivy": "decent",
-  "Harley Quinn": "decent",
-  "Penguin (Batman)": "decent",
-  "Two-Face": "decent",
-  "Sandy Cheeks": "decent",
-  "Meg Griffin": "decent",
-  "Chris Griffin": "decent",
-  "Squid Game Guard": "decent",
-  "Toadette": "decent",
-  "Waluigi": "decent",
-  "Mr Ping": "decent",
-  "King Candy": "decent",
-  "Judy Hopps": "decent",
-  "Nick Wilde": "decent",
-  "The Reacher": "decent",
-  "Dexter": "decent",
-  "Ethan Hunt": "decent",
-  "Ronald McDonald": "decent",
-  "Hamburglar": "decent",
-  "Wario": "decent",
-  "Dwayne Johnson (young)": "hard",
-  "Optimus Prime": "hard",
-  "Megatron": "hard",
-  "Greninja": "hard",
-  "Sasuke": "hard",
-  "Kakashi": "hard",
-  "Ben 10 (base)": "hard",
-  "Vilgax": "hard",
-  "Electro": "hard",
-  "Vision": "hard",
-  "Quicksilver": "hard",
-  "Scarlet Spider": "hard",
-  "Anakin Skywalker": "hard",
-  "Qui-Gon Jinn": "hard",
-  "Padmé Amidala": "hard",
-  "Mace Windu": "hard",
   "Ahsoka": "hard",
-  "Obi-Wan Kenobi": "hard",
-  "Deathstroke": "hard",
-  "Percy Jackson": "hard",
-  "Annabeth Chase": "hard",
-  "Shoto Todoroki": "hard",
-  "Bakugo": "hard",
-  "Inosuke": "hard",
-  "Zenitsu": "hard",
-  "Gon": "hard",
-  "Killua": "hard",
-  "Darkseid": "superhard",
-  "Brainiac": "superhard",
-  "Reverse Flash": "superhard",
-  "Dormammu": "superhard",
-  "Apocalypse": "superhard",
-  "Onslaught": "superhard",
-  "Jiren": "superhard",
-  "Broly": "superhard",
-  "Madara Uchiha": "superhard",
-  "Kaguya": "superhard",
+  "Airplane": "normal",
   "Aizen": "superhard",
-  "Ichigo": "superhard",
-  "Meliodas": "superhard",
+  "Ambulance": "normal",
+  "Anakin Skywalker": "hard",
+  "Annabeth Chase": "hard",
+  "Ant-Man": "decent",
+  "Apocalypse": "superhard",
+  "Bakugo": "hard",
+  "Ben 10 (base)": "hard",
+  "Blimp": "normal",
+  "Brainiac": "superhard",
+  "Broly": "superhard",
+  "Bus": "normal",
+  "Chris Griffin": "decent",
+  "Convertible": "normal",
+  "Darkseid": "superhard",
+  "Deathstroke": "hard",
+  "Dexter": "decent",
+  "Dobby": "decent",
+  "Dormammu": "superhard",
+  "Draco Malfoy": "decent",
+  "Drone": "normal",
+  "Dwayne Johnson (young)": "normal",
+  "Electro": "hard",
   "Escanor": "superhard",
-  "Saitama seriously": "superhard",
-  "Grimace": "superhard",
-  "Ultron": "superhard",
-  "The Writer": "impossible",
-  "The One Below All": "impossible",
-  "Oblivion": "impossible",
   "Eternity (Marvel)": "impossible",
+  "Ethan Hunt": "decent",
+  "Falcon": "decent",
+  "Ginny Weasley": "decent",
+  "Gon": "hard",
+  "Greninja": "hard",
+  "Grimace": "superhard",
+  "Hamburglar": "decent",
+  "Harley Quinn": "decent",
+  "Helicopter": "normal",
+  "Ichigo": "superhard",
   "Infinity (Marvel)": "impossible",
+  "Inosuke": "hard",
+  "Jiren": "superhard",
+  "Judy Hopps": "decent",
+  "Kaguya": "superhard",
+  "Kakashi": "hard",
+  "Killua": "hard",
+  "King Candy": "decent",
+  "Limo": "normal",
+  "Luna Lovegood": "decent",
+  "Mace Windu": "hard",
+  "Madara Uchiha": "superhard",
+  "Meg Griffin": "decent",
+  "Megatron": "hard",
+  "Meliodas": "superhard",
+  "Minivan": "normal",
+  "MJ": "decent",
+  "Monkey": "decent",
+  "Morty": "decent",
+  "Motorcycle": "normal",
+  "Mr Ping": "decent",
+  "Ned Leeds": "decent",
+  "Neville Longbottom": "decent",
+  "Nick Wilde": "decent",
+  "Obi-Wan Kenobi": "hard",
+  "Oblivion": "impossible",
+  "Onslaught": "superhard",
+  "Optimus Prime": "hard",
+  "Padmé Amidala": "hard",
+  "Penguin (Batman)": "decent",
+  "Percy Jackson": "hard",
+  "Poison Ivy": "decent",
+  "Qui-Gon Jinn": "hard",
+  "Quicksilver": "hard",
+  "Reverse Flash": "superhard",
+  "Rocket": "decent",
+  "Ronald McDonald": "decent",
+  "Rowboat": "decent",
+  "Saitama seriously": "superhard",
+  "sandworm": "decent",
+  "Sandy Cheeks": "decent",
+  "Sasuke": "hard",
+  "Scarlet Spider": "hard",
+  "Shoto Todoroki": "hard",
+  "Shuri": "decent",
+  "Squid Game Guard": "decent",
+  "Star-Lord": "decent",
+  "Submarine": "normal",
+  "Taxi": "normal",
   "The Endless": "impossible",
+  "The One Below All": "impossible",
+  "The Reacher": "decent",
+  "The Writer": "impossible",
+  "Toad": "hard",
+  "Toadette": "decent",
+  "Tram": "normal",
+  "Truck": "normal",
+  "Two-Face": "decent",
+  "Ultron": "superhard",
+  "Van": "normal",
+  "Vilgax": "hard",
+  "Vision": "hard",
+  "Waluigi": "decent",
+  "Wario": "decent",
+  "Wasp": "decent",
+  "Winter Soldier": "decent",
+  "Yacht": "normal",
+  "Zenitsu": "hard",
 };
+
+/* ── INVENTORY NAME MIGRATION MAP: legacy names -> current names ── */
+const NAME_MIGRATION = {
+  "Aizen": "aizen",
+  "Apocalypse": "apocalypse",
+  "Azathoth": "azathoth",
+  "BeyoncÃ©": "Beyoncé",
+  "Brainiac": "brainiac",
+  "Broly": "broly",
+  "Bulbasaur": "bulbasaur",
+  "Chun-Li": "Chun-li",
+  "Darkseid": "darkseid",
+  "Death (Puss in Boots)": "Death (Puss in boots)",
+  "Doc Ock": "Doc Oct",
+  "Dormammu": "dormammu",
+  "Ender Dragon": "Ender dragon",
+  "Escanor": "escanor",
+  "Gandalf": "Gandolf",
+  "Guy (The Croods)": "Guy (The croods)",
+  "Ichigo": "ichigo",
+  "Jack-Jack": "Jack-jack",
+  "Jiren": "jiren",
+  "Kaguya": "kaguya",
+  "Killmonger": "Kilmonger",
+  "Knull Slicer of Worlds": "Knull Slicer of worlds",
+  "Kraven the Hunter": "Kraven the hunter",
+  "lacy": "Lacy",
+  "Lex Luthor": "Lex Luther",
+  "Luigi": "Luiji",
+  "Madara Uchiha": "madara uchiha",
+  "marlon": "Marlon",
+  "Meliodas": "meliodas",
+  "Mephisto": "mephisto",
+  "Mr Krabs": "Mr Crabs",
+  "Null (Baldi's Basics)": "Null (Baldi’s Basics)",
+  "Null (Baldiâs Basics)": "Null (Baldi’s Basics)",
+  "Obi-Wan Kenobi": "Obi-wan Kenobi",
+  "Onslaught": "onslaught",
+  "PadmÃ© Amidala": "Padmé Amidala",
+  "Pak'nsave Stick Man": "Pak’nsave Stick Man",
+  "Pakânsave Stick Man": "Pak’nsave Stick Man",
+  "Penguin (Batman)": "Penguin",
+  "PepÃ© Le Pew": "Pepé Le Pew",
+  "Peter Pan": "Peter pan",
+  "Reverse Flash": "reverse flash",
+  "Rocket Raccoon": "Rocket Racoon",
+  "rubik's cube": "rubik’s cube",
+  "rubikâs cube": "rubik’s cube",
+  "Saitama seriously": "saitama seriously",
+  "The Principal (Baldi)": "The Princible (Baldi)",
+  "Tooth Fairy": "Tooth fairy",
+  "UK": "Uk",
+  "Wreck-It Ralph": "Wreck it Ralph",
+};
+const NAME_MIGRATION_NORM = {
+  "aizen": "aizen",
+  "apocalypse": "apocalypse",
+  "azathoth": "azathoth",
+  "beyonce": "Beyoncé",
+  "brainiac": "brainiac",
+  "broly": "broly",
+  "bulbasaur": "bulbasaur",
+  "chunli": "Chun-li",
+  "darkseid": "darkseid",
+  "deathpussinboots": "Death (Puss in boots)",
+  "docock": "Doc Oct",
+  "dormammu": "dormammu",
+  "enderdragon": "Ender dragon",
+  "escanor": "escanor",
+  "gandalf": "Gandolf",
+  "guythecroods": "Guy (The croods)",
+  "ichigo": "ichigo",
+  "jackjack": "Jack-jack",
+  "jiren": "jiren",
+  "kaguya": "kaguya",
+  "killmonger": "Kilmonger",
+  "knullslicerofworlds": "Knull Slicer of worlds",
+  "kraventhehunter": "Kraven the hunter",
+  "lacy": "Lacy",
+  "lexluthor": "Lex Luther",
+  "luigi": "Luiji",
+  "madarauchiha": "madara uchiha",
+  "marlon": "Marlon",
+  "meliodas": "meliodas",
+  "mephisto": "mephisto",
+  "mrkrabs": "Mr Crabs",
+  "nullbaldisbasics": "Null (Baldi’s Basics)",
+  "obiwankenobi": "Obi-wan Kenobi",
+  "onslaught": "onslaught",
+  "padmeamidala": "Padmé Amidala",
+  "paknsavestickman": "Pak’nsave Stick Man",
+  "penguinbatman": "Penguin",
+  "pepelepew": "Pepé Le Pew",
+  "peterpan": "Peter pan",
+  "reverseflash": "reverse flash",
+  "rocketraccoon": "Rocket Racoon",
+  "rubikscube": "rubik’s cube",
+  "saitamaseriously": "saitama seriously",
+  "theprincipalbaldi": "The Princible (Baldi)",
+  "toothfairy": "Tooth fairy",
+  "uk": "Uk",
+  "wreckitralph": "Wreck it Ralph",
+};
+const RARITY_MIGRATION_NORM = {};
+function normalizeInventoryName(name){
+  return String(name || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[’']/g,'').replace(/[^a-z0-9]+/g,'');
+}
+function migrateInventoryName(name){
+  return NAME_MIGRATION[name] || NAME_MIGRATION_NORM[normalizeInventoryName(name)] || name;
+}
+function migrateInventoryDiff(name, rawDiff){
+  return RARITY_MIGRATION[name] || RARITY_MIGRATION_NORM[normalizeInventoryName(name)] || rawDiff;
+}
 
 const BALL_MULT  = { normal:1, super:1.5, omega:3, god:999 };
 const BALL_ICONS = { normal:'⚾', super:'🎾', omega:'🏀', god:'✨' };
@@ -1100,16 +1273,16 @@ function isPlainObject(v) { return !!v && typeof v==='object' && !Array.isArray(
 function safeParseSave(raw) { if(!raw) return null; try{const p=JSON.parse(raw);return isPlainObject(p)?p:null}catch(e){return null} }
 function sanitizeBalls(b) { const o={normal:0,super:0,omega:0,god:0}; if(!isPlainObject(b))return o; BALL_TYPES.forEach(t=>{const n=Number(b[t]);o[t]=Number.isFinite(n)&&n>0?Math.floor(n):0});return o; }
 function sanitizeInventory(inv) {
-  const o={};
-  if(!isPlainObject(inv))return o;
-  for(const[name,data]of Object.entries(inv)){
-    if(!isPlainObject(data))continue;
-    const count=Math.floor(Number(data.count));
-    if(!Number.isFinite(count)||count<=0)continue;
-    const rawDiff=typeof data.diff==='string'?data.diff:'normal';
-    // Apply migration: if the item has a new rarity, update it
-    const correctDiff=RARITY_MIGRATION[name]||rawDiff;
-    o[name]={diff:correctDiff,count};
+  const o = {};
+  if (!isPlainObject(inv)) return o;
+  for (const [name, data] of Object.entries(inv)) {
+    if (!isPlainObject(data)) continue;
+    const count = Math.floor(Number(data.count));
+    if (!Number.isFinite(count) || count <= 0) continue;
+    const newName = migrateInventoryName(name);
+    const rawDiff = typeof data.diff === 'string' ? data.diff : 'normal';
+    const correctDiff = migrateInventoryDiff(name, rawDiff);
+    o[newName] = { diff: correctDiff, count };
   }
   return o;
 }
@@ -1120,17 +1293,18 @@ function normalizeLoadedState(raw){
   const s=safeParseSave(raw);if(!s)return null;
   return{balls:sanitizeBalls(s.balls),inventory:sanitizeInventory(s.inventory),selectedBall:sanitizeSelectedBall(s.selectedBall),level:sanitizeProgressNumber(s.level,1),xp:sanitizeProgressNumber(s.xp,0),tokens:sanitizeProgressNumber(s.tokens,0),xpMultiplier:Number(s.xpMultiplier)>=2?2:1};
 }
-function mergeInventory(base,extra){
-  const merged={...base};
-  if(!isPlainObject(extra))return merged;
-  for(const[name,data]of Object.entries(extra)){
-    if(!isPlainObject(data))continue;
-    const count=Math.floor(Number(data.count));
-    if(!Number.isFinite(count)||count<=0)continue;
-    const correct=RARITY_MIGRATION[name]||(typeof data.diff==='string'?data.diff:'normal');
-    if(!merged[name]){merged[name]={diff:correct,count};continue;}
-    const cur=Number(merged[name].count);
-    if(!Number.isFinite(cur)||count>cur)merged[name]={diff:correct,count};
+function mergeInventory(base, extra) {
+  const merged = { ...base };
+  if (!isPlainObject(extra)) return merged;
+  for (const [name, data] of Object.entries(extra)) {
+    if (!isPlainObject(data)) continue;
+    const count = Math.floor(Number(data.count));
+    if (!Number.isFinite(count) || count <= 0) continue;
+    const newName = migrateInventoryName(name);
+    const correct = migrateInventoryDiff(name, typeof data.diff === 'string' ? data.diff : 'normal');
+    if (!merged[newName]) { merged[newName] = { diff: correct, count }; continue; }
+    const cur = Number(merged[newName].count);
+    if (!Number.isFinite(cur) || count > cur) merged[newName] = { diff: correct, count };
   }
   return merged;
 }
@@ -1551,6 +1725,26 @@ function toggleMode(){
   playButtonSound();
   applyMode((sessionStorage.getItem(MODE_KEY)||'dark')==='dark'?'light':'dark');
 }
+
+function syncFullscreenButton(){
+  const active = !!document.fullscreenElement;
+  const icon = document.getElementById('fsIcon');
+  const label = document.getElementById('fsLabel');
+  if (icon) icon.textContent = active ? '⤢' : '⛶';
+  if (label) label.textContent = active ? 'Exit' : 'Full';
+}
+async function toggleFullscreen(){
+  playButtonSound();
+  try{
+    if(!document.fullscreenElement){
+      await document.documentElement.requestFullscreen();
+    }else{
+      await document.exitFullscreen();
+    }
+  }catch(e){}
+  syncFullscreenButton();
+}
+document.addEventListener('fullscreenchange', syncFullscreenButton);
 
 /* ══════════════════════════════════════════════
    TABS
@@ -2171,9 +2365,13 @@ window.addEventListener('keydown',e=>{
   function init(){resize();clouds=Array.from({length:9},()=>{const c=makeCloud();c.x=Math.random()*W;return c;});}
   function draw(){
     ctx.clearRect(0,0,W,H);
-    const sg=ctx.createRadialGradient(W*.78,H*.1,10,W*.78,H*.1,90);sg.addColorStop(0,'rgba(255,240,120,0.9)');sg.addColorStop(.4,'rgba(255,200,60,0.5)');sg.addColorStop(1,'rgba(255,160,0,0)');
-    ctx.beginPath();ctx.arc(W*.78,H*.1,90,0,Math.PI*2);ctx.fillStyle=sg;ctx.fill();
-    ctx.beginPath();ctx.arc(W*.78,H*.1,28,0,Math.PI*2);ctx.fillStyle='rgba(255,248,180,0.95)';ctx.fill();
+    const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'rgba(135,210,255,0.55)');sky.addColorStop(.55,'rgba(210,235,255,0.18)');sky.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+    const sunGlow=ctx.createRadialGradient(W*.78,H*.12,10,W*.78,H*.12,130);sunGlow.addColorStop(0,'rgba(255,248,170,0.95)');sunGlow.addColorStop(.35,'rgba(255,208,90,0.55)');sunGlow.addColorStop(1,'rgba(255,175,60,0)');
+    ctx.beginPath();ctx.arc(W*.78,H*.12,110,0,Math.PI*2);ctx.fillStyle=sunGlow;ctx.fill();
+    const sun=ctx.createRadialGradient(W*.78,H*.12,0,W*.78,H*.12,42);sun.addColorStop(0,'rgba(255,255,240,1)');sun.addColorStop(.5,'rgba(255,245,170,0.96)');sun.addColorStop(1,'rgba(255,200,80,0.9)');
+    ctx.beginPath();ctx.arc(W*.78,H*.12,42,0,Math.PI*2);ctx.fillStyle=sun;ctx.fill();
+    ctx.save();ctx.globalAlpha=0.12;ctx.fillStyle='white';for(let i=0;i<14;i++){ctx.beginPath();ctx.arc(W*(.12+i*0.07),H*(.14+Math.sin(i)*0.008),1.5+Math.random()*1.4,0,Math.PI*2);ctx.fill();}ctx.restore();
     for(const cl of clouds){
       cl.x-=cl.speed;if(cl.x+cl.r*2<-50){Object.assign(cl,makeCloud());cl.x=W+100;}
       for(const p of cl.puffs){const g=ctx.createRadialGradient(cl.x+p.ox,cl.y+p.oy,0,cl.x+p.ox,cl.y+p.oy,p.r);g.addColorStop(0,`rgba(255,255,255,${cl.alpha})`);g.addColorStop(1,'rgba(255,255,255,0)');ctx.beginPath();ctx.arc(cl.x+p.ox,cl.y+p.oy,p.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();}
@@ -2183,29 +2381,42 @@ window.addEventListener('keydown',e=>{
   window.addEventListener('resize',()=>{resize();init();});init();draw();
 })();
 
+
 /* ══════════════════════════════════════════════
    GALAXY CANVAS
    ══════════════════════════════════════════════ */
 (function(){
   const canvas=document.getElementById('galaxyCanvas');const ctx=canvas.getContext('2d');
-  let W,H,stars=[],shooters=[],clouds=[];
+  let W,H,stars=[],shooters=[],clouds=[],orbs=[];
   function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
-  function makeStar(){const palette=[[255,255,255],[180,210,255],[200,180,255],[255,190,220],[140,230,255]];const[r,g,b]=palette[Math.floor(Math.random()*palette.length)];return{x:Math.random()*W,y:Math.random()*H,r:0.7+Math.random()*2.2,alpha:0.22+Math.random()*0.78,speed:0.0015+Math.random()*0.004,phase:Math.random()*Math.PI*2,twinkle:0.6+Math.random()*1.2,rC:r,gC:g,bC:b};}
-  function makeNebula(){const hues=[['124,58,237','6,182,212'],['236,72,153','124,58,237'],['59,130,246','168,85,247'],['34,197,94','6,182,212']];const[a,b]=hues[Math.floor(Math.random()*hues.length)];return{x:Math.random()*W,y:Math.random()*H,rx:140+Math.random()*260,ry:100+Math.random()*180,alpha:0.05+Math.random()*0.08,rot:Math.random()*Math.PI,c1:a,c2:b};}
+  function makeStar(){const palette=[[255,255,255],[180,210,255],[200,180,255],[255,190,220],[140,230,255],[255,220,160]];const[r,g,b]=palette[Math.floor(Math.random()*palette.length)];return{x:Math.random()*W,y:Math.random()*H,r:0.7+Math.random()*2.2,alpha:0.22+Math.random()*0.78,speed:0.0015+Math.random()*0.004,phase:Math.random()*Math.PI*2,twinkle:0.6+Math.random()*1.2,rC:r,gC:g,bC:b};}
+  function makeNebula(){const hues=[['124,58,237','6,182,212'],['236,72,153','124,58,237'],['59,130,246','168,85,247'],['34,197,94','6,182,212'],['251,191,36','236,72,153']];const[a,b]=hues[Math.floor(Math.random()*hues.length)];return{x:Math.random()*W,y:Math.random()*H,rx:140+Math.random()*260,ry:100+Math.random()*180,alpha:0.05+Math.random()*0.08,rot:Math.random()*Math.PI,c1:a,c2:b};}
+  function makeOrb(){return{x:Math.random()*W,y:Math.random()*H,r:20+Math.random()*60,s:0.001+Math.random()*0.003,phase:Math.random()*Math.PI*2};}
   function makeShooter(){const a=Math.PI/10+Math.random()*Math.PI/6;const s=7+Math.random()*12;return{x:Math.random()*W*0.9,y:Math.random()*H*0.45,vx:Math.cos(a)*s,vy:Math.sin(a)*s,len:90+Math.random()*140,life:0,maxLife:55+Math.random()*50};}
-  function init(){resize();stars=Array.from({length:520},makeStar);clouds=Array.from({length:7},makeNebula);shooters=[];}
+  function init(){resize();stars=Array.from({length:650},makeStar);clouds=Array.from({length:9},makeNebula);orbs=Array.from({length:12},makeOrb);shooters=[];}
   let frame=0;
   function draw(){
     frame++;ctx.clearRect(0,0,W,H);
-    const bg=ctx.createRadialGradient(W*.5,H*.5,20,W*.5,H*.5,Math.max(W,H)*.8);bg.addColorStop(0,'rgba(8,10,28,0.22)');bg.addColorStop(.55,'rgba(10,12,34,0.08)');bg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    const bg=ctx.createRadialGradient(W*.5,H*.5,20,W*.5,H*.5,Math.max(W,H)*.8);bg.addColorStop(0,'rgba(8,10,28,0.32)');bg.addColorStop(.45,'rgba(12,15,40,0.14)');bg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    for(const orb of orbs){
+      orb.x += Math.sin(frame*orb.s+orb.phase)*0.15;
+      orb.y += Math.cos(frame*orb.s+orb.phase)*0.12;
+      const g=ctx.createRadialGradient(orb.x,orb.y,0,orb.x,orb.y,orb.r);
+      g.addColorStop(0,'rgba(255,255,255,0.10)');
+      g.addColorStop(.45,'rgba(124,58,237,0.08)');
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.beginPath();ctx.arc(orb.x,orb.y,orb.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+    }
     for(const n of clouds){const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,Math.max(n.rx,n.ry));g.addColorStop(0,`rgba(${n.c1},${n.alpha})`);g.addColorStop(.45,`rgba(${n.c2},${n.alpha*.55})`);g.addColorStop(1,'rgba(0,0,0,0)');ctx.save();ctx.translate(n.x,n.y);ctx.rotate(n.rot);ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,n.rx,n.ry,0,0,Math.PI*2);ctx.fill();ctx.restore();}
     for(const s of stars){const twinkle=0.55+0.45*Math.sin(frame*s.speed*s.twinkle+s.phase);const alpha=Math.min(1,s.alpha*twinkle);ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(${s.rC},${s.gC},${s.bC},${alpha})`;ctx.fill();}
-    if(Math.random()<0.010&&shooters.length<4)shooters.push(makeShooter());
+    if(Math.random()<0.010&&shooters.length<5)shooters.push(makeShooter());
     for(let i=shooters.length-1;i>=0;i--){const ss=shooters[i];ss.x+=ss.vx;ss.y+=ss.vy;ss.life++;const prog=ss.life/ss.maxLife;const alpha=(1-prog)*.95;const len=ss.len/Math.hypot(ss.vx,ss.vy);const g=ctx.createLinearGradient(ss.x,ss.y,ss.x-ss.vx*len,ss.y-ss.vy*len);g.addColorStop(0,`rgba(255,255,255,${alpha})`);g.addColorStop(.35,`rgba(200,180,255,${alpha*.7})`);g.addColorStop(.7,`rgba(120,220,255,${alpha*.35})`);g.addColorStop(1,'rgba(255,255,255,0)');ctx.beginPath();ctx.moveTo(ss.x,ss.y);ctx.lineTo(ss.x-ss.vx*len,ss.y-ss.vy*len);ctx.strokeStyle=g;ctx.lineWidth=2;ctx.stroke();if(ss.life>=ss.maxLife||ss.x>W+80||ss.y>H+80)shooters.splice(i,1);}
     requestAnimationFrame(draw);
   }
   window.addEventListener('resize',()=>{resize();init();});init();draw();
 })();
+
 
 /* ══════════════════════════════════════════════
    INIT
@@ -2221,6 +2432,7 @@ updateLevelUI();
 updateBallOddsDisplay();
 renderXpRewardGrids();
 applyMode(sessionStorage.getItem(MODE_KEY)||'dark');
+syncFullscreenButton();
 </script>
 </body>
 </html>
