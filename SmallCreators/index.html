@@ -99,6 +99,41 @@
         filter 0.18s ease;
     }
 
+    /* Fullscreen button */
+    #fullscreenBtn {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: #1f1b3b;
+      color: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 9px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.85em;
+      font-weight: 700;
+      transition: background 0.2s, color 0.2s;
+      z-index: 1000;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      appearance: none;
+      outline: none;
+    }
+
+    #fullscreenBtn:hover {
+      background: #2a264f;
+      color: white;
+    }
+
+    #fullscreenBtn:active {
+      background: #1f1b3b;
+      color: rgba(255, 255, 255, 0.78);
+      transform: none;
+      box-shadow: none;
+      filter: none;
+    }
+
     /* Ripple layer */
     #what-btn::after {
       content: '';
@@ -213,6 +248,7 @@
 
   <div id="particles"></div>
   <div id="overlay"><span id="overlay-text">Taking you there...</span></div>
+  <button id="fullscreenBtn" onclick="toggleFullscreen()">⛶</button>
 
   <script>
     const creators = [
@@ -282,6 +318,29 @@
         window.location.href = url;
       }, 700);
     });
+
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+    function updateFullscreenButton() {
+      if (!fullscreenBtn) return;
+      fullscreenBtn.textContent = document.fullscreenElement ? "🗗" : "⛶";
+    }
+
+    function toggleFullscreen() {
+      const docEl = document.documentElement;
+      if (!document.fullscreenElement) {
+        const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+        if (req) req.call(docEl);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        if (exit) exit.call(document);
+      }
+    }
+
+    document.addEventListener("fullscreenchange", updateFullscreenButton);
+    document.addEventListener("webkitfullscreenchange", updateFullscreenButton);
+    document.addEventListener("msfullscreenchange", updateFullscreenButton);
+    updateFullscreenButton();
 
     function goHome() {
       window.location.href = "../index.html";
