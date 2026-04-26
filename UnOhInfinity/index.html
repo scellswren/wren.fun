@@ -257,6 +257,38 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 .guide-card-info{display:flex;flex-direction:column;gap:4px;}
 .guide-card-name{font-weight:900;font-size:1em;color:#fff;}
 .guide-card-desc{font-size:0.8em;color:rgba(255,255,255,0.5);line-height:1.5;}
+.selector-toolbar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:0 20px 8px;flex-wrap:wrap;
+}
+.selector-summary{font-size:0.82em;font-weight:800;color:rgba(255,255,255,0.72);}
+.selector-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.selector-chip{
+  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.06);
+  color:var(--text);padding:8px 14px;border-radius:999px;
+  font:800 0.78em 'Nunito',sans-serif;cursor:pointer;
+  transition:background 0.2s ease,border-color 0.2s ease,transform 0.2s ease;
+}
+.selector-chip:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.28);transform:translateY(-1px);}
+.selector-grid{
+  flex:1;overflow-y:auto;display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(90px, 1fr));
+  gap:15px;padding:20px;justify-items:center;align-content:start;
+  overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+}
+.selector-card{
+  cursor:pointer;transform:scale(0.8) translateZ(0);
+  transform-origin:center center;
+  transition:transform 0.18s ease,opacity 0.18s ease,filter 0.18s ease,border-color 0.18s ease;
+  will-change:transform;contain:layout paint style;
+  content-visibility:auto;contain-intrinsic-size:74px 52px;
+}
+.selector-card::after{display:none;}
+.selector-card .card-center{filter:none!important;text-shadow:none!important;}
+.selector-card:hover{transform:scale(0.84) translateZ(0);}
+.selector-card.is-off{opacity:0.28;filter:saturate(0.55) brightness(0.82);}
+.selector-card.is-off:hover{opacity:0.46;}
 .rare-badge{
   font-size:0.65em;font-weight:900;text-transform:uppercase;letter-spacing:1px;
   color:#A855F7;margin-bottom:2px;display:flex;align-items:center;gap:4px;
@@ -338,6 +370,21 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   position:fixed;top:50%;left:20px;transform:translateY(-50%);
   font-size:1.5em;opacity:0.25;pointer-events:none;z-index:1;
 }
+.game-top-actions{
+  position:fixed;top:14px;right:64px;z-index:1000;
+  display:flex;align-items:center;gap:10px;
+}
+.game-action-btn{
+  border:1px solid rgba(255,255,255,0.18);
+  background:rgba(0,0,0,0.5);color:white;
+  border-radius:999px;padding:10px 16px;
+  font:900 0.78em 'Nunito',sans-serif;letter-spacing:0.5px;
+  cursor:pointer;backdrop-filter:blur(10px);
+  transition:background 0.2s ease,border-color 0.2s ease,transform 0.2s ease;
+}
+.game-action-btn:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.35);transform:translateY(-1px);}
+.game-action-btn.forfeit{background:rgba(255,59,59,0.18);border-color:rgba(255,59,59,0.4);}
+.game-action-btn.forfeit:hover{background:rgba(255,59,59,0.28);border-color:rgba(255,120,120,0.65);}
 
 .center-area{flex:1;display:flex;align-items:center;justify-content:center;gap:28px;width:100%;padding:0 20px;position:relative;}
 .color-bar{
@@ -411,6 +458,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   max-width:85%;word-wrap:break-word;
   display:flex;justify-content:center;align-items:center;flex-wrap:wrap;
 }
+.game-card.card-readable .card-center{font-size:0.72em;line-height:1.05;padding:0 5px;}
 
 .card-red{background:linear-gradient(145deg,#c01818,#FF3B3B);color:white;border-color:rgba(255,255,255,0.45);}
 .card-blue{background:linear-gradient(145deg,#1040c0,#2B7FFF);color:white;border-color:rgba(255,255,255,0.45);}
@@ -419,8 +467,9 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 .card-purple{background:linear-gradient(145deg,#5010a0,#A855F7);color:white;border-color:rgba(255,255,255,0.45);}
 .card-wild{background:linear-gradient(145deg,#1a1a38,#2d2d5e);color:white;border-color:rgba(255,255,255,0.5)!important;}
 .card-wild .card-center{
-  background:conic-gradient(from 0deg,#FF3B3B 0deg 72deg,#FFD600 72deg 144deg,#22D46B 144deg 216deg,#2B7FFF 216deg 288deg,#A855F7 288deg 360deg);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  background:none;
+  -webkit-background-clip:border-box;-webkit-text-fill-color:currentColor;background-clip:border-box;
+  color:#F5F2FF;
   filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 .card-miracle{background:linear-gradient(145deg,#004040,#00c8c8)!important;color:white!important;border-color:rgba(0,220,220,0.7)!important;box-shadow:0 4px 20px rgba(0,200,200,0.5)!important;}
@@ -758,7 +807,14 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
       <button type="button" class="guide-close" id="selector-close-btn" onclick="closeCardSelector()">✕</button>
     </div>
     <div style="padding:10px 20px;font-size:0.9em;color:var(--muted);" id="selector-desc"></div>
-    <div id="selector-grid" style="flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill, minmax(90px, 1fr));gap:15px;padding:20px;justify-items:center;align-content:start;">
+    <div class="selector-toolbar">
+      <div class="selector-summary" id="selector-summary">0 selected</div>
+      <div class="selector-actions" id="selector-actions">
+        <button type="button" class="selector-chip hidden" id="selector-select-all-btn" onclick="selectAllPoolCards()">Select All</button>
+        <button type="button" class="selector-chip hidden" id="selector-unselect-all-btn" onclick="unselectAllPoolCards()">Unselect All</button>
+      </div>
+    </div>
+    <div id="selector-grid" class="selector-grid">
       <!-- Cards will be injected here -->
     </div>
     <div class="menu-btn-row" style="padding:20px;border-top:1px solid rgba(255,255,255,0.1);">
@@ -1126,7 +1182,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
             <div class="guide-card-mini gcm-wild" style="font-size:0.9em;">🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Classic Wild</div>
-              <div class="guide-card-desc">Matches any card. You pick the new colour.</div>
+              <div class="guide-card-desc">Play anytime. Choose the active colour.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-common">● COMMON</div></div>
@@ -1136,7 +1192,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
             <div class="guide-card-mini gcm-wild" style="font-size:0.75em;">+1🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Draw +1</div>
-              <div class="guide-card-desc">Wild match + forces next player to draw 1. Stackable with +1s.</div>
+              <div class="guide-card-desc">Play anytime. Next player draws 1. Stackable with other +1s.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-common">● COMMON</div></div>
@@ -1146,7 +1202,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
             <div class="guide-card-mini gcm-wild" style="font-size:0.75em;">+2🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Draw +2</div>
-              <div class="guide-card-desc">Wild match + forces next player to draw 2. Stackable with +2s.</div>
+              <div class="guide-card-desc">Play anytime. Next player draws 2. Stackable with other +2s.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-common">● COMMON</div></div>
@@ -1162,7 +1218,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
             <div class="guide-card-mini gcm-wild" style="font-size:0.75em;">+3🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Draw +3</div>
-              <div class="guide-card-desc">Wild match + forces next player to draw 3. Stackable with +3s.</div>
+              <div class="guide-card-desc">Play anytime. Next player draws 3. Stackable with other +3s.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1172,7 +1228,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
             <div class="guide-card-mini gcm-wild" style="font-size:0.75em;">+4🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Draw +4</div>
-              <div class="guide-card-desc">Wild match + forces next player to draw 4. Stackable with +4s.</div>
+              <div class="guide-card-desc">Play anytime. Next player draws 4. Stackable with other +4s.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1182,7 +1238,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
             <div class="guide-card-mini gcm-wild" style="font-size:0.75em;">↩🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Reverse</div>
-              <div class="guide-card-desc">Wild match + reverses direction of play.</div>
+              <div class="guide-card-desc">Play anytime. Reverses the direction of play.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1192,7 +1248,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
             <div class="guide-card-mini gcm-wild" style="font-size:0.75em;">⊘🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Skip</div>
-              <div class="guide-card-desc">Wild match + skips the next player's turn.</div>
+              <div class="guide-card-desc">Play anytime. Skips the next player's turn.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1202,7 +1258,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
             <div class="guide-card-mini gcm-wild" style="font-size:0.65em;">⊘⊘🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Skip All</div>
-              <div class="guide-card-desc">Wild match + everyone else skipped. Play again!</div>
+              <div class="guide-card-desc">Play anytime. Everyone else is skipped, then you play again.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1605,6 +1661,9 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 <!-- ═══ GAME ═══ -->
 <div class="screen hidden" id="game-screen">
   <div class="direction-badge" id="direction-badge">↻</div>
+  <div class="game-top-actions">
+    <button type="button" class="game-action-btn forfeit" id="forfeit-btn" onclick="forfeitGame()">Forfeit</button>
+  </div>
   <div class="opponents-area" id="opponents-area"></div>
   <div class="center-area">
     <div class="deck-zone">
@@ -1842,13 +1901,12 @@ function showCodePopup(msg){
   setTimeout(()=>{popup.style.opacity='0';popup.style.transform='translateX(-50%) translateY(-10px) scale(0.96)';setTimeout(()=>popup.remove(),260);},1700);
 }
 
-function buildDeck(ignoreCustomPool = false){
+function buildDeck(ignoreCustomPool = false, includeAllCards = false){
   const deck=[];
   const chaos = sandboxSettings.chaosFactor;
-  const p = (threshold) => Math.random() > (threshold / chaos);
-  const cardKey = (c) => `${c.type}|${c.value}|${c.color}|${c.num ?? ''}`;
+  const p = includeAllCards ? (() => true) : (threshold) => Math.random() > (threshold / chaos);
   const excluded = (!ignoreCustomPool && sandboxSettings.customPool && sandboxSettings.customPool.length)
-    ? new Set(sandboxSettings.customPool.map(cardKey))
+    ? new Set(sandboxSettings.customPool.map(getPoolGroupKey))
     : null;
 
   for(const color of COLORS){
@@ -1967,7 +2025,7 @@ function buildDeck(ignoreCustomPool = false){
     for(const color of COLORS) for(let n=1;n<=12;n++) deck.push({color,value:String(n),type:'number',label:String(n)});
   }
   if(excluded){
-    return deck.filter(card => !excluded.has(cardKey(card)));
+    return deck.filter(card => !excluded.has(getPoolGroupKey(card)));
   }
   return deck;
 }
@@ -2001,6 +2059,7 @@ let botTimer=null;
 let autoDrawing=false;
 let hotPotatoTimer=null;
 let lastMove=null;
+let endReason=null;
 
 let teamMode = false;
 let sandboxSettings = {
@@ -2018,7 +2077,53 @@ let sandboxSettings = {
 };
 
 let selectorMode = 'hand'; // 'hand' or 'pool'
+let selectorCardsCache=null;
 
+function getPoolGroupKey(card){
+  const family = card.color==='wild' ? 'wild' : (card.color==='rare' ? 'rare' : 'col');
+  const base = card.type==='number' ? card.value : card.type;
+  return `${family}|${base}|${card.num ?? ''}`;
+}
+function getSelectorCards(){
+  if(selectorCardsCache) return selectorCardsCache;
+  const fullDeck = buildDeck(true, true);
+  const uniqueCards = [];
+  const seen = new Set();
+  for(const c of fullDeck){
+    const id = getPoolGroupKey(c);
+    if(seen.has(id)) continue;
+    seen.add(id);
+    uniqueCards.push(c);
+  }
+  selectorCardsCache = uniqueCards;
+  return selectorCardsCache;
+}
+function isSelectorCardSelected(card){
+  if(selectorMode === 'hand'){
+    return sandboxSettings.customHand.some(c => c.type === card.type && c.value === card.value);
+  }
+  return sandboxSettings.customPool ? !sandboxSettings.customPool.some(c => getPoolGroupKey(c) === getPoolGroupKey(card)) : true;
+}
+function updateSelectorCardVisual(el, card){
+  const selected = isSelectorCardSelected(card);
+  el.classList.toggle('is-off', !selected);
+  el.setAttribute('aria-pressed', selected ? 'true' : 'false');
+}
+function updateSelectorToolbar(){
+  const summary = document.getElementById('selector-summary');
+  const selectAllBtn = document.getElementById('selector-select-all-btn');
+  const unselectAllBtn = document.getElementById('selector-unselect-all-btn');
+  const total = getSelectorCards().length;
+  if(selectAllBtn) selectAllBtn.classList.toggle('hidden', selectorMode !== 'pool');
+  if(unselectAllBtn) unselectAllBtn.classList.toggle('hidden', selectorMode !== 'pool');
+  if(!summary) return;
+  if(selectorMode === 'hand'){
+    summary.textContent = sandboxSettings.customHand.length ? `${sandboxSettings.customHand.length} hand card${sandboxSettings.customHand.length === 1 ? '' : 's'} selected` : 'Random hand (default)';
+  } else {
+    const enabled = sandboxSettings.customPool ? total - sandboxSettings.customPool.length : total;
+    summary.textContent = `${enabled} pool card group${enabled === 1 ? '' : 's'} selected`;
+  }
+}
 function openCardSelector(mode){
   selectorMode = mode;
   const modal=document.getElementById('card-selector-modal');
@@ -2026,47 +2131,25 @@ function openCardSelector(mode){
   const desc=document.getElementById('selector-desc');
   if(modal) modal.classList.remove('hidden');
   if(title) title.textContent = mode === 'hand' ? 'Select Starting Hand' : 'Customize Card Pool';
-  if(desc) desc.textContent = mode === 'hand' ? 
-    'Click cards to add them to your starting hand. Click again to remove.' : 
-    'All cards are included by default. Click to exclude specific cards from the deck.';
-  
+  if(desc) desc.textContent = mode === 'hand'
+    ? 'Click cards to add them to your starting hand. Click again to remove.'
+    : 'All card groups are included by default. Click to remove groups from the sandbox deck.';
   renderSelectorGrid();
 }
-
 function closeCardSelector(){
   const modal=document.getElementById('card-selector-modal');
   if(modal) modal.classList.add('hidden');
   updateSandboxPreviews();
 }
-
 function renderSelectorGrid(){
   const grid = document.getElementById('selector-grid');
+  if(!grid) return;
   grid.innerHTML = '';
-  
-  // Get all unique card types from a "full" deck
-  const fullDeck = buildDeck(true); // true to bypass pool filters
-  const uniqueCards = [];
-  const seen = new Set();
-  
-  for(const c of fullDeck){
-    const id = c.type + (c.num || '') + (c.color === 'wild' ? 'wild' : (c.color === 'rare' ? 'rare' : 'col'));
-    if(!seen.has(id)){
-      seen.add(id);
-      uniqueCards.push(c);
-    }
-  }
-
-  uniqueCards.forEach(card => {
+  const frag = document.createDocumentFragment();
+  for(const card of getSelectorCards()){
     const el = buildCardEl(card);
-    el.style.cursor = 'pointer';
-    el.style.transform = 'scale(0.8)';
-    
-    const isSelected = selectorMode === 'hand' ? 
-      sandboxSettings.customHand.some(c => c.type === card.type && c.value === card.value) :
-      (sandboxSettings.customPool ? !sandboxSettings.customPool.some(c => c.type === card.type && c.value === card.value) : true);
-
-    if(!isSelected) el.style.opacity = '0.3';
-    
+    el.classList.add('selector-card');
+    updateSelectorCardVisual(el, card);
     el.onclick = () => {
       if(selectorMode === 'hand'){
         const idx = sandboxSettings.customHand.findIndex(c => c.type === card.type && c.value === card.value);
@@ -2074,16 +2157,31 @@ function renderSelectorGrid(){
         else sandboxSettings.customHand.push(JSON.parse(JSON.stringify(card)));
       } else {
         if(!sandboxSettings.customPool) sandboxSettings.customPool = [];
-        const idx = sandboxSettings.customPool.findIndex(c => c.type === card.type && c.value === card.value);
+        const idx = sandboxSettings.customPool.findIndex(c => getPoolGroupKey(c) === getPoolGroupKey(card));
         if(idx >= 0) sandboxSettings.customPool.splice(idx, 1);
         else sandboxSettings.customPool.push(JSON.parse(JSON.stringify(card)));
-        
         if(sandboxSettings.customPool.length === 0) sandboxSettings.customPool = null;
       }
-      renderSelectorGrid();
+      updateSelectorCardVisual(el, card);
+      updateSelectorToolbar();
+      updateSandboxPreviews();
     };
-    grid.appendChild(el);
-  });
+    frag.appendChild(el);
+  }
+  grid.appendChild(frag);
+  updateSelectorToolbar();
+}
+function selectAllPoolCards(){
+  if(selectorMode !== 'pool') return;
+  sandboxSettings.customPool = null;
+  renderSelectorGrid();
+  updateSandboxPreviews();
+}
+function unselectAllPoolCards(){
+  if(selectorMode !== 'pool') return;
+  sandboxSettings.customPool = getSelectorCards().map(card => JSON.parse(JSON.stringify(card)));
+  renderSelectorGrid();
+  updateSandboxPreviews();
 }
 
 function updateSandboxPreviews(){
@@ -2180,6 +2278,10 @@ function startTeamMode(){
 }
 
 function startSandboxMode(){
+  if(buildDeck(false, true).length < 2){
+    showStatus('Card pool is too small. Select more cards first.',2200);
+    return;
+  }
   teamMode = !!sandboxSettings.controlTeammate;
   if(teamMode && selectedBots < 3) selectBots(3);
   isSandboxGame = true;
@@ -2195,6 +2297,7 @@ function showMenu(){
   document.getElementById('game-screen').classList.add('hidden');
   document.getElementById('end-screen').classList.add('hidden');
   gameRunning=false;
+  endReason = null;
   isSandboxGame = false; // Reset sandbox flag
   if(botTimer) clearTimeout(botTimer);
   updateMenuStats();
@@ -2223,6 +2326,7 @@ async function startGame(isClassic = false){
   }
   // Reset sandbox flag if not specifically set
   if(!isSandboxGame) isSandboxGame = false; 
+  endReason = null;
   
   resumeAC();
   document.getElementById('menu-screen').classList.add('hidden');
@@ -2405,32 +2509,99 @@ function updateOpponentZone(idx){
   
   nameEl.innerHTML=nameText;
 }
+function getReadableCardLabel(card){
+  switch(card.type){
+    case 'number': return String(card.value || card.label || '');
+    case 'wild': return 'WILD';
+    case 'reverse': case 'wildReverse': return 'REVERSE';
+    case 'skip': case 'wildSkip': return 'SKIP';
+    case 'skipAll': case 'wildSkipAll': return 'SKIP ALL';
+    case 'mirror': case 'wildMirror': return 'MIRROR';
+    case 'plus': case 'wildPlus': return `+${card.num ?? ''}`;
+    case 'plusOne': return `+${card.num ?? ''} 1s`;
+    case 'helper': return `HELPER -${card.num ?? 1}`;
+    case 'targetSkip': return 'TARGET SKIP';
+    case 'targetDraw2': return 'TARGET +2';
+    case 'targetPlus2Skip': return 'TARGET +2 SKIP';
+    case 'targetPlus4Skip': return 'TARGET +4 SKIP';
+    case 'targetPlus4': return 'TARGET +4';
+    case 'teleport': return 'TELEPORT';
+    case 'colorShift': return 'COLOR SHIFT';
+    case 'doublePlay': return 'DOUBLE PLAY';
+    case 'chaosDraw': return 'ALL +1';
+    case 'reversePlus2': return 'REV +2';
+    case 'reversePlus4': return 'REV +4';
+    case 'skipReverse': return 'REV SKIP';
+    case 'discardColor': return 'DISCARD COLOR';
+    case 'pickUntil': return 'PICK UNTIL';
+    case 'copycat': return 'COPYCAT';
+    case 'miracle': return 'MIRACLE';
+    case 'doubleEdge': return card.color==='wild' ? 'WILD EDGE' : 'DOUBLE EDGE';
+    case 'instantWin': return 'INSTANT WIN';
+    case 'eternalSkip': return 'ETERNAL SKIP';
+    case 'frenzy': return 'FRENZY';
+    case 'suppressWild': return 'NO WILDS';
+    case 'swapDecks': return 'SWAP HANDS';
+    case 'handFreeze': return 'FREEZE';
+    case 'stealWild': return 'STEAL WILD';
+    case 'shuffleStorm': return 'SHUFFLE';
+    case 'hotPotato': return 'HOT POTATO';
+    case 'communism': return 'EQUALIZE';
+    case 'superBanana': return 'BANANAS';
+    case 'disarmWilds': return 'DISARM WILDS';
+    case 'orinCard': return 'ORIN';
+    default: return String(card.label || '').replace(/[^\x20-\x7E]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+}
+function getCardCornerText(card){
+  if(card.color==='wild') return 'W';
+  if(card.color==='rare' || card.isRare) return '*';
+  if(card.type==='plus' || card.type==='wildPlus' || card.type==='plusOne' || card.type==='targetDraw2' || card.type==='targetPlus2Skip' || card.type==='targetPlus4Skip' || card.type==='targetPlus4' || card.type==='reversePlus2' || card.type==='reversePlus4') return `+${card.num ?? ''}`;
+  if(card.type==='helper') return `-${card.num ?? 1}`;
+  if(card.type==='reverse' || card.type==='wildReverse' || card.type==='skipReverse') return 'R';
+  if(card.type==='skip' || card.type==='wildSkip' || card.type==='skipAll' || card.type==='wildSkipAll' || card.type==='targetSkip') return 'S';
+  if(card.type==='mirror' || card.type==='wildMirror') return 'M';
+  if(card.type==='teleport') return 'TP';
+  if(card.type==='colorShift') return 'CS';
+  if(card.type==='discardColor') return 'BIN';
+  if(card.type==='pickUntil') return '?';
+  if(card.type==='copycat') return 'CAT';
+  if(card.type==='doublePlay') return '2x';
+  if(card.type==='miracle') return 'MR';
+  if(card.type==='frenzy') return 'FZ';
+  return String(card.label || '').replace(/[^\x20-\x7E]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 3);
+}
 function buildCardEl(card){
   const el=document.createElement('div');
   const isRare=card.isRare||card.color==='rare';
-  const complexTypes=new Set(['reversePlus2','reversePlus4','skipReverse','wildSkipReverse','wildPlus2SkipReverse','doubleEdge','doubleEdgeWild','mirror','wildMirror','wildPlus','wildReverse','wildSkip','discardColor','wildSkipAll','pickUntil','copycat','instantWin','plusOne','eternalSkip','frenzy','helper','suppressWild']);
+  const displayText=getReadableCardLabel(card);
+  const cornerText=getCardCornerText(card);
+  const isReadableCard=card.type!=='number';
+  const complexTypes=new Set();
+  const cleaned=displayText;
   el.className=`game-card card-${isRare?'rare':card.color}`;
-  if(complexTypes.has(card.type) || String(card.label||'').length>4) el.classList.add('card-complex');
+  if(isReadableCard || displayText.length>4) el.classList.add('card-complex');
+  if(isReadableCard) el.classList.add('card-readable');
   if(card.type==='orinCard'||(card.isRare&&card.label==='👑')) el.classList.add('orin-card');
   if(card.value==='wild+99') el.classList.add('card-plus99');
   if(card.type==='miracle') el.classList.add('card-miracle');
-  const label=String(card.label||'');
-  const cleaned=label.replace(/\s+/g,' ').trim();
   const tl=document.createElement('div');tl.className='card-tl';
   const center=document.createElement('div');center.className='card-center';
   const br=document.createElement('div');br.className='card-br';
-  if(complexTypes.has(card.type)){
+  if(isReadableCard){
     tl.textContent=card.color==='wild'?'🌈':(card.color==='rare'?'✦':'');
-    center.textContent=cleaned;
+    tl.textContent=cornerText;
+    center.textContent=displayText;
     br.textContent=card.color==='wild'?'🌈':(card.color==='rare'?'✦':'');
+    br.textContent=cornerText;
   }else{
-    tl.textContent=cleaned;
-    center.textContent=cleaned;
-    br.textContent=cleaned;
+    tl.textContent=displayText;
+    center.textContent=displayText;
+    br.textContent=displayText;
   }
-  if(cleaned.length>3){center.style.fontSize='0.9em';tl.style.fontSize='0.35em';br.style.fontSize='0.35em';}
-  if(cleaned.length>5){center.style.fontSize='0.78em';center.style.letterSpacing='-1px';}
-  if(complexTypes.has(card.type)){center.style.fontSize='0.76em';center.style.lineHeight='1.04';}
+  if(displayText.length>3){center.style.fontSize='0.9em';tl.style.fontSize='0.35em';br.style.fontSize='0.35em';}
+  if(displayText.length>6){center.style.fontSize='0.76em';center.style.lineHeight='1.04';}
+  if(displayText.length>10){center.style.fontSize='0.66em';}
   el.append(tl,center,br);
   return el;
 }
@@ -3496,6 +3667,28 @@ async function triggerWinExplosion(winnerIdx){
 }
 
 /* ═══ END GAME ═══ */
+function getForfeitWinnerIdx(loserIdx=0){
+  if(!state.players || state.players.length <= 1) return 0;
+  if(teamMode && state.players[loserIdx] && state.players[loserIdx].team){
+    const loserTeam = state.players[loserIdx].team;
+    const enemy = state.players.findIndex((p, idx) => idx !== loserIdx && p.team !== loserTeam);
+    if(enemy >= 0) return enemy;
+  }
+  if(state.currentPlayer !== loserIdx) return state.currentPlayer;
+  for(let step=1; step<state.players.length; step++){
+    const idx = (loserIdx + step) % state.players.length;
+    if(idx !== loserIdx) return idx;
+  }
+  return loserIdx;
+}
+function forfeitGame(){
+  if(!gameRunning || !state.players || state.gameOver) return;
+  if(!window.confirm('Forfeit this game and give the win to the other side?')) return;
+  const winnerIdx = getForfeitWinnerIdx(0);
+  endReason = { type:'forfeit', loserIdx:0, winnerIdx };
+  showStatus(`You forfeited. ${state.players[winnerIdx].name} wins!`,1800);
+  setTimeout(()=>endGame(winnerIdx),250);
+}
 async function endGame(winnerIdx){
   state.gameOver=true;gameRunning=false;if(botTimer) clearTimeout(botTimer);
   if(winnerIdx===0) playSound('win');else playSound('lose');
@@ -3503,6 +3696,7 @@ async function endGame(winnerIdx){
   await animateGameOver(winnerIdx);
   setTimeout(()=>{
     const winner=state.players[winnerIdx];
+    const didForfeit = endReason && endReason.type==='forfeit' && endReason.winnerIdx===winnerIdx;
     document.getElementById('game-screen').classList.add('hidden');
     const es=document.getElementById('end-screen');es.classList.remove('hidden');
     if(winnerIdx===0){
@@ -3528,9 +3722,10 @@ async function endGame(winnerIdx){
         }
       } else {
         document.getElementById('end-icon').textContent='😭';document.getElementById('end-title').textContent=winner.name+' Wins!';
-        document.getElementById('end-sub').textContent='Better luck next time!';document.getElementById('end-title').style.color='#FF3B3B';
+        document.getElementById('end-sub').textContent=didForfeit ? 'You forfeited this match.' : 'Better luck next time!';document.getElementById('end-title').style.color='#FF3B3B';
       }
     }
+    endReason = null;
   },200);
 }
 
@@ -3564,6 +3759,7 @@ function bindModalOverlay(id, closeFn){
 }
 
 bindButton('homeText', goHome);
+bindButton('forfeit-btn', forfeitGame);
 bindButton('team-mode-btn', openTeamSettings);
 bindButton('sandbox-open-btn', openSandboxSettings);
 bindButton('cards-open-btn', openCardGuide);
@@ -3580,6 +3776,8 @@ bindButtonArgs('sb-control-team', toggleSandboxSetting, 'controlTeammate', 'sb-c
 
 bindButton('selector-close-btn', closeCardSelector);
 bindButton('selector-confirm-btn', closeCardSelector);
+bindButton('selector-select-all-btn', selectAllPoolCards);
+bindButton('selector-unselect-all-btn', unselectAllPoolCards);
 
 bindButton('team-close-btn', closeTeamSettings);
 bindButton('team-play-btn', startTeamMode);
