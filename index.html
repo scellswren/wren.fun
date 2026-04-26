@@ -308,31 +308,19 @@ body.mode-anzac{
       box-shadow:0 14px 30px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.18);
       transform:translateY(-1px);
     }
-    /* Anzac selector override: black outlines, clear fill, white when selected */
-    body.mode-anzac .mode-dot{
-      background:transparent !important;
-      border:2px solid #000000 !important;
-      box-shadow:none !important;
-      opacity:1 !important;
-    }
-    body.mode-anzac .mode-dot::before,
-    body.mode-anzac .mode-dot::after{
-      background:transparent !important;
-      opacity:0 !important;
-      box-shadow:none !important;
-    }
     body.mode-anzac .mode-dot.anzac-dot{
-      background:transparent !important;
-      border:2px solid #000000 !important;
-      box-shadow:none !important;
+      background:linear-gradient(135deg,#2B7FFF 0%,#1d6fff 42%,#FF3B3B 100%) !important;
       opacity:1 !important;
+      border:1px solid rgba(255,255,255,0.34) !important;
+      box-shadow:0 0 0 1px rgba(255,255,255,0.12), inset 0 0 10px rgba(255,255,255,0.14), 0 0 10px rgba(45,134,255,0.22) !important;
     }
-    body.mode-anzac .mode-option.active-mode .mode-dot,
+    body.mode-anzac .mode-option:not(.active-mode) .mode-dot.anzac-dot::after{
+      opacity:0 !important;
+    }
     body.mode-anzac .mode-option.active-mode .mode-dot.anzac-dot{
       background:#ffffff !important;
-      border:2px solid #000000 !important;
-      box-shadow:none !important;
-      opacity:1 !important;
+      border-color:#ffffff !important;
+      box-shadow:0 0 0 3px rgba(255,255,255,0.18) !important;
     }
     body.mode-anzac #settingsPanel,
     body.mode-anzac #codeModal{
@@ -345,20 +333,6 @@ body.mode-anzac{
     body.mode-anzac #codeModal,
     body.mode-anzac #themesModal{
       backdrop-filter:blur(8px);
-    }
-
-    /* Kill inherited theme colors inside Anzac selector circles */
-    body.mode-anzac .mode-dot[class$="-dot"],
-    body.mode-anzac .mode-dot[class*="-dot"]{
-      background:transparent !important;
-      border:2px solid #000000 !important;
-      box-shadow:none !important;
-    }
-    body.mode-anzac .mode-option.active-mode .mode-dot[class$="-dot"],
-    body.mode-anzac .mode-option.active-mode .mode-dot[class*="-dot"]{
-      background:#ffffff !important;
-      border:2px solid #000000 !important;
-      box-shadow:none !important;
     }
 
     body.mode-emerald{
@@ -888,10 +862,10 @@ body.mode-water h1{background:linear-gradient(135deg,#d8fbff,#6ddcff,#1c8ff5,#8c
     .mode-option{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;cursor:pointer;font-size:0.95em;font-weight:700;transition:background 0.15s;gap:10px;}
     .mode-option:hover{background:rgba(128,128,128,0.09);}
     .mode-option.active-mode{color:var(--accent);}
-    .mode-dot{width:18px;height:18px;border-radius:50%;flex-shrink:0;border:2px solid rgba(128,128,128,0.2);transition:all 0.2s;position:relative;background:transparent;box-shadow:none;}
+    .mode-dot{width:18px;height:18px;border-radius:50%;flex-shrink:0;border:2px solid rgba(128,128,128,0.2);transition:all 0.2s;position:relative;}
+    .mode-option.active-mode .mode-dot{border-color:var(--accent);background:var(--accent);box-shadow:0 0 0 3px rgba(124,58,237,0.2);}
     .mode-dot::after{content:'';position:absolute;inset:3px;border-radius:50%;background:white;opacity:0;transition:opacity 0.2s;}
-    .mode-option.active-mode .mode-dot{background:#22D46B;border-color:#22D46B;box-shadow:0 0 0 3px rgba(34,212,107,0.18);}
-    .mode-option.active-mode .mode-dot::after{opacity:0;}
+    .mode-option.active-mode .mode-dot::after{opacity:1;}
     .mode-option.active-mode .mode-dot::before{opacity:0;}
     .mode-dot.rainbow-dot{background:linear-gradient(135deg,#f03,#f90,#ff0,#0d0,#06f,#90f);border:none;}
     .mode-dot.orange-dot{background:radial-gradient(circle at 35% 35%,#fff1d4 0 20%,#ffb04d 35%,#ff6a00 68%,#7a2f00 100%);border:1px solid rgba(255,255,255,0.10);box-shadow:0 0 0 1px rgba(60,20,0,0.10), inset 0 0 8px rgba(255,255,255,0.10);}
