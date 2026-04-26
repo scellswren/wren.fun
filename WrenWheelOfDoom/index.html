@@ -559,7 +559,14 @@
 </audio>
 
 <script>
-let money = parseInt(localStorage.getItem("wren_money")) || 0;
+
+let money = 0n;
+try {
+  const raw = localStorage.getItem("wren_money");
+  money = raw ? BigInt(raw) : 0n;
+} catch {
+  money = 0n;
+}
 const moneyDisplay = document.getElementById("money");
 
 const MONEY_UNLOCK_KEY        = "wren_theme_money_unlocked";
@@ -581,26 +588,80 @@ const THEME_DATA = {
   black_hole:   { label: "Black Hole",   desc: "Dark cosmic void theme.",           note: "How to get it: spin the Wren Wheel of Doom and land on Black Hole.",            className: "theme-black-hole",   unlockKey: BLACKHOLE_UNLOCK_KEY }
 };
 
-function saveMoney() { localStorage.setItem("wren_money", money); }
+function asBigInt(v) {
+  if (typeof v === "bigint") return v;
+  if (typeof v === "number" && Number.isFinite(v)) return BigInt(Math.trunc(v));
+  if (typeof v === "string" && v.trim() !== "") return BigInt(v);
+  return 0n;
+}
 
-function queueUnlockNotice(message) {
-  try {
-    const queue = JSON.parse(localStorage.getItem(UNLOCK_NOTICE_QUEUE_KEY) || "[]");
-    queue.push(message);
-    localStorage.setItem(UNLOCK_NOTICE_QUEUE_KEY, JSON.stringify(queue));
-  } catch (e) { localStorage.setItem(UNLOCK_NOTICE_QUEUE_KEY, JSON.stringify([message])); }
+function formatMoneyValue(value = money) {
+  const v = asBigInt(value);
+  const s = v.toString();
+  const negative = s.startsWith("-");
+  const body = negative ? s.slice(1) : s;
+  return (negative ? "-" : "") + body.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function saveMoney() { localStorage.setItem("wren_money", money.toString()); }
+
+function roundDiv(n, d) {
+  return n >= 0n ? (n + d / 2n) / d : -(((-n) + d / 2n) / d);
+}
+
+const POSITIVE_FACTORS = {
+  "3":    [3n, 1n],
+  "2":    [2n, 1n],
+  "1.5":  [3n, 2n],
+  "1.25": [5n, 4n],
+  "1.1":  [11n, 10n],
+  "0.95": [19n, 20n],
+  "0.9":  [9n, 10n],
+  "0.8":  [4n, 5n],
+  "0.7":  [7n, 10n],
+  "0.5":  [1n, 2n],
+  "0.4":  [2n, 5n]
+};
+
+const DEBT_FACTORS = {
+  "3":    [1n, 3n],
+  "2":    [1n, 2n],
+  "1.5":  [2n, 3n],
+  "1.25": [4n, 5n],
+  "1.1":  [10n, 11n],
+  "0.95": [21n, 20n],
+  "0.9":  [11n, 10n],
+  "0.8":  [6n, 5n],
+  "0.7":  [13n, 10n],
+  "0.5":  [3n, 2n],
+  "0.4":  [8n, 5n]
+};
+
+function applyRational(value, num, den) {
+  return roundDiv(value * num, den);
+}
+
+function multiplyMoney(value, mult) {
+  const bigValue = asBigInt(value);
+  if (typeof mult === "bigint") return bigValue * mult;
+
+  const key = String(mult);
+  const table = bigValue < 0n ? DEBT_FACTORS : POSITIVE_FACTORS;
+  const factor = table[key];
+  if (!factor) return bigValue;
+  return applyRational(bigValue, factor[0], factor[1]);
 }
 
 function syncThemeUnlocks() {
-  const f = Math.floor(money);
-  if (f >= 1_000_000) {
+  const f = money < 0n ? 0n : money;
+  if (f >= 1_000_000n) {
     if (localStorage.getItem(MONEY_UNLOCK_KEY) !== "1") {
       localStorage.setItem(MONEY_UNLOCK_KEY, "1");
       localStorage.setItem(MM_RADIOACTIVE_KEY, "1");
-      queueUnlockNotice("☢️ Radioactive & 💵 Money themes unlocked in main menu!");
+      queueUnlockNotice("☢️ Radioactive theme unlocked in main menu!");
     }
   }
-  if (f >= 1_000_000_000) {
+  if (f >= 1_000_000_000n) {
     if (localStorage.getItem(SNOW_UNLOCK_KEY) !== "1") {
       localStorage.setItem(SNOW_UNLOCK_KEY, "1");
       localStorage.setItem(MM_SNOW_KEY, "1");
@@ -609,8 +670,8 @@ function syncThemeUnlocks() {
     localStorage.setItem(MONEY_UNLOCK_KEY, "1");
     localStorage.setItem(MM_RADIOACTIVE_KEY, "1");
   }
-  if (f >= 1_000_000_000_000)     localStorage.setItem(COTTON_CANDY_UNLOCK_KEY, "1");
-  if (f >= 1_000_000_000_000_000) localStorage.setItem(SABER_UNLOCK_KEY, "1");
+  if (f >= 1_000_000_000_000n)     localStorage.setItem(COTTON_CANDY_UNLOCK_KEY, "1");
+  if (f >= 1_000_000_000_000_000n) localStorage.setItem(SABER_UNLOCK_KEY, "1");
 }
 
 function isThemeUnlocked(id) {
@@ -645,37 +706,43 @@ function updateTheme() {
 }
 
 function updateMoney() {
-  const f = Math.floor(money);
-  moneyDisplay.textContent = "💰 $" + f.toLocaleString();
-  moneyDisplay.classList.toggle("negative", f < 0);
+  moneyDisplay.textContent = "💰 $" + formatMoneyValue(money);
+  moneyDisplay.classList.toggle("negative", money < 0n);
   syncThemeUnlocks(); updateTheme();
 }
 updateMoney();
 
 function animateMoney(amount) {
-  const target = money + amount, steps = 30, diff = (target - money) / steps;
-  let step = 0;
-  const iv = setInterval(() => {
-    money += diff; step++;
-    if (step >= steps) { money = target; clearInterval(iv); saveMoney(); syncThemeUnlocks(); updateTheme(); }
-    updateMoney();
-  }, 16);
+  money += asBigInt(amount);
+  saveMoney();
+  syncThemeUnlocks();
+  updateTheme();
+  updateMoney();
   showResult(amount);
 }
 
 function applyMultiplier(mult, label) {
-  const target = money < 0 ? (mult > 1 ? money / mult : money * (2 - mult)) : money * mult;
-  const gain = target - money, steps = 30, diff = (target - money) / steps;
-  let step = 0;
-  const iv = setInterval(() => {
-    money += diff; step++;
-    if (step >= steps) { money = target; clearInterval(iv); saveMoney(); syncThemeUnlocks(); updateTheme(); }
-    updateMoney();
-  }, 16);
-  showResult(gain, label);
+  const before = money;
+  money = multiplyMoney(money, mult);
+  saveMoney();
+  syncThemeUnlocks();
+  updateTheme();
+  updateMoney();
+  showResult(money - before, label);
+}
+
+function applyExactMultiplier(multiplier, label) {
+  const before = money;
+  money = money * asBigInt(multiplier);
+  saveMoney();
+  syncThemeUnlocks();
+  updateTheme();
+  updateMoney();
+  showResult(money - before, label);
 }
 
 function refreshThemeButtonsAndList() {
+
   const list = document.getElementById("themesList");
   if (!list) return;
   const current = getAvailableThemeId(localStorage.getItem(THEME_KEY) || "normal");
@@ -696,18 +763,22 @@ function refreshThemeButtonsAndList() {
 
 function renderThemesModal() { refreshThemeButtonsAndList(); }
 
+
 function showResult(amount, customLabel) {
   const overlay = document.getElementById("resultOverlay"), bubble = document.getElementById("resultBubble");
-  const label = customLabel || ((amount >= 0 ? "+" : "") + "$" + Math.floor(Math.abs(amount)).toLocaleString());
+  const amt = asBigInt(amount);
+  const abs = amt < 0n ? -amt : amt;
+  const label = customLabel || ((amt >= 0n ? "+" : "") + "$" + formatMoneyValue(abs));
   bubble.textContent = label;
-  bubble.className = amount >= 0 ? "result-win" : "result-lose";
+  bubble.className = amt >= 0n ? "result-win" : "result-lose";
   overlay.style.display = "flex";
   bubble.style.animation = "none"; void bubble.offsetWidth;
   bubble.style.animation = "resultPop 0.5s cubic-bezier(0.34,1.4,0.64,1) both";
   setTimeout(() => overlay.style.display = "none", 2200);
 }
 
-function goHome() { window.location.href = "https://scellswren.github.io/wren.fun/"; }
+function goHome() {
+ window.location.href = "https://scellswren.github.io/wren.fun/"; }
 
 function openThemes() { renderThemesModal(); document.getElementById("themesOverlay").classList.add("active"); }
 function closeThemes() { document.getElementById("themesOverlay").classList.remove("active"); }
@@ -759,9 +830,9 @@ const goodItems = [
   { label: "+$1000", type: "good", action: () => animateMoney(1000) },
   { label: "+$3000", type: "good", action: () => animateMoney(3000) },
   { label: "+$5000", type: "good", action: () => animateMoney(5000) },
-  { label: "×1.1",  type: "mult", action: () => applyMultiplier(1.1,  money < 0 ? "÷1.1 🧯"  : "×1.1!") },
-  { label: "×1.25", type: "mult", action: () => applyMultiplier(1.25, money < 0 ? "÷1.25 🧯" : "×1.25!") },
-  { label: "×1.5",  type: "mult", action: () => applyMultiplier(1.5,  money < 0 ? "÷1.5 🧯"  : "×1.5!") }
+  { label: "×1.1",  type: "mult", action: () => applyMultiplier(1.1,  money < 0n ? "÷1.1 🧯"  : "×1.1!") },
+  { label: "×1.25", type: "mult", action: () => applyMultiplier(1.25, money < 0n ? "÷1.25 🧯" : "×1.25!") },
+  { label: "×1.5",  type: "mult", action: () => applyMultiplier(1.5,  money < 0n ? "÷1.5 🧯"  : "×1.5!") }
 ];
 const badItems = [
   { label: "-$10",     type: "bad", action: () => animateMoney(-10) },
@@ -770,10 +841,10 @@ const badItems = [
   { label: "-$1000",   type: "bad", action: () => animateMoney(-1000) },
   { label: "-$3000",   type: "bad", action: () => animateMoney(-3000) },
   { label: "-$5000",   type: "bad", action: () => animateMoney(-5000) },
-  { label: "Lose 5%",  type: "bad", action: () => applyMultiplier(0.95, money < 0 ? "+5% debt 💀"  : "-5%") },
-  { label: "Lose 10%", type: "bad", action: () => applyMultiplier(0.90, money < 0 ? "+10% debt 💀" : "-10%") },
-  { label: "Lose 20%", type: "bad", action: () => applyMultiplier(0.80, money < 0 ? "+20% debt 💀" : "-20%") },
-  { label: "Lose 30%", type: "bad", action: () => applyMultiplier(0.70, money < 0 ? "+30% debt 💀" : "-30%") },
+  { label: "Lose 5%",  type: "bad", action: () => applyMultiplier(0.95, money < 0n ? "+5% debt 💀"  : "-5%") },
+  { label: "Lose 10%", type: "bad", action: () => applyMultiplier(0.90, money < 0n ? "+10% debt 💀" : "-10%") },
+  { label: "Lose 20%", type: "bad", action: () => applyMultiplier(0.80, money < 0n ? "+20% debt 💀" : "-20%") },
+  { label: "Lose 30%", type: "bad", action: () => applyMultiplier(0.70, money < 0n ? "+30% debt 💀" : "-30%") },
 ];
 const blackHoleItem = { label: "🕳️ Black Hole", type: "blackhole", action: () => unlockBlackHoleTheme() };
 const specialItemsBase = [
@@ -851,7 +922,7 @@ function spin(e) {
 }
 
 // ── CLICK RUSH ──
-let clickRushActive = false, clickRushCount = 0, clickRushTimer = null, clickRushPrepTimer = null, clickRushClickTimes = [], clickRushClickValue = 1;
+let clickRushActive = false, clickRushCount = 0, clickRushTimer = null, clickRushPrepTimer = null, clickRushClickTimes = [], clickRushClickValue = 1n;
 
 function startClickRush() {
   const area = document.getElementById("gameArea");
@@ -869,7 +940,7 @@ function startClickRush() {
 function beginClickRush() {
   const area = document.getElementById("gameArea");
   clickRushCount = 0; clickRushActive = true; clickRushClickTimes = [];
-  clickRushClickValue = money > 0 ? Math.max(1, Math.floor(money * 0.01)) : 1;
+  clickRushClickValue = money > 0n ? (money / 100n > 0n ? money / 100n : 1n) : 1n;
   let timeLeft = 10;
   area.innerHTML = `<div class="game-card"><div class="game-title" style="color:var(--cyan)">🖱 CLICK RUSH</div><div id="clickTimer">10</div><div id="clickCount">Clicks: 0 — Earnings: +$0</div><div id="clickTarget">CLICK</div><p style="color:rgba(255,255,255,0.4); font-size:0.8em; margin-top:14px;">Each click = +1% of your balance</p></div>`;
   const target = document.getElementById("clickTarget");
@@ -881,10 +952,11 @@ function beginClickRush() {
     if (timeLeft <= 0) {
       clearInterval(clickRushTimer); clickRushActive = false;
       target.removeEventListener("click", onClickRush);
-      animateMoney(clickRushClickValue * clickRushCount); area.innerHTML = "";
+      animateMoney(clickRushClickValue * BigInt(clickRushCount)); area.innerHTML = "";
     }
   }, 1000);
 }
+
 
 function endClickRushForAutoclick() {
   if (!clickRushActive) return;
@@ -892,7 +964,7 @@ function endClickRushForAutoclick() {
   const target = document.getElementById("clickTarget");
   if (target) target.removeEventListener("click", onClickRush);
   document.getElementById("gameArea").innerHTML = "";
-  applyMultiplier(0.8, money < 0 ? "+20% debt 💀" : "-20% AUTOCLICK!");
+  applyMultiplier(0.8, money < 0n ? "+20% debt 💀" : "-20% AUTOCLICK!");
 }
 
 function onClickRush(e) {
@@ -905,18 +977,20 @@ function onClickRush(e) {
   const target = document.getElementById("clickTarget");
   target.classList.remove("pulse"); void target.offsetWidth; target.classList.add("pulse");
   const el = document.createElement("div");
-  el.className = "click-float"; el.textContent = "+$" + clickRushClickValue.toLocaleString();
+  el.className = "click-float"; el.textContent = "+$" + formatMoneyValue(clickRushClickValue);
   el.style.left = (e.clientX - 20) + "px"; el.style.top = (e.clientY - 20) + "px";
   document.body.appendChild(el); setTimeout(() => el.remove(), 900);
   const countEl = document.getElementById("clickCount");
-  if (countEl) countEl.textContent = `Clicks: ${clickRushCount} — Earnings: +$${(clickRushClickValue * clickRushCount).toLocaleString()}`;
+  if (countEl) countEl.textContent = `Clicks: ${clickRushCount} — Earnings: +$${formatMoneyValue(clickRushClickValue * BigInt(clickRushCount))}`;
 }
 
 // ── RED LIGHT GREEN LIGHT ──
+
 let rlglTimeout = null;
+
 function startRedLight() {
   const area = document.getElementById("gameArea");
-  let earn = 0, isGreen = true, failed = false;
+  let earn = 0n, isGreen = true, failed = false;
   function getDelay(g) { return g ? (600 + Math.random() * 1400) : (400 + Math.random() * 1100); }
   area.innerHTML = `<div class="game-card"><div class="game-title" style="color:var(--cyan)">🔴🟢 RED LIGHT GREEN LIGHT</div><div id="rlglLight" class="green"></div><div id="rlglStatus" style="color:var(--green)">GREEN LIGHT</div><div id="rlglEarn">Earned: $0</div><div><button class="game-btn btn-purple" id="rlglClick">TAP!</button><button class="game-btn btn-gold" id="rlglCash">CASH OUT</button></div><p style="color:rgba(255,255,255,0.35); font-size:0.78em; margin-top:14px;">Tap on green → +1% · Tap on red → lose all earnings</p></div>`;
   function setLight(g) {
@@ -930,59 +1004,26 @@ function startRedLight() {
   document.getElementById("rlglClick").onclick = () => {
     if (failed) return;
     if (isGreen) {
-      const gain = money > 0 ? Math.max(1, Math.floor(money * 0.01)) : 1; earn += gain;
-      const el = document.getElementById("rlglEarn"); if (el) el.textContent = "Earned: $" + earn.toLocaleString();
+      const gain = money > 0n ? (money / 100n > 0n ? money / 100n : 1n) : 1n;
+      earn += gain;
+      const el = document.getElementById("rlglEarn"); if (el) el.textContent = "Earned: $" + formatMoneyValue(earn);
       const l = document.getElementById("rlglLight"); if (l) { l.style.transform = "scale(1.15)"; setTimeout(() => l.style.transform = "", 120); }
     } else {
       failed = true; clearTimeout(rlglTimeout);
-      showResult(-earn, earn > 0 ? `-$${earn.toLocaleString()} 💀` : "NOTHING LOST");
+      showResult(-earn, earn > 0n ? `-$${formatMoneyValue(earn)} 💀` : "NOTHING LOST");
       setTimeout(() => { area.innerHTML = ""; }, 400);
     }
   };
-  document.getElementById("rlglCash").onclick = () => { if (failed) return; clearTimeout(rlglTimeout); animateMoney(earn); area.innerHTML = ""; };
-}
-
-// ── DON'T MOVE YOUR MOUSE ──
-let mmActive = false, mmInterval = null;
-function startDontMove() {
-  const area = document.getElementById("gameArea");
-  let cntDown = 3;
-  const rewardLabel = money < 0 ? "×2 your debt 💀" : "×2 your total 💰";
-  area.innerHTML = `<div class="game-card"><div class="game-title" style="color:var(--cyan)">🖱 DON'T MOVE YOUR MOUSE</div><div id="mmCountdown" class="countdown">${cntDown}</div><p style="color:rgba(255,255,255,0.5); font-size:0.9em;">Get ready... don't move for 50 seconds!</p><p style="color:var(--gold); font-size:0.85em; margin-top:6px;">Reward: ${rewardLabel}</p></div>`;
-  const cntInterval = setInterval(() => {
-    cntDown--;
-    const el = document.getElementById("mmCountdown"); if (!el) { clearInterval(cntInterval); return; }
-    if (cntDown > 0) { el.textContent = cntDown; el.style.animation = "none"; void el.offsetWidth; el.style.animation = "cntPop 0.4s cubic-bezier(0.34,1.4,0.64,1) both"; }
-    else { clearInterval(cntInterval); beginDontMove(); }
-  }, 1000);
-}
-
-function beginDontMove() {
-  const area = document.getElementById("gameArea"), TOTAL = 50;
-  let timeLeft = TOTAL; mmActive = true;
-  const rewardLabel = money < 0 ? "×2 your debt" : "×2 your total";
-  area.innerHTML = `<div class="game-card"><div class="game-title" style="color:var(--cyan)">🖱 DON'T MOVE YOUR MOUSE</div><div id="mmCountdown">${TOTAL}</div><div id="mmBar"><div id="mmBarFill" style="width:100%"></div></div><div id="mmStatus">Hold still... 🧊</div><p style="color:var(--gold); font-size:0.85em; margin-top:8px;">Reward: ${rewardLabel}</p></div>`;
-  const onMove = () => {
-    if (!mmActive) return; mmActive = false; clearInterval(mmInterval); document.removeEventListener("mousemove", onMove);
-    const status = document.getElementById("mmStatus"); if (status) { status.textContent = "YOU MOVED! 💀"; status.style.color = "var(--red)"; }
-    applyMultiplier(0.5, money < 0 ? "+50% debt 💀" : "-50% 💸");
-    setTimeout(() => { area.innerHTML = ""; }, 1800);
+  document.getElementById("rlglCash").onclick = () => {
+    if (failed) return;
+    clearTimeout(rlglTimeout);
+    animateMoney(earn);
+    area.innerHTML = "";
   };
-  document.addEventListener("mousemove", onMove);
-  mmInterval = setInterval(() => {
-    if (!mmActive) { clearInterval(mmInterval); return; }
-    timeLeft--;
-    const cntEl = document.getElementById("mmCountdown"), fillEl = document.getElementById("mmBarFill");
-    if (cntEl) cntEl.textContent = timeLeft;
-    if (fillEl) fillEl.style.width = ((timeLeft / TOTAL) * 100) + "%";
-    if (timeLeft <= 0) {
-      mmActive = false; clearInterval(mmInterval); document.removeEventListener("mousemove", onMove);
-      applyMultiplier(2, money < 0 ? "×2 debt 💀" : "×2!! 🔥"); area.innerHTML = "";
-    }
-  }, 1000);
 }
 
 // ── SPEED TEST ──
+
 let speedActive = false, speedIsGreen = false, speedGreenTime = 0, speedRevealTimer = null, speedFailTimer = null, speedUsed = false;
 
 function clearSpeedTimers() {
@@ -1047,7 +1088,7 @@ function handleSpeedClick() {
     clearSpeedTimers();
     overlay.classList.remove("active");
     overlay.onclick = null;
-    applyMultiplier(0.8, money < 0 ? "+20% debt 💀" : "-20% TOO EARLY! 💀");
+    applyMultiplier(0.8, money < 0n ? "+20% debt 💀" : "-20% TOO EARLY! 💀");
     return;
   }
 
@@ -1059,13 +1100,13 @@ function handleSpeedClick() {
   const elapsed = (performance.now() - speedGreenTime) / 1000;
 
   if (elapsed < 0.1) {
-    applyMultiplier(3, money < 0 ? "÷3 debt ⚡" : "×3!! ⚡ INSANE!");
+    applyMultiplier(3, money < 0n ? "÷3 debt ⚡" : "×3!! ⚡ INSANE!");
   } else if (elapsed < 0.2) {
-    applyMultiplier(2, money < 0 ? "÷2 debt ⚡" : "×2!! ⚡ FAST!");
+    applyMultiplier(2, money < 0n ? "÷2 debt ⚡" : "×2!! ⚡ FAST!");
   } else if (elapsed < 0.4) {
-    applyMultiplier(1.5, money < 0 ? "÷1.5 debt" : "×1.5! 🔥 Quick!");
+    applyMultiplier(1.5, money < 0n ? "÷1.5 debt" : "×1.5! 🔥 Quick!");
   } else if (elapsed < 1.0) {
-    applyMultiplier(1.1, money < 0 ? "÷1.1 debt" : "×1.1 Not bad");
+    applyMultiplier(1.1, money < 0n ? "÷1.1 debt" : "×1.1 Not bad");
   } else {
     showResult(0, "TOO SLOW! Nothing 😔");
   }
@@ -1073,28 +1114,32 @@ function handleSpeedClick() {
 
 // ── DOUBLE OR NOTHING ──
 
+
 function startDoubleOrNothing() {
   const area = document.getElementById("gameArea");
   function renderDON(round, runningMult) {
-    const potentialGain = Math.floor(money * runningMult * 2) - Math.floor(money);
-    area.innerHTML = `<div class="game-card"><div class="game-title" style="color:var(--gold)">🎲 DOUBLE OR NOTHING</div><p style="color:rgba(255,255,255,0.6); font-size:0.9em; margin-bottom:8px;">Round ${round} — current multiplier: <span style="color:var(--gold)">×${runningMult.toFixed(2)}</span></p><p style="color:var(--green); font-size:1em; margin-bottom:4px;">✅ Double: ×${(runningMult*2).toFixed(2)} (potential +$${potentialGain.toLocaleString()})</p><p style="color:var(--red); font-size:0.85em; margin-bottom:18px;">⚠️ 15% chance of losing 60% instead of doubling</p><div><button class="game-btn btn-gold" id="donDouble">🎲 DOUBLE IT</button><button class="game-btn btn-green" id="donCash">✅ CASH OUT ×${runningMult.toFixed(2)}</button></div><p style="color:rgba(255,255,255,0.3); font-size:0.75em; margin-top:14px;">Cash out now for ×${runningMult.toFixed(2)} your ${money < 0 ? "debt" : "balance"}, or gamble for ×${(runningMult*2).toFixed(2)}!</p></div>`;
+    const potentialGain = money * runningMult * 2n - money;
+    const multText = runningMult.toString();
+    const doubleText = (runningMult * 2n).toString();
+    area.innerHTML = `<div class="game-card"><div class="game-title" style="color:var(--gold)">🎲 DOUBLE OR NOTHING</div><p style="color:rgba(255,255,255,0.6); font-size:0.9em; margin-bottom:8px;">Round ${round} — current multiplier: <span style="color:var(--gold)">×${multText}</span></p><p style="color:var(--green); font-size:1em; margin-bottom:4px;">✅ Double: ×${doubleText} (potential +$${formatMoneyValue(potentialGain)})</p><p style="color:var(--red); font-size:0.85em; margin-bottom:18px;">⚠️ 15% chance of losing 60% instead of doubling</p><div><button class="game-btn btn-gold" id="donDouble">🎲 DOUBLE IT</button><button class="game-btn btn-green" id="donCash">✅ CASH OUT ×${multText}</button></div><p style="color:rgba(255,255,255,0.3); font-size:0.75em; margin-top:14px;">Cash out now for ×${multText} your ${money < 0n ? "debt" : "balance"}, or gamble for ×${doubleText}!</p></div>`;
     document.getElementById("donDouble").onclick = () => {
-      if (Math.random() < 0.15) { applyMultiplier(0.4, money < 0 ? "+60% debt 💀" : "-60%!! 💀 Bad luck!"); area.innerHTML = ""; }
-      else renderDON(round + 1, runningMult * 2);
+      if (Math.random() < 0.15) { applyMultiplier(0.4, money < 0n ? "+60% debt 💀" : "-60%!! 💀 Bad luck!"); area.innerHTML = ""; }
+      else renderDON(round + 1, runningMult * 2n);
     };
     document.getElementById("donCash").onclick = () => {
-      if (runningMult === 1) { showResult(0, "Nothing gained!"); area.innerHTML = ""; }
-      else { applyMultiplier(runningMult, money < 0 ? `×${runningMult.toFixed(1)} debt 💀` : `×${runningMult.toFixed(1)}!! 🔥`); area.innerHTML = ""; }
+      if (runningMult === 1n) { showResult(0, "Nothing gained!"); area.innerHTML = ""; }
+      else { applyExactMultiplier(runningMult, money < 0n ? `×${multText} debt 💀` : `×${multText}!! 🔥`); area.innerHTML = ""; }
     };
   }
-  renderDON(1, 1);
+  renderDON(1, 1n);
 }
 
 // ── RESET ──
+
 function askReset() {
   showModal("Reset Balance?", "This will wipe all your WrenDollars. Are you sure?", "Yes, reset", () => {
     showModal("Are you VERY VERY sure?", "You will lose every single dollar. This cannot be undone. Really?", "YES, I'm sure", () => {
-      money = 0; saveMoney(); updateMoney(); closeModal();
+      money = 0n; saveMoney(); updateMoney(); closeModal();
     });
   });
 }
