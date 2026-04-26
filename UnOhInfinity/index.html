@@ -642,11 +642,60 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
     </div>
     <div class="menu-btn-row">
       <button class="play-btn" onclick="startGame()">▶ Play</button>
+      <button class="cards-btn" onclick="openSandboxSettings()">🛠️ Sandbox</button>
+      <button class="cards-btn" onclick="toggleTeamMode()" id="team-mode-btn">👥 Team: OFF</button>
+    </div>
+    <div class="menu-btn-row" style="margin-top:-5px;">
       <button class="cards-btn" onclick="openCardGuide()">📖 Cards</button>
       <button class="cards-btn" onclick="openCodes()">🎁 Codes</button>
     </div>
     <div class="how-to">
       <strong>How to play:</strong> Match <strong>colour OR number</strong>. Stack draw cards of the <strong>same type</strong>. Watch out for rare ✦ cards! First to empty their hand wins! 🎯
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SANDBOX MODAL ═══ -->
+<div id="sandbox-modal" class="hidden" style="position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div class="guide-box" style="max-width:500px;text-align:center;">
+    <div class="guide-title" style="font-size:2em;">Sandbox Mode</div>
+    <div class="guide-subtitle">Customise Your Chaos</div>
+    <div style="margin:20px 0;display:flex;flex-direction:column;gap:15px;text-align:left;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <label style="font-weight:700;">Starting Cards:</label>
+        <input type="number" id="sb-starting-cards" value="7" min="1" max="50" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 10px;border-radius:8px;width:60px;">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <label style="font-weight:700;">Chaos Factor (0.1 - 5.0):</label>
+        <input type="number" id="sb-chaos" step="0.1" min="0.1" max="5" value="1.0" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 10px;border-radius:8px;width:60px;">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <label style="font-weight:700;">Always Draw Ones:</label>
+        <input type="checkbox" id="sb-ones" style="width:20px;height:20px;">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <label style="font-weight:700;">Control Teammate (Team Mode):</label>
+        <input type="checkbox" id="sb-control-team" style="width:20px;height:20px;">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <label style="font-weight:700;">Custom Starting Hand (Optional):</label>
+        <input type="text" id="sb-custom-hand" placeholder="e.g. wild+4, targetSkip, skipAll" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:8px 12px;border-radius:8px;font-size:0.85em;">
+        <div style="font-size:0.7em;color:var(--muted);">Comma-separated card types (wildPlus, skip, targetPlus4, etc.)</div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
+        <label style="font-weight:700;display:block;margin-bottom:10px;">Card Pool:</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <label style="font-size:0.9em;"><input type="checkbox" id="sb-pool-numbers" checked> Numbers</label>
+          <label style="font-size:0.9em;"><input type="checkbox" id="sb-pool-specials" checked> Specials</label>
+          <label style="font-size:0.9em;"><input type="checkbox" id="sb-pool-draws" checked> Draws</label>
+          <label style="font-size:0.9em;"><input type="checkbox" id="sb-pool-wilds" checked> Wilds</label>
+          <label style="font-size:0.9em;"><input type="checkbox" id="sb-pool-rares" checked> Rares</label>
+        </div>
+      </div>
+    </div>
+    <div class="menu-btn-row">
+      <button class="cards-btn" onclick="closeSandbox()">Save & Close</button>
+      <button class="cards-btn" style="background:rgba(255,59,59,0.2);" onclick="resetSandbox()">Reset</button>
     </div>
   </div>
 </div>
@@ -864,6 +913,16 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
         </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🎯⊘</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Target Skip</div>
+              <div class="guide-card-desc">Pick any player to skip their next turn. Precision tactical strike.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
       </div>
     </div>
 
@@ -926,6 +985,46 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
             <div class="guide-card-info">
               <div class="guide-card-name">Heavy Strike</div>
               <div class="guide-card-desc">Pick a specific player to draw +4. No escape.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🎯⊘</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Target Skip</div>
+              <div class="guide-card-desc">Pick a player to skip their next turn. Total control.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.5em;">🎯⊘+2</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Target +2 Skip</div>
+              <div class="guide-card-desc">Pick a player to draw 2 cards and skip their next turn.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.5em;">🎯⊘+4</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Target +4 Skip</div>
+              <div class="guide-card-desc">Pick a player to draw 4 cards and skip their next turn.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🌀</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Teleport</div>
+              <div class="guide-card-desc">Pick exactly who gets the very next turn. Warp the flow of time.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -1081,6 +1180,16 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
         </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.65em;">🎯⊘🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Target Skip (Wild)</div>
+              <div class="guide-card-desc">Wild match + pick any player to skip their next turn.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
       </div>
     </div>
 
@@ -1163,6 +1272,46 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
             <div class="guide-card-info">
               <div class="guide-card-name">Helper -2 (Wild)</div>
               <div class="guide-card-desc">Removes 2 cards from the next player's hand. Helping them win!</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">🎯⊘🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Target Skip (Wild)</div>
+              <div class="guide-card-desc">Pick a player to skip their next turn. Playable anytime.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">🎯⊘+2🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Target +2 Skip (Wild)</div>
+              <div class="guide-card-desc">Pick a player to draw 2 and skip their turn. Chaos pick.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">🎯⊘+4🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Target +4 Skip (Wild)</div>
+              <div class="guide-card-desc">Pick a player to draw 4 and skip their turn. The ultimate pick.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.65em;">🌀🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Teleport (Wild)</div>
+              <div class="guide-card-desc">Pick exactly who gets the very next turn. Any color.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -1585,97 +1734,128 @@ function showCodePopup(msg){
 
 function buildDeck(){
   const deck=[];
+  const chaos = sandboxSettings.chaosFactor;
+  const pool = sandboxSettings.pool;
+  const p = (threshold) => Math.random() > (threshold / chaos);
   for(const color of COLORS){
     // Numbers 1-12, 4 sets
-    for(let n=1;n<=12;n++) for(let i=0;i<4;i++) deck.push({color,value:String(n),type:'number',label:String(n)});
+    if(pool.numbers){
+      for(let n=1;n<=12;n++) for(let i=0;i<4;i++) deck.push({color,value:String(n),type:'number',label:String(n)});
+    }
     // Reverse / Skip
-    for(let i=0;i<2;i++) deck.push({color,value:'reverse',type:'reverse',label:'↩'});
-    for(let i=0;i<2;i++) deck.push({color,value:'skip',type:'skip',label:'⊘'});
+    if(pool.specials){
+      for(let i=0;i<2;i++) deck.push({color,value:'reverse',type:'reverse',label:'↩'});
+      for(let i=0;i<2;i++) deck.push({color,value:'skip',type:'skip',label:'⊘'});
+      // Skip All
+      deck.push({color,value:'skipAll',type:'skipAll',label:'⊘⊘'});
+      // Target Skip & Teleport
+      deck.push({color,value:'targetSkip',type:'targetSkip',label:'🎯⊘'});
+      if(p(0.7)) deck.push({color,value:'teleport',type:'teleport',label:'🌀'});
+      // Colour Shift
+      deck.push({color,value:'colorShift',type:'colorShift',label:'🎨'});
+      // Mirror (coloured version)
+      deck.push({color,value:'mirror',type:'mirror',label:'🪞'});
+      // Skip Reverse
+      deck.push({color,value:'skipReverse',type:'skipReverse',label:'↩️ ⊘'});
+    }
     // Draw cards +1 through +4
-    deck.push({color,value:'+1',type:'plus',num:1,label:'+1'});
-    deck.push({color,value:'+2',type:'plus',num:2,label:'+2'});
-    deck.push({color,value:'+3',type:'plus',num:3,label:'+3'});
-    deck.push({color,value:'+4',type:'plus',num:4,label:'+4'});
-    // Higher draw cards (rarer)
-    if(Math.random()>0.7) deck.push({color,value:'+8',type:'plus',num:8,label:'+8'});
-    if(Math.random()>0.9) deck.push({color,value:'+10',type:'plus',num:10,label:'+10'});
-    // Skip All
-    deck.push({color,value:'skipAll',type:'skipAll',label:'⊘⊘'});
-    // Target draw
-    deck.push({color,value:'targetDraw2',type:'targetDraw2',num:2,label:'🎯+2'});
-    if(Math.random()>0.6) deck.push({color,value:'doublePlay',type:'doublePlay',label:'2x'});
-    // Colour Shift
-    deck.push({color,value:'colorShift',type:'colorShift',label:'🎨'});
-    // Mirror (coloured version — can be played defensively vs skip/plus)
-    deck.push({color,value:'mirror',type:'mirror',label:'🪞'});
-    // Chaos Draw
-    if(Math.random()>0.7) deck.push({color,value:'chaosDraw',type:'chaosDraw',label:'💥'});
-    // Combo cards
-    deck.push({color,value:'reversePlus2',type:'reversePlus2',num:2,label:'↩️ +2'});
-    if(Math.random()>0.7) deck.push({color,value:'reversePlus4',type:'reversePlus4',num:4,label:'↩️ +4'});
-    deck.push({color,value:'skipReverse',type:'skipReverse',label:'↩️ ⊘'});
-    // + (1s) cards - Colored versions
-    deck.push({color,value:'plus2OneCol',type:'plusOne',num:2,label:'+2 (1s)'});
-    if(Math.random()>0.6) deck.push({color,value:'plus4OneCol',type:'plusOne',num:4,label:'+4 (1s)'});
+    if(pool.draws){
+      deck.push({color,value:'+1',type:'plus',num:1,label:'+1'});
+      deck.push({color,value:'+2',type:'plus',num:2,label:'+2'});
+      deck.push({color,value:'+3',type:'plus',num:3,label:'+3'});
+      deck.push({color,value:'+4',type:'plus',num:4,label:'+4'});
+      // Higher draw cards (rarer)
+      if(p(0.7)) deck.push({color,value:'+8',type:'plus',num:8,label:'+8'});
+      if(p(0.9)) deck.push({color,value:'+10',type:'plus',num:10,label:'+10'});
+      // Target draw
+      deck.push({color,value:'targetDraw2',type:'targetDraw2',num:2,label:'🎯+2'});
+      if(p(0.6)) deck.push({color,value:'doublePlay',type:'doublePlay',label:'2x'});
+      // Chaos Draw
+      if(p(0.7)) deck.push({color,value:'chaosDraw',type:'chaosDraw',label:'💥'});
+      // Target +2/+4 Skip
+      if(p(0.8)) deck.push({color,value:'targetPlus2Skip',type:'targetPlus2Skip',num:2,label:'🎯⊘+2'});
+      if(p(0.9)) deck.push({color,value:'targetPlus4Skip',type:'targetPlus4Skip',num:4,label:'🎯⊘+4'});
+      // Combo cards
+      deck.push({color,value:'reversePlus2',type:'reversePlus2',num:2,label:'↩️ +2'});
+      if(p(0.7)) deck.push({color,value:'reversePlus4',type:'reversePlus4',num:4,label:'↩️ +4'});
+      // + (1s) cards - Colored versions
+      deck.push({color,value:'plus2OneCol',type:'plusOne',num:2,label:'+2 (1s)'});
+      if(p(0.6)) deck.push({color,value:'plus4OneCol',type:'plusOne',num:4,label:'+4 (1s)'});
+    }
     // Helper card - Colored version
-    deck.push({color,value:'helperCol',type:'helper',num:1,label:'-1'});
-    if(Math.random()>0.8) deck.push({color,value:'helper2Col',type:'helper',num:2,label:'-2'});
-    // Miracle card (rare per colour)
-    if(Math.random()>0.7) deck.push({color,value:'miracle',type:'miracle',label:'🌟',isMiracle:true});
+    if(pool.rares){
+      deck.push({color,value:'helperCol',type:'helper',num:1,label:'-1'});
+      if(p(0.8)) deck.push({color,value:'helper2Col',type:'helper',num:2,label:'-2'});
+      // Miracle card (rare per colour)
+      if(p(0.7)) deck.push({color,value:'miracle',type:'miracle',label:'🌟',isMiracle:true});
+    }
   }
   // Wild cards
-  for(let i=0;i<4;i++) deck.push({color:'wild',value:'wild',type:'wild',label:'🌈'});
-  for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildReverse',type:'wildReverse',label:'↩🌈'});
-  for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildSkip',type:'wildSkip',label:'⊘🌈'});
-  for(let i=0;i<2;i++) deck.push({color:'wild',value:'discardColor',type:'discardColor',label:'🗑️🌈'});
-  // Wild Mirror (plays defensively vs any skip/plus)
-  deck.push({color:'wild',value:'wildMirror',type:'wildMirror',label:'🪞🌈'});
-  // Mystery Wild
-  deck.push({color:'wild',value:'mysteryWild',type:'mysteryWild',label:'❓🌈'});
-  // Wild Plus series: +1, +2, +3, +4
-  deck.push({color:'wild',value:'wild+1',type:'wildPlus',num:1,label:'+1 🌈'});
-  deck.push({color:'wild',value:'wild+1b',type:'wildPlus',num:1,label:'+1 🌈'});
-  deck.push({color:'wild',value:'wild+2',type:'wildPlus',num:2,label:'+2 🌈'});
-  deck.push({color:'wild',value:'wild+2b',type:'wildPlus',num:2,label:'+2 🌈'});
-  deck.push({color:'wild',value:'wild+3',type:'wildPlus',num:3,label:'+3 🌈'});
-  deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4 🌈'});
-  // Wild versions of + (1s)
-   deck.push({color:'wild',value:'plus2OneWild',type:'plusOne',num:2,label:'+2 (1s) 🌈'});
-   deck.push({color:'wild',value:'plus4OneWild',type:'plusOne',num:4,label:'+4 (1s) 🌈'});
-   // Wild version of Helper
-   deck.push({color:'wild',value:'helperWild',type:'helper',num:1,label:'-1 🌈'});
-   if(Math.random()>0.5) deck.push({color:'wild',value:'helper2Wild',type:'helper',num:2,label:'-2 🌈'});
+  if(pool.wilds){
+    for(let i=0;i<4;i++) deck.push({color:'wild',value:'wild',type:'wild',label:'🌈'});
+    for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildReverse',type:'wildReverse',label:'↩🌈'});
+    for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildSkip',type:'wildSkip',label:'⊘🌈'});
+    for(let i=0;i<2;i++) deck.push({color:'wild',value:'discardColor',type:'discardColor',label:'🗑️🌈'});
+    // Wild Mirror
+    deck.push({color:'wild',value:'wildMirror',type:'wildMirror',label:'🪞🌈'});
+    // Mystery Wild
+    deck.push({color:'wild',value:'mysteryWild',type:'mysteryWild',label:'❓🌈'});
+    // Wild Plus series
+    deck.push({color:'wild',value:'wild+1',type:'wildPlus',num:1,label:'+1 🌈'});
+    deck.push({color:'wild',value:'wild+1b',type:'wildPlus',num:1,label:'+1 🌈'});
+    deck.push({color:'wild',value:'wild+2',type:'wildPlus',num:2,label:'+2 🌈'});
+    deck.push({color:'wild',value:'wild+2b',type:'wildPlus',num:2,label:'+2 🌈'});
+    deck.push({color:'wild',value:'wild+3',type:'wildPlus',num:3,label:'+3 🌈'});
+    deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4 🌈'});
+    // Wild versions of + (1s)
+    deck.push({color:'wild',value:'plus2OneWild',type:'plusOne',num:2,label:'+2 (1s) 🌈'});
+    deck.push({color:'wild',value:'plus4OneWild',type:'plusOne',num:4,label:'+4 (1s) 🌈'});
+    // Wild version of Helper
+    deck.push({color:'wild',value:'helperWild',type:'helper',num:1,label:'-1 🌈'});
+    if(p(0.5)) deck.push({color:'wild',value:'helper2Wild',type:'helper',num:2,label:'-2 🌈'});
 
-  deck.push({color:'wild',value:'wildSkipAll',type:'wildSkipAll',label:'⊘⊘🌈'});
-  deck.push({color:'wild',value:'pickUntil',type:'pickUntil',label:'🎲🌈'});
-  // Copycat
-  deck.push({color:'wild',value:'copycat',type:'copycat',label:'🐱🌈'});
-  // Wild combos
-  deck.push({color:'wild',value:'wildReversePlus2',type:'reversePlus2',num:2,label:'↩️ +2 🌈'});
-  deck.push({color:'wild',value:'wildReversePlus4',type:'reversePlus4',num:4,label:'↩️ +4 🌈'});
-  deck.push({color:'wild',value:'wildSkipReverse',type:'skipReverse',label:'↩️ ⊘ 🌈'});
-  deck.push({color:'wild',value:'wildPlus2SkipReverse',type:'wildPlus2SkipReverse',num:2,label:'🌈 ↩️ ⊘ +2'});
-  deck.push({color:'wild',value:'doubleEdgeWild',type:'doubleEdge',label:'⚔️🌈'});
-  // Special New Cards
-  if(Math.random() < 0.008) deck.push({color:'wild',value:'instantWin',type:'instantWin',label:'🏆🌈',isRare:true});
-  if(Math.random() < 0.005) deck.push({color:'wild',value:'eternalSkip',type:'eternalSkip',label:'♾️⊘🌈',isRare:true});
-  deck.push({color:'wild',value:'frenzy',type:'frenzy',label:'🌀🌈'});
+    deck.push({color:'wild',value:'wildSkipAll',type:'wildSkipAll',label:'⊘⊘🌈'});
+    deck.push({color:'wild',value:'targetSkipWild',type:'targetSkip',label:'🎯⊘🌈'});
+    deck.push({color:'wild',value:'targetPlus2SkipWild',type:'targetPlus2Skip',num:2,label:'🎯⊘+2🌈'});
+    deck.push({color:'wild',value:'targetPlus4SkipWild',type:'targetPlus4Skip',num:4,label:'🎯⊘+4🌈'});
+    deck.push({color:'wild',value:'teleportWild',type:'teleport',label:'🌀🌈'});
+    deck.push({color:'wild',value:'pickUntil',type:'pickUntil',label:'🎲🌈'});
+    // Copycat
+    deck.push({color:'wild',value:'copycat',type:'copycat',label:'🐱🌈'});
+    // Wild combos
+    deck.push({color:'wild',value:'wildReversePlus2',type:'reversePlus2',num:2,label:'↩️ +2 🌈'});
+    deck.push({color:'wild',value:'wildReversePlus4',type:'reversePlus4',num:4,label:'↩️ +4 🌈'});
+    deck.push({color:'wild',value:'wildSkipReverse',type:'skipReverse',label:'↩️ ⊘ 🌈'});
+    deck.push({color:'wild',value:'wildPlus2SkipReverse',type:'wildPlus2SkipReverse',num:2,label:'🌈 ↩️ ⊘ +2'});
+    deck.push({color:'wild',value:'doubleEdgeWild',type:'doubleEdge',label:'⚔️🌈'});
+    // Special New Cards
+    if(p(0.992)) deck.push({color:'wild',value:'instantWin',type:'instantWin',label:'🏆🌈',isRare:true});
+    if(p(0.995)) deck.push({color:'wild',value:'eternalSkip',type:'eternalSkip',label:'♾️⊘🌈',isRare:true});
+    deck.push({color:'wild',value:'frenzy',type:'frenzy',label:'🌀🌈'});
+  }
   
   // RARE cards (1 each)
-  deck.push({color:'rare',value:'swapDecks',type:'swapDecks',label:'🔀',isRare:true});
-  deck.push({color:'rare',value:'handFreeze',type:'handFreeze',label:'❄️',isRare:true});
-  deck.push({color:'rare',value:'stealWild',type:'stealWild',label:'🎭',isRare:true});
-  deck.push({color:'rare',value:'shuffleStorm',type:'shuffleStorm',label:'🌪️',isRare:true});
-  deck.push({color:'rare',value:'doubleEdge',type:'doubleEdge',label:'⚔️',isRare:true});
-  deck.push({color:'rare',value:'hotPotato',type:'hotPotato',label:'🥔',isRare:true});
-  deck.push({color:'rare',value:'communism',type:'communism',label:'☭',isRare:true});
-  deck.push({color:'rare',value:'targetPlus4',type:'targetPlus4',num:4,label:'🎯+4',isRare:true});
-  deck.push({color:'rare',value:'superBanana',type:'superBanana',label:'🍌✨',isRare:true});
-  deck.push({color:'rare',value:'disarmWilds',type:'disarmWilds',label:'🚫🌈',isRare:true});
-  // Mythic cards (0.25% chance each)
-  if(Math.random() < 0.0025) deck.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});
-  // Ultra-rare +99 card for normal games (0.1% chance per deck)
-  if(Math.random() < 0.001) deck.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
+  if(pool.rares){
+    deck.push({color:'rare',value:'swapDecks',type:'swapDecks',label:'🔀',isRare:true});
+    deck.push({color:'rare',value:'handFreeze',type:'handFreeze',label:'❄️',isRare:true});
+    deck.push({color:'rare',value:'stealWild',type:'stealWild',label:'🎭',isRare:true});
+    deck.push({color:'rare',value:'shuffleStorm',type:'shuffleStorm',label:'🌪️',isRare:true});
+    deck.push({color:'rare',value:'doubleEdge',type:'doubleEdge',label:'⚔️',isRare:true});
+    deck.push({color:'rare',value:'hotPotato',type:'hotPotato',label:'🥔',isRare:true});
+    deck.push({color:'rare',value:'communism',type:'communism',label:'☭',isRare:true});
+    deck.push({color:'rare',value:'targetPlus4',type:'targetPlus4',num:4,label:'🎯+4',isRare:true});
+    deck.push({color:'rare',value:'superBanana',type:'superBanana',label:'🍌✨',isRare:true});
+    deck.push({color:'rare',value:'disarmWilds',type:'disarmWilds',label:'🚫🌈',isRare:true});
+    // Mythic cards
+    if(p(0.9975)) deck.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});
+    // Ultra-rare +99 card
+    if(p(0.999)) deck.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
+  }
+  
+  // Safety check: if deck is empty (all settings off), add some numbers
+  if(deck.length === 0){
+    for(const color of COLORS) for(let n=1;n<=12;n++) deck.push({color,value:String(n),type:'number',label:String(n)});
+  }
   return deck;
 }
 
@@ -1708,6 +1888,75 @@ let botTimer=null;
 let autoDrawing=false;
 let hotPotatoTimer=null;
 let lastMove=null;
+
+let teamMode = false;
+let sandboxSettings = {
+  startingCards: 7,
+  chaosFactor: 1.0,
+  alwaysDrawOnes: false,
+  controlTeammate: false,
+  customHand: "",
+  pool: {
+    numbers: true,
+    specials: true,
+    draws: true,
+    wilds: true,
+    rares: true
+  }
+};
+
+function openSandboxSettings(){
+  document.getElementById('sandbox-modal').classList.remove('hidden');
+  document.getElementById('sb-starting-cards').value = sandboxSettings.startingCards;
+  document.getElementById('sb-chaos').value = sandboxSettings.chaosFactor;
+  document.getElementById('sb-ones').checked = sandboxSettings.alwaysDrawOnes;
+  document.getElementById('sb-control-team').checked = sandboxSettings.controlTeammate;
+  document.getElementById('sb-custom-hand').value = sandboxSettings.customHand || "";
+  document.getElementById('sb-pool-numbers').checked = sandboxSettings.pool.numbers;
+  document.getElementById('sb-pool-specials').checked = sandboxSettings.pool.specials;
+  document.getElementById('sb-pool-draws').checked = sandboxSettings.pool.draws;
+  document.getElementById('sb-pool-wilds').checked = sandboxSettings.pool.wilds;
+  document.getElementById('sb-pool-rares').checked = sandboxSettings.pool.rares;
+}
+
+function closeSandbox(){
+  sandboxSettings.startingCards = parseInt(document.getElementById('sb-starting-cards').value) || 7;
+  sandboxSettings.chaosFactor = parseFloat(document.getElementById('sb-chaos').value) || 1.0;
+  sandboxSettings.alwaysDrawOnes = document.getElementById('sb-ones').checked;
+  sandboxSettings.controlTeammate = document.getElementById('sb-control-team').checked;
+  sandboxSettings.customHand = document.getElementById('sb-custom-hand').value.trim();
+  sandboxSettings.pool.numbers = document.getElementById('sb-pool-numbers').checked;
+  sandboxSettings.pool.specials = document.getElementById('sb-pool-specials').checked;
+  sandboxSettings.pool.draws = document.getElementById('sb-pool-draws').checked;
+  sandboxSettings.pool.wilds = document.getElementById('sb-pool-wilds').checked;
+  sandboxSettings.pool.rares = document.getElementById('sb-pool-rares').checked;
+  document.getElementById('sandbox-modal').classList.add('hidden');
+}
+
+function resetSandbox(){
+  document.getElementById('sb-starting-cards').value = 7;
+  document.getElementById('sb-chaos').value = 1.0;
+  document.getElementById('sb-ones').checked = false;
+  document.getElementById('sb-control-team').checked = false;
+  document.getElementById('sb-custom-hand').value = "";
+  document.getElementById('sb-pool-numbers').checked = true;
+  document.getElementById('sb-pool-specials').checked = true;
+  document.getElementById('sb-pool-draws').checked = true;
+  document.getElementById('sb-pool-wilds').checked = true;
+  document.getElementById('sb-pool-rares').checked = true;
+}
+
+function toggleTeamMode(){
+  teamMode = !teamMode;
+  const btn = document.getElementById('team-mode-btn');
+  btn.textContent = teamMode ? '👥 Team: ON' : '👥 Team: OFF';
+  btn.style.borderColor = teamMode ? '#A855F7' : '';
+  btn.style.boxShadow = teamMode ? '0 0 20px rgba(168,85,247,0.4)' : '';
+  if(teamMode && selectedBots < 3){
+    selectBots(3);
+    showStatus('Team Mode requires at least 4 players! (3 Bots)', 2000);
+  }
+}
 
 function selectBots(n){selectedBots=n;document.querySelectorAll('.bot-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.dataset.bots)===n));}
 
@@ -1743,18 +1992,57 @@ async function startGame(){
   const botNames=shuffle(allNames);
   const players=[{name:'You',isBot:false,cards:[]}];
   for(let i=0;i<selectedBots;i++) players.push({name:botNames[i]||(`Bot ${i+1}`),isBot:true,cards:[]});
+  
+  // Team Assignment
+  if(teamMode){
+    players[0].team = 1;
+    if(players[1]) players[1].team = 2;
+    if(players[2]) players[2].team = 1;
+    if(players[3]) players[3].team = 2;
+    // Teammate control logic
+    if(sandboxSettings.controlTeammate && players[2]){
+      players[2].isBot = false;
+      players[2].isControlledBot = true;
+      players[2].name = 'Teammate (You)';
+    }
+  }
+
   let firstIdx=deck.findIndex(c=>c.type==='number');if(firstIdx<0) firstIdx=0;
   const firstCard=deck.splice(firstIdx,1)[0];
-  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},eternalSkips:{},frenzyMode:false,stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat};
+  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},eternalSkips:{},skipNext:{},frenzyMode:false,stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat,onlyDrawOnes:sandboxSettings.alwaysDrawOnes};
   renderOpponents();renderDiscard();updateColorBar();
   document.getElementById('player-hand').innerHTML='';
   document.getElementById('player-name-label').textContent='YOU';
   await dealAnimation(players);
-  for(let i=0;i<7;i++){
+  
+  // Custom Starting Hand Logic
+  let customCards = [];
+  if(sandboxSettings.customHand){
+    const types = sandboxSettings.customHand.split(',').map(s=>s.trim().toLowerCase()).filter(s=>s);
+    const fullDeck = buildDeck(); // Get all possible cards
+    for(const type of types){
+      // Try to find a card that matches the type or value or label
+      const card = fullDeck.find(c => 
+        c.type.toLowerCase() === type || 
+        c.value.toLowerCase() === type || 
+        c.label.toLowerCase() === type
+      );
+      if(card) customCards.push(JSON.parse(JSON.stringify(card))); // Clone it
+    }
+  }
+
+  const startCards = sandboxSettings.startingCards;
+  for(let i=0;i<startCards;i++){
     for(let pi=0;pi<state.players.length;pi++){
       const p=state.players[pi];
+      const isControlled = pi === 0 || (p.isControlledBot);
+      
       if(pi===0 && orinCheatActive){p.cards.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});}
       else if(pi===0 && plus99Cheat){p.cards.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});}
+      else if(isControlled && customCards.length > 0){
+        // Give custom cards first to the user and controlled bot
+        p.cards.push(customCards.shift());
+      }
       else{p.cards.push(drawCard(state));}
     }
   }
@@ -1781,7 +2069,7 @@ function dealAnimation(players){
       if(zone){const r=zone.getBoundingClientRect();return{x:r.left+r.width/2+ci*8-20,y:r.top+r.height/2};}
       return{x:window.innerWidth/2,y:50};
     };
-    for(let card=0;card<7;card++) for(let pi=0;pi<players.length;pi++){
+    for(let card=0;card<sandboxSettings.startingCards;card++) for(let pi=0;pi<players.length;pi++){
       const delay=count*180;const dest=getDest(pi,card);
       const dc=document.createElement('div');dc.className='deal-card';dc.textContent='🂠';
       dc.style.left='0';dc.style.top='0';
@@ -1813,9 +2101,39 @@ function updateOpponentZone(idx){
   const nameEl=document.getElementById(`opp-name-${idx}`);
   if(!cardsEl) return;
   cardsEl.innerHTML='';
-  const show=Math.min(p.cards.length,10);
-  for(let i=0;i<show;i++){const mc=document.createElement('div');mc.className='opp-card-mini';mc.textContent='🂠';cardsEl.appendChild(mc);}
-  if(p.cards.length>show){const more=document.createElement('span');more.style.cssText='font-size:0.65em;color:rgba(255,255,255,0.4);margin-left:4px;';more.textContent='+'+(p.cards.length-show);cardsEl.appendChild(more);}
+  
+  const isTeammate = teamMode && p.team === state.players[0].team;
+  const showCount = Math.min(p.cards.length, 10);
+
+  if (isTeammate) {
+    // Show actual cards for teammates
+    p.cards.forEach((card, i) => {
+      const cardEl = buildCardEl(card);
+      cardEl.classList.add('opp-card-mini');
+      cardEl.style.marginLeft = i > 0 ? '-25px' : '0';
+      // Scale down buildCardEl to fit mini size
+      cardEl.style.transform = 'scale(0.65)';
+      cardEl.style.transformOrigin = 'left center';
+      cardsEl.appendChild(cardEl);
+    });
+    // Adjust container width if many cards
+    if (p.cards.length > 5) cardsEl.style.width = 'auto';
+  } else {
+    // Show back of cards for opponents
+    for(let i=0;i<showCount;i++){
+      const mc=document.createElement('div');
+      mc.className='opp-card-mini';
+      mc.textContent='🂠';
+      cardsEl.appendChild(mc);
+    }
+    if(p.cards.length>showCount){
+      const more=document.createElement('span');
+      more.style.cssText='font-size:0.65em;color:rgba(255,255,255,0.4);margin-left:4px;';
+      more.textContent='+'+(p.cards.length-showCount);
+      cardsEl.appendChild(more);
+    }
+  }
+
   infoEl.innerHTML=`${p.cards.length} card${p.cards.length!==1?'s':''}`;
   if(state.frozenPlayers&&state.frozenPlayers[idx]){
     const fi=document.createElement('div');fi.className='frozen-indicator';fi.textContent='❄️ Frozen';infoEl.appendChild(fi);
@@ -1867,8 +2185,17 @@ function updateColorBar(){
 }
 function renderPlayerHand(){
   const hand=document.getElementById('player-hand');hand.innerHTML='';
-  const player=state.players[0];
-  const isMyTurn=state.currentPlayer===0&&!state.gameOver;
+  
+  // Determine which player's hand to show
+  let displayIdx = 0;
+  if (state.currentPlayer !== 0 && state.players[state.currentPlayer] && state.players[state.currentPlayer].isControlledBot) {
+    displayIdx = state.currentPlayer;
+  }
+  
+  const player=state.players[displayIdx];
+  const isMyTurn=(state.currentPlayer===0 || (state.players[state.currentPlayer] && state.players[state.currentPlayer].isControlledBot)) && !state.gameOver;
+  const isActiveTurn = state.currentPlayer === displayIdx && !state.gameOver;
+
   const containerW=hand.parentElement.offsetWidth-24;
   const cardW=74;const count=player.cards.length;
   let overlap=20;
@@ -1877,19 +2204,26 @@ function renderPlayerHand(){
     const wrapper=document.createElement('div');wrapper.className='hand-card';wrapper.style.zIndex=idx+1;
     if(idx>0) wrapper.style.marginLeft=`-${overlap}px`;
     wrapper.appendChild(buildCardEl(card));
-    const canPlay=isMyTurn&&isPlayable(card);
-    if(isMyTurn){
+    const canPlay=isActiveTurn&&isPlayable(card);
+    if(isActiveTurn){
       wrapper.classList.add(canPlay?'playable':'not-playable');
       if(canPlay&&(card.isRare||card.color==='rare')) wrapper.classList.add('rare-playable');
       if(canPlay) wrapper.onclick=()=>attemptPlay(idx);
     }
     hand.appendChild(wrapper);
   });
+  
   const label=document.getElementById('player-name-label');
-  if(isMyTurn){
-    label.innerHTML='<span class="turn-dot"></span> YOU';label.style.color='#22D46B';
-    const flash=document.createElement('div');flash.className='your-turn-flash';document.body.appendChild(flash);setTimeout(()=>flash.remove(),650);
-  } else {label.textContent='YOU';label.style.color='';}
+  if(isActiveTurn){
+    label.innerHTML=`<span class="turn-dot"></span> ${player.name.toUpperCase()}`;
+    label.style.color='#22D46B';
+    if (displayIdx === state.currentPlayer) {
+      const flash=document.createElement('div');flash.className='your-turn-flash';document.body.appendChild(flash);setTimeout(()=>flash.remove(),650);
+    }
+  } else {
+    label.textContent=player.name.toUpperCase();
+    label.style.color='';
+  }
   updatePendingDrawBadge();
 }
 function updatePendingDrawBadge(){
@@ -1970,8 +2304,11 @@ function pickPlayer(title,exclude=[]){
 
 /* ═══ ATTEMPT PLAY ═══ */
 async function attemptPlay(idx){
-  if(state.currentPlayer!==0||state.gameOver) return;
-  const card=state.players[0].cards[idx];
+  const pIdx = state.currentPlayer;
+  const player = state.players[pIdx];
+  if(!player || (pIdx !== 0 && !player.isControlledBot) || state.gameOver) return;
+  
+  const card=player.cards[idx];
   if(!isPlayable(card)){playSound('error');shakeCard(idx);return;}
   const hand=document.getElementById('player-hand');const wrapper=hand.children[idx];
   if(wrapper){
@@ -1983,7 +2320,7 @@ async function attemptPlay(idx){
     flyEl.style.setProperty('--tr',(Math.random()*30-15)+'deg');
     document.body.appendChild(flyEl);setTimeout(()=>flyEl.remove(),450);
   }
-  await executePlayCard(0,idx);
+  await executePlayCard(pIdx,idx);
 }
 function shakeCard(idx){
   const hand=document.getElementById('player-hand');const w=hand.children[idx];if(!w) return;
@@ -2019,7 +2356,7 @@ async function executePlayCard(playerIdx,cardIdx){
     const fakeCard={...card,type:lastMove.type,num:lastMove.num,value:lastMove.value};
     lastMove=moveInfo;
     if(fakeCard.color==='wild'||fakeCard.color==='rare'){
-      if(playerIdx===0){pendingWild={card:fakeCard,playerIdx};showColorPicker(`Copycat ${fakeCard.type}! Choose Color:`);}
+      if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){pendingWild={card:fakeCard,playerIdx};showColorPicker(`Copycat ${fakeCard.type}! Choose Color:`);}
       else{const bc=botPickColor(state.players[playerIdx]);state.currentColor=bc;await applyCardEffect(fakeCard,playerIdx,bc);}
     } else {await applyCardEffect(fakeCard,playerIdx,fakeCard.color);}
     return;
@@ -2044,16 +2381,16 @@ async function executePlayCard(playerIdx,cardIdx){
 
   // Wild / rare handling
   if(card.color==='wild'||card.color==='rare'){
-    if(playerIdx===0){
+    if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){
       if(card.isRare||card.color==='rare'){await applyRareEffect(card,playerIdx,null);return;}
-      if(state.stealWildOwner!==null&&state.stealWildOwner!==0){
+      if(state.stealWildOwner!==null&&state.stealWildOwner!==playerIdx){
         const thief=state.stealWildOwner;state.stealWildOwner=null;
         showStatus(`🎭 ${state.players[thief].name} steals the wild!`,2000);
         const banner=document.createElement('div');banner.className='steal-wild-banner';
         banner.textContent=`🎭 ${state.players[thief].name} STEALS THE WILD!`;document.body.appendChild(banner);setTimeout(()=>banner.remove(),2600);
-        const bc=botPickColor(state.players[thief]);state.currentColor=bc;
-        showStatus(`${state.players[thief].name} chose ${bc}!`,1500);
-        await applyCardEffect(card,thief,bc);return;
+        if(thief===0 || (state.players[thief] && state.players[thief].isControlledBot)){pendingWild={card,playerIdx:thief};showColorPicker('🎭 You stole the wild! Choose color:');}
+        else{const bc=botPickColor(state.players[thief]);state.currentColor=bc;showStatus(`${state.players[thief].name} chose ${bc}!`,1500);await applyCardEffect(card,thief,bc);}
+        return;
       }
       pendingWild={card,playerIdx};showColorPicker('Choose a Color');
     } else {
@@ -2063,7 +2400,7 @@ async function executePlayCard(playerIdx,cardIdx){
         showStatus(`🎭 ${state.players[thief].name} steals the wild!`,2000);
         const banner=document.createElement('div');banner.className='steal-wild-banner';
         banner.textContent=`🎭 ${state.players[thief].name} STEALS THE WILD!`;document.body.appendChild(banner);setTimeout(()=>banner.remove(),2600);
-        if(thief===0){pendingWild={card,playerIdx:0};showColorPicker('🎭 You stole the wild! Choose color:');}
+        if(thief===0 || (state.players[thief] && state.players[thief].isControlledBot)){pendingWild={card,playerIdx:thief};showColorPicker('🎭 You stole the wild! Choose color:');}
         else{const bc=botPickColor(state.players[thief]);state.currentColor=bc;showStatus(`${state.players[thief].name} chose ${bc}!`,1500);await applyCardEffect(card,thief,bc);}
         return;
       }
@@ -2320,7 +2657,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       // MIRROR SPECIAL: if it's a wild mirror or a colored mirror that was played, 
       // let the player choose a new color IF it's their turn or if they played it out of turn?
       // Actually, mirrors usually keep the color or change it if wild.
-      if(card.type==='wildMirror' && playerIdx===0){
+      if(card.type==='wildMirror' && (playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot))){
         pendingWild={card,playerIdx};
         showColorPicker('🪞 Mirror used! Choose Color:');
         return;
@@ -2377,7 +2714,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
 
     case 'targetDraw2':{
       let target;
-      if(playerIdx===0){target=await pickPlayer('🎯 Who draws +2?');}
+      if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){target=await pickPlayer('🎯 Who draws +2?');}
       else{const others=state.players.map((_,i)=>i).filter(i=>i!==playerIdx);target=others[Math.floor(Math.random()*others.length)];}
       showStatus(`🎯 ${state.players[target].name} draws +2!`,1800);
       await animateDrawCards(2,100,target);for(let i=0;i<2;i++) state.players[target].cards.push(drawCard(state));
@@ -2440,11 +2777,70 @@ async function applyCardEffect(card, playerIdx, chosenColor){
 
     case 'targetPlus4':{
       let target;
-      if(playerIdx===0){target=await pickPlayer('🎯 Who draws +4?');}
+      if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){target=await pickPlayer('🎯 Who draws +4?');}
       else{const others=state.players.map((_,i)=>i).filter(i=>i!==playerIdx);target=others[Math.floor(Math.random()*others.length)];}
       showStatus(`🎯 ${state.players[target].name} draws +4!`,1800);
       await animateDrawCards(4,100,target);for(let i=0;i<4;i++) state.players[target].cards.push(drawCard(state));
       unfreezeAll();if(target===0) renderPlayerHand(); else updateOpponentZone(target);break;
+    }
+
+    case 'targetSkip': {
+      let target;
+      if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){
+        target = await pickPlayer('🎯 Who to skip?');
+      } else {
+        const others = state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
+        target = others[Math.floor(Math.random()*others.length)];
+      }
+      state.skipNext[target] = true;
+      showStatus(`🎯 ${state.players[target].name} will be skipped!`, 1800);
+      break;
+    }
+
+    case 'targetPlus2Skip': {
+      let target;
+      if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){
+        target = await pickPlayer('🎯 Who draws +2 & skips?');
+      } else {
+        const others = state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
+        target = others[Math.floor(Math.random()*others.length)];
+      }
+      state.skipNext[target] = true;
+      showStatus(`🎯 ${state.players[target].name} draws +2 & will be skipped!`, 2000);
+      await animateDrawCards(2, 100, target);
+      for(let i=0;i<2;i++) state.players[target].cards.push(drawCard(state));
+      if(target===0) renderPlayerHand(); else updateOpponentZone(target);
+      break;
+    }
+
+    case 'targetPlus4Skip': {
+      let target;
+      if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){
+        target = await pickPlayer('🎯 Who draws +4 & skips?');
+      } else {
+        const others = state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
+        target = others[Math.floor(Math.random()*others.length)];
+      }
+      state.skipNext[target] = true;
+      showStatus(`🎯 ${state.players[target].name} draws +4 & will be skipped!`, 2000);
+      await animateDrawCards(4, 100, target);
+      for(let i=0;i<4;i++) state.players[target].cards.push(drawCard(state));
+      if(target===0) renderPlayerHand(); else updateOpponentZone(target);
+      break;
+    }
+
+    case 'teleport': {
+      let target;
+      if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){
+        target = await pickPlayer('🌀 Pick next turn:');
+      } else {
+        const others = state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
+        target = others[Math.floor(Math.random()*others.length)];
+      }
+      const n = state.players.length;
+      state.currentPlayer = (target - state.direction + n) % n;
+      showStatus(`🌀 Teleport! ${state.players[target].name} is next!`, 2000);
+      break;
     }
 
     case 'wildPlus2SkipReverse':
@@ -2574,6 +2970,14 @@ function advanceTurn(){
     setTimeout(() => { advanceTurn(); finishTurn(state.currentPlayer); }, 500);
     return;
   }
+
+  // Target Skip check
+  if(state.skipNext && state.skipNext[state.currentPlayer]){
+    delete state.skipNext[state.currentPlayer];
+    showStatus(`${state.players[state.currentPlayer].name} is skipped! 🎯⊘`, 1400);
+    setTimeout(() => { advanceTurn(); finishTurn(state.currentPlayer); }, 500);
+    return;
+  }
 }
 function nextPlayerIdx(){const n=state.players.length;return(state.currentPlayer+state.direction+n)%n;}
 
@@ -2675,26 +3079,30 @@ async function showPlusAlert(n){
 async function drawFromDeck(){
   resumeAC();
   if(!gameRunning||state.gameOver||autoDrawing) return;
-  if(state.currentPlayer!==0){showStatus("Wait your turn! ✋",1000);return;}
+  const pIdx = state.currentPlayer;
+  const player = state.players[pIdx];
+  if(pIdx!==0 && (!player || !player.isControlledBot)){showStatus("Wait your turn! ✋",1000);return;}
   if(botTimer){showStatus("Wait... ⏳",800);return;}
   if(state.pendingDraw>0){
     const n=state.pendingDraw;autoDrawing=true;await showPlusAlert(n);
-    await animateDrawCards(n,40,0);for(let i=0;i<n;i++) state.players[0].cards.push(drawCard(state));
+    await animateDrawCards(n,40,pIdx);for(let i=0;i<n;i++) state.players[pIdx].cards.push(drawCard(state));
     state.pendingDraw=0;state.pendingDrawNum=null;autoDrawing=false;unfreezeAll();
-    showStatus(`Drew ${n} cards! 😬`,1800);spawnFloatMsg(`+${n}`,'#FF3B3B',0);
+    showStatus(`Drew ${n} cards! 😬`,1800);spawnFloatMsg(`+${n}`,'#FF3B3B',pIdx);
     advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();return;
   }
   if(state.hasDrawn){showStatus("You already drew this turn! 🛑",1200);return;}
-  state.hasDrawn=true;const drawn=drawCard(state);playSound('draw');spawnFloatMsg('+1','#aaa',0);unfreezeAll();
-  await animateDrawCards(1,0,0);state.players[0].cards.push(drawn);
+  state.hasDrawn=true;const drawn=drawCard(state);playSound('draw');spawnFloatMsg('+1','#aaa',pIdx);unfreezeAll();
+  await animateDrawCards(1,0,pIdx);state.players[pIdx].cards.push(drawn);
   if(isPlayable(drawn)){showStatus(`Drew ${drawn.label} — you can play it!`,2200);renderPlayerHand();}
   else{showStatus(`Drew: ${drawn.label}. Ending turn...`,1500);setTimeout(()=>{advanceTurn();renderPlayerHand();scheduleBot();},1500);}
 }
 
 async function triggerAutoDrawForPlayer(){
-  if(!gameRunning||state.gameOver||state.currentPlayer!==0){autoDrawing=false;return;}
-  const n=state.pendingDraw;await showPlusAlert(n);await animateDrawCards(n,40,0);
-  for(let i=0;i<n;i++) state.players[0].cards.push(drawCard(state));
+  const pIdx = state.currentPlayer;
+  const player = state.players[pIdx];
+  if(!gameRunning||state.gameOver||(pIdx!==0 && (!player || !player.isControlledBot))){autoDrawing=false;return;}
+  const n=state.pendingDraw;await showPlusAlert(n);await animateDrawCards(n,40,pIdx);
+  for(let i=0;i<n;i++) state.players[pIdx].cards.push(drawCard(state));
   state.pendingDraw=0;state.pendingDrawNum=null;state.onlyDrawOnes=false;autoDrawing=false;unfreezeAll();
   advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();
 }
@@ -2706,11 +3114,13 @@ function animateDrawCards(count,intervalMs,targetIdx=0){
     for(let i=0;i<count;i++){
       setTimeout(()=>{
         const dr=deckEl.getBoundingClientRect();let destX,destY;
-        if(targetIdx===0){const hand=document.getElementById('player-hand');const hr=hand.getBoundingClientRect();destX=hr.left+hr.width/2+(Math.random()-0.5)*100;destY=hr.top-40;}
+        const p = state.players[targetIdx];
+        const isShowingInMainHand = (targetIdx === 0) || (p && p.isControlledBot && state.currentPlayer === targetIdx);
+        if(isShowingInMainHand){const hand=document.getElementById('player-hand');const hr=hand.getBoundingClientRect();destX=hr.left+hr.width/2+(Math.random()-0.5)*100;destY=hr.top-40;}
         else{const zone=document.getElementById(`opp-zone-${targetIdx}`);if(zone){const zr=zone.getBoundingClientRect();destX=zr.left+zr.width/2;destY=zr.top+20;}else{destX=window.innerWidth/2;destY=80;}}
         const el=document.createElement('div');el.className='draw-fly';el.textContent='🂠';
         el.style.cssText=`width:52px;height:74px;left:${dr.left}px;top:${dr.top}px;font-size:1.4em;z-index:1000;`;
-        if(targetIdx!==0) el.style.boxShadow="0 0 15px rgba(34,212,107,0.6)";else el.style.boxShadow="0 0 20px rgba(168,85,247,0.6)";
+        if(!isShowingInMainHand) el.style.boxShadow="0 0 15px rgba(34,212,107,0.6)";else el.style.boxShadow="0 0 20px rgba(168,85,247,0.6)";
         document.body.appendChild(el);
         const startX=dr.left,startY=dr.top,dx=destX-startX,dy=destY-startY,dur=300,start=performance.now();
         function step(now){
