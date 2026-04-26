@@ -403,12 +403,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 }
 .game-card .card-shine{position:absolute;top:-50%;left:-60%;width:40%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);transform:skewX(-25deg);pointer-events:none;animation:cardShine 3.5s ease-in-out infinite;}
 
-.card-red{background:linear-gradient(145deg,#ff5f6d,#ffc371);color:white;border-color:rgba(255,255,255,0.45);}
-.card-blue{background:linear-gradient(145deg,#2193b0,#6dd5ed);color:white;border-color:rgba(255,255,255,0.45);}
-.card-yellow{background:linear-gradient(145deg,#fceeb5,#fba100);color:#1a1000;border-color:rgba(255,255,255,0.5);}
-.card-green{background:linear-gradient(145deg,#00b09b,#96c93d);color:white;border-color:rgba(255,255,255,0.45);}
-.card-purple{background:linear-gradient(145deg,#8e2de2,#4a00e0);color:white;border-color:rgba(255,255,255,0.45);}
-.card-wild{background:linear-gradient(145deg,#1e1e2f,#3e3e5f);color:white;border-color:rgba(255,255,255,0.5)!important;}
+.card-red{background:linear-gradient(145deg,#c01818,#FF3B3B);color:white;border-color:rgba(255,255,255,0.45);}
+.card-blue{background:linear-gradient(145deg,#1040c0,#2B7FFF);color:white;border-color:rgba(255,255,255,0.45);}
+.card-yellow{background:linear-gradient(145deg,#b88800,#FFD600);color:#1a1000;border-color:rgba(255,255,255,0.5);}
+.card-green{background:linear-gradient(145deg,#0e6830,#22D46B);color:white;border-color:rgba(255,255,255,0.45);}
+.card-purple{background:linear-gradient(145deg,#5010a0,#A855F7);color:white;border-color:rgba(255,255,255,0.45);}
+.card-wild{background:linear-gradient(145deg,#1a1a38,#2d2d5e);color:white;border-color:rgba(255,255,255,0.5)!important;}
 .card-wild .card-center{
   background:conic-gradient(from 0deg,#FF3B3B 0deg 72deg,#FFD600 72deg 144deg,#22D46B 144deg 216deg,#2B7FFF 216deg 288deg,#A855F7 288deg 360deg);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
@@ -1472,7 +1472,7 @@ function buildDeck(){
     // Skip All
     deck.push({color,value:'skipAll',type:'skipAll',label:'⊘⊘'});
     // Target draw
-    deck.push({color,value:'targetDraw2',type:'targetDraw2',label:'🎯+2'});
+    deck.push({color,value:'targetDraw2',type:'targetDraw2',num:2,label:'🎯+2'});
     if(Math.random()>0.6) deck.push({color,value:'doublePlay',type:'doublePlay',label:'2x'});
     // Colour Shift
     deck.push({color,value:'colorShift',type:'colorShift',label:'🎨'});
@@ -1481,8 +1481,8 @@ function buildDeck(){
     // Chaos Draw
     if(Math.random()>0.7) deck.push({color,value:'chaosDraw',type:'chaosDraw',label:'💥'});
     // Combo cards
-    deck.push({color,value:'reversePlus2',type:'reversePlus2',label:'↩️ +2'});
-    if(Math.random()>0.7) deck.push({color,value:'reversePlus4',type:'reversePlus4',label:'↩️ +4'});
+    deck.push({color,value:'reversePlus2',type:'reversePlus2',num:2,label:'↩️ +2'});
+    if(Math.random()>0.7) deck.push({color,value:'reversePlus4',type:'reversePlus4',num:4,label:'↩️ +4'});
     deck.push({color,value:'skipReverse',type:'skipReverse',label:'↩️ ⊘'});
     // Miracle card (rare per colour)
     if(Math.random()>0.7) deck.push({color,value:'miracle',type:'miracle',label:'🌟',isMiracle:true});
@@ -1508,10 +1508,10 @@ function buildDeck(){
   // Copycat
   deck.push({color:'wild',value:'copycat',type:'copycat',label:'🐱🌈'});
   // Wild combos
-  deck.push({color:'wild',value:'wildReversePlus2',type:'reversePlus2',label:'↩️ +2 🌈'});
-  deck.push({color:'wild',value:'wildReversePlus4',type:'reversePlus4',label:'↩️ +4 🌈'});
+  deck.push({color:'wild',value:'wildReversePlus2',type:'reversePlus2',num:2,label:'↩️ +2 🌈'});
+  deck.push({color:'wild',value:'wildReversePlus4',type:'reversePlus4',num:4,label:'↩️ +4 🌈'});
   deck.push({color:'wild',value:'wildSkipReverse',type:'skipReverse',label:'↩️ ⊘ 🌈'});
-  deck.push({color:'wild',value:'wildPlus2SkipReverse',type:'wildPlus2SkipReverse',label:'🌈 ↩️ ⊘ +2'});
+  deck.push({color:'wild',value:'wildPlus2SkipReverse',type:'wildPlus2SkipReverse',num:2,label:'🌈 ↩️ ⊘ +2'});
   deck.push({color:'wild',value:'doubleEdgeWild',type:'doubleEdge',label:'⚔️🌈'});
   // RARE cards (1 each)
   deck.push({color:'rare',value:'swapDecks',type:'swapDecks',label:'🔀',isRare:true});
@@ -1521,7 +1521,7 @@ function buildDeck(){
   deck.push({color:'rare',value:'doubleEdge',type:'doubleEdge',label:'⚔️',isRare:true});
   deck.push({color:'rare',value:'hotPotato',type:'hotPotato',label:'🥔',isRare:true});
   deck.push({color:'rare',value:'communism',type:'communism',label:'☭',isRare:true});
-  deck.push({color:'rare',value:'targetPlus4',type:'targetPlus4',label:'🎯+4',isRare:true});
+  deck.push({color:'rare',value:'targetPlus4',type:'targetPlus4',num:4,label:'🎯+4',isRare:true});
   deck.push({color:'rare',value:'superBanana',type:'superBanana',label:'🍌✨',isRare:true});
   deck.push({color:'rare',value:'disarmWilds',type:'disarmWilds',label:'🚫🌈',isRare:true});
   // Mythic cards (0.25% chance each)
@@ -1762,9 +1762,12 @@ function isPlayable(card){
   }
 
   if(state.pendingDraw>0){
-    if(card.type==='plus'||card.type==='wildPlus'||card.type==='mirror'||card.type==='wildMirror') return true;
-    return false;
-  }
+      // Stacking logic: same + number required, color irrelevant. Mirror can always stack.
+      if(card.type==='mirror'||card.type==='wildMirror') return true;
+      const pTypes=['plus','wildPlus','reversePlus2','reversePlus4','wildPlus2SkipReverse','targetPlus4','targetDraw2'];
+      if(pTypes.includes(card.type) && card.num===state.pendingDrawNum) return true;
+      return false;
+    }
 
   if(card.isRare||card.color==='rare') return true;
   if(card.color==='wild') return true;
@@ -1784,11 +1787,12 @@ function isPlayable(card){
   return false;
 }
 function canStackDraw(card){
-  if(state.pendingDraw<=0) return false;
-  if(card.type==='mirror'||card.type==='wildMirror') return true;
-  if(card.type==='plus'||card.type==='wildPlus') return true;
-  return false;
-}
+    if(state.pendingDraw<=0) return false;
+    if(card.type==='mirror'||card.type==='wildMirror') return true;
+    const pTypes=['plus','wildPlus','reversePlus2','reversePlus4','wildPlus2SkipReverse','targetPlus4','targetDraw2'];
+    if(pTypes.includes(card.type) && card.num===state.pendingDrawNum) return true;
+    return false;
+  }
 
 /* ═══ PLAYER PICKER ═══ */
 function pickPlayer(title,exclude=[]){
