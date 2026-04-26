@@ -367,6 +367,21 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
   box-shadow:0 6px 15px rgba(0,0,0,0.4), inset 0 0 25px rgba(0,0,0,0.15);
   transition:all 0.15s;cursor:default;user-select:none;overflow:hidden;
 }
+.game-card.card-complex{
+  background-image:linear-gradient(180deg,rgba(255,255,255,0.08),transparent 35%), linear-gradient(135deg, rgba(255,255,255,0.05), transparent 55%);
+}
+.game-card.card-complex .card-tl,
+.game-card.card-complex .card-br{
+  font-size:0.32em;
+  letter-spacing:0.2px;
+  opacity:0.95;
+}
+.game-card.card-complex .card-center{
+  font-size:0.77em;
+  letter-spacing:-0.4px;
+  line-height:1.02;
+  padding:0 6px;
+}
 .game-card::before{
   content:'';position:absolute;inset:5px;border-radius:10px;
   border:2px solid rgba(255,255,255,0.2);pointer-events:none;
@@ -1398,11 +1413,19 @@ function submitCode(){
     localStorage.setItem('unoh_orin_cheat', orinCheatActive);
     status.style.color = orinCheatActive ? '#22D46B' : '#FFD600';
     status.textContent = orinCheatActive ? 'Cheat Activated! 👑' : 'Cheat Deactivated! ❌';
+    showCodePopup(orinCheatActive ? 'Cheat activated! 👑' : 'Cheat deactivated! ❌');
     setTimeout(closeCodes, 1500);
   } else if(code === 'IHateYou1234567890'){
     localStorage.setItem('unoh_cheat_plus99', 'true');
     status.style.color = '#22D46B';
     status.textContent = 'Chaos is coming... +99! 😈';
+    showCodePopup('+99 ready to roll! 😈');
+    setTimeout(closeCodes, 1500);
+  } else if(code === 'Anzac'){
+    localStorage.setItem(ANZAC_THEME_UNLOCK_KEY, '1');
+    status.style.color = '#22D46B';
+    status.textContent = 'Anzac unlocked! 🇦🇺';
+    showCodePopup('Anzac unlocked! 🇦🇺');
     setTimeout(closeCodes, 1500);
   } else if(code === ''){
     status.textContent = '';
@@ -1419,6 +1442,16 @@ document.addEventListener('keydown', (e) => {
 
 /* ═══ CARD DEFINITIONS ═══ */
 const COLOR_HEX={red:'#FF3B3B',blue:'#2B7FFF',yellow:'#FFD600',green:'#22D46B',purple:'#A855F7',wild:'#A855F7',rare:'#A855F7'};
+const ANZAC_THEME_UNLOCK_KEY='wren_theme_anzac_unlocked';
+
+function showCodePopup(msg){
+  const popup=document.createElement('div');
+  popup.textContent=msg;
+  popup.style.cssText="position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-12px) scale(0.96);background:rgba(34,212,107,0.97);color:#06210f;padding:14px 22px;border-radius:18px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1em;letter-spacing:0.2px;box-shadow:0 16px 38px rgba(34,212,107,0.34),0 0 0 1px rgba(255,255,255,0.12);z-index:5000;opacity:0;pointer-events:none;transition:opacity 0.22s ease, transform 0.22s ease;";
+  document.body.appendChild(popup);
+  requestAnimationFrame(()=>{popup.style.opacity='1';popup.style.transform='translateX(-50%) translateY(0) scale(1)';});
+  setTimeout(()=>{popup.style.opacity='0';popup.style.transform='translateX(-50%) translateY(-10px) scale(0.96)';setTimeout(()=>popup.remove(),260);},1700);
+}
 
 function buildDeck(){
   const deck=[];
@@ -1448,9 +1481,9 @@ function buildDeck(){
     // Chaos Draw
     if(Math.random()>0.7) deck.push({color,value:'chaosDraw',type:'chaosDraw',label:'💥'});
     // Combo cards
-    deck.push({color,value:'reversePlus2',type:'reversePlus2',label:'↩️+2'});
-    if(Math.random()>0.7) deck.push({color,value:'reversePlus4',type:'reversePlus4',label:'↩️+4'});
-    deck.push({color,value:'skipReverse',type:'skipReverse',label:'↩️⊘'});
+    deck.push({color,value:'reversePlus2',type:'reversePlus2',label:'↩️ +2'});
+    if(Math.random()>0.7) deck.push({color,value:'reversePlus4',type:'reversePlus4',label:'↩️ +4'});
+    deck.push({color,value:'skipReverse',type:'skipReverse',label:'↩️ ⊘'});
     // Miracle card (rare per colour)
     if(Math.random()>0.7) deck.push({color,value:'miracle',type:'miracle',label:'🌟',isMiracle:true});
   }
@@ -1464,21 +1497,21 @@ function buildDeck(){
   // Mystery Wild
   deck.push({color:'wild',value:'mysteryWild',type:'mysteryWild',label:'❓🌈'});
   // Wild Plus series: +1, +2, +3, +4
-  deck.push({color:'wild',value:'wild+1',type:'wildPlus',num:1,label:'+1🌈'});
-  deck.push({color:'wild',value:'wild+1b',type:'wildPlus',num:1,label:'+1🌈'});
-  deck.push({color:'wild',value:'wild+2',type:'wildPlus',num:2,label:'+2🌈'});
-  deck.push({color:'wild',value:'wild+2b',type:'wildPlus',num:2,label:'+2🌈'});
-  deck.push({color:'wild',value:'wild+3',type:'wildPlus',num:3,label:'+3🌈'});
-  deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4🌈'});
+  deck.push({color:'wild',value:'wild+1',type:'wildPlus',num:1,label:'+1 🌈'});
+  deck.push({color:'wild',value:'wild+1b',type:'wildPlus',num:1,label:'+1 🌈'});
+  deck.push({color:'wild',value:'wild+2',type:'wildPlus',num:2,label:'+2 🌈'});
+  deck.push({color:'wild',value:'wild+2b',type:'wildPlus',num:2,label:'+2 🌈'});
+  deck.push({color:'wild',value:'wild+3',type:'wildPlus',num:3,label:'+3 🌈'});
+  deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4 🌈'});
   deck.push({color:'wild',value:'wildSkipAll',type:'wildSkipAll',label:'⊘⊘🌈'});
   deck.push({color:'wild',value:'pickUntil',type:'pickUntil',label:'🎲🌈'});
   // Copycat
   deck.push({color:'wild',value:'copycat',type:'copycat',label:'🐱🌈'});
   // Wild combos
-  deck.push({color:'wild',value:'wildReversePlus2',type:'reversePlus2',label:'↩️+2🌈'});
-  deck.push({color:'wild',value:'wildReversePlus4',type:'reversePlus4',label:'↩️+4🌈'});
-  deck.push({color:'wild',value:'wildSkipReverse',type:'skipReverse',label:'↩️⊘🌈'});
-  deck.push({color:'wild',value:'wildPlus2SkipReverse',type:'wildPlus2SkipReverse',label:'🌈↩️⊘+2'});
+  deck.push({color:'wild',value:'wildReversePlus2',type:'reversePlus2',label:'↩️ +2 🌈'});
+  deck.push({color:'wild',value:'wildReversePlus4',type:'reversePlus4',label:'↩️ +4 🌈'});
+  deck.push({color:'wild',value:'wildSkipReverse',type:'skipReverse',label:'↩️ ⊘ 🌈'});
+  deck.push({color:'wild',value:'wildPlus2SkipReverse',type:'wildPlus2SkipReverse',label:'🌈 ↩️ ⊘ +2'});
   deck.push({color:'wild',value:'doubleEdgeWild',type:'doubleEdge',label:'⚔️🌈'});
   // RARE cards (1 each)
   deck.push({color:'rare',value:'swapDecks',type:'swapDecks',label:'🔀',isRare:true});
@@ -1641,15 +1674,29 @@ function updateOpponentZone(idx){
 function buildCardEl(card){
   const el=document.createElement('div');
   const isRare=card.isRare||card.color==='rare';
+  const complexTypes=new Set(['reversePlus2','reversePlus4','skipReverse','wildSkipReverse','wildPlus2SkipReverse','doubleEdge','doubleEdgeWild','mirror','wildMirror','wildPlus']);
   el.className=`game-card card-${isRare?'rare':card.color}`;
+  if(complexTypes.has(card.type) || String(card.label||'').length>4) el.classList.add('card-complex');
   if(card.type==='orinCard'||(card.isRare&&card.label==='👑')) el.classList.add('orin-card');
   if(card.value==='wild+99') el.classList.add('card-plus99');
   if(card.type==='miracle') el.classList.add('card-miracle');
-  const tl=document.createElement('div');tl.className='card-tl';tl.textContent=card.label;
-  const center=document.createElement('div');center.className='card-center';center.textContent=card.label;
-  const br=document.createElement('div');br.className='card-br';br.textContent=card.label;
-  if(card.label.length>3){center.style.fontSize='0.9em';tl.style.fontSize='0.35em';br.style.fontSize='0.35em';}
-  if(card.label.length>5){center.style.fontSize='0.75em';center.style.letterSpacing='-1px';}
+  const label=String(card.label||'');
+  const cleaned=label.replace(/\s+/g,' ').trim();
+  const tl=document.createElement('div');tl.className='card-tl';
+  const center=document.createElement('div');center.className='card-center';
+  const br=document.createElement('div');br.className='card-br';
+  if(complexTypes.has(card.type)){
+    tl.textContent=card.color==='wild'?'🌈':(card.color==='rare'?'✦':'');
+    center.textContent=cleaned;
+    br.textContent=card.color==='wild'?'🌈':(card.color==='rare'?'✦':'');
+  }else{
+    tl.textContent=cleaned;
+    center.textContent=cleaned;
+    br.textContent=cleaned;
+  }
+  if(cleaned.length>3){center.style.fontSize='0.9em';tl.style.fontSize='0.35em';br.style.fontSize='0.35em';}
+  if(cleaned.length>5){center.style.fontSize='0.78em';center.style.letterSpacing='-1px';}
+  if(complexTypes.has(card.type)){center.style.fontSize='0.76em';center.style.lineHeight='1.04';}
   const shine=document.createElement('div');shine.className='card-shine';
   el.append(tl,center,br,shine);
   return el;
@@ -1715,7 +1762,7 @@ function isPlayable(card){
   }
 
   if(state.pendingDraw>0){
-    if((card.type==='plus'||card.type==='wildPlus')&&card.num===state.pendingDrawNum) return true;
+    if(card.type==='plus'||card.type==='wildPlus'||card.type==='mirror'||card.type==='wildMirror') return true;
     return false;
   }
 
@@ -1739,7 +1786,7 @@ function isPlayable(card){
 function canStackDraw(card){
   if(state.pendingDraw<=0) return false;
   if(card.type==='mirror'||card.type==='wildMirror') return true;
-  if(card.type==='plus'||card.type==='wildPlus') return card.num===state.pendingDrawNum;
+  if(card.type==='plus'||card.type==='wildPlus') return true;
   return false;
 }
 
@@ -2096,17 +2143,16 @@ async function applyCardEffect(card, playerIdx, chosenColor){
 
     case 'mirror': case 'wildMirror':{
       if(state.pendingDraw>0){
-        // Reflect the draw penalty back at the previous player
+        // Bounce the whole draw stack back to the player who should receive it next.
         const prevPlayer=(playerIdx - state.direction + n)%n;
         const reflectedAmt=state.pendingDraw;
-        state.pendingDraw=0;state.pendingDrawNum=null;
-        showStatus(`🪞 Mirror reflects +${reflectedAmt} back at ${state.players[prevPlayer].name}!`,2200);
+        state.currentPlayer=prevPlayer;
+        state.pendingDraw=reflectedAmt;
+        state.pendingDrawNum=reflectedAmt;
+        showStatus(`🪞 Mirror bounces +${reflectedAmt} to ${state.players[prevPlayer].name}!`,2200);
         playSound('reverse');
-        await animateDrawCards(reflectedAmt,60,prevPlayer);
-        for(let i=0;i<reflectedAmt;i++) state.players[prevPlayer].cards.push(drawCard(state));
-        unfreezeAll();
+        updatePendingDrawBadge();
         if(prevPlayer===0) renderPlayerHand(); else updateOpponentZone(prevPlayer);
-        spawnFloatMsg(`+${reflectedAmt} reflected!`,'#88ddff',prevPlayer);
       } else {
         // Act as a skip
         advanceTurn();showStatus(`🪞 Mirror skips ${state.players[state.currentPlayer].name}!`,1400);
