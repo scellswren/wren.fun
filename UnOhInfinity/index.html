@@ -42,10 +42,10 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 }
 #homeText:hover{transform:scale(1.15);}
 
-#menu-screen{gap:0; padding-bottom: 50px; justify-content: flex-start;}
-.menu-inner{display:flex;flex-direction:column;align-items:center;gap:18px;position:relative;z-index:2; padding: 20px 0; width: 100%; max-width: 1000px; margin: 0 auto;}
-.menu-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:30px;width:100%;padding:20px;max-width:900px;}
-.menu-section{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:15px;align-items:center;backdrop-filter:blur(10px);transition:all 0.3s ease;}
+#menu-screen{gap:0; padding-bottom: 50px; justify-content: center;}
+.menu-inner{display:flex;flex-direction:column;align-items:center;gap:30px;position:relative;z-index:2; padding: 40px 0; width: 100%; max-width: 1000px; margin: 0 auto;}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:30px;width:100%;padding:20px;max-width:900px;align-items:start;}
+.menu-section{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:15px;align-items:center;backdrop-filter:blur(10px);transition:all 0.3s ease;height:100%;}
 .menu-section:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.15);transform:translateY(-5px);}
 .menu-section .section-label{margin-top:0 !important;}
 .bot-grid{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
@@ -454,6 +454,28 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 .card-plus99 .card-tl, .card-plus99 .card-br, .card-plus99 .card-center{
   background: none !important;-webkit-text-fill-color: #FFD600 !important;color: #FFD600 !important;
 }
+.card-mirror::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 40%, rgba(255,255,255,0.2) 60%, rgba(255,255,255,0.5) 100%) !important;
+  z-index: 1; pointer-events: none;
+}
+.card-mirror .card-center {
+  text-shadow: 0 0 10px rgba(255,255,255,0.8) !important;
+  -webkit-text-fill-color: white !important;
+  background: none !important;
+}
+.card-mirror.card-wild .card-center {
+  background: conic-gradient(from 0deg,#FF3B3B,#FFD600,#22D46B,#2B7FFF,#A855F7) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+.card-suppress {
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.5) !important;
+}
+.card-suppress::after {
+  content: '🚫'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 3em; opacity: 0.1; pointer-events: none; z-index: 0;
+}
 @keyframes rareCardPulse{
   0%,100%{box-shadow:0 4px 20px rgba(168,85,247,0.6),0 0 0 1px rgba(210,130,255,0.3)}
   50%{box-shadow:0 4px 30px rgba(168,85,247,0.9),0 0 20px rgba(210,130,255,0.5),0 0 0 2px rgba(210,130,255,0.5)}
@@ -650,6 +672,8 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
     <div class="menu-stats">
       <div class="stat-pill">🏆 Wins: <span id="win-count">0</span></div>
       <div class="stat-pill">🎮 Games: <span id="game-count">0</span></div>
+      <div class="stat-pill" style="border-color:rgba(168,85,247,0.4);">👥 Team Wins: <span id="team-win-count">0</span></div>
+      <div class="stat-pill" style="border-color:rgba(168,85,247,0.4);">🤝 Team Games: <span id="team-game-count">0</span></div>
     </div>
 
     <div class="menu-grid">
@@ -697,12 +721,21 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
     <div class="guide-subtitle">2v2 Cooperative Play</div>
     <div style="margin:20px 0;display:flex;flex-direction:column;gap:15px;text-align:left;">
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <label style="font-weight:700;">Teammate Control:</label>
+        <label style="font-weight:700;">Friend Control:</label>
         <div class="bot-grid" style="grid-template-columns: 1fr 1fr;">
           <button class="bot-btn selected" id="team-type-bot" onclick="setTeamType('bot')">🤖 Bot</button>
           <button class="bot-btn" id="team-type-friend" onclick="setTeamType('friend')">🎮 Friend</button>
         </div>
-        <div id="team-desc" style="font-size:0.75em;color:var(--muted);margin-top:5px;">Your teammate will be an AI-controlled bot.</div>
+        <div id="team-desc" style="font-size:0.75em;color:var(--muted);margin-top:5px;">Your friend will be an AI-controlled bot.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+        <label style="font-weight:700;">Opposing Teams:</label>
+        <div class="bot-grid">
+          <button class="bot-btn selected" id="team-opps-1" onclick="setTeamOpps(1)">1 Team</button>
+          <button class="bot-btn" id="team-opps-2" onclick="setTeamOpps(2)">2 Teams</button>
+          <button class="bot-btn" id="team-opps-3" onclick="setTeamOpps(3)">3 Teams</button>
+        </div>
+        <div style="font-size:0.75em;color:var(--muted);margin-top:5px;">How many teams you will verse (total 4, 6, or 8 players).</div>
       </div>
     </div>
     <div class="menu-btn-row">
@@ -725,6 +758,10 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
         <input type="number" id="sb-starting-cards" value="7" min="1" max="50" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 10px;border-radius:8px;width:60px;">
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
+        <label style="font-weight:700;">Opponents (1-7):</label>
+        <input type="number" id="sb-opponents" value="3" min="1" max="7" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 10px;border-radius:8px;width:60px;">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
         <label style="font-weight:700;">Chaos Factor (0.1 - 5.0):</label>
         <input type="number" id="sb-chaos" step="0.1" min="0.1" max="5" value="1.0" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 10px;border-radius:8px;width:60px;">
       </div>
@@ -733,7 +770,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
         <input type="checkbox" id="sb-ones" style="width:20px;height:20px;">
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <label style="font-weight:700;">Control Teammate (Team Mode):</label>
+        <label style="font-weight:700;">Control Friend (Team Mode):</label>
         <input type="checkbox" id="sb-control-team" style="width:20px;height:20px;">
       </div>
 
@@ -744,12 +781,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
       </div>
 
       <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
-        <label style="font-weight:700;display:block;margin-bottom:8px;">Card Pool Filters:</label>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
-          <label style="font-size:0.85em;display:flex;align-items:center;gap:5px;"><input type="checkbox" id="sb-pool-numbers" checked onchange="refreshPoolFilters()"> Numbers</label>
-          <label style="font-size:0.85em;display:flex;align-items:center;gap:5px;"><input type="checkbox" id="sb-pool-wilds" checked onchange="refreshPoolFilters()"> Wilds</label>
-          <label style="font-size:0.85em;display:flex;align-items:center;gap:5px;"><input type="checkbox" id="sb-pool-plus" checked onchange="refreshPoolFilters()"> + Cards</label>
-        </div>
+        <label style="font-weight:700;display:block;margin-bottom:8px;">Card Pool Selection:</label>
         <button class="cards-btn" style="width:100%;" onclick="openCardSelector('pool')">🃏 Select Specific Pool Cards</button>
         <div id="pool-status" style="font-size:0.7em;color:var(--muted);margin-top:5px;text-align:center;">All cards are currently selected</div>
       </div>
@@ -758,7 +790,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
       <button class="play-btn" onclick="startSandboxMode()">▶ Play Sandbox</button>
     </div>
     <div class="menu-btn-row" style="margin-top:10px;">
-      <button class="cards-btn" onclick="closeSandbox()">Save & Back</button>
+      <button class="cards-btn" onclick="closeSandbox()">Back</button>
       <button class="cards-btn" style="background:rgba(255,59,59,0.2);" onclick="resetSandbox()">Reset</button>
     </div>
   </div>
@@ -772,7 +804,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
       <button class="guide-close" onclick="closeCardSelector()">✕</button>
     </div>
     <div style="padding:10px 20px;font-size:0.9em;color:var(--muted);" id="selector-desc"></div>
-    <div id="selector-grid" style="flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill, minmax(90px, 1fr));gap:15px;padding:20px;justify-items:center;align-content:start;">
+    <div id="selector-grid" style="flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill, minmax(90px, 1fr));gap:15px;padding:20px;justify-items:center;align-content:start;contain:content;-webkit-overflow-scrolling:touch;">
       <!-- Cards will be injected here -->
     </div>
     <div class="menu-btn-row" style="padding:20px;border-top:1px solid rgba(255,255,255,0.1);">
@@ -822,7 +854,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
           <div class="guide-card-top">
             <div class="guide-card-mini gcm-purple" style="font-size:1.3em;">7</div>
             <div class="guide-card-info">
-              <div class="guide-card-name">Numbers 1–12</div>
+              <div class="guide-card-name">Numbers 0–12</div>
               <div class="guide-card-desc">Standard numeric cards. Match by colour or number. The backbone of every hand.</div>
             </div>
           </div>
@@ -960,6 +992,16 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
             <div class="guide-card-info">
               <div class="guide-card-name">Skip Reverse</div>
               <div class="guide-card-desc">Reverses direction AND skips the next player.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🚫🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Suppress Colour</div>
+              <div class="guide-card-desc">Allows any card to be played regardless of colour or type for one full round (one turn per player).</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1277,6 +1319,16 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
     <div class="guide-section">
       <div class="guide-section-title">Rare Wild <span>Hard to get</span></div>
       <div class="guide-cards">
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.6em;">🚫🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Suppress Colour</div>
+              <div class="guide-card-desc">Matches any card. For one full round, everyone can play ANY color regardless of the active color.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
             <div class="guide-card-mini gcm-wild" style="font-size:0.65em;">🗑️🌈</div>
@@ -1813,134 +1865,144 @@ function showCodePopup(msg){
   setTimeout(()=>{popup.style.opacity='0';popup.style.transform='translateX(-50%) translateY(-10px) scale(0.96)';setTimeout(()=>popup.remove(),260);},1700);
 }
 
-function buildDeck(){
+function buildDeck(ignoreFilters = false){
   const deck=[];
   const chaos = sandboxSettings.chaosFactor;
-  const pool = sandboxSettings.pool;
   const p = (threshold) => Math.random() > (threshold / chaos);
   for(const color of COLORS){
-    // Numbers 1-12, 4 sets
-    if(pool.numbers){
-      for(let n=1;n<=12;n++) for(let i=0;i<4;i++) deck.push({color,value:String(n),type:'number',label:String(n)});
-    }
+    // Numbers 0-12, 4 sets
+    for(let n=0;n<=12;n++) for(let i=0;i<4;i++) deck.push({color,value:String(n),type:'number',label:String(n)});
     // Reverse / Skip
-    if(pool.specials){
-      for(let i=0;i<2;i++) deck.push({color,value:'reverse',type:'reverse',label:'↩'});
-      for(let i=0;i<2;i++) deck.push({color,value:'skip',type:'skip',label:'⊘'});
-      // Skip All
-      deck.push({color,value:'skipAll',type:'skipAll',label:'⊘⊘'});
-      // Target Skip & Teleport
-      deck.push({color,value:'targetSkip',type:'targetSkip',label:'🎯⊘'});
-      if(p(0.7)) deck.push({color,value:'teleport',type:'teleport',label:'🌀'});
-      // Colour Shift
-      deck.push({color,value:'colorShift',type:'colorShift',label:'🎨'});
-      // Mirror (coloured version)
-      deck.push({color,value:'mirror',type:'mirror',label:'🪞'});
-      // Skip Reverse
-      deck.push({color,value:'skipReverse',type:'skipReverse',label:'↩️ ⊘'});
-      // Suppress Wild
-      deck.push({color,value:'suppressWild',type:'suppressWild',label:'🚫🌈'});
-    }
+    for(let i=0;i<2;i++) deck.push({color,value:'reverse',type:'reverse',label:'↩'});
+    for(let i=0;i<2;i++) deck.push({color,value:'skip',type:'skip',label:'⊘'});
+    // Skip All
+    deck.push({color,value:'skipAll',type:'skipAll',label:'⊘⊘'});
+    // Target Skip & Teleport
+    deck.push({color,value:'targetSkip',type:'targetSkip',label:'🎯⊘'});
+    if(p(0.7)) deck.push({color,value:'teleport',type:'teleport',label:'🌀'});
+    // Colour Shift
+    deck.push({color,value:'colorShift',type:'colorShift',label:'🎨'});
+    // Mirror (coloured version)
+    deck.push({color,value:'mirror',type:'mirror',label:'🪞'});
+    // Skip Reverse
+    deck.push({color,value:'skipReverse',type:'skipReverse',label:'↩️ ⊘'});
+    // Suppress Colour
+    deck.push({color,value:'suppressColour',type:'suppressColour',label:'🚫🌈'});
+
     // Draw cards +1 through +4
-    if(pool.draws){
-      deck.push({color,value:'+1',type:'plus',num:1,label:'+1'});
-      deck.push({color,value:'+2',type:'plus',num:2,label:'+2'});
-      deck.push({color,value:'+3',type:'plus',num:3,label:'+3'});
-      deck.push({color,value:'+4',type:'plus',num:4,label:'+4'});
-      // Higher draw cards (rarer)
-      if(p(0.7)) deck.push({color,value:'+8',type:'plus',num:8,label:'+8'});
-      if(p(0.9)) deck.push({color,value:'+10',type:'plus',num:10,label:'+10'});
-      // Target draw
-      deck.push({color,value:'targetDraw2',type:'targetDraw2',num:2,label:'🎯+2'});
-      if(p(0.6)) deck.push({color,value:'doublePlay',type:'doublePlay',label:'2x'});
-      // Chaos Draw
-      if(p(0.7)) deck.push({color,value:'chaosDraw',type:'chaosDraw',label:'💥'});
-      // Target +2/+4 Skip
-      if(p(0.8)) deck.push({color,value:'targetPlus2Skip',type:'targetPlus2Skip',num:2,label:'🎯⊘+2'});
-      if(p(0.9)) deck.push({color,value:'targetPlus4Skip',type:'targetPlus4Skip',num:4,label:'🎯⊘+4'});
-      // Combo cards
-      deck.push({color,value:'reversePlus2',type:'reversePlus2',num:2,label:'↩️ +2'});
-      if(p(0.7)) deck.push({color,value:'reversePlus4',type:'reversePlus4',num:4,label:'↩️ +4'});
-      // + (1s) cards - Colored versions
-      deck.push({color,value:'plus2OneCol',type:'plusOne',num:2,label:'+2 (1s)'});
-      if(p(0.6)) deck.push({color,value:'plus4OneCol',type:'plusOne',num:4,label:'+4 (1s)'});
-    }
+    deck.push({color,value:'+1',type:'plus',num:1,label:'+1'});
+    deck.push({color,value:'+2',type:'plus',num:2,label:'+2'});
+    deck.push({color,value:'+3',type:'plus',num:3,label:'+3'});
+    deck.push({color,value:'+4',type:'plus',num:4,label:'+4'});
+    // Higher draw cards (rarer)
+    if(p(0.7)) deck.push({color,value:'+8',type:'plus',num:8,label:'+8'});
+    if(p(0.9)) deck.push({color,value:'+10',type:'plus',num:10,label:'+10'});
+    // Target draw
+    deck.push({color,value:'targetDraw2',type:'targetDraw2',num:2,label:'🎯+2'});
+    if(p(0.6)) deck.push({color,value:'doublePlay',type:'doublePlay',label:'2x'});
+    // Chaos Draw
+    if(p(0.7)) deck.push({color,value:'chaosDraw',type:'chaosDraw',label:'💥'});
+    // Target +2/+4 Skip
+    if(p(0.8)) deck.push({color,value:'targetPlus2Skip',type:'targetPlus2Skip',num:2,label:'🎯⊘+2'});
+    if(p(0.9)) deck.push({color,value:'targetPlus4Skip',type:'targetPlus4Skip',num:4,label:'🎯⊘+4'});
+    // Combo cards
+    deck.push({color,value:'reversePlus2',type:'reversePlus2',num:2,label:'↩️ +2'});
+    if(p(0.7)) deck.push({color,value:'reversePlus4',type:'reversePlus4',num:4,label:'↩️ +4'});
+    // + (1s) cards - Colored versions
+    deck.push({color,value:'plus2OneCol',type:'plusOne',num:2,label:'+2 (1s)'});
+    if(p(0.6)) deck.push({color,value:'plus4OneCol',type:'plusOne',num:4,label:'+4 (1s)'});
+
     // Helper card - Colored version
-    if(pool.rares){
-      deck.push({color,value:'helperCol',type:'helper',num:1,label:'-1'});
-      if(p(0.8)) deck.push({color,value:'helper2Col',type:'helper',num:2,label:'-2'});
-      // Miracle card (rare per colour)
-      if(p(0.7)) deck.push({color,value:'miracle',type:'miracle',label:'🌟',isMiracle:true});
-    }
+    deck.push({color,value:'helperCol',type:'helper',num:1,label:'-1'});
+    if(p(0.8)) deck.push({color,value:'helper2Col',type:'helper',num:2,label:'-2'});
+    // Miracle card (rare per colour)
+    if(p(0.7)) deck.push({color,value:'miracle',type:'miracle',label:'🌟',isMiracle:true});
   }
   // Wild cards
-  if(pool.wilds){
-    for(let i=0;i<4;i++) deck.push({color:'wild',value:'wild',type:'wild',label:'🌈'});
-    for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildReverse',type:'wildReverse',label:'↩🌈'});
-    for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildSkip',type:'wildSkip',label:'⊘🌈'});
-    for(let i=0;i<2;i++) deck.push({color:'wild',value:'discardColor',type:'discardColor',label:'🗑️🌈'});
-    // Wild Mirror
-    deck.push({color:'wild',value:'wildMirror',type:'wildMirror',label:'🪞🌈'});
-    // Wild Suppress Wild
-    deck.push({color:'wild',value:'wildSuppressWild',type:'suppressWild',label:'🚫🌈🌈'});
-    // Mystery Wild
-    deck.push({color:'wild',value:'mysteryWild',type:'mysteryWild',label:'❓🌈'});
-    // Wild Plus series
-    deck.push({color:'wild',value:'wild+1',type:'wildPlus',num:1,label:'+1 🌈'});
-    deck.push({color:'wild',value:'wild+1b',type:'wildPlus',num:1,label:'+1 🌈'});
-    deck.push({color:'wild',value:'wild+2',type:'wildPlus',num:2,label:'+2 🌈'});
-    deck.push({color:'wild',value:'wild+2b',type:'wildPlus',num:2,label:'+2 🌈'});
-    deck.push({color:'wild',value:'wild+3',type:'wildPlus',num:3,label:'+3 🌈'});
-    deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4 🌈'});
-    // Wild versions of + (1s)
-    deck.push({color:'wild',value:'plus2OneWild',type:'plusOne',num:2,label:'+2 (1s) 🌈'});
-    deck.push({color:'wild',value:'plus4OneWild',type:'plusOne',num:4,label:'+4 (1s) 🌈'});
-    // Wild version of Helper
-    deck.push({color:'wild',value:'helperWild',type:'helper',num:1,label:'-1 🌈'});
-    if(p(0.5)) deck.push({color:'wild',value:'helper2Wild',type:'helper',num:2,label:'-2 🌈'});
+  for(let i=0;i<4;i++) deck.push({color:'wild',value:'wild',type:'wild',label:'🌈'});
+  for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildReverse',type:'wildReverse',label:'↩🌈'});
+  for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildSkip',type:'wildSkip',label:'⊘🌈'});
+  for(let i=0;i<2;i++) deck.push({color:'wild',value:'discardColor',type:'discardColor',label:'🗑️🌈'});
+  // Wild Mirror
+  deck.push({color:'wild',value:'wildMirror',type:'wildMirror',label:'🪞🌈'});
+  // Wild Suppress Colour
+  deck.push({color:'wild',value:'wildSuppressColour',type:'suppressColour',label:'🚫🌈🌈'});
+  // Mystery Wild
+  deck.push({color:'wild',value:'mysteryWild',type:'mysteryWild',label:'❓🌈'});
+  // Wild Plus series
+  deck.push({color:'wild',value:'wild+1',type:'wildPlus',num:1,label:'+1 🌈'});
+  deck.push({color:'wild',value:'wild+1b',type:'wildPlus',num:1,label:'+1 🌈'});
+  deck.push({color:'wild',value:'wild+2',type:'wildPlus',num:2,label:'+2 🌈'});
+  deck.push({color:'wild',value:'wild+2b',type:'wildPlus',num:2,label:'+2 🌈'});
+  deck.push({color:'wild',value:'wild+3',type:'wildPlus',num:3,label:'+3 🌈'});
+  deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4 🌈'});
+  // Wild versions of + (1s)
+  deck.push({color:'wild',value:'plus2OneWild',type:'plusOne',num:2,label:'+2 (1s) 🌈'});
+  deck.push({color:'wild',value:'plus4OneWild',type:'plusOne',num:4,label:'+4 (1s) 🌈'});
+  // Wild version of Helper
+  deck.push({color:'wild',value:'helperWild',type:'helper',num:1,label:'-1 🌈'});
+  if(p(0.5)) deck.push({color:'wild',value:'helper2Wild',type:'helper',num:2,label:'-2 🌈'});
 
-    deck.push({color:'wild',value:'wildSkipAll',type:'wildSkipAll',label:'⊘⊘🌈'});
-    deck.push({color:'wild',value:'targetSkipWild',type:'targetSkip',label:'🎯⊘🌈'});
-    deck.push({color:'wild',value:'targetPlus2SkipWild',type:'targetPlus2Skip',num:2,label:'🎯⊘+2🌈'});
-    deck.push({color:'wild',value:'targetPlus4SkipWild',type:'targetPlus4Skip',num:4,label:'🎯⊘+4🌈'});
-    deck.push({color:'wild',value:'teleportWild',type:'teleport',label:'🌀🌈'});
-    deck.push({color:'wild',value:'pickUntil',type:'pickUntil',label:'🎲🌈'});
-    // Copycat
-    deck.push({color:'wild',value:'copycat',type:'copycat',label:'🐱🌈'});
-    // Wild combos
-    deck.push({color:'wild',value:'wildReversePlus2',type:'reversePlus2',num:2,label:'↩️ +2 🌈'});
-    deck.push({color:'wild',value:'wildReversePlus4',type:'reversePlus4',num:4,label:'↩️ +4 🌈'});
-    deck.push({color:'wild',value:'wildSkipReverse',type:'skipReverse',label:'↩️ ⊘ 🌈'});
-    deck.push({color:'wild',value:'wildPlus2SkipReverse',type:'wildPlus2SkipReverse',num:2,label:'🌈 ↩️ ⊘ +2'});
-    deck.push({color:'wild',value:'doubleEdgeWild',type:'doubleEdge',label:'⚔️🌈'});
-    // Special New Cards
-    if(p(0.992)) deck.push({color:'wild',value:'instantWin',type:'instantWin',label:'🏆🌈',isRare:true});
-    if(p(0.995)) deck.push({color:'wild',value:'eternalSkip',type:'eternalSkip',label:'♾️⊘🌈',isRare:true});
-    deck.push({color:'wild',value:'frenzy',type:'frenzy',label:'🌀🌈'});
-  }
-  
+  deck.push({color:'wild',value:'wildSkipAll',type:'wildSkipAll',label:'⊘⊘🌈'});
+  deck.push({color:'wild',value:'targetSkipWild',type:'targetSkip',label:'🎯⊘🌈'});
+  deck.push({color:'wild',value:'targetPlus2SkipWild',type:'targetPlus2Skip',num:2,label:'🎯⊘+2🌈'});
+  deck.push({color:'wild',value:'targetPlus4SkipWild',type:'targetPlus4Skip',num:4,label:'🎯⊘+4🌈'});
+  deck.push({color:'wild',value:'teleportWild',type:'teleport',label:'🌀🌈'});
+  deck.push({color:'wild',value:'pickUntil',type:'pickUntil',label:'🎲🌈'});
+  // Copycat
+  deck.push({color:'wild',value:'copycat',type:'copycat',label:'🐱🌈'});
+  // Wild combos
+  deck.push({color:'wild',value:'wildReversePlus2',type:'reversePlus2',num:2,label:'↩️ +2 🌈'});
+  deck.push({color:'wild',value:'wildReversePlus4',type:'reversePlus4',num:4,label:'↩️ +4 🌈'});
+  deck.push({color:'wild',value:'wildSkipReverse',type:'skipReverse',label:'↩️ ⊘ 🌈'});
+  deck.push({color:'wild',value:'wildPlus2SkipReverse',type:'wildPlus2SkipReverse',num:2,label:'🌈 ↩️ ⊘ +2'});
+  deck.push({color:'wild',value:'doubleEdgeWild',type:'doubleEdge',label:'⚔️🌈'});
+  // Special New Cards
+  if(p(0.992)) deck.push({color:'wild',value:'instantWin',type:'instantWin',label:'🏆🌈',isRare:true});
+  if(p(0.995)) deck.push({color:'wild',value:'eternalSkip',type:'eternalSkip',label:'♾️⊘🌈',isRare:true});
+  deck.push({color:'wild',value:'frenzy',type:'frenzy',label:'🌀🌈'});
+
   // RARE cards (1 each)
-  if(pool.rares){
-    deck.push({color:'rare',value:'swapDecks',type:'swapDecks',label:'🔀',isRare:true});
-    deck.push({color:'rare',value:'handFreeze',type:'handFreeze',label:'❄️',isRare:true});
-    deck.push({color:'rare',value:'stealWild',type:'stealWild',label:'🎭',isRare:true});
-    deck.push({color:'rare',value:'shuffleStorm',type:'shuffleStorm',label:'🌪️',isRare:true});
-    deck.push({color:'rare',value:'doubleEdge',type:'doubleEdge',label:'⚔️',isRare:true});
-    deck.push({color:'rare',value:'hotPotato',type:'hotPotato',label:'🥔',isRare:true});
-    deck.push({color:'rare',value:'communism',type:'communism',label:'☭',isRare:true});
-    deck.push({color:'rare',value:'targetPlus4',type:'targetPlus4',num:4,label:'🎯+4',isRare:true});
-    deck.push({color:'rare',value:'superBanana',type:'superBanana',label:'🍌✨',isRare:true});
-    deck.push({color:'rare',value:'disarmWilds',type:'disarmWilds',label:'🚫🌈',isRare:true});
-    // Mythic cards
-    if(p(0.9975)) deck.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});
-    // Ultra-rare +99 card
-    if(p(0.999)) deck.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
+  deck.push({color:'rare',value:'swapDecks',type:'swapDecks',label:'🔀',isRare:true});
+  deck.push({color:'rare',value:'handFreeze',type:'handFreeze',label:'❄️',isRare:true});
+  deck.push({color:'rare',value:'stealWild',type:'stealWild',label:'🎭',isRare:true});
+  deck.push({color:'rare',value:'shuffleStorm',type:'shuffleStorm',label:'🌪️',isRare:true});
+  deck.push({color:'rare',value:'doubleEdge',type:'doubleEdge',label:'⚔️',isRare:true});
+  deck.push({color:'rare',value:'hotPotato',type:'hotPotato',label:'🥔',isRare:true});
+  deck.push({color:'rare',value:'communism',type:'communism',label:'☭',isRare:true});
+  deck.push({color:'rare',value:'targetPlus4',type:'targetPlus4',num:4,label:'🎯+4',isRare:true});
+  deck.push({color:'rare',value:'superBanana',type:'superBanana',label:'🍌✨',isRare:true});
+  deck.push({color:'rare',value:'disarmWilds',type:'disarmWilds',label:'🚫🌈',isRare:true});
+  // Mythic cards
+  if(p(0.9975)) deck.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});
+  // Ultra-rare +99 card
+  if(p(0.999)) deck.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
+
+  // Safety check: if deck is empty (all settings off), add some numbers
+  if(deck.length === 0){
+    for(const color of COLORS) for(let n=0;n<=12;n++) deck.push({color,value:String(n),type:'number',label:String(n)});
   }
+  // Individual Exclusions (Sandbox)
+  if(!ignoreFilters && sandboxSettings.customPool && sandboxSettings.customPool.length > 0){
+    return deck.filter(card => {
+      return !sandboxSettings.customPool.some(ex => ex.type === card.type && ex.value === card.value && ex.color === card.color);
+    });
+  }
+
+  return deck;
+}
   
   // Safety check: if deck is empty (all settings off), add some numbers
   if(deck.length === 0){
-    for(const color of COLORS) for(let n=1;n<=12;n++) deck.push({color,value:String(n),type:'number',label:String(n)});
+    for(const color of COLORS) for(let n=0;n<=12;n++) deck.push({color,value:String(n),type:'number',label:String(n)});
   }
+  // Individual Exclusions (Sandbox)
+  if(!ignoreFilters && sandboxSettings.customPool && sandboxSettings.customPool.length > 0){
+    return deck.filter(card => {
+      return !sandboxSettings.customPool.some(ex => ex.type === card.type && ex.value === card.value && ex.color === card.color);
+    });
+  }
+
   return deck;
 }
 
@@ -1977,16 +2039,13 @@ let lastMove=null;
 let teamMode = false;
 let sandboxSettings = {
   startingCards: 7,
+  opponents: 3,
+  numTeams: 1,
   chaosFactor: 1.0,
   alwaysDrawOnes: false,
   controlTeammate: false,
   customHand: [],
-  customPool: null,
-  pool: {
-    numbers: true,
-    wilds: true,
-    plus: true
-  }
+  customPool: null
 };
 
 let selectorMode = 'hand'; // 'hand' or 'pool'
@@ -2011,47 +2070,58 @@ function renderSelectorGrid(){
   const grid = document.getElementById('selector-grid');
   grid.innerHTML = '';
   
-  // Get all unique card types from a "full" deck
-  const fullDeck = buildDeck(true); // true to bypass pool filters
+  const fullDeck = buildDeck(true); 
   const uniqueCards = [];
   const seen = new Set();
   
   for(const c of fullDeck){
-    const id = c.type + (c.num || '') + (c.color === 'wild' ? 'wild' : (c.color === 'rare' ? 'rare' : 'col'));
+    const id = c.type + (c.value || '') + (c.color === 'wild' ? 'wild' : (c.color === 'rare' ? 'rare' : c.color));
     if(!seen.has(id)){
       seen.add(id);
       uniqueCards.push(c);
     }
   }
 
+  // Use a document fragment and requestAnimationFrame to avoid lag
+  const fragment = document.createDocumentFragment();
+  
   uniqueCards.forEach(card => {
     const el = buildCardEl(card);
     el.style.cursor = 'pointer';
-    el.style.transform = 'scale(0.8)';
+    el.style.transform = 'scale(0.85)';
+    el.style.transition = 'opacity 0.2s, transform 0.2s';
     
     const isSelected = selectorMode === 'hand' ? 
-      sandboxSettings.customHand.some(c => c.type === card.type && c.value === card.value) :
-      (sandboxSettings.customPool ? !sandboxSettings.customPool.some(c => c.type === card.type && c.value === card.value) : true);
+      sandboxSettings.customHand.some(c => c.type === card.type && c.value === card.value && c.color === card.color) :
+      (sandboxSettings.customPool ? !sandboxSettings.customPool.some(c => c.type === card.type && c.value === card.value && c.color === card.color) : true);
 
     if(!isSelected) el.style.opacity = '0.3';
     
     el.onclick = () => {
+      let isNowSelected;
       if(selectorMode === 'hand'){
-        const idx = sandboxSettings.customHand.findIndex(c => c.type === card.type && c.value === card.value);
+        const idx = sandboxSettings.customHand.findIndex(c => c.type === card.type && c.value === card.value && c.color === card.color);
         if(idx >= 0) sandboxSettings.customHand.splice(idx, 1);
         else sandboxSettings.customHand.push(JSON.parse(JSON.stringify(card)));
+        isNowSelected = sandboxSettings.customHand.some(c => c.type === card.type && c.value === card.value && c.color === card.color);
       } else {
         if(!sandboxSettings.customPool) sandboxSettings.customPool = [];
-        const idx = sandboxSettings.customPool.findIndex(c => c.type === card.type && c.value === card.value);
+        const idx = sandboxSettings.customPool.findIndex(c => c.type === card.type && c.value === card.value && c.color === card.color);
         if(idx >= 0) sandboxSettings.customPool.splice(idx, 1);
         else sandboxSettings.customPool.push(JSON.parse(JSON.stringify(card)));
         
         if(sandboxSettings.customPool.length === 0) sandboxSettings.customPool = null;
+        isNowSelected = sandboxSettings.customPool ? !sandboxSettings.customPool.some(c => c.type === card.type && c.value === card.value && c.color === card.color) : true;
       }
-      renderSelectorGrid();
+      
+      el.style.opacity = isNowSelected ? '1' : '0.3';
+      el.style.transform = isNowSelected ? 'scale(0.95)' : 'scale(0.85)';
+      updateSandboxPreviews();
     };
-    grid.appendChild(el);
+    fragment.appendChild(el);
   });
+  
+  grid.appendChild(fragment);
 }
 
 function updateSandboxPreviews(){
@@ -2073,42 +2143,34 @@ function updateSandboxPreviews(){
   }
 }
 
-function refreshPoolFilters(){
-  sandboxSettings.pool.numbers = document.getElementById('sb-pool-numbers').checked;
-  sandboxSettings.pool.wilds = document.getElementById('sb-pool-wilds').checked;
-  sandboxSettings.pool.plus = document.getElementById('sb-pool-plus').checked;
-}
-
 function openSandboxSettings(){
   document.getElementById('sandbox-modal').classList.remove('hidden');
   document.getElementById('sb-starting-cards').value = sandboxSettings.startingCards;
+  document.getElementById('sb-opponents').value = sandboxSettings.opponents;
   document.getElementById('sb-chaos').value = sandboxSettings.chaosFactor;
   document.getElementById('sb-ones').checked = sandboxSettings.alwaysDrawOnes;
   document.getElementById('sb-control-team').checked = sandboxSettings.controlTeammate;
-  document.getElementById('sb-pool-numbers').checked = sandboxSettings.pool.numbers;
-  document.getElementById('sb-pool-wilds').checked = sandboxSettings.pool.wilds;
-  document.getElementById('sb-pool-plus').checked = sandboxSettings.pool.plus;
   updateSandboxPreviews();
 }
 
 function closeSandbox(){
   sandboxSettings.startingCards = parseInt(document.getElementById('sb-starting-cards').value) || 7;
+  sandboxSettings.opponents = parseInt(document.getElementById('sb-opponents').value) || 3;
   sandboxSettings.chaosFactor = parseFloat(document.getElementById('sb-chaos').value) || 1.0;
   sandboxSettings.alwaysDrawOnes = document.getElementById('sb-ones').checked;
   sandboxSettings.controlTeammate = document.getElementById('sb-control-team').checked;
-  refreshPoolFilters();
   document.getElementById('sandbox-modal').classList.add('hidden');
 }
 
 function resetSandbox(){
   sandboxSettings = {
     startingCards: 7,
+    opponents: 3,
     chaosFactor: 1.0,
     alwaysDrawOnes: false,
     controlTeammate: false,
     customHand: [],
-    customPool: null,
-    pool: { numbers: true, wilds: true, plus: true }
+    customPool: null
   };
   openSandboxSettings();
 }
@@ -2124,6 +2186,7 @@ let isSandboxGame = false;
 function openTeamSettings(){
   document.getElementById('team-modal').classList.remove('hidden');
   setTeamType(sandboxSettings.controlTeammate ? 'friend' : 'bot');
+  setTeamOpps(sandboxSettings.numTeams || 1);
 }
 
 function closeTeamSettings(){
@@ -2136,13 +2199,22 @@ function setTeamType(type){
   document.getElementById('team-type-bot').classList.toggle('selected', !isFriend);
   document.getElementById('team-type-friend').classList.toggle('selected', isFriend);
   document.getElementById('team-desc').textContent = isFriend ? 
-    'You will control your teammate manually during their turn.' : 
-    'Your teammate will be an AI-controlled bot.';
+    'You will control your friend manually during their turn.' : 
+    'Your friend will be an AI-controlled bot.';
+}
+
+function setTeamOpps(n){
+  sandboxSettings.numTeams = n;
+  document.getElementById('team-opps-1').classList.toggle('selected', n === 1);
+  document.getElementById('team-opps-2').classList.toggle('selected', n === 2);
+  document.getElementById('team-opps-3').classList.toggle('selected', n === 3);
 }
 
 function startTeamMode(){
   teamMode = true;
-  if(selectedBots < 3) selectBots(3);
+  // Calculate bots needed: (numTeams + 1) * 2 players total, minus user = (numTeams + 1) * 2 - 1
+  const totalPlayers = (sandboxSettings.numTeams + 1) * 2;
+  selectedBots = totalPlayers - 1;
   closeTeamSettings();
   startGame();
 }
@@ -2166,22 +2238,8 @@ function showMenu(){
 function updateMenuStats(){
   document.getElementById('win-count').textContent=localStorage.getItem('unoh_wins')||'0';
   document.getElementById('game-count').textContent=localStorage.getItem('unoh_games')||'0';
-  
-  // Add Team Stats to Menu if they exist
-  const teamWins = localStorage.getItem('unoh_team_wins') || '0';
-  const teamGames = localStorage.getItem('unoh_team_games') || '0';
-  
-  let statsArea = document.querySelector('.stats-area');
-  if(statsArea){
-    let teamStats = document.getElementById('team-stats-display');
-    if(!teamStats){
-      teamStats = document.createElement('div');
-      teamStats.id = 'team-stats-display';
-      teamStats.style.cssText = "margin-top:10px;font-size:0.85em;opacity:0.8;display:flex;gap:15px;justify-content:center;";
-      statsArea.appendChild(teamStats);
-    }
-    teamStats.innerHTML = `<span>Team Wins: <b>${teamWins}</b></span> <span>Team Games: <b>${teamGames}</b></span>`;
-  }
+  document.getElementById('team-win-count').textContent=localStorage.getItem('unoh_team_wins')||'0';
+  document.getElementById('team-game-count').textContent=localStorage.getItem('unoh_team_games')||'0';
 }
 
 /* ═══ START ═══ */
@@ -2202,11 +2260,12 @@ async function startGame(isClassic = false){
   if(botTimer) clearTimeout(botTimer);
   
   if(!isSandboxGame){
-    const games=parseInt(localStorage.getItem('unoh_games')||'0')+1;
-    localStorage.setItem('unoh_games',games);
     if(teamMode){
       const teamGames=parseInt(localStorage.getItem('unoh_team_games')||'0')+1;
       localStorage.setItem('unoh_team_games',teamGames);
+    } else {
+      const games=parseInt(localStorage.getItem('unoh_games')||'0')+1;
+      localStorage.setItem('unoh_games',games);
     }
   }
 
@@ -2215,25 +2274,28 @@ async function startGame(isClassic = false){
   const allNames=['Jim','Bob','Tod','Wren','Ben','Ken','Jimmy','Ming','Yao','Austin','Julian','Luca','Luka','Ethan','James','Jordon','Michael','Tom','Thomas','Tim','Barry','Larry','Emily','Karen','Lib','Emma','Maria','Mary','Denise','Linda','Taylor','Missy','Juan','John','Dawyne','Karry','Ceecee','Coco','Leigh','Orin','Little Angry Child'];
   const botNames=shuffle(allNames);
   const players=[{name:'You',isBot:false,cards:[]}];
-  for(let i=0;i<selectedBots;i++) players.push({name:botNames[i]||(`Bot ${i+1}`),isBot:true,cards:[]});
+  const numBots = isSandboxGame ? sandboxSettings.opponents : selectedBots;
+  for(let i=0;i<numBots;i++) players.push({name:botNames[i]||(`Bot ${i+1}`),isBot:true,cards:[]});
   
   // Team Assignment
   if(teamMode){
-    players[0].team = 1;
-    if(players[1]) players[1].team = 2;
-    if(players[2]) players[2].team = 1;
-    if(players[3]) players[3].team = 2;
-    // Teammate control logic
-    if(sandboxSettings.controlTeammate && players[2]){
-      players[2].isBot = false;
-      players[2].isControlledBot = true;
-      players[2].name = 'Friend';
+    const totalTeams = sandboxSettings.numTeams + 1;
+    players.forEach((p, idx) => {
+      p.team = (idx % totalTeams) + 1;
+    });
+    
+    // Teammate control logic (Teammate is at index totalTeams)
+    const teammateIdx = totalTeams;
+    if(sandboxSettings.controlTeammate && players[teammateIdx]){
+      players[teammateIdx].isBot = false;
+      players[teammateIdx].isControlledBot = true;
+      players[teammateIdx].name = 'Friend';
     }
   }
 
   let firstIdx=deck.findIndex(c=>c.type==='number');if(firstIdx<0) firstIdx=0;
   const firstCard=deck.splice(firstIdx,1)[0];
-  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},eternalSkips:{},skipNext:{},frenzyMode:false,suppressWildTurns:0,stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat,onlyDrawOnes:sandboxSettings.alwaysDrawOnes};
+  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,frozenPlayers:{},eternalSkips:{},skipNext:{},frenzyMode:false,suppressColourTurns:0,stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat,onlyDrawOnes:sandboxSettings.alwaysDrawOnes};
   renderOpponents();renderDiscard();updateColorBar();
   document.getElementById('player-hand').innerHTML='';
   document.getElementById('player-name-label').textContent='YOU';
@@ -2376,21 +2438,24 @@ function updateOpponentZone(idx){
 function buildCardEl(card){
   const el=document.createElement('div');
   const isRare=card.isRare||card.color==='rare';
-  const complexTypes=new Set(['reversePlus2','reversePlus4','skipReverse','wildSkipReverse','wildPlus2SkipReverse','doubleEdge','doubleEdgeWild','mirror','wildMirror','wildPlus','wildReverse','wildSkip','discardColor','wildSkipAll','pickUntil','copycat','instantWin','plusOne','eternalSkip','frenzy','helper','suppressWild']);
+  const complexTypes=new Set(['reversePlus2','reversePlus4','skipReverse','wildSkipReverse','wildPlus2SkipReverse','doubleEdge','doubleEdgeWild','mirror','wildMirror','wildPlus','wildReverse','wildSkip','discardColor','wildSkipAll','pickUntil','copycat','instantWin','plusOne','eternalSkip','frenzy','helper','suppressColour']);
   el.className=`game-card card-${isRare?'rare':card.color}`;
   if(complexTypes.has(card.type) || String(card.label||'').length>4) el.classList.add('card-complex');
+  if(card.type==='mirror'||card.type==='wildMirror') el.classList.add('card-mirror');
   if(card.type==='orinCard'||(card.isRare&&card.label==='👑')) el.classList.add('orin-card');
   if(card.value==='wild+99') el.classList.add('card-plus99');
   if(card.type==='miracle') el.classList.add('card-miracle');
+  if(card.type==='suppressColour') el.classList.add('card-suppress');
   const label=String(card.label||'');
   const cleaned=label.replace(/\s+/g,' ').trim();
   const tl=document.createElement('div');tl.className='card-tl';
   const center=document.createElement('div');center.className='card-center';
   const br=document.createElement('div');br.className='card-br';
   if(complexTypes.has(card.type)){
-    tl.textContent=card.color==='wild'?'🌈':(card.color==='rare'?'✦':'');
+    const cornerIcon = (card.color==='wild'?'🌈':(card.color==='rare'?'✦':cleaned));
+    tl.textContent=cornerIcon;
     center.textContent=cleaned;
-    br.textContent=card.color==='wild'?'🌈':(card.color==='rare'?'✦':'');
+    br.textContent=cornerIcon;
   }else{
     tl.textContent=cleaned;
     center.textContent=cleaned;
@@ -2445,8 +2510,11 @@ function renderPlayerHand(){
   
   const label=document.getElementById('player-name-label');
   if(isActiveTurn){
-    label.innerHTML=`<span class="turn-dot"></span> <span class="turn-label" style="font-size:0.7em;text-transform:uppercase;letter-spacing:1px;background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:4px;margin-right:5px;">Playing</span> ${player.name.toUpperCase()}`;
-    label.style.color='#22D46B';
+    const isFriend = state.players[displayIdx].isControlledBot;
+    label.innerHTML = isFriend ? 
+      `<span class="turn-dot" style="background:#2B7FFF;box-shadow:0 0 10px #2B7FFF;"></span> <span class="turn-label" style="font-size:0.7em;text-transform:uppercase;letter-spacing:1px;background:rgba(43,127,255,0.3);padding:2px 6px;border-radius:4px;margin-right:5px;color:white;">Controlling Friend</span> ${player.name.toUpperCase()}` :
+      `<span class="turn-dot"></span> <span class="turn-label" style="font-size:0.7em;text-transform:uppercase;letter-spacing:1px;background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:4px;margin-right:5px;">Playing</span> ${player.name.toUpperCase()}`;
+    label.style.color = isFriend ? '#2B7FFF' : '#22D46B';
     if (displayIdx === state.currentPlayer) {
       const flash=document.createElement('div');flash.className='your-turn-flash';document.body.appendChild(flash);setTimeout(()=>flash.remove(),650);
     }
@@ -2466,7 +2534,7 @@ function updateOpponentsAll(){for(let i=1;i<state.players.length;i++) updateOppo
 
 /* ═══ PLAY RULES ═══ */
 function isPlayable(card){
-  if(state.suppressWildTurns > 0) return true;
+  if(state.suppressColourTurns > 0) return true;
   const top=state.discard[state.discard.length-1];
   const cc=state.currentColor;
 
@@ -3176,9 +3244,9 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       break;
     }
 
-    case 'suppressWild': {
-      state.suppressWildTurns = state.players.length;
-      showStatus('🚫🌈 SUPPRESS WILD! Any color can be played for one round!', 3000);
+    case 'suppressColour': {
+      state.suppressColourTurns = state.players.length;
+      showStatus('🚫🌈 SUPPRESS COLOUR! Any color can be played for one round!', 3000);
       break;
     }
   }
@@ -3197,10 +3265,10 @@ function unfreezeAll(){
 
 function advanceTurn(){
   const n=state.players.length;
-  if(state.suppressWildTurns > 0){
-    state.suppressWildTurns--;
-    if(state.suppressWildTurns === 0) showStatus('🚫🌈 Suppress Wild ended!', 1500);
-  }
+  if(state.suppressColourTurns > 0){
+      state.suppressColourTurns--;
+      if(state.suppressColourTurns === 0) showStatus('🚫🌈 Suppress Colour ended!', 1500);
+    }
   state.currentPlayer=(state.currentPlayer+state.direction+n)%n;
   state.hasDrawn=false;
   if(botTimer){clearTimeout(botTimer);botTimer=null;}
@@ -3464,9 +3532,10 @@ async function endGame(winnerIdx){
       document.getElementById('end-icon').textContent='🎉';document.getElementById('end-title').textContent='You Win!';
       document.getElementById('end-sub').textContent='Incredible! You crushed it!';document.getElementById('end-title').style.color='#FFD600';
       if(!isSandboxGame){
-        const wins=parseInt(localStorage.getItem('unoh_wins')||'0')+1;localStorage.setItem('unoh_wins',wins);
         if(teamMode){
           const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0')+1;localStorage.setItem('unoh_team_wins',teamWins);
+        } else {
+          const wins=parseInt(localStorage.getItem('unoh_wins')||'0')+1;localStorage.setItem('unoh_wins',wins);
         }
       }
     } else {
