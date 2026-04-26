@@ -1,72 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Cheese's Art</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700;800;900&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="../Favicon.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
-      --bg: #140700;
+      --bg: #130700;
       --bg-2: #1b0a00;
-      --card: rgba(255, 255, 255, 0.04);
-      --card-hover: rgba(255, 255, 255, 0.08);
-      --text: #fff4ea;
-      --muted: rgba(255, 244, 234, 0.72);
+      --card: rgba(255, 255, 255, 0.05);
+      --card-hover: rgba(255, 255, 255, 0.10);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #fff6ed;
+      --muted: rgba(255, 246, 237, 0.74);
       --accent: #ff9a3d;
+      --accent-2: #ffcf78;
+      --shadow: rgba(0, 0, 0, 0.28);
     }
 
     * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
-      min-height: 100vh;
+      min-height: 100%;
       font-family: Arial, sans-serif;
       color: var(--text);
       text-align: center;
       overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      scroll-behavior: smooth;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar { width: 0; height: 0; }
+
+    body {
+      min-height: 100vh;
       background:
-        radial-gradient(circle at top left, rgba(255, 132, 0, 0.14), transparent 34%),
-        radial-gradient(circle at bottom right, rgba(255, 94, 0, 0.12), transparent 32%),
+        radial-gradient(circle at 12% 12%, rgba(255, 181, 90, 0.18) 0%, transparent 30%),
+        radial-gradient(circle at 88% 16%, rgba(255, 105, 0, 0.16) 0%, transparent 28%),
+        radial-gradient(circle at 78% 82%, rgba(255, 205, 120, 0.10) 0%, transparent 30%),
+        radial-gradient(circle at 22% 78%, rgba(255, 124, 0, 0.10) 0%, transparent 28%),
         linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 100%);
+      background-attachment: fixed;
     }
 
     body.mode-light {
       background:
-        radial-gradient(circle at top left, rgba(255, 132, 0, 0.12), transparent 34%),
-        radial-gradient(circle at bottom right, rgba(255, 94, 0, 0.10), transparent 32%),
-        linear-gradient(180deg, #2a1200 0%, #170700 100%);
+        radial-gradient(circle at 12% 12%, rgba(255, 181, 90, 0.16) 0%, transparent 30%),
+        radial-gradient(circle at 88% 16%, rgba(255, 105, 0, 0.12) 0%, transparent 28%),
+        linear-gradient(180deg, #2e1400 0%, #170700 100%);
       color: var(--text);
     }
 
     body.mode-dark {
       background:
-        radial-gradient(circle at top left, rgba(255, 132, 0, 0.14), transparent 34%),
-        radial-gradient(circle at bottom right, rgba(255, 94, 0, 0.12), transparent 32%),
-        linear-gradient(180deg, #1a0900 0%, #0f0500 100%);
+        radial-gradient(circle at 12% 12%, rgba(255, 181, 90, 0.14) 0%, transparent 30%),
+        radial-gradient(circle at 88% 16%, rgba(255, 105, 0, 0.12) 0%, transparent 28%),
+        linear-gradient(180deg, #1d0a00 0%, #0d0400 100%);
       color: var(--text);
-    }
-
-    body.mode-rainbow {
-      animation: rainbowBG 10s linear infinite;
-      color: #fff;
-    }
-
-    @keyframes rainbowBG {
-      0%   { background-color: #2a1200; }
-      16%  { background-color: #3a1700; }
-      33%  { background-color: #4a1f00; }
-      50%  { background-color: #2c1600; }
-      66%  { background-color: #3b1100; }
-      83%  { background-color: #241000; }
-      100% { background-color: #2a1200; }
     }
 
     body.mode-glass {
       background:
-        radial-gradient(circle at 20% 10%, rgba(255, 170, 80, 0.20) 0%, transparent 40%),
-        radial-gradient(circle at 80% 20%, rgba(255, 110, 0, 0.14) 0%, transparent 36%),
-        linear-gradient(180deg, #2d1500 0%, #140700 100%);
+        radial-gradient(circle at 20% 10%, rgba(255, 170, 80, 0.22) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(255, 110, 0, 0.16) 0%, transparent 36%),
+        linear-gradient(180deg, #2b1300 0%, #120600 100%);
       color: var(--text);
     }
 
@@ -86,6 +88,42 @@
       color: var(--text);
     }
 
+    body.mode-rainbow {
+      animation: rainbowBG 10s linear infinite;
+      color: #fff;
+    }
+
+    @keyframes rainbowBG {
+      0%   { background-color: #2a1200; }
+      16%  { background-color: #3a1700; }
+      33%  { background-color: #4a1f00; }
+      50%  { background-color: #2c1600; }
+      66%  { background-color: #3b1100; }
+      83%  { background-color: #241000; }
+      100% { background-color: #2a1200; }
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 190, 100, 0.12), transparent 18%),
+        radial-gradient(circle at 80% 16%, rgba(255, 114, 0, 0.10), transparent 18%),
+        radial-gradient(circle at 74% 78%, rgba(255, 208, 120, 0.08), transparent 20%),
+        radial-gradient(circle at 24% 78%, rgba(255, 136, 0, 0.08), transparent 18%);
+      filter: blur(18px);
+      z-index: 0;
+      opacity: 0.9;
+      animation: floatGlow 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatGlow {
+      from { transform: translate3d(-1.5%, -1%, 0) scale(1); }
+      to   { transform: translate3d(1.5%, 1%, 0) scale(1.05); }
+    }
+
     #homeText {
       position: fixed;
       top: 10px;
@@ -99,27 +137,27 @@
       opacity: 0.95;
     }
 
-    #homeText:hover {
-      transform: scale(1.15);
-    }
+    #homeText:hover { transform: scale(1.15); }
 
     #content {
       position: relative;
       z-index: 1;
-      padding: 58px 18px 120px;
+      padding: 58px 18px 132px;
     }
 
     h1 {
       margin: 34px 0 0;
-      font-size: clamp(2.5em, 8vw, 5em);
+      font-size: clamp(2.6em, 8vw, 5.2em);
       font-weight: 900;
       font-family: 'Rubik', sans-serif;
       color: var(--text);
+      letter-spacing: 0.5px;
+      text-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
     }
 
     .subtext {
-      font-size: 1.15em;
-      opacity: 0.78;
+      font-size: 1.12em;
+      opacity: 0.80;
       margin: 10px 0 28px;
       color: var(--muted);
     }
@@ -134,32 +172,78 @@
     }
 
     .art-card {
+      position: relative;
       aspect-ratio: 1 / 1;
-      border-radius: 18px;
+      border-radius: 22px;
       overflow: hidden;
-      background: var(--card);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03)),
+        var(--card);
+      box-shadow:
+        0 14px 30px var(--shadow),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      border: 1px solid var(--card-border);
+      transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 10px;
       cursor: pointer;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      isolation: isolate;
+    }
+
+    .art-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 38%, rgba(255,255,255,0.02));
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+      z-index: 0;
     }
 
     .art-card:hover {
-      transform: scale(1.03);
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.26);
-      background: var(--card-hover);
+      transform: translateY(-6px) scale(1.03);
+      box-shadow:
+        0 18px 42px rgba(0, 0, 0, 0.34),
+        0 0 0 1px rgba(255, 205, 120, 0.10) inset;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04)),
+        var(--card-hover);
+      border-color: rgba(255,255,255,0.16);
+    }
+
+    .art-card:hover::before { opacity: 1; }
+
+    .art-card.pop {
+      animation: cardPop 0.62s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    @keyframes cardPop {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(0.94) rotate(-1deg); }
+      100% { transform: scale(1.03); }
     }
 
     .art {
+      position: relative;
+      z-index: 1;
       width: 100%;
       height: 100%;
       display: block;
       object-fit: contain;
       object-position: center;
       background: transparent;
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18));
+      transition: transform 0.22s ease, filter 0.22s ease;
+    }
+
+    .art-card:hover .art {
+      transform: scale(1.02);
+      filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.24));
     }
 
     .fallback {
@@ -173,12 +257,14 @@
       font-size: 0.95em;
       line-height: 1.4;
       color: var(--muted);
+      position: relative;
+      z-index: 1;
     }
 
     footer {
       position: fixed;
       left: 0;
-      bottom: 10px;
+      bottom: 12px;
       width: 100%;
       display: flex;
       justify-content: center;
@@ -195,19 +281,20 @@
       font-family: 'Rubik', sans-serif;
       font-weight: 700;
       color: var(--text);
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.09);
       padding: 10px 16px;
       border-radius: 999px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       transition: transform 0.2s, background 0.2s, opacity 0.2s;
-      opacity: 0.9;
+      opacity: 0.92;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
     }
 
     .footer-link:hover {
       transform: scale(1.04);
-      background: rgba(255, 255, 255, 0.11);
+      background: rgba(255, 255, 255, 0.12);
       opacity: 1;
     }
 
@@ -217,19 +304,62 @@
       display: block;
     }
 
-    /* Fullscreen preview */
+    #fullscreenBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      color: white;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: all 0.2s;
+      z-index: 999;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #fullscreenBtn:hover {
+      background: rgba(255, 255, 255, 0.20);
+      transform: scale(1.05);
+    }
+
+    #fullscreenBtn:active { transform: scale(0.95); }
+
+    body.mode-light #fullscreenBtn {
+      background: rgba(0, 0, 0, 0.10);
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      color: #333;
+    }
+
+    body.mode-light #fullscreenBtn:hover {
+      background: rgba(0, 0, 0, 0.15);
+    }
+
     #previewOverlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.9);
+      background:
+        radial-gradient(circle at center, rgba(255, 200, 120, 0.10), transparent 40%),
+        rgba(0, 0, 0, 0.92);
       display: flex;
       align-items: center;
       justify-content: center;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s ease;
+      transition: opacity 0.22s ease;
       z-index: 5000;
       padding: 18px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     #previewOverlay.show {
@@ -237,40 +367,170 @@
       pointer-events: auto;
     }
 
+    .preview-frame {
+      position: relative;
+      width: min(96vw, 1000px);
+      height: min(96vh, 1000px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: scale(0.92);
+      opacity: 0;
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+    }
+
+    #previewOverlay.show .preview-frame {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .preview-shell {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 28px;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)),
+        rgba(15, 8, 0, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(255, 200, 120, 0.08) inset;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .preview-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 25% 20%, rgba(255, 205, 120, 0.20), transparent 18%),
+        radial-gradient(circle at 80% 18%, rgba(255, 120, 0, 0.12), transparent 16%),
+        radial-gradient(circle at 78% 80%, rgba(255, 205, 120, 0.10), transparent 18%);
+      pointer-events: none;
+      opacity: 0.95;
+    }
+
+    .preview-opening {
+      position: absolute;
+      inset: 0;
+      border-radius: 28px;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .preview-opening::before {
+      content: "";
+      position: absolute;
+      inset: -35%;
+      background:
+        linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.20) 48%, transparent 61%);
+      transform: translateX(-120%) rotate(8deg);
+      opacity: 0;
+    }
+
+    #previewOverlay.show .preview-opening::before {
+      opacity: 1;
+      animation: sheenSweep 0.7s ease-out forwards;
+    }
+
+    @keyframes sheenSweep {
+      from { transform: translateX(-120%) rotate(8deg); }
+      to   { transform: translateX(120%) rotate(8deg); }
+    }
+
     #previewImage {
-      max-width: 96vw;
-      max-height: 96vh;
+      position: relative;
+      z-index: 1;
+      max-width: 100%;
+      max-height: 100%;
       width: auto;
       height: auto;
       object-fit: contain;
-      border-radius: 18px;
-      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.5);
+      border-radius: 20px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.50);
       background: rgba(255, 255, 255, 0.02);
+      transform: translateY(8px) scale(0.98);
+      transition: transform 0.22s ease;
+    }
+
+    #previewOverlay.show #previewImage {
+      transform: translateY(0) scale(1);
+    }
+
+    .preview-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .preview-close:hover {
+      transform: scale(1.05);
+      background: rgba(255,255,255,0.14);
+    }
+
+    .preview-label {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.92);
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.95em;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      max-width: calc(100% - 36px);
+    }
+
+    .preview-label span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     @media (max-width: 520px) {
-      #homeText {
-        font-size: 1.7em;
-      }
+      #homeText { font-size: 1.7em; }
 
       .gallery {
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 14px;
       }
 
-      .art-card {
-        border-radius: 16px;
-        padding: 8px;
-      }
+      .art-card { border-radius: 18px; padding: 8px; }
 
-      footer {
-        bottom: 8px;
-      }
+      footer { bottom: 8px; }
 
-      .footer-link {
-        font-size: 0.95em;
-        padding: 9px 14px;
-      }
+      .footer-link { font-size: 0.95em; padding: 9px 14px; }
+
+      .preview-shell { border-radius: 22px; }
+      .preview-label { left: 12px; bottom: 12px; font-size: 0.88em; }
+      .preview-close { top: 10px; right: 10px; }
     }
   </style>
 </head>
@@ -291,8 +551,17 @@
   </a>
 </footer>
 
-<div id="previewOverlay" onclick="closePreview()">
-  <img id="previewImage" alt="Art Preview">
+<button id="fullscreenBtn" onclick="toggleFullscreen()" aria-label="Toggle fullscreen">⛶</button>
+
+<div id="previewOverlay" onclick="overlayClick(event)">
+  <div class="preview-frame">
+    <div class="preview-shell">
+      <div class="preview-opening"></div>
+      <button class="preview-close" onclick="closePreview(event)" aria-label="Close preview">×</button>
+      <img id="previewImage" alt="Art Preview">
+      <div class="preview-label"><span id="previewTitle">Art Preview</span></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -307,17 +576,55 @@
   const gallery = document.getElementById('gallery');
   const previewOverlay = document.getElementById('previewOverlay');
   const previewImage = document.getElementById('previewImage');
+  const previewTitle = document.getElementById('previewTitle');
 
-  function openPreview(src, alt) {
-    previewImage.src = src;
-    previewImage.alt = alt || 'Art Preview';
-    previewOverlay.classList.add('show');
+  function setFullscreenIcon() {
+    const btn = document.getElementById('fullscreenBtn');
+    btn.textContent = document.fullscreenElement ? '⤢' : '⛶';
   }
 
-  function closePreview() {
+  async function toggleFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+      setFullscreenIcon();
+    } catch (err) {
+      console.log('Fullscreen failed:', err);
+    }
+  }
+
+  document.addEventListener('fullscreenchange', setFullscreenIcon);
+
+  function openPreview(src, alt, triggerEl) {
+    previewImage.src = src;
+    previewImage.alt = alt || 'Art Preview';
+    previewTitle.textContent = alt || 'Art Preview';
+    previewOverlay.classList.add('show');
+
+    if (triggerEl) {
+      triggerEl.classList.remove('pop');
+      void triggerEl.offsetWidth;
+      triggerEl.classList.add('pop');
+      window.setTimeout(() => triggerEl.classList.remove('pop'), 650);
+    }
+  }
+
+  function closePreview(event) {
+    if (event) event.stopPropagation();
     previewOverlay.classList.remove('show');
     previewImage.src = '';
   }
+
+  function overlayClick(event) {
+    if (event.target === previewOverlay) closePreview();
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closePreview();
+  });
 
   for (let i = 1; i <= 36; i++) {
     const wrap = document.createElement('div');
@@ -333,7 +640,8 @@
 
     img.src = pngSrc;
     img.onerror = () => {
-      if (img.src.endsWith('.png')) {
+      if (img.dataset.triedJpg !== '1' && img.src.endsWith('.png')) {
+        img.dataset.triedJpg = '1';
         img.src = jpgSrc;
       } else {
         const missing = document.createElement('div');
@@ -344,12 +652,14 @@
     };
 
     wrap.addEventListener('click', () => {
-      openPreview(img.currentSrc || img.src, img.alt);
+      openPreview(img.currentSrc || img.src, img.alt, wrap);
     });
 
     wrap.appendChild(img);
     gallery.appendChild(wrap);
   }
+
+  setFullscreenIcon();
 </script>
 
 </body>
