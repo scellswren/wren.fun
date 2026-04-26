@@ -26,6 +26,46 @@
   #homeText:hover{transform:scale(1.15);}
   #homeText.hidden{display:none;}
 
+  #fsToggle {
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+    top: auto;
+    z-index: 1002;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700;
+    font-size: 0.82em;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s, border-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    backdrop-filter: blur(12px);
+    letter-spacing: 0.3px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    overflow: hidden;
+  }
+  #fsToggle::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(255,255,255,0.18), transparent 42%, rgba(255,255,255,0.06));
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  #fsToggle:hover { transform: translateY(-1px) scale(1.04); border-color: rgba(255,255,255,0.18); }
+  #fsToggle .toggle-label { display: none; }
+  .toggle-icon { font-size: 1.2em; line-height: 1; position: relative; z-index: 1; }
+  .toggle-label { position: relative; z-index: 1; }
+
   .screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.4s ease;padding:20px;}
   .screen.active{opacity:1;pointer-events:all;}
   .game-title{font-family:'Orbitron',monospace;font-size:clamp(28px,6vw,72px);font-weight:900;text-align:center;letter-spacing:4px;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple),var(--neon-pink),var(--neon-gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 18px #00d4ff88);margin-bottom:8px;animation:title-shimmer 4s ease-in-out infinite;}
@@ -233,6 +273,10 @@
 <canvas id="starfield"></canvas>
 
 <div id="homeText" onclick="window.location.href='https://scellswren.github.io/wren.fun/'">Wren.fun</div>
+<button id="fsToggle" onclick="toggleFullscreen()" aria-label="Toggle fullscreen">
+  <span class="toggle-icon" id="fsIcon">⛶</span>
+  <span class="toggle-label" id="fsLabel">Full</span>
+</button>
 
 <div class="screen active" id="screen-save">
   <div class="game-title">PONG WORLD CUP</div>
@@ -1164,8 +1208,29 @@ function showResult(pw,S){
   showScreen('result');
 }
 
+function syncFullscreenButton(){
+  const active = !!document.fullscreenElement;
+  const icon = document.getElementById('fsIcon');
+  const label = document.getElementById('fsLabel');
+  if(icon) icon.textContent = active ? '⛶' : '⛶';
+  if(label) label.textContent = active ? 'Exit' : 'Full';
+  const btn = document.getElementById('fsToggle');
+  if(btn) btn.setAttribute('aria-label', active ? 'Exit fullscreen' : 'Toggle fullscreen');
+}
+async function toggleFullscreen(){
+  try{
+    if(!document.fullscreenElement){
+      await document.documentElement.requestFullscreen();
+    }else{
+      await document.exitFullscreen();
+    }
+  }catch(e){}
+  syncFullscreenButton();
+}
+document.addEventListener('fullscreenchange', syncFullscreenButton);
+
 // ── INIT ─────────────────────────────────────────
-loadAll();renderSaveSlots();
+loadAll();renderSaveSlots();syncFullscreenButton();
 updateHomeBtn('save');
 document.querySelectorAll('.diff-btn').forEach(b=>b.classList.toggle('active',b.dataset.diff===G.settings.difficulty));
 document.addEventListener('click',()=>{try{new(window.AudioContext||window.webkitAudioContext)().resume();}catch(e){}},{once:true});
