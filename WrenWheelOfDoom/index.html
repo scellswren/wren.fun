@@ -705,12 +705,71 @@ function updateTheme() {
   applyTheme(chosen, false);
 }
 
-function updateMoney() {
-  moneyDisplay.textContent = "💰 $" + formatMoneyValue(money);
-  moneyDisplay.classList.toggle("negative", money < 0n);
-  syncThemeUnlocks(); updateTheme();
+let displayedMoney = money;
+let moneyTweenFrame = null;
+
+function renderMoneyDisplay(value) {
+  moneyDisplay.textContent = "💰 $" + formatMoneyValue(value);
+  moneyDisplay.classList.toggle("negative", asBigInt(value) < 0n);
 }
-updateMoney();
+
+function stopMoneyTween() {
+  if (moneyTweenFrame !== null) {
+    cancelAnimationFrame(moneyTweenFrame);
+    moneyTweenFrame = null;
+  }
+}
+
+function animateMoneyDisplay(fromValue, toValue, duration = 800) {
+  stopMoneyTween();
+
+  const start = asBigInt(fromValue);
+  const end = asBigInt(toValue);
+
+  if (start === end) {
+    displayedMoney = end;
+    renderMoneyDisplay(end);
+    return;
+  }
+
+  const delta = end - start;
+  const startedAt = performance.now();
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+  const frame = (now) => {
+    const rawT = Math.min(1, (now - startedAt) / duration);
+    const eased = easeOutCubic(rawT);
+    const pct = BigInt(Math.round(eased * 1000));
+    const current = start + (delta * pct) / 1000n;
+
+    displayedMoney = current;
+    renderMoneyDisplay(current);
+
+    if (rawT < 1) {
+      moneyTweenFrame = requestAnimationFrame(frame);
+    } else {
+      moneyTweenFrame = null;
+      displayedMoney = end;
+      renderMoneyDisplay(end);
+    }
+  };
+
+  moneyTweenFrame = requestAnimationFrame(frame);
+}
+
+function updateMoney(animated = true) {
+  syncThemeUnlocks();
+  updateTheme();
+
+  if (animated) {
+    animateMoneyDisplay(displayedMoney, money);
+  } else {
+    stopMoneyTween();
+    displayedMoney = money;
+    renderMoneyDisplay(money);
+  }
+}
+updateMoney(false);
 
 function animateMoney(amount) {
   money += asBigInt(amount);
@@ -1181,7 +1240,7 @@ document.addEventListener("webkitfullscreenchange", updateFullscreenButton);
 document.addEventListener("msfullscreenchange", updateFullscreenButton);
 updateFullscreenButton();
 
-window.addEventListener("load", () => { updateMoney(); updateTheme(); syncThemeUnlocks(); renderThemesModal(); updateFullscreenButton(); });
+window.addEventListener("load", () => { updateMoney(false); updateTheme(); syncThemeUnlocks(); renderThemesModal(); updateFullscreenButton(); });
 </script>
 </body>
 </html>
