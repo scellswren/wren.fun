@@ -882,6 +882,36 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">+2 (1s)</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Light Draw +2</div>
+              <div class="guide-card-desc">Next player draws 2 cards, but they are guaranteed to be '1's.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">+4 (1s)</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Light Draw +4</div>
+              <div class="guide-card-desc">Next player draws 4 cards, but they are guaranteed to be '1's.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🤝-1</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Helper</div>
+              <div class="guide-card-desc">Removes 1 card from the next player's hand. A true teammate!</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
             <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">🎯+4</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Heavy Strike</div>
@@ -1117,21 +1147,31 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
           <div class="guide-card-top">
             <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">+2 (1s)🌈</div>
             <div class="guide-card-info">
-              <div class="guide-card-name">Light Draw +2</div>
+              <div class="guide-card-name">Light Draw +2 (Wild)</div>
               <div class="guide-card-desc">Next player draws 2 cards, but they are guaranteed to be '1's.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item" style="border-color:rgba(255,255,255,0.4);background:rgba(50,50,50,0.1);">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">+4 (1s)🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Light Draw +4 (Wild)</div>
+              <div class="guide-card-desc">Next player draws 4 cards, but they are guaranteed to be '1's.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
         </div>
         <div class="guide-card-item" style="border-color:rgba(255,255,255,0.4);background:rgba(50,50,50,0.1);">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">+4 (1s)🌈</div>
+            <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">🤝-1🌈</div>
             <div class="guide-card-info">
-              <div class="guide-card-name">Light Draw +4</div>
-              <div class="guide-card-desc">Next player draws 4 cards, but they are guaranteed to be '1's.</div>
+              <div class="guide-card-name">Helper (Wild)</div>
+              <div class="guide-card-desc">Removes 1 card from the next player's hand. Helps them win!</div>
             </div>
           </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
         </div>
         <div class="guide-card-item" style="border-color:rgba(255,255,255,0.4);background:rgba(50,50,50,0.1);">
           <div class="guide-card-top">
@@ -1554,6 +1594,11 @@ function buildDeck(){
     deck.push({color,value:'reversePlus2',type:'reversePlus2',num:2,label:'↩️ +2'});
     if(Math.random()>0.7) deck.push({color,value:'reversePlus4',type:'reversePlus4',num:4,label:'↩️ +4'});
     deck.push({color,value:'skipReverse',type:'skipReverse',label:'↩️ ⊘'});
+    // + (1s) cards - Colored versions
+    deck.push({color,value:'plus2OneCol',type:'plusOne',num:2,label:'+2 (1s)'});
+    if(Math.random()>0.6) deck.push({color,value:'plus4OneCol',type:'plusOne',num:4,label:'+4 (1s)'});
+    // Helper card - Colored version
+    deck.push({color,value:'helperCol',type:'helper',label:'🤝-1'});
     // Miracle card (rare per colour)
     if(Math.random()>0.7) deck.push({color,value:'miracle',type:'miracle',label:'🌟',isMiracle:true});
   }
@@ -1573,6 +1618,12 @@ function buildDeck(){
   deck.push({color:'wild',value:'wild+2b',type:'wildPlus',num:2,label:'+2 🌈'});
   deck.push({color:'wild',value:'wild+3',type:'wildPlus',num:3,label:'+3 🌈'});
   deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4 🌈'});
+  // Wild versions of + (1s)
+  deck.push({color:'wild',value:'plus2OneWild',type:'plusOne',num:2,label:'+2 (1s) 🌈'});
+  deck.push({color:'wild',value:'plus4OneWild',type:'plusOne',num:4,label:'+4 (1s) 🌈'});
+  // Wild version of Helper
+  deck.push({color:'wild',value:'helperWild',type:'helper',label:'🤝-1 🌈'});
+
   deck.push({color:'wild',value:'wildSkipAll',type:'wildSkipAll',label:'⊘⊘🌈'});
   deck.push({color:'wild',value:'pickUntil',type:'pickUntil',label:'🎲🌈'});
   // Copycat
@@ -1585,8 +1636,6 @@ function buildDeck(){
   deck.push({color:'wild',value:'doubleEdgeWild',type:'doubleEdge',label:'⚔️🌈'});
   // Special New Cards
   if(Math.random() < 0.008) deck.push({color:'wild',value:'instantWin',type:'instantWin',label:'🏆🌈',isRare:true});
-  deck.push({color:'wild',value:'plus2One',type:'plusOne',num:2,label:'+2 (1s) 🌈'});
-  deck.push({color:'wild',value:'plus4One',type:'plusOne',num:4,label:'+4 (1s) 🌈'});
   if(Math.random() < 0.005) deck.push({color:'wild',value:'eternalSkip',type:'eternalSkip',label:'♾️⊘🌈',isRare:true});
   deck.push({color:'wild',value:'frenzy',type:'frenzy',label:'🌀🌈'});
   
@@ -1757,7 +1806,7 @@ function updateOpponentZone(idx){
 function buildCardEl(card){
   const el=document.createElement('div');
   const isRare=card.isRare||card.color==='rare';
-  const complexTypes=new Set(['reversePlus2','reversePlus4','skipReverse','wildSkipReverse','wildPlus2SkipReverse','doubleEdge','doubleEdgeWild','mirror','wildMirror','wildPlus','wildReverse','wildSkip','discardColor','wildSkipAll','pickUntil','copycat','instantWin','plusOne','eternalSkip','frenzy']);
+  const complexTypes=new Set(['reversePlus2','reversePlus4','skipReverse','wildSkipReverse','wildPlus2SkipReverse','doubleEdge','doubleEdgeWild','mirror','wildMirror','wildPlus','wildReverse','wildSkip','discardColor','wildSkipAll','pickUntil','copycat','instantWin','plusOne','eternalSkip','frenzy','helper']);
   el.className=`game-card card-${isRare?'rare':card.color}`;
   if(complexTypes.has(card.type) || String(card.label||'').length>4) el.classList.add('card-complex');
   if(card.type==='orinCard'||(card.isRare&&card.label==='👑')) el.classList.add('orin-card');
@@ -2392,6 +2441,20 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       state.pendingDraw += nToDraw;
       state.pendingDrawNum = nToDraw;
       state.onlyDrawOnes = true; // Flag to only draw '1's
+      break;
+    }
+
+    case 'helper': {
+      const target = nextPlayerIdx();
+      const p = state.players[target];
+      if (p.cards.length > 0) {
+        const removed = p.cards.pop();
+        showStatus(`🤝 Helper: Removed a ${removed.label} from ${p.name}!`, 2000);
+        spawnFloatMsg(`-1 Card`, '#22D46B', target);
+        if (target === 0) renderPlayerHand(); else updateOpponentZone(target);
+      } else {
+        showStatus(`🤝 Helper: ${p.name} has no cards to remove!`, 1500);
+      }
       break;
     }
 
