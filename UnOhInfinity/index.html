@@ -60,13 +60,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   letter-spacing:-2px;line-height:1;
 }
 @keyframes logoGradient{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-.logo-shine{
-  position:absolute;top:0;left:-60%;width:40%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
-  animation:logoShine 3.5s ease-in-out infinite;pointer-events:none;mix-blend-mode:overlay;
-}
 @keyframes logoFloat{0%,100%{transform:translateY(0) rotate(-1.5deg) scale(1)}50%{transform:translateY(-15px) rotate(1.5deg) scale(1.02)}}
-@keyframes logoShine{0%{left:-60%}60%,100%{left:130%}}
 
 .menu-stats{display:flex;gap:14px;align-items:center;}
 .stat-pill{
@@ -667,7 +661,6 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   <div class="menu-inner">
     <div class="logo-wrap">
       <div class="menu-logo">UnOh Infinity</div>
-      <div class="logo-shine"></div>
     </div>
     <div class="menu-stats">
       <div class="stat-pill">🏆 Wins: <span id="win-count">0</span></div>
@@ -1978,20 +1971,6 @@ function buildDeck(ignoreFilters = false){
   // Ultra-rare +99 card
   if(p(0.999)) deck.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
 
-  // Safety check: if deck is empty (all settings off), add some numbers
-  if(deck.length === 0){
-    for(const color of COLORS) for(let n=0;n<=12;n++) deck.push({color,value:String(n),type:'number',label:String(n)});
-  }
-  // Individual Exclusions (Sandbox)
-  if(!ignoreFilters && sandboxSettings.customPool && sandboxSettings.customPool.length > 0){
-    return deck.filter(card => {
-      return !sandboxSettings.customPool.some(ex => ex.type === card.type && ex.value === card.value && ex.color === card.color);
-    });
-  }
-
-  return deck;
-}
-  
   // Safety check: if deck is empty (all settings off), add some numbers
   if(deck.length === 0){
     for(const color of COLORS) for(let n=0;n<=12;n++) deck.push({color,value:String(n),type:'number',label:String(n)});
