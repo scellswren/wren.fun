@@ -60,13 +60,8 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   letter-spacing:-2px;line-height:1;
 }
 @keyframes logoGradient{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-.logo-shine{
-  position:absolute;top:0;left:-60%;width:40%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
-  animation:logoShine 3.5s ease-in-out infinite;pointer-events:none;mix-blend-mode:overlay;
-}
+.logo-wrap{position:relative;display:inline-block;}
 @keyframes logoFloat{0%,100%{transform:translateY(0) rotate(-1.5deg) scale(1)}50%{transform:translateY(-15px) rotate(1.5deg) scale(1.02)}}
-@keyframes logoShine{0%{left:-60%}60%,100%{left:130%}}
 
 .menu-stats{display:flex;gap:14px;align-items:center;}
 .stat-pill{
@@ -397,7 +392,6 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   z-index:2;
 }
 .game-card .card-tl, .game-card .card-br, .game-card .card-center { z-index: 2; }
-.game-card .card-shine { z-index: 3; }
 .game-card::before{
   content:'';position:absolute;inset:5px;border-radius:10px;
   border:2px solid rgba(255,255,255,0.2);pointer-events:none;
@@ -417,7 +411,6 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   max-width:85%;word-wrap:break-word;
   display:flex;justify-content:center;align-items:center;flex-wrap:wrap;
 }
-.game-card .card-shine{position:absolute;top:-50%;left:-60%;width:40%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);transform:skewX(-25deg);pointer-events:none;animation:cardShine 3.5s ease-in-out infinite;}
 
 .card-red{background:linear-gradient(145deg,#c01818,#FF3B3B);color:white;border-color:rgba(255,255,255,0.45);}
 .card-blue{background:linear-gradient(145deg,#1040c0,#2B7FFF);color:white;border-color:rgba(255,255,255,0.45);}
@@ -458,8 +451,6 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   0%,100%{box-shadow:0 4px 20px rgba(168,85,247,0.6),0 0 0 1px rgba(210,130,255,0.3)}
   50%{box-shadow:0 4px 30px rgba(168,85,247,0.9),0 0 20px rgba(210,130,255,0.5),0 0 0 2px rgba(210,130,255,0.5)}
 }
-.card-rare .card-shine{animation:rareShine 1.8s ease-in-out infinite!important;}
-@keyframes rareShine{0%,100%{left:-60%;opacity:0.4}50%{left:120%;opacity:0.9}}
 @keyframes discardBump{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
 .discard-bump{animation:discardBump 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
 
@@ -645,11 +636,12 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   <div class="menu-inner">
     <div class="logo-wrap">
       <div class="menu-logo">UnOh Infinity</div>
-      <div class="logo-shine"></div>
     </div>
     <div class="menu-stats">
       <div class="stat-pill">🏆 Wins: <span id="win-count">0</span></div>
       <div class="stat-pill">🎮 Games: <span id="game-count">0</span></div>
+      <div class="stat-pill">🤝 Team Wins: <span id="team-win-count">0</span></div>
+      <div class="stat-pill">👥 Team Games: <span id="team-game-count">0</span></div>
     </div>
 
     <div class="menu-grid">
@@ -666,20 +658,20 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
         </div>
         <div class="section-label" style="margin-top:10px;">Classic Mode</div>
         <div class="menu-btn-row">
-          <button class="play-btn" onclick="startGame(true)">▶ Play Classic</button>
+          <button type="button" class="play-btn" onclick="startGame(true)">▶ Play Classic</button>
         </div>
       </div>
 
       <div class="menu-section">
         <div class="section-label">Game Modes</div>
         <div class="menu-btn-row">
-          <button class="cards-btn" onclick="openSandboxSettings()">🛠️ Sandbox</button>
-          <button class="cards-btn" onclick="openTeamSettings()" id="team-mode-btn">👥 Team Mode</button>
+          <button type="button" class="cards-btn" onclick="openSandboxSettings()">🛠️ Sandbox</button>
+          <button type="button" class="cards-btn" onclick="openTeamSettings()" id="team-mode-btn">👥 Team Mode</button>
         </div>
         <div class="section-label" style="margin-top:10px;">Information & Extras</div>
         <div class="menu-btn-row">
-          <button class="cards-btn" onclick="openCardGuide()">📖 Cards</button>
-          <button class="cards-btn" onclick="openCodes()">🎁 Codes</button>
+          <button type="button" class="cards-btn" onclick="openCardGuide()">📖 Cards</button>
+          <button type="button" class="cards-btn" onclick="openCodes()">🎁 Codes</button>
         </div>
       </div>
     </div>
@@ -691,32 +683,34 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 </div>
 
 <!-- ═══ TEAM MODE MODAL ═══ -->
-<div id="team-modal" class="hidden" style="position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;">
-  <div class="guide-box" style="max-width:400px;text-align:center;">
+<div id="team-modal" class="hidden" style="position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this) closeTeamSettings()">
+  <div class="guide-box" style="max-width:400px;text-align:center;position:relative;">
+    <button class="guide-close" type="button" onclick="closeTeamSettings()" aria-label="Close team mode">✕</button>
     <div class="guide-title" style="font-size:2em;">Team Mode</div>
     <div class="guide-subtitle">2v2 Cooperative Play</div>
     <div style="margin:20px 0;display:flex;flex-direction:column;gap:15px;text-align:left;">
       <div style="display:flex;flex-direction:column;gap:8px;">
         <label style="font-weight:700;">Teammate Control:</label>
         <div class="bot-grid" style="grid-template-columns: 1fr 1fr;">
-          <button class="bot-btn selected" id="team-type-bot" onclick="setTeamType('bot')">🤖 Bot</button>
-          <button class="bot-btn" id="team-type-friend" onclick="setTeamType('friend')">🎮 Friend</button>
+          <button type="button" class="bot-btn selected" id="team-type-bot" onclick="setTeamType('bot')">🤖 Bot</button>
+          <button type="button" class="bot-btn" id="team-type-friend" onclick="setTeamType('friend')">🎮 Friend</button>
         </div>
         <div id="team-desc" style="font-size:0.75em;color:var(--muted);margin-top:5px;">Your teammate will be an AI-controlled bot.</div>
       </div>
     </div>
     <div class="menu-btn-row">
-      <button class="play-btn" onclick="startTeamMode()">▶ Play Team Mode</button>
+      <button type="button" class="play-btn" onclick="startTeamMode()">▶ Play Team Mode</button>
     </div>
     <div class="menu-btn-row" style="margin-top:10px;">
-      <button class="cards-btn" onclick="closeTeamSettings()">Back to Menu</button>
+      <button type="button" class="cards-btn" onclick="closeTeamSettings()">Back to Menu</button>
     </div>
   </div>
 </div>
 
 <!-- ═══ SANDBOX MODAL ═══ -->
-<div id="sandbox-modal" class="hidden" style="position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;">
-  <div class="guide-box" style="max-width:550px;text-align:center;">
+<div id="sandbox-modal" class="hidden" style="position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this) closeSandbox()">
+  <div class="guide-box" style="max-width:550px;text-align:center;position:relative;">
+    <button class="guide-close" type="button" id="sandbox-close-btn" onclick="closeSandbox()" aria-label="Close sandbox">✕</button>
     <div class="guide-title" style="font-size:2em;">Sandbox Mode</div>
     <div class="guide-subtitle">Customise Your Chaos</div>
     <div style="margin:20px 0;display:flex;flex-direction:column;gap:12px;text-align:left;max-height:60vh;overflow-y:auto;padding-right:10px;">
@@ -728,55 +722,47 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
         <label style="font-weight:700;">Chaos Factor (0.1 - 5.0):</label>
         <input type="number" id="sb-chaos" step="0.1" min="0.1" max="5" value="1.0" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 10px;border-radius:8px;width:60px;">
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <label style="font-weight:700;">Always Draw Ones:</label>
-        <input type="checkbox" id="sb-ones" style="width:20px;height:20px;">
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <label style="font-weight:700;">Control Teammate (Team Mode):</label>
-        <input type="checkbox" id="sb-control-team" style="width:20px;height:20px;">
+      <div class="menu-btn-row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap;width:100%;">
+        <button type="button" class="bot-btn toggle-btn" id="sb-ones" onclick="toggleSandboxSetting('alwaysDrawOnes', 'sb-ones')">Always Draw Ones</button>
+        <button type="button" class="bot-btn toggle-btn" id="sb-control-team" onclick="toggleSandboxSetting('controlTeammate', 'sb-control-team')">Control Teammate</button>
       </div>
 
       <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
         <label style="font-weight:700;display:block;margin-bottom:8px;">Custom Starting Hand:</label>
         <div id="sb-hand-preview" style="display:flex;gap:5px;flex-wrap:wrap;min-height:40px;background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;margin-bottom:8px;"></div>
-        <button class="cards-btn" style="width:100%;" onclick="openCardSelector('hand')">✨ Select Hand Cards</button>
+        <button type="button" class="cards-btn" id="sandbox-hand-btn" style="width:100%;" onclick="openCardSelector('hand')">✨ Select Hand Cards</button>
       </div>
 
       <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
-        <label style="font-weight:700;display:block;margin-bottom:8px;">Card Pool Filters:</label>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
-          <label style="font-size:0.85em;display:flex;align-items:center;gap:5px;"><input type="checkbox" id="sb-pool-numbers" checked onchange="refreshPoolFilters()"> Numbers</label>
-          <label style="font-size:0.85em;display:flex;align-items:center;gap:5px;"><input type="checkbox" id="sb-pool-wilds" checked onchange="refreshPoolFilters()"> Wilds</label>
-          <label style="font-size:0.85em;display:flex;align-items:center;gap:5px;"><input type="checkbox" id="sb-pool-plus" checked onchange="refreshPoolFilters()"> + Cards</label>
-        </div>
-        <button class="cards-btn" style="width:100%;" onclick="openCardSelector('pool')">🃏 Select Specific Pool Cards</button>
+        <label style="font-weight:700;display:block;margin-bottom:8px;">Card Pool:</label>
+        <div style="font-size:0.82em;color:var(--muted);margin-bottom:10px;text-align:center;line-height:1.5;">Choose cards to exclude from the deck.</div>
+        <button type="button" class="cards-btn" id="sandbox-pool-btn" style="width:100%;" onclick="openCardSelector('pool')">🃏 Select Pool Cards</button>
         <div id="pool-status" style="font-size:0.7em;color:var(--muted);margin-top:5px;text-align:center;">All cards are currently selected</div>
       </div>
     </div>
     <div class="menu-btn-row">
-      <button class="play-btn" onclick="startSandboxMode()">▶ Play Sandbox</button>
+      <button type="button" class="play-btn" id="sandbox-play-btn" onclick="startSandboxMode()">▶ Play Sandbox</button>
     </div>
     <div class="menu-btn-row" style="margin-top:10px;">
-      <button class="cards-btn" onclick="closeSandbox()">Save & Back</button>
-      <button class="cards-btn" style="background:rgba(255,59,59,0.2);" onclick="resetSandbox()">Reset</button>
+      <button type="button" class="cards-btn" id="sandbox-back-btn" onclick="closeSandbox()">Back</button>
+      <button type="button" class="cards-btn" id="sandbox-reset-btn" style="background:rgba(255,59,59,0.2);" onclick="resetSandbox()">Reset</button>
     </div>
   </div>
 </div>
 
 <!-- ═══ CARD SELECTOR MODAL ═══ -->
-<div id="card-selector-modal" class="hidden" style="position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.9);backdrop-filter:blur(15px);display:flex;align-items:center;justify-content:center;padding:20px;">
+<div id="card-selector-modal" class="hidden" style="position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.9);backdrop-filter:blur(15px);display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this) closeCardSelector()">
   <div class="guide-box" style="max-width:800px;width:100%;max-height:90vh;display:flex;flex-direction:column;">
     <div class="guide-header">
       <div class="guide-title" id="selector-title">Select Cards</div>
-      <button class="guide-close" onclick="closeCardSelector()">✕</button>
+      <button type="button" class="guide-close" id="selector-close-btn" onclick="closeCardSelector()">✕</button>
     </div>
     <div style="padding:10px 20px;font-size:0.9em;color:var(--muted);" id="selector-desc"></div>
     <div id="selector-grid" style="flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill, minmax(90px, 1fr));gap:15px;padding:20px;justify-items:center;align-content:start;">
       <!-- Cards will be injected here -->
     </div>
     <div class="menu-btn-row" style="padding:20px;border-top:1px solid rgba(255,255,255,0.1);">
-      <button class="play-btn" style="width:100%;" onclick="closeCardSelector()">Confirm Selection</button>
+      <button type="button" class="play-btn" id="selector-confirm-btn" style="width:100%;" onclick="closeCardSelector()">Confirm Selection</button>
     </div>
   </div>
 </div>
@@ -786,11 +772,11 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   <div class="guide-box" style="max-width:400px;text-align:center;">
     <div class="guide-header">
       <div class="guide-title">Secret Codes 🎁</div>
-      <button class="guide-close" onclick="closeCodes()">✕</button>
+      <button class="guide-close" id="codes-close-btn" onclick="closeCodes()">✕</button>
     </div>
     <div style="margin:20px 0;">
       <input type="text" id="code-input" placeholder="Enter code..." style="width:100%;padding:12px 20px;border-radius:12px;border:2px solid var(--border);background:var(--glass);color:var(--text);font-family:'Nunito',sans-serif;font-weight:700;font-size:1.1em;text-align:center;margin-bottom:15px;outline:none;transition:border-color 0.3s;">
-      <button class="play-btn" onclick="submitCode()" style="padding:12px 40px;font-size:1.2em;width:100%;">Redeem</button>
+      <button class="play-btn" id="codes-redeem-btn" onclick="submitCode()" style="padding:12px 40px;font-size:1.2em;width:100%;">Redeem</button>
     </div>
     <div id="code-status" style="font-size:0.9em;font-weight:700;height:1.2em;color:var(--muted);"></div>
   </div>
@@ -803,7 +789,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
       <div class="guide-subtitle">UnOh Infinity Collection</div>
       <div class="guide-title">Card Gallery ✦</div>
       <div style="margin-top:-2px;font-size:0.78em;color:rgba(255,255,255,0.45);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Chance-based card rolls</div>
-      <button class="guide-close" onclick="closeCardGuide()">✕</button>
+      <button type="button" class="guide-close" id="guide-close-btn" onclick="closeCardGuide()">✕</button>
     </div>
 
     <!-- ══ NON-WILD SECTION ══ -->
@@ -1437,7 +1423,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
     </div>
 
     <div class="guide-section">
-      <div class="guide-section-title">Legendary Wild <span>Rare card pool only</span></div>
+      <div class="guide-section-title">Rare Wild <span>Rare card pool only</span></div>
       <div class="guide-cards">
         <div class="guide-card-item">
           <div class="guide-card-top">
@@ -1448,7 +1434,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
               <div class="guide-card-desc">Full hand exchange with any player you choose.</div>
             </div>
           </div>
-          <div class="price-tag"><div class="rarity-label rarity-legendary">✦ LEGENDARY</div></div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">◆ RARE</div></div>
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
@@ -1459,7 +1445,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
               <div class="guide-card-desc">Locks a player out of the game until someone draws a card.</div>
             </div>
           </div>
-          <div class="price-tag"><div class="rarity-label rarity-legendary">✦ LEGENDARY</div></div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">◆ RARE</div></div>
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
@@ -1675,8 +1661,16 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 
 <script>
 /* ═══ AUDIO ═══ */
-const AC=new(window.AudioContext||window.webkitAudioContext)();
-function resumeAC(){if(AC.state==='suspended')AC.resume();}
+const AudioCtor = window.AudioContext || window.webkitAudioContext;
+const AC = AudioCtor ? new AudioCtor() : {
+  state: 'running',
+  currentTime: 0,
+  destination: null,
+  resume(){ return Promise.resolve(); },
+  createOscillator(){ return { connect(){}, start(){}, stop(){}, type:'sine', frequency:{ setValueAtTime(){}, exponentialRampToValueAtTime(){}, linearRampToValueAtTime(){} } }; },
+  createGain(){ return { connect(){}, gain:{ setValueAtTime(){}, exponentialRampToValueAtTime(){}, linearRampToValueAtTime(){}, value: 0 } }; }
+};
+function resumeAC(){ try { if(AC && AC.state==='suspended' && AC.resume) AC.resume(); } catch(e){} }
 document.addEventListener('click',resumeAC,{once:true});
 function playSound(type){
   try{
@@ -1710,16 +1704,20 @@ function playSound(type){
   }catch(e){}
 }
 
+const raf = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : (cb)=>setTimeout(()=>cb(Date.now()),16);
 /* ═══ BG CANVAS ═══ */
 const bgCanvas=document.getElementById('bg-canvas');
-const bgCtx=bgCanvas.getContext('2d');
+const bgCtx=bgCanvas ? bgCanvas.getContext('2d') : null;
 let bgW,bgH;
 const BG_COLORS=['#FF3B3B','#2B7FFF','#FFD600','#22D46B','#A855F7'];
 const bgParticles=[];
-function resizeBg(){bgW=bgCanvas.width=window.innerWidth;bgH=bgCanvas.height=window.innerHeight;}
-resizeBg();window.addEventListener('resize',resizeBg);
-for(let i=0;i<50;i++) bgParticles.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:1.5+Math.random()*3.5,color:BG_COLORS[Math.floor(Math.random()*5)],vx:(Math.random()-0.5)*0.35,vy:(Math.random()-0.5)*0.35,alpha:0.1+Math.random()*0.2});
+function resizeBg(){ if(!bgCanvas) return; bgW=bgCanvas.width=window.innerWidth; bgH=bgCanvas.height=window.innerHeight; }
+if(bgCanvas && bgCtx){ resizeBg(); window.addEventListener('resize',resizeBg); }
+if(bgCanvas && bgCtx){
+  for(let i=0;i<50;i++) bgParticles.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:1.5+Math.random()*3.5,color:BG_COLORS[Math.floor(Math.random()*5)],vx:(Math.random()-0.5)*0.35,vy:(Math.random()-0.5)*0.35,alpha:0.1+Math.random()*0.2});
+}
 function drawBg(){
+  if(!bgCtx){ return; }
   bgCtx.clearRect(0,0,bgW,bgH);
   const grd=bgCtx.createRadialGradient(bgW/2,bgH/2,0,bgW/2,bgH/2,Math.max(bgW,bgH)*0.8);
   grd.addColorStop(0,'#18183a');grd.addColorStop(1,'#080812');
@@ -1732,15 +1730,16 @@ function drawBg(){
     bgCtx.fillStyle=p.color+Math.floor(p.alpha*255).toString(16).padStart(2,'0');
     bgCtx.fill();
   }
-  requestAnimationFrame(drawBg);
+  raf(drawBg);
 }
-drawBg();
+if(bgCtx) drawBg();
 
 /* ═══ MENU DECO ═══ */
 const CARD_COLORS_CSS={red:'linear-gradient(145deg,#c01818,#FF3B3B)',blue:'linear-gradient(145deg,#1040c0,#2B7FFF)',yellow:'linear-gradient(145deg,#b88800,#FFD600)',green:'linear-gradient(145deg,#0e6830,#22D46B)',purple:'linear-gradient(145deg,#5010a0,#A855F7)',wild:'linear-gradient(145deg,#1a1a38,#2d2d5e)'};
 const COLORS=['red','blue','yellow','green','purple'];
 function spawnDecoCard(){
   const deco=document.getElementById('menu-cards-deco');
+  if(!deco) return;
   const keys=Object.keys(CARD_COLORS_CSS);
   const color=keys[Math.floor(Math.random()*keys.length)];
   const card=document.createElement('div');card.className='deco-card';
@@ -1752,18 +1751,20 @@ function spawnDecoCard(){
 setInterval(spawnDecoCard,2000);for(let i=0;i<6;i++) setTimeout(()=>spawnDecoCard(),i*400);
 
 /* ═══ CARD GUIDE ═══ */
-function openCardGuide(){document.getElementById('card-guide').classList.remove('hidden');}
-function closeCardGuide(){document.getElementById('card-guide').classList.add('hidden');}
+function openCardGuide(){ const el=document.getElementById('card-guide'); if(el) el.classList.remove('hidden'); }
+function closeCardGuide(){ const el=document.getElementById('card-guide'); if(el) el.classList.add('hidden'); }
 
 /* ═══ CODES ═══ */
 let orinCheatActive = localStorage.getItem('unoh_orin_cheat') === 'true';
 function openCodes(){
-  document.getElementById('codes-modal').classList.remove('hidden');
-  document.getElementById('code-input').value = '';
-  document.getElementById('code-status').textContent = orinCheatActive ? 'Cheat is currently ACTIVE 👑' : '';
-  document.getElementById('code-input').focus();
+  const modal=document.getElementById('codes-modal');
+  const input=document.getElementById('code-input');
+  const status=document.getElementById('code-status');
+  if(modal) modal.classList.remove('hidden');
+  if(input){ input.value=''; input.focus(); }
+  if(status) status.textContent = orinCheatActive ? 'Cheat is currently ACTIVE 👑' : '';
 }
-function closeCodes(){document.getElementById('codes-modal').classList.add('hidden');}
+function closeCodes(){ const modal=document.getElementById('codes-modal'); if(modal) modal.classList.add('hidden'); }
 function submitCode(){
   const input = document.getElementById('code-input');
   const status = document.getElementById('code-status');
@@ -1800,6 +1801,23 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape'){
+    const ids = ['card-selector-modal', 'sandbox-modal', 'team-modal', 'codes-modal', 'card-guide'];
+    for(const id of ids){
+      const el = document.getElementById(id);
+      if(el && !el.classList.contains('hidden')){
+        if(id === 'card-selector-modal') closeCardSelector();
+        else if(id === 'sandbox-modal') closeSandbox();
+        else if(id === 'team-modal') closeTeamSettings();
+        else if(id === 'codes-modal') closeCodes();
+        else if(id === 'card-guide') closeCardGuide();
+        break;
+      }
+    }
+  }
+});
+
 /* ═══ CARD DEFINITIONS ═══ */
 const COLOR_HEX={red:'#FF3B3B',blue:'#2B7FFF',yellow:'#FFD600',green:'#22D46B',purple:'#A855F7',wild:'#A855F7',rare:'#A855F7'};
 const ANZAC_THEME_UNLOCK_KEY='wren_theme_anzac_unlocked';
@@ -1809,137 +1827,136 @@ function showCodePopup(msg){
   popup.textContent=msg;
   popup.style.cssText="position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-12px) scale(0.96);background:rgba(34,212,107,0.97);color:#06210f;padding:14px 22px;border-radius:18px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1em;letter-spacing:0.2px;box-shadow:0 16px 38px rgba(34,212,107,0.34),0 0 0 1px rgba(255,255,255,0.12);z-index:5000;opacity:0;pointer-events:none;transition:opacity 0.22s ease, transform 0.22s ease;";
   document.body.appendChild(popup);
-  requestAnimationFrame(()=>{popup.style.opacity='1';popup.style.transform='translateX(-50%) translateY(0) scale(1)';});
+  raf(()=>{popup.style.opacity='1';popup.style.transform='translateX(-50%) translateY(0) scale(1)';});
   setTimeout(()=>{popup.style.opacity='0';popup.style.transform='translateX(-50%) translateY(-10px) scale(0.96)';setTimeout(()=>popup.remove(),260);},1700);
 }
 
-function buildDeck(){
+function buildDeck(ignoreCustomPool = false){
   const deck=[];
   const chaos = sandboxSettings.chaosFactor;
-  const pool = sandboxSettings.pool;
   const p = (threshold) => Math.random() > (threshold / chaos);
+  const cardKey = (c) => `${c.type}|${c.value}|${c.color}|${c.num ?? ''}`;
+  const excluded = (!ignoreCustomPool && sandboxSettings.customPool && sandboxSettings.customPool.length)
+    ? new Set(sandboxSettings.customPool.map(cardKey))
+    : null;
+
   for(const color of COLORS){
     // Numbers 1-12, 4 sets
-    if(pool.numbers){
-      for(let n=1;n<=12;n++) for(let i=0;i<4;i++) deck.push({color,value:String(n),type:'number',label:String(n)});
-    }
-    // Reverse / Skip
-    if(pool.specials){
-      for(let i=0;i<2;i++) deck.push({color,value:'reverse',type:'reverse',label:'↩'});
-      for(let i=0;i<2;i++) deck.push({color,value:'skip',type:'skip',label:'⊘'});
-      // Skip All
-      deck.push({color,value:'skipAll',type:'skipAll',label:'⊘⊘'});
-      // Target Skip & Teleport
-      deck.push({color,value:'targetSkip',type:'targetSkip',label:'🎯⊘'});
-      if(p(0.7)) deck.push({color,value:'teleport',type:'teleport',label:'🌀'});
-      // Colour Shift
-      deck.push({color,value:'colorShift',type:'colorShift',label:'🎨'});
-      // Mirror (coloured version)
-      deck.push({color,value:'mirror',type:'mirror',label:'🪞'});
-      // Skip Reverse
-      deck.push({color,value:'skipReverse',type:'skipReverse',label:'↩️ ⊘'});
-      // Suppress Wild
-      deck.push({color,value:'suppressWild',type:'suppressWild',label:'🚫🌈'});
-    }
-    // Draw cards +1 through +4
-    if(pool.draws){
-      deck.push({color,value:'+1',type:'plus',num:1,label:'+1'});
-      deck.push({color,value:'+2',type:'plus',num:2,label:'+2'});
-      deck.push({color,value:'+3',type:'plus',num:3,label:'+3'});
-      deck.push({color,value:'+4',type:'plus',num:4,label:'+4'});
-      // Higher draw cards (rarer)
-      if(p(0.7)) deck.push({color,value:'+8',type:'plus',num:8,label:'+8'});
-      if(p(0.9)) deck.push({color,value:'+10',type:'plus',num:10,label:'+10'});
-      // Target draw
-      deck.push({color,value:'targetDraw2',type:'targetDraw2',num:2,label:'🎯+2'});
-      if(p(0.6)) deck.push({color,value:'doublePlay',type:'doublePlay',label:'2x'});
-      // Chaos Draw
-      if(p(0.7)) deck.push({color,value:'chaosDraw',type:'chaosDraw',label:'💥'});
-      // Target +2/+4 Skip
-      if(p(0.8)) deck.push({color,value:'targetPlus2Skip',type:'targetPlus2Skip',num:2,label:'🎯⊘+2'});
-      if(p(0.9)) deck.push({color,value:'targetPlus4Skip',type:'targetPlus4Skip',num:4,label:'🎯⊘+4'});
-      // Combo cards
-      deck.push({color,value:'reversePlus2',type:'reversePlus2',num:2,label:'↩️ +2'});
-      if(p(0.7)) deck.push({color,value:'reversePlus4',type:'reversePlus4',num:4,label:'↩️ +4'});
-      // + (1s) cards - Colored versions
-      deck.push({color,value:'plus2OneCol',type:'plusOne',num:2,label:'+2 (1s)'});
-      if(p(0.6)) deck.push({color,value:'plus4OneCol',type:'plusOne',num:4,label:'+4 (1s)'});
-    }
-    // Helper card - Colored version
-    if(pool.rares){
-      deck.push({color,value:'helperCol',type:'helper',num:1,label:'-1'});
-      if(p(0.8)) deck.push({color,value:'helper2Col',type:'helper',num:2,label:'-2'});
-      // Miracle card (rare per colour)
-      if(p(0.7)) deck.push({color,value:'miracle',type:'miracle',label:'🌟',isMiracle:true});
-    }
-  }
-  // Wild cards
-  if(pool.wilds){
-    for(let i=0;i<4;i++) deck.push({color:'wild',value:'wild',type:'wild',label:'🌈'});
-    for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildReverse',type:'wildReverse',label:'↩🌈'});
-    for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildSkip',type:'wildSkip',label:'⊘🌈'});
-    for(let i=0;i<2;i++) deck.push({color:'wild',value:'discardColor',type:'discardColor',label:'🗑️🌈'});
-    // Wild Mirror
-    deck.push({color:'wild',value:'wildMirror',type:'wildMirror',label:'🪞🌈'});
-    // Wild Suppress Wild
-    deck.push({color:'wild',value:'wildSuppressWild',type:'suppressWild',label:'🚫🌈🌈'});
-    // Mystery Wild
-    deck.push({color:'wild',value:'mysteryWild',type:'mysteryWild',label:'❓🌈'});
-    // Wild Plus series
-    deck.push({color:'wild',value:'wild+1',type:'wildPlus',num:1,label:'+1 🌈'});
-    deck.push({color:'wild',value:'wild+1b',type:'wildPlus',num:1,label:'+1 🌈'});
-    deck.push({color:'wild',value:'wild+2',type:'wildPlus',num:2,label:'+2 🌈'});
-    deck.push({color:'wild',value:'wild+2b',type:'wildPlus',num:2,label:'+2 🌈'});
-    deck.push({color:'wild',value:'wild+3',type:'wildPlus',num:3,label:'+3 🌈'});
-    deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4 🌈'});
-    // Wild versions of + (1s)
-    deck.push({color:'wild',value:'plus2OneWild',type:'plusOne',num:2,label:'+2 (1s) 🌈'});
-    deck.push({color:'wild',value:'plus4OneWild',type:'plusOne',num:4,label:'+4 (1s) 🌈'});
-    // Wild version of Helper
-    deck.push({color:'wild',value:'helperWild',type:'helper',num:1,label:'-1 🌈'});
-    if(p(0.5)) deck.push({color:'wild',value:'helper2Wild',type:'helper',num:2,label:'-2 🌈'});
+    for(let n=1;n<=12;n++) for(let i=0;i<4;i++) deck.push({color,value:String(n),type:'number',label:String(n)});
 
-    deck.push({color:'wild',value:'wildSkipAll',type:'wildSkipAll',label:'⊘⊘🌈'});
-    deck.push({color:'wild',value:'targetSkipWild',type:'targetSkip',label:'🎯⊘🌈'});
-    deck.push({color:'wild',value:'targetPlus2SkipWild',type:'targetPlus2Skip',num:2,label:'🎯⊘+2🌈'});
-    deck.push({color:'wild',value:'targetPlus4SkipWild',type:'targetPlus4Skip',num:4,label:'🎯⊘+4🌈'});
-    deck.push({color:'wild',value:'teleportWild',type:'teleport',label:'🌀🌈'});
-    deck.push({color:'wild',value:'pickUntil',type:'pickUntil',label:'🎲🌈'});
-    // Copycat
-    deck.push({color:'wild',value:'copycat',type:'copycat',label:'🐱🌈'});
-    // Wild combos
-    deck.push({color:'wild',value:'wildReversePlus2',type:'reversePlus2',num:2,label:'↩️ +2 🌈'});
-    deck.push({color:'wild',value:'wildReversePlus4',type:'reversePlus4',num:4,label:'↩️ +4 🌈'});
-    deck.push({color:'wild',value:'wildSkipReverse',type:'skipReverse',label:'↩️ ⊘ 🌈'});
-    deck.push({color:'wild',value:'wildPlus2SkipReverse',type:'wildPlus2SkipReverse',num:2,label:'🌈 ↩️ ⊘ +2'});
-    deck.push({color:'wild',value:'doubleEdgeWild',type:'doubleEdge',label:'⚔️🌈'});
-    // Special New Cards
-    if(p(0.992)) deck.push({color:'wild',value:'instantWin',type:'instantWin',label:'🏆🌈',isRare:true});
-    if(p(0.995)) deck.push({color:'wild',value:'eternalSkip',type:'eternalSkip',label:'♾️⊘🌈',isRare:true});
-    deck.push({color:'wild',value:'frenzy',type:'frenzy',label:'🌀🌈'});
+    // Reverse / Skip
+    for(let i=0;i<2;i++) deck.push({color,value:'reverse',type:'reverse',label:'↩'});
+    for(let i=0;i<2;i++) deck.push({color,value:'skip',type:'skip',label:'⊘'});
+    // Skip All
+    deck.push({color,value:'skipAll',type:'skipAll',label:'⊘⊘'});
+    // Target Skip & Teleport
+    deck.push({color,value:'targetSkip',type:'targetSkip',label:'🎯⊘'});
+    if(p(0.7)) deck.push({color,value:'teleport',type:'teleport',label:'🌀'});
+    // Colour Shift
+    deck.push({color,value:'colorShift',type:'colorShift',label:'🎨'});
+    // Mirror (coloured version)
+    deck.push({color,value:'mirror',type:'mirror',label:'🪞'});
+    // Skip Reverse
+    deck.push({color,value:'skipReverse',type:'skipReverse',label:'↩️ ⊘'});
+    // Suppress Wild
+    deck.push({color,value:'suppressWild',type:'suppressWild',label:'🚫🌈'});
+
+    // Draw cards +1 through +4
+    deck.push({color,value:'+1',type:'plus',num:1,label:'+1'});
+    deck.push({color,value:'+2',type:'plus',num:2,label:'+2'});
+    deck.push({color,value:'+3',type:'plus',num:3,label:'+3'});
+    deck.push({color,value:'+4',type:'plus',num:4,label:'+4'});
+    // Higher draw cards (rarer)
+    if(p(0.7)) deck.push({color,value:'+8',type:'plus',num:8,label:'+8'});
+    if(p(0.9)) deck.push({color,value:'+10',type:'plus',num:10,label:'+10'});
+    // Target draw
+    deck.push({color,value:'targetDraw2',type:'targetDraw2',num:2,label:'🎯+2'});
+    if(p(0.6)) deck.push({color,value:'doublePlay',type:'doublePlay',label:'2x'});
+    // Chaos Draw
+    if(p(0.7)) deck.push({color,value:'chaosDraw',type:'chaosDraw',label:'💥'});
+    // Target +2/+4 Skip
+    if(p(0.8)) deck.push({color,value:'targetPlus2Skip',type:'targetPlus2Skip',num:2,label:'🎯⊘+2'});
+    if(p(0.9)) deck.push({color,value:'targetPlus4Skip',type:'targetPlus4Skip',num:4,label:'🎯⊘+4'});
+    // Combo cards
+    deck.push({color,value:'reversePlus2',type:'reversePlus2',num:2,label:'↩️ +2'});
+    if(p(0.7)) deck.push({color,value:'reversePlus4',type:'reversePlus4',num:4,label:'↩️ +4'});
+    // + (1s) cards - Colored versions
+    deck.push({color,value:'plus2OneCol',type:'plusOne',num:2,label:'+2 (1s)'});
+    if(p(0.6)) deck.push({color,value:'plus4OneCol',type:'plusOne',num:4,label:'+4 (1s)'});
+
+    // Helper card - Colored version
+    deck.push({color,value:'helperCol',type:'helper',num:1,label:'-1'});
+    if(p(0.8)) deck.push({color,value:'helper2Col',type:'helper',num:2,label:'-2'});
+    // Miracle card (rare per colour)
+    if(p(0.7)) deck.push({color,value:'miracle',type:'miracle',label:'🌟',isMiracle:true});
   }
-  
+
+  // Wild cards
+  for(let i=0;i<4;i++) deck.push({color:'wild',value:'wild',type:'wild',label:'🌈'});
+  for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildReverse',type:'wildReverse',label:'↩🌈'});
+  for(let i=0;i<2;i++) deck.push({color:'wild',value:'wildSkip',type:'wildSkip',label:'⊘🌈'});
+  for(let i=0;i<2;i++) deck.push({color:'wild',value:'discardColor',type:'discardColor',label:'🗑️🌈'});
+  // Wild Mirror
+  deck.push({color:'wild',value:'wildMirror',type:'wildMirror',label:'🪞🌈'});
+  // Wild Suppress Wild
+  deck.push({color:'wild',value:'wildSuppressWild',type:'suppressWild',label:'🚫🌈🌈'});
+  // Mystery Wild
+  deck.push({color:'wild',value:'mysteryWild',type:'mysteryWild',label:'❓🌈'});
+  // Wild Plus series
+  deck.push({color:'wild',value:'wild+1',type:'wildPlus',num:1,label:'+1 🌈'});
+  deck.push({color:'wild',value:'wild+1b',type:'wildPlus',num:1,label:'+1 🌈'});
+  deck.push({color:'wild',value:'wild+2',type:'wildPlus',num:2,label:'+2 🌈'});
+  deck.push({color:'wild',value:'wild+2b',type:'wildPlus',num:2,label:'+2 🌈'});
+  deck.push({color:'wild',value:'wild+3',type:'wildPlus',num:3,label:'+3 🌈'});
+  deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4 🌈'});
+  // Wild versions of + (1s)
+  deck.push({color:'wild',value:'plus2OneWild',type:'plusOne',num:2,label:'+2 (1s) 🌈'});
+  deck.push({color:'wild',value:'plus4OneWild',type:'plusOne',num:4,label:'+4 (1s) 🌈'});
+  // Wild version of Helper
+  deck.push({color:'wild',value:'helperWild',type:'helper',num:1,label:'-1 🌈'});
+  if(p(0.5)) deck.push({color:'wild',value:'helper2Wild',type:'helper',num:2,label:'-2 🌈'});
+
+  deck.push({color:'wild',value:'wildSkipAll',type:'wildSkipAll',label:'⊘⊘🌈'});
+  deck.push({color:'wild',value:'targetSkipWild',type:'targetSkip',label:'🎯⊘🌈'});
+  deck.push({color:'wild',value:'targetPlus2SkipWild',type:'targetPlus2Skip',num:2,label:'🎯⊘+2🌈'});
+  deck.push({color:'wild',value:'targetPlus4SkipWild',type:'targetPlus4Skip',num:4,label:'🎯⊘+4🌈'});
+  deck.push({color:'wild',value:'teleportWild',type:'teleport',label:'🌀🌈'});
+  deck.push({color:'wild',value:'pickUntil',type:'pickUntil',label:'🎲🌈'});
+  // Copycat
+  deck.push({color:'wild',value:'copycat',type:'copycat',label:'🐱🌈'});
+  // Wild combos
+  deck.push({color:'wild',value:'wildReversePlus2',type:'reversePlus2',num:2,label:'↩️ +2 🌈'});
+  deck.push({color:'wild',value:'wildReversePlus4',type:'reversePlus4',num:4,label:'↩️ +4 🌈'});
+  deck.push({color:'wild',value:'wildSkipReverse',type:'skipReverse',label:'↩️ ⊘ 🌈'});
+  deck.push({color:'wild',value:'wildPlus2SkipReverse',type:'wildPlus2SkipReverse',num:2,label:'🌈 ↩️ ⊘ +2'});
+  deck.push({color:'wild',value:'doubleEdgeWild',type:'doubleEdge',label:'⚔️🌈'});
+  // Special New Cards
+  if(p(0.992)) deck.push({color:'wild',value:'instantWin',type:'instantWin',label:'🏆🌈',isRare:true});
+  if(p(0.995)) deck.push({color:'wild',value:'eternalSkip',type:'eternalSkip',label:'♾️⊘🌈',isRare:true});
+  deck.push({color:'wild',value:'frenzy',type:'frenzy',label:'🌀🌈'});
+
   // RARE cards (1 each)
-  if(pool.rares){
-    deck.push({color:'rare',value:'swapDecks',type:'swapDecks',label:'🔀',isRare:true});
-    deck.push({color:'rare',value:'handFreeze',type:'handFreeze',label:'❄️',isRare:true});
-    deck.push({color:'rare',value:'stealWild',type:'stealWild',label:'🎭',isRare:true});
-    deck.push({color:'rare',value:'shuffleStorm',type:'shuffleStorm',label:'🌪️',isRare:true});
-    deck.push({color:'rare',value:'doubleEdge',type:'doubleEdge',label:'⚔️',isRare:true});
-    deck.push({color:'rare',value:'hotPotato',type:'hotPotato',label:'🥔',isRare:true});
-    deck.push({color:'rare',value:'communism',type:'communism',label:'☭',isRare:true});
-    deck.push({color:'rare',value:'targetPlus4',type:'targetPlus4',num:4,label:'🎯+4',isRare:true});
-    deck.push({color:'rare',value:'superBanana',type:'superBanana',label:'🍌✨',isRare:true});
-    deck.push({color:'rare',value:'disarmWilds',type:'disarmWilds',label:'🚫🌈',isRare:true});
-    // Mythic cards
-    if(p(0.9975)) deck.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});
-    // Ultra-rare +99 card
-    if(p(0.999)) deck.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
-  }
-  
-  // Safety check: if deck is empty (all settings off), add some numbers
+  deck.push({color:'rare',value:'swapDecks',type:'swapDecks',label:'🔀',isRare:true});
+  deck.push({color:'rare',value:'handFreeze',type:'handFreeze',label:'❄️',isRare:true});
+  deck.push({color:'rare',value:'stealWild',type:'stealWild',label:'🎭',isRare:true});
+  deck.push({color:'rare',value:'shuffleStorm',type:'shuffleStorm',label:'🌪️',isRare:true});
+  deck.push({color:'rare',value:'doubleEdge',type:'doubleEdge',label:'⚔️',isRare:true});
+  deck.push({color:'rare',value:'hotPotato',type:'hotPotato',label:'🥔',isRare:true});
+  deck.push({color:'rare',value:'communism',type:'communism',label:'☭',isRare:true});
+  deck.push({color:'rare',value:'targetPlus4',type:'targetPlus4',num:4,label:'🎯+4',isRare:true});
+  deck.push({color:'rare',value:'superBanana',type:'superBanana',label:'🍌✨',isRare:true});
+  deck.push({color:'rare',value:'disarmWilds',type:'disarmWilds',label:'🚫🌈',isRare:true});
+  // Mythic cards
+  if(p(0.9975)) deck.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});
+  // Ultra-rare +99 card
+  if(p(0.999)) deck.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
+
+  // Safety check: if deck is empty, add some numbers
   if(deck.length === 0){
     for(const color of COLORS) for(let n=1;n<=12;n++) deck.push({color,value:String(n),type:'number',label:String(n)});
+  }
+  if(excluded){
+    return deck.filter(card => !excluded.has(cardKey(card)));
   }
   return deck;
 }
@@ -1993,9 +2010,12 @@ let selectorMode = 'hand'; // 'hand' or 'pool'
 
 function openCardSelector(mode){
   selectorMode = mode;
-  document.getElementById('card-selector-modal').classList.remove('hidden');
-  document.getElementById('selector-title').textContent = mode === 'hand' ? 'Select Starting Hand' : 'Customize Card Pool';
-  document.getElementById('selector-desc').textContent = mode === 'hand' ? 
+  const modal=document.getElementById('card-selector-modal');
+  const title=document.getElementById('selector-title');
+  const desc=document.getElementById('selector-desc');
+  if(modal) modal.classList.remove('hidden');
+  if(title) title.textContent = mode === 'hand' ? 'Select Starting Hand' : 'Customize Card Pool';
+  if(desc) desc.textContent = mode === 'hand' ? 
     'Click cards to add them to your starting hand. Click again to remove.' : 
     'All cards are included by default. Click to exclude specific cards from the deck.';
   
@@ -2003,7 +2023,8 @@ function openCardSelector(mode){
 }
 
 function closeCardSelector(){
-  document.getElementById('card-selector-modal').classList.add('hidden');
+  const modal=document.getElementById('card-selector-modal');
+  if(modal) modal.classList.add('hidden');
   updateSandboxPreviews();
 }
 
@@ -2073,31 +2094,35 @@ function updateSandboxPreviews(){
   }
 }
 
-function refreshPoolFilters(){
-  sandboxSettings.pool.numbers = document.getElementById('sb-pool-numbers').checked;
-  sandboxSettings.pool.wilds = document.getElementById('sb-pool-wilds').checked;
-  sandboxSettings.pool.plus = document.getElementById('sb-pool-plus').checked;
+function setToggleButtonState(id, active){
+  const el = document.getElementById(id);
+  if(el) el.classList.toggle('selected', !!active);
+}
+
+function toggleSandboxSetting(key, id){
+  sandboxSettings[key] = !sandboxSettings[key];
+  setToggleButtonState(id, sandboxSettings[key]);
 }
 
 function openSandboxSettings(){
-  document.getElementById('sandbox-modal').classList.remove('hidden');
-  document.getElementById('sb-starting-cards').value = sandboxSettings.startingCards;
-  document.getElementById('sb-chaos').value = sandboxSettings.chaosFactor;
-  document.getElementById('sb-ones').checked = sandboxSettings.alwaysDrawOnes;
-  document.getElementById('sb-control-team').checked = sandboxSettings.controlTeammate;
-  document.getElementById('sb-pool-numbers').checked = sandboxSettings.pool.numbers;
-  document.getElementById('sb-pool-wilds').checked = sandboxSettings.pool.wilds;
-  document.getElementById('sb-pool-plus').checked = sandboxSettings.pool.plus;
+  const modal=document.getElementById('sandbox-modal');
+  const starting=document.getElementById('sb-starting-cards');
+  const chaos=document.getElementById('sb-chaos');
+  if(modal) modal.classList.remove('hidden');
+  if(starting) starting.value = sandboxSettings.startingCards;
+  if(chaos) chaos.value = sandboxSettings.chaosFactor;
+  setToggleButtonState('sb-ones', sandboxSettings.alwaysDrawOnes);
+  setToggleButtonState('sb-control-team', sandboxSettings.controlTeammate);
   updateSandboxPreviews();
 }
 
 function closeSandbox(){
-  sandboxSettings.startingCards = parseInt(document.getElementById('sb-starting-cards').value) || 7;
-  sandboxSettings.chaosFactor = parseFloat(document.getElementById('sb-chaos').value) || 1.0;
-  sandboxSettings.alwaysDrawOnes = document.getElementById('sb-ones').checked;
-  sandboxSettings.controlTeammate = document.getElementById('sb-control-team').checked;
-  refreshPoolFilters();
-  document.getElementById('sandbox-modal').classList.add('hidden');
+  const starting=document.getElementById('sb-starting-cards');
+  const chaos=document.getElementById('sb-chaos');
+  sandboxSettings.startingCards = starting ? (parseInt(starting.value) || 7) : sandboxSettings.startingCards;
+  sandboxSettings.chaosFactor = chaos ? (parseFloat(chaos.value) || 1.0) : sandboxSettings.chaosFactor;
+  const modal=document.getElementById('sandbox-modal');
+  if(modal) modal.classList.add('hidden');
 }
 
 function resetSandbox(){
@@ -2108,26 +2133,22 @@ function resetSandbox(){
     controlTeammate: false,
     customHand: [],
     customPool: null,
-    pool: { numbers: true, wilds: true, plus: true }
+    pool: { numbers: true, specials: true, draws: true, rares: true, wilds: true }
   };
   openSandboxSettings();
-}
-
-function startSandboxMode(){
-  isSandboxGame = true;
-  closeSandbox();
-  startGame();
 }
 
 let isSandboxGame = false;
 
 function openTeamSettings(){
-  document.getElementById('team-modal').classList.remove('hidden');
+  const modal=document.getElementById('team-modal');
+  if(modal) modal.classList.remove('hidden');
   setTeamType(sandboxSettings.controlTeammate ? 'friend' : 'bot');
 }
 
 function closeTeamSettings(){
-  document.getElementById('team-modal').classList.add('hidden');
+  const modal=document.getElementById('team-modal');
+  if(modal) modal.classList.add('hidden');
 }
 
 function setTeamType(type){
@@ -2144,6 +2165,15 @@ function startTeamMode(){
   teamMode = true;
   if(selectedBots < 3) selectBots(3);
   closeTeamSettings();
+  startGame();
+}
+
+function startSandboxMode(){
+  teamMode = !!sandboxSettings.controlTeammate;
+  if(teamMode && selectedBots < 3) selectBots(3);
+  isSandboxGame = true;
+  closeSandbox();
+  closeCardSelector();
   startGame();
 }
 
@@ -2164,24 +2194,14 @@ function showMenu(){
 }
 
 function updateMenuStats(){
-  document.getElementById('win-count').textContent=localStorage.getItem('unoh_wins')||'0';
-  document.getElementById('game-count').textContent=localStorage.getItem('unoh_games')||'0';
-  
-  // Add Team Stats to Menu if they exist
-  const teamWins = localStorage.getItem('unoh_team_wins') || '0';
-  const teamGames = localStorage.getItem('unoh_team_games') || '0';
-  
-  let statsArea = document.querySelector('.stats-area');
-  if(statsArea){
-    let teamStats = document.getElementById('team-stats-display');
-    if(!teamStats){
-      teamStats = document.createElement('div');
-      teamStats.id = 'team-stats-display';
-      teamStats.style.cssText = "margin-top:10px;font-size:0.85em;opacity:0.8;display:flex;gap:15px;justify-content:center;";
-      statsArea.appendChild(teamStats);
-    }
-    teamStats.innerHTML = `<span>Team Wins: <b>${teamWins}</b></span> <span>Team Games: <b>${teamGames}</b></span>`;
-  }
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = value;
+  };
+  setText('win-count', localStorage.getItem('unoh_wins') || '0');
+  setText('game-count', localStorage.getItem('unoh_games') || '0');
+  setText('team-win-count', localStorage.getItem('unoh_team_wins') || '0');
+  setText('team-game-count', localStorage.getItem('unoh_team_games') || '0');
 }
 
 /* ═══ START ═══ */
@@ -2202,11 +2222,12 @@ async function startGame(isClassic = false){
   if(botTimer) clearTimeout(botTimer);
   
   if(!isSandboxGame){
-    const games=parseInt(localStorage.getItem('unoh_games')||'0')+1;
-    localStorage.setItem('unoh_games',games);
     if(teamMode){
       const teamGames=parseInt(localStorage.getItem('unoh_team_games')||'0')+1;
       localStorage.setItem('unoh_team_games',teamGames);
+    } else {
+      const games=parseInt(localStorage.getItem('unoh_games')||'0')+1;
+      localStorage.setItem('unoh_games',games);
     }
   }
 
@@ -2399,8 +2420,7 @@ function buildCardEl(card){
   if(cleaned.length>3){center.style.fontSize='0.9em';tl.style.fontSize='0.35em';br.style.fontSize='0.35em';}
   if(cleaned.length>5){center.style.fontSize='0.78em';center.style.letterSpacing='-1px';}
   if(complexTypes.has(card.type)){center.style.fontSize='0.76em';center.style.lineHeight='1.04';}
-  const shine=document.createElement('div');shine.className='card-shine';
-  el.append(tl,center,br,shine);
+  el.append(tl,center,br);
   return el;
 }
 function renderDiscard(){
@@ -3228,8 +3248,8 @@ function startHotPotato(targetIdx){
   const timerEl=document.createElement('div');timerEl.id='potato-timer';
   timerEl.style.cssText="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(255,0,0,0.8);color:white;padding:10px 30px;border-radius:20px;font-family:'Fredoka One',cursive;font-size:2em;z-index:1000;box-shadow:0 0 20px rgba(255,0,0,0.5);border:3px solid white;";
   document.body.appendChild(timerEl);
-  function updateTimer(){const remaining=Math.max(0,duration-(Date.now()-startTime));timerEl.textContent=`🥔 ${(remaining/1000).toFixed(2)}s`;if(remaining>0&&hotPotatoTimer) requestAnimationFrame(updateTimer);}
-  requestAnimationFrame(updateTimer);
+  function updateTimer(){const remaining=Math.max(0,duration-(Date.now()-startTime));timerEl.textContent=`🥔 ${(remaining/1000).toFixed(2)}s`;if(remaining>0&&hotPotatoTimer) raf(updateTimer);}
+  raf(updateTimer);
   hotPotatoTimer=setTimeout(async()=>{
     const p=state.players[targetIdx];showStatus(`💥 BOOM! ${p.name} was too slow!`,2000);playSound('lose');
     timerEl.style.background='black';timerEl.textContent='💥 BOOM!';
@@ -3368,9 +3388,9 @@ function animateDrawCards(count,intervalMs,targetIdx=0){
           const t=Math.min((now-start)/dur,1);const ease=t*t*(3-2*t);
           el.style.left=(startX+dx*ease)+'px';el.style.top=(startY+dy*ease)+'px';
           el.style.transform=`rotate(${ease*20}deg) scale(${1-0.2*ease})`;
-          if(t<1){requestAnimationFrame(step);}else{el.remove();playSound('draw');completed++;if(completed>=count) resolve();}
+          if(t<1){raf(step);}else{el.remove();playSound('draw');completed++;if(completed>=count) resolve();}
         }
-        requestAnimationFrame(step);
+        raf(step);
       },i*interval);
     }
   });
@@ -3425,7 +3445,7 @@ function pickColor(color){
 /* ═══ WIN EXPLOSION ═══ */
 async function triggerWinExplosion(winnerIdx){
   const flash=document.createElement('div');flash.style.cssText="position:fixed;inset:0;background:#fff;z-index:2000;pointer-events:none;opacity:0;transition:opacity 0.1s;";document.body.appendChild(flash);
-  requestAnimationFrame(()=>{flash.style.opacity='1';setTimeout(()=>{flash.style.opacity='0';setTimeout(()=>flash.remove(),500);},100);});
+  raf(()=>{flash.style.opacity='1';setTimeout(()=>{flash.style.opacity='0';setTimeout(()=>flash.remove(),500);},100);});
   const confettiCount=150;const colorsC=['#FF3B3B','#2B7FFF','#FFD600','#22D46B','#A855F7'];
   for(let i=0;i<confettiCount;i++){
     const p=document.createElement('div');p.style.cssText=`position:fixed;left:50%;top:50%;width:10px;height:10px;background:${colorsC[i%5]};z-index:1000;border-radius:2px;pointer-events:none;`;document.body.appendChild(p);
@@ -3464,19 +3484,22 @@ async function endGame(winnerIdx){
       document.getElementById('end-icon').textContent='🎉';document.getElementById('end-title').textContent='You Win!';
       document.getElementById('end-sub').textContent='Incredible! You crushed it!';document.getElementById('end-title').style.color='#FFD600';
       if(!isSandboxGame){
-        const wins=parseInt(localStorage.getItem('unoh_wins')||'0')+1;localStorage.setItem('unoh_wins',wins);
         if(teamMode){
-          const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0')+1;localStorage.setItem('unoh_team_wins',teamWins);
+          const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0')+1;
+          localStorage.setItem('unoh_team_wins',teamWins);
+        } else {
+          const wins=parseInt(localStorage.getItem('unoh_wins')||'0')+1;
+          localStorage.setItem('unoh_wins',wins);
         }
       }
     } else {
       const winner=state.players[winnerIdx];
-      // Check if teammate won in team mode
       if(teamMode && winner.team === state.players[0].team){
         document.getElementById('end-icon').textContent='🤝';document.getElementById('end-title').textContent='Team Wins!';
         document.getElementById('end-sub').textContent=`${winner.name} finished the game for your team!`;document.getElementById('end-title').style.color='#00E5FF';
         if(!isSandboxGame){
-          const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0')+1;localStorage.setItem('unoh_team_wins',teamWins);
+          const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0')+1;
+          localStorage.setItem('unoh_team_wins',teamWins);
         }
       } else {
         document.getElementById('end-icon').textContent='😭';document.getElementById('end-title').textContent=winner.name+' Wins!';
@@ -3501,6 +3524,71 @@ function spawnFloatMsg(text,color,playerIdx){
 }
 function goHome(){window.location.href='../index.html';}
 function toggleFullscreen(){if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen&&document.exitFullscreen();}
+
+function bindButton(id, handler){
+  const el = document.getElementById(id);
+  if(el) el.onclick = (e)=>{ if(e) e.preventDefault(); try{ handler(); } catch(err){ console.error(err); } };
+}
+function bindButtonArgs(id, handler, ...args){
+  const el = document.getElementById(id);
+  if(el) el.onclick = (e)=>{ if(e) e.preventDefault(); try{ handler(...args); } catch(err){ console.error(err); } };
+}
+function bindModalOverlay(id, closeFn){
+  const el = document.getElementById(id);
+  if(el) el.onclick = (e)=>{ if(e && e.target === e.currentTarget) closeFn(); };
+}
+
+bindButton('homeText', goHome);
+bindButton('team-mode-btn', openTeamSettings);
+bindButton('sandbox-open-btn', openSandboxSettings);
+bindButton('cards-open-btn', openCardGuide);
+bindButton('codes-open-btn', openCodes);
+
+bindButton('sandbox-close-btn', closeSandbox);
+bindButton('sandbox-back-btn', closeSandbox);
+bindButton('sandbox-reset-btn', resetSandbox);
+bindButton('sandbox-play-btn', startSandboxMode);
+bindButtonArgs('sandbox-hand-btn', openCardSelector, 'hand');
+bindButtonArgs('sandbox-pool-btn', openCardSelector, 'pool');
+bindButtonArgs('sb-ones', toggleSandboxSetting, 'alwaysDrawOnes', 'sb-ones');
+bindButtonArgs('sb-control-team', toggleSandboxSetting, 'controlTeammate', 'sb-control-team');
+
+bindButton('selector-close-btn', closeCardSelector);
+bindButton('selector-confirm-btn', closeCardSelector);
+
+bindButton('team-close-btn', closeTeamSettings);
+bindButton('team-play-btn', startTeamMode);
+bindButtonArgs('team-type-bot', setTeamType, 'bot');
+bindButtonArgs('team-type-friend', setTeamType, 'friend');
+
+bindButton('codes-close-btn', closeCodes);
+bindButton('codes-redeem-btn', submitCode);
+
+bindButton('guide-close-btn', closeCardGuide);
+
+bindModalOverlay('sandbox-modal', closeSandbox);
+bindModalOverlay('card-selector-modal', closeCardSelector);
+bindModalOverlay('codes-modal', closeCodes);
+bindModalOverlay('team-modal', closeTeamSettings);
+bindModalOverlay('card-guide', closeCardGuide);
+
+window.addEventListener('keydown', (e)=>{
+  if(e.key !== 'Escape') return;
+  const visible = [
+    ['sandbox-modal', closeSandbox],
+    ['card-selector-modal', closeCardSelector],
+    ['codes-modal', closeCodes],
+    ['team-modal', closeTeamSettings],
+    ['card-guide', closeCardGuide],
+  ].find(([id]) => {
+    const el = document.getElementById(id);
+    return el && !el.classList.contains('hidden');
+  });
+  if(visible){
+    try{ visible[1](); } catch(err){ console.error(err); }
+  }
+});
+
 updateMenuStats();updateDirectionBadge();
 </script>
 </body>
