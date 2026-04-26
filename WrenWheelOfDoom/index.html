@@ -1108,18 +1108,18 @@ function showModal(title, body, confirmText, onConfirm) {
 function closeModal() { document.getElementById("modalOverlay").style.display = "none"; }
 
 // ── MUSIC ──
-const music = document.getElementById("bgMusic"), musicBtn = document.getElementById("musicBtn");
+const music = document.getElementById("bgMusic"), musicBtn = document.getElementById("musicBtn"), fullscreenBtn = document.getElementById("fullscreenBtn");
 music.volume = 0.5;
 function tryPlay() { music.play().catch(() => {}); }
 tryPlay();
 ["click","keydown","touchstart","mousemove"].forEach(ev => document.addEventListener(ev, tryPlay, { once: true }));
 function toggleMusic() { music.muted = !music.muted; musicBtn.textContent = music.muted ? "🔇 Muted" : "🔊 Music"; }
 
-const fullscreenBtn = document.getElementById("fullscreenBtn");
 function updateFullscreenButton() {
   if (!fullscreenBtn) return;
   fullscreenBtn.textContent = document.fullscreenElement ? "🗗" : "⛶";
 }
+
 function toggleFullscreen() {
   const el = document.documentElement;
   if (!document.fullscreenElement) {
@@ -1130,6 +1130,7 @@ function toggleFullscreen() {
     if (exit) exit.call(document);
   }
 }
+
 document.addEventListener("fullscreenchange", updateFullscreenButton);
 document.addEventListener("webkitfullscreenchange", updateFullscreenButton);
 document.addEventListener("msfullscreenchange", updateFullscreenButton);
