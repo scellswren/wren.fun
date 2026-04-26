@@ -308,24 +308,31 @@ body.mode-anzac{
       box-shadow:0 14px 30px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.18);
       transform:translateY(-1px);
     }
-    /* Global selector override: all circles idle = transparent, selected = green */
-    .mode-dot{background:transparent !important;box-shadow:none !important;}
-    .mode-option.active-mode .mode-dot{background:#22D46B !important;border-color:#22D46B !important;box-shadow:0 0 0 3px rgba(34,212,107,0.18) !important;}
-    .mode-option.active-mode .mode-dot::after{opacity:0 !important;}
-
-    body.mode-anzac .mode-dot.anzac-dot{
-      background:linear-gradient(135deg,#2B7FFF 0%,#1d6fff 42%,#FF3B3B 100%) !important;
+    /* Anzac selector override: black outlines, clear fill, white when selected */
+    body.mode-anzac .mode-dot{
+      background:transparent !important;
+      border:2px solid #000000 !important;
+      box-shadow:none !important;
       opacity:1 !important;
-      border:1px solid rgba(255,255,255,0.34) !important;
-      box-shadow:0 0 0 1px rgba(255,255,255,0.12), inset 0 0 10px rgba(255,255,255,0.14), 0 0 10px rgba(45,134,255,0.22) !important;
     }
-    body.mode-anzac .mode-option:not(.active-mode) .mode-dot.anzac-dot::after{
+    body.mode-anzac .mode-dot::before,
+    body.mode-anzac .mode-dot::after{
+      background:transparent !important;
       opacity:0 !important;
+      box-shadow:none !important;
     }
+    body.mode-anzac .mode-dot.anzac-dot{
+      background:transparent !important;
+      border:2px solid #000000 !important;
+      box-shadow:none !important;
+      opacity:1 !important;
+    }
+    body.mode-anzac .mode-option.active-mode .mode-dot,
     body.mode-anzac .mode-option.active-mode .mode-dot.anzac-dot{
       background:#ffffff !important;
-      border-color:#ffffff !important;
-      box-shadow:0 0 0 3px rgba(255,255,255,0.18) !important;
+      border:2px solid #000000 !important;
+      box-shadow:none !important;
+      opacity:1 !important;
     }
     body.mode-anzac #settingsPanel,
     body.mode-anzac #codeModal{
@@ -338,6 +345,20 @@ body.mode-anzac{
     body.mode-anzac #codeModal,
     body.mode-anzac #themesModal{
       backdrop-filter:blur(8px);
+    }
+
+    /* Kill inherited theme colors inside Anzac selector circles */
+    body.mode-anzac .mode-dot[class$="-dot"],
+    body.mode-anzac .mode-dot[class*="-dot"]{
+      background:transparent !important;
+      border:2px solid #000000 !important;
+      box-shadow:none !important;
+    }
+    body.mode-anzac .mode-option.active-mode .mode-dot[class$="-dot"],
+    body.mode-anzac .mode-option.active-mode .mode-dot[class*="-dot"]{
+      background:#ffffff !important;
+      border:2px solid #000000 !important;
+      box-shadow:none !important;
     }
 
     body.mode-emerald{
