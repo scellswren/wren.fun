@@ -22,10 +22,16 @@
   --border: rgba(255,255,255,0.1);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);}
+html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);scrollbar-width: thin;scrollbar-color: #000 #0b0b18;}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0b0b18; }
+::-webkit-scrollbar-thumb { background: #000; border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: #050505; }
 
 #bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
-.screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding:40px 0;}
 .screen.hidden, .hidden{display:none!important;}
 
 #homeText{
@@ -36,8 +42,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 }
 #homeText:hover{transform:scale(1.15);}
 
-#menu-screen{gap:0;}
-.menu-inner{display:flex;flex-direction:column;align-items:center;gap:18px;position:relative;z-index:2;}
+#menu-screen{gap:0; padding-bottom: 50px; justify-content: flex-start;}
+.menu-inner{display:flex;flex-direction:column;align-items:center;gap:18px;position:relative;z-index:2; padding: 20px 0; width: 100%;}
 
 .logo-wrap{position:relative;display:inline-block;}
 .menu-logo{
@@ -283,10 +289,11 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 /* ══ FULLSCREEN BTN ══ */
 .fullscreen-btn{
   position:fixed;bottom:16px;right:16px;z-index:200;
-  background:var(--glass);border:1px solid var(--border);
+  background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.4);
   border-radius:10px;width:40px;height:40px;
   display:flex;align-items:center;justify-content:center;
   font-size:1.1em;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(10px);
+  color: white;
 }
 .fullscreen-btn:hover{background:rgba(255,255,255,0.12);}
 
@@ -590,7 +597,12 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 
 .draw-fly{position:fixed;z-index:150;pointer-events:none;border-radius:13px;background:linear-gradient(145deg,#1a1a38,#2d2d5e);border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.8em;box-shadow:0 4px 15px rgba(0,0,0,0.5);}
 
-@media(max-width:500px){.hand-card{width:60px;height:85px;}.game-card{font-size:1.3em;}.deck-pile{width:64px;height:90px;}.discard-pile{width:70px;height:98px;}}
+.fullscreen-btn{
+  position:fixed;top:14px;right:16px;z-index:1000;
+  background:none;border:none;color:white;font-size:1.8em;cursor:pointer;
+  transition:transform 0.2s;opacity:0.8;
+}
+.fullscreen-btn:hover{transform:scale(1.2);opacity:1;}
 .frenzy-bg {
   animation: frenzyRainbow 3s linear infinite;
   background-size: 400% 400%;
@@ -644,12 +656,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
     <div class="menu-btn-row">
       <button class="play-btn" onclick="startGame(true)">▶ Play</button>
     </div>
+    
     <div class="section-label" style="margin-top:6px;">Other Modes</div>
     <div class="menu-btn-row">
       <button class="cards-btn" onclick="openSandboxSettings()">🛠️ Sandbox</button>
       <button class="cards-btn" onclick="openTeamSettings()" id="team-mode-btn">👥 Team Mode</button>
     </div>
-    <div class="menu-btn-row" style="margin-top:-5px;">
+
+    <div class="section-label" style="margin-top:6px;">Information & Extras</div>
+    <div class="menu-btn-row">
       <button class="cards-btn" onclick="openCardGuide()">📖 Cards</button>
       <button class="cards-btn" onclick="openCodes()">🎁 Codes</button>
     </div>
