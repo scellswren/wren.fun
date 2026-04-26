@@ -431,6 +431,12 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   box-shadow:0 4px 20px rgba(168,85,247,0.6),0 0 0 1px rgba(210,130,255,0.3)!important;
   animation:rareCardPulse 2.5s ease-in-out infinite;
 }
+.card-legendary{
+  background:linear-gradient(145deg,#2a1a00,#8a5a00,#FBBF24)!important;
+  color:white!important;border-color:rgba(251,191,36,0.75)!important;
+  box-shadow:0 4px 20px rgba(251,191,36,0.55),0 0 0 1px rgba(251,191,36,0.25)!important;
+  animation:legendaryCardPulse 2.8s ease-in-out infinite;
+}
 .orin-card{
   background-image:url('TheMindOfOrin.jpg')!important;
   background-size:100% 100%!important;background-position:center!important;background-repeat:no-repeat!important;
@@ -469,8 +475,10 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 
 .hand-card.playable{filter:drop-shadow(0 0 10px rgba(255,255,255,0.8));animation:playableGlow 2s ease-in-out infinite;}
 .hand-card.playable.rare-playable{filter:drop-shadow(0 0 15px rgba(168,85,247,1));animation:rarePlayableGlow 1.6s ease-in-out infinite;}
+.hand-card.playable.legendary-playable{filter:drop-shadow(0 0 15px rgba(251,191,36,1));animation:legendaryPlayableGlow 1.6s ease-in-out infinite;}
 @keyframes playableGlow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,255,255,0.6))}50%{filter:drop-shadow(0 0 20px rgba(255,255,255,1)) drop-shadow(0 0 40px rgba(255,255,255,0.5))}}
 @keyframes rarePlayableGlow{0%,100%{filter:drop-shadow(0 0 12px rgba(168,85,247,0.9))}50%{filter:drop-shadow(0 0 26px rgba(168,85,247,1)) drop-shadow(0 0 50px rgba(210,130,255,0.7))}}
+@keyframes legendaryPlayableGlow{0%,100%{filter:drop-shadow(0 0 12px rgba(251,191,36,0.95))}50%{filter:drop-shadow(0 0 26px rgba(251,191,36,1)) drop-shadow(0 0 50px rgba(251,191,36,0.55))}}
 
 .hand-card.playable:hover .game-card{transform:translateY(-35px) scale(1.15) rotate(2deg);filter:drop-shadow(0 20px 40px rgba(0,0,0,0.7));}
 .hand-card:not(.playable):not(.not-playable):hover .game-card{transform:translateY(-15px) scale(1.08);}
@@ -1261,7 +1269,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
     </div>
 
     <div class="guide-section">
-      <div class="guide-section-title">Rare Wild <span>Hard to get</span></div>
+      <div class="guide-section-title">Rare Wild <span>Rare card pool only</span></div>
       <div class="guide-cards">
         <div class="guide-card-item">
           <div class="guide-card-top">
@@ -1383,6 +1391,17 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
         </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🔀</div>
+            <div class="guide-card-info">
+              <div class="rare-badge">RARE · WILD</div>
+              <div class="guide-card-name">Swap Decks</div>
+              <div class="guide-card-desc">Full hand exchange with any player you choose.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">◆ RARE</div></div>
+        </div>
       </div>
     </div>
 
@@ -1423,29 +1442,18 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
     </div>
 
     <div class="guide-section">
-      <div class="guide-section-title">Rare Wild <span>Rare card pool only</span></div>
+      <div class="guide-section-title">Legendary Wild <span>Hard to get</span></div>
       <div class="guide-cards">
         <div class="guide-card-item">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🔀</div>
+            <div class="guide-card-mini gcm-gold" style="font-size:0.7em;">❄️</div>
             <div class="guide-card-info">
-              <div class="rare-badge">RARE · WILD</div>
-              <div class="guide-card-name">Swap Decks</div>
-              <div class="guide-card-desc">Full hand exchange with any player you choose.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">◆ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">❄️</div>
-            <div class="guide-card-info">
-              <div class="rare-badge">RARE · WILD</div>
+              <div class="rare-badge">LEGENDARY · WILD</div>
               <div class="guide-card-name">Hand Freeze</div>
               <div class="guide-card-desc">Locks a player out of the game until someone draws a card.</div>
             </div>
           </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">◆ RARE</div></div>
+          <div class="price-tag"><div class="rarity-label rarity-legendary">✦ LEGENDARY</div></div>
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
@@ -1819,7 +1827,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ═══ CARD DEFINITIONS ═══ */
-const COLOR_HEX={red:'#FF3B3B',blue:'#2B7FFF',yellow:'#FFD600',green:'#22D46B',purple:'#A855F7',wild:'#A855F7',rare:'#A855F7'};
+const COLOR_HEX={red:'#FF3B3B',blue:'#2B7FFF',yellow:'#FFD600',green:'#22D46B',purple:'#A855F7',wild:'#A855F7',rare:'#A855F7',legendary:'#FBBF24'};
 const ANZAC_THEME_UNLOCK_KEY='wren_theme_anzac_unlocked';
 
 function showCodePopup(msg){
@@ -1937,7 +1945,7 @@ function buildDeck(ignoreCustomPool = false){
 
   // RARE cards (1 each)
   deck.push({color:'rare',value:'swapDecks',type:'swapDecks',label:'🔀',isRare:true});
-  deck.push({color:'rare',value:'handFreeze',type:'handFreeze',label:'❄️',isRare:true});
+  deck.push({color:'legendary',value:'handFreeze',type:'handFreeze',label:'❄️',isLegendary:true});
   deck.push({color:'rare',value:'stealWild',type:'stealWild',label:'🎭',isRare:true});
   deck.push({color:'rare',value:'shuffleStorm',type:'shuffleStorm',label:'🌪️',isRare:true});
   deck.push({color:'rare',value:'doubleEdge',type:'doubleEdge',label:'⚔️',isRare:true});
@@ -2240,10 +2248,7 @@ async function startGame(isClassic = false){
   
   // Team Assignment
   if(teamMode){
-    players[0].team = 1;
-    if(players[1]) players[1].team = 2;
-    if(players[2]) players[2].team = 1;
-    if(players[3]) players[3].team = 2;
+    players.forEach((p, idx) => { p.team = (idx % 2) + 1; });
     // Teammate control logic
     if(sandboxSettings.controlTeammate && players[2]){
       players[2].isBot = false;
@@ -2396,9 +2401,10 @@ function updateOpponentZone(idx){
 }
 function buildCardEl(card){
   const el=document.createElement('div');
-  const isRare=card.isRare||card.color==='rare';
+  const isSpecial=isSpecialRarity(card);
+  const isLegendary=!!(card && (card.isLegendary || card.color==='legendary'));
   const complexTypes=new Set(['reversePlus2','reversePlus4','skipReverse','wildSkipReverse','wildPlus2SkipReverse','doubleEdge','doubleEdgeWild','mirror','wildMirror','wildPlus','wildReverse','wildSkip','discardColor','wildSkipAll','pickUntil','copycat','instantWin','plusOne','eternalSkip','frenzy','helper','suppressWild']);
-  el.className=`game-card card-${isRare?'rare':card.color}`;
+  el.className=`game-card card-${isLegendary?'legendary':(isSpecial?'rare':card.color)}`;
   if(complexTypes.has(card.type) || String(card.label||'').length>4) el.classList.add('card-complex');
   if(card.type==='orinCard'||(card.isRare&&card.label==='👑')) el.classList.add('orin-card');
   if(card.value==='wild+99') el.classList.add('card-plus99');
@@ -2409,9 +2415,9 @@ function buildCardEl(card){
   const center=document.createElement('div');center.className='card-center';
   const br=document.createElement('div');br.className='card-br';
   if(complexTypes.has(card.type)){
-    tl.textContent=card.color==='wild'?'🌈':(card.color==='rare'?'✦':'');
+    tl.textContent=card.color==='wild'?'🌈':(card.color==='rare'||card.color==='legendary'?'✦':'');
     center.textContent=cleaned;
-    br.textContent=card.color==='wild'?'🌈':(card.color==='rare'?'✦':'');
+    br.textContent=card.color==='wild'?'🌈':(card.color==='rare'||card.color==='legendary'?'✦':'');
   }else{
     tl.textContent=cleaned;
     center.textContent=cleaned;
@@ -2457,7 +2463,7 @@ function renderPlayerHand(){
     const canPlay=isActiveTurn&&isPlayable(card);
     if(isActiveTurn){
       wrapper.classList.add(canPlay?'playable':'not-playable');
-      if(canPlay&&(card.isRare||card.color==='rare')) wrapper.classList.add('rare-playable');
+      if(canPlay&&(card.isRare||card.isLegendary||card.color==='rare'||card.color==='legendary')) wrapper.classList.add(card.isLegendary||card.color==='legendary'?'legendary-playable':'rare-playable');
       if(canPlay) wrapper.onclick=()=>attemptPlay(idx);
     }
     hand.appendChild(wrapper);
@@ -2509,7 +2515,7 @@ function isPlayable(card){
       return false;
     }
 
-  if(card.isRare||card.color==='rare') return true;
+  if(isSpecialRarity(card)) return true;
   if(card.color==='wild') return true;
 
   if(card.type==='banana'&&top&&top.type==='banana') return false;
@@ -2614,7 +2620,7 @@ async function executePlayCard(playerIdx,cardIdx){
   }
   lastMove=moveInfo;
 
-  if(card.isRare||card.color==='rare') playSound('rare');
+  if(isSpecialRarity(card)) playSound('rare');
   else if(card.color==='wild') playSound('wild');
   else if(card.type==='plus') playSound('plus');
   else if(card.type==='skip'||card.type==='skipAll') playSound('skip');
@@ -2631,9 +2637,9 @@ async function executePlayCard(playerIdx,cardIdx){
   spawnFloatMsg(card.label,COLOR_HEX[card.color]||'#fff',playerIdx);
 
   // Wild / rare handling
-  if(card.color==='wild'||card.color==='rare'){
+  if(card.color==='wild'||card.color==='rare'||card.color==='legendary'){
     if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){
-      if(card.isRare||card.color==='rare'){await applyRareEffect(card,playerIdx,null);return;}
+      if(isSpecialRarity(card)){await applyRareEffect(card,playerIdx,null);return;}
       if(state.stealWildOwner!==null&&state.stealWildOwner!==playerIdx){
         const thief=state.stealWildOwner;state.stealWildOwner=null;
         showStatus(`🎭 ${state.players[thief].name} steals the wild!`,2000);
@@ -2645,7 +2651,7 @@ async function executePlayCard(playerIdx,cardIdx){
       }
       pendingWild={card,playerIdx};showColorPicker('Choose a Color');
     } else {
-      if(card.isRare||card.color==='rare'){await applyRareBotEffect(card,playerIdx);return;}
+      if(isSpecialRarity(card)){await applyRareBotEffect(card,playerIdx);return;}
       if(state.stealWildOwner!==null&&state.stealWildOwner!==playerIdx){
         const thief=state.stealWildOwner;state.stealWildOwner=null;
         showStatus(`🎭 ${state.players[thief].name} steals the wild!`,2000);
@@ -2681,7 +2687,7 @@ function spawnPlayParticles(pIdx){
 }
 
 function botPickColor(player){
-  const counts={};for(const c of player.cards) if(c.color!=='wild'&&c.color!=='rare') counts[c.color]=(counts[c.color]||0)+1;
+  const counts={};for(const c of player.cards) if(c.color!=='wild'&&c.color!=='rare'&&c.color!=='legendary') counts[c.color]=(counts[c.color]||0)+1;
   let best='red',max=0;for(const[col,n] of Object.entries(counts)) if(n>max){max=n;best=col;}return best;
 }
 
@@ -2720,7 +2726,7 @@ async function applyRareEffect(card,playerIdx,_){
       showStatus('🚫 Disarming all Wilds!',2000);
       for(let i=0;i<state.players.length;i++){
         const p=state.players[i];const initialCount=p.cards.length;
-        p.cards=p.cards.filter(c=>c.color!=='wild'&&c.color!=='rare');
+        p.cards=p.cards.filter(c=>c.color!=='wild'&&c.color!=='rare'&&c.color!=='legendary');
         const removed=initialCount-p.cards.length;
         if(removed>0){if(i===0) renderPlayerHand(); else updateOpponentZone(i);spawnFloatMsg(`-${removed} Wilds`,'#ff00ff',i);}
       }break;
@@ -2766,7 +2772,7 @@ async function applyRareBotEffect(card,playerIdx){
       showStatus(`🚫 ${state.players[playerIdx].name} disarmed all Wilds!`,2000);
       for(let i=0;i<state.players.length;i++){
         const p=state.players[i];const initialCount=p.cards.length;
-        p.cards=p.cards.filter(c=>c.color!=='wild'&&c.color!=='rare');
+        p.cards=p.cards.filter(c=>c.color!=='wild'&&c.color!=='rare'&&c.color!=='legendary');
         const removed=initialCount-p.cards.length;
         if(removed>0){if(i===0) renderPlayerHand(); else updateOpponentZone(i);spawnFloatMsg(`-${removed} Wilds`,'#ff00ff',i);}
       }break;
@@ -2869,7 +2875,7 @@ async function doPickUntil(targetIdx, targetColor){
 
 /* ═══ APPLY CARD EFFECT ═══ */
 async function applyCardEffect(card, playerIdx, chosenColor){
-  if(chosenColor&&(card.color==='wild'||card.color==='rare'||card.type==='mirror')){state.currentColor=chosenColor;updateColorBar();}
+  if(chosenColor&&(card.color==='wild'||card.color==='rare'||card.color==='legendary'||card.type==='mirror')){state.currentColor=chosenColor;updateColorBar();}
   const n=state.players.length;let extraTurn=false;
 
   switch(card.type){
@@ -3305,8 +3311,8 @@ async function botTurn(idx){
   if(playable.length===0){botDrawOne(idx);return;}
   if(hotPotatoTimer&&Math.random()<0.75){const chosen=playable[Math.floor(Math.random()*playable.length)];await executePlayCard(idx,chosen.i);return;}
   else if(hotPotatoTimer) return;
-  const matching=playable.filter(({c})=>c.color===state.currentColor&&c.color!=='wild'&&c.color!=='rare');
-  const others=playable.filter(({c})=>c.color!=='wild'&&c.color!=='rare');
+  const matching=playable.filter(({c})=>c.color===state.currentColor&&c.color!=='wild'&&c.color!=='rare'&&c.color!=='legendary');
+  const others=playable.filter(({c})=>c.color!=='wild'&&c.color!=='rare'&&c.color!=='legendary');
   const wilds=playable.filter(({c})=>c.color==='wild'||c.color==='rare');
   let chosen=null;
   if(matching.length>0) chosen=matching[Math.floor(Math.random()*matching.length)];
@@ -3482,7 +3488,16 @@ async function endGame(winnerIdx){
     const es=document.getElementById('end-screen');es.classList.remove('hidden');
     if(winnerIdx===0){
       document.getElementById('end-icon').textContent='🎉';document.getElementById('end-title').textContent='You Win!';
-      document.getElementById('end-sub').textContent='Incredible! You crushed it!';document.getElementById('end-title').style.color='#FFD600';
+      if(teamMode){
+        const teamNames = getTeamDisplayNames(state.players[0].team);
+        document.getElementById('end-sub').textContent = teamNames.length >= 2
+          ? `${teamNames.join(' and ')} won together!`
+          : 'Your team won together!';
+        document.getElementById('end-title').style.color='#00E5FF';
+      } else {
+        document.getElementById('end-sub').textContent='Incredible! You crushed it!';
+        document.getElementById('end-title').style.color='#FFD600';
+      }
       if(!isSandboxGame){
         if(teamMode){
           const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0')+1;
@@ -3495,8 +3510,12 @@ async function endGame(winnerIdx){
     } else {
       const winner=state.players[winnerIdx];
       if(teamMode && winner.team === state.players[0].team){
+        const teamNames = getTeamDisplayNames(state.players[0].team);
         document.getElementById('end-icon').textContent='🤝';document.getElementById('end-title').textContent='Team Wins!';
-        document.getElementById('end-sub').textContent=`${winner.name} finished the game for your team!`;document.getElementById('end-title').style.color='#00E5FF';
+        document.getElementById('end-sub').textContent = teamNames.length >= 2
+          ? `${teamNames.join(' and ')} finished the game for your team!`
+          : `${winner.name} finished the game for your team!`;
+        document.getElementById('end-title').style.color='#00E5FF';
         if(!isSandboxGame){
           const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0')+1;
           localStorage.setItem('unoh_team_wins',teamWins);
@@ -3510,6 +3529,14 @@ async function endGame(winnerIdx){
 }
 
 /* ═══ UI HELPERS ═══ */
+function getTeamDisplayNames(team){
+  if(!state || !state.players) return [];
+  const names = state.players
+    .filter(p => p.team === team)
+    .map(p => p.name)
+    .filter(Boolean);
+  return [...new Set(names)];
+}
 let statusTimer=null;
 function showStatus(msg,dur=2000){
   const el=document.getElementById('status-msg');el.textContent=msg;el.classList.add('show');
