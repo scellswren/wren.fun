@@ -560,7 +560,12 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   color:#FFD600!important;border-color:#FFD600!important;
   box-shadow:0 0 28px rgba(255,214,0,0.38), inset 0 0 16px rgba(255,214,0,0.16)!important;
 }
-.card-million .card-tl, .card-million .card-br, .card-million .card-center{font-size:0.5em;
+.card-million .card-center{
+  font-size:0.34em!important;letter-spacing:-0.08em;transform:scaleX(0.88);
+  background:none !important;-webkit-text-fill-color:#FFD600 !important;color:#FFD600 !important;
+}
+.card-million .card-tl, .card-million .card-br{
+  font-size:0.28em!important;letter-spacing:-0.06em;transform:scaleX(0.9);
   background:none !important;-webkit-text-fill-color:#FFD600 !important;color:#FFD600 !important;
 }
 @keyframes rareCardPulse{
@@ -1898,11 +1903,11 @@ body.blur-active .game-top-actions{filter:none;}
         </div>
         <div class="guide-card-item hidden" id="beyond-million-guide-item" style="border-color:rgba(255,214,0,0.55);background:rgba(40,30,0,0.35);">
           <div class="guide-card-top">
-            <div class="guide-card-mini card-million" style="font-size:0.62em;">+1000000</div>
+            <div class="guide-card-mini card-million" style="font-size:0.54em;letter-spacing:-0.05em;">+1000000</div>
             <div class="guide-card-info">
               <div class="rare-badge" style="color:#FFD600;">BEYOND MYTHIC</div>
               <div class="guide-card-name">Million Burst</div>
-              <div class="guide-card-desc">Locked until a secret code is entered. Forces a massive +1000000 draw.</div>
+              <div class="guide-card-desc">Locked until a secret code is entered. Once unlocked, it has a 0.035% drop chance and forces a massive +1000000 draw.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-beyond">💀 BEYOND</div></div>
@@ -2322,15 +2327,12 @@ function buildDeck(ignoreCustomPool = false, includeAllCards = false, settings =
   deck.push({color:'rare',value:'disarmWilds',type:'disarmWilds',label:'🚫🌈',isRare:true});
   // Mythic cards
   if(p(0.9975)) deck.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});
-  // Hidden beyond-mythic secret card
-  if(millionUnlockActive && p(0.9995)){
+  // Hidden beyond-mythic secret card. This uses a fixed chance instead of chaos scaling.
+  if(millionUnlockActive && (includeAllCards || Math.random() < 0.00035)){
     deck.push({color:'rare',value:'+1000000',type:'plus',num:1000000,label:'+1000000',isRare:true,isBeyondMythic:true});
   }
   // Ultra-rare +99 card
   if(p(0.999)) deck.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
-  
-  // Super-rare +1M card (Million Burst) - 0.05% chance
-  if(p(0.9995)) deck.push({color:'rare',value:'+1000000',type:'plus',num:1000000,label:'+1000000',isRare:true,isBeyondMythic:true});
 
   // Safety check: if deck is empty, add some numbers
   if(deck.length === 0){
@@ -4432,8 +4434,10 @@ async function triggerAutoDrawForPlayer(){
 function animateDrawCards(count,intervalMs,targetIdx=0,opts={}){
   return new Promise(resolve=>{
     const deckEl=document.getElementById('deck-pile');let completed=0;if(count===0) return resolve();
-    const interval=Math.min(intervalMs,80);
-    for(let i=0;i<count;i++){
+    const isMillionBurst = count >= 1000000;
+    const renderedCount = isMillionBurst ? 24 : count;
+    const interval=isMillionBurst ? 0 : Math.min(intervalMs,80);
+    for(let i=0;i<renderedCount;i++){
       setTimeout(()=>{
         const dr=deckEl.getBoundingClientRect();let destX,destY;
         const p = state.players[targetIdx];
@@ -4445,13 +4449,13 @@ function animateDrawCards(count,intervalMs,targetIdx=0,opts={}){
         if(!isShowingInMainHand) el.style.boxShadow="0 0 15px rgba(34,212,107,0.6)";else el.style.boxShadow="0 0 20px rgba(168,85,247,0.6)";
         document.body.appendChild(el);
         let speedFactor = Math.max(1, opts.speedFactor || ((state && state.millionCheatActive && targetIdx === 0) ? 100 : 1));
-        if (count >= 1000000) speedFactor = 100;
+        if(isMillionBurst) speedFactor = Math.max(speedFactor, 1000);
         const startX=dr.left,startY=dr.top,dx=destX-startX,dy=destY-startY,dur=Math.max(6,300/speedFactor),start=performance.now();
         function step(now){
           const t=Math.min((now-start)/dur,1);const ease=t*t*(3-2*t);
           el.style.left=(startX+dx*ease)+'px';el.style.top=(startY+dy*ease)+'px';
           el.style.transform=`rotate(${ease*20}deg) scale(${1-0.2*ease})`;
-          if(t<1){raf(step);}else{el.remove();playSound('draw');completed++;if(completed>=count) resolve();}
+          if(t<1){raf(step);}else{el.remove();playSound('draw');completed++;if(completed>=renderedCount) resolve();}
         }
         raf(step);
       },i*interval);
