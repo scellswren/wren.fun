@@ -230,33 +230,50 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 }
 .guide-card-item{
   display:flex;flex-direction:column;gap:12px;
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:18px;
-  padding:18px;transition:all 0.3s ease;
+  background:rgba(255,255,255,0.04);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;
+  padding:20px;transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position:relative;overflow:hidden;
+  box-shadow:0 8px 24px rgba(0,0,0,0.15);
 }
 .guide-card-item:hover{
-  background:rgba(255,255,255,0.07);border-color:rgba(168,85,247,0.4);
-  transform:translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  background:rgba(255,255,255,0.08);
+  border-color:rgba(168,85,247,0.5);
+  transform:translateY(-8px) scale(1.02);
+  box-shadow:0 20px 40px rgba(0,0,0,0.4), 0 0 25px rgba(168,85,247,0.25);
 }
-.guide-card-top{display:flex;align-items:center;gap:13px;}
+.guide-card-item::before{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+  opacity:0;transition:opacity 0.4s ease;pointer-events:none;
+}
+.guide-card-item:hover::before{opacity:1;}
+.guide-card-top{display:flex;align-items:center;gap:15px;position:relative;z-index:1;}
 .guide-card-mini{
-  width:52px;height:74px;border-radius:10px;
+  width:56px;height:80px;border-radius:12px;
   display:flex;align-items:center;justify-content:center;
-  font-family:'Fredoka One',cursive;font-size:1.4em;
-  box-shadow:0 5px 15px rgba(0,0,0,0.3);
-  flex-shrink:0;overflow:hidden;
+  font-family:'Fredoka One',cursive;font-size:1.5em;
+  box-shadow:0 8px 20px rgba(0,0,0,0.4);
+  flex-shrink:0;overflow:hidden;position:relative;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.guide-card-mini::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+  pointer-events:none;
 }
 .guide-card-orin{
-  width:52px;height:74px;border-radius:10px;
+  width:56px;height:80px;border-radius:12px;
   background-image:url('TheMindOfOrin.jpg');
   background-size:cover;background-position:center;
-  box-shadow:0 5px 15px rgba(0,0,0,0.5), 0 0 15px rgba(168,85,247,0.5);
-  flex-shrink:0;border:2px solid rgba(210,130,255,0.6);
+  box-shadow:0 8px 20px rgba(0,0,0,0.6), 0 0 20px rgba(168,85,247,0.4);
+  flex-shrink:0;border:2px solid rgba(210,130,255,0.7);
 }
-.guide-card-info{display:flex;flex-direction:column;gap:4px;}
-.guide-card-name{font-weight:900;font-size:1em;color:#fff;}
-.guide-card-desc{font-size:0.8em;color:rgba(255,255,255,0.5);line-height:1.5;}
+.guide-card-info{display:flex;flex-direction:column;gap:5px;position:relative;z-index:1;}
+.guide-card-name{font-weight:900;font-size:1.1em;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,0.3);}
+.guide-card-desc{font-size:0.85em;color:rgba(255,255,255,0.6);line-height:1.4;}
 .selector-toolbar{
   display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:0 20px 8px;flex-wrap:wrap;
@@ -1351,17 +1368,6 @@ body.blur-active .game-top-actions{filter:none;}
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">✊📄✂️🌈</div>
-            <div class="guide-card-info">
-              <div class="rare-badge">★ RARE · WILD</div>
-              <div class="guide-card-name">Wild Rock Paper Scissors</div>
-              <div class="guide-card-desc">Play anytime. Force a rock-paper-scissors duel with any player. Whoever loses picks up 4 cards.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
             <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲+4</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Coin Flip +4</div>
@@ -1575,7 +1581,7 @@ body.blur-active .game-top-actions{filter:none;}
     </div>
 
     <div class="guide-section">
-      <div class="guide-section-title">Rare Wild <span>Hard to get</span></div>
+      <div class="guide-section-title">Wild Rare <span>Powerful & elusive</span></div>
       <div class="guide-cards">
         <div class="guide-card-item">
           <div class="guide-card-top">
@@ -1723,6 +1729,17 @@ body.blur-active .game-top-actions{filter:none;}
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Coin Flip +10</div>
               <div class="guide-card-desc">Play anytime. 50% chance the next player draws 10. 50% chance nothing happens.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">✊📄✂️🌈</div>
+            <div class="guide-card-info">
+              <div class="rare-badge">★ RARE · WILD</div>
+              <div class="guide-card-name">Wild Rock Paper Scissors</div>
+              <div class="guide-card-desc">Play anytime. Force a rock-paper-scissors duel with any player. Whoever loses picks up 4 cards.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -2072,30 +2089,110 @@ const raf = window.requestAnimationFrame ? window.requestAnimationFrame.bind(win
 const bgCanvas=document.getElementById('bg-canvas');
 const bgCtx=bgCanvas ? bgCanvas.getContext('2d') : null;
 let bgW,bgH;
-const BG_COLORS=['#FF3B3B','#2B7FFF','#FFD600','#22D46B','#A855F7'];
+const BG_COLORS=['#FF3B3B','#2B7FFF','#FFD600','#22D46B','#A855F7','#ffffff'];
 const bgParticles=[];
+let bgHue = 240; // Start with a deep blue/purple hue
+let mouseX = 0, mouseY = 0;
+window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+
 function resizeBg(){ if(!bgCanvas) return; bgW=bgCanvas.width=window.innerWidth; bgH=bgCanvas.height=window.innerHeight; }
 if(bgCanvas && bgCtx){ resizeBg(); window.addEventListener('resize',resizeBg); }
+
 if(bgCanvas && bgCtx){
-  for(let i=0;i<50;i++) bgParticles.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:1.5+Math.random()*3.5,color:BG_COLORS[Math.floor(Math.random()*5)],vx:(Math.random()-0.5)*0.35,vy:(Math.random()-0.5)*0.35,alpha:0.1+Math.random()*0.2});
+  for(let i=0;i<100;i++) bgParticles.push({
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight,
+    r:0.5+Math.random()*2.5,
+    color:BG_COLORS[Math.floor(Math.random()*BG_COLORS.length)],
+    vx:(Math.random()-0.5)*0.5,
+    vy:(Math.random()-0.5)*0.5,
+    alpha:0.1+Math.random()*0.4,
+    pulse: Math.random() * Math.PI,
+    pulseSpeed: 0.02 + Math.random() * 0.03
+  });
 }
-function drawBg(){
+
+function drawBg(time){
   if(!bgCtx){ return; }
   bgCtx.clearRect(0,0,bgW,bgH);
-  const grd=bgCtx.createRadialGradient(bgW/2,bgH/2,0,bgW/2,bgH/2,Math.max(bgW,bgH)*0.8);
-  grd.addColorStop(0,'#18183a');grd.addColorStop(1,'#080812');
-  bgCtx.fillStyle=grd;bgCtx.fillRect(0,0,bgW,bgH);
-  for(const p of bgParticles){
-    p.x+=p.vx;p.y+=p.vy;
-    if(p.x<0)p.x=bgW;if(p.x>bgW)p.x=0;
-    if(p.y<0)p.y=bgH;if(p.y>bgH)p.y=0;
-    bgCtx.beginPath();bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    bgCtx.fillStyle=p.color+Math.floor(p.alpha*255).toString(16).padStart(2,'0');
-    bgCtx.fill();
+  
+  // Dynamic shifting background gradient
+  bgHue = (bgHue + 0.05) % 360;
+  const grd=bgCtx.createRadialGradient(
+    bgW/2 + Math.sin(time/2000)*150, 
+    bgH/2 + Math.cos(time/2500)*150, 
+    0, 
+    bgW/2, bgH/2, 
+    Math.max(bgW,bgH)*1.4
+  );
+  
+  grd.addColorStop(0, `hsla(${bgHue}, 45%, 12%, 1)`);
+  grd.addColorStop(0.5, `hsla(${(bgHue+60)%360}, 35%, 6%, 1)`);
+  grd.addColorStop(1, '#020205');
+  
+  bgCtx.fillStyle=grd;
+  bgCtx.fillRect(0,0,bgW,bgH);
+  
+  // Draw subtle grid/noise
+  bgCtx.strokeStyle = 'rgba(255,255,255,0.012)';
+  bgCtx.lineWidth = 1;
+  const gridSize = 80;
+  const offsetX = (time/60) % gridSize;
+  const offsetY = (time/70) % gridSize;
+  
+  bgCtx.beginPath();
+  for(let x = offsetX; x < bgW; x += gridSize) {
+    bgCtx.moveTo(x, 0); bgCtx.lineTo(x, bgH);
   }
-  raf(drawBg);
+  for(let y = offsetY; y < bgH; y += gridSize) {
+    bgCtx.moveTo(0, y); bgCtx.lineTo(bgW, y);
+  }
+  bgCtx.stroke();
+
+  // Scanning line
+  bgCtx.strokeStyle = 'rgba(255,255,255,0.02)';
+  bgCtx.lineWidth = 2;
+  const scanY = (time/8) % bgH;
+  bgCtx.beginPath();
+  bgCtx.moveTo(0, scanY); bgCtx.lineTo(bgW, scanY);
+  bgCtx.stroke();
+
+  // Particles
+  for(const p of bgParticles){
+    // Mouse interaction
+    const dx = mouseX - p.x;
+    const dy = mouseY - p.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if(dist < 180) {
+      p.x -= dx * 0.005;
+      p.y -= dy * 0.005;
+    }
+
+    p.x+=p.vx; p.y+=p.vy;
+    p.pulse += p.pulseSpeed;
+    
+    if(p.x<0)p.x=bgW; if(p.x>bgW)p.x=0;
+    if(p.y<0)p.y=bgH; if(p.y>bgH)p.y=0;
+    
+    const currentAlpha = p.alpha * (0.5 + Math.sin(p.pulse) * 0.5);
+    
+    bgCtx.beginPath();
+    bgCtx.arc(p.x, p.y, p.r * (0.8 + Math.sin(p.pulse)*0.2), 0, Math.PI*2);
+    bgCtx.fillStyle=p.color + Math.floor(currentAlpha*255).toString(16).padStart(2,'0');
+    
+    // Add glow to some particles
+    if(p.r > 2) {
+      bgCtx.shadowBlur = 12;
+      bgCtx.shadowColor = p.color;
+    }
+    
+    bgCtx.fill();
+    bgCtx.shadowBlur = 0;
+  }
+  
+  requestAnimationFrame(drawBg);
 }
-if(bgCtx) drawBg();
+if(bgCtx) requestAnimationFrame(drawBg);
 
 /* ═══ MENU DECO ═══ */
 const CARD_COLORS_CSS={red:'linear-gradient(145deg,#c01818,#FF3B3B)',blue:'linear-gradient(145deg,#1040c0,#2B7FFF)',yellow:'linear-gradient(145deg,#b88800,#FFD600)',green:'linear-gradient(145deg,#0e6830,#22D46B)',purple:'linear-gradient(145deg,#5010a0,#A855F7)',wild:'linear-gradient(145deg,#1a1a38,#2d2d5e)'};
