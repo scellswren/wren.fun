@@ -2300,6 +2300,7 @@ function buildDeck(ignoreCustomPool = false, includeAllCards = false, settings =
   deck.push({color:'wild',value:'wild+2b',type:'wildPlus',num:2,label:'+2 🌈'});
   deck.push({color:'wild',value:'wild+3',type:'wildPlus',num:3,label:'+3 🌈'});
   deck.push({color:'wild',value:'wild+4',type:'wildPlus',num:4,label:'+4 🌈'});
+  deck.push({color:'wild',value:'wild+10',type:'wildPlus',num:10,label:'+10 🌈'});
   // Wild coin-flip cards
   deck.push({color:'wild',value:'wildCoinPlus1',type:'wildCoinPlus1',num:1,label:'🎲+1'});
   deck.push({color:'wild',value:'wildCoinPlus2',type:'wildCoinPlus2',num:2,label:'🎲+2'});
@@ -3532,11 +3533,8 @@ function isPlayable(card){
   }
 
   if(state.pendingDraw>0){
-      // Stacking logic: same + number required, color irrelevant. Mirror can always stack.
-      if(card.type==='mirror'||card.type==='wildMirror') return true;
-      const pTypes=['plus','wildPlus','reversePlus2','reversePlus4','wildPlus2SkipReverse','targetPlus4','targetDraw2'];
-      if(pTypes.includes(card.type) && card.num===state.pendingDrawNum) return true;
-      return false;
+      // During draw-stacks, only valid counters are allowed.
+      return canStackDraw(card);
     }
 
   if(card.isRare||card.color==='rare') return true;
@@ -3559,7 +3557,7 @@ function isPlayable(card){
 function canStackDraw(card){
     if(state.pendingDraw<=0) return false;
     if(card.type==='mirror'||card.type==='wildMirror') return true;
-    const pTypes=['plus','wildPlus','reversePlus2','reversePlus4','wildPlus2SkipReverse','targetPlus4','targetDraw2','plusOne'];
+    const pTypes=['plus','wildPlus','reversePlus2','reversePlus4','wildPlus2SkipReverse','targetPlus4','targetDraw2','targetPlus2Skip','targetPlus4Skip','plusOne'];
     if(pTypes.includes(card.type) && card.num===state.pendingDrawNum) return true;
     return false;
   }
@@ -4078,7 +4076,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
 
     case 'targetDraw2':{
       let target;
-      if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){target=await pickPlayer('🎯 Who draws +2?');}
+      if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){target=await pickPlayer('🎯 Who draws +2?', [playerIdx]);}
       else{const others=state.players.map((_,i)=>i).filter(i=>i!==playerIdx);target=others[Math.floor(Math.random()*others.length)];}
       showStatus(`🎯 ${state.players[target].name} draws +2!`,1800);
       await animateDrawCards(2,100,target);for(let i=0;i<2;i++) state.players[target].cards.push(drawCard(state, target));
@@ -4143,7 +4141,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
 
     case 'targetPlus4':{
       let target;
-      if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){target=await pickPlayer('🎯 Who draws +4?');}
+      if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){target=await pickPlayer('🎯 Who draws +4?', [playerIdx]);}
       else{const others=state.players.map((_,i)=>i).filter(i=>i!==playerIdx);target=others[Math.floor(Math.random()*others.length)];}
       showStatus(`🎯 ${state.players[target].name} draws +4!`,1800);
       await animateDrawCards(4,100,target);for(let i=0;i<4;i++) state.players[target].cards.push(drawCard(state, target));
@@ -4153,7 +4151,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     case 'targetSkip': {
       let target;
       if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){
-        target = await pickPlayer('🎯 Who to skip?');
+        target = await pickPlayer('🎯 Who to skip?', [playerIdx]);
       } else {
         const others = state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
         target = others[Math.floor(Math.random()*others.length)];
@@ -4166,7 +4164,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     case 'targetPlus2Skip': {
       let target;
       if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){
-        target = await pickPlayer('🎯 Who draws +2 & skips?');
+        target = await pickPlayer('🎯 Who draws +2 & skips?', [playerIdx]);
       } else {
         const others = state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
         target = others[Math.floor(Math.random()*others.length)];
@@ -4182,7 +4180,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     case 'targetPlus4Skip': {
       let target;
       if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){
-        target = await pickPlayer('🎯 Who draws +4 & skips?');
+        target = await pickPlayer('🎯 Who draws +4 & skips?', [playerIdx]);
       } else {
         const others = state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
         target = others[Math.floor(Math.random()*others.length)];
@@ -4198,7 +4196,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     case 'teleport': {
       let target;
       if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){
-        target = await pickPlayer('🌀 Pick next turn:');
+        target = await pickPlayer('🌀 Pick next turn:', [playerIdx]);
       } else {
         const others = state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
         target = others[Math.floor(Math.random()*others.length)];
@@ -4383,8 +4381,10 @@ function finishTurn(playerIdx){
   if(playerIdx===0){renderPlayerHand();updateOpponentsAll();}
   else{updateOpponentZone(playerIdx);renderPlayerHand();}
 
-  if(!state.gameOver&&state.currentPlayer===0&&state.pendingDraw>0){
-    const hasStackable=state.players[0].cards.some(c=>canStackDraw(c));
+  const current = state.players[state.currentPlayer];
+  const isHumanControlledTurn = state.currentPlayer===0 || (current && current.isControlledBot);
+  if(!state.gameOver&&isHumanControlledTurn&&state.pendingDraw>0){
+    const hasStackable=current.cards.some(c=>canStackDraw(c));
     if(!hasStackable&&!autoDrawing){autoDrawing=true;setTimeout(()=>triggerAutoDrawForPlayer(),800);return;}
   }
 
