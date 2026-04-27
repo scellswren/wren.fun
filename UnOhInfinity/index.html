@@ -2170,6 +2170,7 @@ document.addEventListener('keydown', (e) => {
 /* ═══ CARD DEFINITIONS ═══ */
 const COLOR_HEX={red:'#FF3B3B',blue:'#2B7FFF',yellow:'#FFD600',green:'#22D46B',purple:'#A855F7',wild:'#A855F7',rare:'#A855F7'};
 const ANZAC_THEME_UNLOCK_KEY='wren_theme_anzac_unlocked';
+const NINE_THEME_UNLOCK_KEY='wren_theme_nine_unlocked';
 
 function showCodePopup(msg){
   const popup=document.createElement('div');
@@ -2327,6 +2328,9 @@ function buildDeck(ignoreCustomPool = false, includeAllCards = false, settings =
   }
   // Ultra-rare +99 card
   if(p(0.999)) deck.push({color:'wild',value:'wild+99',type:'wildPlus',num:99,label:'+99🌈',isRare:true});
+  
+  // Super-rare +1M card (Million Burst) - 0.05% chance
+  if(p(0.9995)) deck.push({color:'rare',value:'+1000000',type:'plus',num:1000000,label:'+1000000',isRare:true,isBeyondMythic:true});
 
   // Safety check: if deck is empty, add some numbers
   if(deck.length === 0){
@@ -3347,7 +3351,8 @@ function buildCardElLegacy(card){
   }
   if(displayText.length>3){center.style.fontSize='0.9em';tl.style.fontSize='0.35em';br.style.fontSize='0.35em';}
   if(displayText.length>6){center.style.fontSize='0.76em';center.style.lineHeight='1.04';}
-  if(displayText.length>10){center.style.fontSize='0.66em';}
+  if(displayText.length>7){center.style.fontSize='0.62em';center.style.letterSpacing='-0.5px';}
+  if(displayText.length>10){center.style.fontSize='0.55em';}
   el.append(tl,center,br);
   return el;
 }
@@ -3666,7 +3671,11 @@ async function applyRareEffect(card,playerIdx,_){
       document.body.appendChild(flash);setTimeout(()=>{flash.style.opacity='0';setTimeout(()=>flash.remove(),1000);},50);
       showStatus('👑 THE MIND OF ORIN HAS DESCENDED! 👑',3000);playSound('rare');break;
     }
-    case 'swapDecks':{const target=await pickPlayer('🔀 Swap decks with whom?',[]);if(target===playerIdx){showStatus('You swapped with yourself... 😅',1500);}else{await animateSwapDecks(playerIdx,target);}break;}
+    case 'swapDecks':{
+      let target=0;let minCards=Infinity;
+      for(let i=0;i<state.players.length;i++){if(i===playerIdx) continue;if(state.players[i].cards.length<minCards){minCards=state.players[i].cards.length;target=i;}}
+      await animateSwapDecks(playerIdx,target);break;
+    }
     case 'handFreeze':{
       const target=await pickPlayer('❄️ Freeze whose hand?',[playerIdx]);
       state.frozenPlayers[target]=true;playSound('freeze');showStatus(`${state.players[target].name} is frozen! ❄️`,2000);
@@ -3853,6 +3862,15 @@ async function applyCardEffect(card, playerIdx, chosenColor){
 
     case 'plus': case 'wildPlus':
       state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;
+      if(card.num === 99){
+        if(localStorage.getItem(NINE_THEME_UNLOCK_KEY) !== '1'){
+          localStorage.setItem(NINE_THEME_UNLOCK_KEY, '1');
+          showStatus('🌈 +99 Played! "Nine" theme unlocked in Main Menu! 🖤', 3000);
+          const el=document.createElement('div');el.className='steal-wild-banner';el.textContent='🖤 NINE THEME UNLOCKED!';
+          el.style.background='rgba(0,0,0,0.9)';el.style.color='#fff';el.style.borderColor='#333';
+          document.body.appendChild(el);setTimeout(()=>el.remove(),4000);
+        }
+      }
       showStatus(`+${card.num} stacked! Total: +${state.pendingDraw} 😬`,1600);break;
 
     case 'mirror': case 'wildMirror':{
@@ -4426,7 +4444,8 @@ function animateDrawCards(count,intervalMs,targetIdx=0,opts={}){
         el.style.cssText=`width:52px;height:74px;left:${dr.left}px;top:${dr.top}px;font-size:1.4em;z-index:1000;`;
         if(!isShowingInMainHand) el.style.boxShadow="0 0 15px rgba(34,212,107,0.6)";else el.style.boxShadow="0 0 20px rgba(168,85,247,0.6)";
         document.body.appendChild(el);
-        const speedFactor = Math.max(1, opts.speedFactor || ((state && state.millionCheatActive && targetIdx === 0) ? 50 : 1));
+        let speedFactor = Math.max(1, opts.speedFactor || ((state && state.millionCheatActive && targetIdx === 0) ? 100 : 1));
+        if (count >= 1000000) speedFactor = 100;
         const startX=dr.left,startY=dr.top,dx=destX-startX,dy=destY-startY,dur=Math.max(6,300/speedFactor),start=performance.now();
         function step(now){
           const t=Math.min((now-start)/dur,1);const ease=t*t*(3-2*t);
