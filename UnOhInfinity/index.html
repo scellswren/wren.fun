@@ -3741,6 +3741,7 @@ function isPlayable(card){
 }
 function canStackDraw(card){
     if(state.pendingDraw<=0) return false;
+    if(state.pendingDraw >= 1000000) return false; // Million draw cannot be stacked or reflected!
     if(card.type==='mirror'||card.type==='wildMirror') return true;
     const pTypes=['plus','wildPlus','reversePlus2','reversePlus4','wildPlus2SkipReverse','targetPlus4','targetDraw2','targetPlus2Skip','targetPlus4Skip','plusOne'];
     if(pTypes.includes(card.type) && card.num===state.pendingDrawNum) return true;
@@ -3782,7 +3783,7 @@ function pickPlayer(title,exclude=[]){
 async function attemptPlay(idx){
   const pIdx = state.currentPlayer;
   const player = state.players[pIdx];
-  if(!player || (pIdx !== 0 && !player.isControlledBot) || state.gameOver) return;
+  if(!player || (pIdx !== 0 && !player.isControlledBot) || state.gameOver || autoDrawing) return;
   
   const card=player.cards[idx];
   if(!isPlayable(card)){playSound('error');shakeCard(idx);return;}
@@ -4114,17 +4115,44 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       extraTurn=true;showStatus('Everyone skipped! Play again! 😈',1600);break;
 
     case 'plus': case 'wildPlus':
-      state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;
-      if(card.num === 99){
-        if(localStorage.getItem(NINE_THEME_UNLOCK_KEY) !== '1'){
-          localStorage.setItem(NINE_THEME_UNLOCK_KEY, '1');
-          showStatus('🌈 +99 Played! "Nine" theme unlocked in Main Menu! 🖤', 3000);
-          const el=document.createElement('div');el.className='steal-wild-banner';el.textContent='🖤 NINE THEME UNLOCKED!';
-          el.style.background='rgba(0,0,0,0.9)';el.style.color='#fff';el.style.borderColor='#333';
-          document.body.appendChild(el);setTimeout(()=>el.remove(),4000);
+      if(card.num === 1000000){
+        const next = nextPlayerIdx();
+        autoDrawing = true; 
+        showStatus(`😱 ${state.players[playerIdx].name} GAVE ${state.players[next].name} 1,000,000 CARDS!`, 3500);
+        await animateDrawCards(1000000, 40, next);
+        const colors = ['red','blue','green','yellow'];
+        for(let i=0; i<5000; i++){
+          const randomColor = colors[Math.floor(Math.random() * colors.length)];
+          const randomValue = Math.floor(Math.random() * 13);
+          state.players[next].cards.push({color:randomColor, value:String(randomValue), type:'number', label:String(randomValue)});
+        }
+        state.pendingDraw = 0;
+        state.pendingDrawNum = null;
+        state.pendingDrawReflected = false;
+        state.skipNext[next] = true;
+        autoDrawing = false;
+        if(next === 0) renderPlayerHand(); else updateOpponentZone(next);
+      } else {
+        state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;
+        if(card.num === 99){
+          if(localStorage.getItem(NINE_THEME_UNLOCK_KEY) !== '1'){
+            localStorage.setItem(NINE_THEME_UNLOCK_KEY, '1');
+            showStatus('🌈 +99 Played! "Nine" theme unlocked in Main Menu! 🖤', 3000);
+            const el=document.createElement('div');el.className='steal-wild-banner';el.textContent='🖤 NINE THEME UNLOCKED!';
+            el.style.background='rgba(0,0,0,0.9)';el.style.color='#fff';el.style.borderColor='#333';
+            document.body.appendChild(el);setTimeout(()=>el.remove(),4000);
+          }
+        }
+        showStatus(`+${card.num} stacked! Total: +${state.pendingDraw} 😬`,1600);
+        // Lock UI if next player cannot stack
+        const next = nextPlayerIdx();
+        const currentNext = state.players[next];
+        const isHumanControlledNext = next===0 || (currentNext && currentNext.isControlledBot);
+        if(isHumanControlledNext && !currentNext.cards.some(c => canStackDraw(c))){
+          autoDrawing = true;
         }
       }
-      showStatus(`+${card.num} stacked! Total: +${state.pendingDraw} 😬`,1600);break;
+      break;
 
     case 'mirror': case 'wildMirror':{
       if(state.pendingDraw>0){
@@ -4712,14 +4740,26 @@ function finishTurn(playerIdx){
   const player=state.players[playerIdx];
   if(player.cards.length===0){endGame(playerIdx);return;}
   renderDiscard();updateColorBar();updateDirectionBadge();
-  if(playerIdx===0){renderPlayerHand();updateOpponentsAll();}
-  else{updateOpponentZone(playerIdx);renderPlayerHand();}
 
   const current = state.players[state.currentPlayer];
   const isHumanControlledTurn = state.currentPlayer===0 || (current && current.isControlledBot);
+
+  // If there's a pending draw and the current player can't stack, lock IMMEDIATELY before rendering
+  if(!state.gameOver && isHumanControlledTurn && state.pendingDraw > 0){
+    const hasStackable = current.cards.some(c => canStackDraw(c));
+    if(!hasStackable) autoDrawing = true;
+  }
+
+  if(playerIdx===0){renderPlayerHand();updateOpponentsAll();}
+  else{updateOpponentZone(playerIdx);renderPlayerHand();}
+
   if(!state.gameOver&&isHumanControlledTurn&&state.pendingDraw>0){
     const hasStackable=current.cards.some(c=>canStackDraw(c));
-    if(!hasStackable&&!autoDrawing){autoDrawing=true;setTimeout(()=>triggerAutoDrawForPlayer(),800);return;}
+    if(!hasStackable){
+      // autoDrawing is already true from above
+      setTimeout(()=>triggerAutoDrawForPlayer(),800);
+      return;
+    }
   }
 
   if(state.frozenPlayers&&state.frozenPlayers[state.currentPlayer]&&state.pendingDraw===0){
@@ -4782,7 +4822,7 @@ async function botTakePenalty(idx){
   
   if(n >= 1000000){
     const colors = ['red','blue','green','yellow'];
-    for(let i=0; i<1000; i++){
+    for(let i=0; i<5000; i++){
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       const randomValue = Math.floor(Math.random() * 13);
       state.players[idx].cards.push({color:randomColor, value:String(randomValue), type:'number', label:String(randomValue)});
@@ -4822,7 +4862,7 @@ async function drawFromDeck(){
     if(n >= 1000000){
       // Optimization for million draw: just add a bunch of cards quickly
       const colors = ['red','blue','green','yellow'];
-      for(let i=0; i<1000; i++){
+      for(let i=0; i<5000; i++){
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         const randomValue = Math.floor(Math.random() * 13);
         state.players[pIdx].cards.push({color:randomColor, value:String(randomValue), type:'number', label:String(randomValue)});
@@ -4853,7 +4893,7 @@ async function triggerAutoDrawForPlayer(){
   
   if(n >= 1000000){
     const colors = ['red','blue','green','yellow'];
-    for(let i=0; i<1000; i++){
+    for(let i=0; i<5000; i++){
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       const randomValue = Math.floor(Math.random() * 13);
       state.players[pIdx].cards.push({color:randomColor, value:String(randomValue), type:'number', label:String(randomValue)});
@@ -4871,9 +4911,9 @@ function animateDrawCards(count,intervalMs,targetIdx=0,opts={}){
   return new Promise(resolve=>{
     const deckEl=document.getElementById('deck-pile');let completed=0;if(count===0) return resolve();
     const isMillionBurst = count >= 1000000;
-    const renderedCount = isMillionBurst ? 800 : count; // More cards for more chaos
-    const millionFlightMs = 80; // Extremely fast flight
-    const millionTotalMs = 20000; // 20 seconds total
+    const renderedCount = isMillionBurst ? 400 : count; // Reduced from 800 for performance and speed
+    const millionFlightMs = 120; // Slightly slower flight for better visibility
+    const millionTotalMs = 3000; // 3 seconds total (Reduced from 20s!)
     const interval = isMillionBurst ? (millionTotalMs / renderedCount) : Math.min(intervalMs, 80);
     
     for(let i=0;i<renderedCount;i++){
@@ -4997,11 +5037,11 @@ function pickColor(color){
       showStatus(`🎭 ${state.players[thief].name} steals the wild!`,2000);
       const banner=document.createElement('div');banner.className='steal-wild-banner';banner.textContent=`🎭 ${state.players[thief].name} STEALS THE WILD!`;document.body.appendChild(banner);setTimeout(()=>banner.remove(),2600);
       if(thief===0){pendingWild={card,playerIdx:0};setTimeout(()=>showColorPicker('🎭 You stole the wild! Choose color:'),300);return;}
-      else{const bc=botPickColor(state.players[thief]);state.currentColor=bc;showStatus(`${state.players[thief].name} chose ${bc}!`,1500);applyCardEffect(card,thief,bc);return;}
+      else{const bc=botPickColor(state.players[thief]);state.currentColor=bc;showStatus(`${state.players[thief].name} chose ${bc}!`,1500);await applyCardEffect(card,thief,bc);return;}
     }
     state.stealWildOwner=null;
     if(card.type==='pickUntil'){doPickUntil(nextPlayerIdx(),color).then(()=>{advanceTurn();finishTurn(playerIdx);});}
-    else{applyCardEffect(card,playerIdx,color);}
+    else{await applyCardEffect(card,playerIdx,color);}
   }
 }
 
