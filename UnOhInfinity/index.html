@@ -734,6 +734,25 @@ body.blur-active .game-top-actions{filter:none;}
 .rps-btn{padding:14px 18px;border-radius:16px;border:2px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:var(--text);font:900 1em 'Nunito',sans-serif;cursor:pointer;min-width:96px;transition:all 0.2s ease;}
 .rps-btn:hover{transform:translateY(-2px);background:rgba(168,85,247,0.22);border-color:#A855F7;}
 
+/* ── COIN FLIP BANNER ── */
+.coin-flip-banner{
+  position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);
+  z-index:650;pointer-events:none;min-width:320px;max-width:min(92vw,560px);
+  padding:18px 24px;border-radius:22px;text-align:center;
+  background:linear-gradient(165deg,rgba(14,14,22,0.95),rgba(8,8,12,0.95));
+  border:2px solid rgba(255,214,0,0.65);
+  box-shadow:0 0 50px rgba(255,214,0,0.22);
+}
+.coin-flip-top{font:900 0.95em 'Nunito',sans-serif;letter-spacing:2px;color:#ffd866;opacity:0.95;}
+.coin-flip-coin{
+  margin-top:8px;font:900 3.4em 'Fredoka One',cursive;color:#FFD600;line-height:1;
+  text-shadow:0 0 26px rgba(255,214,0,0.62);animation:coinFlipPulse 0.32s ease-in-out infinite alternate;
+}
+.coin-flip-result{
+  margin-top:8px;font:900 1.08em 'Nunito',sans-serif;color:#f5f5f5;letter-spacing:0.5px;
+}
+@keyframes coinFlipPulse{from{transform:scale(0.95) rotate(-4deg);}to{transform:scale(1.06) rotate(4deg);}}
+
 .plus-alert-value{font-family:'Fredoka One',cursive;font-size:6em;color:#FF3B3B;text-shadow:0 0 40px rgba(255,59,59,0.6);line-height:1;animation:plusValuePulse 2s ease-in-out infinite;}
 @keyframes plusValuePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 
@@ -2480,6 +2499,39 @@ function setPlayerBlur(idx, duration = BLUR_DURATION_MS){
 function getRpsBotChoice(){
   return ['rock','paper','scissors'][Math.floor(Math.random() * 3)];
 }
+function getRpsChoiceLabel(choice){
+  if(choice === 'rock') return '🪨 ROCK';
+  if(choice === 'paper') return '📄 PAPER';
+  return '✂️ SCISSORS';
+}
+async function showRpsRoundReveal(attackerName, attackerChoice, defenderName, defenderChoice, isDraw){
+  const text = `✊📄✂️ ${attackerName}: ${getRpsChoiceLabel(attackerChoice)}  vs  ${defenderName}: ${getRpsChoiceLabel(defenderChoice)}`;
+  showStatus(text, isDraw ? 1900 : 2200);
+  const banner=document.createElement('div');
+  banner.className='steal-wild-banner';
+  banner.style.borderColor=isDraw?'rgba(168,85,247,0.9)':'rgba(255,255,255,0.45)';
+  banner.style.color=isDraw?'#c084fc':'#ffffff';
+  banner.textContent=isDraw ? `🤝 DRAW! ${attackerName} ${getRpsChoiceLabel(attackerChoice)} / ${defenderName} ${getRpsChoiceLabel(defenderChoice)}` : `${attackerName} ${getRpsChoiceLabel(attackerChoice)}  vs  ${defenderName} ${getRpsChoiceLabel(defenderChoice)}`;
+  document.body.appendChild(banner);
+  await new Promise(r=>setTimeout(r, isDraw ? 1250 : 1450));
+  banner.remove();
+}
+async function animateCoinFlipOutcome(success, coinType, targetIdx, amount=0){
+  const targetName = state.players[targetIdx]?.name || 'Next player';
+  const banner=document.createElement('div');
+  banner.className='coin-flip-banner';
+  const actionText = coinType.includes('Reverse') ? 'REVERSE' : (coinType.includes('Skip') ? `SKIP ${targetName.toUpperCase()}` : `${targetName.toUpperCase()} +${amount}`);
+  banner.innerHTML = `<div class="coin-flip-top">COIN FLIP</div><div class="coin-flip-coin">🪙</div><div class="coin-flip-result">Flipping for ${actionText}...</div>`;
+  document.body.appendChild(banner);
+  await new Promise(r=>setTimeout(r, 700));
+  const resultText = success ? '✅ SUCCESS!' : '❌ MISSED!';
+  const resultEl = banner.querySelector('.coin-flip-result');
+  const coinEl = banner.querySelector('.coin-flip-coin');
+  if(resultEl) resultEl.textContent = `${resultText} ${actionText}`;
+  if(coinEl) coinEl.textContent = success ? '🪙✨' : '🪙';
+  await new Promise(r=>setTimeout(r, 800));
+  banner.remove();
+}
 function closeRpsModal(){
   const modal = document.getElementById('rps-modal');
   if(!modal) return;
@@ -2520,17 +2572,13 @@ function rpsWinner(a, b){
 async function playRpsDuel(attackerIdx, defenderIdx){
   const attacker = state.players[attackerIdx];
   const defender = state.players[defenderIdx];
-  let attempts = 0;
-  while(attempts < 5){
-    attempts++;
+  while(true){
     const attackerChoice = attackerIdx === 0 ? await promptRpsChoice(`You vs ${defender.name}: choose your move`) : getRpsBotChoice();
     const defenderChoice = defenderIdx === 0 ? await promptRpsChoice(`RPS vs ${attacker.name}: choose your move`) : getRpsBotChoice();
-    if(attackerIdx !== 0 || defenderIdx !== 0){
-      showStatus(`✊ ${attacker.name}: ${attackerChoice.toUpperCase()} vs ${defender.name}: ${defenderChoice.toUpperCase()}`, 1400);
-    }
     const result = rpsWinner(attackerChoice, defenderChoice);
+    await showRpsRoundReveal(attacker.name, attackerChoice, defender.name, defenderChoice, result === 0);
     if(result === 0){
-      showStatus('🤝 Tie! RPS again!', 1300);
+      showStatus('🤝 Draw! Go again!', 1400);
       continue;
     }
     const loserIdx = result === 1 ? defenderIdx : attackerIdx;
@@ -2540,12 +2588,6 @@ async function playRpsDuel(attackerIdx, defenderIdx){
     if(loserIdx === 0) renderPlayerHand(); else updateOpponentZone(loserIdx);
     return loserIdx;
   }
-  const loserIdx = Math.random() < 0.5 ? attackerIdx : defenderIdx;
-  showStatus(`${state.players[loserIdx].name} lost the duel and draws 4!`, 2200);
-  await animateDrawCards(4, 90, loserIdx);
-  for(let i = 0; i < 4; i++) state.players[loserIdx].cards.push(drawCard(state, loserIdx));
-  if(loserIdx === 0) renderPlayerHand(); else updateOpponentZone(loserIdx);
-  return loserIdx;
 }
 
 const POOL_CATEGORIES = [
@@ -4002,6 +4044,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       const coinType = card.type;
       const amt = card.num || 0;
       const target = nextPlayerIdx();
+      await animateCoinFlipOutcome(success, coinType, target, amt);
       if(!success){
         showStatus(`🪙 Coin flip missed!`, 1400);
         break;
@@ -4094,7 +4137,9 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       showStatus(`↩️+4 Reverse! Next draws 4!`,1800);break;
 
     case 'skipReverse':
-      state.direction*=-1;updateDirectionBadge();advanceTurn();showStatus(`↩️⊘ Skip Reverse!`,1600);break;
+      state.direction*=-1;updateDirectionBadge();
+      state.skipNext[nextPlayerIdx()] = true;
+      showStatus(`↩️⊘ Skip Reverse! Reversed and skipped next player!`,1800);break;
 
     case 'targetPlus4':{
       let target;
