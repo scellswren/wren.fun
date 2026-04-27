@@ -560,7 +560,7 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   color:#FFD600!important;border-color:#FFD600!important;
   box-shadow:0 0 28px rgba(255,214,0,0.38), inset 0 0 16px rgba(255,214,0,0.16)!important;
 }
-.card-million .card-tl, .card-million .card-br, .card-million .card-center{
+.card-million .card-tl, .card-million .card-br, .card-million .card-center{font-size:0.5em;
   background:none !important;-webkit-text-fill-color:#FFD600 !important;color:#FFD600 !important;
 }
 @keyframes rareCardPulse{
@@ -2323,7 +2323,7 @@ function buildDeck(ignoreCustomPool = false, includeAllCards = false, settings =
   // Mythic cards
   if(p(0.9975)) deck.push({color:'rare',value:'orinCard',type:'orinCard',label:'👑',isRare:true});
   // Hidden beyond-mythic secret card
-  if(millionUnlockActive){
+  if(millionUnlockActive && p(0.9995)){
     deck.push({color:'rare',value:'+1000000',type:'plus',num:1000000,label:'+1000000',isRare:true,isBeyondMythic:true});
   }
   // Ultra-rare +99 card
@@ -4063,7 +4063,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       const avg=Math.ceil(totalCards/state.players.length);
       for(let i=0;i<state.players.length;i++){
         const p=state.players[i];
-        if(p.cards.length<avg){const needed=avg-p.cards.length;await animateDrawCards(needed,50,i,{speedFactor:(state && state.millionCheatActive && i===0) ? 50 : 1});for(let j=0;j<needed;j++) p.cards.push(drawCard(state, i));}
+        if(p.cards.length<avg){const needed=avg-p.cards.length;await animateDrawCards(needed,50,i,{speedFactor:(state && state.millionCheatActive && i===0) ? 1000 : 1});for(let j=0;j<needed;j++) p.cards.push(drawCard(state, i));}
         else if(p.cards.length>avg){p.cards=p.cards.slice(0,avg);}
         if(i===0) renderPlayerHand(); else updateOpponentZone(i);
       }break;
@@ -4376,14 +4376,14 @@ async function botTurn(idx){
   await executePlayCard(idx,chosen.i);
 }
 async function botDrawOne(idx){
-  const drawn=drawCard(state, idx);await animateDrawCards(1,0,idx,{speedFactor:(drawn && drawn.fastDraw) ? 50 : 1});state.players[idx].cards.push(drawn);
+  const drawn=drawCard(state, idx);await animateDrawCards(1,0,idx,{speedFactor:(drawn && drawn.fastDraw) ? 1000 : 1});state.players[idx].cards.push(drawn);
   playSound('draw');spawnFloatMsg('+1','#888',idx);updateOpponentZone(idx);unfreezeAll();
   if(isPlayable(drawn)){
     setTimeout(async()=>{if(!gameRunning) return;const ci=state.players[idx].cards.indexOf(drawn);if(ci>=0) await executePlayCard(idx,ci);else{advanceTurn();finishTurn(idx);}},500);
   } else {advanceTurn();finishTurn(idx);}
 }
 async function botTakePenalty(idx){
-  const n=state.pendingDraw;await showPlusAlert(n);await animateDrawCards(n,40,idx,{speedFactor:(state && state.millionCheatActive && idx===0) ? 50 : 1});
+  const n=state.pendingDraw;await showPlusAlert(n);await animateDrawCards(n,40,idx,{speedFactor:(state && state.millionCheatActive && idx===0) ? 1000 : 1});
   for(let i=0;i<n;i++) state.players[idx].cards.push(drawCard(state, idx));
   playSound('draw');showStatus(`${state.players[idx].name} drew ${n} cards! 😬`,1600);
   spawnFloatMsg(`+${n}`,'#FF3B3B',idx);state.pendingDraw=0;state.pendingDrawNum=null;state.pendingDrawReflected=false;
@@ -4414,7 +4414,7 @@ async function drawFromDeck(){
   }
   if(state.hasDrawn){showStatus("You already drew this turn! 🛑",1200);return;}
   state.hasDrawn=true;const drawn=drawCard(state, pIdx);playSound('draw');spawnFloatMsg('+1','#aaa',pIdx);unfreezeAll();
-  await animateDrawCards(1,0,pIdx,{speedFactor:(drawn && drawn.fastDraw) ? 50 : ((state && state.millionCheatActive && pIdx===0) ? 50 : 1)});state.players[pIdx].cards.push(drawn);
+  await animateDrawCards(1,0,pIdx,{speedFactor:(drawn && drawn.fastDraw) ? 1000 : ((state && state.millionCheatActive && pIdx===0) ? 1000 : 1)});state.players[pIdx].cards.push(drawn);
   if(isPlayable(drawn)){showStatus(`Drew ${drawn.label} — you can play it!`,2200);renderPlayerHand();}
   else{showStatus(`Drew: ${drawn.label}. Ending turn...`,1500);setTimeout(()=>{advanceTurn();renderPlayerHand();scheduleBot();},1500);}
 }
