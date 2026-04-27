@@ -3115,7 +3115,7 @@ async function startGame(isClassic = false){
 
   let firstIdx=deck.findIndex(c=>c.type==='number');if(firstIdx<0) firstIdx=0;
   const firstCard=deck.splice(firstIdx,1)[0];
-  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,pendingDrawReflected:false,frozenPlayers:{},eternalSkips:{},skipNext:{},blurredUntil:{},frenzyMode:false,suppressWildTurns:0,stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat,millionCheatActive:millionCheatQueued,onlyDrawOnes:gameSettings.alwaysDrawOnes,gameSettings};
+  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,pendingDrawReflected:false,targetStackDuel:null,frozenPlayers:{},eternalSkips:{},skipNext:{},blurredUntil:{},frenzyMode:false,suppressWildTurns:0,stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat,millionCheatActive:millionCheatQueued,onlyDrawOnes:gameSettings.alwaysDrawOnes,gameSettings};
   renderOpponents();renderDiscard();updateColorBar();
   document.getElementById('player-hand').innerHTML='';
   document.getElementById('player-name-label').textContent='YOU';
@@ -3514,6 +3514,7 @@ function clearPendingDrawBadge(resetState=false){
     state.pendingDraw=0;
     state.pendingDrawNum=null;
     state.pendingDrawReflected=false;
+    state.targetStackDuel=null;
   }
 }
 function updateDirectionBadge(){document.getElementById('direction-badge').textContent=state.direction===1?'↻':'↺';}
@@ -3565,6 +3566,18 @@ function canStackDraw(card){
     if(pTypes.includes(card.type) && card.num===state.pendingDrawNum) return true;
     return false;
   }
+function getChainPlayKey(card){
+  if(!card) return '';
+  if(card.type==='number' || card.type==='banana') return `number:${card.value}`;
+  if(card.type==='plus' || card.type==='wildPlus') return `plus:${card.num ?? 0}`;
+  if(card.type==='skip' || card.type==='wildSkip') return 'skip';
+  if(card.type==='reverse' || card.type==='wildReverse') return 'reverse';
+  return `${card.type}:${card.num ?? card.value ?? ''}`;
+}
+function clearTargetStackDuelIfInactive(){
+  if(!state || !state.targetStackDuel) return;
+  if(state.pendingDraw<=0) state.targetStackDuel=null;
+}
 
 /* ═══ PLAYER PICKER ═══ */
 function pickPlayer(title,exclude=[]){
@@ -3939,13 +3952,15 @@ async function applyCardEffect(card, playerIdx, chosenColor){
           state.pendingDraw=0;
           state.pendingDrawNum=null;
           state.pendingDrawReflected=false;
+          state.targetStackDuel=null;
           state.onlyDrawOnes=false;
           showStatus('Mirror meets Mirror! The draw stack is canceled!',2200);
           playSound('reverse');
           updatePendingDrawBadge();
         } else {
         // Bounce the whole draw stack back to the player who sent it.
-        const prevPlayer=(playerIdx - state.direction + n)%n;
+        const duel=state.targetStackDuel;
+        const prevPlayer=duel ? (playerIdx===duel.a ? duel.b : duel.a) : (playerIdx - state.direction + n)%n;
         const reflectedAmt=state.pendingDraw;
         const reflectedNum=state.pendingDrawNum;
         state.currentPlayer=prevPlayer;
@@ -4082,6 +4097,14 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       let target;
       if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){target=await pickPlayer('🎯 Who draws +2?', [playerIdx]);}
       else{const others=state.players.map((_,i)=>i).filter(i=>i!==playerIdx);target=others[Math.floor(Math.random()*others.length)];}
+      if(state.pendingDraw>0){
+        state.pendingDraw += 2;
+        state.pendingDrawNum = 2;
+        state.pendingDrawReflected = false;
+        state.targetStackDuel = { a: playerIdx, b: target };
+        showStatus(`🎯 Stack redirected to ${state.players[target].name}! Total: +${state.pendingDraw}`, 2200);
+        break;
+      }
       showStatus(`🎯 ${state.players[target].name} draws +2!`,1800);
       await animateDrawCards(2,100,target);for(let i=0;i<2;i++) state.players[target].cards.push(drawCard(state, target));
       unfreezeAll();if(target===0) renderPlayerHand(); else updateOpponentZone(target);break;
@@ -4147,6 +4170,14 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       let target;
       if(playerIdx===0 || (state.players[playerIdx] && state.players[playerIdx].isControlledBot)){target=await pickPlayer('🎯 Who draws +4?', [playerIdx]);}
       else{const others=state.players.map((_,i)=>i).filter(i=>i!==playerIdx);target=others[Math.floor(Math.random()*others.length)];}
+      if(state.pendingDraw>0){
+        state.pendingDraw += 4;
+        state.pendingDrawNum = 4;
+        state.pendingDrawReflected = false;
+        state.targetStackDuel = { a: playerIdx, b: target };
+        showStatus(`🎯 Stack redirected to ${state.players[target].name}! Total: +${state.pendingDraw}`, 2200);
+        break;
+      }
       showStatus(`🎯 ${state.players[target].name} draws +4!`,1800);
       await animateDrawCards(4,100,target);for(let i=0;i<4;i++) state.players[target].cards.push(drawCard(state, target));
       unfreezeAll();if(target===0) renderPlayerHand(); else updateOpponentZone(target);break;
@@ -4173,6 +4204,14 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         const others = state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
         target = others[Math.floor(Math.random()*others.length)];
       }
+      if(state.pendingDraw>0){
+        state.pendingDraw += 2;
+        state.pendingDrawNum = 2;
+        state.pendingDrawReflected = false;
+        state.targetStackDuel = { a: playerIdx, b: target };
+        showStatus(`🎯 Stack redirected to ${state.players[target].name}! Total: +${state.pendingDraw}`, 2200);
+        break;
+      }
       state.skipNext[target] = true;
       showStatus(`🎯 ${state.players[target].name} draws +2 & will be skipped!`, 2000);
       await animateDrawCards(2, 100, target);
@@ -4188,6 +4227,14 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       } else {
         const others = state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
         target = others[Math.floor(Math.random()*others.length)];
+      }
+      if(state.pendingDraw>0){
+        state.pendingDraw += 4;
+        state.pendingDrawNum = 4;
+        state.pendingDrawReflected = false;
+        state.targetStackDuel = { a: playerIdx, b: target };
+        showStatus(`🎯 Stack redirected to ${state.players[target].name}! Total: +${state.pendingDraw}`, 2200);
+        break;
       }
       state.skipNext[target] = true;
       showStatus(`🎯 ${state.players[target].name} draws +4 & will be skipped!`, 2000);
@@ -4271,9 +4318,21 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       showStatus('🌀 FRENZY MODE ACTIVATED! 🌀', 3000);
       
       // Store original cards
+      const frenzyColors = ['red','blue','green','yellow','purple'];
+      const randomColor = () => frenzyColors[Math.floor(Math.random() * frenzyColors.length)];
+      const frenzyPool = [
+        () => ({color:randomColor(), value:'skip', type:'skip', label:'⊘'}),
+        () => ({color:'wild', value:'wildSkip', type:'wildSkip', label:'⊘ 🌈'}),
+        () => ({color:randomColor(), value:'reverse', type:'reverse', label:'↩️'}),
+        () => ({color:'wild', value:'wildReverse', type:'wildReverse', label:'↩️ 🌈'}),
+        () => ({color:randomColor(), value:'+2', type:'plus', num:2, label:'+2'}),
+        () => ({color:'wild', value:'wild+2', type:'wildPlus', num:2, label:'+2 🌈'}),
+        () => ({color:randomColor(), value:'reversePlus2', type:'reversePlus2', num:2, label:'↩️ +2'}),
+        () => ({color:'wild', value:'wildPlus2SkipReverse', type:'wildPlus2SkipReverse', num:2, label:'🌈 ↩️ ⊘ +2'})
+      ];
       state.players.forEach(p => {
         p.originalCards = [...p.cards];
-        p.cards = p.cards.map(() => ({color:'wild', value:'wild+4', type:'wildPlus', num:4, label:'+4🌈'}));
+        p.cards = p.cards.map(() => frenzyPool[Math.floor(Math.random() * frenzyPool.length)]());
       });
       
       renderPlayerHand();
@@ -4321,6 +4380,18 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
   }
 
+  if(!extraTurn && !skipAdvance && state.pendingDraw===0){
+    const justPlayedKey = getChainPlayKey(card);
+    if(justPlayedKey){
+      const playerAfterPlay = state.players[playerIdx];
+      const hasChainable = playerAfterPlay.cards.some(c => getChainPlayKey(c) === justPlayedKey && isPlayable(c));
+      if(hasChainable){
+        extraTurn = true;
+        showStatus(`${state.players[playerIdx].name} can chain another matching card!`, 1600);
+      }
+    }
+  }
+  clearTargetStackDuelIfInactive();
   if(!extraTurn && !skipAdvance) advanceTurn();
   finishTurn(playerIdx);
   renderDiscard();
@@ -4335,11 +4406,19 @@ function unfreezeAll(){
 
 function advanceTurn(){
   const n=state.players.length;
+  clearTargetStackDuelIfInactive();
   if(state.suppressWildTurns > 0){
     state.suppressWildTurns--;
     if(state.suppressWildTurns === 0) showStatus('🚫🌈 Suppress Wild ended!', 1500);
   }
-  state.currentPlayer=(state.currentPlayer+state.direction+n)%n;
+  if(state.targetStackDuel && state.pendingDraw>0){
+    const duel = state.targetStackDuel;
+    if(state.currentPlayer===duel.a) state.currentPlayer=duel.b;
+    else if(state.currentPlayer===duel.b) state.currentPlayer=duel.a;
+    else state.currentPlayer=duel.b;
+  } else {
+    state.currentPlayer=(state.currentPlayer+state.direction+n)%n;
+  }
   state.hasDrawn=false;
   if(botTimer){clearTimeout(botTimer);botTimer=null;}
   
@@ -4452,6 +4531,7 @@ async function botTakePenalty(idx){
   for(let i=0;i<n;i++) state.players[idx].cards.push(drawCard(state, idx));
   playSound('draw');showStatus(`${state.players[idx].name} drew ${n} cards! 😬`,1600);
   spawnFloatMsg(`+${n}`,'#FF3B3B',idx);state.pendingDraw=0;state.pendingDrawNum=null;state.pendingDrawReflected=false;
+  state.targetStackDuel=null;
   state.onlyDrawOnes=false; // Reset flag
   unfreezeAll();updateOpponentZone(idx);advanceTurn();finishTurn(idx);updatePendingDrawBadge();
 }
@@ -4474,6 +4554,7 @@ async function drawFromDeck(){
     const n=state.pendingDraw;autoDrawing=true;await showPlusAlert(n);
     await animateDrawCards(n,40,pIdx,{speedFactor:(state && state.millionCheatActive && pIdx===0) ? 50 : 1});for(let i=0;i<n;i++) state.players[pIdx].cards.push(drawCard(state, pIdx));
     state.pendingDraw=0;state.pendingDrawNum=null;state.pendingDrawReflected=false;state.onlyDrawOnes=false;autoDrawing=false;unfreezeAll();
+    state.targetStackDuel=null;
     showStatus(`Drew ${n} cards! 😬`,1800);spawnFloatMsg(`+${n}`,'#FF3B3B',pIdx);
     advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();return;
   }
@@ -4491,6 +4572,7 @@ async function triggerAutoDrawForPlayer(){
   const n=state.pendingDraw;await showPlusAlert(n);await animateDrawCards(n,40,pIdx);
   for(let i=0;i<n;i++) state.players[pIdx].cards.push(drawCard(state, pIdx));
   state.pendingDraw=0;state.pendingDrawNum=null;state.pendingDrawReflected=false;state.onlyDrawOnes=false;autoDrawing=false;unfreezeAll();
+  state.targetStackDuel=null;
   advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();
 }
 
