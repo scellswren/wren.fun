@@ -2247,6 +2247,7 @@ function buildDeck(ignoreCustomPool = false, includeAllCards = false, settings =
     // Blur / RPS / coin-flip specials
     deck.push({color,value:'blur',type:'blur',label:'🌫️'});
     deck.push({color,value:'rockPaperScissors',type:'rockPaperScissors',label:'✊📄✂️'});
+    deck.push({color:'wild',value:'wildRockPaperScissors',type:'wildRockPaperScissors',label:'✊📄✂️🌈'});
 
     // Draw cards +1 through +4
     deck.push({color,value:'+1',type:'plus',num:1,label:'+1'});
@@ -2509,16 +2510,53 @@ function getRpsChoiceLabel(choice){
   if(choice === 'paper') return '📄 PAPER';
   return '✂️ SCISSORS';
 }
-async function showRpsRoundReveal(attackerName, attackerChoice, defenderName, defenderChoice, isDraw){
-  const text = `✊📄✂️ ${attackerName}: ${getRpsChoiceLabel(attackerChoice)}  vs  ${defenderName}: ${getRpsChoiceLabel(defenderChoice)}`;
-  showStatus(text, isDraw ? 1900 : 2200);
+async function showRpsRoundReveal(attackerName, attackerChoice, defenderName, defenderChoice, result){
   const banner=document.createElement('div');
   banner.className='steal-wild-banner';
-  banner.style.borderColor=isDraw?'rgba(168,85,247,0.9)':'rgba(255,255,255,0.45)';
-  banner.style.color=isDraw?'#c084fc':'#ffffff';
-  banner.textContent=isDraw ? `🤝 DRAW! ${attackerName} ${getRpsChoiceLabel(attackerChoice)} / ${defenderName} ${getRpsChoiceLabel(defenderChoice)}` : `${attackerName} ${getRpsChoiceLabel(attackerChoice)}  vs  ${defenderName} ${getRpsChoiceLabel(defenderChoice)}`;
+  banner.style.flexDirection = 'column';
+  banner.style.height = 'auto';
+  banner.style.padding = '20px';
+  banner.style.display = 'flex';
+  banner.style.alignItems = 'center';
+  banner.style.justifyContent = 'center';
+  
+  const attackerLine = document.createElement('div');
+  attackerLine.style.fontSize = '1.1em';
+  attackerLine.innerHTML = `<span>${attackerName}: ${getRpsChoiceLabel(attackerChoice)}</span>`;
+  banner.appendChild(attackerLine);
+  
   document.body.appendChild(banner);
-  await new Promise(r=>setTimeout(r, isDraw ? 1250 : 1450));
+  playSound('plus');
+  
+  await new Promise(r=>setTimeout(r, 1000));
+  
+  const defenderLine = document.createElement('div');
+  defenderLine.style.fontSize = '1.1em';
+  defenderLine.style.marginTop = '5px';
+  defenderLine.innerHTML = `<span>${getRpsChoiceLabel(defenderChoice)}</span> <span style="color:#ff3b3b; font-size:0.7em; margin-left:8px;">${defenderName}</span>`;
+  banner.appendChild(defenderLine);
+  playSound('plus');
+  
+  await new Promise(r=>setTimeout(r, 1000));
+  
+  const resultLine = document.createElement('div');
+  resultLine.style.marginTop = '15px';
+  resultLine.style.fontSize = '1.3em';
+  resultLine.style.fontWeight = 'bold';
+  
+  if(result === 0){
+    resultLine.textContent = 'Draw, go again! 🤝';
+    resultLine.style.color = '#c084fc';
+  } else if(result === 1){
+    resultLine.textContent = (attackerName === 'You' ? 'You Win! 🎉' : `${attackerName} Win! 🎉`);
+    resultLine.style.color = '#4ade80';
+  } else {
+    resultLine.textContent = (defenderName === 'You' ? 'You Win! 🎉' : `${defenderName} Win! 🎉`);
+    resultLine.style.color = '#4ade80';
+  }
+  banner.appendChild(resultLine);
+  
+  await new Promise(r=>setTimeout(r, 2000));
   banner.remove();
 }
 async function animateCoinFlipOutcome(success, coinType, targetIdx, amount=0){
@@ -2581,9 +2619,8 @@ async function playRpsDuel(attackerIdx, defenderIdx){
     const attackerChoice = attackerIdx === 0 ? await promptRpsChoice(`You vs ${defender.name}: choose your move`) : getRpsBotChoice();
     const defenderChoice = defenderIdx === 0 ? await promptRpsChoice(`RPS vs ${attacker.name}: choose your move`) : getRpsBotChoice();
     const result = rpsWinner(attackerChoice, defenderChoice);
-    await showRpsRoundReveal(attacker.name, attackerChoice, defender.name, defenderChoice, result === 0);
+    await showRpsRoundReveal(attacker.name, attackerChoice, defender.name, defenderChoice, result);
     if(result === 0){
-      showStatus('🤝 Draw! Go again!', 1400);
       continue;
     }
     const loserIdx = result === 1 ? defenderIdx : attackerIdx;
@@ -2612,7 +2649,7 @@ const CHAOS_CARD_TYPES = new Set([
   'chaosDraw','pickUntil','copycat','shuffleStorm','hotPotato','communism',
   'doubleEdge','frenzy','swapDecks','handFreeze','stealWild','superBanana',
   'disarmWilds','orinCard','instantWin','eternalSkip',
-  'blur','rockPaperScissors','coinPlus1','coinPlus2','coinPlus4','coinPlus10',
+  'blur','rockPaperScissors','wildRockPaperScissors','coinPlus1','coinPlus2','coinPlus4','coinPlus10',
   'coinSkip','coinReverse','wildCoinPlus1','wildCoinPlus2','wildCoinPlus4','wildCoinPlus10',
   'wildCoinSkip','wildCoinReverse'
 ]);
@@ -3375,7 +3412,7 @@ function buildCardElLegacy(card){
   const displayText=getCardSymbolLabel(card);
   const readableName=getReadableCardLabel(card);
   const cornerText=getCardCornerText(card);
-  const complexTypes=new Set(['targetSkip','targetDraw2','targetPlus2Skip','targetPlus4Skip','targetPlus4','reversePlus2','reversePlus4','skipReverse','discardColor','pickUntil','copycat','plusOne','helper','mysteryWild','instantWin','eternalSkip','frenzy','suppressWild','swapDecks','handFreeze','stealWild','shuffleStorm','doubleEdge','hotPotato','communism','superBanana','disarmWilds','orinCard','wildPlus2SkipReverse','blur','rockPaperScissors','coinPlus1','coinPlus2','coinPlus4','coinPlus10','coinSkip','coinReverse','wildCoinPlus1','wildCoinPlus2','wildCoinPlus4','wildCoinPlus10','wildCoinSkip','wildCoinReverse']);
+  const complexTypes=new Set(['targetSkip','targetDraw2','targetPlus2Skip','targetPlus4Skip','targetPlus4','reversePlus2','reversePlus4','skipReverse','discardColor','pickUntil','copycat','plusOne','helper','mysteryWild','instantWin','eternalSkip','frenzy','suppressWild','swapDecks','handFreeze','stealWild','shuffleStorm','doubleEdge','hotPotato','communism','superBanana','disarmWilds','orinCard','wildPlus2SkipReverse','blur','rockPaperScissors','wildRockPaperScissors','coinPlus1','coinPlus2','coinPlus4','coinPlus10','coinSkip','coinReverse','wildCoinPlus1','wildCoinPlus2','wildCoinPlus4','wildCoinPlus10','wildCoinSkip','wildCoinReverse']);
   const usesCornerHints=complexTypes.has(card.type)||displayText.length>4||isRare;
   el.className=`game-card card-${isRare?'rare':card.color}`;
   el.classList.add('card-symbolic');
@@ -3471,8 +3508,19 @@ function renderPlayerHand(){
   const containerW=hand.parentElement.offsetWidth-24;
   const cardW=74;const count=player.cards.length;
   let overlap=20;
-  if(count>1){const needed=cardW+(count-1)*(cardW-overlap);if(needed>containerW){overlap=cardW-(containerW-cardW)/(count-1);overlap=Math.max(overlap,2);}}
-  player.cards.forEach((card,idx)=>{
+  const maxVisibleCards = 200;
+  const cardsToRender = player.cards.slice(0, maxVisibleCards);
+  const renderCount = cardsToRender.length;
+  
+  if(renderCount>1){
+    const needed=cardW+(renderCount-1)*(cardW-overlap);
+    if(needed>containerW){
+      overlap=cardW-(containerW-cardW)/(renderCount-1);
+      overlap=Math.max(overlap,2);
+    }
+  }
+  
+  cardsToRender.forEach((card,idx)=>{
     const wrapper=document.createElement('div');wrapper.className='hand-card';wrapper.style.zIndex=idx+1;
     if(idx>0) wrapper.style.marginLeft=`-${overlap}px`;
     wrapper.appendChild(buildCardEl(card));
@@ -3484,6 +3532,27 @@ function renderPlayerHand(){
     }
     hand.appendChild(wrapper);
   });
+
+  if(count > maxVisibleCards){
+    const moreIndicator = document.createElement('div');
+    moreIndicator.style.cssText = `
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 60px;
+      height: 90px;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      border-radius: 8px;
+      margin-left: 5px;
+      font-size: 0.8em;
+      border: 1px dashed rgba(255,255,255,0.3);
+      padding: 0 10px;
+      white-space: nowrap;
+    `;
+    moreIndicator.textContent = `+${count - maxVisibleCards} more`;
+    hand.appendChild(moreIndicator);
+  }
   
   const label=document.getElementById('player-name-label');
   if(isActiveTurn){
@@ -4044,7 +4113,8 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       break;
     }
 
-    case 'rockPaperScissors':{
+    case 'rockPaperScissors':
+    case 'wildRockPaperScissors':{
       const target = nextPlayerIdx();
       showStatus(`✊📄✂️ Challenge ${state.players[target].name}!`, 1700);
       await playRpsDuel(playerIdx, target);
@@ -4334,17 +4404,72 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       const frenzyColors = ['red','blue','green','yellow','purple'];
       const randomColor = () => frenzyColors[Math.floor(Math.random() * frenzyColors.length)];
       const frenzyPool = [
+        // Skips
         () => ({color:randomColor(), value:'skip', type:'skip', label:'⊘'}),
         () => ({color:'wild', value:'wildSkip', type:'wildSkip', label:'⊘ 🌈'}),
+        () => ({color:randomColor(), value:'targetSkip', type:'targetSkip', label:'🎯⊘'}),
+        // Reverses
         () => ({color:randomColor(), value:'reverse', type:'reverse', label:'↩️'}),
         () => ({color:'wild', value:'wildReverse', type:'wildReverse', label:'↩️ 🌈'}),
+        // Plus cards
         () => ({color:randomColor(), value:'+2', type:'plus', num:2, label:'+2'}),
+        () => ({color:randomColor(), value:'+4', type:'plus', num:4, label:'+4'}),
+        () => ({color:randomColor(), value:'+8', type:'plus', num:8, label:'+8'}),
+        () => ({color:randomColor(), value:'+10', type:'plus', num:10, label:'+10'}),
+        () => ({color:'wild', value:'wild+1', type:'wildPlus', num:1, label:'+1 🌈'}),
         () => ({color:'wild', value:'wild+2', type:'wildPlus', num:2, label:'+2 🌈'}),
+        () => ({color:'wild', value:'wild+4', type:'wildPlus', num:4, label:'+4 🌈'}),
+        () => ({color:'wild', value:'wild+10', type:'wildPlus', num:10, label:'+10 🌈'}),
+        // Reverse +2/+4
         () => ({color:randomColor(), value:'reversePlus2', type:'reversePlus2', num:2, label:'↩️ +2'}),
-        () => ({color:'wild', value:'wildPlus2SkipReverse', type:'wildPlus2SkipReverse', num:2, label:'🌈 ↩️ ⊘ +2'})
+        () => ({color:randomColor(), value:'reversePlus4', type:'reversePlus4', num:4, label:'↩️ +4'}),
+        () => ({color:'wild', value:'wildReversePlus2', type:'reversePlus2', num:2, label:'↩️ +2 🌈'}),
+        // Skip + Reverse combos
+        () => ({color:randomColor(), value:'skipReverse', type:'skipReverse', label:'↩️ ⊘'}),
+        () => ({color:'wild', value:'wildSkipReverse', type:'skipReverse', label:'↩️ ⊘ 🌈'}),
+        () => ({color:'wild', value:'wildPlus2SkipReverse', type:'wildPlus2SkipReverse', num:2, label:'🌈 ↩️ ⊘ +2'}),
+        // Targeted + cards
+        () => ({color:randomColor(), value:'targetDraw2', type:'targetDraw2', num:2, label:'🎯+2'}),
+        () => ({color:randomColor(), value:'targetPlus2Skip', type:'targetPlus2Skip', num:2, label:'🎯⊘+2'}),
+        () => ({color:randomColor(), value:'targetPlus4', type:'targetPlus4', num:4, label:'🎯+4'}),
+        () => ({color:randomColor(), value:'targetPlus4Skip', type:'targetPlus4Skip', num:4, label:'🎯⊘+4'}),
+        () => ({color:'wild', value:'targetPlus2SkipWild', type:'targetPlus2Skip', num:2, label:'🎯⊘+2 🌈'}),
+        () => ({color:'wild', value:'targetPlus4SkipWild', type:'targetPlus4Skip', num:4, label:'🎯⊘+4 🌈'}),
+        // Coin flip cards
+        () => ({color:'wild', value:'wildCoinPlus1', type:'wildCoinPlus1', num:1, label:'🎲+1 🌈'}),
+        () => ({color:'wild', value:'wildCoinPlus2', type:'wildCoinPlus2', num:2, label:'🎲+2 🌈'}),
+        () => ({color:'wild', value:'wildCoinPlus4', type:'wildCoinPlus4', num:4, label:'🎲+4 🌈'}),
+        () => ({color:'wild', value:'wildCoinSkip', type:'wildCoinSkip', label:'🎲⊘ 🌈'}),
+        () => ({color:'wild', value:'wildCoinReverse', type:'wildCoinReverse', label:'🎲↩ 🌈'}),
+        // Double play
+        () => ({color:randomColor(), value:'doublePlay', type:'doublePlay', label:'2x'}),
+        // Teleport
+        () => ({color:randomColor(), value:'teleport', type:'teleport', label:'🌀'}),
+        () => ({color:'wild', value:'teleportWild', type:'teleport', label:'🌀🌈'}),
+        // Mirror
+        () => ({color:randomColor(), value:'mirror', type:'mirror', label:'🪞'}),
+        () => ({color:'wild', value:'wildMirror', type:'wildMirror', label:'🪞🌈'}),
+        // Suppress wilds
+        () => ({color:'wild', value:'suppressWild', type:'suppressWild', label:'🚫🌈'}),
+        () => ({color:'wild', value:'wildSuppressWild', type:'suppressWild', label:'🚫🌈🌈'}),
+        // Skip all
+        () => ({color:randomColor(), value:'skipAll', type:'skipAll', label:'⊘⊘'}),
+        () => ({color:'wild', value:'wildSkipAll', type:'wildSkipAll', label:'⊘⊘🌈'}),
+        // Color shift
+        () => ({color:randomColor(), value:'colorShift', type:'colorShift', label:'🎨'}),
+        // Pick until
+        () => ({color:'wild', value:'pickUntil', type:'pickUntil', label:'🎲🌈'}),
+        // Copycat
+        () => ({color:'wild', value:'copycat', type:'copycat', label:'🐱🌈'}),
+        // Blur
+        () => ({color:randomColor(), value:'blur', type:'blur', label:'🌫️'}),
+        // RPS (keep it!)
+        () => ({color:randomColor(), value:'rockPaperScissors', type:'rockPaperScissors', label:'✊📄✂️'}),
+        () => ({color:'wild', value:'wildRockPaperScissors', type:'wildRockPaperScissors', label:'✊📄✂️🌈'})
       ];
       state.players.forEach(p => {
         p.originalCards = [...p.cards];
+        p.frenzyExtraCards = 0;
         p.cards = p.cards.map(() => frenzyPool[Math.floor(Math.random() * frenzyPool.length)]());
       });
       
@@ -4370,11 +4495,17 @@ async function applyCardEffect(card, playerIdx, chosenColor){
           
           state.players.forEach(p => {
             if(p.originalCards){
-              // Revert back, but keep the number of cards the same as what they currently have?
-              // The user said "once those 20 seconds ends they revert back".
-              // Usually this means revert the cards themselves.
-              p.cards = p.originalCards;
+              const extraCardsCount = Math.max(0, p.cards.length - p.originalCards.length);
+              let newCards = [...p.originalCards];
+              for(let i = 0; i < extraCardsCount; i++){
+                const colors = ['red','blue','green','yellow'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                const randomValue = Math.floor(Math.random() * 13);
+                newCards.push({color:randomColor, value:String(randomValue), type:'number', label:String(randomValue)});
+              }
+              p.cards = newCards;
               delete p.originalCards;
+              delete p.frenzyExtraCards;
             }
           });
           showStatus('🌀 Frenzy Ended!', 2000);
@@ -4543,8 +4674,22 @@ async function botDrawOne(idx){
 }
 async function botTakePenalty(idx){
   const n=state.pendingDraw;await showPlusAlert(n);await animateDrawCards(n,40,idx,{speedFactor:(state && state.millionCheatActive && idx===0) ? 1000 : 1});
-  for(let i=0;i<n;i++) state.players[idx].cards.push(drawCard(state, idx));
-  playSound('draw');showStatus(`${state.players[idx].name} drew ${n} cards! 😬`,1600);
+  
+  if(n >= 1000000){
+    const colors = ['red','blue','green','yellow'];
+    for(let i=0; i<1000; i++){
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      const randomValue = Math.floor(Math.random() * 13);
+      state.players[idx].cards.push({color:randomColor, value:String(randomValue), type:'number', label:String(randomValue)});
+    }
+  } else {
+    for(let i=0;i<n;i++) state.players[idx].cards.push(drawCard(state, idx));
+  }
+  
+  playSound('draw');
+  if(n >= 1000000) showStatus(`${state.players[idx].name} drew 1,000,000 cards! 😬`, 2200);
+  else showStatus(`${state.players[idx].name} drew ${n} cards! 😬`,1600);
+  
   spawnFloatMsg(`+${n}`,'#FF3B3B',idx);state.pendingDraw=0;state.pendingDrawNum=null;state.pendingDrawReflected=false;
   state.targetStackDuel=null;
   state.onlyDrawOnes=false; // Reset flag
@@ -4567,10 +4712,25 @@ async function drawFromDeck(){
   if(botTimer){showStatus("Wait... ⏳",800);return;}
   if(state.pendingDraw>0){
     const n=state.pendingDraw;autoDrawing=true;await showPlusAlert(n);
-    await animateDrawCards(n,40,pIdx,{speedFactor:(state && state.millionCheatActive && pIdx===0) ? 50 : 1});for(let i=0;i<n;i++) state.players[pIdx].cards.push(drawCard(state, pIdx));
+    await animateDrawCards(n,40,pIdx,{speedFactor:(state && state.millionCheatActive && pIdx===0) ? 50 : 1});
+    
+    if(n >= 1000000){
+      // Optimization for million draw: just add a bunch of cards quickly
+      const colors = ['red','blue','green','yellow'];
+      for(let i=0; i<1000; i++){
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        const randomValue = Math.floor(Math.random() * 13);
+        state.players[pIdx].cards.push({color:randomColor, value:String(randomValue), type:'number', label:String(randomValue)});
+      }
+      showStatus(`Drew 1,000,000 cards! (Optimized for performance) 😬`, 3000);
+    } else {
+      for(let i=0;i<n;i++) state.players[pIdx].cards.push(drawCard(state, pIdx));
+    }
+    
     state.pendingDraw=0;state.pendingDrawNum=null;state.pendingDrawReflected=false;state.onlyDrawOnes=false;autoDrawing=false;unfreezeAll();
     state.targetStackDuel=null;
-    showStatus(`Drew ${n} cards! 😬`,1800);spawnFloatMsg(`+${n}`,'#FF3B3B',pIdx);
+    if(n < 1000000) showStatus(`Drew ${n} cards! 😬`,1800);
+    spawnFloatMsg(`+${n}`,'#FF3B3B',pIdx);
     advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();return;
   }
   if(state.hasDrawn){showStatus("You already drew this turn! 🛑",1200);return;}
@@ -4585,7 +4745,18 @@ async function triggerAutoDrawForPlayer(){
   const player = state.players[pIdx];
   if(!gameRunning||state.gameOver||(pIdx!==0 && (!player || !player.isControlledBot))){autoDrawing=false;return;}
   const n=state.pendingDraw;await showPlusAlert(n);await animateDrawCards(n,40,pIdx);
-  for(let i=0;i<n;i++) state.players[pIdx].cards.push(drawCard(state, pIdx));
+  
+  if(n >= 1000000){
+    const colors = ['red','blue','green','yellow'];
+    for(let i=0; i<1000; i++){
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      const randomValue = Math.floor(Math.random() * 13);
+      state.players[pIdx].cards.push({color:randomColor, value:String(randomValue), type:'number', label:String(randomValue)});
+    }
+  } else {
+    for(let i=0;i<n;i++) state.players[pIdx].cards.push(drawCard(state, pIdx));
+  }
+  
   state.pendingDraw=0;state.pendingDrawNum=null;state.pendingDrawReflected=false;state.onlyDrawOnes=false;autoDrawing=false;unfreezeAll();
   state.targetStackDuel=null;
   advanceTurn();renderPlayerHand();renderDiscard();updateColorBar();updatePendingDrawBadge();scheduleBot();
@@ -4595,37 +4766,87 @@ function animateDrawCards(count,intervalMs,targetIdx=0,opts={}){
   return new Promise(resolve=>{
     const deckEl=document.getElementById('deck-pile');let completed=0;if(count===0) return resolve();
     const isMillionBurst = count >= 1000000;
-    const renderedCount = isMillionBurst ? 120 : count;
-    const millionFlightMs = 900;
-    const millionTotalMs = 30000;
-    const interval=isMillionBurst ? ((millionTotalMs - millionFlightMs) / Math.max(1, renderedCount - 1)) : Math.min(intervalMs,80);
+    const renderedCount = isMillionBurst ? 800 : count; // More cards for more chaos
+    const millionFlightMs = 80; // Extremely fast flight
+    const millionTotalMs = 20000; // 20 seconds total
+    const interval = isMillionBurst ? (millionTotalMs / renderedCount) : Math.min(intervalMs, 80);
+    
     for(let i=0;i<renderedCount;i++){
       setTimeout(()=>{
         const dr=deckEl.getBoundingClientRect();let destX,destY;
         const p = state.players[targetIdx];
         const isShowingInMainHand = (targetIdx === 0) || (p && p.isControlledBot && state.currentPlayer === targetIdx);
-        if(isShowingInMainHand){const hand=document.getElementById('player-hand');const hr=hand.getBoundingClientRect();destX=hr.left+hr.width/2+(Math.random()-0.5)*100;destY=hr.top-40;}
-        else{const zone=document.getElementById(`opp-zone-${targetIdx}`);if(zone){const zr=zone.getBoundingClientRect();destX=zr.left+zr.width/2;destY=zr.top+20;}else{destX=window.innerWidth/2;destY=80;}}
-        const el=document.createElement('div');el.className='draw-fly';el.textContent='🂠';
+        
+        if(isShowingInMainHand){
+          const hand=document.getElementById('player-hand');
+          const hr=hand.getBoundingClientRect();
+          destX=hr.left+hr.width/2+(Math.random()-0.5)*180;
+          destY=hr.top-40;
+        } else {
+          const zone=document.getElementById(`opp-zone-${targetIdx}`);
+          if(zone){
+            const zr=zone.getBoundingClientRect();
+            destX=zr.left+zr.width/2;
+            destY=zr.top+20;
+          } else {
+            destX=window.innerWidth/2;
+            destY=80;
+          }
+        }
+        
+        const el=document.createElement('div');
+        el.className='draw-fly';
+        el.textContent='🂠';
         const flyW=isMillionBurst?64:52;
         const flyH=isMillionBurst?90:74;
         const flyFont=isMillionBurst?'1.7em':'1.4em';
-        el.style.cssText=`width:${flyW}px;height:${flyH}px;left:${dr.left}px;top:${dr.top}px;font-size:${flyFont};z-index:1000;`;
+        
+        let startX = dr.left;
+        let startY = dr.top;
+        
+        if(isMillionBurst){
+          // All angles: start from random screen edges
+          const side = Math.floor(Math.random() * 4);
+          if(side === 0){ // Top
+            startX = Math.random() * window.innerWidth;
+            startY = -120;
+          } else if(side === 1){ // Right
+            startX = window.innerWidth + 120;
+            startY = Math.random() * window.innerHeight;
+          } else if(side === 2){ // Bottom
+            startX = Math.random() * window.innerWidth;
+            startY = window.innerHeight + 120;
+          } else { // Left
+            startX = -120;
+            startY = Math.random() * window.innerHeight;
+          }
+        }
+        
+        el.style.cssText=`width:${flyW}px;height:${flyH}px;left:${startX}px;top:${startY}px;font-size:${flyFont};z-index:1000;`;
+        
         if(isMillionBurst){
           el.style.background='linear-gradient(145deg,#120c00,#3b2d00)';
           el.style.borderColor='#FFD600';
           el.style.boxShadow='0 0 26px rgba(255,214,0,0.8), 0 0 56px rgba(255,214,0,0.35)';
         } else if(!isShowingInMainHand) el.style.boxShadow="0 0 15px rgba(34,212,107,0.6)";else el.style.boxShadow="0 0 20px rgba(168,85,247,0.6)";
+        
         document.body.appendChild(el);
+        
         let speedFactor = Math.max(1, opts.speedFactor || ((state && state.millionCheatActive && targetIdx === 0) ? 100 : 1));
-        const startX=dr.left,startY=dr.top,dx=destX-startX,dy=destY-startY,dur=isMillionBurst?millionFlightMs:Math.max(6,300/speedFactor),start=performance.now();
+        const dx=destX-startX,dy=destY-startY,dur=isMillionBurst?millionFlightMs:Math.max(6,300/speedFactor),start=performance.now();
+        
         function step(now){
           const t=Math.min((now-start)/dur,1);const ease=t*t*(3-2*t);
           el.style.left=(startX+dx*ease)+'px';el.style.top=(startY+dy*ease)+'px';
-          const scale=isMillionBurst?(1.25-0.35*ease):(1-0.2*ease);
-          const rotate=isMillionBurst?(-18+ease*36):(ease*20);
+          const scale=isMillionBurst?(1.3-0.4*ease):(1-0.2*ease);
+          const rotate=isMillionBurst?(Math.random()*720):(ease*20); // Chaotic rotation
           el.style.transform=`rotate(${rotate}deg) scale(${scale})`;
-          if(t<1){raf(step);}else{el.remove();playSound('draw');completed++;if(completed>=renderedCount) resolve();}
+          if(t<1){raf(step);}else{
+            el.remove();
+            if(!isMillionBurst || Math.random() < 0.1) playSound('draw'); // Throttle sound
+            completed++;
+            if(completed>=renderedCount) resolve();
+          }
         }
         raf(step);
       },i*interval);
