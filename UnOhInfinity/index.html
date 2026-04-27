@@ -3115,7 +3115,7 @@ async function startGame(isClassic = false){
 
   let firstIdx=deck.findIndex(c=>c.type==='number');if(firstIdx<0) firstIdx=0;
   const firstCard=deck.splice(firstIdx,1)[0];
-  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,pendingDrawReflected:false,targetStackDuel:null,frozenPlayers:{},eternalSkips:{},skipNext:{},blurredUntil:{},frenzyMode:false,suppressWildTurns:0,stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat,millionCheatActive:millionCheatQueued,onlyDrawOnes:gameSettings.alwaysDrawOnes,gameSettings};
+  state={players,deck,discard:[firstCard],currentPlayer:0,direction:1,currentColor:firstCard.color,gameOver:false,pendingDraw:0,pendingDrawNum:null,pendingDrawReflected:false,targetStackDuel:null,frozenPlayers:{},eternalSkips:{},skipNext:{},blurredUntil:{},frenzyMode:false,suppressWildTurns:0,stealWildOwner:null,hasDrawn:false,plus99Cheat:plus99Cheat,millionCheatActive:millionCheatQueued,onlyDrawOnes:gameSettings.alwaysDrawOnes,chainingKey:null,gameSettings};
   renderOpponents();renderDiscard();updateColorBar();
   document.getElementById('player-hand').innerHTML='';
   document.getElementById('player-name-label').textContent='YOU';
@@ -3523,6 +3523,12 @@ function updateOpponentsAll(){for(let i=1;i<state.players.length;i++) updateOppo
 /* ═══ PLAY RULES ═══ */
 function isPlayable(card){
   if(state.suppressWildTurns > 0) return true;
+
+  // CHAINING restriction: If a chain is active, only same-key cards can be played.
+  if(state.chainingKey){
+    return getChainPlayKey(card) === state.chainingKey;
+  }
+
   const top=state.discard[state.discard.length-1];
   const cc=state.currentColor;
 
@@ -4074,7 +4080,8 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         state.skipNext[target] = true;
         showStatus(`🪙 ${state.players[target].name} is skipped!`, 1600);
       } else {
-        showStatus(`🪙 ${state.players[target].name} draws +${amt}!`, 1600);
+        showStatus(`🪙 ${state.players[target].name} draws +${amt} & is skipped!`, 1600);
+        state.skipNext[target] = true;
         await animateDrawCards(amt, 90, target);
         for(let i=0;i<amt;i++) state.players[target].cards.push(drawCard(state, target));
         if(target===0) renderPlayerHand(); else updateOpponentZone(target);
@@ -4105,7 +4112,9 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         showStatus(`🎯 Stack redirected to ${state.players[target].name}! Total: +${state.pendingDraw}`, 2200);
         break;
       }
-      showStatus(`🎯 ${state.players[target].name} draws +2!`,1800);
+      const isNext = (target === nextPlayerIdx());
+      if(isNext) state.skipNext[target] = true;
+      showStatus(`🎯 ${state.players[target].name} draws +2!${isNext ? ' & is skipped!' : ''}`,1800);
       await animateDrawCards(2,100,target);for(let i=0;i<2;i++) state.players[target].cards.push(drawCard(state, target));
       unfreezeAll();if(target===0) renderPlayerHand(); else updateOpponentZone(target);break;
     }
@@ -4178,7 +4187,9 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         showStatus(`🎯 Stack redirected to ${state.players[target].name}! Total: +${state.pendingDraw}`, 2200);
         break;
       }
-      showStatus(`🎯 ${state.players[target].name} draws +4!`,1800);
+      const isNext = (target === nextPlayerIdx());
+      if(isNext) state.skipNext[target] = true;
+      showStatus(`🎯 ${state.players[target].name} draws +4!${isNext ? ' & is skipped!' : ''}`,1800);
       await animateDrawCards(4,100,target);for(let i=0;i<4;i++) state.players[target].cards.push(drawCard(state, target));
       unfreezeAll();if(target===0) renderPlayerHand(); else updateOpponentZone(target);break;
     }
@@ -4212,8 +4223,9 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         showStatus(`🎯 Stack redirected to ${state.players[target].name}! Total: +${state.pendingDraw}`, 2200);
         break;
       }
-      state.skipNext[target] = true;
-      showStatus(`🎯 ${state.players[target].name} draws +2 & will be skipped!`, 2000);
+      const isNext = (target === nextPlayerIdx());
+      if(isNext) state.skipNext[target] = true;
+      showStatus(`🎯 ${state.players[target].name} draws +2${isNext ? ' & is skipped!' : ''}`, 2000);
       await animateDrawCards(2, 100, target);
       for(let i=0;i<2;i++) state.players[target].cards.push(drawCard(state, target));
       if(target===0) renderPlayerHand(); else updateOpponentZone(target);
@@ -4236,8 +4248,9 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         showStatus(`🎯 Stack redirected to ${state.players[target].name}! Total: +${state.pendingDraw}`, 2200);
         break;
       }
-      state.skipNext[target] = true;
-      showStatus(`🎯 ${state.players[target].name} draws +4 & will be skipped!`, 2000);
+      const isNext = (target === nextPlayerIdx());
+      if(isNext) state.skipNext[target] = true;
+      showStatus(`🎯 ${state.players[target].name} draws +4${isNext ? ' & is skipped!' : ''}`, 2000);
       await animateDrawCards(4, 100, target);
       for(let i=0;i<4;i++) state.players[target].cards.push(drawCard(state, target));
       if(target===0) renderPlayerHand(); else updateOpponentZone(target);
@@ -4387,6 +4400,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       const hasChainable = playerAfterPlay.cards.some(c => getChainPlayKey(c) === justPlayedKey && isPlayable(c));
       if(hasChainable){
         extraTurn = true;
+        state.chainingKey = justPlayedKey; // Set chaining key
         showStatus(`${state.players[playerIdx].name} can chain another matching card!`, 1600);
       }
     }
@@ -4406,6 +4420,7 @@ function unfreezeAll(){
 
 function advanceTurn(){
   const n=state.players.length;
+  state.chainingKey = null; // Clear chaining key when turn advances
   clearTargetStackDuelIfInactive();
   if(state.suppressWildTurns > 0){
     state.suppressWildTurns--;
