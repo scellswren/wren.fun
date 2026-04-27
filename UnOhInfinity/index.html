@@ -77,11 +77,13 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 .deco-card{
   position:absolute;width:55px;height:77px;border-radius:9px;
   border:2px solid rgba(255,255,255,0.15);
-  animation:decoFloat linear infinite;opacity:0.35;
+  animation:decoFloat linear forwards;opacity:0;
 }
 @keyframes decoFloat{
-  0%{transform:translateY(110vh) rotate(var(--r));opacity:0}5%{opacity:0.35}
-  95%{opacity:0.35}100%{transform:translateY(-30vh) rotate(calc(var(--r) + 40deg));opacity:0}
+  0%{transform:translateY(0) rotate(var(--r));opacity:0}
+  10%{opacity:0.35}
+  90%{opacity:0.35}
+  100%{transform:translateY(-120vh) rotate(calc(var(--r) + 45deg));opacity:0}
 }
 
 .section-label{font-weight:800;font-size:0.8em;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
@@ -2116,18 +2118,22 @@ function drawBg(time){
   if(!bgCtx){ return; }
   bgCtx.clearRect(0,0,bgW,bgH);
   
-  // Dynamic shifting background gradient
-  bgHue = (bgHue + 0.05) % 360;
+  // Dynamic shifting background gradient - slower and stays in "cool" range (blues/purples)
+  bgHue = (bgHue + 0.02) % 360;
+  // Map 0-360 to a range between 190 (cyan-blue) and 280 (purple) for a "cooler" feel
+  const coolHue = 190 + (Math.sin(bgHue * Math.PI / 180) + 1) * 45; 
+  
   const grd=bgCtx.createRadialGradient(
     bgW/2 + Math.sin(time/2000)*150, 
     bgH/2 + Math.cos(time/2500)*150, 
-    0, 
-    bgW/2, bgH/2, 
+    0,
+    bgW/2, 
+    bgH/2, 
     Math.max(bgW,bgH)*1.4
   );
   
-  grd.addColorStop(0, `hsla(${bgHue}, 45%, 12%, 1)`);
-  grd.addColorStop(0.5, `hsla(${(bgHue+60)%360}, 35%, 6%, 1)`);
+  grd.addColorStop(0, `hsla(${coolHue}, 45%, 12%, 1)`);
+  grd.addColorStop(0.5, `hsla(${(coolHue+40)%360}, 35%, 6%, 1)`);
   grd.addColorStop(1, '#020205');
   
   bgCtx.fillStyle=grd;
@@ -2147,14 +2153,6 @@ function drawBg(time){
   for(let y = offsetY; y < bgH; y += gridSize) {
     bgCtx.moveTo(0, y); bgCtx.lineTo(bgW, y);
   }
-  bgCtx.stroke();
-
-  // Scanning line
-  bgCtx.strokeStyle = 'rgba(255,255,255,0.02)';
-  bgCtx.lineWidth = 2;
-  const scanY = (time/8) % bgH;
-  bgCtx.beginPath();
-  bgCtx.moveTo(0, scanY); bgCtx.lineTo(bgW, scanY);
   bgCtx.stroke();
 
   // Particles
@@ -2285,7 +2283,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-refreshSecretUnlocks();
 document.addEventListener('keydown', (e) => {
   if(e.key === 'Escape'){
     const ids = ['card-selector-modal', 'sandbox-modal', 'team-modal', 'codes-modal', 'card-guide'];
