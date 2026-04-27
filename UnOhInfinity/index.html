@@ -561,11 +561,11 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
   box-shadow:0 0 28px rgba(255,214,0,0.38), inset 0 0 16px rgba(255,214,0,0.16)!important;
 }
 .card-million .card-center{
-  font-size:0.34em!important;letter-spacing:-0.08em;transform:scaleX(0.88);
+  font-size:0.38em!important;letter-spacing:-0.08em;transform:scaleX(0.9);
   background:none !important;-webkit-text-fill-color:#FFD600 !important;color:#FFD600 !important;
 }
 .card-million .card-tl, .card-million .card-br{
-  font-size:0.28em!important;letter-spacing:-0.06em;transform:scaleX(0.9);
+  font-size:0.31em!important;letter-spacing:-0.06em;transform:scaleX(0.92);
   background:none !important;-webkit-text-fill-color:#FFD600 !important;color:#FFD600 !important;
 }
 @keyframes rareCardPulse{
@@ -1903,7 +1903,7 @@ body.blur-active .game-top-actions{filter:none;}
         </div>
         <div class="guide-card-item hidden" id="beyond-million-guide-item" style="border-color:rgba(255,214,0,0.55);background:rgba(40,30,0,0.35);">
           <div class="guide-card-top">
-            <div class="guide-card-mini card-million" style="font-size:0.54em;letter-spacing:-0.05em;">+1000000</div>
+            <div class="guide-card-mini card-million" style="font-size:0.58em;letter-spacing:-0.05em;">+1000000</div>
             <div class="guide-card-info">
               <div class="rare-badge" style="color:#FFD600;">BEYOND MYTHIC</div>
               <div class="guide-card-name">Million Burst</div>
@@ -2994,6 +2994,7 @@ function showMenu(){
   state.gameSettings = null;
   document.body.classList.remove('blur-active');
   if(botTimer) clearTimeout(botTimer);
+  clearPendingDrawBadge(true);
   updateMenuStats();
   const canvas = document.getElementById('bg-canvas');
   if(canvas) canvas.style.display = 'block';
@@ -3452,8 +3453,21 @@ function renderPlayerHand(){
 }
 function updatePendingDrawBadge(){
   const badge=document.getElementById('pending-draw-badge');
-  if(state.pendingDraw>0){badge.textContent=`⚠️ Draw stack: +${state.pendingDraw} — stack matching or take it!`;badge.classList.add('show');}
-  else badge.classList.remove('show');
+  if(!badge) return;
+  if(state && state.pendingDraw>0){badge.textContent=`⚠️ Draw stack: +${state.pendingDraw} — stack matching or take it!`;badge.classList.add('show');}
+  else clearPendingDrawBadge();
+}
+function clearPendingDrawBadge(resetState=false){
+  const badge=document.getElementById('pending-draw-badge');
+  if(badge){
+    badge.textContent='';
+    badge.classList.remove('show');
+  }
+  if(resetState && state){
+    state.pendingDraw=0;
+    state.pendingDrawNum=null;
+    state.pendingDrawReflected=false;
+  }
 }
 function updateDirectionBadge(){document.getElementById('direction-badge').textContent=state.direction===1?'↻':'↺';}
 function updateOpponentsAll(){for(let i=1;i<state.players.length;i++) updateOpponentZone(i);}
@@ -4435,8 +4449,10 @@ function animateDrawCards(count,intervalMs,targetIdx=0,opts={}){
   return new Promise(resolve=>{
     const deckEl=document.getElementById('deck-pile');let completed=0;if(count===0) return resolve();
     const isMillionBurst = count >= 1000000;
-    const renderedCount = isMillionBurst ? 24 : count;
-    const interval=isMillionBurst ? 0 : Math.min(intervalMs,80);
+    const renderedCount = isMillionBurst ? 120 : count;
+    const millionFlightMs = 900;
+    const millionTotalMs = 30000;
+    const interval=isMillionBurst ? ((millionTotalMs - millionFlightMs) / Math.max(1, renderedCount - 1)) : Math.min(intervalMs,80);
     for(let i=0;i<renderedCount;i++){
       setTimeout(()=>{
         const dr=deckEl.getBoundingClientRect();let destX,destY;
@@ -4445,16 +4461,24 @@ function animateDrawCards(count,intervalMs,targetIdx=0,opts={}){
         if(isShowingInMainHand){const hand=document.getElementById('player-hand');const hr=hand.getBoundingClientRect();destX=hr.left+hr.width/2+(Math.random()-0.5)*100;destY=hr.top-40;}
         else{const zone=document.getElementById(`opp-zone-${targetIdx}`);if(zone){const zr=zone.getBoundingClientRect();destX=zr.left+zr.width/2;destY=zr.top+20;}else{destX=window.innerWidth/2;destY=80;}}
         const el=document.createElement('div');el.className='draw-fly';el.textContent='🂠';
-        el.style.cssText=`width:52px;height:74px;left:${dr.left}px;top:${dr.top}px;font-size:1.4em;z-index:1000;`;
-        if(!isShowingInMainHand) el.style.boxShadow="0 0 15px rgba(34,212,107,0.6)";else el.style.boxShadow="0 0 20px rgba(168,85,247,0.6)";
+        const flyW=isMillionBurst?64:52;
+        const flyH=isMillionBurst?90:74;
+        const flyFont=isMillionBurst?'1.7em':'1.4em';
+        el.style.cssText=`width:${flyW}px;height:${flyH}px;left:${dr.left}px;top:${dr.top}px;font-size:${flyFont};z-index:1000;`;
+        if(isMillionBurst){
+          el.style.background='linear-gradient(145deg,#120c00,#3b2d00)';
+          el.style.borderColor='#FFD600';
+          el.style.boxShadow='0 0 26px rgba(255,214,0,0.8), 0 0 56px rgba(255,214,0,0.35)';
+        } else if(!isShowingInMainHand) el.style.boxShadow="0 0 15px rgba(34,212,107,0.6)";else el.style.boxShadow="0 0 20px rgba(168,85,247,0.6)";
         document.body.appendChild(el);
         let speedFactor = Math.max(1, opts.speedFactor || ((state && state.millionCheatActive && targetIdx === 0) ? 100 : 1));
-        if(isMillionBurst) speedFactor = Math.max(speedFactor, 1000);
-        const startX=dr.left,startY=dr.top,dx=destX-startX,dy=destY-startY,dur=Math.max(6,300/speedFactor),start=performance.now();
+        const startX=dr.left,startY=dr.top,dx=destX-startX,dy=destY-startY,dur=isMillionBurst?millionFlightMs:Math.max(6,300/speedFactor),start=performance.now();
         function step(now){
           const t=Math.min((now-start)/dur,1);const ease=t*t*(3-2*t);
           el.style.left=(startX+dx*ease)+'px';el.style.top=(startY+dy*ease)+'px';
-          el.style.transform=`rotate(${ease*20}deg) scale(${1-0.2*ease})`;
+          const scale=isMillionBurst?(1.25-0.35*ease):(1-0.2*ease);
+          const rotate=isMillionBurst?(-18+ease*36):(ease*20);
+          el.style.transform=`rotate(${rotate}deg) scale(${scale})`;
           if(t<1){raf(step);}else{el.remove();playSound('draw');completed++;if(completed>=renderedCount) resolve();}
         }
         raf(step);
@@ -4562,6 +4586,7 @@ function forfeitGame(){
 }
 async function endGame(winnerIdx){
   state.gameOver=true;gameRunning=false;if(botTimer) clearTimeout(botTimer);
+  clearPendingDrawBadge(true);
   if(winnerIdx===0) playSound('win');else playSound('lose');
   await triggerWinExplosion(winnerIdx);
   await animateGameOver(winnerIdx);
