@@ -5240,7 +5240,7 @@ function showChainPrompt(playerIdx, key){
   const count=player.cards.filter(c=>getChainPlayKey(c)===key).length;
   const prompt=document.getElementById('chain-prompt');
   document.getElementById('chain-prompt-title').textContent='Chain ready';
-  document.getElementById('chain-prompt-sub').textContent=`${player.name} has ${count} matching card${count===1?'':'s'}. Press No to pass to the next player.`;
+  document.getElementById('chain-prompt-sub').textContent=`${player.name} has ${count} matching card${count===1?'':'s'}. Press No to end your turn.`;
   prompt.classList.remove('hidden');
   if(chainPromptTimer){
     clearTimeout(chainPromptTimer);
@@ -5258,7 +5258,9 @@ function chooseChain(yes){
   pendingChain=null;
   if(!yes){
     hideChainPrompt();
-    if(!turnResolutionLocked && state.currentPlayer === info.playerIdx){
+    state.chainingKey = null;
+    turnResolutionLocked = false;
+    if(gameRunning){
       advanceTurn();
     }
     return;
