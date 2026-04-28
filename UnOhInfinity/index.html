@@ -4881,6 +4881,7 @@ function unfreezeAll(){
 
 function advanceTurn(){
   const n=state.players.length;
+  hideChainPrompt();
   state.chainingKey = null; // Clear chaining key when turn advances
   turnResolutionLocked = false;
   clearTargetStackDuelIfInactive();
@@ -5229,21 +5230,30 @@ async function animateGameOver(winnerIdx){
 /* ═══ COLOR PICKER ═══ */
 function showColorPicker(title){document.getElementById('color-picker-title').textContent=title;document.getElementById('color-picker').classList.remove('hidden');}
 
+function hideChainPrompt(){
+  if(chainPromptTimer){
+    clearTimeout(chainPromptTimer);
+    chainPromptTimer = null;
+  }
+  const prompt=document.getElementById('chain-prompt');
+  if(prompt) prompt.classList.add('hidden');
+}
+
 function promptChainChoice(playerIdx, key){
   return new Promise(resolve=>{
     pendingChain={resolve,playerIdx,key};
     const player=state.players[playerIdx];
     const count=player.cards.filter(c=>getChainPlayKey(c)===key).length;
     const prompt=document.getElementById('chain-prompt');
-    document.getElementById('chain-prompt-title').textContent='Chain available';
-    document.getElementById('chain-prompt-sub').textContent=`${player.name} has ${count} matching card${count===1?'':'s'}. Chain will happen automatically unless you press No.`;
+    document.getElementById('chain-prompt-title').textContent='Chain ready';
+    document.getElementById('chain-prompt-sub').textContent=`${player.name} has ${count} matching card${count===1?'':'s'}. Auto-yes is on until your turn ends.`;
     prompt.classList.remove('hidden');
     if(chainPromptTimer) clearTimeout(chainPromptTimer);
     chainPromptTimer = setTimeout(() => {
       if(pendingChain && pendingChain.playerIdx === playerIdx && pendingChain.key === key){
         chooseChain(true);
       }
-    }, 350);
+    }, 180);
   });
 }
 
@@ -5252,8 +5262,6 @@ function chooseChain(yes){
     clearTimeout(chainPromptTimer);
     chainPromptTimer = null;
   }
-  const prompt=document.getElementById('chain-prompt');
-  prompt.classList.add('hidden');
   const info=pendingChain;
   pendingChain=null;
   if(!info) return;
