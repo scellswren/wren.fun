@@ -4856,7 +4856,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         if(playerIdx===0 && !(playerAfterPlay && playerAfterPlay.isControlledBot)){
           showChainPrompt(playerIdx, justPlayedKey);
         }
-        showStatus(`${state.players[playerIdx].name} can chain another matching card!`, 1600);
+        showStatus(`${state.players[playerIdx].name} can chain another matching card!`, 450);
       }
     }
   }
@@ -5240,7 +5240,7 @@ function showChainPrompt(playerIdx, key){
   const count=player.cards.filter(c=>getChainPlayKey(c)===key).length;
   const prompt=document.getElementById('chain-prompt');
   document.getElementById('chain-prompt-title').textContent='Chain ready';
-  document.getElementById('chain-prompt-sub').textContent=`${player.name} has ${count} matching card${count===1?'':'s'}. Press No to end your turn and skip the next player.`;
+  document.getElementById('chain-prompt-sub').textContent=`${player.name} has ${count} matching card${count===1?'':'s'}. Press No to pass to the next player.`;
   prompt.classList.remove('hidden');
   if(chainPromptTimer){
     clearTimeout(chainPromptTimer);
@@ -5257,9 +5257,6 @@ function chooseChain(yes){
   if(!info) return;
   pendingChain=null;
   if(!yes){
-    const nextIdx = nextPlayerIdx();
-    if(!state.skipNext) state.skipNext = {};
-    state.skipNext[nextIdx] = true;
     hideChainPrompt();
     if(!turnResolutionLocked && state.currentPlayer === info.playerIdx){
       advanceTurn();
