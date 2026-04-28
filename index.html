@@ -56,6 +56,10 @@
       radial-gradient(circle at 50% 84%,rgba(50,0,0,0.06) 0%,transparent 30%);
       pointer-events:none;z-index:0;mix-blend-mode:screen;opacity:0.65;}
     body.mode-skin h1{position:relative;z-index:1;background:linear-gradient(135deg,#fffaf8,#ffe7e2,#f0b8ae,#b76458,#fffdfb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;-webkit-text-stroke:1px rgba(74,24,20,0.28);filter:drop-shadow(0 2px 10px rgba(72,22,18,0.32)) drop-shadow(0 0 24px rgba(255,228,224,0.22));text-shadow:0 1px 2px rgba(53,16,13,0.26);}
+    
+    body.mode-turquoise{background:radial-gradient(circle at 20% 25%,rgba(64,224,208,0.38) 0%,transparent 34%),radial-gradient(circle at 80% 68%,rgba(0,206,209,0.36) 0%,transparent 38%),radial-gradient(circle at 50% 15%,rgba(175,238,238,0.24) 0%,transparent 32%),linear-gradient(180deg,#002121 0%,#008080 45%,#001a1a 100%);color:#eaffff;}
+    body.mode-turquoisecyan{background:linear-gradient(135deg, #008080 0%, #00ced1 50%, #007d96 100%);color:#eaffff;}
+    
     body.mode-skin .btn,
     body.mode-skin .settings-action-btn,
     body.mode-skin .mini-btn{
@@ -243,15 +247,33 @@
     
 body.mode-anzac{
       --accent:#2d86ff;
-      background: radial-gradient(circle at 20% 20%, rgba(0, 40, 100, 0.4) 0%, transparent 50%),
-                  radial-gradient(circle at 80% 80%, rgba(150, 0, 0, 0.2) 0%, transparent 50%),
-                  linear-gradient(135deg, #000814 0%, #001d3d 50%, #000814 100%);
+      background: radial-gradient(circle at center, #001240 0%, #000000 100%);
       color:#f4f7ff;
-      overflow:hidden;
+      overflow-x:hidden;
+      position: relative;
     }
-    body.mode-anzac::before,
+    body.mode-anzac::before{
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(2px 2px at 75% 20%, #fff, transparent),
+        radial-gradient(2px 2px at 75% 50%, #fff, transparent),
+        radial-gradient(2px 2px at 65% 35%, #fff, transparent),
+        radial-gradient(2px 2px at 85% 35%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 80% 42%, #fff, transparent);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.8;
+      filter: drop-shadow(0 0 5px #fff);
+    }
     body.mode-anzac::after{
-      content:none;
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(0, 36, 125, 0.15) 0%, transparent 80%);
+      pointer-events: none;
+      z-index: 0;
     }
     .anzac-poppy-layer{
       position:fixed;
@@ -272,7 +294,7 @@ body.mode-anzac{
     }
     @keyframes anzacPoppyFloat{
       0%{transform:translateY(0px) rotate(var(--rot)) scale(var(--scale));}
-      100%{transform:translateY(-3px) rotate(calc(var(--rot) + 1.5deg)) scale(var(--scale));}
+      100%{transform:translateY(-8px) rotate(calc(var(--rot) + 3deg)) scale(var(--scale));}
     }
     body.mode-anzac h1{
       background:linear-gradient(135deg,#56a8ff 0%,#2d86ff 50%,#8cc8ff 100%);
@@ -285,14 +307,29 @@ body.mode-anzac{
     body.mode-anzac .mini-btn,
     body.mode-anzac #codeBtn,
     body.mode-anzac #themesBtn{
-      background:linear-gradient(90deg,#1f6fff 0%,#2d86ff 48%,#ff4b5f 100%);
-      background-clip:padding-box;
+      background: linear-gradient(135deg, #002d9c 0%, #002d9c 50%, #e61930 50%, #e61930 100%);
       color:#ffffff;
-      border:1px solid rgba(255,255,255,0.14);
-      box-shadow:0 10px 24px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
-      text-shadow:0 1px 0 rgba(0,0,0,0.18);
+      border: 2px solid #ffffff;
+      box-shadow: 0 6px 20px rgba(0,36,125,0.4), inset 0 0 10px rgba(255,255,255,0.2);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
       position:relative;
       overflow:hidden;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    body.mode-anzac .btn::after,
+    body.mode-anzac .settings-action-btn::after,
+    body.mode-anzac #codeBtn::after,
+    body.mode-anzac #themesBtn::after{
+      content: '★';
+      position: absolute;
+      top: 5px;
+      right: 8px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
+      pointer-events: none;
+    }
+    body.mode-anzac .mini-btn::after{
+      content:none;
     }
     body.mode-anzac .btn::before,
     body.mode-anzac .settings-action-btn::before,
@@ -1367,6 +1404,14 @@ body.mode-fire{background:linear-gradient(180deg,#220000 0%,#420500 34%,#7a1d00 
       background: rgba(255,255,255,0.3);
       border-radius: 50%;
       top: 4px; left: 4px;
+    }
+    .mode-dot.turquoise-dot {
+      background: #40E0D0;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .mode-dot.turquoise-cyan-dot {
+      background: linear-gradient(135deg, #40E0D0 0%, #00ced1 100%);
+      border: 1px solid rgba(255,255,255,0.2);
     }
     body.mode-fire::before,
     body.mode-fire::after{content:none;}
@@ -4288,6 +4333,8 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       <div class="mode-option locked" id="sevenModeOption" data-mode="seven"><span>7️⃣ Seven <span id="sevenLock">🔒</span></span><div class="mode-dot seven-dot"></div></div>
       <div class="mode-option locked" id="oneModeOption" data-mode="one"><span>1️⃣ One <span id="oneLock">🔒</span></span><div class="mode-dot one-dot"></div></div>
       <div class="mode-option locked" id="nineModeOption" data-mode="nine"><span>9️⃣ Nine <span id="nineLock">🔒</span></span><div class="mode-dot nine-dot"></div></div>
+      <div class="mode-option locked" id="turquoiseModeOption" data-mode="turquoise"><span>🩵 Turquoise <span id="turquoiseLock">🔒</span></span><div class="mode-dot turquoise-dot"></div></div>
+      <div class="mode-option locked" id="turquoiseCyanModeOption" data-mode="turquoisecyan"><span>🩵 Turquoise-Cyan <span id="turquoiseCyanLock">🔒</span></span><div class="mode-dot turquoise-cyan-dot"></div></div>
       <div class="mode-option locked" id="usaModeOption" data-mode="usa"><span>🇺🇸 USA <span id="usaLock">🔒</span></span><div class="mode-dot usa-dot"></div></div>
       <div class="mode-option locked" id="anzacModeOption" data-mode="anzac"><span>🇦🇺 Anzac <span id="anzacLock">🔒</span></span><div class="mode-dot anzac-dot"></div></div>
       <div class="mode-option locked" id="vomitModeOption" data-mode="vomit"><span>🤮 Vomit <span id="vomitLock">🔒</span></span><div class="mode-dot vomit-dot"></div></div>
@@ -4329,6 +4376,8 @@ const USA_THEME_UNLOCK_KEY='wren_theme_usa_unlocked';
 const VOMIT_THEME_UNLOCK_KEY='wren_theme_vomit_unlocked';
 const EMERALD_THEME_UNLOCK_KEY='wren_theme_emerald_unlocked';
 const DIAMOND_THEME_UNLOCK_KEY='wren_theme_diamond_unlocked';
+const TURQUOISE_THEME_UNLOCK_KEY='wren_theme_turquoise_unlocked';
+const TURQUOISE_CYAN_THEME_UNLOCK_KEY='wren_theme_turquoisecyan_unlocked';
 // Storage keys for alternating switch counters
 const EMERALD_SWITCH_KEY='wren_emerald_switches'; // stores {lightCount, darkCount, lastMode, streak}
 const DIAMOND_SWITCH_KEY='wren_diamond_switches'; // stores {dayCount, nightCount, lastMode, streak}
@@ -4409,6 +4458,19 @@ function getDiamondSwitches(){
 function setDiamondSwitches(d){localStorage.setItem(DIAMOND_SWITCH_KEY,JSON.stringify(d));}
 
 // Called whenever a mode is applied — checks if it's part of an ore unlock chain
+function trackTurquoiseCyanSwitch(m){
+  if(localStorage.getItem(TURQUOISE_CYAN_THEME_UNLOCK_KEY)==='1')return;
+  const lastMode=localStorage.getItem('wren_last_tc_mode');
+  if((lastMode==='turquoise'&&m==='cyan')||(lastMode==='cyan'&&m==='turquoise')){
+    localStorage.setItem(TURQUOISE_CYAN_THEME_UNLOCK_KEY,'1');
+    persistUnlocked('turquoisecyan');
+    refreshTurquoiseCyanOption();
+    announceUnlock('🩵 Turquoise-Cyan unlocked! A beautiful mix.');
+  }
+  if(m==='turquoise'||m==='cyan'){
+    localStorage.setItem('wren_last_tc_mode',m);
+  }
+}
 function trackOreSwitches(newMode){
   // EMERALD: must alternate light → dark → light → dark... exactly, 15 each = 30 total switches
   if(newMode==='light'||newMode==='dark'){
@@ -4470,6 +4532,8 @@ function refreshEmeraldOption(){refreshOption('emeraldModeOption','emeraldLock',
 function refreshDiamondOption(){refreshOption('diamondModeOption','diamondLock','diamond');}
 function refreshOneOption(){refreshOption('oneModeOption','oneLock','one');}
 function refreshAnzacOption(){refreshOption('anzacModeOption','anzacLock','anzac');if((localStorage.getItem(MODE_KEY)||'light')==='anzac')spawnAnzacPoppies();}
+function refreshTurquoiseOption(){refreshOption('turquoiseModeOption','turquoiseLock','turquoise');}
+function refreshTurquoiseCyanOption(){refreshOption('turquoiseCyanModeOption','turquoiseCyanLock','turquoisecyan');}
 function refreshNineOption(){refreshOption('nineModeOption','nineLock','nine');if((localStorage.getItem(MODE_KEY)||'light')==='nine')startNineParticles();}
 function unlockNineIfEligible(){return unlockIfEligible('nine',()=>localStorage.getItem(NINE_THEME_UNLOCK_KEY)==='1','9️⃣ Nine unlocked!',refreshNineOption);}
 
@@ -4548,7 +4612,7 @@ cog.addEventListener('click',()=>{
 });
 document.addEventListener('click',e=>{if(!settingsMenu.contains(e.target)&&e.target!==cog){settingsMenu.classList.remove('open');cog.classList.remove('open');}});
 
-const ALL_LOCKED_MODES=['banana','ketchup','lightning','luxurious','whiteneon','ice','coffee','darth','windu','jedi','watermelon','bone','blueberry','blackhole','day','night','cyan','glass','lava','rose','orange','caramal','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','spider','bronze','silver','gold','radioactive','snow','money','cottoncandy','saber','pizza','skin','rainbowremastered','fire','emerald','diamond','seven','one','nine','anzac'];
+const ALL_LOCKED_MODES=['banana','ketchup','lightning','luxurious','whiteneon','ice','coffee','darth','windu','jedi','watermelon','bone','blueberry','blackhole','day','night','cyan','glass','lava','rose','orange','caramal','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','spider','bronze','silver','gold','radioactive','snow','money','cottoncandy','saber','pizza','skin','rainbowremastered','fire','emerald','diamond','seven','one','nine','anzac','turquoise','turquoisecyan'];
 
 function normalizeThemeOptionLabels(){
   document.querySelectorAll('.theme-grid .mode-option').forEach(option=>{
@@ -4590,6 +4654,7 @@ function applyMode(m){
   updateThemesModalText();
   // Track ore unlock chains
   trackOreSwitches(m);
+  trackTurquoiseCyanSwitch(m);
 }
 
 const SCROLLBAR_THEMES={
@@ -4616,6 +4681,8 @@ const SCROLLBAR_THEMES={
   night:['rgba(4,6,14,0.92)','rgba(140,160,255,0.80)'],blueberry:['rgba(2,6,23,0.92)','rgba(96,165,250,0.82)'],
   darth:['rgba(20,0,0,0.92)','rgba(255,80,80,0.78)'],
   jedi:['rgba(0,14,0,0.92)','rgba(80,255,80,0.78)'],
+  turquoise:['rgba(0,40,40,0.92)','rgba(64,224,208,0.84)'],
+  turquoisecyan:['rgba(0,40,60,0.92)','rgba(0,200,220,0.84)'],
   watermelon:['rgba(20,4,10,0.92)','rgba(255,80,110,0.78)'],
   bone:['rgba(240,235,218,0.92)','rgba(160,148,110,0.82)'],
   emerald:['rgba(0,14,6,0.92)','rgba(0,200,110,0.82)'],
@@ -4673,7 +4740,9 @@ const THEME_MODAL_SUBTEXTS={
   fire:'Hot and blazing.',
   diamond:'Sharp, clean, and sparkly.',
   one:'Purple and numbered.',
-  anzac:'A soft Anzac field with scattered poppies.'
+  anzac:'A soft Anzac field with scattered poppies.',
+  turquoise:'Calm and oceanic turquoise.',
+  turquoisecyan:'A perfect gradient of turquoise and cyan.'
 };
 function updateThemesModalText(){
   const sub=document.querySelector('#themesModal .themes-sub');
@@ -4859,6 +4928,13 @@ function unlockJediIfEligible(){return unlockIfEligible('jedi',()=>localStorage.
 function unlockWatermelonIfEligible(){return unlockIfEligible('watermelon',()=>localStorage.getItem(PONG_PRACTICE_PLAYED_KEY)==='1','🍉 Watermelon unlocked! Practice makes perfect.',refreshWatermelonOption);}
 function unlockBoneIfEligible(){return unlockIfEligible('bone',()=>localStorage.getItem(BONE_THEME_UNLOCK_KEY)==='1','🦴 Bone unlocked! Spooky.',refreshBoneOption);}
 function unlockAnzacIfEligible(){return unlockIfEligible('anzac',()=>localStorage.getItem(ANZAC_THEME_UNLOCK_KEY)==='1','🇦🇺 Anzac unlocked!',refreshAnzacOption);}
+function unlockTurquoiseIfEligible(){
+  const wins = parseInt(localStorage.getItem('unoh_wins') || '0');
+  return unlockIfEligible('turquoise', () => wins >= 20, '🩵 Turquoise unlocked! 20 UnOh Infinity wins.', refreshTurquoiseOption);
+}
+function unlockTurquoiseCyanIfEligible(){
+  return unlockIfEligible('turquoisecyan', () => localStorage.getItem(TURQUOISE_CYAN_THEME_UNLOCK_KEY) === '1', '🩵 Turquoise-Cyan unlocked! A beautiful mix.', refreshTurquoiseCyanOption);
+}
 function checkCreditsUnlocks(){unlockBronzeIfEligible();unlockSilverIfEligible();unlockGoldIfEligible();}
 function announceUnlock(msg){showToast(msg);}
 function consumePendingUnlockNotices(){
@@ -4886,6 +4962,7 @@ function checkAllUnlocks(){
   unlockLuckyIfEligible();unlockGlitchIfEligible();unlockSlimeIfEligible();unlockGalaxyIfEligible();unlockSpiderIfEligible();checkCreditsUnlocks();unlockRadioactiveIfEligible();unlockSnowIfEligible();unlockMoneyIfEligible();unlockCottonCandyIfEligible();unlockSaberIfEligible();unlockAnzacIfEligible();checkSkinUnlock(false);
   unlockEmeraldIfEligible();unlockDiamondIfEligible();unlockSevenIfEligible();unlockOneIfEligible();
   unlockJediIfEligible();unlockWatermelonIfEligible();unlockBoneIfEligible();
+  unlockTurquoiseIfEligible();unlockTurquoiseCyanIfEligible();
   checkObjectAttackThemes();
 }
 function markVisit(w,href){
@@ -4974,8 +5051,8 @@ function startLightningParticles(){
 }
 function stopLightningParticles(){if(lightningInterval){clearInterval(lightningInterval);lightningInterval=null;}document.getElementById('lightningContainer').innerHTML='';}
 
-const CYCLE_THEME_NAMES={'light':'☀️ Light','dark':'🌙 Dark','rainbow':'🌈 Rainbow Neon','banana':'🍌 Banana','ketchup':'🍅 Ketchup','lightning':'⚡ Lightning','whiteneon':'⚪ White Neon','ice':'🧊 Ice','luxurious':'✨ Luxurious','rose':'🌹 Rose','orange':'🟠 Orange','caramal':'🍯 Caramal','water':'💧 Water','potato':'🥔 Potato','grape':'🍇 Grape','sun':'☀️ Sun','shadow':'🌑 Shadow','cheese':'🧀 Cheese','toothpaste':'🪥 Toothpaste','lucky':'🐈 Lucky','glitch':'🟩 Glitch','slime':'🟢 Slime','anzac':'🇦🇺 Anzac','cyan':'🩵 Cyan','glass':'✨ Liquid Glass','lava':'🌋 Lava','galaxy':'🌌 Galaxy','blackhole':'🕳️ Black Hole','spider':'🕷️ Spider','bronze':'🥉 Bronze','silver':'🥈 Silver','gold':'🥇 Gold','radioactive':'☢️ Radioactive','snow':'❄️ Snow','money':'💵 Money','cottoncandy':'🍬 Cotton Candy','saber':'🔵 Saber','pizza':'🍕 Pizza','skin':'🩸 Skin','rainbowremastered':'🌈 Rainbow Neon Remastered','day':'🌤️ Day','night':'🌙 Night','emerald':'💚 Emerald','diamond':'💎 Diamond','seven':'7️⃣ Seven','one':'1️⃣ One','nine':'9️⃣ Nine','anzac':'🇦🇺 Anzac','usa':'🇺🇸 USA','vomit':'🤮 Vomit'};
-const ALL_CYCLE_THEMES=['light','dark','rainbow','banana','ketchup','lightning','whiteneon','ice','luxurious','rose','orange','caramal','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','cyan','glass','lava','galaxy','blackhole','spider','bronze','silver','gold','radioactive','snow','money','pizza','skin','rainbowremastered','day','night','one','nine','anzac','usa','vomit'];
+const CYCLE_THEME_NAMES={'light':'☀️ Light','dark':'🌙 Dark','rainbow':'🌈 Rainbow Neon','banana':'🍌 Banana','ketchup':'🍅 Ketchup','lightning':'⚡ Lightning','whiteneon':'⚪ White Neon','ice':'🧊 Ice','luxurious':'✨ Luxurious','rose':'🌹 Rose','orange':'🟠 Orange','caramal':'🍯 Caramal','water':'💧 Water','potato':'🥔 Potato','grape':'🍇 Grape','sun':'☀️ Sun','shadow':'🌑 Shadow','cheese':'🧀 Cheese','toothpaste':'🪥 Toothpaste','lucky':'🐈 Lucky','glitch':'🟩 Glitch','slime':'🟢 Slime','anzac':'🇦🇺 Anzac','cyan':'🩵 Cyan','glass':'✨ Liquid Glass','lava':'🌋 Lava','galaxy':'🌌 Galaxy','blackhole':'🕳️ Black Hole','spider':'🕷️ Spider','bronze':'🥉 Bronze','silver':'🥈 Silver','gold':'🥇 Gold','radioactive':'☢️ Radioactive','snow':'❄️ Snow','money':'💵 Money','cottoncandy':'🍬 Cotton Candy','saber':'🔵 Saber','pizza':'🍕 Pizza','skin':'🩸 Skin','rainbowremastered':'🌈 Rainbow Neon Remastered','day':'🌤️ Day','night':'🌙 Night','emerald':'💚 Emerald','diamond':'💎 Diamond','seven':'7️⃣ Seven','one':'1️⃣ One','nine':'9️⃣ Nine','anzac':'🇦🇺 Anzac','usa':'🇺🇸 USA','vomit':'🤮 Vomit','turquoise':'🩵 Turquoise','turquoisecyan':'🩵 Turquoise-Cyan'};
+const ALL_CYCLE_THEMES=['light','dark','rainbow','banana','ketchup','lightning','whiteneon','ice','luxurious','rose','orange','caramal','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','cyan','glass','lava','galaxy','blackhole','spider','bronze','silver','gold','radioactive','snow','money','pizza','skin','rainbowremastered','day','night','one','nine','anzac','usa','vomit','turquoise','turquoisecyan'];
 let isCycling=false;
 function runThemeCycle(){
   if(isCycling)return;isCycling=true;closeCodeModal();
@@ -5027,7 +5104,7 @@ window.addEventListener('load',()=>{
   refreshGoldOption();refreshRadioactiveOption();refreshSnowOption();refreshMoneyOption();refreshSkinOption();refreshRainbowRemasteredOption();refreshFireOption();
   refreshEmeraldOption();refreshDiamondOption();
   refreshCottonCandyOption();refreshSaberOption();
-  refreshJediOption();refreshWatermelonOption();refreshBoneOption();refreshSevenOption();refreshOneOption();refreshNineOption();unlockNineIfEligible();refreshAnzacOption();refreshUsaOption();refreshVomitOption();
+  refreshJediOption();refreshWatermelonOption();refreshBoneOption();refreshSevenOption();refreshOneOption();refreshNineOption();unlockNineIfEligible();refreshAnzacOption();refreshUsaOption();refreshVomitOption();refreshTurquoiseOption();refreshTurquoiseCyanOption();
   syncPizzaUnlock();refreshPizzaOption();checkAllUnlocks();
   const s=localStorage.getItem(MODE_KEY)||'light';
   const safe=(ALL_LOCKED_MODES.includes(s)&&!unlockedFeatures.includes(s))?'light':s;
