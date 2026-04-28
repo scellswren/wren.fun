@@ -646,14 +646,61 @@ html,body{width:100%;height:100%;overflow-x:hidden;overflow-y:auto;font-family:'
 .player-opt:hover{background:rgba(168,85,247,0.25);border-color:#A855F7;transform:translateX(4px);}
 
 /* ── CHAIN PROMPT ── */
-#chain-prompt{position:fixed;inset:0;z-index:110;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);}
-.chain-prompt-box{background:var(--surface);border-radius:24px;padding:30px 28px;border:1px solid var(--border);text-align:center;animation:popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);min-width:280px;max-width:380px;box-shadow:0 10px 40px rgba(0,0,0,0.4);}
-.chain-prompt-title{font-family:'Fredoka One',cursive;font-size:1.35em;margin-bottom:12px;}
-.chain-prompt-sub{font-size:0.9em;color:var(--muted);line-height:1.45;margin-bottom:22px;}
-.chain-prompt-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-.chain-prompt-btn{padding:12px 18px;border-radius:14px;border:2px solid var(--border);background:var(--glass);color:var(--text);font-family:'Nunito',sans-serif;font-weight:800;font-size:0.98em;cursor:pointer;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);min-width:110px;}
+#chain-prompt{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  z-index:110;
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-end;
+  background:transparent;
+  pointer-events:none;
+}
+.chain-prompt-box{
+  pointer-events:auto;
+  background:rgba(10,10,18,0.88);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:18px;
+  padding:12px 14px;
+  text-align:left;
+  min-width:220px;
+  max-width:280px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.35);
+  animation:popIn 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.chain-prompt-title{
+  font-family:'Fredoka One',cursive;
+  font-size:1em;
+  margin-bottom:4px;
+}
+.chain-prompt-sub{
+  font-size:0.78em;
+  color:var(--muted);
+  line-height:1.35;
+  margin-bottom:10px;
+}
+.chain-prompt-actions{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+.chain-prompt-btn{
+  padding:9px 14px;
+  border-radius:12px;
+  border:2px solid var(--border);
+  background:var(--glass);
+  color:var(--text);
+  font-family:'Nunito',sans-serif;
+  font-weight:800;
+  font-size:0.9em;
+  cursor:pointer;
+  transition:all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+  min-width:84px;
+}
 .chain-prompt-btn:hover{transform:translateY(-2px) scale(1.03);border-color:#fff;}
-.chain-prompt-btn.yes{background:rgba(34,212,107,0.18);border-color:rgba(34,212,107,0.45);}
 .chain-prompt-btn.no{background:rgba(255,59,59,0.18);border-color:rgba(255,59,59,0.45);}
 
 /* ── END SCREEN ── */
@@ -2162,13 +2209,12 @@ body.blur-active .game-top-actions{filter:none;}
 </div>
 
 <!-- CHAIN PROMPT -->
-<div id="chain-prompt" class="hidden" onclick="if(event.target===this) chooseChain(false)">
+<div id="chain-prompt" class="hidden" aria-live="polite">
   <div class="chain-prompt-box">
-    <div class="chain-prompt-title" id="chain-prompt-title">Chain this card?</div>
-    <div class="chain-prompt-sub" id="chain-prompt-sub">You have another matching card. Colour does not matter in a chain.</div>
+    <div class="chain-prompt-title" id="chain-prompt-title">Chain available</div>
+    <div class="chain-prompt-sub" id="chain-prompt-sub">Chaining is on by default. Press No to stop it.</div>
     <div class="chain-prompt-actions">
-      <button type="button" class="chain-prompt-btn yes" onclick="chooseChain(true)">Yes, chain</button>
-      <button type="button" class="chain-prompt-btn no" onclick="chooseChain(false)">No, end turn</button>
+      <button type="button" class="chain-prompt-btn no" id="chain-prompt-no" onclick="chooseChain(false)">No</button>
     </div>
   </div>
 </div>
@@ -2655,6 +2701,7 @@ let state={};
 let selectedBots=1;
 let pendingWild=null;
 let pendingChain=null;
+let chainPromptTimer=null;
 let pendingPlayerPick=null;
 let gameRunning=false;
 let botTimer=null;
@@ -4715,95 +4762,47 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       state.frenzyMode = true;
       const originalBackground = document.body.style.backgroundImage;
       const originalBackgroundColor = document.body.style.backgroundColor;
-      
+
       document.body.style.backgroundImage = 'none';
       document.body.style.backgroundColor = 'white';
       document.body.classList.add('frenzy-bg');
-      
-      showStatus('🌀 FRENZY MODE ACTIVATED! 🌀', 3000);
-      
-      // Store original cards
+
+      showStatus('🌀 FRENZY MODE ACTIVATED FOR EVERYONE! 🌀', 3000);
+
+      // Every player gets scrambled, including you.
       const frenzyColors = ['red','blue','green','yellow','purple'];
       const randomColor = () => frenzyColors[Math.floor(Math.random() * frenzyColors.length)];
       const frenzyPool = [
-        // Skips
         () => ({color:randomColor(), value:'skip', type:'skip', label:'⊘'}),
         () => ({color:'wild', value:'wildSkip', type:'wildSkip', label:'⊘ 🌈'}),
         () => ({color:randomColor(), value:'targetSkip', type:'targetSkip', label:'🎯⊘'}),
-        // Reverses
-        () => ({color:randomColor(), value:'reverse', type:'reverse', label:'↩️'}),
-        () => ({color:'wild', value:'wildReverse', type:'wildReverse', label:'↩️ 🌈'}),
-        // Plus cards
-        () => ({color:randomColor(), value:'+2', type:'plus', num:2, label:'+2'}),
-        () => ({color:randomColor(), value:'+4', type:'plus', num:4, label:'+4'}),
-        () => ({color:randomColor(), value:'+8', type:'plus', num:8, label:'+8'}),
-        () => ({color:randomColor(), value:'+10', type:'plus', num:10, label:'+10'}),
-        () => ({color:'wild', value:'wild+1', type:'wildPlus', num:1, label:'+1 🌈'}),
-        () => ({color:'wild', value:'wild+2', type:'wildPlus', num:2, label:'+2 🌈'}),
-        () => ({color:'wild', value:'wild+4', type:'wildPlus', num:4, label:'+4 🌈'}),
-        () => ({color:'wild', value:'wild+10', type:'wildPlus', num:10, label:'+10 🌈'}),
-        // Reverse +2/+4
-        () => ({color:randomColor(), value:'reversePlus2', type:'reversePlus2', num:2, label:'↩️ +2'}),
-        () => ({color:randomColor(), value:'reversePlus4', type:'reversePlus4', num:4, label:'↩️ +4'}),
-        () => ({color:'wild', value:'wildReversePlus2', type:'reversePlus2', num:2, label:'↩️ +2 🌈'}),
-        // Skip + Reverse combos
-        () => ({color:randomColor(), value:'skipReverse', type:'skipReverse', label:'↩️ ⊘'}),
-        () => ({color:'wild', value:'wildSkipReverse', type:'skipReverse', label:'↩️ ⊘ 🌈'}),
-        () => ({color:'wild', value:'wildPlus2SkipReverse', type:'wildPlus2SkipReverse', num:2, label:'🌈 ↩️ ⊘ +2'}),
-        // Targeted + cards
-        () => ({color:randomColor(), value:'targetDraw2', type:'targetDraw2', num:2, label:'🎯+2'}),
-        () => ({color:randomColor(), value:'targetPlus2Skip', type:'targetPlus2Skip', num:2, label:'🎯⊘+2'}),
-        () => ({color:randomColor(), value:'targetPlus4', type:'targetPlus4', num:4, label:'🎯+4'}),
-        () => ({color:randomColor(), value:'targetPlus4Skip', type:'targetPlus4Skip', num:4, label:'🎯⊘+4'}),
-        () => ({color:'wild', value:'targetPlus2SkipWild', type:'targetPlus2Skip', num:2, label:'🎯⊘+2 🌈'}),
-        () => ({color:'wild', value:'targetPlus4SkipWild', type:'targetPlus4Skip', num:4, label:'🎯⊘+4 🌈'}),
-        // Coin flip cards
-        () => ({color:'wild', value:'wildCoinPlus1', type:'wildCoinPlus1', num:1, label:'🎲+1 🌈'}),
-        () => ({color:'wild', value:'wildCoinPlus2', type:'wildCoinPlus2', num:2, label:'🎲+2 🌈'}),
-        () => ({color:'wild', value:'wildCoinPlus4', type:'wildCoinPlus4', num:4, label:'🎲+4 🌈'}),
-        () => ({color:'wild', value:'wildCoinSkip', type:'wildCoinSkip', label:'🎲⊘ 🌈'}),
-        () => ({color:'wild', value:'wildCoinReverse', type:'wildCoinReverse', label:'🎲↩ 🌈'}),
-        // Double play
-        () => ({color:randomColor(), value:'doublePlay', type:'doublePlay', label:'2x'}),
-        // Teleport
-        () => ({color:randomColor(), value:'teleport', type:'teleport', label:'🌀'}),
-        () => ({color:'wild', value:'teleportWild', type:'teleport', label:'🌀🌈'}),
-        // Mirror
+        () => ({color:randomColor(), value:'reverse', type:'reverse', label:'↩'}),
+        () => ({color:'wild', value:'wildReverse', type:'wildReverse', label:'↩ 🌈'}),
+        () => ({color:randomColor(), value:'plus', type:'plus', num:2, label:'+2'}),
+        () => ({color:'wild', value:'wildPlus', type:'wildPlus', num:2, label:'+2🌈'}),
         () => ({color:randomColor(), value:'mirror', type:'mirror', label:'🪞'}),
         () => ({color:'wild', value:'wildMirror', type:'wildMirror', label:'🪞🌈'}),
-        // Suppress wilds
-        () => ({color:'wild', value:'suppressWild', type:'suppressWild', label:'🚫🌈'}),
-        () => ({color:'wild', value:'wildSuppressWild', type:'suppressWild', label:'🚫🌈🌈'}),
-        // Skip all
-        () => ({color:randomColor(), value:'skipAll', type:'skipAll', label:'⊘⊘'}),
-        () => ({color:'wild', value:'wildSkipAll', type:'wildSkipAll', label:'⊘⊘🌈'}),
-        // Color shift
-        () => ({color:randomColor(), value:'colorShift', type:'colorShift', label:'🎨'}),
-        // Pick until
-        () => ({color:'wild', value:'pickUntil', type:'pickUntil', label:'🎲🌈'}),
-        // Copycat
+        () => ({color:randomColor(), value:'pickUntil', type:'pickUntil', label:'🎲'}),
         () => ({color:'wild', value:'copycat', type:'copycat', label:'🐱🌈'}),
-        // Blur
         () => ({color:randomColor(), value:'blur', type:'blur', label:'🌫️'}),
-        // RPS (keep it!)
         () => ({color:randomColor(), value:'rockPaperScissors', type:'rockPaperScissors', label:'✊📄✂️'}),
         () => ({color:'wild', value:'wildRockPaperScissors', type:'wildRockPaperScissors', label:'✊📄✂️🌈'})
       ];
-      state.players.forEach(p => {
+      for(const p of state.players){
         p.originalCards = [...p.cards];
         p.frenzyExtraCards = 0;
         p.cards = p.cards.map(() => frenzyPool[Math.floor(Math.random() * frenzyPool.length)]());
-      });
-      
+      }
+
       renderPlayerHand();
       updateOpponentsAll();
-      
+
       let secondsLeft = 20;
       const counter = document.createElement('div');
       counter.id = 'frenzy-counter';
       counter.style.cssText = "position:fixed;top:80px;left:50%;transform:translateX(-50%);font-family:'Fredoka One',cursive;font-size:3em;color:#ff00ff;z-index:1000;text-shadow:0 0 20px white;";
       document.body.appendChild(counter);
-      
+
       const interval = setInterval(() => {
         secondsLeft--;
         counter.textContent = `🌀 ${secondsLeft}s`;
@@ -4814,8 +4813,8 @@ async function applyCardEffect(card, playerIdx, chosenColor){
           document.body.classList.remove('frenzy-bg');
           document.body.style.backgroundImage = originalBackground;
           document.body.style.backgroundColor = originalBackgroundColor;
-          
-          state.players.forEach(p => {
+
+          for(const p of state.players){
             if(p.originalCards){
               const extraCardsCount = Math.max(0, p.cards.length - p.originalCards.length);
               let newCards = [...p.originalCards];
@@ -4829,7 +4828,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
               delete p.originalCards;
               delete p.frenzyExtraCards;
             }
-          });
+          }
           showStatus('🌀 Frenzy Ended!', 2000);
           renderPlayerHand();
           updateOpponentsAll();
@@ -5235,13 +5234,24 @@ function promptChainChoice(playerIdx, key){
     pendingChain={resolve,playerIdx,key};
     const player=state.players[playerIdx];
     const count=player.cards.filter(c=>getChainPlayKey(c)===key).length;
-    document.getElementById('chain-prompt-title').textContent='Chain this card?';
-    document.getElementById('chain-prompt-sub').textContent=`${player.name} has ${count} matching card${count===1?'':'s'}. Colour does not matter in a chain.`;
-    document.getElementById('chain-prompt').classList.remove('hidden');
+    const prompt=document.getElementById('chain-prompt');
+    document.getElementById('chain-prompt-title').textContent='Chain available';
+    document.getElementById('chain-prompt-sub').textContent=`${player.name} has ${count} matching card${count===1?'':'s'}. Chain will happen automatically unless you press No.`;
+    prompt.classList.remove('hidden');
+    if(chainPromptTimer) clearTimeout(chainPromptTimer);
+    chainPromptTimer = setTimeout(() => {
+      if(pendingChain && pendingChain.playerIdx === playerIdx && pendingChain.key === key){
+        chooseChain(true);
+      }
+    }, 350);
   });
 }
 
 function chooseChain(yes){
+  if(chainPromptTimer){
+    clearTimeout(chainPromptTimer);
+    chainPromptTimer = null;
+  }
   const prompt=document.getElementById('chain-prompt');
   prompt.classList.add('hidden');
   const info=pendingChain;
