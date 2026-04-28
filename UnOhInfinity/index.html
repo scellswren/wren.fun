@@ -902,9 +902,9 @@ body.blur-active .game-top-actions{filter:none;}
         <label style="font-weight:700;">Chaos Factor (0.1 - 5.0):</label>
         <input type="number" id="sb-chaos" step="0.1" min="0.1" max="5" value="1.0" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 10px;border-radius:8px;width:60px;">
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-        <label style="font-weight:700;">Bots to Play Against:</label>
-        <input type="number" id="sb-bots" value="1" min="1" max="7" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 10px;border-radius:8px;width:60px;">
+      <div class="menu-btn-row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap;width:100%;">
+        <button type="button" class="bot-btn toggle-btn" id="sb-ones" onclick="toggleSandboxSetting('alwaysDrawOnes', 'sb-ones')">Always Draw Ones</button>
+        <button type="button" class="bot-btn toggle-btn" id="sb-control-team" onclick="toggleSandboxSetting('controlTeammate', 'sb-control-team')">Control Teammate</button>
       </div>
 
       <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
@@ -2734,7 +2734,6 @@ let teamMode = false;
 const DEFAULT_SANDBOX_SETTINGS = {
   startingCards: 7,
   chaosFactor: 1.0,
-  botCount: 1,
   alwaysDrawOnes: false,
   controlTeammate: false,
   customHand: [],
@@ -2769,7 +2768,6 @@ function normalizeSandboxSettings(settings){
   if(!Array.isArray(s.customHand)) s.customHand = [];
   s.startingCards = Number.isFinite(s.startingCards) ? s.startingCards : 7;
   s.chaosFactor = Number.isFinite(s.chaosFactor) ? s.chaosFactor : 1.0;
-  s.botCount = Number.isFinite(s.botCount) ? Math.max(1, Math.min(7, Math.floor(s.botCount))) : 1;
   s.alwaysDrawOnes = !!s.alwaysDrawOnes;
   s.controlTeammate = !!s.controlTeammate;
   s.pool = normalizePoolSettings(s.pool);
@@ -2782,7 +2780,6 @@ function createClassicGameSettings(){
   return normalizeSandboxSettings({
     startingCards: 7,
     chaosFactor: 1.0,
-    botCount: 1,
     alwaysDrawOnes: false,
     controlTeammate: false,
     customHand: [],
@@ -3325,21 +3322,19 @@ function openSandboxSettings(){
   const modal=document.getElementById('sandbox-modal');
   const starting=document.getElementById('sb-starting-cards');
   const chaos=document.getElementById('sb-chaos');
-  const bots=document.getElementById('sb-bots');
   if(modal) modal.classList.remove('hidden');
   if(starting) starting.value = sandboxSettings.startingCards;
   if(chaos) chaos.value = sandboxSettings.chaosFactor;
-  if(bots) bots.value = sandboxSettings.botCount;
+  setToggleButtonState('sb-ones', sandboxSettings.alwaysDrawOnes);
+  setToggleButtonState('sb-control-team', sandboxSettings.controlTeammate);
   updateSandboxPreviews();
 }
 
 function closeSandbox(){
   const starting=document.getElementById('sb-starting-cards');
   const chaos=document.getElementById('sb-chaos');
-  const bots=document.getElementById('sb-bots');
   sandboxSettings.startingCards = starting ? (parseInt(starting.value) || 7) : sandboxSettings.startingCards;
   sandboxSettings.chaosFactor = chaos ? (parseFloat(chaos.value) || 1.0) : sandboxSettings.chaosFactor;
-  sandboxSettings.botCount = bots ? Math.max(1, Math.min(7, parseInt(bots.value) || 1)) : sandboxSettings.botCount;
   normalizeSandboxSettings(sandboxSettings);
   const modal=document.getElementById('sandbox-modal');
   if(modal) modal.classList.add('hidden');
@@ -3376,8 +3371,7 @@ function setTeamType(type){
 
 function startTeamMode(){
   teamMode = true;
-  selectedBots = 3;
-  selectBots(3);
+  if(selectedBots < 3) selectBots(3);
   closeTeamSettings();
   startGame();
 }
@@ -3388,9 +3382,8 @@ function startSandboxMode(){
     showStatus('Card pool is too small. Select more categories first.',2200);
     return;
   }
-  teamMode = false;
-  selectedBots = gameSettings.botCount;
-  selectBots(selectedBots);
+  teamMode = !!gameSettings.controlTeammate;
+  if(teamMode && selectedBots < 3) selectBots(3);
   isSandboxGame = true;
   activeGameSettings = gameSettings;
   closeSandbox();
@@ -3658,12 +3651,16 @@ function getReadableCardLabel(card){
     case 'coinPlus1': return 'COIN +1';
     case 'coinPlus2': return 'COIN +2';
     case 'coinPlus4': return 'COIN +4';
+    case 'coinPlus6': return 'COIN +6';
+    case 'coinPlus8': return 'COIN +8';
     case 'coinPlus10': return 'COIN +10';
     case 'coinSkip': return 'COIN SKIP';
     case 'coinReverse': return 'COIN REVERSE';
     case 'wildCoinPlus1': return 'WILD COIN +1';
     case 'wildCoinPlus2': return 'WILD COIN +2';
     case 'wildCoinPlus4': return 'WILD COIN +4';
+    case 'wildCoinPlus6': return 'WILD COIN +6';
+    case 'wildCoinPlus8': return 'WILD COIN +8';
     case 'wildCoinPlus10': return 'WILD COIN +10';
     case 'wildCoinSkip': return 'WILD COIN SKIP';
     case 'wildCoinReverse': return 'WILD COIN REVERSE';
@@ -3701,7 +3698,7 @@ function getCardSymbolLabel(card){
 function getCardCornerText(card){
   if(card.type==='number') return String(card.value || card.label || '');
   if(card.type==='wild') return '🌈';
-  if(card.type==='plus' || card.type==='wildPlus' || card.type==='plusOne' || card.type==='targetDraw2' || card.type==='targetPlus2Skip' || card.type==='targetPlus4Skip' || card.type==='targetPlus4' || card.type==='reversePlus2' || card.type==='reversePlus4' || card.type==='coinPlus1' || card.type==='coinPlus2' || card.type==='coinPlus4' || card.type==='coinPlus10' || card.type==='wildCoinPlus1' || card.type==='wildCoinPlus2' || card.type==='wildCoinPlus4' || card.type==='wildCoinPlus10') return `+${card.num ?? ''}`;
+  if(card.type==='plus' || card.type==='wildPlus' || card.type==='plusOne' || card.type==='targetDraw2' || card.type==='targetPlus2Skip' || card.type==='targetPlus4Skip' || card.type==='targetPlus4' || card.type==='reversePlus2' || card.type==='reversePlus4' || card.type==='coinPlus1' || card.type==='coinPlus2' || card.type==='coinPlus4' || card.type==='coinPlus6' || card.type==='coinPlus8' || card.type==='coinPlus10' || card.type==='wildCoinPlus1' || card.type==='wildCoinPlus2' || card.type==='wildCoinPlus4' || card.type==='wildCoinPlus6' || card.type==='wildCoinPlus8' || card.type==='wildCoinPlus10') return `+${card.num ?? ''}`;
   if(card.type==='helper') return `-${card.num ?? 1}`;
   if(card.type==='reverse' || card.type==='wildReverse' || card.type==='skipReverse') return 'R';
   if(card.type==='skip' || card.type==='wildSkip' || card.type==='skipAll' || card.type==='wildSkipAll' || card.type==='targetSkip') return 'S';
@@ -3714,10 +3711,10 @@ function getCardCornerText(card){
   if(card.type==='rockPaperScissors') return 'RPS';
   if(card.type==='coinSkip') return 'C?';
   if(card.type==='coinReverse') return 'C↩';
-  if(card.type==='coinPlus1' || card.type==='coinPlus2' || card.type==='coinPlus4' || card.type==='coinPlus10') return `C+${card.num ?? ''}`;
+  if(card.type==='coinPlus1' || card.type==='coinPlus2' || card.type==='coinPlus4' || card.type==='coinPlus6' || card.type==='coinPlus8' || card.type==='coinPlus10') return `C+${card.num ?? ''}`;
   if(card.type==='wildCoinSkip') return 'C?';
   if(card.type==='wildCoinReverse') return 'C↩';
-  if(card.type==='wildCoinPlus1' || card.type==='wildCoinPlus2' || card.type==='wildCoinPlus4' || card.type==='wildCoinPlus10') return `C+${card.num ?? ''}`;
+  if(card.type==='wildCoinPlus1' || card.type==='wildCoinPlus2' || card.type==='wildCoinPlus4' || card.type==='wildCoinPlus6' || card.type==='wildCoinPlus8' || card.type==='wildCoinPlus10') return `C+${card.num ?? ''}`;
   if(card.type==='copycat') return 'CAT';
   if(card.type==='doublePlay') return '2x';
   if(card.type==='miracle') return 'MR';
@@ -3745,7 +3742,7 @@ function buildCardElLegacy(card){
   const displayText=getCardSymbolLabel(card);
   const readableName=getReadableCardLabel(card);
   const cornerText=getCardCornerText(card);
-  const complexTypes=new Set(['targetSkip','targetDraw2','targetPlus2Skip','targetPlus4Skip','targetPlus4','reversePlus2','reversePlus4','skipReverse','discardColor','pickUntil','copycat','plusOne','helper','mysteryWild','instantWin','eternalSkip','frenzy','suppressWild','swapDecks','handFreeze','stealWild','shuffleStorm','doubleEdge','hotPotato','communism','superBanana','disarmWilds','orinCard','wildPlus2SkipReverse','blur','rockPaperScissors','wildRockPaperScissors','coinPlus1','coinPlus2','coinPlus4','coinPlus10','coinSkip','coinReverse','wildCoinPlus1','wildCoinPlus2','wildCoinPlus4','wildCoinPlus10','wildCoinSkip','wildCoinReverse']);
+  const complexTypes=new Set(['targetSkip','targetDraw2','targetPlus2Skip','targetPlus4Skip','targetPlus4','reversePlus2','reversePlus4','skipReverse','discardColor','pickUntil','copycat','plusOne','helper','mysteryWild','instantWin','eternalSkip','frenzy','suppressWild','swapDecks','handFreeze','stealWild','shuffleStorm','doubleEdge','hotPotato','communism','superBanana','disarmWilds','orinCard','wildPlus2SkipReverse','blur','rockPaperScissors','wildRockPaperScissors','coinPlus1','coinPlus2','coinPlus4','coinPlus6','coinPlus8','coinPlus10','coinSkip','coinReverse','wildCoinPlus1','wildCoinPlus2','wildCoinPlus4','wildCoinPlus6','wildCoinPlus8','wildCoinPlus10','wildCoinSkip','wildCoinReverse']);
   const usesCornerHints=complexTypes.has(card.type)||displayText.length>4||isRare;
   el.className=`game-card card-${isRare?'rare':card.color}`;
   el.classList.add('card-symbolic');
@@ -3782,7 +3779,7 @@ function buildCardEl(card){
   const displayText=getCardSymbolLabel(card);
   const readableName=getReadableCardLabel(card);
   const cornerText=getCardCornerText(card);
-  const complexTypes=new Set(['targetSkip','targetDraw2','targetPlus2Skip','targetPlus4Skip','targetPlus4','reversePlus2','reversePlus4','skipReverse','discardColor','pickUntil','copycat','plusOne','helper','mysteryWild','instantWin','eternalSkip','frenzy','suppressWild','swapDecks','handFreeze','stealWild','shuffleStorm','doubleEdge','hotPotato','communism','superBanana','disarmWilds','orinCard','wildPlus2SkipReverse','blur','rockPaperScissors','coinPlus1','coinPlus2','coinPlus4','coinPlus10','coinSkip','coinReverse','wildCoinPlus1','wildCoinPlus2','wildCoinPlus4','wildCoinPlus10','wildCoinSkip','wildCoinReverse']);
+  const complexTypes=new Set(['targetSkip','targetDraw2','targetPlus2Skip','targetPlus4Skip','targetPlus4','reversePlus2','reversePlus4','skipReverse','discardColor','pickUntil','copycat','plusOne','helper','mysteryWild','instantWin','eternalSkip','frenzy','suppressWild','swapDecks','handFreeze','stealWild','shuffleStorm','doubleEdge','hotPotato','communism','superBanana','disarmWilds','orinCard','wildPlus2SkipReverse','blur','rockPaperScissors','coinPlus1','coinPlus2','coinPlus4','coinPlus6','coinPlus8','coinPlus10','coinSkip','coinReverse','wildCoinPlus1','wildCoinPlus2','wildCoinPlus4','wildCoinPlus6','wildCoinPlus8','wildCoinPlus10','wildCoinSkip','wildCoinReverse']);
   const usesCornerHints=complexTypes.has(card.type)||displayText.length>4||isRare;
   el.className=`game-card card-${isRare?'rare':card.color}`;
   el.classList.add('card-symbolic');
@@ -3958,7 +3955,7 @@ function isPlayable(card){
   const isNumOrBanana=(c)=>c.type==='number'||c.type==='banana';
   if(top&&isNumOrBanana(card)&&isNumOrBanana(top)&&card.value===top.value) return true;
   if(card.type==='copycat') return true;
-  const actionTypes=['skip','reverse','skipall','targetdraw2','doubleplay','discardcolor','plus','reverseplus2','reverseplus4','skipreverse','targetplus4','wildplus2skipreverse','doubleedge','hotpotato','communism','colourshift','colorshift','miracle','plusone','instantwin','eternalskip','frenzy','blur','rockpaperscissors','coinplus1','coinplus2','coinplus4','coinplus10','coinskip','coinreverse','wildcoinplus1','wildcoinplus2','wildcoinplus4','wildcoinplus10','wildcoinskip','wildcoinreverse'];
+  const actionTypes=['skip','reverse','skipall','targetdraw2','doubleplay','discardcolor','plus','reverseplus2','reverseplus4','skipreverse','targetplus4','wildplus2skipreverse','doubleedge','hotpotato','communism','colourshift','colorshift','miracle','plusone','instantwin','eternalskip','frenzy','blur','rockpaperscissors','coinplus1','coinplus2','coinplus4','coinplus6','coinplus8','coinplus10','coinskip','coinreverse','wildcoinplus1','wildcoinplus2','wildcoinplus4','wildcoinplus6','wildcoinplus8','wildcoinplus10','wildcoinskip','wildcoinreverse'];
   const baseType=card.type.toLowerCase().replace('wild','');
   const topBaseType=top?top.type.toLowerCase().replace('wild',''):'';
   if(actionTypes.includes(baseType)&&baseType===topBaseType){
@@ -3971,7 +3968,7 @@ function canStackDraw(card){
     if(state.pendingDraw<=0) return false;
     if(state.pendingDraw >= 1000000) return false; // Million draw cannot be stacked or reflected!
     if(card.type==='mirror'||card.type==='wildMirror') return true;
-    const pTypes=['plus','wildPlus','reversePlus2','reversePlus4','wildPlus2SkipReverse','targetPlus4','targetDraw2','targetPlus2Skip','targetPlus4Skip','plusOne'];
+    const pTypes=['plus','wildPlus','reversePlus2','reversePlus4','wildPlus2SkipReverse','targetPlus4','targetDraw2','targetPlus2Skip','targetPlus4Skip','plusOne','coinPlus1','coinPlus2','coinPlus4','coinPlus6','coinPlus8','coinPlus10','wildCoinPlus1','wildCoinPlus2','wildCoinPlus4','wildCoinPlus6','wildCoinPlus8','wildCoinPlus10'];
     if(pTypes.includes(card.type) && card.num===state.pendingDrawNum) return true;
     return false;
   }
@@ -3982,40 +3979,6 @@ function getChainPlayKey(card){
   if(card.type==='skip' || card.type==='wildSkip') return 'skip';
   if(card.type==='reverse' || card.type==='wildReverse') return 'reverse';
   return `${card.type}:${card.num ?? card.value ?? ''}`;
-}
-
-function resolveImmediateTurnEffects(){
-  if(!state || state.gameOver) return true;
-  const safetyLimit = (state.players?.length || 0) + 4;
-  let steps = 0;
-  while(steps++ < safetyLimit){
-    const currentIdx = state.currentPlayer;
-    const current = state.players[currentIdx];
-    if(state.eternalSkips && state.eternalSkips[currentIdx]){
-      delete state.eternalSkips[currentIdx];
-      showStatus(`${state.players[currentIdx].name} is eternally skipped! ♾️`, 1000);
-      state.currentPlayer = (currentIdx + state.direction + state.players.length) % state.players.length;
-      continue;
-    }
-    if(state.skipNext && state.skipNext[currentIdx]){
-      delete state.skipNext[currentIdx];
-      showStatus(`${state.players[currentIdx].name} is skipped! 🎯⊘`, 1400);
-      state.currentPlayer = (currentIdx + state.direction + state.players.length) % state.players.length;
-      continue;
-    }
-    if(state.pendingDraw > 0){
-      const humanControlled = currentIdx === 0 || (current && current.isControlledBot);
-      if(humanControlled && current && !current.cards.some(c => canStackDraw(c))){
-        autoDrawing = true;
-        setTimeout(() => {
-          if(gameRunning && !state.gameOver) triggerAutoDrawForPlayer();
-        }, 0);
-        return false;
-      }
-    }
-    return true;
-  }
-  return true;
 }
 function clearTargetStackDuelIfInactive(){
   if(!state || !state.targetStackDuel) return;
@@ -4369,20 +4332,13 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     case 'number': break;
 
     case 'reverse': case 'wildReverse':
-      state.direction*=-1;
-      updateDirectionBadge();
-      if(n===2){
-        state.skipNext[nextPlayerIdx()] = true;
-      }
-      break;
+      state.direction*=-1;updateDirectionBadge();if(n===2) advanceTurn();break;
 
     case 'skip': case 'wildSkip':
       if (state.players[playerIdx].cards.length === 0) {
         state.hasDrawn = true; 
       }
-      state.skipNext[nextPlayerIdx()] = true;
-      showStatus(`${state.players[nextPlayerIdx()].name} is skipped!`,1400);
-      break;
+      advanceTurn();showStatus(`${state.players[state.currentPlayer].name} is skipped!`,1400);break;
 
     case 'skipAll': case 'wildSkipAll':
       extraTurn=true;showStatus('Everyone skipped! Play again! 😈',1600);break;
@@ -4456,9 +4412,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         }
       } else {
         // Act as a skip
-        const target = nextPlayerIdx();
-        state.skipNext[target] = true;
-        showStatus(`🪞 Mirror skips ${state.players[target].name}!`,1400);
+        advanceTurn();showStatus(`🪞 Mirror skips ${state.players[state.currentPlayer].name}!`,1400);
         playSound('skip');
       }
       // MIRROR SPECIAL: if it's a wild mirror or a colored mirror that was played, 
@@ -4532,12 +4486,16 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     case 'coinPlus1':
     case 'coinPlus2':
     case 'coinPlus4':
+    case 'coinPlus6':
+    case 'coinPlus8':
     case 'coinPlus10':
     case 'coinSkip':
     case 'coinReverse':
     case 'wildCoinPlus1':
     case 'wildCoinPlus2':
     case 'wildCoinPlus4':
+    case 'wildCoinPlus6':
+    case 'wildCoinPlus8':
     case 'wildCoinPlus10':
     case 'wildCoinSkip':
     case 'wildCoinReverse':{
@@ -4553,9 +4511,6 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       if(coinType.includes('Reverse')){
         state.direction *= -1;
         updateDirectionBadge();
-        if(state.players.length === 2){
-          state.skipNext[target] = true;
-        }
         showStatus('🪙 Reverse triggered!', 1600);
       } else if(coinType.includes('Skip')){
         state.skipNext[target] = true;
@@ -4935,7 +4890,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
   }
 
-  if(!extraTurn && !skipAdvance && state.pendingDraw===0){
+  if(!extraTurn && !skipAdvance){
     const justPlayedKey = getChainPlayKey(card);
     if(justPlayedKey){
       const playerAfterPlay = state.players[playerIdx];
@@ -4979,6 +4934,20 @@ function advanceTurn(){
   state.hasDrawn=false;
   if(botTimer){clearTimeout(botTimer);botTimer=null;}
   
+  // Eternal Skip check
+  if(state.eternalSkips && state.eternalSkips[state.currentPlayer]){
+    showStatus(`${state.players[state.currentPlayer].name} is eternally skipped! ♾️`, 1000);
+    setTimeout(() => { advanceTurn(); finishTurn(state.currentPlayer); }, 500);
+    return;
+  }
+
+  // Target Skip check
+  if(state.skipNext && state.skipNext[state.currentPlayer]){
+    delete state.skipNext[state.currentPlayer];
+    showStatus(`${state.players[state.currentPlayer].name} is skipped! 🎯⊘`, 1400);
+    setTimeout(() => { advanceTurn(); finishTurn(state.currentPlayer); }, 500);
+    return;
+  }
 }
 function nextPlayerIdx(){const n=state.players.length;return(state.currentPlayer+state.direction+n)%n;}
 
@@ -5005,39 +4974,14 @@ function finishTurn(playerIdx){
   if(player.cards.length===0){endGame(playerIdx);return;}
   renderDiscard();updateColorBar();updateDirectionBadge();
 
-  let safety = 0;
-  while(!state.gameOver && safety++ < (state.players.length + 4)){
-    const current = state.players[state.currentPlayer];
-    if(!current) break;
-
-    if(state.eternalSkips && state.eternalSkips[state.currentPlayer]){
-      delete state.eternalSkips[state.currentPlayer];
-      showStatus(`${current.name} is eternally skipped! ♾️`, 1000);
-      advanceTurn();
-      continue;
-    }
-
-    if(state.skipNext && state.skipNext[state.currentPlayer]){
-      delete state.skipNext[state.currentPlayer];
-      showStatus(`${current.name} is skipped! 🎯⊘`, 1400);
-      advanceTurn();
-      continue;
-    }
-
-    if(state.pendingDraw > 0){
-      const isHumanControlledTurn = state.currentPlayer===0 || (current && current.isControlledBot);
-      if(isHumanControlledTurn && !current.cards.some(c => canStackDraw(c))){
-        autoDrawing = true;
-        setTimeout(()=>triggerAutoDrawForPlayer(), 0);
-        return;
-      }
-    }
-
-    break;
-  }
-
   const current = state.players[state.currentPlayer];
   const isHumanControlledTurn = state.currentPlayer===0 || (current && current.isControlledBot);
+
+  // If there's a pending draw and the current player can't stack, lock IMMEDIATELY before rendering
+  if(!state.gameOver && isHumanControlledTurn && state.pendingDraw > 0){
+    const hasStackable = current.cards.some(c => canStackDraw(c));
+    if(!hasStackable) autoDrawing = true;
+  }
 
   if(playerIdx===0){renderPlayerHand();updateOpponentsAll();}
   else{updateOpponentZone(playerIdx);renderPlayerHand();}
@@ -5045,8 +4989,8 @@ function finishTurn(playerIdx){
   if(!state.gameOver&&isHumanControlledTurn&&state.pendingDraw>0){
     const hasStackable=current.cards.some(c=>canStackDraw(c));
     if(!hasStackable){
-      autoDrawing = true;
-      setTimeout(()=>triggerAutoDrawForPlayer(),0);
+      // autoDrawing is already true from above
+      setTimeout(()=>triggerAutoDrawForPlayer(),800);
       return;
     }
   }
