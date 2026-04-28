@@ -5384,31 +5384,62 @@ document.addEventListener('click',(e)=>{
 const bgSong=document.getElementById('bgSong'),toggleSong=document.getElementById('toggleSong'),volumeControl=document.getElementById('volumeControl');
 
 const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+function isFullscreen() {
+  return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+}
+
+function updateFullscreenIcon() {
+  if (fullscreenBtn) fullscreenBtn.textContent = isFullscreen() ? '⛿' : '⛶';
+}
+
+function requestFullscreen(el) {
+  if (el.requestFullscreen) return el.requestFullscreen();
+  if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+  if (el.mozRequestFullScreen) return el.mozRequestFullScreen();
+  if (el.msRequestFullscreen) return el.msRequestFullscreen();
+  return Promise.reject(new Error('Fullscreen not supported'));
+}
+
+function exitFullscreen() {
+  if (document.exitFullscreen) return document.exitFullscreen();
+  if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+  if (document.mozCancelFullScreen) return document.mozCancelFullScreen();
+  if (document.msExitFullscreen) return document.msExitFullscreen();
+  return Promise.resolve();
+}
+
 if (fullscreenBtn) {
   fullscreenBtn.addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().then(() => {
+    if (!isFullscreen()) {
+      requestFullscreen(document.documentElement).then(() => {
         localStorage.setItem('fullscreen_preferred', 'true');
       }).catch(err => {
-        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+        console.error('Fullscreen error:', err.message);
       });
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
+      exitFullscreen().then(() => {
         localStorage.setItem('fullscreen_preferred', 'false');
-      }
+      }).catch(() => {});
     }
   });
 }
 
-// Persist fullscreen across navigation
-document.addEventListener('fullscreenchange', () => {
-  if (!document.fullscreenElement) {
-    localStorage.setItem('fullscreen_preferred', 'false');
-  } else {
-    localStorage.setItem('fullscreen_preferred', 'true');
-  }
+// Update icon on any fullscreen change (including browser UI / Esc key)
+['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(evt => {
+  document.addEventListener(evt, () => {
+    updateFullscreenIcon();
+    localStorage.setItem('fullscreen_preferred', isFullscreen() ? 'true' : 'false');
+  });
 });
+
+// Restore fullscreen preference on page load
+(function restoreFullscreen() {
+  if (localStorage.getItem('fullscreen_preferred') === 'true' && !isFullscreen()) {
+    requestFullscreen(document.documentElement).catch(() => {});
+  }
+  updateFullscreenIcon();
+})();
 
 function setSongUi(isPlaying){
   toggleSong.textContent=isPlaying?'Pause':'Play';
@@ -5507,7 +5538,7 @@ function initDayClouds(){
   }
   window.addEventListener('resize',()=>{resize();init();});init();draw();
 }
-setInterval(()=>{checkObjectAttackThemes();},5000);
+if (!window._oaCheckInterval) window._oaCheckInterval = setInterval(()=>{checkObjectAttackThemes();},5000);
 </script>
 </body>
 </html>
