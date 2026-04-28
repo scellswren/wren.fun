@@ -902,9 +902,9 @@ body.blur-active .game-top-actions{filter:none;}
         <label style="font-weight:700;">Chaos Factor (0.1 - 5.0):</label>
         <input type="number" id="sb-chaos" step="0.1" min="0.1" max="5" value="1.0" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 10px;border-radius:8px;width:60px;">
       </div>
-      <div class="menu-btn-row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap;width:100%;">
-        <button type="button" class="bot-btn toggle-btn" id="sb-ones" onclick="toggleSandboxSetting('alwaysDrawOnes', 'sb-ones')">Always Draw Ones</button>
-        <button type="button" class="bot-btn toggle-btn" id="sb-control-team" onclick="toggleSandboxSetting('controlTeammate', 'sb-control-team')">Control Teammate</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <label style="font-weight:700;">Bots to Play Against:</label>
+        <input type="number" id="sb-bots" value="1" min="1" max="7" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 10px;border-radius:8px;width:60px;">
       </div>
 
       <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
@@ -2734,6 +2734,7 @@ let teamMode = false;
 const DEFAULT_SANDBOX_SETTINGS = {
   startingCards: 7,
   chaosFactor: 1.0,
+  botCount: 1,
   alwaysDrawOnes: false,
   controlTeammate: false,
   customHand: [],
@@ -2768,6 +2769,7 @@ function normalizeSandboxSettings(settings){
   if(!Array.isArray(s.customHand)) s.customHand = [];
   s.startingCards = Number.isFinite(s.startingCards) ? s.startingCards : 7;
   s.chaosFactor = Number.isFinite(s.chaosFactor) ? s.chaosFactor : 1.0;
+  s.botCount = Number.isFinite(s.botCount) ? Math.max(1, Math.min(7, Math.floor(s.botCount))) : 1;
   s.alwaysDrawOnes = !!s.alwaysDrawOnes;
   s.controlTeammate = !!s.controlTeammate;
   s.pool = normalizePoolSettings(s.pool);
@@ -2780,6 +2782,7 @@ function createClassicGameSettings(){
   return normalizeSandboxSettings({
     startingCards: 7,
     chaosFactor: 1.0,
+    botCount: 1,
     alwaysDrawOnes: false,
     controlTeammate: false,
     customHand: [],
@@ -3322,19 +3325,21 @@ function openSandboxSettings(){
   const modal=document.getElementById('sandbox-modal');
   const starting=document.getElementById('sb-starting-cards');
   const chaos=document.getElementById('sb-chaos');
+  const bots=document.getElementById('sb-bots');
   if(modal) modal.classList.remove('hidden');
   if(starting) starting.value = sandboxSettings.startingCards;
   if(chaos) chaos.value = sandboxSettings.chaosFactor;
-  setToggleButtonState('sb-ones', sandboxSettings.alwaysDrawOnes);
-  setToggleButtonState('sb-control-team', sandboxSettings.controlTeammate);
+  if(bots) bots.value = sandboxSettings.botCount;
   updateSandboxPreviews();
 }
 
 function closeSandbox(){
   const starting=document.getElementById('sb-starting-cards');
   const chaos=document.getElementById('sb-chaos');
+  const bots=document.getElementById('sb-bots');
   sandboxSettings.startingCards = starting ? (parseInt(starting.value) || 7) : sandboxSettings.startingCards;
   sandboxSettings.chaosFactor = chaos ? (parseFloat(chaos.value) || 1.0) : sandboxSettings.chaosFactor;
+  sandboxSettings.botCount = bots ? Math.max(1, Math.min(7, parseInt(bots.value) || 1)) : sandboxSettings.botCount;
   normalizeSandboxSettings(sandboxSettings);
   const modal=document.getElementById('sandbox-modal');
   if(modal) modal.classList.add('hidden');
@@ -3371,7 +3376,8 @@ function setTeamType(type){
 
 function startTeamMode(){
   teamMode = true;
-  if(selectedBots < 3) selectBots(3);
+  selectedBots = 3;
+  selectBots(3);
   closeTeamSettings();
   startGame();
 }
@@ -3382,8 +3388,9 @@ function startSandboxMode(){
     showStatus('Card pool is too small. Select more categories first.',2200);
     return;
   }
-  teamMode = !!gameSettings.controlTeammate;
-  if(teamMode && selectedBots < 3) selectBots(3);
+  teamMode = false;
+  selectedBots = gameSettings.botCount;
+  selectBots(selectedBots);
   isSandboxGame = true;
   activeGameSettings = gameSettings;
   closeSandbox();
@@ -3976,6 +3983,40 @@ function getChainPlayKey(card){
   if(card.type==='reverse' || card.type==='wildReverse') return 'reverse';
   return `${card.type}:${card.num ?? card.value ?? ''}`;
 }
+
+function resolveImmediateTurnEffects(){
+  if(!state || state.gameOver) return true;
+  const safetyLimit = (state.players?.length || 0) + 4;
+  let steps = 0;
+  while(steps++ < safetyLimit){
+    const currentIdx = state.currentPlayer;
+    const current = state.players[currentIdx];
+    if(state.eternalSkips && state.eternalSkips[currentIdx]){
+      delete state.eternalSkips[currentIdx];
+      showStatus(`${state.players[currentIdx].name} is eternally skipped! ♾️`, 1000);
+      state.currentPlayer = (currentIdx + state.direction + state.players.length) % state.players.length;
+      continue;
+    }
+    if(state.skipNext && state.skipNext[currentIdx]){
+      delete state.skipNext[currentIdx];
+      showStatus(`${state.players[currentIdx].name} is skipped! 🎯⊘`, 1400);
+      state.currentPlayer = (currentIdx + state.direction + state.players.length) % state.players.length;
+      continue;
+    }
+    if(state.pendingDraw > 0){
+      const humanControlled = currentIdx === 0 || (current && current.isControlledBot);
+      if(humanControlled && current && !current.cards.some(c => canStackDraw(c))){
+        autoDrawing = true;
+        setTimeout(() => {
+          if(gameRunning && !state.gameOver) triggerAutoDrawForPlayer();
+        }, 0);
+        return false;
+      }
+    }
+    return true;
+  }
+  return true;
+}
 function clearTargetStackDuelIfInactive(){
   if(!state || !state.targetStackDuel) return;
   if(state.pendingDraw<=0) state.targetStackDuel=null;
@@ -4328,13 +4369,20 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     case 'number': break;
 
     case 'reverse': case 'wildReverse':
-      state.direction*=-1;updateDirectionBadge();if(n===2) advanceTurn();break;
+      state.direction*=-1;
+      updateDirectionBadge();
+      if(n===2){
+        state.skipNext[nextPlayerIdx()] = true;
+      }
+      break;
 
     case 'skip': case 'wildSkip':
       if (state.players[playerIdx].cards.length === 0) {
         state.hasDrawn = true; 
       }
-      advanceTurn();showStatus(`${state.players[state.currentPlayer].name} is skipped!`,1400);break;
+      state.skipNext[nextPlayerIdx()] = true;
+      showStatus(`${state.players[nextPlayerIdx()].name} is skipped!`,1400);
+      break;
 
     case 'skipAll': case 'wildSkipAll':
       extraTurn=true;showStatus('Everyone skipped! Play again! 😈',1600);break;
@@ -4408,7 +4456,9 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         }
       } else {
         // Act as a skip
-        advanceTurn();showStatus(`🪞 Mirror skips ${state.players[state.currentPlayer].name}!`,1400);
+        const target = nextPlayerIdx();
+        state.skipNext[target] = true;
+        showStatus(`🪞 Mirror skips ${state.players[target].name}!`,1400);
         playSound('skip');
       }
       // MIRROR SPECIAL: if it's a wild mirror or a colored mirror that was played, 
@@ -4503,6 +4553,9 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       if(coinType.includes('Reverse')){
         state.direction *= -1;
         updateDirectionBadge();
+        if(state.players.length === 2){
+          state.skipNext[target] = true;
+        }
         showStatus('🪙 Reverse triggered!', 1600);
       } else if(coinType.includes('Skip')){
         state.skipNext[target] = true;
@@ -4926,20 +4979,6 @@ function advanceTurn(){
   state.hasDrawn=false;
   if(botTimer){clearTimeout(botTimer);botTimer=null;}
   
-  // Eternal Skip check
-  if(state.eternalSkips && state.eternalSkips[state.currentPlayer]){
-    showStatus(`${state.players[state.currentPlayer].name} is eternally skipped! ♾️`, 1000);
-    setTimeout(() => { advanceTurn(); finishTurn(state.currentPlayer); }, 500);
-    return;
-  }
-
-  // Target Skip check
-  if(state.skipNext && state.skipNext[state.currentPlayer]){
-    delete state.skipNext[state.currentPlayer];
-    showStatus(`${state.players[state.currentPlayer].name} is skipped! 🎯⊘`, 1400);
-    setTimeout(() => { advanceTurn(); finishTurn(state.currentPlayer); }, 500);
-    return;
-  }
 }
 function nextPlayerIdx(){const n=state.players.length;return(state.currentPlayer+state.direction+n)%n;}
 
@@ -4966,14 +5005,39 @@ function finishTurn(playerIdx){
   if(player.cards.length===0){endGame(playerIdx);return;}
   renderDiscard();updateColorBar();updateDirectionBadge();
 
+  let safety = 0;
+  while(!state.gameOver && safety++ < (state.players.length + 4)){
+    const current = state.players[state.currentPlayer];
+    if(!current) break;
+
+    if(state.eternalSkips && state.eternalSkips[state.currentPlayer]){
+      delete state.eternalSkips[state.currentPlayer];
+      showStatus(`${current.name} is eternally skipped! ♾️`, 1000);
+      advanceTurn();
+      continue;
+    }
+
+    if(state.skipNext && state.skipNext[state.currentPlayer]){
+      delete state.skipNext[state.currentPlayer];
+      showStatus(`${current.name} is skipped! 🎯⊘`, 1400);
+      advanceTurn();
+      continue;
+    }
+
+    if(state.pendingDraw > 0){
+      const isHumanControlledTurn = state.currentPlayer===0 || (current && current.isControlledBot);
+      if(isHumanControlledTurn && !current.cards.some(c => canStackDraw(c))){
+        autoDrawing = true;
+        setTimeout(()=>triggerAutoDrawForPlayer(), 0);
+        return;
+      }
+    }
+
+    break;
+  }
+
   const current = state.players[state.currentPlayer];
   const isHumanControlledTurn = state.currentPlayer===0 || (current && current.isControlledBot);
-
-  // If there's a pending draw and the current player can't stack, lock IMMEDIATELY before rendering
-  if(!state.gameOver && isHumanControlledTurn && state.pendingDraw > 0){
-    const hasStackable = current.cards.some(c => canStackDraw(c));
-    if(!hasStackable) autoDrawing = true;
-  }
 
   if(playerIdx===0){renderPlayerHand();updateOpponentsAll();}
   else{updateOpponentZone(playerIdx);renderPlayerHand();}
@@ -4981,8 +5045,8 @@ function finishTurn(playerIdx){
   if(!state.gameOver&&isHumanControlledTurn&&state.pendingDraw>0){
     const hasStackable=current.cards.some(c=>canStackDraw(c));
     if(!hasStackable){
-      // autoDrawing is already true from above
-      setTimeout(()=>triggerAutoDrawForPlayer(),800);
+      autoDrawing = true;
+      setTimeout(()=>triggerAutoDrawForPlayer(),0);
       return;
     }
   }
