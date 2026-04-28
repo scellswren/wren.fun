@@ -2212,7 +2212,7 @@ body.blur-active .game-top-actions{filter:none;}
 <div id="chain-prompt" class="hidden" aria-live="polite">
   <div class="chain-prompt-box">
     <div class="chain-prompt-title" id="chain-prompt-title">Chain available</div>
-    <div class="chain-prompt-sub" id="chain-prompt-sub">Press No to stop chaining.</div>
+    <div class="chain-prompt-sub" id="chain-prompt-sub">Press No to end your turn and skip the next player.</div>
     <div class="chain-prompt-actions">
       <button type="button" class="chain-prompt-btn no" id="chain-prompt-no" onclick="chooseChain(false)">No</button>
     </div>
@@ -4851,18 +4851,12 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       const playerAfterPlay = state.players[playerIdx];
       const hasChainable = playerAfterPlay.cards.some(c => getChainPlayKey(c) === justPlayedKey);
       if(hasChainable){
+        extraTurn = true;
+        state.chainingKey = justPlayedKey;
         if(playerIdx===0 && !(playerAfterPlay && playerAfterPlay.isControlledBot)){
-          const shouldChain = await promptChainChoice(playerIdx, justPlayedKey);
-          if(shouldChain){
-            extraTurn = true;
-            state.chainingKey = justPlayedKey;
-            showStatus(`${state.players[playerIdx].name} can chain another matching card!`, 1600);
-          }
-        } else {
-          extraTurn = true;
-          state.chainingKey = justPlayedKey; // Set chaining key
-          showStatus(`${state.players[playerIdx].name} can chain another matching card!`, 1600);
+          showChainPrompt(playerIdx, justPlayedKey);
         }
+        showStatus(`${state.players[playerIdx].name} can chain another matching card!`, 1600);
       }
     }
   }
@@ -5240,22 +5234,18 @@ function hideChainPrompt(){
   if(prompt) prompt.classList.add('hidden');
 }
 
-function promptChainChoice(playerIdx, key){
-  return new Promise(resolve=>{
-    pendingChain={resolve,playerIdx,key};
-    const player=state.players[playerIdx];
-    const count=player.cards.filter(c=>getChainPlayKey(c)===key).length;
-    const prompt=document.getElementById('chain-prompt');
-    document.getElementById('chain-prompt-title').textContent='Chain ready';
-    document.getElementById('chain-prompt-sub').textContent=`${player.name} has ${count} matching card${count===1?'':'s'}.`;
-    prompt.classList.remove('hidden');
-    if(chainPromptTimer) clearTimeout(chainPromptTimer);
-    chainPromptTimer = setTimeout(() => {
-      if(pendingChain && pendingChain.playerIdx === playerIdx && pendingChain.key === key){
-        chooseChain(true);
-      }
-    }, 2500);
-  });
+function showChainPrompt(playerIdx, key){
+  pendingChain={playerIdx,key};
+  const player=state.players[playerIdx];
+  const count=player.cards.filter(c=>getChainPlayKey(c)===key).length;
+  const prompt=document.getElementById('chain-prompt');
+  document.getElementById('chain-prompt-title').textContent='Chain ready';
+  document.getElementById('chain-prompt-sub').textContent=`${player.name} has ${count} matching card${count===1?'':'s'}. Press No to end your turn and skip the next player.`;
+  prompt.classList.remove('hidden');
+  if(chainPromptTimer){
+    clearTimeout(chainPromptTimer);
+    chainPromptTimer = null;
+  }
 }
 
 function chooseChain(yes){
@@ -5264,10 +5254,19 @@ function chooseChain(yes){
     chainPromptTimer = null;
   }
   const info=pendingChain;
-  pendingChain=null;
   if(!info) return;
-  if(!yes) hideChainPrompt();
-  info.resolve(!!yes);
+  pendingChain=null;
+  if(!yes){
+    const nextIdx = nextPlayerIdx();
+    if(!state.skipNext) state.skipNext = {};
+    state.skipNext[nextIdx] = true;
+    hideChainPrompt();
+    if(!turnResolutionLocked && state.currentPlayer === info.playerIdx){
+      advanceTurn();
+    }
+    return;
+  }
+  hideChainPrompt();
 }
 
 function pickColor(color){
