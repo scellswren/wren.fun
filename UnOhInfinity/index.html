@@ -2211,11 +2211,7 @@ body.blur-active .game-top-actions{filter:none;}
 <!-- CHAIN PROMPT -->
 <div id="chain-prompt" class="hidden" aria-live="polite">
   <div class="chain-prompt-box">
-    <div class="chain-prompt-title" id="chain-prompt-title">Chain available</div>
-    <div class="chain-prompt-sub" id="chain-prompt-sub">Press No to end your turn and skip the next player.</div>
-    <div class="chain-prompt-actions">
-      <button type="button" class="chain-prompt-btn no" id="chain-prompt-no" onclick="chooseChain(false)">No</button>
-    </div>
+    <button type="button" class="chain-prompt-btn no" id="chain-prompt-no" onclick="chooseChain(false)">No</button>
   </div>
 </div>
 
@@ -5236,11 +5232,7 @@ function hideChainPrompt(){
 
 function showChainPrompt(playerIdx, key){
   pendingChain={playerIdx,key};
-  const player=state.players[playerIdx];
-  const count=player.cards.filter(c=>getChainPlayKey(c)===key).length;
   const prompt=document.getElementById('chain-prompt');
-  document.getElementById('chain-prompt-title').textContent='Chain ready';
-  document.getElementById('chain-prompt-sub').textContent=`${player.name} has ${count} matching card${count===1?'':'s'}. Press No to end your turn.`;
   prompt.classList.remove('hidden');
   if(chainPromptTimer){
     clearTimeout(chainPromptTimer);
@@ -5262,6 +5254,7 @@ function chooseChain(yes){
     turnResolutionLocked = false;
     if(gameRunning){
       advanceTurn();
+      finishTurn(info.playerIdx);
     }
     return;
   }
