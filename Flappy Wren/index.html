@@ -85,7 +85,7 @@
     .heroActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;position:relative;z-index:1}
     #overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:20;background:radial-gradient(circle at 50% 20%,rgba(103,255,143,.08),transparent 35%),rgba(0,0,0,.72)}
     #overlay.show{display:flex}
-    .panel{width:min(980px,96vw);max-height:min(88vh,860px);overflow:auto;border-radius:34px;background:linear-gradient(180deg,rgba(10,26,17,.98),rgba(6,18,10,.95));border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 1px rgba(103,255,143,.10) inset,0 28px 70px rgba(0,0,0,.50);padding:22px;overscroll-behavior:contain}
+    .panel{width:min(980px,96vw);max-height:min(88vh,860px);overflow:auto;border-radius:34px;background:linear-gradient(180deg,rgba(10,26,17,.98),rgba(6,18,10,.95));border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 1px rgba(103,255,143,.08) inset,0 16px 36px rgba(0,0,0,.34);padding:22px;overscroll-behavior:contain;transform:translateZ(0);contain:layout paint style}
     .panel,.panel *{scrollbar-width:thin;scrollbar-color:#000 #000}
     .panel::-webkit-scrollbar{width:12px;height:12px}
     .panel::-webkit-scrollbar-track{background:#000}
@@ -94,17 +94,17 @@
     .panelHeader{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px}
     .panelHeader h2{margin:0;font-size:1.55rem}
     .panelHeader p{margin:4px 0 0;color:var(--muted)}
-    .panelHero{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;padding:16px 18px;border-radius:24px;background:linear-gradient(135deg,rgba(103,255,143,.15),rgba(255,186,87,.12));border:1px solid rgba(255,255,255,.09)}
+    .panelHero{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;padding:16px 18px;border-radius:24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09)}
     .panelHeroStat{display:flex;gap:10px;flex-wrap:wrap}
     .panelHeroPill{padding:10px 14px;border-radius:999px;background:rgba(7,19,12,.58);border:1px solid rgba(255,255,255,.10);font-weight:900}
     .panelHeroPill strong{color:#ffd36d}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;align-items:start}
-    .card{position:relative;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.10);padding:16px;display:flex;flex-direction:column;gap:12px;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.18);transition:border-color .18s ease,transform .18s ease;contain:content;content-visibility:auto;contain-intrinsic-size:320px}
-    .card::before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.10),transparent 45%,rgba(255,186,87,.08));opacity:.9;pointer-events:none}
-    .card:hover{transform:translateY(-2px);border-color:rgba(103,255,143,.22)}
-    .skinPreview{height:156px;border-radius:22px;background:radial-gradient(circle at 25% 20%,rgba(255,255,255,.26),transparent 22%),linear-gradient(135deg, rgba(29,143,58,.95), rgba(255,156,42,.78));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-    .skinPreview::after{content:"";position:absolute;inset:auto -18% -40% auto;width:150px;height:150px;background:rgba(255,255,255,.12);filter:blur(10px);border-radius:50%}
-    .skinPreview img{width:92px;height:92px;object-fit:cover;border-radius:18px;box-shadow:0 18px 30px rgba(0,0,0,.28);background:rgba(255,255,255,.10);border:2px solid rgba(255,255,255,.18);position:relative;z-index:1}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;align-items:start;contain:layout paint}
+    .card{position:relative;border-radius:28px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);padding:16px;display:flex;flex-direction:column;gap:12px;overflow:hidden;box-shadow:none;transition:none;contain:layout paint style;content-visibility:auto;contain-intrinsic-size:320px}
+    .card::before{display:none}
+    .card:hover{border-color:rgba(103,255,143,.16)}
+    .skinPreview{height:148px;border-radius:22px;background:linear-gradient(135deg, rgba(29,143,58,.88), rgba(255,156,42,.70));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+    .skinPreview::after{display:none}
+    .skinPreview img{width:92px;height:92px;object-fit:cover;border-radius:18px;box-shadow:none;background:rgba(255,255,255,.10);border:2px solid rgba(255,255,255,.16);position:relative;z-index:1}
     .skinPreview .fallback{width:92px;height:92px;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.62));color:#12361f;font-size:2.3rem;font-weight:900;display:none;align-items:center;justify-content:center;position:relative;z-index:1}
     .card h3{margin:0;font-size:1.15rem;position:relative;z-index:1}
     .card .meta{color:#cfead5;font-size:.93rem;line-height:1.45}
@@ -120,7 +120,7 @@
     .card .actions .btn{flex:1}
     .card.locked{opacity:.92}
     .card.owned{outline:2px solid rgba(47,224,111,.22)}
-    .card.equipped{outline:2px solid rgba(93,200,255,.55);box-shadow:0 0 0 1px rgba(93,200,255,.25) inset,0 14px 30px rgba(0,0,0,.20)}
+    .card.equipped{outline:2px solid rgba(93,200,255,.55);box-shadow:0 0 0 1px rgba(93,200,255,.18) inset}
     #shopList,#inventoryList{margin-top:14px}
     .sectionSwitch{display:flex;gap:10px;flex-wrap:wrap}
     .sectionSwitch .btn{min-width:120px}
@@ -846,7 +846,7 @@
     function inventoryMarkup() {
       const cards = Object.values(skins).map(skin => {
         const owned = state.ownedSkins.includes(skin.id);
-        const badge = state.selectedSkin === skin.id ? 'Selected' : (owned ? 'Unlocked' : 'Locked');
+        const badge = state.selectedSkin === skin.id ? 'Equipped' : (owned ? 'Unlocked' : 'Locked');
         const desc = owned ? `You own ${skin.name}. ${state.selectedSkin === skin.id ? 'This one is active right now.' : 'Equip it whenever you want.'}` : `${skin.name} is still locked. Visit the shop to unlock it.`;
         return `
           <div class="card ${owned ? 'owned' : 'locked'} ${state.selectedSkin === skin.id ? 'equipped' : ''}">
@@ -861,7 +861,6 @@
             <div class="shopSub">${desc}</div>
             <div class="tagRow">
               <span class="tag ${owned ? 'ok' : 'lock'}">${owned ? 'Unlocked' : 'Locked'}</span>
-              <span class="tag ${state.selectedSkin === skin.id ? 'price' : 'lock'}">${state.selectedSkin === skin.id ? 'Selected' : 'Not selected'}</span>
             </div>
             <div class="actions">
               <button class="btn ${state.selectedSkin === skin.id ? 'equippedBlue' : 'primary'} equipBtn" data-equip="${skin.id}" ${owned ? '' : 'disabled style="opacity:.55;cursor:not-allowed"'}>${state.selectedSkin === skin.id ? 'Equipped' : 'Equip'}</button>
