@@ -82,26 +82,39 @@
     .title .green{color:#67ff8f;animation:greenShimmer 2.2s ease-in-out infinite;display:inline-block}
     .title .orange{color:#ffba57;animation:orangePulse 2.2s ease-in-out infinite .4s;display:inline-block}
     .heroActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;position:relative;z-index:1}
-    #overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:20;background:rgba(0,0,0,.55);backdrop-filter:blur(4px)}
+    #overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:20;background:radial-gradient(circle at 50% 20%,rgba(103,255,143,.12),transparent 35%),rgba(0,0,0,.62);backdrop-filter:blur(10px)}
     #overlay.show{display:flex}
-    .panel{width:min(940px,96vw);max-height:min(88vh,860px);overflow:auto;border-radius:30px;background:linear-gradient(180deg,rgba(7,19,12,.92),rgba(7,19,12,.84));border:1px solid rgba(255,255,255,.10);box-shadow:var(--shadow);padding:18px}
-    .panelHeader{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+    .panel{width:min(980px,96vw);max-height:min(88vh,860px);overflow:auto;border-radius:34px;background:linear-gradient(180deg,rgba(10,26,17,.98),rgba(6,18,10,.95));border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 1px rgba(103,255,143,.12) inset,0 36px 90px rgba(0,0,0,.58);padding:22px}
+    .panelHeader{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px}
     .panelHeader h2{margin:0;font-size:1.55rem}
     .panelHeader p{margin:4px 0 0;color:var(--muted)}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-    .card{border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.09);padding:14px;display:flex;flex-direction:column;gap:10px}
-    .skinPreview{height:120px;border-radius:20px;background:linear-gradient(135deg, rgba(29,143,58,.9), rgba(255,156,42,.65));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-    .skinPreview img{width:74px;height:74px;object-fit:cover;border-radius:14px;box-shadow:0 10px 18px rgba(0,0,0,.20);background:rgba(255,255,255,.10)}
-    .skinPreview .fallback{width:74px;height:74px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.58));color:#12361f;font-size:2rem;font-weight:900;display:none;align-items:center;justify-content:center}
-    .card h3{margin:0;font-size:1.1rem}
+    .panelHero{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;padding:16px 18px;border-radius:24px;background:linear-gradient(135deg,rgba(103,255,143,.15),rgba(255,186,87,.12));border:1px solid rgba(255,255,255,.09)}
+    .panelHeroStat{display:flex;gap:10px;flex-wrap:wrap}
+    .panelHeroPill{padding:10px 14px;border-radius:999px;background:rgba(7,19,12,.58);border:1px solid rgba(255,255,255,.10);font-weight:900}
+    .panelHeroPill strong{color:#ffd36d}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+    .card{position:relative;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.10);padding:16px;display:flex;flex-direction:column;gap:12px;overflow:hidden;box-shadow:0 14px 34px rgba(0,0,0,.24);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+    .card::before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.10),transparent 45%,rgba(255,186,87,.08));opacity:.9;pointer-events:none}
+    .card:hover{transform:translateY(-3px);box-shadow:0 20px 44px rgba(0,0,0,.32);border-color:rgba(103,255,143,.22)}
+    .skinPreview{height:156px;border-radius:22px;background:radial-gradient(circle at 25% 20%,rgba(255,255,255,.26),transparent 22%),linear-gradient(135deg, rgba(29,143,58,.95), rgba(255,156,42,.78));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+    .skinPreview::after{content:"";position:absolute;inset:auto -18% -40% auto;width:150px;height:150px;background:rgba(255,255,255,.12);filter:blur(10px);border-radius:50%}
+    .skinPreview img{width:92px;height:92px;object-fit:cover;border-radius:18px;box-shadow:0 18px 30px rgba(0,0,0,.28);background:rgba(255,255,255,.10);border:2px solid rgba(255,255,255,.18);position:relative;z-index:1}
+    .skinPreview .fallback{width:92px;height:92px;border-radius:18px;background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.62));color:#12361f;font-size:2.3rem;font-weight:900;display:none;align-items:center;justify-content:center;position:relative;z-index:1}
+    .card h3{margin:0;font-size:1.15rem;position:relative;z-index:1}
     .card .meta{color:#cfead5;font-size:.93rem;line-height:1.45}
-    .tagRow{display:flex;gap:8px;flex-wrap:wrap}
-    .tag{border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);font-size:.84rem}
+    .tagRow{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}
+    .tag{border-radius:999px;padding:8px 11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);font-size:.84rem}
+    .tag.price{background:rgba(255,211,109,.12);border-color:rgba(255,211,109,.22);color:#ffd36d}
+    .tag.ok{background:rgba(103,255,143,.12);border-color:rgba(103,255,143,.22);color:#9bffb7}
+    .tag.lock{background:rgba(255,255,255,.06);color:#d9e8dc}
+    .skinGlow{position:absolute;right:12px;top:12px;padding:7px 10px;border-radius:999px;background:rgba(7,19,12,.65);border:1px solid rgba(255,255,255,.12);font-size:.75rem;font-weight:900;z-index:2}
+    .skinNameRow{display:flex;justify-content:space-between;gap:10px;align-items:center;position:relative;z-index:1}
+    .shopSub{color:#cfead5;font-size:.92rem;line-height:1.45;min-height:2.7em;position:relative;z-index:1}
     .card .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
     .card .actions .btn{flex:1}
     .card.locked{opacity:.92}
     .card.owned{outline:2px solid rgba(47,224,111,.22)}
-    .card.equipped{outline:2px solid rgba(255,180,72,.44)}
+    .card.equipped{outline:2px solid rgba(255,180,72,.44);box-shadow:0 0 0 1px rgba(255,180,72,.30) inset,0 22px 52px rgba(0,0,0,.32)}
     #shopList,#inventoryList{margin-top:14px}
     .sectionSwitch{display:flex;gap:10px;flex-wrap:wrap}
     .sectionSwitch .btn{min-width:120px}
@@ -265,10 +278,8 @@
           const sy = window.innerHeight / 2 + (Math.random() - .5) * 210;
           el.style.left = sx + 'px';
           el.style.top = sy + 'px';
-          const curveX = (Math.random() - 0.5) * 120;
-          const curveY = -Math.random() * 140;
-          el.style.setProperty('--tx', (tx - sx + curveX) + 'px');
-          el.style.setProperty('--ty', (ty - sy + curveY) + 'px');
+          el.style.setProperty('--tx', (tx - sx) + 'px');
+          el.style.setProperty('--ty', (ty - sy) + 'px');
           el.style.animationDelay = (Math.random() * 0.35) + 's';
           document.body.appendChild(el);
           setTimeout(() => el.remove(), 2350);
@@ -474,16 +485,25 @@
       state.running = false;
       state.gameOver = true;
       const earned = state.score;
+      const beatHighScore = state.score > state.runBestBaseline;
       state.highScore = Math.max(state.highScore, state.score);
       saveState();
       renderUI();
       SFX.death();
       setTimeout(() => {
-        fireCoinParticles(earned);
         document.getElementById('menu').style.display = 'flex';
         const mc = document.querySelector('.menuCard');
         mc.style.animation = 'none'; void mc.offsetWidth; mc.style.animation = '';
         document.getElementById('hud').classList.add('hide');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            fireCoinParticles(earned);
+            if (beatHighScore) {
+              SFX.highScore();
+              showHsAnim();
+            }
+          });
+        });
       }, 400);
     }
 
@@ -695,7 +715,6 @@
           saveState();
           renderUI();
           SFX.score(); // Keep point sound consistent for every point.
-          if (isNewHigh) { SFX.highScore(); showHsAnim(); }
         }
       }
       state.pipes = state.pipes.filter(p => p.x > -120);
@@ -772,16 +791,22 @@
         const affordable = state.coins >= skin.price;
         const disabled = !owned && !affordable && !skin.free;
         const status = owned ? 'Owned' : (skin.free ? 'Free' : '$' + skin.price);
+        const badge = state.selectedSkin === skin.id ? 'Equipped' : (owned ? 'Owned' : (skin.free ? 'Starter' : 'Premium'));
+        const desc = owned ? `${skin.name} is already in your collection and ready to use.` : (skin.free ? `${skin.name} is your default bird and is always available.` : `Unlock ${skin.name} for ${skin.price} coins and fly with a fresh look.`);
         return `
           <div class="card ${owned ? 'owned' : 'locked'} ${state.selectedSkin === skin.id ? 'equipped' : ''}">
+            <div class="skinGlow">${badge}</div>
             <div class="skinPreview">
               <img src="${skin.src}" alt="${skin.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
               <div class="fallback">${skin.name.replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase()}</div>
             </div>
-            <h3>${skin.name}</h3>
+            <div class="skinNameRow">
+              <h3>${skin.name}</h3>
+            </div>
+            <div class="shopSub">${desc}</div>
             <div class="tagRow">
-              <span class="tag">${status}</span>
-              <span class="tag">${owned ? 'In inventory' : (skin.free ? 'Available now' : 'Buy to unlock')}</span>
+              <span class="tag ${owned || skin.free ? 'ok' : 'price'}">${status}</span>
+              <span class="tag ${owned ? 'ok' : 'lock'}">${owned ? 'In inventory' : (skin.free ? 'Available now' : 'Buy to unlock')}</span>
             </div>
             <div class="actions">
               ${owned || skin.free ? `<button class="btn primary equipBtn" data-equip="${skin.id}">Equip</button>` : `<button class="btn orange buyBtn" data-buy="${skin.id}" ${disabled ? 'disabled style="opacity:.55;cursor:not-allowed"' : ''}>Buy</button>`}
@@ -799,22 +824,38 @@
             <button class="btn primary" data-go="inventory">Inventory</button>
           </div>
         </div>
+        <div class="panelHero">
+          <div>
+            <h2 style="margin:0 0 4px">Skin Boutique</h2>
+            <p style="margin:0;color:var(--muted)">Cleaner cards, clearer prices, better browsing.</p>
+          </div>
+          <div class="panelHeroStat">
+            <div class="panelHeroPill">Coins: <strong>$${state.coins}</strong></div>
+            <div class="panelHeroPill">Owned: <strong>${ownedCount()}</strong></div>
+          </div>
+        </div>
         <div class="grid" id="shopList">${cards}</div>`;
     }
 
     function inventoryMarkup() {
       const cards = Object.values(skins).map(skin => {
         const owned = state.ownedSkins.includes(skin.id);
+        const badge = state.selectedSkin === skin.id ? 'Selected' : (owned ? 'Unlocked' : 'Locked');
+        const desc = owned ? `You own ${skin.name}. ${state.selectedSkin === skin.id ? 'This one is active right now.' : 'Equip it whenever you want.'}` : `${skin.name} is still locked. Visit the shop to unlock it.`;
         return `
           <div class="card ${owned ? 'owned' : 'locked'} ${state.selectedSkin === skin.id ? 'equipped' : ''}">
+            <div class="skinGlow">${badge}</div>
             <div class="skinPreview">
               <img src="${skin.src}" alt="${skin.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
               <div class="fallback">${skin.name.replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase()}</div>
             </div>
-            <h3>${skin.name}</h3>
+            <div class="skinNameRow">
+              <h3>${skin.name}</h3>
+            </div>
+            <div class="shopSub">${desc}</div>
             <div class="tagRow">
-              <span class="tag">${owned ? 'Unlocked' : 'Locked'}</span>
-              <span class="tag">${state.selectedSkin === skin.id ? 'Selected' : 'Not selected'}</span>
+              <span class="tag ${owned ? 'ok' : 'lock'}">${owned ? 'Unlocked' : 'Locked'}</span>
+              <span class="tag ${state.selectedSkin === skin.id ? 'price' : 'lock'}">${state.selectedSkin === skin.id ? 'Selected' : 'Not selected'}</span>
             </div>
             <div class="actions">
               <button class="btn primary equipBtn" data-equip="${skin.id}" ${owned ? '' : 'disabled style="opacity:.55;cursor:not-allowed"'}>Equip</button>
@@ -830,6 +871,16 @@
           <div class="sectionSwitch">
             <button class="btn" data-close>Close</button>
             <button class="btn orange" data-go="shop">Shop</button>
+          </div>
+        </div>
+        <div class="panelHero">
+          <div>
+            <h2 style="margin:0 0 4px">Your Collection</h2>
+            <p style="margin:0;color:var(--muted)">See what you own and switch fast.</p>
+          </div>
+          <div class="panelHeroStat">
+            <div class="panelHeroPill">Selected: <strong>${getSkin(state.selectedSkin).name}</strong></div>
+            <div class="panelHeroPill">Owned: <strong>${ownedCount()}</strong></div>
           </div>
         </div>
         <div class="grid" id="inventoryList">${cards}</div>`;
