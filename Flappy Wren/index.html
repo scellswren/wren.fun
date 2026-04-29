@@ -106,12 +106,16 @@
       .menuCard,.panel{padding:20px;border-radius:28px}
       .menuStats{gap:8px}
     }
+  </style>
   <style>
-    @keyframes hsFlash{0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(-8deg)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.18) rotate(3deg)}70%{transform:translate(-50%,-50%) scale(.95) rotate(-1deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.05) rotate(0deg)}}
-    #hsAnim{position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;opacity:0;font-family:'Fredoka One',Arial,sans-serif;font-size:clamp(2.5rem,8vw,5rem);color:#ffd36d;text-shadow:0 0 40px rgba(255,211,109,.9),0 0 80px rgba(255,150,0,.6);white-space:nowrap;display:none}
-    #hsAnim.go{display:block;animation:hsFlash 1.8s cubic-bezier(.22,1,.36,1) forwards}
-    @keyframes coinFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.3)}}
-    .coinParticle{position:fixed;pointer-events:none;z-index:9998;font-size:1.1rem;font-family:'Fredoka One',Arial,sans-serif;color:#ffd36d;text-shadow:0 0 8px rgba(255,211,109,.8);animation:coinFly .8s cubic-bezier(.22,1,.36,1) forwards}
+    @keyframes hsFlash{0%{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-10deg)}35%{opacity:1;transform:translate(-50%,-50%) scale(1.34) rotate(5deg)}60%{transform:translate(-50%,-50%) scale(.92) rotate(-2deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.08) rotate(0deg)}}
+    @keyframes hsRing{0%{opacity:.95;transform:translate(-50%,-50%) scale(.3)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.05)}}
+    #hsAnim{position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;opacity:0;font-family:'Fredoka One',Arial,sans-serif;font-size:clamp(3.1rem,10vw,6.9rem);color:#ffd36d;text-shadow:0 0 46px rgba(255,211,109,.95),0 0 100px rgba(255,150,0,.7);white-space:nowrap;display:none;letter-spacing:.03em}
+    #hsAnim::after{content:"";position:absolute;left:50%;top:50%;width:min(62vw,520px);height:min(62vw,520px);border-radius:50%;border:6px solid rgba(255,211,109,.7);transform:translate(-50%,-50%) scale(.3);opacity:0;pointer-events:none}
+    #hsAnim.go{display:block;animation:hsFlash 2.15s cubic-bezier(.22,1,.36,1) forwards}
+    #hsAnim.go::after{animation:hsRing 1.1s ease-out forwards}
+    @keyframes coinFly{0%{opacity:0;transform:translate(0,0) scale(.55)}15%{opacity:1}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.24)}}
+    .coinParticle{position:fixed;pointer-events:none;z-index:9998;font-size:1.55rem;font-family:'Fredoka One',Arial,sans-serif;color:#ffd36d;text-shadow:0 0 12px rgba(255,211,109,.95),0 0 24px rgba(255,154,46,.72);animation:coinFly 1.95s cubic-bezier(.22,1,.36,1) forwards}
   </style>
 </head>
 <body>
@@ -205,13 +209,20 @@
       } catch(e) {}
     }
     const SFX = {
-      flap()    { playTone('sine', 420, 0.12, 0.14, 280); playNoise(0.06, 0.05); },
+      flap()    {
+        playTone('sine', 390, 0.10, 0.11, 280, 0.004, 0.09);
+        playTone('triangle', 620, 0.05, 0.06, 420, 0.003, 0.05);
+      },
       score()   { playTone('triangle', 660, 0.08, 0.15, 880); playTone('sine', 880, 0.1, 0.08, 1100, 0.01); },
-      highScore(){ [0,100,200].forEach(d=>setTimeout(()=>{ playTone('square',880,0.18,0.18,1760,0.01,0.18); playTone('triangle',1320,0.22,0.12,2200,0.01,0.22); },d)); },
-      death()   { playTone('sawtooth', 300, 0.4, 0.2, 80); playNoise(0.3, 0.15); },
-      button()  { playTone('sine', 520, 0.08, 0.1, 580); },
-      buy()     { [0,80,160].forEach((d,i)=>setTimeout(()=>playTone('triangle',[520,660,880][i],0.15,0.14,[660,880,1100][i]),d)); },
-      equip()   { playTone('sine', 740, 0.2, 0.13, 920); playTone('triangle', 920, 0.15, 0.08, 1100, 0.02); },
+      highScore(){ [0,85,170,255].forEach((d,i)=>setTimeout(()=>{ playTone('square',860 + i*90,0.17,0.13,1720 + i*140,0.008,0.16); },d)); },
+      death()   {
+        playTone('sawtooth', 260, 0.48, 0.16, 64, 0.004, 0.45);
+        playTone('triangle', 120, 0.36, 0.08, 58, 0.003, 0.33);
+        playNoise(0.18, 0.045);
+      },
+      button()  { playTone('sine', 520, 0.06, 0.08, 610, 0.004, 0.06); },
+      buy()     { [0,70,140,210].forEach((d,i)=>setTimeout(()=>playTone('triangle',[520,660,830,1040][i],0.13,0.10,[660,830,1040,1320][i],0.005,0.12),d)); },
+      equip()   { playTone('sine', 760, 0.13, 0.1, 940, 0.005, 0.12); playTone('triangle', 980, 0.11, 0.07, 1180, 0.005, 0.10); },
     };
 
     // ── High Score Animation ──────────────────────────────────────
@@ -230,22 +241,24 @@
       const targetRect = coinsEl ? coinsEl.getBoundingClientRect() : null;
       const tx = targetRect ? targetRect.left + targetRect.width / 2 : window.innerWidth / 2;
       const ty = targetRect ? targetRect.top + targetRect.height / 2 : 80;
-      const count = Math.min(score, 12);
+      const count = Math.min(Math.max(score * 2, 18), 56);
       for (let i = 0; i < count; i++) {
         setTimeout(() => {
           const el = document.createElement('div');
           el.className = 'coinParticle';
-          el.textContent = '$1';
-          const sx = window.innerWidth / 2 + (Math.random() - .5) * 120;
-          const sy = window.innerHeight / 2 + (Math.random() - .5) * 120;
+          el.textContent = (i % 5 === 0) ? '$2' : '$1';
+          const sx = window.innerWidth / 2 + (Math.random() - .5) * 260;
+          const sy = window.innerHeight / 2 + (Math.random() - .5) * 210;
           el.style.left = sx + 'px';
           el.style.top = sy + 'px';
-          el.style.setProperty('--tx', (tx - sx) + 'px');
-          el.style.setProperty('--ty', (ty - sy) + 'px');
-          el.style.animationDelay = (Math.random() * 0.2) + 's';
+          const curveX = (Math.random() - 0.5) * 120;
+          const curveY = -Math.random() * 140;
+          el.style.setProperty('--tx', (tx - sx + curveX) + 'px');
+          el.style.setProperty('--ty', (ty - sy + curveY) + 'px');
+          el.style.animationDelay = (Math.random() * 0.35) + 's';
           document.body.appendChild(el);
-          setTimeout(() => el.remove(), 1200);
-        }, i * 60);
+          setTimeout(() => el.remove(), 2350);
+        }, i * 45);
       }
     }
 
@@ -302,7 +315,9 @@
       bgX: 0,
       bird: { x: 0, y: 0, vy: 0, size: 46, rot: 0, bob: 0 },
       countdown: 0,
-      countdownTimer: null
+      countdownTimer: null,
+      runBestBaseline: Number(localStorage.getItem(STORAGE.highScore) || '0'),
+      surpassedHighThisRun: false
     };
 
     if (!state.ownedSkins.includes(state.selectedSkin)) state.selectedSkin = 'wren';
@@ -376,6 +391,8 @@
       state.bird.bob = 0;
       state.countdown = 0;
       if (state.countdownTimer) { clearInterval(state.countdownTimer); state.countdownTimer = null; }
+      state.runBestBaseline = state.highScore;
+      state.surpassedHighThisRun = false;
       renderUI();
     }
 
@@ -411,7 +428,6 @@
         const mc = document.querySelector('.menuCard');
         mc.style.animation = 'none'; void mc.offsetWidth; mc.style.animation = '';
         document.getElementById('hud').classList.add('hide');
-        setMessage(`Game over! You scored ${earned} and earned $${earned}.`);
       }, 400);
     }
 
@@ -614,15 +630,15 @@
         }
         if (!pipe.scored && pipe.x + pipeW < state.bird.x - birdR) {
           pipe.scored = true;
-          const wasHigh = state.score >= state.highScore && state.score > 0;
           state.score += 1;
           state.coins += 1;
           const isNewHigh = state.score > state.highScore;
+          if (state.score > state.runBestBaseline) state.surpassedHighThisRun = true;
           state.highScore = Math.max(state.highScore, state.score);
           saveState();
           renderUI();
+          SFX.score(); // Keep point sound consistent for every point.
           if (isNewHigh) { SFX.highScore(); showHsAnim(); }
-          else { SFX.score(); }
         }
       }
       state.pipes = state.pipes.filter(p => p.x > -120);
@@ -657,6 +673,14 @@
       ctx.font = '900 32px Arial';
       ctx.textAlign = 'center';
       ctx.fillText(state.score, state.w / 2, 42);
+      if (state.surpassedHighThisRun) {
+        ctx.font = '900 15px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#ffd36d';
+        ctx.shadowColor = 'rgba(255,211,109,0.85)';
+        ctx.shadowBlur = 12;
+        ctx.fillText('HIGH SCORE', state.w / 2 + 24, 40);
+      }
       ctx.restore();
     }
 
