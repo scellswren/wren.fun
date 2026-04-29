@@ -2940,11 +2940,10 @@ async function playRpsDuel(attackerIdx, defenderIdx){
     if(result === 0){
       continue;
     }
+
     const loserIdx = result === 1 ? defenderIdx : attackerIdx;
-    showStatus(`${state.players[loserIdx].name} lost the duel and draws 4!`, 2200);
-    await animateDrawCards(4, 90, loserIdx);
-    for(let i = 0; i < 4; i++) state.players[loserIdx].cards.push(drawCard(state, loserIdx));
-    if(loserIdx === 0) renderPlayerHand(); else updateOpponentZone(loserIdx);
+    state.skipNext[loserIdx] = true;
+    showStatus(`${state.players[loserIdx].name} lost the duel and will be skipped!`, 2200);
     return loserIdx;
   }
 }
@@ -4477,15 +4476,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
 
     case 'rockPaperScissors':
     case 'wildRockPaperScissors':{
-      let target = nextPlayerIdx();
-      if(card.type === 'wildRockPaperScissors'){
-        if(isHumanControlledPlayer(playerIdx)){
-          target = await pickPlayer('RPS: Who do you challenge?', [playerIdx]);
-        } else {
-          const others = state.players.map((_,i)=>i).filter(i=>i!==playerIdx);
-          target = others[Math.floor(Math.random()*others.length)];
-        }
-      }
+      const target = nextPlayerIdx();
       showStatus(`✊📄✂️ Challenge ${state.players[target].name}!`, 1700);
       await playRpsDuel(playerIdx, target);
       break;
@@ -4896,34 +4887,36 @@ function advanceTurn(){
     state.suppressWildTurns--;
     if(state.suppressWildTurns === 0) showStatus('🚫🌈 Suppress Wild ended!', 1500);
   }
-  if(state.targetStackDuel && state.pendingDraw>0){
-    const duel = state.targetStackDuel;
-    if(state.currentPlayer===duel.a) state.currentPlayer=duel.b;
-    else if(state.currentPlayer===duel.b) state.currentPlayer=duel.a;
-    else state.currentPlayer=duel.b;
-  } else {
-    state.currentPlayer=(state.currentPlayer+state.direction+n)%n;
-  }
   state.hasDrawn=false;
   if(botTimer){clearTimeout(botTimer);botTimer=null;}
-  
-  // Eternal Skip check
-  if(state.eternalSkips && state.eternalSkips[state.currentPlayer]){
-    const skippedIdx = state.currentPlayer;
-    turnResolutionLocked = true;
-    showStatus(`${state.players[state.currentPlayer].name} is eternally skipped! ♾️`, 1000);
-    setTimeout(() => { if(!gameRunning){turnResolutionLocked = false;return;} advanceTurn(); finishTurn(skippedIdx); }, 500);
-    return;
-  }
 
-  // Target Skip check
-  if(state.skipNext && state.skipNext[state.currentPlayer]){
-    const skippedIdx = state.currentPlayer;
-    delete state.skipNext[skippedIdx];
-    turnResolutionLocked = true;
-    showStatus(`${state.players[state.currentPlayer].name} is skipped! 🎯⊘`, 1400);
-    setTimeout(() => { if(!gameRunning){turnResolutionLocked = false;return;} advanceTurn(); finishTurn(skippedIdx); }, 500);
-    return;
+  // Keep moving until we land on a player who is actually allowed to act.
+  const maxHops = Math.max(1, n * 2);
+  let hops = 0;
+  while(hops < maxHops){
+    if(state.targetStackDuel && state.pendingDraw>0){
+      const duel = state.targetStackDuel;
+      if(state.currentPlayer===duel.a) state.currentPlayer=duel.b;
+      else if(state.currentPlayer===duel.b) state.currentPlayer=duel.a;
+      else state.currentPlayer=duel.b;
+    } else {
+      state.currentPlayer=(state.currentPlayer+state.direction+n)%n;
+    }
+
+    if(state.eternalSkips && state.eternalSkips[state.currentPlayer]){
+      showStatus(`${state.players[state.currentPlayer].name} is eternally skipped! ♾️`, 1000);
+      hops++;
+      continue;
+    }
+
+    if(state.skipNext && state.skipNext[state.currentPlayer]){
+      delete state.skipNext[state.currentPlayer];
+      showStatus(`${state.players[state.currentPlayer].name} is skipped! 🎯⊘`, 1400);
+      hops++;
+      continue;
+    }
+
+    break;
   }
 }
 function nextPlayerIdx(){const n=state.players.length;return(state.currentPlayer+state.direction+n)%n;}
