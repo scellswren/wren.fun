@@ -48,6 +48,7 @@
     .btn:hover{transform:translateY(-1px);filter:brightness(1.03)}
     .btn:active{transform:translateY(1px) scale(.98)}
     .btn.primary{background:linear-gradient(145deg,#2fe06f,#16a34a);color:white}
+    .btn.equippedBlue{background:linear-gradient(145deg,#5dc8ff,#2563eb);color:#fff;box-shadow:0 0 0 1px rgba(147,197,253,.30) inset,0 10px 24px rgba(37,99,235,.28)}
     .btn.orange{background:linear-gradient(145deg,#ffb14d,#ff8a1f);color:#fff}
     .btn.dark{background:linear-gradient(145deg,#1c3325,#0c1a12);color:#fff;border:1px solid rgba(255,255,255,.08)}
     #menu{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:8;padding:20px}
@@ -82,9 +83,14 @@
     .title .green{color:#67ff8f;animation:greenShimmer 2.2s ease-in-out infinite;display:inline-block}
     .title .orange{color:#ffba57;animation:orangePulse 2.2s ease-in-out infinite .4s;display:inline-block}
     .heroActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;position:relative;z-index:1}
-    #overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:20;background:radial-gradient(circle at 50% 20%,rgba(103,255,143,.12),transparent 35%),rgba(0,0,0,.62);backdrop-filter:blur(10px)}
+    #overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:20;background:radial-gradient(circle at 50% 20%,rgba(103,255,143,.08),transparent 35%),rgba(0,0,0,.72)}
     #overlay.show{display:flex}
-    .panel{width:min(980px,96vw);max-height:min(88vh,860px);overflow:auto;border-radius:34px;background:linear-gradient(180deg,rgba(10,26,17,.98),rgba(6,18,10,.95));border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 1px rgba(103,255,143,.12) inset,0 36px 90px rgba(0,0,0,.58);padding:22px}
+    .panel{width:min(980px,96vw);max-height:min(88vh,860px);overflow:auto;border-radius:34px;background:linear-gradient(180deg,rgba(10,26,17,.98),rgba(6,18,10,.95));border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 1px rgba(103,255,143,.10) inset,0 28px 70px rgba(0,0,0,.50);padding:22px;overscroll-behavior:contain}
+    .panel,.panel *{scrollbar-width:thin;scrollbar-color:#000 #000}
+    .panel::-webkit-scrollbar{width:12px;height:12px}
+    .panel::-webkit-scrollbar-track{background:#000}
+    .panel::-webkit-scrollbar-thumb{background:#000;border-radius:999px;border:2px solid #000}
+    .panel::-webkit-scrollbar-corner{background:#000}
     .panelHeader{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px}
     .panelHeader h2{margin:0;font-size:1.55rem}
     .panelHeader p{margin:4px 0 0;color:var(--muted)}
@@ -92,10 +98,10 @@
     .panelHeroStat{display:flex;gap:10px;flex-wrap:wrap}
     .panelHeroPill{padding:10px 14px;border-radius:999px;background:rgba(7,19,12,.58);border:1px solid rgba(255,255,255,.10);font-weight:900}
     .panelHeroPill strong{color:#ffd36d}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
-    .card{position:relative;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.10);padding:16px;display:flex;flex-direction:column;gap:12px;overflow:hidden;box-shadow:0 14px 34px rgba(0,0,0,.24);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;align-items:start}
+    .card{position:relative;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.10);padding:16px;display:flex;flex-direction:column;gap:12px;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.18);transition:border-color .18s ease,transform .18s ease;contain:content;content-visibility:auto;contain-intrinsic-size:320px}
     .card::before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.10),transparent 45%,rgba(255,186,87,.08));opacity:.9;pointer-events:none}
-    .card:hover{transform:translateY(-3px);box-shadow:0 20px 44px rgba(0,0,0,.32);border-color:rgba(103,255,143,.22)}
+    .card:hover{transform:translateY(-2px);border-color:rgba(103,255,143,.22)}
     .skinPreview{height:156px;border-radius:22px;background:radial-gradient(circle at 25% 20%,rgba(255,255,255,.26),transparent 22%),linear-gradient(135deg, rgba(29,143,58,.95), rgba(255,156,42,.78));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
     .skinPreview::after{content:"";position:absolute;inset:auto -18% -40% auto;width:150px;height:150px;background:rgba(255,255,255,.12);filter:blur(10px);border-radius:50%}
     .skinPreview img{width:92px;height:92px;object-fit:cover;border-radius:18px;box-shadow:0 18px 30px rgba(0,0,0,.28);background:rgba(255,255,255,.10);border:2px solid rgba(255,255,255,.18);position:relative;z-index:1}
@@ -114,7 +120,7 @@
     .card .actions .btn{flex:1}
     .card.locked{opacity:.92}
     .card.owned{outline:2px solid rgba(47,224,111,.22)}
-    .card.equipped{outline:2px solid rgba(255,180,72,.44);box-shadow:0 0 0 1px rgba(255,180,72,.30) inset,0 22px 52px rgba(0,0,0,.32)}
+    .card.equipped{outline:2px solid rgba(93,200,255,.55);box-shadow:0 0 0 1px rgba(93,200,255,.25) inset,0 14px 30px rgba(0,0,0,.20)}
     #shopList,#inventoryList{margin-top:14px}
     .sectionSwitch{display:flex;gap:10px;flex-wrap:wrap}
     .sectionSwitch .btn{min-width:120px}
@@ -797,7 +803,7 @@
           <div class="card ${owned ? 'owned' : 'locked'} ${state.selectedSkin === skin.id ? 'equipped' : ''}">
             <div class="skinGlow">${badge}</div>
             <div class="skinPreview">
-              <img src="${skin.src}" alt="${skin.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+              <img src="${skin.src}" alt="${skin.name}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
               <div class="fallback">${skin.name.replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase()}</div>
             </div>
             <div class="skinNameRow">
@@ -809,7 +815,7 @@
               <span class="tag ${owned ? 'ok' : 'lock'}">${owned ? 'In inventory' : (skin.free ? 'Available now' : 'Buy to unlock')}</span>
             </div>
             <div class="actions">
-              ${owned || skin.free ? `<button class="btn primary equipBtn" data-equip="${skin.id}">Equip</button>` : `<button class="btn orange buyBtn" data-buy="${skin.id}" ${disabled ? 'disabled style="opacity:.55;cursor:not-allowed"' : ''}>Buy</button>`}
+              ${owned || skin.free ? `<button class="btn ${state.selectedSkin === skin.id ? 'equippedBlue' : 'primary'} equipBtn" data-equip="${skin.id}">${state.selectedSkin === skin.id ? 'Equipped' : 'Equip'}</button>` : `<button class="btn orange buyBtn" data-buy="${skin.id}" ${disabled ? 'disabled style="opacity:.55;cursor:not-allowed"' : ''}>Buy</button>`}
             </div>
           </div>`;
       }).join('');
@@ -846,7 +852,7 @@
           <div class="card ${owned ? 'owned' : 'locked'} ${state.selectedSkin === skin.id ? 'equipped' : ''}">
             <div class="skinGlow">${badge}</div>
             <div class="skinPreview">
-              <img src="${skin.src}" alt="${skin.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+              <img src="${skin.src}" alt="${skin.name}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
               <div class="fallback">${skin.name.replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase()}</div>
             </div>
             <div class="skinNameRow">
@@ -858,7 +864,7 @@
               <span class="tag ${state.selectedSkin === skin.id ? 'price' : 'lock'}">${state.selectedSkin === skin.id ? 'Selected' : 'Not selected'}</span>
             </div>
             <div class="actions">
-              <button class="btn primary equipBtn" data-equip="${skin.id}" ${owned ? '' : 'disabled style="opacity:.55;cursor:not-allowed"'}>Equip</button>
+              <button class="btn ${state.selectedSkin === skin.id ? 'equippedBlue' : 'primary'} equipBtn" data-equip="${skin.id}" ${owned ? '' : 'disabled style="opacity:.55;cursor:not-allowed"'}>${state.selectedSkin === skin.id ? 'Equipped' : 'Equip'}</button>
             </div>
           </div>`;
       }).join('');
