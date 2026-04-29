@@ -4970,6 +4970,8 @@ function unlockSevenTheme(forceNotice=true){
 }
 function refreshCoffeeOption(){refreshOption('coffeeModeOption','coffeeLock','coffee');}
 function refreshWinduOption(){refreshOption('winduModeOption','winduLock','windu');}
+function hasVisitedFlappyWren(){return localStorage.getItem(VISIT_FLAPPYWREN_KEY)==='1';}
+function unlockCarrotIfEligible(){return unlockIfEligible('carrot',hasVisitedFlappyWren,'🥕 Carrot unlocked!',refreshCarrotOption);}
 
 function getCatchSave(){
   try{return JSON.parse(localStorage.getItem('catchAnything_save')||'null');}catch(e){return null;}
@@ -5112,7 +5114,7 @@ function showStoredUnlockNotice(){const footer=document.getElementById('footerTe
 function checkAllUnlocks(){
   syncCatchThemeUnlocks();
   unlockLuxuriousIfEligible();unlockRainbowRemasteredIfEligible();unlockFireIfEligible();unlockBlueberryIfEligible();unlockBlackHoleIfEligible();unlockCyanIfEligible();unlockWhiteNeonIfEligible();unlockIceIfEligible();unlockDarthIfEligible();unlockDayIfEligible();unlockNightIfEligible();
-  unlockRoseIfEligible();unlockWaterIfEligible();unlockPotatoIfEligible();unlockGrapeIfEligible();unlockSunIfEligible();unlockShadowIfEligible();unlockCheeseIfEligible();unlockToothpasteIfEligible();
+  unlockRoseIfEligible();unlockCarrotIfEligible();unlockWaterIfEligible();unlockPotatoIfEligible();unlockGrapeIfEligible();unlockSunIfEligible();unlockShadowIfEligible();unlockCheeseIfEligible();unlockToothpasteIfEligible();
   unlockLuckyIfEligible();unlockGlitchIfEligible();unlockSlimeIfEligible();unlockGalaxyIfEligible();unlockSpiderIfEligible();checkCreditsUnlocks();unlockRadioactiveIfEligible();unlockSnowIfEligible();unlockMoneyIfEligible();unlockCottonCandyIfEligible();unlockSaberIfEligible();unlockAnzacIfEligible();checkSkinUnlock(false);
   unlockEmeraldIfEligible();unlockDiamondIfEligible();unlockSevenIfEligible();unlockOneIfEligible();
   unlockJediIfEligible();unlockWatermelonIfEligible();unlockBoneIfEligible();
@@ -5140,15 +5142,6 @@ function markVisit(w,href){
   }
   else if(w==='flappywren'){
     localStorage.setItem(VISIT_FLAPPYWREN_KEY,'1');
-    if(localStorage.getItem(CARROT_THEME_UNLOCK_KEY)!=='1'){
-      localStorage.setItem(CARROT_THEME_UNLOCK_KEY,'1');
-      persistUnlocked('carrot');
-      refreshCarrotOption();
-      announceUnlock('🥕 Carrot unlocked!');
-    }else{
-      persistUnlocked('carrot');
-      refreshCarrotOption();
-    }
   }
   else if(w==='cheese')localStorage.setItem(VISIT_CHEESE_KEY,'1');
   else if(w==='catchanything'){localStorage.setItem(VISIT_CATCHANYTHING_KEY,'1');localStorage.setItem(DAY_UNLOCK_KEY,'1');localStorage.setItem('wren_theme_day_unlocked','1');}
@@ -5163,7 +5156,7 @@ function markVisit(w,href){
     else{persistUnlocked('one');refreshOneOption();}
   }
   checkAllUnlocks();
-  if(href){setTimeout(()=>{window.location.href=href;},850);return false;}
+  if(href){setTimeout(()=>{window.location.href=href;},140);return false;}
   return true;
 }
 function startSnowParticles(){const c=document.getElementById('snowContainer');c.innerHTML='';for(let i=0;i<60;i++){const f=document.createElement('div');f.className='snow-particle';const s=2+Math.random()*6,d=(Math.random()-0.5)*120;f.style.cssText=`left:${Math.random()*100}vw;width:${s}px;height:${s}px;opacity:${0.4+Math.random()*0.6};--drift:${d}px;--spin:${Math.random()*360}deg;animation-duration:${4+Math.random()*8}s;animation-delay:${-Math.random()*10}s;`;c.appendChild(f);}}
