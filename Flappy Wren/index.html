@@ -35,8 +35,8 @@
     #app{position:relative;width:100%;height:100%}
     #gameWrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:clamp(10px,2vw,24px)}
     canvas{width:min(100vw,720px);height:min(100vh,960px);max-width:100%;max-height:100%;border-radius:30px;box-shadow:var(--shadow);background:linear-gradient(180deg,#88d8ff 0%,#c8f3ff 30%,#dfffe8 55%,#bdf0c5 100%);display:block}
-    #hud{position:absolute;top:14px;left:120px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:5;gap:12px}
-    #homeText{position:fixed;top:10px;left:10px;font-family:'Fredoka One',Arial,sans-serif;font-size:1.6em;cursor:pointer;transition:transform 0.2s;z-index:1000;user-select:none;opacity:0.95;color:#67ff8f;text-shadow:0 0 14px rgba(103,255,143,.5);font-weight:900}
+    #hud{position:absolute;top:14px;left:160px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:5;gap:12px}
+    #homeText{position:fixed;top:10px;left:10px;font-family:'Fredoka One',Arial,sans-serif;font-size:1.6em;cursor:pointer;transition:transform 0.2s;z-index:1000;user-select:none;opacity:0.95;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.4);font-weight:900}
     #homeText:hover{transform:scale(1.12)}
     #fullscreenBtn{position:fixed;bottom:20px;right:20px;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.20);color:white;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all 0.2s;z-index:999;user-select:none;-webkit-user-select:none}
     #fullscreenBtn:hover{background:rgba(255,255,255,.20);transform:scale(1.05)}
@@ -115,14 +115,7 @@
     </div>
 
     <div id="hud" class="hide">
-      <div class="leftPills">
-        <div class="pill">Score: <b id="scoreHud">0</b></div>
-        <div class="pill">Coins: <b id="coinHud">$0</b></div>
-        <div class="pill">Skin: <b id="skinHud">Wren</b></div>
-      </div>
-      <div class="rightPills">
-        <button class="btn" id="menuBtn">Menu</button>
-      </div>
+      <button class="btn hide" id="menuBtn">Menu</button>
     </div>
 
     <div id="message"></div>
@@ -276,9 +269,6 @@
       document.getElementById('menuHighScore').textContent = state.highScore;
       document.getElementById('menuCoins').textContent = '$' + state.coins;
       document.getElementById('menuOwned').textContent = ownedCount();
-      document.getElementById('scoreHud').textContent = state.score;
-      document.getElementById('coinHud').textContent = '$' + state.coins;
-      document.getElementById('skinHud').textContent = getSkin(state.selectedSkin).name;
     }
 
     function resetGame() {
@@ -454,15 +444,19 @@
       ctx.shadowOffsetY = 6;
       if (img && img.complete && img.naturalWidth > 0) {
         ctx.save();
-        drawRoundedRect(-size / 2, -size / 2, size, size, size * 0.22);
+        drawRoundedRect(-size / 2, -size / 2, size, size, size * 0.19);
         ctx.clip();
-        ctx.drawImage(img, -size / 2, -size / 2, size, size);
+        // object-fit: cover — scale to fill square, centre crop
+        const iw = img.naturalWidth, ih = img.naturalHeight;
+        const scale = Math.max(size / iw, size / ih);
+        const dw = iw * scale, dh = ih * scale;
+        ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
         ctx.restore();
         ctx.save();
         ctx.shadowColor = 'rgba(0,0,0,0.22)';
         ctx.shadowBlur = 12;
         ctx.shadowOffsetY = 6;
-        drawRoundedRect(-size / 2, -size / 2, size, size, size * 0.22);
+        drawRoundedRect(-size / 2, -size / 2, size, size, size * 0.19);
         ctx.strokeStyle = 'rgba(255,255,255,0.18)';
         ctx.lineWidth = 2;
         ctx.stroke();
