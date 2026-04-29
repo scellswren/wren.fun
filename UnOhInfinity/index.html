@@ -4510,6 +4510,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       if(coinType.includes('Reverse')){
         state.direction *= -1;
         updateDirectionBadge();
+        if(n===2) extraTurn = true;
         showStatus('🪙 Reverse triggered!', 1600);
       } else if(coinType.includes('Skip')){
         state.skipNext[target] = true;
@@ -4531,7 +4532,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       if(rand==='plus2'){state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;}
       else if(rand==='plus4'){state.pendingDraw+=4;state.pendingDrawNum=4;state.pendingDrawReflected=false;}
       else if(rand==='skipAll'){extraTurn=true;}
-      else if(rand==='reverse'){state.direction*=-1;updateDirectionBadge();}
+      else if(rand==='reverse'){state.direction*=-1;updateDirectionBadge();if(n===2) extraTurn=true;}
       break;
     }
 
@@ -4598,25 +4599,25 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
 
     case 'reversePlus2':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
-      showStatus('Reverse +2! Next draws 2!',1800);break;
+      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;if(n===2) extraTurn=true;
+      showStatus('Reverse +2! ' + (n===2 ? 'Reversed back to you!' : 'Next draws 2!'),1800);break;
 
     case 'reversePlus4':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
-      showStatus('Reverse +4! Next draws 4!',1800);break;
+      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;if(n===2) extraTurn=true;
+      showStatus('Reverse +4! ' + (n===2 ? 'Reversed back to you!' : 'Next draws 4!'),1800);break;
 
     case 'reversePlus6':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=6;state.pendingDrawNum=6;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
-      showStatus('Reverse +6! Next draws 6!',1800);break;
+      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=6;state.pendingDrawNum=6;state.pendingDrawReflected=false;if(n===2) extraTurn=true;
+      showStatus('Reverse +6! ' + (n===2 ? 'Reversed back to you!' : 'Next draws 6!'),1800);break;
 
     case 'reversePlus8':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=8;state.pendingDrawNum=8;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
-      showStatus('Reverse +8! Next draws 8!',1800);break;
+      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=8;state.pendingDrawNum=8;state.pendingDrawReflected=false;if(n===2) extraTurn=true;
+      showStatus('Reverse +8! ' + (n===2 ? 'Reversed back to you!' : 'Next draws 8!'),1800);break;
 
     case 'skipReverse':
       state.direction*=-1;updateDirectionBadge();
-      state.skipNext[nextPlayerIdx()] = true;
-      showStatus('Skip Reverse! Reversed and skipped the next player!',1800);break;
+      if(n!==2) state.skipNext[nextPlayerIdx()] = true;
+      showStatus(n===2 ? 'Skip Reverse! In 2-player it skips the player who used it.' : 'Skip Reverse! Reversed and skipped next player!',1800);break;
 
     case 'targetPlus4':{
       let target;
