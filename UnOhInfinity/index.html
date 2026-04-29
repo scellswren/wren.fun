@@ -2764,6 +2764,9 @@ function isHumanControlledPlayer(idx){
   const player = state && state.players ? state.players[idx] : null;
   return idx === 0 || !!(player && player.isControlledBot);
 }
+function isOneBotMode(){
+  return !!(state && state.players && state.players.length === 2 && !teamMode);
+}
 function createDefaultSandboxSettings(){
   return normalizeSandboxSettings(cloneSettings(DEFAULT_SANDBOX_SETTINGS));
 }
@@ -4338,7 +4341,13 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     case 'number': break;
 
     case 'reverse': case 'wildReverse':
-      state.direction*=-1;updateDirectionBadge();break;
+      if(!isOneBotMode()){
+        state.direction*=-1;
+        updateDirectionBadge();
+      } else {
+        showStatus('↩ Reverse has no effect against 1 Bot!', 1400);
+      }
+      break;
 
     case 'skip': case 'wildSkip':
       if (state.players[playerIdx].cards.length === 0) {
@@ -4515,9 +4524,11 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         break;
       }
       if(coinType.includes('Reverse')){
-        state.direction *= -1;
-        updateDirectionBadge();
-        showStatus('🪙 Reverse triggered!', 1600);
+        if(!isOneBotMode()){
+          state.direction *= -1;
+          updateDirectionBadge();
+        }
+        showStatus(isOneBotMode() ? '🪙 Reverse has no effect against 1 Bot!' : '🪙 Reverse triggered!', 1600);
       } else if(coinType.includes('Skip')){
         state.skipNext[target] = true;
         showStatus(`🪙 ${state.players[target].name} is skipped!`, 1600);
@@ -4538,7 +4549,12 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       if(rand==='plus2'){state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;}
       else if(rand==='plus4'){state.pendingDraw+=4;state.pendingDrawNum=4;state.pendingDrawReflected=false;}
       else if(rand==='skipAll'){extraTurn=true;}
-      else if(rand==='reverse'){state.direction*=-1;updateDirectionBadge();}
+      else if(rand==='reverse'){
+        if(!isOneBotMode()){
+          state.direction*=-1;
+          updateDirectionBadge();
+        }
+      }
       break;
     }
 
@@ -4605,25 +4621,44 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
 
     case 'reversePlus2':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
+      if(!isOneBotMode()){
+        state.direction*=-1;
+        updateDirectionBadge();
+      }
+      state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
       showStatus('Reverse +2! Next draws 2!',1800);break;
 
     case 'reversePlus4':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
+      if(!isOneBotMode()){
+        state.direction*=-1;
+        updateDirectionBadge();
+      }
+      state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
       showStatus('Reverse +4! Next draws 4!',1800);break;
 
     case 'reversePlus6':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=6;state.pendingDrawNum=6;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
+      if(!isOneBotMode()){
+        state.direction*=-1;
+        updateDirectionBadge();
+      }
+      state.pendingDraw+=6;state.pendingDrawNum=6;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
       showStatus('Reverse +6! Next draws 6!',1800);break;
 
     case 'reversePlus8':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=8;state.pendingDrawNum=8;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
+      if(!isOneBotMode()){
+        state.direction*=-1;
+        updateDirectionBadge();
+      }
+      state.pendingDraw+=8;state.pendingDrawNum=8;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
       showStatus('Reverse +8! Next draws 8!',1800);break;
 
     case 'skipReverse':
-      state.direction*=-1;updateDirectionBadge();
+      if(!isOneBotMode()){
+        state.direction*=-1;
+        updateDirectionBadge();
+      }
       state.skipNext[nextPlayerIdx()] = true;
-      showStatus('Skip Reverse! Reversed and skipped the next player!',1800);break;
+      showStatus(isOneBotMode() ? 'Skip Reverse! Skipped the next player!' : 'Skip Reverse! Reversed and skipped the next player!',1800);break;
 
     case 'targetPlus4':{
       let target;
@@ -4722,7 +4757,11 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
 
     case 'wildPlus2SkipReverse':
-      state.direction*=-1;updateDirectionBadge();advanceTurn();state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;
+      if(!isOneBotMode()){
+        state.direction*=-1;
+        updateDirectionBadge();
+      }
+      advanceTurn();state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;
       showStatus(`🌈↩️⊘+2 Ultimate Chaos!`,2000);break;
 
     case 'instantWin':
