@@ -2943,7 +2943,14 @@ async function playRpsDuel(attackerIdx, defenderIdx){
 
     const loserIdx = result === 1 ? defenderIdx : attackerIdx;
     state.skipNext[loserIdx] = true;
-    showStatus(`${state.players[loserIdx].name} lost the duel and will be skipped!`, 2200);
+
+    const drawCount = 4;
+    await showPlusAlert(drawCount);
+    await animateDrawCards(drawCount, 90, loserIdx);
+    for(let i=0;i<drawCount;i++) state.players[loserIdx].cards.push(drawCard(state, loserIdx));
+    if(loserIdx===0) renderPlayerHand(); else updateOpponentZone(loserIdx);
+
+    showStatus(`${state.players[loserIdx].name} lost the duel, drew 4 cards, and will be skipped!`, 2400);
     return loserIdx;
   }
 }
@@ -4960,14 +4967,15 @@ function finishTurn(playerIdx){
     const hasStackable=current.cards.some(c=>canStackDraw(c));
     if(!hasStackable){
       // autoDrawing is already true from above
-      setTimeout(()=>triggerAutoDrawForPlayer(),800);
+      triggerAutoDrawForPlayer();
       return;
     }
   }
 
   if(state.frozenPlayers&&state.frozenPlayers[state.currentPlayer]&&state.pendingDraw===0){
     const frozenIdx=state.currentPlayer;
-    setTimeout(()=>{showStatus(`${state.players[frozenIdx].name} is frozen! ❄️`,1400);advanceTurn();finishTurn(frozenIdx);},600);
+    showStatus(`${state.players[frozenIdx].name} is frozen! ❄️`,1400);
+    advanceTurn();finishTurn(frozenIdx);
     return;
   }
 
