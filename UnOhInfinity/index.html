@@ -969,9 +969,21 @@ body.blur-active .game-top-actions{filter:none;}
         <label style="font-weight:700;">Chaos Factor (0.1 - 5.0):</label>
         <input type="number" id="sb-chaos" step="0.1" min="0.1" max="5" value="1.0" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 10px;border-radius:8px;width:60px;">
       </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <label style="font-weight:700;">Opponents (Bots):</label>
+        <div class="bot-grid" style="flex-wrap:wrap;">
+          <button type="button" class="bot-btn" id="sb-bot-0" onclick="setSandboxBots(0)">0 Bots</button>
+          <button type="button" class="bot-btn selected" id="sb-bot-1" onclick="setSandboxBots(1)">1 Bot</button>
+          <button type="button" class="bot-btn" id="sb-bot-2" onclick="setSandboxBots(2)">2 Bots</button>
+          <button type="button" class="bot-btn" id="sb-bot-3" onclick="setSandboxBots(3)">3 Bots</button>
+          <button type="button" class="bot-btn" id="sb-bot-4" onclick="setSandboxBots(4)">4 Bots</button>
+          <button type="button" class="bot-btn" id="sb-bot-5" onclick="setSandboxBots(5)">5 Bots</button>
+          <button type="button" class="bot-btn" id="sb-bot-6" onclick="setSandboxBots(6)">6 Bots</button>
+          <button type="button" class="bot-btn" id="sb-bot-7" onclick="setSandboxBots(7)">7 Bots</button>
+        </div>
+        <div id="sb-bot-solo-note" style="font-size:0.75em;color:var(--muted);display:none;">Solo mode — no opponents. Stats won't be counted.</div>
+      </div>
       <div class="menu-btn-row" style="justify-content:flex-start;gap:10px;flex-wrap:wrap;width:100%;">
-        <button type="button" class="bot-btn toggle-btn" id="sb-ones" onclick="toggleSandboxSetting('alwaysDrawOnes', 'sb-ones')">Always Draw Ones</button>
-        <button type="button" class="bot-btn toggle-btn" id="sb-control-team" onclick="toggleSandboxSetting('controlTeammate', 'sb-control-team')">Control Teammate</button>
       </div>
 
       <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
@@ -2723,6 +2735,7 @@ const DEFAULT_SANDBOX_SETTINGS = {
   chaosFactor: 1.0,
   alwaysDrawOnes: false,
   controlTeammate: false,
+  sandboxBotCount: 1,
   customHand: [],
   pool: {
     numbers: true,
@@ -2757,6 +2770,7 @@ function normalizeSandboxSettings(settings){
   s.chaosFactor = Number.isFinite(s.chaosFactor) ? s.chaosFactor : 1.0;
   s.alwaysDrawOnes = !!s.alwaysDrawOnes;
   s.controlTeammate = !!s.controlTeammate;
+  s.sandboxBotCount = Number.isFinite(s.sandboxBotCount) ? s.sandboxBotCount : 1;
   s.pool = normalizePoolSettings(s.pool);
   return s;
 }
@@ -3230,7 +3244,6 @@ function renderSelectorGrid(){
   const grid = document.getElementById('selector-grid');
   if(!grid) return;
   grid.innerHTML = '';
-  const frag = document.createDocumentFragment();
   const cards = getSelectorCards('hand').filter(matchesSelectorFilter);
   if(cards.length === 0){
     const empty = document.createElement('div');
@@ -3240,23 +3253,34 @@ function renderSelectorGrid(){
     updateSelectorToolbar();
     return;
   }
-  for(const card of cards){
-    const el = buildSelectorCardEl(card);
-    updateSelectorCardVisual(el, card);
-    el.onclick = () => {
-      if(selectorMode === 'hand'){
-        const idx = sandboxSettings.customHand.findIndex(c => getHandCardKey(c) === getHandCardKey(card));
-        if(idx >= 0) sandboxSettings.customHand.splice(idx, 1);
-        else sandboxSettings.customHand.push(JSON.parse(JSON.stringify(card)));
-      }
+  // Batch-render in chunks to avoid blocking the UI thread
+  const BATCH = 50;
+  let offset = 0;
+  function renderBatch(){
+    const frag = document.createDocumentFragment();
+    const end = Math.min(offset + BATCH, cards.length);
+    for(let i = offset; i < end; i++){
+      const card = cards[i];
+      const el = buildSelectorCardEl(card);
       updateSelectorCardVisual(el, card);
-      updateSelectorToolbar();
-      updateSandboxPreviews();
-    };
-    frag.appendChild(el);
+      el.onclick = () => {
+        if(selectorMode === 'hand'){
+          const idx = sandboxSettings.customHand.findIndex(c => getHandCardKey(c) === getHandCardKey(card));
+          if(idx >= 0) sandboxSettings.customHand.splice(idx, 1);
+          else sandboxSettings.customHand.push(JSON.parse(JSON.stringify(card)));
+        }
+        updateSelectorCardVisual(el, card);
+        updateSelectorToolbar();
+        updateSandboxPreviews();
+      };
+      frag.appendChild(el);
+    }
+    grid.appendChild(frag);
+    offset = end;
+    if(offset < cards.length) raf(renderBatch);
+    else updateSelectorToolbar();
   }
-  grid.appendChild(frag);
-  updateSelectorToolbar();
+  raf(renderBatch);
 }
 function selectAllPoolCards(){
   if(selectorMode !== 'pool') return;
@@ -3308,6 +3332,16 @@ function toggleSandboxSetting(key, id){
   setToggleButtonState(id, sandboxSettings[key]);
 }
 
+function setSandboxBots(n){
+  sandboxSettings.sandboxBotCount = n;
+  for(let i=0;i<=7;i++){
+    const btn=document.getElementById(`sb-bot-${i}`);
+    if(btn) btn.classList.toggle('selected', i===n);
+  }
+  const note=document.getElementById('sb-bot-solo-note');
+  if(note) note.style.display = n===0 ? 'block' : 'none';
+}
+
 function openSandboxSettings(){
   normalizeSandboxSettings(sandboxSettings);
   const modal=document.getElementById('sandbox-modal');
@@ -3318,6 +3352,7 @@ function openSandboxSettings(){
   if(chaos) chaos.value = sandboxSettings.chaosFactor;
   setToggleButtonState('sb-ones', sandboxSettings.alwaysDrawOnes);
   setToggleButtonState('sb-control-team', sandboxSettings.controlTeammate);
+  setSandboxBots(sandboxSettings.sandboxBotCount ?? 1);
   updateSandboxPreviews();
 }
 
@@ -3375,9 +3410,14 @@ function startSandboxMode(){
   teamMode = !!gameSettings.controlTeammate;
   isSandboxGame = true;
   activeGameSettings = gameSettings;
+  // Use sandbox bot count instead of the classic bot selector
+  const savedBots = selectedBots;
+  selectedBots = Number.isFinite(gameSettings.sandboxBotCount) ? gameSettings.sandboxBotCount : 1;
   closeSandbox();
   closeCardSelector();
   startGame(false);
+  // Restore selectedBots for classic mode after starting
+  selectedBots = savedBots;
 }
 
 function selectBots(n){selectedBots=n;document.querySelectorAll('.bot-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.dataset.bots)===n));}
@@ -4332,7 +4372,15 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     case 'number': break;
 
     case 'reverse': case 'wildReverse':
-      state.direction*=-1;updateDirectionBadge();break;
+      if(state.players.length === 2){
+        // In 1v1, reverse acts as a skip — opponent is skipped, you play again
+        advanceTurn();
+        showStatus(`↩ Reverse in 1v1 acts as a skip! ${state.players[state.currentPlayer].name} is skipped!`,1400);
+        extraTurn = true;
+      } else {
+        state.direction*=-1;updateDirectionBadge();
+      }
+      break;
 
     case 'skip': case 'wildSkip':
       if (state.players[playerIdx].cards.length === 0) {
@@ -4487,7 +4535,11 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         }
       }
       showStatus(`✊📄✂️ Challenge ${state.players[target].name}!`, 1700);
-      await playRpsDuel(playerIdx, target);
+      const rpsLoser = await playRpsDuel(playerIdx, target);
+      // Loser gets skipped — they should not get to play after losing
+      if(rpsLoser !== playerIdx){
+        state.skipNext[rpsLoser] = true;
+      }
       break;
     }
 
@@ -4607,25 +4659,36 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
 
     case 'reversePlus2':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
-      showStatus('Reverse +2! Next draws 2!',1800);break;
+      if(state.players.length > 2){ state.direction*=-1;updateDirectionBadge(); }
+      state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;
+      if(state.players.length > 2) state.currentPlayer=nextPlayerIdx();
+      showStatus(state.players.length === 2 ? '+2 stacked on opponent!' : 'Reverse +2! Next draws 2!',1800);break;
 
     case 'reversePlus4':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
-      showStatus('Reverse +4! Next draws 4!',1800);break;
+      if(state.players.length > 2){ state.direction*=-1;updateDirectionBadge(); }
+      state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;
+      if(state.players.length > 2) state.currentPlayer=nextPlayerIdx();
+      showStatus(state.players.length === 2 ? '+4 stacked on opponent!' : 'Reverse +4! Next draws 4!',1800);break;
 
     case 'reversePlus6':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=6;state.pendingDrawNum=6;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
-      showStatus('Reverse +6! Next draws 6!',1800);break;
+      if(state.players.length > 2){ state.direction*=-1;updateDirectionBadge(); }
+      state.pendingDraw+=6;state.pendingDrawNum=6;state.pendingDrawReflected=false;
+      if(state.players.length > 2) state.currentPlayer=nextPlayerIdx();
+      showStatus(state.players.length === 2 ? '+6 stacked on opponent!' : 'Reverse +6! Next draws 6!',1800);break;
 
     case 'reversePlus8':
-      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=8;state.pendingDrawNum=8;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
-      showStatus('Reverse +8! Next draws 8!',1800);break;
+      if(state.players.length > 2){ state.direction*=-1;updateDirectionBadge(); }
+      state.pendingDraw+=8;state.pendingDrawNum=8;state.pendingDrawReflected=false;
+      if(state.players.length > 2) state.currentPlayer=nextPlayerIdx();
+      showStatus(state.players.length === 2 ? '+8 stacked on opponent!' : 'Reverse +8! Next draws 8!',1800);break;
 
     case 'skipReverse':
-      state.direction*=-1;updateDirectionBadge();
-      state.skipNext[nextPlayerIdx()] = true;
-      showStatus('Skip Reverse! Reversed and skipped the next player!',1800);break;
+      if(state.players.length > 2){
+        state.direction*=-1;updateDirectionBadge();
+      }
+      advanceTurn();
+      showStatus(state.players.length === 2 ? `↩⊘ Skip Reverse! ${state.players[state.currentPlayer].name} is skipped!` : 'Skip Reverse! Reversed and skipped the next player!',1800);
+      break;
 
     case 'targetPlus4':{
       let target;
@@ -4724,7 +4787,8 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
 
     case 'wildPlus2SkipReverse':
-      state.direction*=-1;updateDirectionBadge();advanceTurn();state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;
+      if(state.players.length > 2){ state.direction*=-1;updateDirectionBadge(); }
+      advanceTurn();state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;
       showStatus(`🌈↩️⊘+2 Ultimate Chaos!`,2000);break;
 
     case 'instantWin':
@@ -4922,7 +4986,7 @@ function advanceTurn(){
     delete state.skipNext[skippedIdx];
     turnResolutionLocked = true;
     showStatus(`${state.players[state.currentPlayer].name} is skipped! 🎯⊘`, 1400);
-    setTimeout(() => { if(!gameRunning){turnResolutionLocked = false;return;} advanceTurn(); finishTurn(skippedIdx); }, 500);
+    setTimeout(() => { if(!gameRunning){turnResolutionLocked = false;return;} advanceTurn(); finishTurn(skippedIdx); }, 0);
     return;
   }
 }
