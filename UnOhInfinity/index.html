@@ -4528,7 +4528,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
           state.direction *= -1;
           updateDirectionBadge();
         }
-        showStatus(isOneBotMode() ? '🪙 Reverse has no effect against 1 Bot!' : '🪙 Reverse triggered!', 1600);
+        showStatus(isOneBotMode() ? '🪙 Reverse ignored against 1 Bot!' : '🪙 Reverse triggered!', 1600);
       } else if(coinType.includes('Skip')){
         state.skipNext[target] = true;
         showStatus(`🪙 ${state.players[target].name} is skipped!`, 1600);
@@ -4626,7 +4626,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         updateDirectionBadge();
       }
       state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
-      showStatus('Reverse +2! Next draws 2!',1800);break;
+      showStatus(isOneBotMode() ? '+2! Reverse ignored against 1 Bot!' : 'Reverse +2! Next draws 2!',1800);break;
 
     case 'reversePlus4':
       if(!isOneBotMode()){
@@ -4634,7 +4634,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         updateDirectionBadge();
       }
       state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
-      showStatus('Reverse +4! Next draws 4!',1800);break;
+      showStatus(isOneBotMode() ? '+4! Reverse ignored against 1 Bot!' : 'Reverse +4! Next draws 4!',1800);break;
 
     case 'reversePlus6':
       if(!isOneBotMode()){
@@ -4642,7 +4642,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         updateDirectionBadge();
       }
       state.pendingDraw+=6;state.pendingDrawNum=6;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
-      showStatus('Reverse +6! Next draws 6!',1800);break;
+      showStatus(isOneBotMode() ? '+6! Reverse ignored against 1 Bot!' : 'Reverse +6! Next draws 6!',1800);break;
 
     case 'reversePlus8':
       if(!isOneBotMode()){
@@ -4650,7 +4650,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         updateDirectionBadge();
       }
       state.pendingDraw+=8;state.pendingDrawNum=8;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
-      showStatus('Reverse +8! Next draws 8!',1800);break;
+      showStatus(isOneBotMode() ? '+8! Reverse ignored against 1 Bot!' : 'Reverse +8! Next draws 8!',1800);break;
 
     case 'skipReverse':
       if(!isOneBotMode()){
@@ -4761,8 +4761,12 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         state.direction*=-1;
         updateDirectionBadge();
       }
-      advanceTurn();state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;
-      showStatus(`🌈↩️⊘+2 Ultimate Chaos!`,2000);break;
+      state.pendingDraw += 2;
+      state.pendingDrawNum = 2;
+      state.pendingDrawReflected = false;
+      state.skipNext[nextPlayerIdx()] = true;
+      showStatus(`🌈↩️⊘+2 Ultimate Chaos!`,2000);
+      break;
 
     case 'instantWin':
       showStatus('🏆 INSTANT WIN! 🏆', 3000);
