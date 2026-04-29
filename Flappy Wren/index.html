@@ -67,6 +67,13 @@
     .btn.playBig:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(103,255,143,.4) inset,0 16px 40px rgba(0,0,0,.4),0 0 28px rgba(46,204,113,.22)}
     .menuRow{display:flex;gap:10px}
     .menuRow .btn{flex:1}
+    .settingRow{display:grid;gap:14px}
+    .settingCard{border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);padding:16px}
+    .settingCard h3{margin:0 0 8px;font-size:1rem}
+    .settingCard p{margin:0 0 12px;color:#cfead5;font-size:.95rem}
+    .rangeWrap{display:flex;align-items:center;gap:12px}
+    .rangeWrap input[type="range"]{flex:1;accent-color:#31d26b}
+    .rangeValue{min-width:56px;text-align:right;font-weight:900;color:#ffd36d}
     @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
     @keyframes titleFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-6px) rotate(1deg)}}
     @keyframes greenShimmer{0%,100%{color:#67ff8f;text-shadow:0 0 18px rgba(103,255,143,.7),0 12px 28px rgba(0,0,0,.28)}50%{color:#a0ffbe;text-shadow:0 0 32px rgba(103,255,143,1),0 12px 28px rgba(0,0,0,.28)}}
@@ -156,6 +163,9 @@
             <button class="btn orange" id="openShopBtn">Shop</button>
             <button class="btn" id="openInventoryBtn">Inventory</button>
           </div>
+          <div class="menuRow">
+            <button class="btn dark" id="openSettingsBtn">Settings</button>
+          </div>
         </div>
       </div>
     </div>
@@ -181,6 +191,8 @@
     }
     function playTone(type, freq, dur, vol=0.18, freqEnd=null, attack=0.005, decay=null) {
       try {
+        const actualVol = getSfxVolume(vol);
+        if (actualVol <= 0) return;
         const ac = getAudio();
         const o = ac.createOscillator();
         const g = ac.createGain();
@@ -188,13 +200,15 @@
         o.type = type; o.frequency.setValueAtTime(freq, ac.currentTime);
         if (freqEnd !== null) o.frequency.exponentialRampToValueAtTime(freqEnd, ac.currentTime + dur);
         g.gain.setValueAtTime(0, ac.currentTime);
-        g.gain.linearRampToValueAtTime(vol, ac.currentTime + attack);
+        g.gain.linearRampToValueAtTime(actualVol, ac.currentTime + attack);
         g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + (decay || dur));
         o.start(ac.currentTime); o.stop(ac.currentTime + dur + 0.05);
       } catch(e) {}
     }
     function playNoise(dur, vol=0.12) {
       try {
+        const actualVol = getSfxVolume(vol);
+        if (actualVol <= 0) return;
         const ac = getAudio();
         const buf = ac.createBuffer(1, ac.sampleRate * dur, ac.sampleRate);
         const d = buf.getChannelData(0);
@@ -203,7 +217,7 @@
         src.buffer = buf;
         const g = ac.createGain();
         src.connect(g); g.connect(ac.destination);
-        g.gain.setValueAtTime(vol, ac.currentTime);
+        g.gain.setValueAtTime(actualVol, ac.currentTime);
         g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
         src.start(); src.stop(ac.currentTime + dur + 0.02);
       } catch(e) {}
@@ -279,7 +293,9 @@
       coins: 'flappyWrenCoins',
       highScore: 'flappyWrenHighScore',
       selected: 'flappyWrenSelectedSkin',
-      owned: 'flappyWrenOwnedSkins'
+      owned: 'flappyWrenOwnedSkins',
+      sfxVolume: 'flappyWrenSfxVolume',
+      sfxMuted: 'flappyWrenSfxMuted'
     };
 
     const skins = {
@@ -317,7 +333,9 @@
       countdown: 0,
       countdownTimer: null,
       runBestBaseline: Number(localStorage.getItem(STORAGE.highScore) || '0'),
-      surpassedHighThisRun: false
+      surpassedHighThisRun: false,
+      sfxVolume: Math.max(0, Math.min(1, Number(localStorage.getItem(STORAGE.sfxVolume) || '0.75'))),
+      sfxMuted: localStorage.getItem(STORAGE.sfxMuted) === '1'
     };
 
     if (!state.ownedSkins.includes(state.selectedSkin)) state.selectedSkin = 'wren';
@@ -328,6 +346,13 @@
       localStorage.setItem(STORAGE.highScore, String(state.highScore));
       localStorage.setItem(STORAGE.selected, state.selectedSkin);
       localStorage.setItem(STORAGE.owned, JSON.stringify([...new Set(state.ownedSkins)]));
+      localStorage.setItem(STORAGE.sfxVolume, String(state.sfxVolume));
+      localStorage.setItem(STORAGE.sfxMuted, state.sfxMuted ? '1' : '0');
+    }
+
+    function getSfxVolume(mult = 1) {
+      if (state.sfxMuted) return 0;
+      return Math.max(0, Math.min(1, state.sfxVolume * mult));
     }
 
     function setMessage(text, ms = 1600) {
@@ -373,6 +398,37 @@
       document.getElementById('menuHighScore').textContent = state.highScore;
       document.getElementById('menuCoins').textContent = '$' + state.coins;
       document.getElementById('menuOwned').textContent = ownedCount();
+    }
+
+    function settingsMarkup() {
+      const percent = Math.round(state.sfxVolume * 100);
+      return `
+        <div class="panelHeader">
+          <div>
+            <h2>Settings</h2>
+            <p>Adjust sound effects volume or mute them.</p>
+          </div>
+          <div class="sectionSwitch">
+            <button class="btn" data-close>Close</button>
+            <button class="btn orange" data-go="shop">Shop</button>
+            <button class="btn primary" data-go="inventory">Inventory</button>
+          </div>
+        </div>
+        <div class="settingRow">
+          <div class="settingCard">
+            <h3>Sound Effects</h3>
+            <p>Change the volume for gameplay and UI sounds.</p>
+            <div class="rangeWrap">
+              <input id="sfxVolumeRange" type="range" min="0" max="100" value="${percent}" />
+              <div class="rangeValue" id="sfxVolumeValue">${percent}%</div>
+            </div>
+          </div>
+          <div class="settingCard">
+            <h3>Mute</h3>
+            <p>Turn all sound effects on or off instantly.</p>
+            <button class="btn dark" id="toggleMuteBtn">${state.sfxMuted ? 'Unmute SFX' : 'Mute SFX'}</button>
+          </div>
+        </div>`;
     }
 
     function resetGame() {
@@ -443,10 +499,11 @@
       const marginTop = 60;
       const marginBottom = state.ground + 90;
       const gap = Math.max(170, 220 - Math.min(80, state.score * 2));
+      const adjustedGap = gap + 14;
       const minTop = 70;
-      const maxTop = state.h - marginBottom - gap - minTop;
+      const maxTop = state.h - marginBottom - adjustedGap - minTop;
       const topH = minTop + Math.random() * Math.max(80, maxTop);
-      state.pipes.push({ x: state.w + 60, topH, gap, scored:false });
+      state.pipes.push({ x: state.w + 60, topH, gap: adjustedGap, scored:false });
     }
 
     function drawRoundedRect(x, y, w, h, r) {
@@ -700,6 +757,7 @@
       panel.dataset.view = kind;
       overlay.classList.add('show');
       if (kind === 'shop') panel.innerHTML = shopMarkup();
+      else if (kind === 'settings') panel.innerHTML = settingsMarkup();
       else panel.innerHTML = inventoryMarkup();
       bindPanelActions(kind);
     }
@@ -785,12 +843,32 @@
       panel.querySelectorAll('[data-go]').forEach(btn => btn.onclick = () => openOverlay(btn.dataset.go));
       panel.querySelectorAll('[data-buy]').forEach(btn => btn.onclick = () => { if (buySkin(btn.dataset.buy)) openOverlay('shop'); });
       panel.querySelectorAll('[data-equip]').forEach(btn => btn.onclick = () => { if (equipSkin(btn.dataset.equip)) openOverlay(kind); });
+      const volumeRange = panel.querySelector('#sfxVolumeRange');
+      if (volumeRange) {
+        volumeRange.oninput = () => {
+          state.sfxVolume = Number(volumeRange.value) / 100;
+          saveState();
+          const valueEl = panel.querySelector('#sfxVolumeValue');
+          if (valueEl) valueEl.textContent = Math.round(state.sfxVolume * 100) + '%';
+        };
+      }
+      const muteBtn = panel.querySelector('#toggleMuteBtn');
+      if (muteBtn) {
+        muteBtn.onclick = () => {
+          const wasMuted = state.sfxMuted;
+          state.sfxMuted = !state.sfxMuted;
+          saveState();
+          muteBtn.textContent = state.sfxMuted ? 'Unmute SFX' : 'Mute SFX';
+          if (wasMuted) SFX.button();
+        };
+      }
     }
 
     // Buttons
     document.getElementById('playBtn').onclick = () => startGame();
     document.getElementById('openShopBtn').onclick = () => openOverlay('shop');
     document.getElementById('openInventoryBtn').onclick = () => openOverlay('inventory');
+    document.getElementById('openSettingsBtn').onclick = () => openOverlay('settings');
     document.getElementById('menuBtn').onclick = () => {
       if (state.countdownTimer) { clearInterval(state.countdownTimer); state.countdownTimer = null; }
       state.running = false;
@@ -799,6 +877,13 @@
       document.getElementById('menu').style.display = 'flex';
       document.getElementById('hud').classList.add('hide');
     };
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      if (btn.id === 'toggleMuteBtn') return;
+      SFX.button();
+    });
 
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
