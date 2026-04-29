@@ -106,6 +106,12 @@
       .menuCard,.panel{padding:20px;border-radius:28px}
       .menuStats{gap:8px}
     }
+  <style>
+    @keyframes hsFlash{0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(-8deg)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.18) rotate(3deg)}70%{transform:translate(-50%,-50%) scale(.95) rotate(-1deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.05) rotate(0deg)}}
+    #hsAnim{position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;opacity:0;font-family:'Fredoka One',Arial,sans-serif;font-size:clamp(2.5rem,8vw,5rem);color:#ffd36d;text-shadow:0 0 40px rgba(255,211,109,.9),0 0 80px rgba(255,150,0,.6);white-space:nowrap;display:none}
+    #hsAnim.go{display:block;animation:hsFlash 1.8s cubic-bezier(.22,1,.36,1) forwards}
+    @keyframes coinFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.3)}}
+    .coinParticle{position:fixed;pointer-events:none;z-index:9998;font-size:1.1rem;font-family:'Fredoka One',Arial,sans-serif;color:#ffd36d;text-shadow:0 0 8px rgba(255,211,109,.8);animation:coinFly .8s cubic-bezier(.22,1,.36,1) forwards}
   </style>
 </head>
 <body>
@@ -119,6 +125,7 @@
     </div>
 
     <div id="message"></div>
+    <div id="hsAnim">🏆 NEW BEST!</div>
 
     <div id="menu">
       <div class="menuCard">
@@ -161,6 +168,86 @@
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
     const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+    // ── Sound Engine ──────────────────────────────────────────────
+    let audioCtx = null;
+    function getAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return audioCtx;
+    }
+    function playTone(type, freq, dur, vol=0.18, freqEnd=null, attack=0.005, decay=null) {
+      try {
+        const ac = getAudio();
+        const o = ac.createOscillator();
+        const g = ac.createGain();
+        o.connect(g); g.connect(ac.destination);
+        o.type = type; o.frequency.setValueAtTime(freq, ac.currentTime);
+        if (freqEnd !== null) o.frequency.exponentialRampToValueAtTime(freqEnd, ac.currentTime + dur);
+        g.gain.setValueAtTime(0, ac.currentTime);
+        g.gain.linearRampToValueAtTime(vol, ac.currentTime + attack);
+        g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + (decay || dur));
+        o.start(ac.currentTime); o.stop(ac.currentTime + dur + 0.05);
+      } catch(e) {}
+    }
+    function playNoise(dur, vol=0.12) {
+      try {
+        const ac = getAudio();
+        const buf = ac.createBuffer(1, ac.sampleRate * dur, ac.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+        const src = ac.createBufferSource();
+        src.buffer = buf;
+        const g = ac.createGain();
+        src.connect(g); g.connect(ac.destination);
+        g.gain.setValueAtTime(vol, ac.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+        src.start(); src.stop(ac.currentTime + dur + 0.02);
+      } catch(e) {}
+    }
+    const SFX = {
+      flap()    { playTone('sine', 420, 0.12, 0.14, 280); playNoise(0.06, 0.05); },
+      score()   { playTone('triangle', 660, 0.08, 0.15, 880); playTone('sine', 880, 0.1, 0.08, 1100, 0.01); },
+      highScore(){ [0,100,200].forEach(d=>setTimeout(()=>{ playTone('square',880,0.18,0.18,1760,0.01,0.18); playTone('triangle',1320,0.22,0.12,2200,0.01,0.22); },d)); },
+      death()   { playTone('sawtooth', 300, 0.4, 0.2, 80); playNoise(0.3, 0.15); },
+      button()  { playTone('sine', 520, 0.08, 0.1, 580); },
+      buy()     { [0,80,160].forEach((d,i)=>setTimeout(()=>playTone('triangle',[520,660,880][i],0.15,0.14,[660,880,1100][i]),d)); },
+      equip()   { playTone('sine', 740, 0.2, 0.13, 920); playTone('triangle', 920, 0.15, 0.08, 1100, 0.02); },
+    };
+
+    // ── High Score Animation ──────────────────────────────────────
+    function showHsAnim() {
+      const el = document.getElementById('hsAnim');
+      el.classList.remove('go');
+      void el.offsetWidth;
+      el.classList.add('go');
+      el.addEventListener('animationend', () => { el.classList.remove('go'); el.style.display='none'; }, { once: true });
+    }
+
+    // ── Coin Fly Animation on Death ───────────────────────────────
+    function fireCoinParticles(score) {
+      if (score <= 0) return;
+      const coinsEl = document.getElementById('menuCoins');
+      const targetRect = coinsEl ? coinsEl.getBoundingClientRect() : null;
+      const tx = targetRect ? targetRect.left + targetRect.width / 2 : window.innerWidth / 2;
+      const ty = targetRect ? targetRect.top + targetRect.height / 2 : 80;
+      const count = Math.min(score, 12);
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const el = document.createElement('div');
+          el.className = 'coinParticle';
+          el.textContent = '$1';
+          const sx = window.innerWidth / 2 + (Math.random() - .5) * 120;
+          const sy = window.innerHeight / 2 + (Math.random() - .5) * 120;
+          el.style.left = sx + 'px';
+          el.style.top = sy + 'px';
+          el.style.setProperty('--tx', (tx - sx) + 'px');
+          el.style.setProperty('--ty', (ty - sy) + 'px');
+          el.style.animationDelay = (Math.random() * 0.2) + 's';
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 1200);
+        }, i * 60);
+      }
+    }
 
     function fitCanvas() {
       const cssW = Math.min(window.innerWidth, 720);
@@ -246,6 +333,7 @@
       saveState();
       renderUI();
       setMessage(`${getSkin(id).name} equipped.`);
+      SFX.equip();
       return true;
     }
 
@@ -262,6 +350,7 @@
       saveState();
       renderUI();
       setMessage(`${skin.name} purchased and equipped!`);
+      SFX.buy();
       return true;
     }
 
@@ -311,14 +400,19 @@
       if (state.gameOver) return;
       state.running = false;
       state.gameOver = true;
+      const earned = state.score;
       state.highScore = Math.max(state.highScore, state.score);
       saveState();
       renderUI();
-      document.getElementById('menu').style.display = 'flex';
-      const mc = document.querySelector('.menuCard');
-      mc.style.animation = 'none'; void mc.offsetWidth; mc.style.animation = '';
-      document.getElementById('hud').classList.add('hide');
-      setMessage(`Game over! You scored ${state.score} and earned $${state.score}.`);
+      SFX.death();
+      setTimeout(() => {
+        fireCoinParticles(earned);
+        document.getElementById('menu').style.display = 'flex';
+        const mc = document.querySelector('.menuCard');
+        mc.style.animation = 'none'; void mc.offsetWidth; mc.style.animation = '';
+        document.getElementById('hud').classList.add('hide');
+        setMessage(`Game over! You scored ${earned} and earned $${earned}.`);
+      }, 400);
     }
 
     function flap() {
@@ -326,6 +420,7 @@
       if (!state.running || state.gameOver) return;
       state.bird.vy = -6.2;
       state.bird.rot = -0.32;
+      SFX.flap();
     }
 
     function spawnPipe() {
@@ -519,11 +614,15 @@
         }
         if (!pipe.scored && pipe.x + pipeW < state.bird.x - birdR) {
           pipe.scored = true;
+          const wasHigh = state.score >= state.highScore && state.score > 0;
           state.score += 1;
           state.coins += 1;
+          const isNewHigh = state.score > state.highScore;
           state.highScore = Math.max(state.highScore, state.score);
           saveState();
           renderUI();
+          if (isNewHigh) { SFX.highScore(); showHsAnim(); }
+          else { SFX.score(); }
         }
       }
       state.pipes = state.pipes.filter(p => p.x > -120);
