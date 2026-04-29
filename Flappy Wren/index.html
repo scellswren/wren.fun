@@ -1,1 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flappy Wren</title>
+  <style>
+    :root {
+      --bg1:#0a3d1f;
+      --bg2:#0e6b2f;
+      --bg3:#f19a2a;
+      --panel:rgba(8, 20, 14, 0.78);
+      --panel2:rgba(255,255,255,0.08);
+      --text:#f4fff1;
+      --muted:#c8e8cf;
+      --green:#31d26b;
+      --orange:#ff9c2a;
+      --pipe:#1d8f3a;
+      --pipeDark:#12622a;
+      --shadow:0 22px 60px rgba(0,0,0,.32);
+      --radius:26px;
+    }
+    *{box-sizing:border-box}
+    html,body{width:100%;height:100%;margin:0;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:
+      radial-gradient(circle at 15% 15%, rgba(255,171,62,.2) 0 18%, transparent 19%),
+      radial-gradient(circle at 78% 16%, rgba(50,210,107,.26) 0 18%, transparent 19%),
+      linear-gradient(180deg, var(--bg1), var(--bg2) 62%, var(--bg3));color:var(--text)}
+    body::before{content:"";position:fixed;inset:0;background:
+      linear-gradient(120deg, transparent 20%, rgba(255,255,255,.06) 50%, transparent 80%),
+      radial-gradient(circle at 20% 80%, rgba(255,255,255,.10) 0 4px, transparent 5px),
+      radial-gradient(circle at 75% 25%, rgba(255,255,255,.08) 0 5px, transparent 6px),
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,.06) 0 2px, transparent 3px);
+      pointer-events:none;opacity:.9}
+    #app{position:relative;width:100%;height:100%}
+    #gameWrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:clamp(10px,2vw,24px)}
+    canvas{width:min(100vw,720px);height:min(100vh,960px);max-width:100%;max-height:100%;border-radius:30px;box-shadow:var(--shadow);background:linear-gradient(180deg,#88d8ff 0%,#c8f3ff 30%,#dfffe8 55%,#bdf0c5 100%);display:block}
+    #hud{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:5;gap:12px;padding-left:110px}
+    #homeText{position:fixed;top:10px;left:10px;font-family:'Fredoka One',Arial,sans-serif;font-size:1.6em;cursor:pointer;transition:transform 0.2s;z-index:1000;user-select:none;opacity:0.95;color:#67ff8f;text-shadow:0 0 14px rgba(103,255,143,.5);font-weight:900}
+    #homeText:hover{transform:scale(1.12)}
+    #fullscreenBtn{position:fixed;bottom:20px;right:20px;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.20);color:white;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all 0.2s;z-index:999;user-select:none;-webkit-user-select:none}
+    #fullscreenBtn:hover{background:rgba(255,255,255,.20);transform:scale(1.05)}
+    #fullscreenBtn:active{transform:scale(0.95)}
+    .pill{pointer-events:auto;background:rgba(9,22,14,.65);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:10px 14px;box-shadow:0 10px 30px rgba(0,0,0,.18);font-weight:700}
+    .leftPills,.rightPills{display:flex;gap:10px;flex-wrap:wrap}
+    .pill b{color:#fff}
+    .btn{border:0;border-radius:16px;padding:12px 16px;font:700 15px/1.1 Arial,Helvetica,sans-serif;background:linear-gradient(145deg,#ffffff,#e8f5e9);color:#10331b;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.14);transition:.18s transform,.18s filter,.18s opacity}
+    .btn:hover{transform:translateY(-1px);filter:brightness(1.03)}
+    .btn:active{transform:translateY(1px) scale(.98)}
+    .btn.primary{background:linear-gradient(145deg,#2fe06f,#16a34a);color:white}
+    .btn.orange{background:linear-gradient(145deg,#ffb14d,#ff8a1f);color:#fff}
+    .btn.dark{background:linear-gradient(145deg,#1c3325,#0c1a12);color:#fff;border:1px solid rgba(255,255,255,.08)}
+    #menu{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:8;padding:20px}
+    .menuCard{width:min(920px,96vw);border-radius:32px;background:linear-gradient(180deg,rgba(8,19,12,.86),rgba(8,19,12,.72));border:1px solid rgba(255,255,255,.11);box-shadow:var(--shadow);padding:24px}
+    .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:stretch}
+    .heroMain{padding:20px 18px 18px;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden}
+    .heroMain::after{content:"";position:absolute;inset:-20% -20% auto auto;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle, rgba(255,159,46,.22), transparent 68%);transform:translate(15%, -8%)}
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+    @keyframes titleFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-6px) rotate(1deg)}}
+    @keyframes greenShimmer{0%,100%{color:#67ff8f;text-shadow:0 0 18px rgba(103,255,143,.7),0 12px 28px rgba(0,0,0,.28)}50%{color:#a0ffbe;text-shadow:0 0 32px rgba(103,255,143,1),0 12px 28px rgba(0,0,0,.28)}}
+    @keyframes orangePulse{0%,100%{color:#ffba57;text-shadow:0 0 18px rgba(255,186,87,.7),0 12px 28px rgba(0,0,0,.28)}50%{color:#ffd98a;text-shadow:0 0 32px rgba(255,186,87,1),0 12px 28px rgba(0,0,0,.28)}}
+    .title{margin:0;font-family:'Fredoka One',Arial,sans-serif;font-size:clamp(3rem,7vw,5.8rem);line-height:.9;letter-spacing:.01em;animation:titleFloat 3s ease-in-out infinite}
+    .title .green{color:#67ff8f;animation:greenShimmer 2.2s ease-in-out infinite;display:inline-block}
+    .title .orange{color:#ffba57;animation:orangePulse 2.2s ease-in-out infinite .4s;display:inline-block}
+    .subtitle{margin:14px 0 0;font-size:clamp(1rem,2.3vw,1.2rem);color:var(--muted);max-width:46ch}
+    .heroActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .statsGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .statBox{border-radius:22px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);padding:16px 14px;display:flex;flex-direction:column;justify-content:center;min-height:118px}
+    .statBox .label{font-size:.86rem;color:#d3ecd9;text-transform:uppercase;letter-spacing:.08em}
+    .statBox .value{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:900;margin-top:8px}
+    .bottomBar{margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:#d9f3df;font-size:.95rem}
+    .smallNote{color:#d9f3df;opacity:.85}
+    #overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:20;background:rgba(0,0,0,.55);backdrop-filter:blur(4px)}
+    #overlay.show{display:flex}
+    .panel{width:min(940px,96vw);max-height:min(88vh,860px);overflow:auto;border-radius:30px;background:linear-gradient(180deg,rgba(7,19,12,.92),rgba(7,19,12,.84));border:1px solid rgba(255,255,255,.10);box-shadow:var(--shadow);padding:18px}
+    .panelHeader{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+    .panelHeader h2{margin:0;font-size:1.55rem}
+    .panelHeader p{margin:4px 0 0;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    .card{border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.09);padding:14px;display:flex;flex-direction:column;gap:10px}
+    .skinPreview{height:120px;border-radius:20px;background:linear-gradient(135deg, rgba(29,143,58,.9), rgba(255,156,42,.65));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+    .skinPreview img{width:74px;height:74px;object-fit:cover;border-radius:14px;box-shadow:0 10px 18px rgba(0,0,0,.20);background:rgba(255,255,255,.10)}
+    .skinPreview .fallback{width:74px;height:74px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.58));color:#12361f;font-size:2rem;font-weight:900;display:none;align-items:center;justify-content:center}
+    .card h3{margin:0;font-size:1.1rem}
+    .card .meta{color:#cfead5;font-size:.93rem;line-height:1.45}
+    .tagRow{display:flex;gap:8px;flex-wrap:wrap}
+    .tag{border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);font-size:.84rem}
+    .card .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+    .card .actions .btn{flex:1}
+    .card.locked{opacity:.92}
+    .card.owned{outline:2px solid rgba(47,224,111,.22)}
+    .card.equipped{outline:2px solid rgba(255,180,72,.44)}
+    #shopList,#inventoryList{margin-top:14px}
+    .sectionSwitch{display:flex;gap:10px;flex-wrap:wrap}
+    .sectionSwitch .btn{min-width:120px}
+    #message{position:absolute;left:50%;top:100px;transform:translateX(-50%);padding:10px 16px;border-radius:999px;background:rgba(8,20,14,.82);color:white;border:1px solid rgba(255,255,255,.10);box-shadow:0 10px 24px rgba(0,0,0,.2);z-index:10;opacity:0;pointer-events:none;transition:.25s;max-width:min(92vw,720px);text-align:center}
+    #message.show{opacity:1}
+    .hide{display:none !important}
+    @media (max-width:780px){
+      .hero{grid-template-columns:1fr}
+      .statsGrid{grid-template-columns:1fr 1fr}
+      canvas{border-radius:22px}
+      .menuCard,.panel{padding:16px;border-radius:24px}
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="gameWrap">
+      <canvas id="game" width="720" height="960" aria-label="Flappy Wren game canvas"></canvas>
+    </div>
 
+    <div id="hud" class="hide">
+      <div class="leftPills">
+        <div class="pill">Score: <b id="scoreHud">0</b></div>
+        <div class="pill">Coins: <b id="coinHud">$0</b></div>
+        <div class="pill">Skin: <b id="skinHud">Wren</b></div>
+      </div>
+      <div class="rightPills">
+        <button class="btn" id="menuBtn">Menu</button>
+      </div>
+    </div>
+
+    <div id="message"></div>
+
+    <div id="menu">
+      <div class="menuCard">
+        <div class="hero">
+          <div class="heroMain">
+            <h1 class="title"><span class="green">Flappy</span> <span class="orange">Wren</span></h1>
+            <p class="subtitle">Tap, click, or press Space to fly through the pipes. Every point is $1, your best score saves, and you can buy or equip new square skins in the shop and inventory.</p>
+            <div class="heroActions">
+              <button class="btn primary" id="playBtn">Play</button>
+              <button class="btn orange" id="openShopBtn">Shop</button>
+              <button class="btn" id="openInventoryBtn">Inventory</button>
+            </div>
+            <div class="bottomBar">
+              <span>High score: <b id="menuHighScore">0</b></span>
+            </div>
+          </div>
+          <div class="statsGrid">
+            <div class="statBox">
+              <div class="label">Current coins</div>
+              <div class="value" id="menuCoins">$0</div>
+            </div>
+            <div class="statBox">
+              <div class="label">Selected skin</div>
+              <div class="value" id="menuSkin">Wren</div>
+            </div>
+            <div class="statBox">
+              <div class="label">Owned skins</div>
+              <div class="value" id="menuOwned">0</div>
+            </div>
+            <div class="statBox">
+              <div class="label">Controls</div>
+              <div class="value" style="font-size:1.1rem;line-height:1.35">Click / Tap / Space</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="overlay">
+      <div class="panel" id="panel"></div>
+    </div>
+
+    <div id="homeText" onclick="window.location.href='../index.html'">Wren.fun</div>
+    <button id="fullscreenBtn" onclick="toggleFullscreen()" aria-label="Toggle fullscreen">⛶</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+    function fitCanvas() {
+      const cssW = Math.min(window.innerWidth, 720);
+      const cssH = Math.min(window.innerHeight, 960);
+      canvas.style.width = cssW + 'px';
+      canvas.style.height = cssH + 'px';
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      state.w = cssW;
+      state.h = cssH;
+      state.ground = Math.round(cssH * 0.16);
+    }
+
+    const STORAGE = {
+      coins: 'flappyWrenCoins',
+      highScore: 'flappyWrenHighScore',
+      selected: 'flappyWrenSelectedSkin',
+      owned: 'flappyWrenOwnedSkins'
+    };
+
+    const skins = {
+      wren: { id:'wren', name:'Wren', src:'WrenYay.jpg', price:0, free:true, accent:'#48de79' },
+      orin: { id:'orin', name:'The Mind Of Orin', src:'TheMindOfOrin.jpg', price:50, accent:'#ff9d2a' },
+      tiki: { id:'tiki', name:'TikiTheG', src:'TikiTheG.jpg', price:500, accent:'#7cf1b4' },
+      cena: { id:'cena', name:'Bald Cena', src:'TheRealBaldCena72.jpg', price:3500, accent:'#ffd36d' }
+    };
+
+    const imageCache = {};
+    Object.values(skins).forEach(skin => {
+      const img = new Image();
+      img.src = skin.src;
+      img.alt = skin.name;
+      imageCache[skin.id] = img;
+    });
+
+    const state = {
+      w: 720,
+      h: 960,
+      ground: 150,
+      running: false,
+      gameOver: false,
+      started: false,
+      score: 0,
+      coins: Number(localStorage.getItem(STORAGE.coins) || '0'),
+      highScore: Number(localStorage.getItem(STORAGE.highScore) || '0'),
+      selectedSkin: localStorage.getItem(STORAGE.selected) || 'wren',
+      ownedSkins: JSON.parse(localStorage.getItem(STORAGE.owned) || 'null') || ['wren'],
+      pipes: [],
+      ticks: 0,
+      spawnTimer: 0,
+      bgX: 0,
+      bird: { x: 0, y: 0, vy: 0, size: 46, rot: 0, bob: 0 },
+      countdown: 0,
+      countdownTimer: null
+    };
+
+    if (!state.ownedSkins.includes(state.selectedSkin)) state.selectedSkin = 'wren';
+    if (!state.ownedSkins.includes('wren')) state.ownedSkins.unshift('wren');
+
+    function saveState() {
+      localStorage.setItem(STORAGE.coins, String(state.coins));
+      localStorage.setItem(STORAGE.highScore, String(state.highScore));
+      localStorage.setItem(STORAGE.selected, state.selectedSkin);
+      localStorage.setItem(STORAGE.owned, JSON.stringify([...new Set(state.ownedSkins)]));
+    }
+
+    function setMessage(text, ms = 1600) {
+      const el = document.getElementById('message');
+      el.textContent = text;
+      el.classList.add('show');
+      clearTimeout(setMessage.timer);
+      setMessage.timer = setTimeout(() => el.classList.remove('show'), ms);
+    }
+
+    function ownedCount() { return [...new Set(state.ownedSkins)].length; }
+
+    function getSkin(id) { return skins[id] || skins.wren; }
+
+    function equipSkin(id) {
+      if (!state.ownedSkins.includes(id)) return false;
+      state.selectedSkin = id;
+      saveState();
+      renderUI();
+      setMessage(`${getSkin(id).name} equipped.`);
+      return true;
+    }
+
+    function buySkin(id) {
+      const skin = getSkin(id);
+      if (state.ownedSkins.includes(id)) return equipSkin(id);
+      if (state.coins < skin.price) {
+        setMessage(`Not enough coins for ${skin.name}.`);
+        return false;
+      }
+      state.coins -= skin.price;
+      state.ownedSkins.push(id);
+      state.selectedSkin = id;
+      saveState();
+      renderUI();
+      setMessage(`${skin.name} purchased and equipped!`);
+      return true;
+    }
+
+    function renderUI() {
+      document.getElementById('menuHighScore').textContent = state.highScore;
+      document.getElementById('menuCoins').textContent = '$' + state.coins;
+      document.getElementById('menuSkin').textContent = getSkin(state.selectedSkin).name;
+      document.getElementById('menuOwned').textContent = ownedCount();
+      document.getElementById('scoreHud').textContent = state.score;
+      document.getElementById('coinHud').textContent = '$' + state.coins;
+      document.getElementById('skinHud').textContent = getSkin(state.selectedSkin).name;
+    }
+
+    function resetGame() {
+      state.running = false;
+      state.started = false;
+      state.gameOver = false;
+      state.score = 0;
+      state.pipes = [];
+      state.ticks = 0;
+      state.spawnTimer = 0;
+      state.bgX = 0;
+      state.bird.x = state.w * 0.38;
+      state.bird.y = state.h * 0.42;
+      state.bird.vy = 0;
+      state.bird.rot = 0;
+      state.bird.bob = 0;
+      state.countdown = 0;
+      if (state.countdownTimer) { clearInterval(state.countdownTimer); state.countdownTimer = null; }
+      renderUI();
+    }
+
+    function startGame() {
+      resetGame();
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById('hud').classList.remove('hide');
+      state.countdown = 3;
+      state.countdownTimer = setInterval(() => {
+        state.countdown--;
+        if (state.countdown <= 0) {
+          clearInterval(state.countdownTimer);
+          state.countdownTimer = null;
+          state.countdown = 0;
+          state.running = true;
+          state.started = true;
+        }
+      }, 1000);
+    }
+
+    function endGame() {
+      if (state.gameOver) return;
+      state.running = false;
+      state.gameOver = true;
+      state.highScore = Math.max(state.highScore, state.score);
+      saveState();
+      renderUI();
+      document.getElementById('menu').style.display = 'flex';
+      document.getElementById('hud').classList.add('hide');
+      setMessage(`Game over! You scored ${state.score} and earned $${state.score}.`);
+    }
+
+    function flap() {
+      if (state.countdown > 0) return;
+      if (!state.running || state.gameOver) return;
+      state.bird.vy = -6.2;
+      state.bird.rot = -0.32;
+    }
+
+    function spawnPipe() {
+      const marginTop = 60;
+      const marginBottom = state.ground + 90;
+      const gap = Math.max(170, 220 - Math.min(80, state.score * 2));
+      const minTop = 70;
+      const maxTop = state.h - marginBottom - gap - minTop;
+      const topH = minTop + Math.random() * Math.max(80, maxTop);
+      state.pipes.push({ x: state.w + 60, topH, gap, scored:false });
+    }
+
+    function drawRoundedRect(x, y, w, h, r) {
+      const rr = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + rr, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rr);
+      ctx.arcTo(x + w, y + h, x, y + h, rr);
+      ctx.arcTo(x, y + h, x, y, rr);
+      ctx.arcTo(x, y, x + w, y, rr);
+      ctx.closePath();
+    }
+
+    function drawBackground() {
+      const w = state.w, h = state.h;
+      const sky = ctx.createLinearGradient(0, 0, 0, h);
+      sky.addColorStop(0, '#8edcff');
+      sky.addColorStop(0.45, '#d7fbff');
+      sky.addColorStop(0.74, '#dff6df');
+      sky.addColorStop(1, '#9fe0a7');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, w, h);
+
+      state.bgX = (state.bgX - 0.35) % w;
+      for (let i = -1; i < 3; i++) {
+        const x = i * w + state.bgX;
+        ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        ctx.beginPath();
+        ctx.ellipse(x + 120, 110, 70, 28, 0.1, 0, Math.PI * 2);
+        ctx.ellipse(x + 480, 90, 100, 36, -0.1, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // distant hills
+      ctx.fillStyle = 'rgba(18,122,54,0.25)';
+      ctx.beginPath();
+      ctx.moveTo(0, h * 0.68);
+      ctx.quadraticCurveTo(w * 0.18, h * 0.56, w * 0.36, h * 0.68);
+      ctx.quadraticCurveTo(w * 0.53, h * 0.80, w * 0.74, h * 0.66);
+      ctx.quadraticCurveTo(w * 0.90, h * 0.58, w, h * 0.69);
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+      ctx.fill();
+
+      // ground
+      const gY = h - state.ground;
+      const groundGrad = ctx.createLinearGradient(0, gY, 0, h);
+      groundGrad.addColorStop(0, '#2fbf5e');
+      groundGrad.addColorStop(1, '#176831');
+      ctx.fillStyle = groundGrad;
+      ctx.fillRect(0, gY, w, state.ground);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.10)';
+      for (let i = 0; i < w; i += 24) ctx.fillRect(i, gY + 8 + (i % 48 === 0 ? 0 : 8), 14, 4);
+
+      // path line
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.fillRect(0, gY, w, 8);
+    }
+
+    function drawPipe(pipe) {
+      const pipeW = 82;
+      const topY = 0;
+      const bottomY = pipe.topH + pipe.gap;
+      const h = state.h - state.ground;
+
+      function pipePiece(x, y, w, hgt, isTop) {
+        const grad = ctx.createLinearGradient(x, 0, x + w, 0);
+        grad.addColorStop(0, '#0f6e2f');
+        grad.addColorStop(0.18, '#38d164');
+        grad.addColorStop(0.5, '#1d9a44');
+        grad.addColorStop(0.82, '#18b14d');
+        grad.addColorStop(1, '#0d5a25');
+        ctx.fillStyle = grad;
+        drawRoundedRect(x, y, w, hgt, 14);
+        ctx.fill();
+
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.fillRect(x + 12, y + 8, 8, Math.max(0, hgt - 16));
+
+        const lipH = 18;
+        const lipY = isTop ? y + hgt - lipH : y;
+        ctx.fillStyle = '#0a5624';
+        drawRoundedRect(x - 6, lipY, w + 12, lipH, 10);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.10)';
+        ctx.fillRect(x - 3, lipY + 4, w + 6, 4);
+      }
+
+      pipePiece(pipe.x, topY, pipeW, pipe.topH, true);
+      pipePiece(pipe.x, bottomY, pipeW, h - bottomY, false);
+    }
+
+    function drawBird() {
+      const skin = getSkin(state.selectedSkin);
+      const img = imageCache[skin.id];
+      const x = state.bird.x;
+      const y = state.bird.y;
+      const size = state.bird.size;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(state.bird.rot);
+      ctx.shadowColor = 'rgba(0,0,0,0.22)';
+      ctx.shadowBlur = 12;
+      ctx.shadowOffsetY = 6;
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, -size / 2, -size / 2, size, size);
+      } else {
+        const grad = ctx.createLinearGradient(-size/2, -size/2, size/2, size/2);
+        grad.addColorStop(0, skin.accent);
+        grad.addColorStop(1, '#ffffff');
+        ctx.fillStyle = grad;
+        drawRoundedRect(-size/2, -size/2, size, size, 9);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#14311b';
+        ctx.font = '900 18px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(skin.name === 'Wren' ? 'W' : skin.name.replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase(), 0, 1);
+      }
+      ctx.restore();
+    }
+
+    function hitBoxCircleRect(cx, cy, r, rx, ry, rw, rh) {
+      const nx = Math.max(rx, Math.min(cx, rx + rw));
+      const ny = Math.max(ry, Math.min(cy, ry + rh));
+      const dx = cx - nx;
+      const dy = cy - ny;
+      return dx * dx + dy * dy < r * r;
+    }
+
+    function updateGame() {
+      if (!state.running) return;
+      state.ticks++;
+      state.spawnTimer++;
+      state.bgX = (state.bgX - 2.2) % state.w;
+
+      const gravity = 0.26;
+      state.bird.vy += gravity;
+      state.bird.y += state.bird.vy;
+      state.bird.rot += (state.bird.vy > 0 ? 0.04 : -0.02);
+      state.bird.rot = Math.max(-0.5, Math.min(1.1, state.bird.rot));
+      state.bird.bob = Math.sin(state.ticks / 12) * 1.2;
+
+      if (state.spawnTimer > 92) {
+        spawnPipe();
+        state.spawnTimer = 0;
+      }
+
+      const speed = 1.9 + Math.min(1.2, state.score * 0.015);
+      for (const pipe of state.pipes) {
+        pipe.x -= speed;
+        const pipeW = 82;
+        const birdR = state.bird.size * 0.38;
+        const birdX = state.bird.x;
+        const birdY = state.bird.y;
+        const topRect = { x: pipe.x, y:0, w:pipeW, h:pipe.topH };
+        const botRect = { x: pipe.x, y:pipe.topH + pipe.gap, w:pipeW, h:state.h - state.ground - (pipe.topH + pipe.gap) };
+        if (hitBoxCircleRect(birdX, birdY, birdR, topRect.x, topRect.y, topRect.w, topRect.h) || hitBoxCircleRect(birdX, birdY, birdR, botRect.x, botRect.y, botRect.w, botRect.h)) {
+          endGame();
+          return;
+        }
+        if (!pipe.scored && pipe.x + pipeW < state.bird.x - birdR) {
+          pipe.scored = true;
+          state.score += 1;
+          state.coins += 1;
+          state.highScore = Math.max(state.highScore, state.score);
+          saveState();
+          renderUI();
+        }
+      }
+      state.pipes = state.pipes.filter(p => p.x > -120);
+
+      const floorY = state.h - state.ground;
+      if (state.bird.y + state.bird.size * 0.42 > floorY || state.bird.y - state.bird.size * 0.42 < 0) {
+        endGame();
+        return;
+      }
+    }
+
+    function drawScoreOverlay() {
+      if (state.countdown > 0) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.32)';
+        ctx.fillRect(0, 0, state.w, state.h);
+        ctx.fillStyle = '#fff';
+        ctx.font = '900 140px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(46,224,111,0.7)';
+        ctx.shadowBlur = 40;
+        ctx.fillText(state.countdown, state.w / 2, state.h / 2);
+        ctx.restore();
+        return;
+      }
+      if (!state.started || state.gameOver) return;
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.18)';
+      ctx.fillRect(0, 0, state.w, 66);
+      ctx.fillStyle = '#fff';
+      ctx.font = '900 32px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(state.score, state.w / 2, 42);
+      ctx.restore();
+    }
+
+    function render() {
+      updateGame();
+      ctx.clearRect(0, 0, state.w, state.h);
+      drawBackground();
+      for (const pipe of state.pipes) drawPipe(pipe);
+      drawBird();
+      drawScoreOverlay();
+      requestAnimationFrame(render);
+    }
+
+    function openOverlay(kind) {
+      const overlay = document.getElementById('overlay');
+      const panel = document.getElementById('panel');
+      panel.dataset.view = kind;
+      overlay.classList.add('show');
+      if (kind === 'shop') panel.innerHTML = shopMarkup();
+      else panel.innerHTML = inventoryMarkup();
+      bindPanelActions(kind);
+    }
+
+    function closeOverlay() {
+      document.getElementById('overlay').classList.remove('show');
+    }
+
+    function shopMarkup() {
+      const cards = Object.values(skins).map(skin => {
+        const owned = state.ownedSkins.includes(skin.id);
+        const affordable = state.coins >= skin.price;
+        const disabled = !owned && !affordable && !skin.free;
+        const status = owned ? 'Owned' : (skin.free ? 'Free' : '$' + skin.price);
+        return `
+          <div class="card ${owned ? 'owned' : 'locked'} ${state.selectedSkin === skin.id ? 'equipped' : ''}">
+            <div class="skinPreview">
+              <img src="${skin.src}" alt="${skin.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+              <div class="fallback">${skin.name.replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase()}</div>
+            </div>
+            <h3>${skin.name}</h3>
+            <div class="tagRow">
+              <span class="tag">${status}</span>
+              <span class="tag">${owned ? 'In inventory' : (skin.free ? 'Available now' : 'Buy to unlock')}</span>
+            </div>
+            <div class="actions">
+              ${owned || skin.free ? `<button class="btn primary equipBtn" data-equip="${skin.id}">Equip</button>` : `<button class="btn orange buyBtn" data-buy="${skin.id}" ${disabled ? 'disabled style="opacity:.55;cursor:not-allowed"' : ''}>Buy</button>`}
+            </div>
+          </div>`;
+      }).join('');
+      return `
+        <div class="panelHeader">
+          <div>
+            <h2>Shop</h2>
+            <p>Buy skins with your coins. Each point you earn adds $1.</p>
+          </div>
+          <div class="sectionSwitch">
+            <button class="btn" data-close>Close</button>
+            <button class="btn primary" data-go="inventory">Inventory</button>
+          </div>
+        </div>
+        <div class="grid" id="shopList">${cards}</div>`;
+    }
+
+    function inventoryMarkup() {
+      const cards = Object.values(skins).map(skin => {
+        const owned = state.ownedSkins.includes(skin.id);
+        return `
+          <div class="card ${owned ? 'owned' : 'locked'} ${state.selectedSkin === skin.id ? 'equipped' : ''}">
+            <div class="skinPreview">
+              <img src="${skin.src}" alt="${skin.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+              <div class="fallback">${skin.name.replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase()}</div>
+            </div>
+            <h3>${skin.name}</h3>
+            <div class="tagRow">
+              <span class="tag">${owned ? 'Unlocked' : 'Locked'}</span>
+              <span class="tag">${state.selectedSkin === skin.id ? 'Selected' : 'Not selected'}</span>
+            </div>
+            <div class="actions">
+              <button class="btn primary equipBtn" data-equip="${skin.id}" ${owned ? '' : 'disabled style="opacity:.55;cursor:not-allowed"'}>Equip</button>
+            </div>
+          </div>`;
+      }).join('');
+      return `
+        <div class="panelHeader">
+          <div>
+            <h2>Inventory</h2>
+            <p>Change between skins you already own.</p>
+          </div>
+          <div class="sectionSwitch">
+            <button class="btn" data-close>Close</button>
+            <button class="btn orange" data-go="shop">Shop</button>
+          </div>
+        </div>
+        <div class="grid" id="inventoryList">${cards}</div>`;
+    }
+
+    function bindPanelActions(kind) {
+      const overlay = document.getElementById('overlay');
+      const panel = document.getElementById('panel');
+      overlay.onclick = (e) => { if (e.target === overlay) closeOverlay(); };
+      panel.querySelectorAll('[data-close]').forEach(btn => btn.onclick = closeOverlay);
+      panel.querySelectorAll('[data-go]').forEach(btn => btn.onclick = () => openOverlay(btn.dataset.go));
+      panel.querySelectorAll('[data-buy]').forEach(btn => btn.onclick = () => { if (buySkin(btn.dataset.buy)) openOverlay('shop'); });
+      panel.querySelectorAll('[data-equip]').forEach(btn => btn.onclick = () => { if (equipSkin(btn.dataset.equip)) openOverlay(kind); });
+    }
+
+    // Buttons
+    document.getElementById('playBtn').onclick = () => startGame();
+    document.getElementById('openShopBtn').onclick = () => openOverlay('shop');
+    document.getElementById('openInventoryBtn').onclick = () => openOverlay('inventory');
+    document.getElementById('menuBtn').onclick = () => {
+      if (state.countdownTimer) { clearInterval(state.countdownTimer); state.countdownTimer = null; }
+      state.running = false;
+      state.gameOver = false;
+      state.countdown = 0;
+      document.getElementById('menu').style.display = 'flex';
+      document.getElementById('hud').classList.add('hide');
+    };
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+    document.addEventListener('fullscreenchange', () => {
+      document.getElementById('fullscreenBtn').textContent = document.fullscreenElement ? '⤢' : '⛶';
+    });
+
+    window.addEventListener('resize', () => { fitCanvas(); resetGame(); });
+    window.addEventListener('pointerdown', (e) => { if (e.target.closest('button')) return; if (document.getElementById('overlay').classList.contains('show')) return; flap(); });
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); flap(); }
+      if (e.key === 'Escape') closeOverlay();
+    });
+
+    // Start
+    fitCanvas();
+    resetGame();
+    renderUI();
+    render();
+  </script>
+</body>
+</html>
