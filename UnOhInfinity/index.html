@@ -1174,7 +1174,7 @@ body.blur-active .game-top-actions{filter:none;}
             <div class="guide-card-mini gcm-purple" style="font-size:0.72em;">🪞</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Mirror</div>
-              <div class="guide-card-desc">Reflects a draw penalty back OR acts as a Skip. If a reflected Mirror is mirrored again, the draw stack cancels out. Can be played when targeted by a Skip or + card even if colour doesn't match!</div>
+              <div class="guide-card-desc">Reflects a draw penalty back OR acts as a Skip. Once a Mirror reflects a stack, only another Mirror can nullify it. Can be played when targeted by a Skip or + card even if colour doesn't match!</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1631,7 +1631,7 @@ body.blur-active .game-top-actions{filter:none;}
             <div class="guide-card-mini gcm-wild" style="font-size:0.65em;">🪞🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Mirror</div>
-              <div class="guide-card-desc">Wild version of Mirror. A reflected Wild Mirror mirrored again cancels the draw stack. Can be played when targeted by Skip or + cards of any colour!</div>
+              <div class="guide-card-desc">Wild version of Mirror. Once a Wild Mirror reflects a stack, only another Mirror can nullify it. Can be played when targeted by Skip or + cards of any colour!</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -2167,7 +2167,7 @@ body.blur-active .game-top-actions{filter:none;}
   <div class="center-area">
     <div class="deck-zone">
       <div class="deck-pile" id="deck-pile" onclick="drawFromDeck()">🂠</div>
-      <div class="deck-label">∞ cards</div>
+      <div class="deck-label" style="display:none;"></div>
     </div>
     <div class="color-bar" id="color-bar"></div>
     <div class="discard-zone">
@@ -2523,8 +2523,8 @@ function buildDeck(ignoreCustomPool = false, includeAllCards = false, settings =
   const shouldFilterPool = !includeAllCards && !ignoreCustomPool;
 
   for(const color of COLORS){
-    // Numbers 1-12, 4 sets
-    for(let n=1;n<=12;n++) for(let i=0;i<4;i++) deck.push({color,value:String(n),type:'number',label:String(n)});
+    // Numbers 0-12, 6 sets
+    for(let n=0;n<=12;n++) for(let i=0;i<6;i++) deck.push({color,value:String(n),type:'number',label:String(n)});
 
     // Reverse / Skip
     for(let i=0;i<2;i++) deck.push({color,value:'reverse',type:'reverse',label:'↩'});
@@ -2671,7 +2671,7 @@ function buildDeck(ignoreCustomPool = false, includeAllCards = false, settings =
 
   // Safety check: if deck is empty, add some numbers
   if(deck.length === 0){
-    for(const color of COLORS) for(let n=1;n<=12;n++) deck.push({color,value:String(n),type:'number',label:String(n)});
+    for(const color of COLORS) for(let n=0;n<=12;n++) deck.push({color,value:String(n),type:'number',label:String(n)});
   }
 
   if(!shouldFilterPool) return deck;
@@ -3945,24 +3945,33 @@ function isPlayable(card){
   return false;
 }
 function canStackDraw(card){
-    if(state.pendingDraw<=0) return false;
-    if(state.pendingDraw >= 1000000) return false; // Million draw cannot be stacked or reflected!
-    if(card.type==='mirror'||card.type==='wildMirror') return true;
-    const type = card.type || '';
-    const isMatchingDrawCounter = (
-      type==='plus' ||
-      type==='wildPlus' ||
-      type==='targetDraw2' ||
-      type==='targetPlus2Skip' ||
-      type==='targetPlus4Skip' ||
-      type==='targetPlus4' ||
-      type==='plusOne' ||
-      type==='wildPlus2SkipReverse' ||
-      type.startsWith('reversePlus')
-    );
-    if(isMatchingDrawCounter && card.num===state.pendingDrawNum) return true;
-    return false;
+  if(state.pendingDraw<=0) return false;
+  if(state.pendingDraw >= 1000000) return false; // Million draw cannot be stacked or reflected!
+
+  const isMirror = card.type==='mirror'||card.type==='wildMirror';
+
+  // Once a mirror has reflected a draw stack, the only legal counter is another mirror.
+  // No more + cards can be added to that reflected stack until it is nullified.
+  if(state.pendingDrawReflected){
+    return isMirror;
   }
+
+  if(isMirror) return true;
+  const type = card.type || '';
+  const isMatchingDrawCounter = (
+    type==='plus' ||
+    type==='wildPlus' ||
+    type==='targetDraw2' ||
+    type==='targetPlus2Skip' ||
+    type==='targetPlus4Skip' ||
+    type==='targetPlus4' ||
+    type==='plusOne' ||
+    type==='wildPlus2SkipReverse' ||
+    type.startsWith('reversePlus')
+  );
+  if(isMatchingDrawCounter && card.num===state.pendingDrawNum) return true;
+  return false;
+}
 function getChainPlayKey(card){
   if(!card) return '';
   if(card.type==='number' || card.type==='banana') return `number:${card.value}`;
@@ -3970,12 +3979,6 @@ function getChainPlayKey(card){
   if(card.type==='skip' || card.type==='wildSkip') return 'skip';
   if(card.type==='reverse' || card.type==='wildReverse') return 'reverse';
   return `${card.type}:${card.num ?? card.value ?? ''}`;
-}
-function isOneBotMode(){
-  return !!(state && Array.isArray(state.players) && state.players.length === 2);
-}
-function shouldNeutralizeReverse(){
-  return isOneBotMode();
 }
 function clearTargetStackDuelIfInactive(){
   if(!state || !state.targetStackDuel) return;
@@ -4329,10 +4332,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     case 'number': break;
 
     case 'reverse': case 'wildReverse':
-      if(!shouldNeutralizeReverse()){
-        state.direction*=-1;updateDirectionBadge();
-      }
-      break;
+      state.direction*=-1;updateDirectionBadge();break;
 
     case 'skip': case 'wildSkip':
       if (state.players[playerIdx].cards.length === 0) {
@@ -4517,10 +4517,8 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         break;
       }
       if(coinType.includes('Reverse')){
-        if(!shouldNeutralizeReverse()){
-          state.direction *= -1;
-          updateDirectionBadge();
-        }
+        state.direction *= -1;
+        updateDirectionBadge();
         showStatus('🪙 Reverse triggered!', 1600);
       } else if(coinType.includes('Skip')){
         state.skipNext[target] = true;
@@ -4542,11 +4540,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       if(rand==='plus2'){state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;}
       else if(rand==='plus4'){state.pendingDraw+=4;state.pendingDrawNum=4;state.pendingDrawReflected=false;}
       else if(rand==='skipAll'){extraTurn=true;}
-      else if(rand==='reverse'){
-        if(!shouldNeutralizeReverse()){
-          state.direction*=-1;updateDirectionBadge();
-        }
-      }
+      else if(rand==='reverse'){state.direction*=-1;updateDirectionBadge();}
       break;
     }
 
@@ -4613,37 +4607,23 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
 
     case 'reversePlus2':
-      if(!shouldNeutralizeReverse()){
-        state.direction*=-1;updateDirectionBadge();state.currentPlayer=nextPlayerIdx();
-      }
-      state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;
+      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
       showStatus('Reverse +2! Next draws 2!',1800);break;
 
     case 'reversePlus4':
-      if(!shouldNeutralizeReverse()){
-        state.direction*=-1;updateDirectionBadge();state.currentPlayer=nextPlayerIdx();
-      }
-      state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;
+      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=card.num;state.pendingDrawNum=card.num;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
       showStatus('Reverse +4! Next draws 4!',1800);break;
 
     case 'reversePlus6':
-      if(!shouldNeutralizeReverse()){
-        state.direction*=-1;updateDirectionBadge();state.currentPlayer=nextPlayerIdx();
-      }
-      state.pendingDraw+=6;state.pendingDrawNum=6;state.pendingDrawReflected=false;
+      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=6;state.pendingDrawNum=6;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
       showStatus('Reverse +6! Next draws 6!',1800);break;
 
     case 'reversePlus8':
-      if(!shouldNeutralizeReverse()){
-        state.direction*=-1;updateDirectionBadge();state.currentPlayer=nextPlayerIdx();
-      }
-      state.pendingDraw+=8;state.pendingDrawNum=8;state.pendingDrawReflected=false;
+      state.direction*=-1;updateDirectionBadge();state.pendingDraw+=8;state.pendingDrawNum=8;state.pendingDrawReflected=false;state.currentPlayer=nextPlayerIdx();
       showStatus('Reverse +8! Next draws 8!',1800);break;
 
     case 'skipReverse':
-      if(!shouldNeutralizeReverse()){
-        state.direction*=-1;updateDirectionBadge();
-      }
+      state.direction*=-1;updateDirectionBadge();
       state.skipNext[nextPlayerIdx()] = true;
       showStatus('Skip Reverse! Reversed and skipped the next player!',1800);break;
 
@@ -4744,10 +4724,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
 
     case 'wildPlus2SkipReverse':
-      if(!shouldNeutralizeReverse()){
-        state.direction*=-1;updateDirectionBadge();
-      }
-      advanceTurn();state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;
+      state.direction*=-1;updateDirectionBadge();advanceTurn();state.pendingDraw+=2;state.pendingDrawNum=2;state.pendingDrawReflected=false;
       showStatus(`🌈↩️⊘+2 Ultimate Chaos!`,2000);break;
 
     case 'instantWin':
