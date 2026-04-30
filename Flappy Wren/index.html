@@ -109,11 +109,16 @@
     .card h3{margin:0;font-size:1.15rem;position:relative;z-index:1}
     .card .meta{color:#cfead5;font-size:.93rem;line-height:1.45}
     .tagRow{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}
-    .tag{border-radius:999px;padding:8px 11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);font-size:.84rem}
-    .tag.price{background:rgba(255,211,109,.12);border-color:rgba(255,211,109,.22);color:#ffd36d}
-    .tag.ok{background:rgba(103,255,143,.12);border-color:rgba(103,255,143,.22);color:#9bffb7}
-    .tag.lock{background:rgba(255,255,255,.06);color:#d9e8dc}
-    .skinGlow{position:absolute;right:12px;top:12px;padding:7px 10px;border-radius:999px;background:rgba(7,19,12,.65);border:1px solid rgba(255,255,255,.12);font-size:.75rem;font-weight:900;z-index:2}
+    .tag{border-radius:999px;padding:6px 14px;font-size:.82rem;font-weight:700;letter-spacing:.03em;display:inline-flex;align-items:center;gap:5px;backdrop-filter:blur(6px)}
+    .tag.price{background:linear-gradient(135deg,rgba(255,211,109,.18),rgba(255,154,46,.12));border:1.5px solid rgba(255,211,109,.40);color:#ffd36d;text-shadow:0 0 10px rgba(255,211,109,.5);box-shadow:0 2px 10px rgba(255,150,0,.12)}
+    .tag.ok{background:linear-gradient(135deg,rgba(103,255,143,.18),rgba(46,204,113,.10));border:1.5px solid rgba(103,255,143,.40);color:#6dffaa;text-shadow:0 0 10px rgba(103,255,143,.4);box-shadow:0 2px 10px rgba(46,204,113,.12)}
+    .tag.lock{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.13);color:#c0d8c8;box-shadow:0 2px 8px rgba(0,0,0,.10)}
+    .skinGlow{position:absolute;right:12px;top:12px;padding:5px 13px;border-radius:999px;font-size:.73rem;font-weight:900;z-index:2;letter-spacing:.05em;text-transform:uppercase;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+    .skinGlow.badge-equipped{background:linear-gradient(135deg,rgba(93,200,255,.28),rgba(37,99,235,.25));border:1.5px solid rgba(93,200,255,.55);color:#a8e6ff;box-shadow:0 2px 12px rgba(93,200,255,.20)}
+    .skinGlow.badge-owned{background:linear-gradient(135deg,rgba(103,255,143,.18),rgba(46,204,113,.12));border:1.5px solid rgba(103,255,143,.35);color:#6dffaa;box-shadow:0 2px 10px rgba(46,204,113,.15)}
+    .skinGlow.badge-locked{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.13);color:#a0b8a8}
+    .skinGlow.badge-starter{background:linear-gradient(135deg,rgba(255,211,109,.20),rgba(255,154,46,.14));border:1.5px solid rgba(255,211,109,.40);color:#ffd36d;box-shadow:0 2px 10px rgba(255,150,0,.12)}
+    .skinGlow.badge-premium{background:linear-gradient(135deg,rgba(200,150,255,.18),rgba(147,51,234,.12));border:1.5px solid rgba(200,150,255,.35);color:#d8aaff;box-shadow:0 2px 10px rgba(147,51,234,.15)}
     .skinNameRow{display:flex;justify-content:space-between;gap:10px;align-items:center;position:relative;z-index:1}
     .shopSub{color:#cfead5;font-size:.92rem;line-height:1.45;min-height:2.7em;position:relative;z-index:1}
     .card .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
@@ -179,10 +184,11 @@
         <div class="menuBtns">
           <button class="btn playBig primary" id="playBtn">▶ Play</button>
           <div class="menuRow">
-            <button class="btn orange" id="openShopBtn">Shop</button>
+            <button class="btn orange" id="openShopBtn">Skin Shop</button>
             <button class="btn" id="openInventoryBtn">Inventory</button>
           </div>
           <div class="menuRow">
+            <button class="btn" id="openPipeShopBtn" style="background:linear-gradient(145deg,#1c3b52,#0f2030);color:#a0e8ff;border:1px solid rgba(100,200,255,.18)">🎨 Pipe Shop</button>
             <button class="btn dark" id="openSettingsBtn">Settings</button>
           </div>
         </div>
@@ -312,14 +318,21 @@
       selected: 'flappyWrenSelectedSkin',
       owned: 'flappyWrenOwnedSkins',
       sfxVolume: 'flappyWrenSfxVolume',
-      sfxMuted: 'flappyWrenSfxMuted'
+      sfxMuted: 'flappyWrenSfxMuted',
+      pipeColor: 'flappyWrenPipeColor',
+      ownedPipes: 'flappyWrenOwnedPipes'
     };
 
     const skins = {
-      wren: { id:'wren', name:'Wren', src:'WrenYay.jpg', price:0, free:true, accent:'#48de79' },
-      orin: { id:'orin', name:'The Mind Of Orin', src:'TheMindOfOrin.jpg', price:50, accent:'#ff9d2a' },
-      tiki: { id:'tiki', name:'TikiTheG', src:'TikiTheG.jpg', price:500, accent:'#7cf1b4' },
-      cena: { id:'cena', name:'Bald Cena', src:'TheRealBaldCena72.jpg', price:3500, accent:'#ffd36d' }
+      wren:    { id:'wren',    name:'Wren',           src:'WrenYay.jpg',              price:0,    free:true, accent:'#48de79' },
+      orin:    { id:'orin',    name:'The Mind Of Orin',src:'TheMindOfOrin.jpg',       price:50,              accent:'#ff9d2a' },
+      potato:  { id:'potato',  name:'Potato',          src:'Potato.jpg',               price:100,             accent:'#d4a84b' },
+      cheese:  { id:'cheese',  name:'Block of Cheese', src:'CheeseYay.jpg',            price:250,             accent:'#ffe066' },
+      wreNold: { id:'wreNold', name:'WrenIsOld',       src:'WrenIsOld.jpg',            price:300,             accent:'#a78bfa' },
+      edunzie: { id:'edunzie', name:'Edunzie',         src:'Edunzie.jpg',              price:300,             accent:'#34d399' },
+      usa:     { id:'usa',     name:'Usa',             src:'Usa.jpg',                  price:500,             accent:'#60a5fa' },
+      tiki:    { id:'tiki',    name:'TikiTheG',        src:'TikiTheG.jpg',             price:500,             accent:'#7cf1b4' },
+      cena:    { id:'cena',    name:'Bald Cena',       src:'TheRealBaldCena72.jpg',    price:750,             accent:'#ffd36d' }
     };
 
     const imageCache = {};
@@ -352,7 +365,9 @@
       runBestBaseline: Number(localStorage.getItem(STORAGE.highScore) || '0'),
       surpassedHighThisRun: false,
       sfxVolume: Math.max(0, Math.min(1, Number(localStorage.getItem(STORAGE.sfxVolume) || '0.75'))),
-      sfxMuted: localStorage.getItem(STORAGE.sfxMuted) === '1'
+      sfxMuted: localStorage.getItem(STORAGE.sfxMuted) === '1',
+      pipeColor: localStorage.getItem(STORAGE.pipeColor) || 'green',
+      ownedPipes: JSON.parse(localStorage.getItem(STORAGE.ownedPipes) || 'null') || ['green']
     };
 
     if (!state.ownedSkins.includes(state.selectedSkin)) state.selectedSkin = 'wren';
@@ -365,6 +380,8 @@
       localStorage.setItem(STORAGE.owned, JSON.stringify([...new Set(state.ownedSkins)]));
       localStorage.setItem(STORAGE.sfxVolume, String(state.sfxVolume));
       localStorage.setItem(STORAGE.sfxMuted, state.sfxMuted ? '1' : '0');
+      localStorage.setItem(STORAGE.pipeColor, state.pipeColor);
+      localStorage.setItem(STORAGE.ownedPipes, JSON.stringify([...new Set(state.ownedPipes)]));
     }
 
     function getSfxVolume(mult = 1) {
@@ -516,8 +533,9 @@
     function flap() {
       if (state.countdown > 0) return;
       if (!state.running || state.gameOver) return;
-      state.bird.vy = -6.2;
-      state.bird.rot = -0.32;
+      state.bird.vy = -7.8;
+      state.bird.rot = -0.48;
+      state.bird.flapAnim = 1.0;
       SFX.flap();
     }
 
@@ -593,32 +611,155 @@
 
     function drawPipe(pipe) {
       const pipeW = 82;
+      const capW = pipeW + 18;
+      const capH = 28;
       const topY = 0;
       const bottomY = pipe.topH + pipe.gap;
       const h = state.h - state.ground;
+      const pc = state.pipeColor || 'green';
+
+      // Resolve pipe colours from the colour scheme
+      function getPipeColors(scheme) {
+        const presets = {
+          green:    { main:'#2ecc52', light:'#5aed80', dark:'#1a7a30', shadow:'#0d5020', cap:'#25a844', capTop:'#3bdc60' },
+          blue:     { main:'#2563eb', light:'#60a5fa', dark:'#1e40af', shadow:'#172c7a', cap:'#1d4ed8', capTop:'#3b82f6' },
+          red:      { main:'#dc2626', light:'#f87171', dark:'#991b1b', shadow:'#7f1d1d', cap:'#b91c1c', capTop:'#ef4444' },
+          yellow:   { main:'#d97706', light:'#fbbf24', dark:'#92400e', shadow:'#78350f', cap:'#b45309', capTop:'#f59e0b' },
+          brown:    { main:'#92400e', light:'#c97a3a', dark:'#6b2d0a', shadow:'#4c1d08', cap:'#7c3511', capTop:'#a0522d' },
+          pink:     { main:'#db2777', light:'#f472b6', dark:'#9d174d', shadow:'#831843', cap:'#be185d', capTop:'#ec4899' },
+          orange:   { main:'#ea580c', light:'#fb923c', dark:'#9a3412', shadow:'#7c2d12', cap:'#c2410c', capTop:'#f97316' },
+          grey:     { main:'#6b7280', light:'#9ca3af', dark:'#374151', shadow:'#1f2937', cap:'#4b5563', capTop:'#9ca3af' },
+          maroon:   { main:'#7f1d1d', light:'#b45c5c', dark:'#5a1212', shadow:'#3b0a0a', cap:'#6b1414', capTop:'#9f3434' },
+          babyblue: { main:'#7dd3fc', light:'#bae6fd', dark:'#38bdf8', shadow:'#0ea5e9', cap:'#60c5f8', capTop:'#93dcfd' },
+          cyan:     { main:'#06b6d4', light:'#67e8f9', dark:'#0e7490', shadow:'#164e63', cap:'#0891b2', capTop:'#22d3ee' },
+          peach:    { main:'#fb923c', light:'#fed7aa', dark:'#ea580c', shadow:'#c2410c', cap:'#f97316', capTop:'#fdba74' },
+          magenta:  { main:'#c026d3', light:'#e879f9', dark:'#86198f', shadow:'#701a75', cap:'#a21caf', capTop:'#d946ef' },
+          purple:   { main:'#7c3aed', light:'#a78bfa', dark:'#4c1d95', shadow:'#3b0764', cap:'#6d28d9', capTop:'#8b5cf6' },
+          indigo:   { main:'#4338ca', light:'#818cf8', dark:'#312e81', shadow:'#1e1b4b', cap:'#3730a3', capTop:'#6366f1' },
+          apricot:  { main:'#f59e6b', light:'#fcd5a8', dark:'#d97706', shadow:'#92400e', cap:'#e8853e', capTop:'#fbbf85' },
+          turquoise:{ main:'#0d9488', light:'#5eead4', dark:'#0f766e', shadow:'#134e4a', cap:'#0f766e', capTop:'#2dd4bf' },
+          amber:    { main:'#d97706', light:'#fcd34d', dark:'#92400e', shadow:'#78350f', cap:'#b45309', capTop:'#fbbf24' },
+          cream:    { main:'#d4c5a0', light:'#f0e8d0', dark:'#a89060', shadow:'#7a6540', cap:'#c4b080', capTop:'#e8dfc0' },
+          tan:      { main:'#c4a882', light:'#dfc9a4', dark:'#9a7850', shadow:'#6b5030', cap:'#b09060', capTop:'#d0b890' },
+          slate:    { main:'#475569', light:'#94a3b8', dark:'#1e293b', shadow:'#0f172a', cap:'#334155', capTop:'#64748b' },
+          white:    { main:'#e8e8e8', light:'#ffffff', dark:'#c0c0c0', shadow:'#909090', cap:'#d8d8d8', capTop:'#f5f5f5' },
+          black:    { main:'#1a1a1a', light:'#404040', dark:'#0a0a0a', shadow:'#000000', cap:'#222222', capTop:'#333333' },
+          ruby:     { main:'#c0002a', light:'#ff3366', dark:'#800018', shadow:'#50000e', cap:'#a00022', capTop:'#ff2255', metallic:true },
+          gold:     { main:'#c8960c', light:'#ffe066', dark:'#8a6400', shadow:'#5a4000', cap:'#b08010', capTop:'#ffd700', metallic:true },
+          silver:   { main:'#a0a8b8', light:'#d8e0f0', dark:'#606870', shadow:'#303840', cap:'#8890a0', capTop:'#c8d0e0', metallic:true },
+          bronze:   { main:'#a06030', light:'#d4904c', dark:'#703818', shadow:'#402010', cap:'#885028', capTop:'#c07840', metallic:true },
+          emerald:  { main:'#046c30', light:'#22d36a', dark:'#024820', shadow:'#012010', cap:'#056a28', capTop:'#10e050', metallic:true },
+        };
+        return presets[scheme] || presets.green;
+      }
+
+      const C = getPipeColors(pc);
 
       function pipePiece(x, y, w, hgt, isTop) {
+        if (hgt <= 0) return;
+        // Main body gradient (left to right with highlight stripe)
         const grad = ctx.createLinearGradient(x, 0, x + w, 0);
-        grad.addColorStop(0, '#0f6e2f');
-        grad.addColorStop(0.18, '#38d164');
-        grad.addColorStop(0.5, '#1d9a44');
-        grad.addColorStop(0.82, '#18b14d');
-        grad.addColorStop(1, '#0d5a25');
+        if (C.metallic) {
+          grad.addColorStop(0,    C.shadow);
+          grad.addColorStop(0.12, C.dark);
+          grad.addColorStop(0.30, C.light);
+          grad.addColorStop(0.50, C.main);
+          grad.addColorStop(0.70, C.light);
+          grad.addColorStop(0.85, C.dark);
+          grad.addColorStop(1,    C.shadow);
+        } else {
+          grad.addColorStop(0,    C.shadow);
+          grad.addColorStop(0.15, C.dark);
+          grad.addColorStop(0.35, C.light);
+          grad.addColorStop(0.55, C.main);
+          grad.addColorStop(0.80, C.dark);
+          grad.addColorStop(1,    C.shadow);
+        }
         ctx.fillStyle = grad;
-        drawRoundedRect(x, y, w, hgt, 14);
+        // Rounded top/bottom edge only on open ends
+        const r = 4;
+        ctx.beginPath();
+        if (isTop) {
+          // top pipe: flat top, rounded at bottom opening is handled by cap
+          ctx.rect(x, y, w, hgt);
+        } else {
+          ctx.rect(x, y, w, hgt);
+        }
         ctx.fill();
 
-        ctx.fillStyle = 'rgba(255,255,255,0.12)';
-        ctx.fillRect(x + 12, y + 8, 8, Math.max(0, hgt - 16));
+        // Inner highlight stripe
+        ctx.fillStyle = 'rgba(255,255,255,0.13)';
+        ctx.fillRect(x + 10, y + (isTop ? 10 : 4), 10, Math.max(0, hgt - 18));
 
-        const lipH = 18;
-        const lipY = isTop ? y + hgt - lipH : y;
-        ctx.fillStyle = '#0a5624';
-        drawRoundedRect(x - 6, lipY, w + 12, lipH, 10);
+        // Right shadow stripe
+        ctx.fillStyle = 'rgba(0,0,0,0.18)';
+        ctx.fillRect(x + w - 12, y + 4, 8, Math.max(0, hgt - 10));
+
+        // Cap (the wider lip)
+        const capX = x - (capW - w) / 2;
+        const lipY = isTop ? y + hgt - capH : y;
+        const capGrad = ctx.createLinearGradient(capX, 0, capX + capW, 0);
+        if (C.metallic) {
+          capGrad.addColorStop(0,    C.shadow);
+          capGrad.addColorStop(0.15, C.dark);
+          capGrad.addColorStop(0.35, C.capTop);
+          capGrad.addColorStop(0.55, C.cap);
+          capGrad.addColorStop(0.80, C.dark);
+          capGrad.addColorStop(1,    C.shadow);
+        } else {
+          capGrad.addColorStop(0,    C.shadow);
+          capGrad.addColorStop(0.15, C.dark);
+          capGrad.addColorStop(0.38, C.capTop);
+          capGrad.addColorStop(0.60, C.cap);
+          capGrad.addColorStop(0.85, C.dark);
+          capGrad.addColorStop(1,    C.shadow);
+        }
+        ctx.fillStyle = capGrad;
+        const capR = 7;
+        ctx.beginPath();
+        if (isTop) {
+          // cap at bottom of top pipe — round bottom corners
+          ctx.moveTo(capX + capR, lipY);
+          ctx.lineTo(capX + capW - capR, lipY);
+          ctx.arcTo(capX + capW, lipY, capX + capW, lipY + capH, capR);
+          ctx.arcTo(capX + capW, lipY + capH, capX, lipY + capH, capR);
+          ctx.arcTo(capX, lipY + capH, capX, lipY, capR);
+          ctx.arcTo(capX, lipY, capX + capW, lipY, capR);
+        } else {
+          // cap at top of bottom pipe — round top corners
+          ctx.moveTo(capX + capR, lipY);
+          ctx.arcTo(capX + capW, lipY, capX + capW, lipY + capH, capR);
+          ctx.arcTo(capX + capW, lipY + capH, capX, lipY + capH, capR);
+          ctx.arcTo(capX, lipY + capH, capX, lipY, capR);
+          ctx.arcTo(capX, lipY, capX + capW, lipY, capR);
+        }
+        ctx.closePath();
         ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.10)';
-        ctx.fillRect(x - 3, lipY + 4, w + 6, 4);
+
+        // Cap highlight
+        ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        ctx.fillRect(capX + 8, lipY + 5, capW - 20, 5);
+
+        // Cap shadow line
+        const shadowSide = isTop ? lipY + capH - 4 : lipY;
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        ctx.fillRect(capX, shadowSide, capW, 4);
+
+        // Metallic shimmer overlay
+        if (C.metallic) {
+          const shimmer = ctx.createLinearGradient(x, y, x + w, y + hgt);
+          shimmer.addColorStop(0, 'rgba(255,255,255,0)');
+          shimmer.addColorStop(0.35, 'rgba(255,255,255,0.18)');
+          shimmer.addColorStop(0.65, 'rgba(255,255,255,0)');
+          ctx.fillStyle = shimmer;
+          ctx.fillRect(x, y, w, hgt);
+        }
       }
+
+      // Draw outline/shadow behind pipes
+      ctx.fillStyle = 'rgba(0,0,0,0.18)';
+      ctx.fillRect(pipe.x - 3, topY, pipeW + 6, pipe.topH + 3);
+      ctx.fillRect(pipe.x - 3, bottomY - 3, pipeW + 6, h - bottomY + 3);
 
       pipePiece(pipe.x, topY, pipeW, pipe.topH, true);
       pipePiece(pipe.x, bottomY, pipeW, h - bottomY, false);
@@ -630,12 +771,18 @@
       const x = state.bird.x;
       const y = state.bird.y;
       const size = state.bird.size;
+      const fa = state.bird.flapAnim || 0;
+      // Squish on flap: wider + shorter, then stretch as falling
+      const fallStretch = Math.max(0, Math.min(1, state.bird.vy / 8));
+      const scaleX = 1 + fa * 0.22 - fallStretch * 0.08;
+      const scaleY = 1 - fa * 0.18 + fallStretch * 0.12;
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(state.bird.rot);
-      ctx.shadowColor = 'rgba(0,0,0,0.22)';
-      ctx.shadowBlur = 12;
-      ctx.shadowOffsetY = 6;
+      ctx.scale(scaleX, scaleY);
+      ctx.shadowColor = 'rgba(0,0,0,0.28)';
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 8;
       if (img && img.complete && img.naturalWidth > 0) {
         ctx.save();
         drawRoundedRect(-size / 2, -size / 2, size, size, size * 0.19);
@@ -686,14 +833,18 @@
       state.spawnTimer++;
       state.bgX = (state.bgX - 2.2) % state.w;
 
-      const gravity = 0.26;
+      const gravity = 0.30;
       state.bird.vy += gravity;
       state.bird.y += state.bird.vy;
-      state.bird.rot += (state.bird.vy > 0 ? 0.04 : -0.02);
-      state.bird.rot = Math.max(-0.5, Math.min(1.1, state.bird.rot));
+      // Smooth rotation: nose down on fall, tilt back on rise
+      const targetRot = state.bird.vy > 0 ? Math.min(1.3, state.bird.vy * 0.10) : Math.max(-0.5, state.bird.vy * 0.07);
+      state.bird.rot += (targetRot - state.bird.rot) * 0.18;
       state.bird.bob = Math.sin(state.ticks / 12) * 1.2;
+      // Flap squish/stretch anim
+      if (state.bird.flapAnim === undefined) state.bird.flapAnim = 0;
+      state.bird.flapAnim *= 0.82;
 
-      if (state.spawnTimer > 92) {
+      if (state.spawnTimer > 106) {
         spawnPipe();
         state.spawnTimer = 0;
       }
@@ -776,6 +927,133 @@
       requestAnimationFrame(render);
     }
 
+    const pipeColors = [
+      { id:'green',      name:'Green',        price:0,    tier:'standard', free:true },
+      { id:'blue',       name:'Blue',         price:1000, tier:'standard' },
+      { id:'red',        name:'Red',          price:1000, tier:'standard' },
+      { id:'yellow',     name:'Yellow',       price:1000, tier:'standard' },
+      { id:'brown',      name:'Brown',        price:1000, tier:'standard' },
+      { id:'pink',       name:'Pink',         price:1000, tier:'standard' },
+      { id:'orange',     name:'Orange',       price:1000, tier:'standard' },
+      { id:'grey',       name:'Grey',         price:1000, tier:'standard' },
+      { id:'maroon',     name:'Maroon',       price:1000, tier:'standard' },
+      { id:'babyblue',   name:'Baby Blue',    price:1000, tier:'standard' },
+      { id:'cyan',       name:'Cyan',         price:1000, tier:'standard' },
+      { id:'peach',      name:'Peach',        price:1000, tier:'standard' },
+      { id:'magenta',    name:'Magenta',      price:1000, tier:'standard' },
+      { id:'purple',     name:'Purple',       price:1000, tier:'standard' },
+      { id:'indigo',     name:'Indigo',       price:1000, tier:'standard' },
+      { id:'apricot',    name:'Apricot',      price:1000, tier:'standard' },
+      { id:'turquoise',  name:'Turquoise',    price:1000, tier:'standard' },
+      { id:'amber',      name:'Amber',        price:1000, tier:'standard' },
+      { id:'cream',      name:'Cream',        price:1000, tier:'standard' },
+      { id:'tan',        name:'Tan',          price:1000, tier:'standard' },
+      { id:'slate',      name:'Slate',        price:1000, tier:'standard' },
+      { id:'white',      name:'White',        price:1500, tier:'rare' },
+      { id:'black',      name:'Black',        price:1500, tier:'rare' },
+      { id:'ruby',       name:'Ruby',         price:3000, tier:'metallic' },
+      { id:'gold',       name:'Gold',         price:3000, tier:'metallic' },
+      { id:'silver',     name:'Silver',       price:3000, tier:'metallic' },
+      { id:'bronze',     name:'Bronze',       price:3000, tier:'metallic' },
+      { id:'emerald',    name:'Emerald',      price:3000, tier:'metallic' },
+    ];
+
+    // Pipe preview colour swatches
+    const pipeSwatchColors = {
+      green:'#2ecc52', blue:'#2563eb', red:'#dc2626', yellow:'#d97706', brown:'#92400e',
+      pink:'#db2777', orange:'#ea580c', grey:'#6b7280', maroon:'#7f1d1d', babyblue:'#7dd3fc',
+      cyan:'#06b6d4', peach:'#fb923c', magenta:'#c026d3', purple:'#7c3aed', indigo:'#4338ca',
+      apricot:'#f59e6b', turquoise:'#0d9488', amber:'#d97706', cream:'#d4c5a0', tan:'#c4a882',
+      slate:'#475569', white:'#e8e8e8', black:'#222222',
+      ruby:'#c0002a', gold:'#c8960c', silver:'#a0a8b8', bronze:'#a06030', emerald:'#046c30'
+    };
+
+    function buyPipeColor(id) {
+      const pc = pipeColors.find(p => p.id === id);
+      if (!pc) return;
+      if (state.ownedPipes.includes(id)) { equipPipeColor(id); return; }
+      if (state.coins < pc.price) { setMessage(`Not enough coins for ${pc.name} pipes.`); return; }
+      state.coins -= pc.price;
+      state.ownedPipes.push(id);
+      state.pipeColor = id;
+      saveState();
+      renderUI();
+      setMessage(`${pc.name} pipes purchased and equipped!`);
+      SFX.buy();
+      openOverlay('pipeshop');
+    }
+
+    function equipPipeColor(id) {
+      if (!state.ownedPipes.includes(id)) return;
+      state.pipeColor = id;
+      saveState();
+      renderUI();
+      setMessage(`${pipeColors.find(p=>p.id===id)?.name || id} pipes equipped.`);
+      SFX.equip();
+      openOverlay('pipeshop');
+    }
+
+    function pipeShopMarkup() {
+      const tierLabel = { standard:'Standard — $1,000', rare:'Rare — $1,500', metallic:'✨ Metallic — $3,000' };
+      const tiers = ['standard','rare','metallic'];
+      let sectionsHtml = '';
+      for (const tier of tiers) {
+        const items = pipeColors.filter(p => p.tier === tier || (p.free && tier === 'standard'));
+        const cards = items.map(pc => {
+          const owned = state.ownedPipes.includes(pc.id) || pc.free;
+          const equipped = state.pipeColor === pc.id;
+          const affordable = state.coins >= pc.price;
+          const swatch = pipeSwatchColors[pc.id] || '#2ecc52';
+          const tierBadge = tier === 'metallic' ? '✨' : tier === 'rare' ? '⭐' : '';
+          const badgeClass = equipped ? 'badge-equipped' : owned ? 'badge-owned' : tier === 'metallic' ? 'badge-premium' : 'badge-locked';
+          const badgeLabel = equipped ? 'Equipped' : owned ? 'Owned' : (pc.free ? 'Default' : '$' + pc.price.toLocaleString());
+          return `
+            <div class="card ${owned ? 'owned' : 'locked'} ${equipped ? 'equipped' : ''}" style="gap:8px">
+              <div class="skinGlow ${badgeClass}">${tierBadge} ${badgeLabel}</div>
+              <div style="height:90px;border-radius:16px;background:linear-gradient(180deg,#a8e4f7 0%,#d4f5d0 100%);display:flex;align-items:center;justify-content:center;gap:18px;overflow:hidden;position:relative">
+                <!-- Mini pipe preview -->
+                <div style="width:28px;height:75px;background:${swatch};border-radius:4px 4px 0 0;box-shadow:inset 3px 0 6px rgba(255,255,255,.22),inset -3px 0 5px rgba(0,0,0,.25);position:relative">
+                  <div style="position:absolute;bottom:0;left:-5px;right:-5px;height:14px;background:${swatch};filter:brightness(0.85);border-radius:3px"></div>
+                </div>
+                <div style="width:28px;height:75px;background:${swatch};border-radius:0 0 4px 4px;box-shadow:inset 3px 0 6px rgba(255,255,255,.22),inset -3px 0 5px rgba(0,0,0,.25);position:relative">
+                  <div style="position:absolute;top:0;left:-5px;right:-5px;height:14px;background:${swatch};filter:brightness(0.85);border-radius:3px"></div>
+                </div>
+                ${tier==='metallic'?`<div style="position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.22) 50%,transparent 70%);pointer-events:none"></div>`:''}
+              </div>
+              <div style="font-weight:800;font-size:.98rem">${pc.name}</div>
+              <div class="actions" style="margin-top:2px">
+                ${owned ? `<button class="btn ${equipped ? 'equippedBlue' : 'primary'}" data-equippipe="${pc.id}">${equipped ? 'Equipped' : 'Equip'}</button>` :
+                  `<button class="btn orange" data-buypipe="${pc.id}" ${!affordable?'disabled style="opacity:.55;cursor:not-allowed"':''}>${affordable?'Buy':'Need $'+(pc.price-state.coins).toLocaleString()+' more'}</button>`}
+              </div>
+            </div>`;
+        }).join('');
+        sectionsHtml += `<div style="margin-bottom:22px"><h3 style="margin:0 0 12px;font-size:1rem;color:#a0ffc0;text-transform:uppercase;letter-spacing:.08em">${tierLabel[tier]}</h3><div class="grid">${cards}</div></div>`;
+      }
+      return `
+        <div class="panelHeader">
+          <div>
+            <h2>🎨 Pipe Shop</h2>
+            <p>Customize your pipe colour. Green is free — unlock more!</p>
+          </div>
+          <div class="sectionSwitch">
+            <button class="btn" data-close>Close</button>
+            <button class="btn orange" data-go="shop">Skin Shop</button>
+            <button class="btn primary" data-go="inventory">Inventory</button>
+          </div>
+        </div>
+        <div class="panelHero">
+          <div>
+            <h2 style="margin:0 0 4px">Pipe Colours</h2>
+            <p style="margin:0;color:var(--muted)">Your pipes, your vibe. Standard $1k · Rare $1.5k · Metallic $3k</p>
+          </div>
+          <div class="panelHeroStat">
+            <div class="panelHeroPill">Coins: <strong>$${state.coins.toLocaleString()}</strong></div>
+            <div class="panelHeroPill">Active: <strong>${pipeColors.find(p=>p.id===state.pipeColor)?.name||'Green'}</strong></div>
+          </div>
+        </div>
+        ${sectionsHtml}`;
+    }
+
     function openOverlay(kind) {
       const overlay = document.getElementById('overlay');
       const panel = document.getElementById('panel');
@@ -783,6 +1061,7 @@
       overlay.classList.add('show');
       if (kind === 'shop') panel.innerHTML = shopMarkup();
       else if (kind === 'settings') panel.innerHTML = settingsMarkup();
+      else if (kind === 'pipeshop') panel.innerHTML = pipeShopMarkup();
       else panel.innerHTML = inventoryMarkup();
       bindPanelActions(kind);
     }
@@ -798,10 +1077,11 @@
         const disabled = !owned && !affordable && !skin.free;
         const status = owned ? 'Owned' : (skin.free ? 'Free' : '$' + skin.price);
         const badge = state.selectedSkin === skin.id ? 'Equipped' : (owned ? 'Owned' : (skin.free ? 'Starter' : 'Premium'));
+        const badgeClass = state.selectedSkin === skin.id ? 'badge-equipped' : (owned ? 'badge-owned' : (skin.free ? 'badge-starter' : 'badge-premium'));
         const desc = owned ? `${skin.name} is already in your collection and ready to use.` : (skin.free ? `${skin.name} is your default bird and is always available.` : `Unlock ${skin.name} for ${skin.price} coins and fly with a fresh look.`);
         return `
           <div class="card ${owned ? 'owned' : 'locked'} ${state.selectedSkin === skin.id ? 'equipped' : ''}">
-            <div class="skinGlow">${badge}</div>
+            <div class="skinGlow ${badgeClass}">${badge}</div>
             <div class="skinPreview">
               <img src="${skin.src}" alt="${skin.name}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
               <div class="fallback">${skin.name.replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase()}</div>
@@ -828,6 +1108,7 @@
           <div class="sectionSwitch">
             <button class="btn" data-close>Close</button>
             <button class="btn primary" data-go="inventory">Inventory</button>
+            <button class="btn" data-go="pipeshop" style="background:linear-gradient(145deg,#1c3b52,#0f2030);color:#a0e8ff;border:1px solid rgba(100,200,255,.18)">🎨 Pipes</button>
           </div>
         </div>
         <div class="panelHero">
@@ -847,10 +1128,11 @@
       const cards = Object.values(skins).map(skin => {
         const owned = state.ownedSkins.includes(skin.id);
         const badge = state.selectedSkin === skin.id ? 'Equipped' : (owned ? 'Unlocked' : 'Locked');
+        const invBadgeClass = state.selectedSkin === skin.id ? 'badge-equipped' : (owned ? 'badge-owned' : 'badge-locked');
         const desc = owned ? `You own ${skin.name}. ${state.selectedSkin === skin.id ? 'This one is active right now.' : 'Equip it whenever you want.'}` : `${skin.name} is still locked. Visit the shop to unlock it.`;
         return `
           <div class="card ${owned ? 'owned' : 'locked'} ${state.selectedSkin === skin.id ? 'equipped' : ''}">
-            <div class="skinGlow">${badge}</div>
+            <div class="skinGlow ${invBadgeClass}">${badge}</div>
             <div class="skinPreview">
               <img src="${skin.src}" alt="${skin.name}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
               <div class="fallback">${skin.name.replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase()}</div>
@@ -899,6 +1181,8 @@
       panel.querySelectorAll('[data-go]').forEach(btn => btn.onclick = () => openOverlay(btn.dataset.go));
       panel.querySelectorAll('[data-buy]').forEach(btn => btn.onclick = () => { if (buySkin(btn.dataset.buy)) openOverlay('shop'); });
       panel.querySelectorAll('[data-equip]').forEach(btn => btn.onclick = () => { if (equipSkin(btn.dataset.equip)) openOverlay(kind); });
+      panel.querySelectorAll('[data-buypipe]').forEach(btn => btn.onclick = () => buyPipeColor(btn.dataset.buypipe));
+      panel.querySelectorAll('[data-equippipe]').forEach(btn => btn.onclick = () => equipPipeColor(btn.dataset.equippipe));
       const volumeRange = panel.querySelector('#sfxVolumeRange');
       if (volumeRange) {
         volumeRange.oninput = () => {
@@ -924,6 +1208,7 @@
     document.getElementById('playBtn').onclick = () => startGame();
     document.getElementById('openShopBtn').onclick = () => openOverlay('shop');
     document.getElementById('openInventoryBtn').onclick = () => openOverlay('inventory');
+    document.getElementById('openPipeShopBtn').onclick = () => openOverlay('pipeshop');
     document.getElementById('openSettingsBtn').onclick = () => openOverlay('settings');
     document.getElementById('menuBtn').onclick = () => {
       if (state.countdownTimer) { clearInterval(state.countdownTimer); state.countdownTimer = null; }
