@@ -330,8 +330,11 @@
       cheese:  { id:'cheese',  name:'Block of Cheese', src:'CheeseYay.jpg',            price:250,             accent:'#ffe066' },
       wreNold: { id:'wreNold', name:'WrenIsOld',       src:'WrenIsOld.jpg',            price:300,             accent:'#a78bfa' },
       edunzie: { id:'edunzie', name:'Edunzie',         src:'Edunzie.jpg',              price:300,             accent:'#34d399' },
-      usa:     { id:'usa',     name:'Usa',             src:'Usa.jpg',                  price:500,             accent:'#60a5fa' },
-      tiki:    { id:'tiki',    name:'TikiTheG',        src:'TikiTheG.jpg',             price:500,             accent:'#7cf1b4' },
+      tiki:    { id:'tiki',    name:'TikiTheG',        src:'TikiTheG.jpg',             price:400,             accent:'#7cf1b4' },
+      usa:     { id:'usa',     name:'USA',             src:'Usa.jpg',                  price:500,             accent:'#60a5fa' },
+      france:  { id:'france',  name:'France',          src:'France.jpg',               price:500,             accent:'#4a90d9' },
+      uk:      { id:'uk',      name:'UK',              src:'UK.jpg',                   price:500,             accent:'#cf2b2b' },
+      china:   { id:'china',   name:'China',           src:'China.jpg',                price:500,             accent:'#de2910' },
       cena:    { id:'cena',    name:'Bald Cena',       src:'TheRealBaldCena72.jpg',    price:750,             accent:'#ffd36d' }
     };
 
@@ -533,7 +536,7 @@
     function flap() {
       if (state.countdown > 0) return;
       if (!state.running || state.gameOver) return;
-      state.bird.vy = -7.8;
+      state.bird.vy = -6.2;
       state.bird.rot = -0.48;
       state.bird.flapAnim = 1.0;
       SFX.flap();
@@ -802,6 +805,23 @@
         ctx.lineWidth = 2;
         ctx.stroke();
         ctx.restore();
+        // Corner gloss — top-left bright spot
+        ctx.save();
+        drawRoundedRect(-size / 2, -size / 2, size, size, size * 0.19);
+        ctx.clip();
+        const gloss = ctx.createRadialGradient(-size * 0.28, -size * 0.28, 0, -size * 0.28, -size * 0.28, size * 0.52);
+        gloss.addColorStop(0, 'rgba(255,255,255,0.38)');
+        gloss.addColorStop(0.45, 'rgba(255,255,255,0.10)');
+        gloss.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = gloss;
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        // Bottom-right subtle warm glow
+        const glow2 = ctx.createRadialGradient(size * 0.3, size * 0.3, 0, size * 0.3, size * 0.3, size * 0.45);
+        glow2.addColorStop(0, 'rgba(255,220,100,0.18)');
+        glow2.addColorStop(1, 'rgba(255,220,100,0)');
+        ctx.fillStyle = glow2;
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.restore();
       } else {
         const grad = ctx.createLinearGradient(-size/2, -size/2, size/2, size/2);
         grad.addColorStop(0, skin.accent);
@@ -833,7 +853,7 @@
       state.spawnTimer++;
       state.bgX = (state.bgX - 2.2) % state.w;
 
-      const gravity = 0.30;
+      const gravity = 0.20;
       state.bird.vy += gravity;
       state.bird.y += state.bird.vy;
       // Smooth rotation: nose down on fall, tilt back on rise
@@ -1076,12 +1096,10 @@
         const affordable = state.coins >= skin.price;
         const disabled = !owned && !affordable && !skin.free;
         const status = owned ? 'Owned' : (skin.free ? 'Free' : '$' + skin.price);
-        const badge = state.selectedSkin === skin.id ? 'Equipped' : (owned ? 'Owned' : (skin.free ? 'Starter' : 'Premium'));
-        const badgeClass = state.selectedSkin === skin.id ? 'badge-equipped' : (owned ? 'badge-owned' : (skin.free ? 'badge-starter' : 'badge-premium'));
-        const desc = owned ? `${skin.name} is already in your collection and ready to use.` : (skin.free ? `${skin.name} is your default bird and is always available.` : `Unlock ${skin.name} for ${skin.price} coins and fly with a fresh look.`);
+        const isEquipped = state.selectedSkin === skin.id;
         return `
-          <div class="card ${owned ? 'owned' : 'locked'} ${state.selectedSkin === skin.id ? 'equipped' : ''}">
-            <div class="skinGlow ${badgeClass}">${badge}</div>
+          <div class="card ${owned ? 'owned' : 'locked'} ${isEquipped ? 'equipped' : ''}">
+            ${isEquipped ? `<div class="skinGlow badge-equipped">Equipped</div>` : ''}
             <div class="skinPreview">
               <img src="${skin.src}" alt="${skin.name}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
               <div class="fallback">${skin.name.replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase()}</div>
@@ -1089,13 +1107,11 @@
             <div class="skinNameRow">
               <h3>${skin.name}</h3>
             </div>
-            <div class="shopSub">${desc}</div>
             <div class="tagRow">
               <span class="tag ${owned || skin.free ? 'ok' : 'price'}">${status}</span>
-              <span class="tag ${owned ? 'ok' : 'lock'}">${owned ? 'In inventory' : (skin.free ? 'Available now' : 'Buy to unlock')}</span>
             </div>
             <div class="actions">
-              ${owned || skin.free ? `<button class="btn ${state.selectedSkin === skin.id ? 'equippedBlue' : 'primary'} equipBtn" data-equip="${skin.id}">${state.selectedSkin === skin.id ? 'Equipped' : 'Equip'}</button>` : `<button class="btn orange buyBtn" data-buy="${skin.id}" ${disabled ? 'disabled style="opacity:.55;cursor:not-allowed"' : ''}>Buy</button>`}
+              ${owned || skin.free ? `<button class="btn ${isEquipped ? 'equippedBlue' : 'primary'} equipBtn" data-equip="${skin.id}">${isEquipped ? 'Equipped' : 'Equip'}</button>` : `<button class="btn orange buyBtn" data-buy="${skin.id}" ${disabled ? 'disabled style="opacity:.55;cursor:not-allowed"' : ''}>Buy</button>`}
             </div>
           </div>`;
       }).join('');
@@ -1103,7 +1119,7 @@
         <div class="panelHeader">
           <div>
             <h2>Shop</h2>
-            <p>Buy skins with your coins. Each point you earn adds $1.</p>
+            <p>Buy skins with your coins. Each point earns $1.</p>
           </div>
           <div class="sectionSwitch">
             <button class="btn" data-close>Close</button>
@@ -1111,66 +1127,74 @@
             <button class="btn" data-go="pipeshop" style="background:linear-gradient(145deg,#1c3b52,#0f2030);color:#a0e8ff;border:1px solid rgba(100,200,255,.18)">🎨 Pipes</button>
           </div>
         </div>
-        <div class="panelHero">
-          <div>
-            <h2 style="margin:0 0 4px">Skin Boutique</h2>
-            <p style="margin:0;color:var(--muted)">Cleaner cards, clearer prices, better browsing.</p>
-          </div>
-          <div class="panelHeroStat">
-            <div class="panelHeroPill">Coins: <strong>$${state.coins}</strong></div>
-            <div class="panelHeroPill">Owned: <strong>${ownedCount()}</strong></div>
-          </div>
+        <div class="panelHeroStat" style="margin-bottom:16px;display:flex;gap:10px">
+          <div class="panelHeroPill">Coins: <strong>$${state.coins}</strong></div>
+          <div class="panelHeroPill">Owned: <strong>${ownedCount()}</strong></div>
         </div>
         <div class="grid" id="shopList">${cards}</div>`;
     }
 
     function inventoryMarkup() {
-      const cards = Object.values(skins).map(skin => {
-        const owned = state.ownedSkins.includes(skin.id);
-        const badge = state.selectedSkin === skin.id ? 'Equipped' : (owned ? 'Unlocked' : 'Locked');
-        const invBadgeClass = state.selectedSkin === skin.id ? 'badge-equipped' : (owned ? 'badge-owned' : 'badge-locked');
-        const desc = owned ? `You own ${skin.name}. ${state.selectedSkin === skin.id ? 'This one is active right now.' : 'Equip it whenever you want.'}` : `${skin.name} is still locked. Visit the shop to unlock it.`;
-        return `
-          <div class="card ${owned ? 'owned' : 'locked'} ${state.selectedSkin === skin.id ? 'equipped' : ''}">
-            <div class="skinGlow ${invBadgeClass}">${badge}</div>
-            <div class="skinPreview">
-              <img src="${skin.src}" alt="${skin.name}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-              <div class="fallback">${skin.name.replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase()}</div>
-            </div>
-            <div class="skinNameRow">
-              <h3>${skin.name}</h3>
-            </div>
-            <div class="shopSub">${desc}</div>
-            <div class="tagRow">
-              <span class="tag ${owned ? 'ok' : 'lock'}">${owned ? 'Unlocked' : 'Locked'}</span>
-            </div>
-            <div class="actions">
-              <button class="btn ${state.selectedSkin === skin.id ? 'equippedBlue' : 'primary'} equipBtn" data-equip="${skin.id}" ${owned ? '' : 'disabled style="opacity:.55;cursor:not-allowed"'}>${state.selectedSkin === skin.id ? 'Equipped' : 'Equip'}</button>
-            </div>
-          </div>`;
-      }).join('');
+      const ownedSkinCards = Object.values(skins)
+        .filter(skin => state.ownedSkins.includes(skin.id))
+        .map(skin => {
+          const isEquipped = state.selectedSkin === skin.id;
+          return `
+            <div class="card owned ${isEquipped ? 'equipped' : ''}">
+              ${isEquipped ? `<div class="skinGlow badge-equipped">Equipped</div>` : ''}
+              <div class="skinPreview">
+                <img src="${skin.src}" alt="${skin.name}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                <div class="fallback">${skin.name.replace(/[^A-Za-z]/g,'').slice(0,1).toUpperCase()}</div>
+              </div>
+              <div class="skinNameRow"><h3>${skin.name}</h3></div>
+              <div class="actions">
+                <button class="btn ${isEquipped ? 'equippedBlue' : 'primary'} equipBtn" data-equip="${skin.id}">${isEquipped ? 'Equipped' : 'Equip'}</button>
+              </div>
+            </div>`;
+        }).join('');
+
+      const ownedPipeCards = pipeColors
+        .filter(pc => state.ownedPipes.includes(pc.id) || pc.free)
+        .map(pc => {
+          const equipped = state.pipeColor === pc.id;
+          const swatch = pipeSwatchColors[pc.id] || '#2ecc52';
+          return `
+            <div class="card owned ${equipped ? 'equipped' : ''}">
+              ${equipped ? `<div class="skinGlow badge-equipped">Equipped</div>` : ''}
+              <div style="height:90px;border-radius:16px;background:linear-gradient(180deg,#a8e4f7 0%,#d4f5d0 100%);display:flex;align-items:center;justify-content:center;gap:18px;overflow:hidden;position:relative">
+                <div style="width:28px;height:75px;background:${swatch};border-radius:4px 4px 0 0;box-shadow:inset 3px 0 6px rgba(255,255,255,.22),inset -3px 0 5px rgba(0,0,0,.25);position:relative">
+                  <div style="position:absolute;bottom:0;left:-5px;right:-5px;height:14px;background:${swatch};filter:brightness(0.85);border-radius:3px"></div>
+                </div>
+                <div style="width:28px;height:75px;background:${swatch};border-radius:0 0 4px 4px;box-shadow:inset 3px 0 6px rgba(255,255,255,.22),inset -3px 0 5px rgba(0,0,0,.25);position:relative">
+                  <div style="position:absolute;top:0;left:-5px;right:-5px;height:14px;background:${swatch};filter:brightness(0.85);border-radius:3px"></div>
+                </div>
+              </div>
+              <div class="skinNameRow"><h3>${pc.name}</h3></div>
+              <div class="actions">
+                <button class="btn ${equipped ? 'equippedBlue' : 'primary'}" data-equippipe="${pc.id}">${equipped ? 'Equipped' : 'Equip'}</button>
+              </div>
+            </div>`;
+        }).join('');
+
       return `
         <div class="panelHeader">
           <div>
             <h2>Inventory</h2>
-            <p>Change between skins you already own.</p>
+            <p>Your unlocked skins and pipes.</p>
           </div>
           <div class="sectionSwitch">
             <button class="btn" data-close>Close</button>
             <button class="btn orange" data-go="shop">Shop</button>
+            <button class="btn" data-go="pipeshop" style="background:linear-gradient(145deg,#1c3b52,#0f2030);color:#a0e8ff;border:1px solid rgba(100,200,255,.18)">🎨 Pipes</button>
           </div>
         </div>
-        <div class="panelHero">
-          <div>
-            <h2 style="margin:0 0 4px">Your Collection</h2>
-            <p style="margin:0;color:var(--muted)">See what you own and switch fast.</p>
-          </div>
-          <div class="panelHeroStat">
-            <div class="panelHeroPill">Selected: <strong>${getSkin(state.selectedSkin).name}</strong></div>
-            <div class="panelHeroPill">Owned: <strong>${ownedCount()}</strong></div>
-          </div>
+        <div class="panelHeroStat" style="margin-bottom:16px;display:flex;gap:10px">
+          <div class="panelHeroPill">Selected: <strong>${getSkin(state.selectedSkin).name}</strong></div>
+          <div class="panelHeroPill">Skins: <strong>${ownedCount()}</strong></div>
         </div>
-        <div class="grid" id="inventoryList">${cards}</div>`;
+        <div class="grid" id="inventoryList">${ownedSkinCards}</div>
+        <h3 style="margin:22px 0 12px;font-size:1rem;color:#a0ffc0;text-transform:uppercase;letter-spacing:.08em">🎨 Pipes</h3>
+        <div class="grid">${ownedPipeCards}</div>`;
     }
 
     function bindPanelActions(kind) {
