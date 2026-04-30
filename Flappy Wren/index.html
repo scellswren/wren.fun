@@ -1292,9 +1292,10 @@
     }
     document.addEventListener('fullscreenchange', () => {
       document.getElementById('fullscreenBtn').textContent = document.fullscreenElement ? '⤢' : '⛶';
+      requestAnimationFrame(() => fitCanvas());
     });
 
-    window.addEventListener('resize', () => { fitCanvas(); resetGame(); });
+    window.addEventListener('resize', () => { fitCanvas(); });
     window.addEventListener('pointerdown', (e) => { if (e.target.closest('button')) return; if (document.getElementById('overlay').classList.contains('show')) return; flap(); });
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); flap(); }
