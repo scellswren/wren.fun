@@ -77,6 +77,24 @@
     .btn.playBig:active{transform:translateY(3px);box-shadow:0 2px 0 #0b8a30,0 6px 20px rgba(24,212,85,.25)}
     .menuRow{display:flex;gap:9px}
     .menuRow .btn{flex:1}
+    .menuRow.codeRow .btn{flex:1;width:100%;justify-content:center}
+    .codeBtn{background:linear-gradient(145deg,#6d28d9,#0f172a);color:#efe7ff;border:1px solid rgba(196,181,253,.28);box-shadow:0 4px 0 rgba(36,16,84,.75),0 10px 28px rgba(0,0,0,.22)}
+    .codeBtn:hover{filter:brightness(1.06)}
+    .codePanelHero{background:linear-gradient(135deg,rgba(109,40,217,.24),rgba(15,23,42,.92));border:1px solid rgba(196,181,253,.18)}
+    .codeInputWrap{display:grid;gap:12px}
+    .codeInput{width:100%;padding:16px 18px;border-radius:18px;border:1px solid rgba(196,181,253,.22);background:rgba(4,10,24,.72);color:#fff;font:700 1rem/1.2 Arial,Helvetica,sans-serif;outline:none;box-shadow:0 0 0 1px rgba(255,255,255,.03) inset}
+    .codeInput::placeholder{color:rgba(237,231,255,.45)}
+    .codeInput:focus{border-color:rgba(191,165,255,.55);box-shadow:0 0 0 3px rgba(109,40,217,.22)}
+    .codeActionRow{display:flex;gap:10px;flex-wrap:wrap}
+    .codeActionRow .btn{flex:1}
+    .codeTip{margin:0;color:#c9c0e7;font-size:.92rem;line-height:1.45}
+    .codePopupShell{display:flex;align-items:center;justify-content:center;min-height:220px;padding:6px}
+    .codePopupCard{width:min(420px,92vw);border-radius:24px;padding:18px;background:linear-gradient(180deg,rgba(18,10,35,.96),rgba(8,8,16,.98));border:1px solid rgba(196,181,253,.18);box-shadow:0 20px 60px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.03) inset;display:grid;gap:14px}
+    .codePopupCard::before{content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:radial-gradient(circle at 50% 0%,rgba(109,40,217,.22),transparent 45%)}
+    .codePopupTitle{font-family:'Fredoka One',Arial,sans-serif;font-size:1.35rem;letter-spacing:.02em;color:#efe7ff;text-align:center}
+    .codeCloseBtn{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:999px;border:1px solid rgba(255,120,120,.35);background:linear-gradient(145deg,#ff5b5b,#b80000);color:#fff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 0 #7a0000,0 10px 24px rgba(0,0,0,.25);z-index:2}
+    .codeCloseBtn:hover{filter:brightness(1.05)}
+    .codeCloseBtn:active{transform:translateY(1px)}
     .settingRow{display:grid;gap:14px}
     .settingCard{border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:18px}
     .settingCard h3{margin:0 0 6px;font-size:1rem;font-family:'Fredoka One',Arial,sans-serif}
@@ -199,6 +217,9 @@
           <div class="menuRow">
             <button class="btn" id="openPipeShopBtn" style="background:linear-gradient(145deg,#1c3b52,#0f2030);color:#a0e8ff;border:1px solid rgba(100,200,255,.18)">🎨 Pipe Shop</button>
             <button class="btn dark" id="openSettingsBtn">Settings</button>
+          </div>
+          <div class="menuRow codeRow">
+            <button class="btn dark codeBtn" id="openCodeBtn">🔑 Enter Code</button>
           </div>
         </div>
       </div>
@@ -329,7 +350,8 @@
       sfxVolume: 'flappyWrenSfxVolume',
       sfxMuted: 'flappyWrenSfxMuted',
       pipeColor: 'flappyWrenPipeColor',
-      ownedPipes: 'flappyWrenOwnedPipes'
+      ownedPipes: 'flappyWrenOwnedPipes',
+      redeemedCodes: 'flappyWrenRedeemedCodes'
     };
 
     const skins = {
@@ -384,7 +406,8 @@
       sfxVolume: Math.max(0, Math.min(1, Number(localStorage.getItem(STORAGE.sfxVolume) || '0.75'))),
       sfxMuted: localStorage.getItem(STORAGE.sfxMuted) === '1',
       pipeColor: localStorage.getItem(STORAGE.pipeColor) || 'green',
-      ownedPipes: JSON.parse(localStorage.getItem(STORAGE.ownedPipes) || 'null') || ['green']
+      ownedPipes: JSON.parse(localStorage.getItem(STORAGE.ownedPipes) || 'null') || ['green'],
+      redeemedCodes: JSON.parse(localStorage.getItem(STORAGE.redeemedCodes) || 'null') || []
     };
 
     if (!state.ownedSkins.includes(state.selectedSkin)) state.selectedSkin = 'wren';
@@ -399,6 +422,7 @@
       localStorage.setItem(STORAGE.sfxMuted, state.sfxMuted ? '1' : '0');
       localStorage.setItem(STORAGE.pipeColor, state.pipeColor);
       localStorage.setItem(STORAGE.ownedPipes, JSON.stringify([...new Set(state.ownedPipes)]));
+      localStorage.setItem(STORAGE.redeemedCodes, JSON.stringify([...new Set(state.redeemedCodes)]));
     }
 
     function getSfxVolume(mult = 1) {
@@ -666,6 +690,7 @@
           silver:   { main:'#a0a8b8', light:'#d8e0f0', dark:'#606870', shadow:'#303840', cap:'#8890a0', capTop:'#c8d0e0', metallic:true },
           bronze:   { main:'#a06030', light:'#d4904c', dark:'#703818', shadow:'#402010', cap:'#885028', capTop:'#c07840', metallic:true },
           emerald:  { main:'#046c30', light:'#22d36a', dark:'#024820', shadow:'#012010', cap:'#056a28', capTop:'#10e050', metallic:true },
+          diamond:  { main:'#9be7ff', light:'#f7feff', dark:'#4db6d9', shadow:'#2d7fa1', cap:'#7ed5f3', capTop:'#ffffff', metallic:true },
         };
         return presets[scheme] || presets.green;
       }
@@ -1014,6 +1039,7 @@
       { id:'silver',     name:'Silver',       price:3000, tier:'metallic' },
       { id:'bronze',     name:'Bronze',       price:3000, tier:'metallic' },
       { id:'emerald',    name:'Emerald',      price:3000, tier:'metallic' },
+      { id:'diamond',    name:'Diamond',      price:3000, tier:'metallic' },
     ];
 
     // Pipe preview colour swatches
@@ -1023,7 +1049,8 @@
       cyan:'#06b6d4', peach:'#fb923c', magenta:'#c026d3', purple:'#7c3aed', indigo:'#4338ca',
       apricot:'#f59e6b', turquoise:'#0d9488', amber:'#d97706', cream:'#d4c5a0', tan:'#c4a882',
       slate:'#475569', white:'#e8e8e8', black:'#222222',
-      ruby:'#c0002a', gold:'#c8960c', silver:'#a0a8b8', bronze:'#a06030', emerald:'#046c30'
+      ruby:'#c0002a', gold:'#c8960c', silver:'#a0a8b8', bronze:'#a06030', emerald:'#046c30',
+      diamond:'#8fdfff'
     };
 
     function buyPipeColor(id) {
@@ -1120,6 +1147,7 @@
       if (kind === 'shop') panel.innerHTML = shopMarkup();
       else if (kind === 'settings') panel.innerHTML = settingsMarkup();
       else if (kind === 'pipeshop') panel.innerHTML = pipeShopMarkup();
+      else if (kind === 'code') panel.innerHTML = codeMarkup();
       else panel.innerHTML = inventoryMarkup();
       bindPanelActions(kind);
     }
@@ -1235,6 +1263,21 @@
         <div class="grid">${ownedPipeCards}</div>`;
     }
 
+    function codeMarkup() {
+      return `
+        <div class="codePopupShell">
+          <div class="codePopupCard">
+            <button class="codeCloseBtn" data-close aria-label="Close code menu">✕</button>
+            <div class="codePopupTitle">Enter code</div>
+            <input id="codeInput" class="codeInput" type="text" maxlength="32" placeholder="Enter code" autocomplete="off" spellcheck="false" />
+            <div class="codeActionRow">
+              <button class="btn primary" id="redeemCodeBtn">Redeem</button>
+              <button class="btn dark" id="clearCodeBtn">Clear</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
     function bindPanelActions(kind) {
       const overlay = document.getElementById('overlay');
       const panel = document.getElementById('panel');
@@ -1245,6 +1288,27 @@
       panel.querySelectorAll('[data-equip]').forEach(btn => btn.onclick = () => { if (equipSkin(btn.dataset.equip)) openOverlay(kind); });
       panel.querySelectorAll('[data-buypipe]').forEach(btn => btn.onclick = () => buyPipeColor(btn.dataset.buypipe));
       panel.querySelectorAll('[data-equippipe]').forEach(btn => btn.onclick = () => equipPipeColor(btn.dataset.equippipe));
+      const codeInput = panel.querySelector('#codeInput');
+      const redeemCodeBtn = panel.querySelector('#redeemCodeBtn');
+      const clearCodeBtn = panel.querySelector('#clearCodeBtn');
+      const codeCloseBtn = panel.querySelector('.codeCloseBtn');
+      const redeemCode = () => {
+        const code = (codeInput?.value || '').trim();
+        if (!code) { setMessage('Enter a code first.'); return; }
+        if (state.redeemedCodes.includes(code)) { setMessage('That code has already been used.'); return; }
+        if (code !== 'Blue9998Y') { setMessage('That code is not valid.'); return; }
+        state.coins += 6000;
+        state.redeemedCodes.push(code);
+        saveState();
+        renderUI();
+        setMessage('Code redeemed! +$6,000');
+        SFX.buy();
+        openOverlay('code');
+      };
+      if (redeemCodeBtn) redeemCodeBtn.onclick = redeemCode;
+      if (clearCodeBtn) clearCodeBtn.onclick = () => { if (codeInput) codeInput.value = ''; codeInput.focus(); };
+      if (codeCloseBtn) codeCloseBtn.onclick = () => closeOverlay();
+      if (codeInput) codeInput.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') redeemCode(); });
       const volumeRange = panel.querySelector('#sfxVolumeRange');
       if (volumeRange) {
         volumeRange.oninput = () => {
@@ -1272,6 +1336,7 @@
     document.getElementById('openInventoryBtn').onclick = () => openOverlay('inventory');
     document.getElementById('openPipeShopBtn').onclick = () => openOverlay('pipeshop');
     document.getElementById('openSettingsBtn').onclick = () => openOverlay('settings');
+    document.getElementById('openCodeBtn').onclick = () => openOverlay('code');
     document.getElementById('menuBtn').onclick = () => {
       if (state.countdownTimer) { clearInterval(state.countdownTimer); state.countdownTimer = null; }
       state.running = false;
