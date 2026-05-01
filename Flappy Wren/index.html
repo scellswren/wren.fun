@@ -357,21 +357,31 @@
     const skins = {
       wren:    { id:'wren',    name:'Wren',                src:'WrenYay.jpg',              price:0,    free:true, accent:'#48de79' },
       orin:    { id:'orin',    name:'The Mind Of Orin',    src:'TheMindOfOrin.jpg',       price:50,              accent:'#ff9d2a' },
+      wrenFun: { id:'wrenFun', name:'Wren.fun',            src:'Wren.fun.jpg',            price:25,              accent:'#a78bfa' },
+      cucumber:{ id:'cucumber',name:'Cucumber',            src:'Cucumber.jpg',            price:100,             accent:'#5ecf6a' },
       potato:  { id:'potato',  name:'Potato',              src:'Potato.jpg',              price:100,             accent:'#d4a84b' },
+      juju2y:  { id:'juju2y',  name:'Juju2y',              src:'Juju2y.jpg',              price:150,             accent:'#f472b6' },
       tiredWren:{ id:'tiredWren',name:'Tired Wren',        src:'TiredWren.jpg',           price:200,             accent:'#8fb3c9' },
       cheese:  { id:'cheese',  name:'Block of Cheese',     src:'CheeseYay.jpg',           price:250,             accent:'#ffe066' },
       scratch: { id:'scratch', name:'Scratch',             src:'Scratch.jpg',             price:300,             accent:'#f0c34a' },
       lucky:   { id:'lucky',   name:'Lucky',               src:'Lucky.jpg',               price:300,             accent:'#ffd36d' },
       wreNold: { id:'wreNold', name:'WrenIsOld',           src:'WrenIsOld.jpg',           price:300,             accent:'#a78bfa' },
+      nathan:  { id:'nathan',  name:'Nathan',              src:'Nathan8028.jpg',          price:400,             accent:'#60a5fa' },
+      ethansTable:{ id:'ethansTable',name:'EthansHalfTable',src:'EthansHalfTable.jpg',   price:400,             accent:'#fb923c' },
       tiki:    { id:'tiki',    name:'TikiTheG',            src:'TikiTheG.jpg',            price:400,             accent:'#7cf1b4' },
       usa:     { id:'usa',     name:'USA',                 src:'Usa.jpg',                 price:500,             accent:'#60a5fa' },
       france:  { id:'france',  name:'France',              src:'France.jpg',              price:500,             accent:'#4a90d9' },
       uk:      { id:'uk',      name:'UK',                  src:'UK.jpg',                  price:500,             accent:'#cf2b2b' },
+      australia:{ id:'australia',name:'Australia',         src:'Australia.jpg',           price:500,             accent:'#00008b' },
+      newZealand:{ id:'newZealand',name:'New Zealand',     src:'NewZealand.jpg',          price:500,             accent:'#00247d' },
+      japan:   { id:'japan',   name:'Japan',               src:'Japan.jpg',               price:500,             accent:'#bc002d' },
+      germany: { id:'germany', name:'Germany',             src:'Germany.jpg',             price:500,             accent:'#ffce00' },
       china:   { id:'china',   name:'China',               src:'China.jpg',               price:500,             accent:'#de2910' },
       ogWrenIsOld: { id:'ogWrenIsOld', name:'OG WrenIsOld', src:'OG WrenIsOld.jpg',        price:500,             accent:'#c7a6ff' },
       underTheMatLucky: { id:'underTheMatLucky', name:'Lucky Under A Mat', src:'UnderTheMatLucky.jpg', price:600, accent:'#d6c84f' },
       cena:    { id:'cena',    name:'Bald Cena',           src:'TheRealBaldCena72.jpg',   price:750,             accent:'#ffd36d' },
-      christmasWrenIsOld: { id:'christmasWrenIsOld', name:'Christmas WrenIsOld', src:'ChristmasWrenIsOld.jpg', price:800, accent:'#ff6b6b' }
+      christmasWrenIsOld: { id:'christmasWrenIsOld', name:'Christmas WrenIsOld', src:'ChristmasWrenIsOld.jpg', price:800, accent:'#ff6b6b' },
+      orinFlower:{ id:'orinFlower',name:'Orin Flower',     src:'OrinFlower.jpg',          price:2000,            accent:'#f9a8d4' },
     };
 
     const imageCache = {};
@@ -423,6 +433,12 @@
       localStorage.setItem(STORAGE.pipeColor, state.pipeColor);
       localStorage.setItem(STORAGE.ownedPipes, JSON.stringify([...new Set(state.ownedPipes)]));
       localStorage.setItem(STORAGE.redeemedCodes, JSON.stringify([...new Set(state.redeemedCodes)]));
+      // China theme unlock — writes to shared localStorage so main menu picks it up
+      if (state.ownedSkins.includes('china') && localStorage.getItem('wren_theme_china_unlocked') !== '1') {
+        localStorage.setItem('wren_theme_china_unlocked', '1');
+        const ul = JSON.parse(localStorage.getItem('wren_unlocked') || '[]');
+        if (!ul.includes('china')) { ul.push('china'); localStorage.setItem('wren_unlocked', JSON.stringify(ul)); }
+      }
     }
 
     function getSfxVolume(mult = 1) {
@@ -466,6 +482,7 @@
       renderUI();
       setMessage(`${skin.name} purchased and equipped!`);
       SFX.buy();
+      if (id === 'china') setTimeout(() => setMessage('🇨🇳 China theme unlocked in the main menu!', 3000), 1800);
       return true;
     }
 
@@ -699,43 +716,38 @@
 
       function pipePiece(x, y, w, hgt, isTop) {
         if (hgt <= 0) return;
-        // Main body gradient (left to right with highlight stripe)
+        // Main body gradient — richer 5-stop with a bright left-edge rim light
         const grad = ctx.createLinearGradient(x, 0, x + w, 0);
         if (C.metallic) {
           grad.addColorStop(0,    C.shadow);
-          grad.addColorStop(0.12, C.dark);
-          grad.addColorStop(0.30, C.light);
-          grad.addColorStop(0.50, C.main);
-          grad.addColorStop(0.70, C.light);
-          grad.addColorStop(0.85, C.dark);
+          grad.addColorStop(0.08, C.light);
+          grad.addColorStop(0.28, C.main);
+          grad.addColorStop(0.55, C.light);
+          grad.addColorStop(0.75, C.main);
+          grad.addColorStop(0.90, C.dark);
           grad.addColorStop(1,    C.shadow);
         } else {
           grad.addColorStop(0,    C.shadow);
-          grad.addColorStop(0.15, C.dark);
-          grad.addColorStop(0.35, C.light);
-          grad.addColorStop(0.55, C.main);
-          grad.addColorStop(0.80, C.dark);
+          grad.addColorStop(0.08, C.light);   // bright rim on left edge
+          grad.addColorStop(0.25, C.main);
+          grad.addColorStop(0.60, C.main);
+          grad.addColorStop(0.82, C.dark);
           grad.addColorStop(1,    C.shadow);
         }
         ctx.fillStyle = grad;
-        // Rounded top/bottom edge only on open ends
-        const r = 4;
-        ctx.beginPath();
-        if (isTop) {
-          // top pipe: flat top, rounded at bottom opening is handled by cap
-          ctx.rect(x, y, w, hgt);
-        } else {
-          ctx.rect(x, y, w, hgt);
-        }
-        ctx.fill();
+        ctx.fillRect(x, y, w, hgt);
 
-        // Inner highlight stripe
-        ctx.fillStyle = 'rgba(255,255,255,0.13)';
-        ctx.fillRect(x + 10, y + (isTop ? 10 : 4), 10, Math.max(0, hgt - 18));
+        // Bright left-edge rim highlight (1px sliver)
+        ctx.fillStyle = 'rgba(255,255,255,0.30)';
+        ctx.fillRect(x, y, 3, hgt);
+
+        // Inner secondary highlight stripe
+        ctx.fillStyle = 'rgba(255,255,255,0.18)';
+        ctx.fillRect(x + 8, y + (isTop ? 10 : 4), 8, Math.max(0, hgt - 18));
 
         // Right shadow stripe
-        ctx.fillStyle = 'rgba(0,0,0,0.18)';
-        ctx.fillRect(x + w - 12, y + 4, 8, Math.max(0, hgt - 10));
+        ctx.fillStyle = 'rgba(0,0,0,0.28)';
+        ctx.fillRect(x + w - 10, y + 2, 8, Math.max(0, hgt - 6));
 
         // Cap (the wider lip)
         const capX = x - (capW - w) / 2;
@@ -743,24 +755,23 @@
         const capGrad = ctx.createLinearGradient(capX, 0, capX + capW, 0);
         if (C.metallic) {
           capGrad.addColorStop(0,    C.shadow);
-          capGrad.addColorStop(0.15, C.dark);
-          capGrad.addColorStop(0.35, C.capTop);
+          capGrad.addColorStop(0.08, C.light);
+          capGrad.addColorStop(0.30, C.capTop);
           capGrad.addColorStop(0.55, C.cap);
-          capGrad.addColorStop(0.80, C.dark);
+          capGrad.addColorStop(0.82, C.dark);
           capGrad.addColorStop(1,    C.shadow);
         } else {
           capGrad.addColorStop(0,    C.shadow);
-          capGrad.addColorStop(0.15, C.dark);
-          capGrad.addColorStop(0.38, C.capTop);
-          capGrad.addColorStop(0.60, C.cap);
+          capGrad.addColorStop(0.08, C.capTop); // bright rim
+          capGrad.addColorStop(0.28, C.cap);
+          capGrad.addColorStop(0.62, C.cap);
           capGrad.addColorStop(0.85, C.dark);
           capGrad.addColorStop(1,    C.shadow);
         }
         ctx.fillStyle = capGrad;
-        const capR = 7;
+        const capR = 8;
         ctx.beginPath();
         if (isTop) {
-          // cap at bottom of top pipe — round bottom corners
           ctx.moveTo(capX + capR, lipY);
           ctx.lineTo(capX + capW - capR, lipY);
           ctx.arcTo(capX + capW, lipY, capX + capW, lipY + capH, capR);
@@ -768,7 +779,6 @@
           ctx.arcTo(capX, lipY + capH, capX, lipY, capR);
           ctx.arcTo(capX, lipY, capX + capW, lipY, capR);
         } else {
-          // cap at top of bottom pipe — round top corners
           ctx.moveTo(capX + capR, lipY);
           ctx.arcTo(capX + capW, lipY, capX + capW, lipY + capH, capR);
           ctx.arcTo(capX + capW, lipY + capH, capX, lipY + capH, capR);
@@ -778,21 +788,26 @@
         ctx.closePath();
         ctx.fill();
 
-        // Cap highlight
-        ctx.fillStyle = 'rgba(255,255,255,0.15)';
-        ctx.fillRect(capX + 8, lipY + 5, capW - 20, 5);
+        // Cap bright rim (left edge)
+        ctx.fillStyle = 'rgba(255,255,255,0.32)';
+        ctx.fillRect(capX, lipY, 3, capH);
 
-        // Cap shadow line
-        const shadowSide = isTop ? lipY + capH - 4 : lipY;
-        ctx.fillStyle = 'rgba(0,0,0,0.25)';
-        ctx.fillRect(capX, shadowSide, capW, 4);
+        // Cap top highlight band
+        ctx.fillStyle = 'rgba(255,255,255,0.20)';
+        ctx.fillRect(capX + 6, lipY + 4, capW - 16, 6);
+
+        // Cap bottom shadow line
+        const shadowSide = isTop ? lipY + capH - 5 : lipY;
+        ctx.fillStyle = 'rgba(0,0,0,0.32)';
+        ctx.fillRect(capX, shadowSide, capW, 5);
 
         // Metallic shimmer overlay
         if (C.metallic) {
           const shimmer = ctx.createLinearGradient(x, y, x + w, y + hgt);
-          shimmer.addColorStop(0, 'rgba(255,255,255,0)');
-          shimmer.addColorStop(0.35, 'rgba(255,255,255,0.18)');
-          shimmer.addColorStop(0.65, 'rgba(255,255,255,0)');
+          shimmer.addColorStop(0,    'rgba(255,255,255,0)');
+          shimmer.addColorStop(0.30, 'rgba(255,255,255,0.22)');
+          shimmer.addColorStop(0.55, 'rgba(255,255,255,0.08)');
+          shimmer.addColorStop(1,    'rgba(255,255,255,0)');
           ctx.fillStyle = shimmer;
           ctx.fillRect(x, y, w, hgt);
         }
