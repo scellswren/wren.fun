@@ -4114,8 +4114,37 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       opacity:1 !important;
       pointer-events:auto !important;
     }
+    #themePageStatsOverlay{
+      position:fixed !important;
+      inset:0 !important;
+      z-index:10025 !important;
+      display:flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      padding:18px !important;
+      background:rgba(8,10,14,0.74) !important;
+      backdrop-filter:blur(8px) !important;
+      -webkit-backdrop-filter:blur(8px) !important;
+      opacity:0 !important;
+      pointer-events:none !important;
+      transition:opacity 0.16s ease !important;
+    }
+    #themePageStatsOverlay.open{
+      opacity:1 !important;
+      pointer-events:auto !important;
+    }
+    #themePageStatsModal{
+      width:min(540px,calc(100vw - 28px)) !important;
+      border-radius:18px !important;
+      border:1px solid rgba(255,255,255,0.12) !important;
+      background:linear-gradient(180deg,#171b24 0%,#11141c 100%) !important;
+      box-shadow:0 18px 40px rgba(0,0,0,0.38) !important;
+      color:#f4f6fb !important;
+      overflow:hidden !important;
+    }
     #themeInfoModal{
       width:min(540px,calc(100vw - 28px)) !important;
+      border-radius:18px !important;
       border-radius:18px !important;
       border:1px solid rgba(255,255,255,0.12) !important;
       background:linear-gradient(180deg,#171b24 0%,#11141c 100%) !important;
@@ -4344,6 +4373,32 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       letter-spacing:0.4px !important;
       box-shadow:0 6px 18px rgba(28,36,61,0.32) !important;
     }
+    .theme-progress-btn{
+      border:1px solid rgba(167,185,255,0.28) !important;
+      background:linear-gradient(145deg,#1f2736,#171f2d) !important;
+      color:#eaf0ff !important;
+      border-radius:999px !important;
+      width:34px !important;
+      height:34px !important;
+      display:inline-flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      cursor:pointer !important;
+      font-size:0.92rem !important;
+      box-shadow:0 6px 16px rgba(20,27,46,0.30) !important;
+      transition:transform 0.14s ease, background 0.14s ease, border-color 0.14s ease !important;
+    }
+    .theme-progress-btn:hover{
+      transform:translateY(-1px) !important;
+      border-color:rgba(167,185,255,0.52) !important;
+      background:linear-gradient(145deg,#253146,#1a2639) !important;
+    }
+    .theme-count-wrap{
+      display:flex !important;
+      align-items:center !important;
+      gap:8px !important;
+      justify-self:center !important;
+    }
 
     .theme-grid{
       flex:1 1 auto !important;
@@ -4417,10 +4472,20 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       height:30px !important;
       margin:0 !important;
       border-radius:999px !important;
-      border:2px solid rgba(255,255,255,0.26) !important;
-      box-shadow:0 0 0 1px rgba(0,0,0,0.30), inset 0 0 11px rgba(255,255,255,0.25) !important;
+      border:2px solid rgba(255,255,255,0.34) !important;
+      box-shadow:0 0 0 1px rgba(0,0,0,0.36), inset 0 0 14px rgba(255,255,255,0.28), 0 5px 12px rgba(0,0,0,0.22) !important;
       opacity:1 !important;
       transition:transform 0.16s ease, box-shadow 0.16s ease !important;
+    }
+    .theme-grid .mode-option .mode-dot::after{
+      opacity:1 !important;
+      width:10px !important;
+      height:10px !important;
+      top:50% !important;
+      left:50% !important;
+      transform:translate(-50%,-50%) !important;
+      background:rgba(255,255,255,0.92) !important;
+      box-shadow:0 0 10px rgba(255,255,255,0.66) !important;
     }
     .theme-grid .mode-option:hover{
       background:#1e222b !important;
@@ -4446,7 +4511,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       box-shadow:0 0 0 1px rgba(145,124,255,0.12) inset !important;
     }
     .theme-grid .mode-option.active-mode .mode-dot{
-      box-shadow:0 0 0 4px rgba(124,58,237,0.32), inset 0 0 0 2px rgba(255,255,255,0.92) !important;
+      box-shadow:0 0 0 4px rgba(124,58,237,0.34), 0 0 0 7px rgba(124,58,237,0.16), inset 0 0 0 2px rgba(255,255,255,0.96) !important;
       border-color:rgba(255,255,255,0.92) !important;
     }
     .theme-grid .mode-option.active-mode .mode-dot::before{opacity:0 !important;}
@@ -4482,6 +4547,9 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
         min-width:130px !important;
       }
       .theme-count-pill{
+        justify-self:center !important;
+      }
+      .theme-count-wrap{
         justify-self:center !important;
       }
       .theme-grid{
@@ -4545,6 +4613,21 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       border:1px solid rgba(255,255,255,0.35) !important;
     }
     body.mode-carrot .mode-option.active-mode{color:#ffffff;}
+    body.mode-carrot #settingsPanel{
+      background:linear-gradient(180deg,rgba(14,54,24,0.98) 0%,rgba(22,89,43,0.98) 42%,rgba(202,104,30,0.98) 100%) !important;
+      border:1px solid rgba(255,219,182,0.20) !important;
+      color:#f8fff0 !important;
+    }
+    body.mode-carrot #codeModal{
+      background:linear-gradient(180deg,rgba(11,46,20,0.99) 0%,rgba(18,76,38,0.99) 42%,rgba(188,93,27,0.99) 100%) !important;
+      border:1px solid rgba(255,219,182,0.20) !important;
+      color:#f8fff0 !important;
+    }
+    body.mode-carrot #themesModal{
+      background:#111318 !important;
+      border:none !important;
+      color:#f4f6fb !important;
+    }
 
   </style>
 </head>
@@ -4607,7 +4690,10 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
           <option value="locked">Hide Locked</option>
         </select>
       </div>
-      <div class="theme-count-pill" id="themeOwnedCount">0/0</div>
+      <div class="theme-count-wrap">
+        <div class="theme-count-pill" id="themeOwnedCount">0/0</div>
+        <button type="button" class="theme-progress-btn" id="themePageProgressBtn" title="Theme Progress By Page">i</button>
+      </div>
       <div class="control-group">
         <label>Sort:</label>
         <select id="themeSort" onchange="updateThemeGrid(); saveThemeControls()">
@@ -4618,9 +4704,9 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       </div>
     </div>
     <div class="theme-grid">
-      <div class="mode-option" data-mode="light" onclick="selectMode('light');closeThemesModal()">☀️ Light Mode<div class="mode-dot"></div></div>
-      <div class="mode-option" data-mode="dark" onclick="selectMode('dark');closeThemesModal()">🌙 Dark Mode<div class="mode-dot"></div></div>
-      <div class="mode-option" data-mode="rainbow" onclick="selectMode('rainbow');closeThemesModal()">🌈 Rainbow Neon<div class="mode-dot rainbow-dot"></div></div>
+      <div class="mode-option" data-mode="light" onclick="selectMode('light')">☀️ Light Mode<div class="mode-dot"></div></div>
+      <div class="mode-option" data-mode="dark" onclick="selectMode('dark')">🌙 Dark Mode<div class="mode-dot"></div></div>
+      <div class="mode-option" data-mode="rainbow" onclick="selectMode('rainbow')">🌈 Rainbow Neon<div class="mode-dot rainbow-dot"></div></div>
       <div class="mode-option locked" id="blueberryModeOption" data-mode="blueberry"><span>🫐 Blueberry <span id="blueberryLock">🔒</span></span><div class="mode-dot blueberry-dot"></div></div>
       <div class="mode-option locked" id="bananaModeOption" data-mode="banana"><span>🍌 Banana <span id="bananaLock">🔒</span></span><div class="mode-dot banana-dot"></div></div>
       <div class="mode-option locked" id="ketchupModeOption" data-mode="ketchup"><span>🍅 Ketchup <span id="ketchupLock">🔒</span></span><div class="mode-dot ketchup-dot"></div></div>
@@ -4691,6 +4777,18 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     <div class="theme-info-actions">
       <button type="button" class="theme-info-btn" onclick="closeThemeInfoModal()">Close</button>
       <button type="button" class="theme-info-btn select-btn" id="themeInfoSelectBtn">Select</button>
+    </div>
+  </div>
+</div>
+<div id="themePageStatsOverlay">
+  <div id="themePageStatsModal">
+    <div class="theme-info-top">
+      <div class="theme-info-title">Theme Progress By Page</div>
+      <div class="theme-info-status">Pages</div>
+    </div>
+    <div class="theme-info-body" id="themePageStatsBody"></div>
+    <div class="theme-info-actions">
+      <button type="button" class="theme-info-btn" onclick="closeThemePageStatsModal()">Close</button>
     </div>
   </div>
 </div>
@@ -4987,7 +5085,7 @@ normalizeThemeOptionLabels();
 
 function selectMode(m){
   if(ALL_LOCKED_MODES.includes(m)&&!unlockedFeatures.includes(m))return;
-  applyMode(m);localStorage.setItem(MODE_KEY,m);closeThemesModal();
+  applyMode(m);localStorage.setItem(MODE_KEY,m);
 }
 function applyMode(m){
   stopSnowParticles();stopMoneyParticles();stopLightningParticles();stopFireParticles();stopEmeraldParticles();stopDiamondParticles();stopSevenParticles();stopOneParticles();stopNineParticles();clearAnzacPoppies();
@@ -5106,6 +5204,22 @@ function updateThemesModalText(){
   sub.textContent='Pick a background. Some themes unlock as you explore the site.';
 }
 const CODE_UNLOCK_MODES=new Set(['glass','lava','galaxy','pizza']);
+const THEME_PAGE_SOURCE={
+  light:'Main Menu',dark:'Main Menu',rainbow:'Main Menu',
+  blueberry:'Main Menu',ice:'Main Menu',darth:'Main Menu',glitch:'Main Menu',skin:'Main Menu',cyan:'Main Menu',spider:'Main Menu',
+  rose:'Main Menu',caramal:'Main Menu',toothpaste:'Main Menu',emerald:'Main Menu',diamond:'Main Menu',seven:'Main Menu',fire:'Main Menu',
+  blackhole:'Main Menu',rainbowremastered:'WrenPacks',luxurious:'Catch Anything',
+  glass:'Main Menu',lava:'Main Menu',galaxy:'Main Menu',pizza:'Main Menu',
+  banana:'Object Attack',ketchup:'Object Attack',lightning:'Object Attack',
+  coffee:'Catch Anything',windu:'Catch Anything',day:'Catch Anything',night:'Catch Anything',
+  jedi:'Pong World Cup',watermelon:'Pong World Cup',
+  one:'UnOh Infinity',nine:'UnOh Infinity',anzac:'UnOh Infinity',turquoise:'UnOh Infinity',turquoisecyan:'Main Menu',
+  orange:'Pong World Cup',carrot:'Flappy Wren',water:'Credits',potato:'Lucky Generator',grape:'WrenPacks',sun:'Small Creators',
+  shadow:'Wren Wheel of Doom',cheese:'Cheese Art',lucky:'Lucky Generator',
+  bronze:'Credits',silver:'Credits',gold:'Credits',
+  radioactive:'WrenPacks',money:'WrenPacks',snow:'WrenPacks',usa:'WrenPacks',vomit:'WrenPacks',
+  cottoncandy:'Wren Wheel of Doom',saber:'Wren Wheel of Doom',slime:'Main Menu',bone:'Main Menu',whiteneon:'Hall Of Fame'
+};
 let activeThemeInfoMode=null;
 function isModeUnlocked(mode){
   return !ALL_LOCKED_MODES.includes(mode)||unlockedFeatures.includes(mode);
@@ -5117,64 +5231,65 @@ function getThemeTitle(mode){
   return source.textContent.replace(/🔒/g,'').replace(/\s+/g,' ').trim();
 }
 function getThemeUnlockHint(mode){
-  if(mode==='light'||mode==='dark'||mode==='rainbow')return 'This theme is available by default.';
-  if(CODE_UNLOCK_MODES.has(mode))return 'You get this theme by entering a secret code.';
+  if(mode==='darth')return '66';
+  if(mode==='seven')return '7';
+  if(mode==='light'||mode==='dark'||mode==='rainbow')return 'Main Menu: this theme is available by default.';
+  if(CODE_UNLOCK_MODES.has(mode))return 'Main Menu: you get this theme by entering a code.';
   const hints={
-    banana:'Visit Object Attack to unlock this theme.',
-    ketchup:'Reach enough power in Object Attack to unlock this theme.',
-    lightning:'Reach a very high power level in Object Attack to unlock this theme.',
-    luxurious:'Unlock this through progression in Catch Anything.',
-    whiteneon:'Visit Hall of Fame to unlock this theme.',
-    ice:'Select the "Vewy Cool 😎" text on the main page to unlock this theme.',
-    coffee:'Reach level 20 in Catch Anything to unlock this theme.',
-    darth:'Set brightness to 66% and hold it for a few seconds to unlock this theme.',
-    windu:'Own the x2 XP upgrade in Catch Anything to unlock this theme.',
-    jedi:'Win the Pong World Cup to unlock this theme.',
-    watermelon:'Play Pong practice mode to unlock this theme.',
-    bone:'Come back while music resumes playing to unlock this theme.',
-    blueberry:'Trigger the special Neal.fun visit unlock to get this theme.',
-    blackhole:'Unlock this through a special progression condition on the site.',
-    day:'Visit Catch Anything to unlock this theme.',
-    night:'Get an impossible-difficulty item in Catch Anything to unlock this theme.',
-    cyan:'Click the background 10 times to unlock this theme.',
-    rose:'Visit both YouTube and Discord links to unlock this theme.',
-    orange:'Visit Pong World Cup to unlock this theme.',
-    carrot:'Visit Flappy Wren to unlock this theme.',
-    caramal:'Hover over Credits long enough to unlock this theme.',
-    water:'Visit Credits to unlock this theme.',
-    potato:'Visit Lucky Generator to unlock this theme.',
-    grape:'Visit Wren Packs to unlock this theme.',
-    sun:'Visit Small Creators to unlock this theme.',
-    shadow:'Visit Wren Wheel of Doom to unlock this theme.',
-    cheese:'Visit Cheese Art to unlock this theme.',
-    toothpaste:'Visit all main pages to unlock this theme.',
-    lucky:'Click Lucky Generator many times to unlock this theme.',
-    glitch:'Click the settings cog 10,000 times to unlock this theme.',
-    slime:'Use an invalid code once to unlock this theme.',
-    spider:'Click the background 1,000 times to unlock this theme.',
-    bronze:'Watch Credits 5 times to unlock this theme.',
-    silver:'Watch Credits 15 times to unlock this theme.',
-    gold:'Watch Credits 50 times to unlock this theme.',
-    radioactive:'Unlock this through Wren Wheel of Doom progression.',
-    snow:'Unlock this through Wren Wheel of Doom progression.',
-    money:'Unlock this through Wren Wheel of Doom progression.',
-    cottoncandy:'Unlock this through Wren Wheel of Doom progression.',
-    saber:'Unlock this through Wren Wheel of Doom progression.',
-    skin:'Click the background 10,000 times to unlock this theme.',
-    rainbowremastered:'Collect required inventory items to unlock this theme.',
-    fire:'Reach high total inventory count to unlock this theme.',
-    emerald:'Alternate Light and Dark enough times to unlock this theme.',
-    diamond:'Alternate Day and Night enough times to unlock this theme.',
-    seven:'Set brightness to 7% and hold it briefly to unlock this theme.',
-    one:'Visit UnOh Infinity to unlock this theme.',
-    nine:'Unlock this by meeting the Nine condition in UnOh Infinity.',
-    anzac:'Unlock this through a special progression condition on the site.',
-    turquoise:'Get 20 wins in UnOh Infinity to unlock this theme.',
-    turquoisecyan:'Switch between Turquoise and Cyan in sequence to unlock this theme.',
-    usa:'Unlock this through a special progression condition on the site.',
-    vomit:'Unlock this through a special progression condition on the site.'
+    banana:'Object Attack: open the page once.',
+    ketchup:'Object Attack: reach at least 50,000 power.',
+    lightning:'Object Attack: reach at least 5,000,000 power.',
+    luxurious:'Catch Anything: unlock through your game progression.',
+    whiteneon:'Hall Of Fame: visit this page.',
+    ice:'Main Menu: select the "Vewy Cool 😎" text.',
+    coffee:'Catch Anything: reach level 20.',
+    windu:'Catch Anything: get the x2 XP upgrade.',
+    jedi:'Pong World Cup: win the cup.',
+    watermelon:'Pong World Cup: play practice mode.',
+    bone:'Main Menu: return while your music is resumed and playing.',
+    blueberry:'Main Menu: click the Neal.fun footer link.',
+    blackhole:'Main Menu: unlock from your saved progression data.',
+    day:'Catch Anything: visit the page once.',
+    night:'Catch Anything: own an Impossible-difficulty catch item.',
+    cyan:'Main Menu: click the background 10 times.',
+    rose:'Main Menu: click both the YouTube and Discord footer links.',
+    orange:'Pong World Cup: open the page once.',
+    carrot:'Flappy Wren: open the page once.',
+    caramal:'Main Menu: hover the Credits button for 10 seconds.',
+    water:'Credits: open the page once.',
+    potato:'Lucky Generator: open the page once.',
+    grape:'WrenPacks: open the page once.',
+    sun:'Small Creators: open the page once.',
+    shadow:'Wren Wheel of Doom: open the page once.',
+    cheese:'Cheese Art: open the page once.',
+    toothpaste:'Main Menu pages: visit all main page buttons.',
+    lucky:'Lucky Generator: click it enough times.',
+    glitch:'Main Menu: click the settings cog 10,000 times.',
+    slime:'Main Menu: enter an invalid code once.',
+    spider:'Main Menu: click the background 1,000 times.',
+    bronze:'Credits: watch 5 times.',
+    silver:'Credits: watch 15 times.',
+    gold:'Credits: watch 50 times.',
+    radioactive:'WrenPacks: own at least 1 Legendary character.',
+    snow:'WrenPacks: reach $1,000,000,000 money.',
+    money:'WrenPacks: reach $1,000,000 money.',
+    cottoncandy:'Wren Wheel of Doom: unlock from wheel progression.',
+    saber:'Wren Wheel of Doom: unlock from wheel progression.',
+    skin:'Main Menu: click the background 10,000 times.',
+    rainbowremastered:'WrenPacks: own one of the required inventory characters.',
+    fire:'WrenPacks: reach 5,000+ total inventory count.',
+    emerald:'Main Menu: alternate Light and Dark enough times.',
+    diamond:'Main Menu: alternate Day and Night enough times.',
+    one:'UnOh Infinity: open the page once.',
+    nine:'UnOh Infinity: play until Nine unlock condition is met.',
+    anzac:'UnOh Infinity: enter the Anzac code in its code menu.',
+    turquoise:'UnOh Infinity: reach 20 wins.',
+    turquoisecyan:'Main Menu: switch between Turquoise and Cyan back-to-back.',
+    usa:'WrenPacks: get the Null reveal.',
+    vomit:'WrenPacks: stay in Light Mode for 5 minutes.'
   };
-  return hints[mode]||'Unlock this theme by exploring the site and completing milestones.';
+  const page=THEME_PAGE_SOURCE[mode]||'Main Menu';
+  return hints[mode]||`${page}: unlock from progression.`;
 }
 function updateThemeOwnedCount(){
   const counter=document.getElementById('themeOwnedCount');
@@ -5204,6 +5319,35 @@ function openThemeInfoModal(mode){
 function closeThemeInfoModal(){
   document.getElementById('themeInfoOverlay').classList.remove('open');
   activeThemeInfoMode=null;
+}
+function getPageThemeProgressRows(){
+  const rows={};
+  document.querySelectorAll('#themesModal .theme-grid .mode-option').forEach(option=>{
+    const mode=option.dataset.mode;
+    if(!mode)return;
+    const page=THEME_PAGE_SOURCE[mode]||'Main Menu';
+    if(!rows[page])rows[page]={owned:0,total:0};
+    rows[page].total++;
+    if(!option.classList.contains('locked'))rows[page].owned++;
+  });
+  return rows;
+}
+function renderThemePageStats(){
+  const body=document.getElementById('themePageStatsBody');
+  if(!body)return;
+  const rows=getPageThemeProgressRows();
+  const ordered=Object.keys(rows).sort((a,b)=>{
+    const p=(rows[b].total-rows[a].total);
+    return p!==0?p:a.localeCompare(b);
+  });
+  body.innerHTML=ordered.map(page=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.08);"><span style="font-weight:800;color:#f4f6fb;">${page}</span><span style="font-weight:900;color:#d8e2ff;">${rows[page].owned}/${rows[page].total}</span></div>`).join('');
+}
+function openThemePageStatsModal(){
+  renderThemePageStats();
+  document.getElementById('themePageStatsOverlay').classList.add('open');
+}
+function closeThemePageStatsModal(){
+  document.getElementById('themePageStatsOverlay').classList.remove('open');
 }
 function bindThemeOptionInteractions(){
   document.querySelectorAll('#themesModal .theme-grid .mode-option').forEach(option=>{
@@ -5506,7 +5650,7 @@ function tryUnlockIceFromSelection(){
 document.addEventListener('mouseup',tryUnlockIceFromSelection);
 document.addEventListener('keyup',tryUnlockIceFromSelection);
 document.addEventListener('click',e=>{
-  if(e.target.closest('button,a,input,textarea,select,label,option,[role="button"],#settingsCog,#settingsMenu,#themesOverlay,#themeInfoOverlay,#codeOverlay,.mode-option'))return;
+  if(e.target.closest('button,a,input,textarea,select,label,option,[role="button"],#settingsCog,#settingsMenu,#themesOverlay,#themeInfoOverlay,#themePageStatsOverlay,#codeOverlay,.mode-option'))return;
   incrementBackgroundClicks();checkSkinUnlock(true);checkAllUnlocks();
 });
 function stopSnowParticles(){document.getElementById('snowContainer').innerHTML='';}
@@ -5602,6 +5746,7 @@ function closeCodeModal(){document.getElementById('codeOverlay').classList.remov
 function openThemesModal(){
   updateThemesModalText();
   closeThemeInfoModal();
+  closeThemePageStatsModal();
   document.body.classList.add('modal-open');
   document.documentElement.classList.add('modal-open');
   const overlay=document.getElementById('themesOverlay');
@@ -5683,6 +5828,7 @@ function closeThemesModal(){
   document.body.classList.remove('modal-open');
   document.documentElement.classList.remove('modal-open');
   closeThemeInfoModal();
+  closeThemePageStatsModal();
 }
 let darthUnlockTimer=null;
 let sevenUnlockTimer=null;
@@ -5718,6 +5864,8 @@ function applyBrightness(v){
 document.getElementById('codeOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('codeOverlay'))closeCodeModal();});
 document.getElementById('themesOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('themesOverlay'))closeThemesModal();});
 document.getElementById('themeInfoOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('themeInfoOverlay'))closeThemeInfoModal();});
+document.getElementById('themePageStatsOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('themePageStatsOverlay'))closeThemePageStatsModal();});
+document.getElementById('themePageProgressBtn').addEventListener('click',openThemePageStatsModal);
 document.getElementById('themeInfoSelectBtn').addEventListener('click',()=>{
   if(!activeThemeInfoMode)return;
   if(!isModeUnlocked(activeThemeInfoMode)){showToast('🔒 Theme is still locked.');return;}
