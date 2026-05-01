@@ -5233,7 +5233,7 @@ function selectMode(m){
   applyMode(m);localStorage.setItem(MODE_KEY,m);
 }
 function applyMode(m){
-  stopSnowParticles();stopMoneyParticles();stopLightningParticles();stopFireParticles();stopEmeraldParticles();stopDiamondParticles();stopSevenParticles();stopOneParticles();stopNineParticles();clearAnzacPoppies();
+  stopSnowParticles();stopMoneyParticles();stopLightningParticles();stopFireParticles();stopFizzyBubbles();stopEmeraldParticles();stopDiamondParticles();stopSevenParticles();stopOneParticles();stopNineParticles();clearAnzacPoppies();
   document.body.className='mode-'+m;
   document.documentElement.className='mode-'+m;
   setScrollbarTheme(m);
@@ -5242,6 +5242,7 @@ function applyMode(m){
   if(m==='money')startMoneyParticles();
   if(m==='lightning')startLightningParticles();
   if(m==='fire')startFireParticles();
+  if(m==='orangefizzy')startFizzyBubbles();
   if(m==='emerald')startEmeraldParticles();
   if(m==='diamond')startDiamondParticles();
   if(m==='anzac')spawnAnzacPoppies();
@@ -5264,7 +5265,7 @@ const SCROLLBAR_THEMES={
   ketchup:['rgba(80,0,0,0.90)','rgba(255,90,90,0.80)'],lightning:['rgba(0,10,30,0.92)','rgba(120,190,255,0.84)'],
   whiteneon:['rgba(241,245,249,0.95)','rgba(122,145,165,0.86)'],ice:['rgba(215,244,255,0.95)','rgba(18,110,145,0.84)'],
   luxurious:['rgba(18,18,18,0.90)','rgba(212,175,55,0.84)'],rose:['rgba(42,0,24,0.92)','rgba(255,132,196,0.84)'],
-  orange:['rgba(42,18,0,0.92)','rgba(255,160,48,0.84)'],carrot:['rgba(10,42,16,0.92)','rgba(255,150,40,0.84)'],caramal:['rgba(58,32,14,0.92)','rgba(235,188,110,0.84)'],water:['rgba(3,20,30,0.92)','rgba(102,214,255,0.84)'],
+  orange:['rgba(42,18,0,0.92)','rgba(255,160,48,0.84)'],orangefizzy:['rgba(48,18,0,0.92)','rgba(255,180,90,0.84)'],carrot:['rgba(10,42,16,0.92)','rgba(255,150,40,0.84)'],caramal:['rgba(58,32,14,0.92)','rgba(235,188,110,0.84)'],water:['rgba(3,20,30,0.92)','rgba(102,214,255,0.84)'],
   potato:['rgba(58,38,18,0.92)','rgba(218,160,92,0.84)'],grape:['rgba(26,8,44,0.92)','rgba(188,128,255,0.84)'],
   sun:['rgba(94,45,0,0.92)','rgba(255,214,102,0.84)'],shadow:['rgba(5,6,8,0.92)','rgba(180,186,200,0.82)'],
   cheese:['rgba(255,244,180,0.95)','rgba(176,110,18,0.84)'],toothpaste:['rgba(247,249,250,0.95)','rgba(26,168,74,0.84)'],
@@ -5278,7 +5279,7 @@ const SCROLLBAR_THEMES={
   skin:['rgba(255,210,205,0.92)','rgba(150,95,88,0.82)'],lava:['rgba(40,4,0,0.92)','rgba(255,100,0,0.84)'],
   glass:['rgba(220,235,255,0.88)','rgba(100,60,220,0.70)'],day:['rgba(200,230,255,0.92)','rgba(14,100,200,0.80)'],
   night:['rgba(4,6,14,0.92)','rgba(140,160,255,0.80)'],blueberry:['rgba(2,6,23,0.92)','rgba(96,165,250,0.82)'],
-  darth:['rgba(20,0,0,0.92)','rgba(255,80,80,0.78)'],
+  darth:['rgba(20,0,0,0.92)','rgba(255,80,80,0.78)'],darksaber:['rgba(4,4,4,0.96)','rgba(220,220,220,0.72)'],
   jedi:['rgba(0,14,0,0.92)','rgba(80,255,80,0.78)'],
   turquoise:['rgba(0,40,40,0.92)','rgba(64,224,208,0.84)'],
   turquoisecyan:['rgba(0,40,60,0.92)','rgba(0,200,220,0.84)'],
@@ -5293,6 +5294,7 @@ const THEME_MODAL_SUBTEXTS={
   dark:'Moody and calm.',
   rainbow:'Colorful and loud.',
   glass:'Soft, glossy, and dreamy.',
+  blur:'Bright but unreadable.',
   cyan:'Cool and electric.',
   spider:'Sharp, dark, and spooky.',
   skin:'Warm and fleshy.',
@@ -5301,6 +5303,7 @@ const THEME_MODAL_SUBTEXTS={
   cottoncandy:'Sweet, fluffy, and pastel.',
   saber:'Blue, bright, and cinematic.',
   darth:'Red, dark, and intense.',
+  darksaber:'Black void with saber glow.',
   windu:'Purple, bold, and regal.',
   jedi:'Green, clean, and heroic.',
   coffee:'Warm and cozy.',
@@ -5309,6 +5312,7 @@ const THEME_MODAL_SUBTEXTS={
   lightning:'Fast and electric.',
   luxurious:'Rich, dark, and fancy.',
   orange:'Warm, fiery, and bold.',
+  orangefizzy:'Orange soda style with bubbles.',
   caramal:'Hover Credits.',
   water:'Cool and smooth.',
   potato:'Earthy and rustic.',
@@ -5353,16 +5357,16 @@ const THEME_PAGE_SOURCE={
   blueberry:'Main Menu',ice:'Main Menu',darth:'Main Menu',glitch:'Main Menu',skin:'Main Menu',cyan:'Main Menu',spider:'Main Menu',
   rose:'Main Menu',caramal:'Main Menu',toothpaste:'Main Menu',emerald:'Main Menu',diamond:'Main Menu',seven:'Main Menu',fire:'Wren Packs',
   blackhole:'The Wren Wheel of Doom',rainbowremastered:'Wren Packs',luxurious:'The Hall of Fame',
-  glass:'Main Menu',lava:'Main Menu',galaxy:'Main Menu',pizza:'Main Menu',
+  glass:'Main Menu',blur:'Flappy Wren',lava:'Main Menu',galaxy:'Main Menu',pizza:'Main Menu',
   banana:'Object Attack',ketchup:'Object Attack',lightning:'Object Attack',
   coffee:'Catch Anything',windu:'Catch Anything',day:'Catch Anything',night:'Catch Anything',
   jedi:'The Pong World Cup',watermelon:'The Pong World Cup',
   one:'UnOh Infinity',nine:'UnOh Infinity',anzac:'UnOh Infinity',turquoise:'UnOh Infinity',turquoisecyan:'Main Menu',
-  orange:'The Pong World Cup',carrot:'Flappy Wren',water:'Credits',potato:'Lucky Generator',grape:'Wren Packs',sun:'Small Creators',
+  orange:'The Pong World Cup',orangefizzy:'Flappy Wren',carrot:'Flappy Wren',water:'Credits',potato:'Lucky Generator',grape:'Wren Packs',sun:'Small Creators',
   shadow:'The Wren Wheel of Doom',cheese:"Cheese's Art",lucky:'Lucky Generator',
   bronze:'Credits',silver:'Credits',gold:'Credits',
   radioactive:'The Wren Wheel of Doom',money:'Wren Packs',snow:'The Wren Wheel of Doom',usa:'Wren Packs',vomit:'Wren Packs',
-  cottoncandy:'The Wren Wheel of Doom',saber:'The Wren Wheel of Doom',slime:'Main Menu',bone:'Main Menu',whiteneon:'The Hall of Fame'
+  cottoncandy:'The Wren Wheel of Doom',saber:'The Wren Wheel of Doom',darksaber:'Flappy Wren',slime:'Main Menu',bone:'Main Menu',whiteneon:'The Hall of Fame'
 };
 let activeThemeInfoMode=null;
 function isModeUnlocked(mode){
@@ -5399,6 +5403,7 @@ function getThemeUnlockHint(mode){
     rose:'Visit both Social Links (YouTube and Discord).',
     orange:'Visit The Pong World Cup.',
     carrot:'Visit Flappy Wren.',
+    orangefizzy:'Get 20+ high score in Flappy Wren.',
     caramal:'Hover Credits.',
     water:'Visit Credits.',
     potato:'Visit Lucky Generator.',
@@ -5429,6 +5434,8 @@ function getThemeUnlockHint(mode){
     anzac:'Enter the code in UnOh Infinity.',
     turquoise:'Reach 20 wins in UnOh Infinity.',
     turquoisecyan:'Alternate between Turquoise and Cyan theme selections.',
+    darksaber:'Get 50+ high score in Flappy Wren.',
+    blur:'Get 100+ high score in Flappy Wren.',
     usa:'Trigger Null in Wren Packs.',
     vomit:'Stay in Light Mode for 5 minutes.'
   };
@@ -5535,6 +5542,7 @@ function refreshGlassOption(){refreshOption('glassModeOption','glassLock','glass
 function refreshLavaOption(){refreshOption('lavaModeOption','lavaLock','lava');}
 function refreshRoseOption(){refreshOption('roseModeOption','roseLock','rose');}
 function refreshOrangeOption(){refreshOption('orangeModeOption','orangeLock','orange');}
+function refreshOrangeFizzyOption(){refreshOption('orangeFizzyModeOption','orangeFizzyLock','orangefizzy');}
 function refreshCarrotOption(){refreshOption('carrotModeOption','carrotLock','carrot');}
 function refreshCaramalOption(){refreshOption('caramalModeOption','caramalLock','caramal');}
 function refreshWaterOption(){refreshOption('waterModeOption','waterLock','water');}
@@ -5560,6 +5568,8 @@ function refreshPizzaOption(){syncPizzaUnlock();refreshOption('pizzaModeOption',
 function refreshWhiteNeonOption(){refreshOption('whiteNeonModeOption','whiteNeonLock','whiteneon');}
 function refreshIceOption(){refreshOption('iceModeOption','iceLock','ice');}
 function refreshDarthOption(){refreshOption('darthModeOption','darthLock','darth');}
+function refreshDarkSaberOption(){refreshOption('darkSaberModeOption','darkSaberLock','darksaber');}
+function refreshBlurOption(){refreshOption('blurModeOption','blurLock','blur');}
 function refreshRainbowRemasteredOption(){refreshOption('rainbowRemasteredModeOption','rainbowRemasteredLock','rainbowremastered');}
 function refreshSevenOption(){refreshOption('sevenModeOption','sevenLock','seven');}
 function refreshFireOption(){refreshOption('fireModeOption','fireLock','fire');}
@@ -5631,6 +5641,10 @@ function getTotalInventoryCount(){
 }
 function hasFireUnlocked(){return localStorage.getItem(FIRE_THEME_UNLOCK_KEY)==='1'||getTotalInventoryCount()>=5000;}
 function hasBlackHoleUnlocked(){return localStorage.getItem(BLACKHOLE_THEME_UNLOCK_KEY)==='1';}
+function getFlappyHighScore(){return Number(localStorage.getItem('flappyWrenHighScore')||'0');}
+function hasOrangeFizzyUnlocked(){return localStorage.getItem(ORANGE_FIZZY_THEME_UNLOCK_KEY)==='1'||getFlappyHighScore()>=20;}
+function hasDarkSaberUnlocked(){return localStorage.getItem(DARK_SABER_THEME_UNLOCK_KEY)==='1'||getFlappyHighScore()>=50;}
+function hasBlurUnlocked(){return localStorage.getItem(BLUR_THEME_UNLOCK_KEY)==='1'||getFlappyHighScore()>=100;}
 function getBackgroundClicks(){return Number(localStorage.getItem(BG_CLICK_COUNT_KEY)||'0');}
 function setBackgroundClicks(v){localStorage.setItem(BG_CLICK_COUNT_KEY,String(v));}
 function incrementBackgroundClicks(){setBackgroundClicks(getBackgroundClicks()+1);}
@@ -5662,6 +5676,9 @@ function unlockWhiteNeonIfEligible(){return unlockIfEligible('whiteneon',hasVisi
 function unlockDayIfEligible(){return unlockIfEligible('day',hasDayUnlocked,'🌤️ Day unlocked!',refreshDayOption);}
 function unlockNightIfEligible(){return unlockIfEligible('night',hasNightUnlocked,'🌙 Night unlocked!',refreshNightOption);}
 function unlockRoseIfEligible(){return unlockIfEligible('rose',hasVisitedBothLinks,'🌹 Rose unlocked!',refreshRoseOption);}
+function unlockOrangeFizzyIfEligible(){return unlockIfEligible('orangefizzy',hasOrangeFizzyUnlocked,'🟠 Orange Fizzy unlocked!',refreshOrangeFizzyOption);}
+function unlockDarkSaberIfEligible(){return unlockIfEligible('darksaber',hasDarkSaberUnlocked,'⚫ Dark Saber unlocked!',refreshDarkSaberOption);}
+function unlockBlurIfEligible(){return unlockIfEligible('blur',hasBlurUnlocked,'🌫️ Blur unlocked!',refreshBlurOption);}
 function unlockWaterIfEligible(){return unlockIfEligible('water',hasVisitedCredits,'💧 Water unlocked!',refreshWaterOption);}
 function unlockPotatoIfEligible(){return unlockIfEligible('potato',hasVisitedLucky,'🥔 Potato unlocked!',refreshPotatoOption);}
 function unlockGrapeIfEligible(){return unlockIfEligible('grape',hasVisitedWrenPacks,'🍇 Grape unlocked!',refreshGrapeOption);}
@@ -5719,7 +5736,7 @@ function showStoredUnlockNotice(){const footer=document.getElementById('footerTe
 function checkAllUnlocks(){
   syncCatchThemeUnlocks();
   unlockLuxuriousIfEligible();unlockRainbowRemasteredIfEligible();unlockFireIfEligible();unlockBlueberryIfEligible();unlockBlackHoleIfEligible();unlockCyanIfEligible();unlockWhiteNeonIfEligible();unlockIceIfEligible();unlockDarthIfEligible();unlockDayIfEligible();unlockNightIfEligible();
-  unlockRoseIfEligible();unlockWaterIfEligible();unlockPotatoIfEligible();unlockGrapeIfEligible();unlockSunIfEligible();unlockShadowIfEligible();unlockCheeseIfEligible();unlockToothpasteIfEligible();
+  unlockRoseIfEligible();unlockOrangeFizzyIfEligible();unlockDarkSaberIfEligible();unlockBlurIfEligible();unlockWaterIfEligible();unlockPotatoIfEligible();unlockGrapeIfEligible();unlockSunIfEligible();unlockShadowIfEligible();unlockCheeseIfEligible();unlockToothpasteIfEligible();
   unlockLuckyIfEligible();unlockGlitchIfEligible();unlockSlimeIfEligible();unlockGalaxyIfEligible();unlockSpiderIfEligible();checkCreditsUnlocks();unlockRadioactiveIfEligible();unlockSnowIfEligible();unlockMoneyIfEligible();unlockCottonCandyIfEligible();unlockSaberIfEligible();unlockAnzacIfEligible();checkSkinUnlock(false);
   unlockEmeraldIfEligible();unlockDiamondIfEligible();unlockSevenIfEligible();unlockOneIfEligible();
   unlockJediIfEligible();unlockWatermelonIfEligible();unlockBoneIfEligible();
@@ -5771,6 +5788,16 @@ let fireInterval=null;
 function spawnFireParticle(){const c=document.getElementById('fireContainer');if(!c)return;const p=document.createElement('div');p.className='fire-particle';const s=18+Math.random()*26,left=Math.random()*100,drift=(Math.random()-0.5)*180,spin=(Math.random()-0.5)*220,dur=4.5+Math.random()*4.5;p.style.cssText=`left:${left}vw;width:${s}px;height:${s}px;--drift:${drift}px;--spin:${spin}deg;--scale:${0.75+Math.random()*0.9};animation-duration:${dur}s;animation-delay:0s;`;const img=document.createElement('img');img.src='Fire.gif';img.alt='fire';img.draggable=false;p.appendChild(img);c.appendChild(p);setTimeout(()=>p.remove(),(dur+0.3)*1000);}
 function startFireParticles(){const c=document.getElementById('fireContainer');if(!c)return;c.innerHTML='';for(let i=0;i<12;i++)setTimeout(spawnFireParticle,Math.random()*900);if(fireInterval)clearInterval(fireInterval);fireInterval=setInterval(spawnFireParticle,180);}
 function stopFireParticles(){if(fireInterval){clearInterval(fireInterval);fireInterval=null;}const c=document.getElementById('fireContainer');if(c)c.innerHTML='';}
+let fizzyInterval=null;
+function spawnFizzyBubble(){
+  const c=document.getElementById('fizzyContainer');if(!c)return;
+  const b=document.createElement('div');b.className='fizzy-bubble';
+  const size=8+Math.random()*30,left=Math.random()*100,dx=(Math.random()-0.5)*(40+Math.random()*120),dur=3.6+Math.random()*3.4;
+  b.style.cssText=`left:${left}vw;width:${size}px;height:${size}px;--dx:${dx}px;animation-duration:${dur}s;opacity:${0.45+Math.random()*0.35};`;
+  c.appendChild(b);setTimeout(()=>b.remove(),(dur+0.3)*1000);
+}
+function startFizzyBubbles(){const c=document.getElementById('fizzyContainer');if(!c)return;c.innerHTML='';for(let i=0;i<28;i++)setTimeout(spawnFizzyBubble,Math.random()*1000);if(fizzyInterval)clearInterval(fizzyInterval);fizzyInterval=setInterval(spawnFizzyBubble,150);}
+function stopFizzyBubbles(){if(fizzyInterval){clearInterval(fizzyInterval);fizzyInterval=null;}const c=document.getElementById('fizzyContainer');if(c)c.innerHTML='';}
 function spawnGemParticle(containerId, cls, glyph, filterValue){const c=document.getElementById(containerId);if(!c)return;const p=document.createElement('div');p.className=cls;p.textContent=glyph;const size=18+Math.random()*24;const left=Math.random()*100;const drift=(Math.random()-0.5)*160;const spin=(Math.random()-0.5)*260;const dur=6+Math.random()*6;p.style.cssText=`left:${left}vw;font-size:${size}px;--drift:${drift}px;--spin:${spin}deg;--scale:${0.85+Math.random()*0.55};animation-duration:${dur}s;animation-delay:0s;${filterValue && filterValue !== 'none' ? `filter:${filterValue};` : ''}`;c.appendChild(p);setTimeout(()=>p.remove(),(dur+0.2)*1000);}
 let emeraldInterval=null;let diamondInterval=null;
 function startEmeraldParticles(){const c=document.getElementById('emeraldContainer');if(!c)return;c.innerHTML='';for(let i=0;i<12;i++)setTimeout(()=>spawnGemParticle('emeraldContainer','emerald-particle','◆','none'),Math.random()*900);if(emeraldInterval)clearInterval(emeraldInterval);emeraldInterval=setInterval(()=>spawnGemParticle('emeraldContainer','emerald-particle','◆','none'),420);}
@@ -5817,8 +5844,8 @@ function startLightningParticles(){
 }
 function stopLightningParticles(){if(lightningInterval){clearInterval(lightningInterval);lightningInterval=null;}document.getElementById('lightningContainer').innerHTML='';}
 
-const CYCLE_THEME_NAMES={'light':'☀️ Light','dark':'🌙 Dark','rainbow':'🌈 Rainbow Neon','banana':'🍌 Banana','ketchup':'🍅 Ketchup','lightning':'⚡ Lightning','whiteneon':'⚪ White Neon','ice':'🧊 Ice','luxurious':'✨ Luxurious','rose':'🌹 Rose','orange':'🟠 Orange','caramal':'🍯 Caramal','water':'💧 Water','potato':'🥔 Potato','grape':'🍇 Grape','sun':'☀️ Sun','shadow':'🌑 Shadow','cheese':'🧀 Cheese','toothpaste':'🪥 Toothpaste','lucky':'🐈 Lucky','glitch':'🟩 Glitch','slime':'🟢 Slime','anzac':'🇦🇺 Anzac','cyan':'🩵 Cyan','glass':'✨ Liquid Glass','lava':'🌋 Lava','galaxy':'🌌 Galaxy','blackhole':'🕳️ Black Hole','spider':'🕷️ Spider','bronze':'🥉 Bronze','silver':'🥈 Silver','gold':'🥇 Gold','radioactive':'☢️ Radioactive','snow':'❄️ Snow','money':'💵 Money','cottoncandy':'🍬 Cotton Candy','saber':'🔵 Saber','pizza':'🍕 Pizza','skin':'🩸 Skin','rainbowremastered':'🌈 Rainbow Neon Remastered','day':'🌤️ Day','night':'🌙 Night','emerald':'💚 Emerald','diamond':'💎 Diamond','seven':'7️⃣ Seven','one':'1️⃣ One','nine':'9️⃣ Nine','anzac':'🇦🇺 Anzac','usa':'🇺🇸 USA','vomit':'🤮 Vomit','turquoise':'🩵 Turquoise','turquoisecyan':'🩵 Turquoise-Cyan'};
-const ALL_CYCLE_THEMES=['light','dark','rainbow','banana','ketchup','lightning','whiteneon','ice','luxurious','rose','orange','caramal','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','cyan','glass','lava','galaxy','blackhole','spider','bronze','silver','gold','radioactive','snow','money','pizza','skin','rainbowremastered','day','night','one','nine','anzac','usa','vomit','turquoise','turquoisecyan'];
+const CYCLE_THEME_NAMES={'light':'☀️ Light','dark':'🌙 Dark','rainbow':'🌈 Rainbow Neon','banana':'🍌 Banana','ketchup':'🍅 Ketchup','lightning':'⚡ Lightning','whiteneon':'⚪ White Neon','ice':'🧊 Ice','luxurious':'✨ Luxurious','rose':'🌹 Rose','orange':'🟠 Orange','orangefizzy':'🟠 Orange Fizzy','caramal':'🍯 Caramal','water':'💧 Water','potato':'🥔 Potato','grape':'🍇 Grape','sun':'☀️ Sun','shadow':'🌑 Shadow','cheese':'🧀 Cheese','toothpaste':'🪥 Toothpaste','lucky':'🐈 Lucky','glitch':'🟩 Glitch','slime':'🟢 Slime','anzac':'🇦🇺 Anzac','cyan':'🩵 Cyan','glass':'✨ Liquid Glass','blur':'🌫️ Blur','lava':'🌋 Lava','galaxy':'🌌 Galaxy','blackhole':'🕳️ Black Hole','spider':'🕷️ Spider','bronze':'🥉 Bronze','silver':'🥈 Silver','gold':'🥇 Gold','radioactive':'☢️ Radioactive','snow':'❄️ Snow','money':'💵 Money','cottoncandy':'🍬 Cotton Candy','saber':'🔵 Saber','darksaber':'⚫ Dark Saber','pizza':'🍕 Pizza','skin':'🩸 Skin','rainbowremastered':'🌈 Rainbow Neon Remastered','day':'🌤️ Day','night':'🌙 Night','emerald':'💚 Emerald','diamond':'💎 Diamond','seven':'7️⃣ Seven','one':'1️⃣ One','nine':'9️⃣ Nine','usa':'🇺🇸 USA','vomit':'🤮 Vomit','turquoise':'🩵 Turquoise','turquoisecyan':'🩵 Turquoise-Cyan'};
+const ALL_CYCLE_THEMES=['light','dark','rainbow','banana','ketchup','lightning','whiteneon','ice','luxurious','rose','orange','orangefizzy','caramal','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','cyan','glass','blur','lava','galaxy','blackhole','spider','bronze','silver','gold','radioactive','snow','money','pizza','skin','rainbowremastered','day','night','one','nine','anzac','usa','vomit','turquoise','turquoisecyan','darksaber'];
 let isCycling=false;
 function runThemeCycle(){
   if(isCycling)return;isCycling=true;closeCodeModal();
@@ -5865,9 +5892,9 @@ window.addEventListener('load',()=>{
     creditsBtn.addEventListener('mouseleave',()=>{clearTimeout(caramalHoverTimer);});
   }
   refreshBananaOption();refreshKetchupOption();refreshLightningOption();refreshLuxuriousOption();refreshBlueberryOption();refreshBlackHoleOption();refreshWhiteNeonOption();refreshIceOption();refreshCoffeeOption();refreshDarthOption();refreshWinduOption();refreshDayOption();refreshNightOption();
-  refreshCyanOption();refreshGlassOption();refreshLavaOption();refreshRoseOption();refreshOrangeOption();refreshCarrotOption();refreshCaramalOption();refreshWaterOption();refreshPotatoOption();refreshGrapeOption();refreshSunOption();refreshShadowOption();
+  refreshCyanOption();refreshGlassOption();refreshBlurOption();refreshLavaOption();refreshRoseOption();refreshOrangeOption();refreshOrangeFizzyOption();refreshCarrotOption();refreshCaramalOption();refreshWaterOption();refreshPotatoOption();refreshGrapeOption();refreshSunOption();refreshShadowOption();
   refreshCheeseOption();refreshToothpasteOption();refreshLuckyOption();refreshGlitchOption();refreshSlimeOption();refreshGalaxyOption();refreshSpiderOption();refreshBronzeOption();refreshSilverOption();
-  refreshGoldOption();refreshRadioactiveOption();refreshSnowOption();refreshMoneyOption();refreshSkinOption();refreshRainbowRemasteredOption();refreshFireOption();
+  refreshGoldOption();refreshRadioactiveOption();refreshSnowOption();refreshMoneyOption();refreshSkinOption();refreshRainbowRemasteredOption();refreshFireOption();refreshDarkSaberOption();
   refreshEmeraldOption();refreshDiamondOption();
   refreshCottonCandyOption();refreshSaberOption();
   refreshJediOption();refreshWatermelonOption();refreshBoneOption();refreshSevenOption();refreshOneOption();refreshNineOption();unlockNineIfEligible();refreshAnzacOption();refreshUsaOption();refreshVomitOption();refreshTurquoiseOption();refreshTurquoiseCyanOption();
