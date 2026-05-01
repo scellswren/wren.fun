@@ -4095,6 +4095,101 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       pointer-events:auto !important;
     }
 
+    #themeInfoOverlay{
+      position:fixed !important;
+      inset:0 !important;
+      z-index:10020 !important;
+      display:flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      padding:18px !important;
+      background:rgba(8,10,14,0.72) !important;
+      backdrop-filter:blur(8px) !important;
+      -webkit-backdrop-filter:blur(8px) !important;
+      opacity:0 !important;
+      pointer-events:none !important;
+      transition:opacity 0.16s ease !important;
+    }
+    #themeInfoOverlay.open{
+      opacity:1 !important;
+      pointer-events:auto !important;
+    }
+    #themeInfoModal{
+      width:min(540px,calc(100vw - 28px)) !important;
+      border-radius:18px !important;
+      border:1px solid rgba(255,255,255,0.12) !important;
+      background:linear-gradient(180deg,#171b24 0%,#11141c 100%) !important;
+      box-shadow:0 18px 40px rgba(0,0,0,0.38) !important;
+      color:#f4f6fb !important;
+      overflow:hidden !important;
+    }
+    .theme-info-top{
+      padding:16px 18px 10px !important;
+      border-bottom:1px solid rgba(255,255,255,0.08) !important;
+    }
+    .theme-info-title{
+      font-size:1.02rem !important;
+      font-weight:900 !important;
+      color:#ffffff !important;
+    }
+    .theme-info-status{
+      margin-top:6px !important;
+      display:inline-flex !important;
+      align-items:center !important;
+      gap:6px !important;
+      font-size:0.78rem !important;
+      font-weight:800 !important;
+      letter-spacing:0.6px !important;
+      text-transform:uppercase !important;
+      color:rgba(255,255,255,0.72) !important;
+      background:rgba(255,255,255,0.08) !important;
+      border:1px solid rgba(255,255,255,0.10) !important;
+      border-radius:999px !important;
+      padding:4px 10px !important;
+    }
+    .theme-info-body{
+      padding:14px 18px 16px !important;
+      font-size:0.95rem !important;
+      color:rgba(236,241,255,0.86) !important;
+      line-height:1.5 !important;
+      min-height:82px !important;
+    }
+    .theme-info-actions{
+      display:flex !important;
+      gap:10px !important;
+      padding:0 18px 16px !important;
+    }
+    .theme-info-btn{
+      flex:1 !important;
+      border-radius:12px !important;
+      border:1px solid rgba(255,255,255,0.12) !important;
+      background:#252b38 !important;
+      color:#f4f6fb !important;
+      font:inherit !important;
+      font-weight:800 !important;
+      font-size:0.9rem !important;
+      cursor:pointer !important;
+      padding:11px 12px !important;
+      transition:transform 0.14s ease, background 0.14s ease, border-color 0.14s ease !important;
+    }
+    .theme-info-btn:hover{
+      transform:translateY(-1px) !important;
+      background:#2c3342 !important;
+    }
+    .theme-info-btn.select-btn{
+      background:linear-gradient(145deg,#6f3aff,#4a25c9) !important;
+      border-color:rgba(168,142,255,0.45) !important;
+      color:#ffffff !important;
+    }
+    .theme-info-btn.select-btn:hover{
+      background:linear-gradient(145deg,#7a47ff,#5531d8) !important;
+    }
+    .theme-info-btn:disabled{
+      cursor:not-allowed !important;
+      opacity:0.65 !important;
+      transform:none !important;
+    }
+
     #themesModal{
       width:100vw !important;
       height:100vh !important;
@@ -4172,6 +4267,83 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       transform:none !important;
       background:#393d47 !important;
     }
+    .themes-controls{
+      display:grid !important;
+      grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) !important;
+      align-items:center !important;
+      gap:14px !important;
+      padding:12px 22px 14px !important;
+      background:#121722 !important;
+      border-bottom:1px solid rgba(255,255,255,0.08) !important;
+    }
+    .themes-controls .control-group{
+      display:flex !important;
+      align-items:center !important;
+      gap:9px !important;
+    }
+    .themes-controls .control-group:last-child{
+      justify-self:end !important;
+    }
+    .themes-controls label{
+      font-size:0.72rem !important;
+      font-weight:800 !important;
+      letter-spacing:0.9px !important;
+      color:rgba(255,255,255,0.62) !important;
+      text-transform:uppercase !important;
+    }
+    .themes-controls select{
+      appearance:none !important;
+      -webkit-appearance:none !important;
+      border-radius:12px !important;
+      border:1px solid rgba(255,255,255,0.14) !important;
+      background:
+        linear-gradient(180deg,#1c2431 0%,#141b26 100%) !important;
+      color:#eef3ff !important;
+      font:inherit !important;
+      font-size:0.86rem !important;
+      font-weight:700 !important;
+      padding:8px 36px 8px 12px !important;
+      min-width:154px !important;
+      cursor:pointer !important;
+      transition:border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease !important;
+      background-image:
+        linear-gradient(180deg,#1c2431 0%,#141b26 100%),
+        linear-gradient(45deg,transparent 50%,#a7b9ff 50%),
+        linear-gradient(135deg,#a7b9ff 50%,transparent 50%) !important;
+      background-repeat:no-repeat !important;
+      background-size:100% 100%,7px 7px,7px 7px !important;
+      background-position:0 0,calc(100% - 19px) 52%,calc(100% - 14px) 52% !important;
+    }
+    .themes-controls select:hover{
+      border-color:rgba(167,185,255,0.46) !important;
+      background-image:
+        linear-gradient(180deg,#212b3a 0%,#172131 100%),
+        linear-gradient(45deg,transparent 50%,#c4d2ff 50%),
+        linear-gradient(135deg,#c4d2ff 50%,transparent 50%) !important;
+    }
+    .themes-controls select:focus{
+      outline:none !important;
+      border-color:rgba(167,185,255,0.70) !important;
+      box-shadow:0 0 0 2px rgba(124,58,237,0.24) !important;
+    }
+    .themes-controls select option{
+      background:#141b26 !important;
+      color:#eef3ff !important;
+    }
+    .theme-count-pill{
+      justify-self:center !important;
+      min-width:84px !important;
+      text-align:center !important;
+      padding:8px 14px !important;
+      border-radius:999px !important;
+      border:1px solid rgba(167,185,255,0.30) !important;
+      background:linear-gradient(145deg,rgba(92,118,255,0.22),rgba(124,58,237,0.20)) !important;
+      color:#eef3ff !important;
+      font-size:0.85rem !important;
+      font-weight:900 !important;
+      letter-spacing:0.4px !important;
+      box-shadow:0 6px 18px rgba(28,36,61,0.32) !important;
+    }
 
     .theme-grid{
       flex:1 1 auto !important;
@@ -4241,11 +4413,12 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     }
     .theme-grid .mode-option .mode-dot{
       flex:0 0 auto !important;
-      width:28px !important;
-      height:28px !important;
+      width:30px !important;
+      height:30px !important;
       margin:0 !important;
       border-radius:999px !important;
-      box-shadow:none !important;
+      border:2px solid rgba(255,255,255,0.26) !important;
+      box-shadow:0 0 0 1px rgba(0,0,0,0.30), inset 0 0 11px rgba(255,255,255,0.25) !important;
       opacity:1 !important;
       transition:transform 0.16s ease, box-shadow 0.16s ease !important;
     }
@@ -4274,6 +4447,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     }
     .theme-grid .mode-option.active-mode .mode-dot{
       box-shadow:0 0 0 4px rgba(124,58,237,0.32), inset 0 0 0 2px rgba(255,255,255,0.92) !important;
+      border-color:rgba(255,255,255,0.92) !important;
     }
     .theme-grid .mode-option.active-mode .mode-dot::before{opacity:0 !important;}
     .theme-grid .mode-option.locked{
@@ -4291,6 +4465,24 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     @media (max-width:700px){
       .themes-top{
         padding:18px 18px 14px !important;
+      }
+      .themes-controls{
+        grid-template-columns:1fr !important;
+        justify-items:stretch !important;
+        gap:10px !important;
+        padding:11px 14px 12px !important;
+      }
+      .themes-controls .control-group:last-child{
+        justify-self:stretch !important;
+      }
+      .themes-controls .control-group{
+        justify-content:space-between !important;
+      }
+      .themes-controls select{
+        min-width:130px !important;
+      }
+      .theme-count-pill{
+        justify-self:center !important;
       }
       .theme-grid{
         grid-template-columns:repeat(auto-fit,minmax(160px,1fr)) !important;
@@ -4415,6 +4607,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
           <option value="locked">Hide Locked</option>
         </select>
       </div>
+      <div class="theme-count-pill" id="themeOwnedCount">0/0</div>
       <div class="control-group">
         <label>Sort:</label>
         <select id="themeSort" onchange="updateThemeGrid(); saveThemeControls()">
@@ -4485,6 +4678,19 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       <div class="mode-option locked" id="usaModeOption" data-mode="usa"><span>🇺🇸 USA <span id="usaLock">🔒</span></span><div class="mode-dot usa-dot"></div></div>
       <div class="mode-option locked" id="anzacModeOption" data-mode="anzac"><span>🇦🇺 Anzac <span id="anzacLock">🔒</span></span><div class="mode-dot anzac-dot"></div></div>
       <div class="mode-option locked" id="vomitModeOption" data-mode="vomit"><span>🤮 Vomit <span id="vomitLock">🔒</span></span><div class="mode-dot vomit-dot"></div></div>
+    </div>
+  </div>
+</div>
+<div id="themeInfoOverlay">
+  <div id="themeInfoModal">
+    <div class="theme-info-top">
+      <div class="theme-info-title" id="themeInfoTitle">Theme</div>
+      <div class="theme-info-status" id="themeInfoStatus">Locked</div>
+    </div>
+    <div class="theme-info-body" id="themeInfoHowToGet"></div>
+    <div class="theme-info-actions">
+      <button type="button" class="theme-info-btn" onclick="closeThemeInfoModal()">Close</button>
+      <button type="button" class="theme-info-btn select-btn" id="themeInfoSelectBtn">Select</button>
     </div>
   </div>
 </div>
@@ -4899,6 +5105,113 @@ function updateThemesModalText(){
   if(!sub)return;
   sub.textContent='Pick a background. Some themes unlock as you explore the site.';
 }
+const CODE_UNLOCK_MODES=new Set(['glass','lava','galaxy','pizza']);
+let activeThemeInfoMode=null;
+function isModeUnlocked(mode){
+  return !ALL_LOCKED_MODES.includes(mode)||unlockedFeatures.includes(mode);
+}
+function getThemeTitle(mode){
+  const option=document.querySelector(`#themesModal .mode-option[data-mode="${mode}"]`);
+  if(!option)return mode;
+  const source=option.querySelector('.theme-label')||option;
+  return source.textContent.replace(/🔒/g,'').replace(/\s+/g,' ').trim();
+}
+function getThemeUnlockHint(mode){
+  if(mode==='light'||mode==='dark'||mode==='rainbow')return 'This theme is available by default.';
+  if(CODE_UNLOCK_MODES.has(mode))return 'You get this theme by entering a secret code.';
+  const hints={
+    banana:'Visit Object Attack to unlock this theme.',
+    ketchup:'Reach enough power in Object Attack to unlock this theme.',
+    lightning:'Reach a very high power level in Object Attack to unlock this theme.',
+    luxurious:'Unlock this through progression in Catch Anything.',
+    whiteneon:'Visit Hall of Fame to unlock this theme.',
+    ice:'Select the "Vewy Cool 😎" text on the main page to unlock this theme.',
+    coffee:'Reach level 20 in Catch Anything to unlock this theme.',
+    darth:'Set brightness to 66% and hold it for a few seconds to unlock this theme.',
+    windu:'Own the x2 XP upgrade in Catch Anything to unlock this theme.',
+    jedi:'Win the Pong World Cup to unlock this theme.',
+    watermelon:'Play Pong practice mode to unlock this theme.',
+    bone:'Come back while music resumes playing to unlock this theme.',
+    blueberry:'Trigger the special Neal.fun visit unlock to get this theme.',
+    blackhole:'Unlock this through a special progression condition on the site.',
+    day:'Visit Catch Anything to unlock this theme.',
+    night:'Get an impossible-difficulty item in Catch Anything to unlock this theme.',
+    cyan:'Click the background 10 times to unlock this theme.',
+    rose:'Visit both YouTube and Discord links to unlock this theme.',
+    orange:'Visit Pong World Cup to unlock this theme.',
+    carrot:'Visit Flappy Wren to unlock this theme.',
+    caramal:'Hover over Credits long enough to unlock this theme.',
+    water:'Visit Credits to unlock this theme.',
+    potato:'Visit Lucky Generator to unlock this theme.',
+    grape:'Visit Wren Packs to unlock this theme.',
+    sun:'Visit Small Creators to unlock this theme.',
+    shadow:'Visit Wren Wheel of Doom to unlock this theme.',
+    cheese:'Visit Cheese Art to unlock this theme.',
+    toothpaste:'Visit all main pages to unlock this theme.',
+    lucky:'Click Lucky Generator many times to unlock this theme.',
+    glitch:'Click the settings cog 10,000 times to unlock this theme.',
+    slime:'Use an invalid code once to unlock this theme.',
+    spider:'Click the background 1,000 times to unlock this theme.',
+    bronze:'Watch Credits 5 times to unlock this theme.',
+    silver:'Watch Credits 15 times to unlock this theme.',
+    gold:'Watch Credits 50 times to unlock this theme.',
+    radioactive:'Unlock this through Wren Wheel of Doom progression.',
+    snow:'Unlock this through Wren Wheel of Doom progression.',
+    money:'Unlock this through Wren Wheel of Doom progression.',
+    cottoncandy:'Unlock this through Wren Wheel of Doom progression.',
+    saber:'Unlock this through Wren Wheel of Doom progression.',
+    skin:'Click the background 10,000 times to unlock this theme.',
+    rainbowremastered:'Collect required inventory items to unlock this theme.',
+    fire:'Reach high total inventory count to unlock this theme.',
+    emerald:'Alternate Light and Dark enough times to unlock this theme.',
+    diamond:'Alternate Day and Night enough times to unlock this theme.',
+    seven:'Set brightness to 7% and hold it briefly to unlock this theme.',
+    one:'Visit UnOh Infinity to unlock this theme.',
+    nine:'Unlock this by meeting the Nine condition in UnOh Infinity.',
+    anzac:'Unlock this through a special progression condition on the site.',
+    turquoise:'Get 20 wins in UnOh Infinity to unlock this theme.',
+    turquoisecyan:'Switch between Turquoise and Cyan in sequence to unlock this theme.',
+    usa:'Unlock this through a special progression condition on the site.',
+    vomit:'Unlock this through a special progression condition on the site.'
+  };
+  return hints[mode]||'Unlock this theme by exploring the site and completing milestones.';
+}
+function updateThemeOwnedCount(){
+  const counter=document.getElementById('themeOwnedCount');
+  const grid=document.querySelector('#themesModal .theme-grid');
+  if(!counter||!grid)return;
+  const items=Array.from(grid.children);
+  const total=items.length;
+  const owned=items.filter(item=>!item.classList.contains('locked')).length;
+  counter.textContent=`${owned}/${total}`;
+}
+function openThemeInfoModal(mode){
+  activeThemeInfoMode=mode;
+  const isUnlocked=isModeUnlocked(mode);
+  const overlay=document.getElementById('themeInfoOverlay');
+  const title=document.getElementById('themeInfoTitle');
+  const status=document.getElementById('themeInfoStatus');
+  const body=document.getElementById('themeInfoHowToGet');
+  const selectBtn=document.getElementById('themeInfoSelectBtn');
+  if(!overlay||!title||!status||!body||!selectBtn)return;
+  title.textContent=getThemeTitle(mode);
+  status.textContent=isUnlocked?'Unlocked':'Locked';
+  body.textContent=getThemeUnlockHint(mode);
+  selectBtn.disabled=!isUnlocked;
+  selectBtn.textContent=isUnlocked?'Select':'Select (Locked)';
+  overlay.classList.add('open');
+}
+function closeThemeInfoModal(){
+  document.getElementById('themeInfoOverlay').classList.remove('open');
+  activeThemeInfoMode=null;
+}
+function bindThemeOptionInteractions(){
+  document.querySelectorAll('#themesModal .theme-grid .mode-option').forEach(option=>{
+    const mode=option.dataset.mode;
+    if(!mode)return;
+    option.onclick=()=>openThemeInfoModal(mode);
+  });
+}
 
 function setScrollbarTheme(mode){
   const pair=SCROLLBAR_THEMES[mode]||SCROLLBAR_THEMES.light;
@@ -4909,8 +5222,9 @@ function setScrollbarTheme(mode){
 function refreshOption(id,lid,t){
   const o=document.getElementById(id),l=document.getElementById(lid);
   if(!o)return;
-  if(unlockedFeatures.includes(t)){o.classList.remove('locked');o.onclick=()=>{selectMode(t);closeThemesModal();};if(l)l.textContent='';}
-  else{o.classList.add('locked');o.onclick=null;if(l)l.textContent='🔒';}
+  if(unlockedFeatures.includes(t)){o.classList.remove('locked');if(l)l.textContent='';}
+  else{o.classList.add('locked');if(l)l.textContent='🔒';}
+  o.onclick=()=>openThemeInfoModal(t);
   updateThemeGrid();
 }
 function refreshLuxuriousOption(){refreshOption('luxuriousModeOption','luxuriousLock','luxurious');}
@@ -5192,7 +5506,7 @@ function tryUnlockIceFromSelection(){
 document.addEventListener('mouseup',tryUnlockIceFromSelection);
 document.addEventListener('keyup',tryUnlockIceFromSelection);
 document.addEventListener('click',e=>{
-  if(e.target.closest('button,a,input,textarea,select,label,option,[role="button"],#settingsCog,#settingsMenu,#themesOverlay,#codeOverlay,.mode-option'))return;
+  if(e.target.closest('button,a,input,textarea,select,label,option,[role="button"],#settingsCog,#settingsMenu,#themesOverlay,#themeInfoOverlay,#codeOverlay,.mode-option'))return;
   incrementBackgroundClicks();checkSkinUnlock(true);checkAllUnlocks();
 });
 function stopSnowParticles(){document.getElementById('snowContainer').innerHTML='';}
@@ -5262,6 +5576,7 @@ window.addEventListener('load',()=>{
   refreshCottonCandyOption();refreshSaberOption();
   refreshJediOption();refreshWatermelonOption();refreshBoneOption();refreshSevenOption();refreshOneOption();refreshNineOption();unlockNineIfEligible();refreshAnzacOption();refreshUsaOption();refreshVomitOption();refreshTurquoiseOption();refreshTurquoiseCyanOption();
   syncPizzaUnlock();refreshPizzaOption();checkAllUnlocks();
+  bindThemeOptionInteractions();
   const s=localStorage.getItem(MODE_KEY)||'light';
   const safe=(ALL_LOCKED_MODES.includes(s)&&!unlockedFeatures.includes(s))?'light':s;
   applyMode(safe);
@@ -5286,6 +5601,7 @@ function openCodeModal(){const i=document.getElementById('codeInput'),f=document
 function closeCodeModal(){document.getElementById('codeOverlay').classList.remove('open');}
 function openThemesModal(){
   updateThemesModalText();
+  closeThemeInfoModal();
   document.body.classList.add('modal-open');
   document.documentElement.classList.add('modal-open');
   const overlay=document.getElementById('themesOverlay');
@@ -5360,11 +5676,13 @@ function updateThemeGrid() {
   });
   
   visibleItems.forEach(item => grid.appendChild(item));
+  updateThemeOwnedCount();
 }
 function closeThemesModal(){
   document.getElementById('themesOverlay').classList.remove('open');
   document.body.classList.remove('modal-open');
   document.documentElement.classList.remove('modal-open');
+  closeThemeInfoModal();
 }
 let darthUnlockTimer=null;
 let sevenUnlockTimer=null;
@@ -5399,6 +5717,13 @@ function applyBrightness(v){
 }
 document.getElementById('codeOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('codeOverlay'))closeCodeModal();});
 document.getElementById('themesOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('themesOverlay'))closeThemesModal();});
+document.getElementById('themeInfoOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('themeInfoOverlay'))closeThemeInfoModal();});
+document.getElementById('themeInfoSelectBtn').addEventListener('click',()=>{
+  if(!activeThemeInfoMode)return;
+  if(!isModeUnlocked(activeThemeInfoMode)){showToast('🔒 Theme is still locked.');return;}
+  selectMode(activeThemeInfoMode);
+  closeThemeInfoModal();
+});
 document.getElementById('codeInput').addEventListener('keydown',e=>{if(e.key==='Enter')submitCode();});
 document.getElementById('brightnessControl').addEventListener('input',e=>applyBrightness(e.target.value));
 function submitCode(){
