@@ -5699,6 +5699,7 @@ function refreshWatermelonOption(){refreshOption('watermelonModeOption','waterme
 function refreshBoneOption(){refreshOption('boneModeOption','boneLock','bone');}
 function refreshUsaOption(){refreshOption('usaModeOption','usaLock','usa');}
 function refreshChinaOption(){refreshOption('chinaModeOption','chinaLock','china');}
+function unlockChinaIfEligible(){return unlockIfEligible('china',()=>localStorage.getItem(CHINA_THEME_UNLOCK_KEY)==='1','🇨🇳 China unlocked! Buy the China skin in Flappy Wren.',refreshChinaOption);}
 function refreshVomitOption(){refreshOption('vomitModeOption','vomitLock','vomit');}
 function unlockSevenTheme(forceNotice=true){
   localStorage.setItem(SEVEN_THEME_UNLOCK_KEY,'1');
@@ -5863,11 +5864,7 @@ function checkAllUnlocks(){
   unlockEmeraldIfEligible();unlockDiamondIfEligible();unlockSevenIfEligible();unlockOneIfEligible();
   unlockJediIfEligible();unlockWatermelonIfEligible();unlockBoneIfEligible();
   unlockTurquoiseIfEligible();unlockTurquoiseCyanIfEligible();
-  // China — unlocked by buying China skin in Flappy Wren
-  if(localStorage.getItem(CHINA_THEME_UNLOCK_KEY)==='1'){
-    if(!unlockedFeatures.includes('china')){persistUnlocked('china');}
-    refreshChinaOption();
-  }
+  unlockChinaIfEligible();
   checkObjectAttackThemes();
 }
 function markVisit(w,href){
