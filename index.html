@@ -4194,6 +4194,57 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     }
     #themePageStatsBody::-webkit-scrollbar{width:8px !important;}
     #themePageStatsBody::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.24) !important;border-radius:999px !important;}
+    .theme-source-pill{
+      display:inline-flex !important;
+      align-items:center !important;
+      padding:5px 10px !important;
+      border-radius:999px !important;
+      border:1px solid rgba(149,172,255,0.42) !important;
+      background:rgba(92,114,255,0.18) !important;
+      color:#dfe8ff !important;
+      font-size:0.78rem !important;
+      font-weight:800 !important;
+      letter-spacing:0.2px !important;
+    }
+    .theme-clue{
+      margin-top:10px !important;
+      color:rgba(236,241,255,0.92) !important;
+      font-weight:700 !important;
+    }
+    .theme-page-row{
+      display:flex !important;
+      justify-content:space-between !important;
+      align-items:center !important;
+      gap:10px !important;
+      padding:8px 0 !important;
+      border-bottom:1px solid rgba(255,255,255,0.08) !important;
+    }
+    .theme-page-pill{
+      display:inline-flex !important;
+      align-items:center !important;
+      max-width:74% !important;
+      overflow:hidden !important;
+      text-overflow:ellipsis !important;
+      white-space:nowrap !important;
+      border-radius:999px !important;
+      border:1px solid rgba(255,255,255,0.18) !important;
+      background:rgba(255,255,255,0.08) !important;
+      color:#f4f6fb !important;
+      padding:5px 10px !important;
+      font-weight:800 !important;
+      font-size:0.82rem !important;
+    }
+    .theme-page-count-pill{
+      display:inline-flex !important;
+      align-items:center !important;
+      border-radius:999px !important;
+      border:1px solid rgba(149,172,255,0.45) !important;
+      background:rgba(100,124,255,0.22) !important;
+      color:#e8eeff !important;
+      padding:5px 10px !important;
+      font-weight:900 !important;
+      font-size:0.82rem !important;
+    }
     .theme-info-actions{
       display:flex !important;
       gap:10px !important;
@@ -4386,8 +4437,8 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     }
     .theme-progress-btn{
       border:1px solid rgba(167,185,255,0.28) !important;
-      background:linear-gradient(145deg,#1f2736,#171f2d) !important;
-      color:#eaf0ff !important;
+      background:linear-gradient(145deg,rgba(126,150,255,0.30),rgba(88,105,208,0.25)) !important;
+      color:#ffffff !important;
       border-radius:999px !important;
       width:34px !important;
       height:34px !important;
@@ -4395,14 +4446,15 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       align-items:center !important;
       justify-content:center !important;
       cursor:pointer !important;
-      font-size:0.92rem !important;
-      box-shadow:0 6px 16px rgba(20,27,46,0.30) !important;
-      transition:transform 0.14s ease, background 0.14s ease, border-color 0.14s ease !important;
+      font-size:0.98rem !important;
+      box-shadow:0 10px 22px rgba(26,35,66,0.36) !important;
+      transition:transform 0.14s ease, background 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease !important;
     }
     .theme-progress-btn:hover{
-      transform:translateY(-1px) !important;
+      transform:translateY(-1px) scale(1.03) !important;
       border-color:rgba(167,185,255,0.52) !important;
-      background:linear-gradient(145deg,#253146,#1a2639) !important;
+      background:linear-gradient(145deg,rgba(147,168,255,0.36),rgba(102,122,233,0.30)) !important;
+      box-shadow:0 12px 24px rgba(33,45,85,0.42) !important;
     }
     .theme-count-wrap{
       display:flex !important;
@@ -4679,7 +4731,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       </div>
       <div class="theme-count-wrap">
         <div class="theme-count-pill" id="themeOwnedCount">0/0</div>
-        <button type="button" class="theme-progress-btn" id="themePageProgressBtn" title="Theme Progress By Page">i</button>
+        <button type="button" class="theme-progress-btn" id="themePageProgressBtn" title="Theme Progress By Site">ⓘ</button>
       </div>
       <div class="control-group">
         <label>Sort:</label>
@@ -4770,8 +4822,8 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
 <div id="themePageStatsOverlay">
   <div id="themePageStatsModal">
     <div class="theme-info-top">
-      <div class="theme-info-title">Theme Progress By Page</div>
-      <div class="theme-info-status">Pages</div>
+      <div class="theme-info-title">Theme Progress By Site</div>
+      <div class="theme-info-status" id="themePageStatsStatus">Sites</div>
     </div>
     <div class="theme-info-body" id="themePageStatsBody"></div>
     <div class="theme-info-actions">
@@ -5194,17 +5246,17 @@ const THEME_PAGE_SOURCE={
   light:'Main Menu',dark:'Main Menu',rainbow:'Main Menu',
   blueberry:'Main Menu',ice:'Main Menu',darth:'Main Menu',glitch:'Main Menu',skin:'Main Menu',cyan:'Main Menu',spider:'Main Menu',
   rose:'Main Menu',caramal:'Main Menu',toothpaste:'Main Menu',emerald:'Main Menu',diamond:'Main Menu',seven:'Main Menu',fire:'Main Menu',
-  blackhole:'Wren Wheel of Doom',rainbowremastered:'WrenPacks',luxurious:'Hall Of Fame',
+  blackhole:'The Wren Wheel of Doom',rainbowremastered:'Wren Packs',luxurious:'The Hall of Fame',
   glass:'Main Menu',lava:'Main Menu',galaxy:'Main Menu',pizza:'Main Menu',
-  banana:'ObJect Attack',ketchup:'ObJect Attack',lightning:'ObJect Attack',
+  banana:'Object Attack',ketchup:'Object Attack',lightning:'Object Attack',
   coffee:'Catch Anything',windu:'Catch Anything',day:'Catch Anything',night:'Catch Anything',
-  jedi:'Pong World Cup',watermelon:'Pong World Cup',
+  jedi:'The Pong World Cup',watermelon:'The Pong World Cup',
   one:'UnOh Infinity',nine:'UnOh Infinity',anzac:'UnOh Infinity',turquoise:'UnOh Infinity',turquoisecyan:'Main Menu',
-  orange:'Pong World Cup',carrot:'Flappy Wren',water:'Credits',potato:'Lucky Generator',grape:'WrenPacks',sun:'Small Creators',
-  shadow:'Wren Wheel of Doom',cheese:'Cheese Art',lucky:'Lucky Generator',
+  orange:'The Pong World Cup',carrot:'Flappy Wren',water:'Credits',potato:'Lucky Generator',grape:'Wren Packs',sun:'Small Creators',
+  shadow:'The Wren Wheel of Doom',cheese:"Cheese's Art",lucky:'Lucky Generator',
   bronze:'Credits',silver:'Credits',gold:'Credits',
-  radioactive:'Wren Wheel of Doom',money:'WrenPacks',snow:'Wren Wheel of Doom',usa:'WrenPacks',vomit:'WrenPacks',
-  cottoncandy:'Wren Wheel of Doom',saber:'Wren Wheel of Doom',slime:'Main Menu',bone:'Main Menu',whiteneon:'Hall Of Fame'
+  radioactive:'The Wren Wheel of Doom',money:'Wren Packs',snow:'The Wren Wheel of Doom',usa:'Wren Packs',vomit:'Wren Packs',
+  cottoncandy:'The Wren Wheel of Doom',saber:'The Wren Wheel of Doom',slime:'Main Menu',bone:'Main Menu',whiteneon:'The Hall of Fame'
 };
 let activeThemeInfoMode=null;
 function isModeUnlocked(mode){
@@ -5219,63 +5271,62 @@ function getThemeTitle(mode){
 function getThemeUnlockHint(mode){
   if(mode==='darth')return '66';
   if(mode==='seven')return '7';
-  if(mode==='light'||mode==='dark'||mode==='rainbow')return 'Main Menu: this theme is available by default.';
-  if(CODE_UNLOCK_MODES.has(mode))return 'Main Menu: you get this theme by entering a code.';
+  if(mode==='light'||mode==='dark'||mode==='rainbow')return 'Already yours.';
+  if(CODE_UNLOCK_MODES.has(mode))return 'Unlocked by a code.';
   const hints={
-    banana:'ObJect Attack: visit the page once.',
-    ketchup:'ObJect Attack: reach at least 50,000 power.',
-    lightning:'ObJect Attack: reach at least 5,000,000 power.',
-    luxurious:'Hall Of Fame: click the George21z card.',
-    whiteneon:'Hall Of Fame: visit this page.',
-    ice:'Main Menu: highlight/select the "Vewy Cool 😎" text.',
-    coffee:'Catch Anything: reach level 20.',
-    windu:'Catch Anything: buy the x2 XP upgrade.',
-    jedi:'Pong World Cup: win a World Cup run (sets the cup-win unlock flag).',
-    watermelon:'Pong World Cup: play a Practice match (sets the practice unlock flag).',
-    bone:'Main Menu: return with music playing, then let it resume.',
-    blueberry:'Main Menu: click the Neal.fun footer link.',
-    blackhole:'Wren Wheel of Doom: land on the Black Hole wheel slot.',
-    day:'Catch Anything: visit the page once.',
-    night:'Catch Anything: own an Impossible-difficulty catch item.',
-    cyan:'Main Menu: click the background 10 times.',
-    rose:'Main Menu: click both the YouTube and Discord footer links.',
-    orange:'Pong World Cup: visit the page once.',
-    carrot:'Flappy Wren: visit the page once.',
-    caramal:'Main Menu: hover the Credits button for 10 seconds.',
-    water:'Credits: visit the page once.',
-    potato:'Lucky Generator: visit the page once.',
-    grape:'WrenPacks: visit the page once.',
-    sun:'Small Creators: visit the page once.',
-    shadow:'Wren Wheel of Doom: visit the page once.',
-    cheese:'Cheese Art: visit the page once.',
-    toothpaste:'Main Menu pages: visit all main page buttons.',
-    lucky:'Lucky Generator: click enough times to trigger Lucky.',
-    glitch:'Main Menu: click the settings cog 10,000 times.',
-    slime:'Main Menu: enter an invalid code once.',
-    spider:'Main Menu: click the background 1,000 times.',
-    bronze:'Credits: watch/open Credits 5 times.',
-    silver:'Credits: watch/open Credits 15 times.',
-    gold:'Credits: watch/open Credits 50 times.',
-    radioactive:'Wren Wheel of Doom: reach $1,000,000.',
-    snow:'Wren Wheel of Doom: reach $1,000,000,000.',
-    money:'WrenPacks: unlock from WrenPacks progression.',
-    cottoncandy:'Wren Wheel of Doom: reach $1,000,000,000,000 wheel money.',
-    saber:'Wren Wheel of Doom: reach $1,000,000,000,000,000 wheel money.',
-    skin:'Main Menu: click the background 10,000 times.',
-    rainbowremastered:'WrenPacks: own one of the required inventory characters.',
-    fire:'WrenPacks: reach 5,000+ total inventory count.',
-    emerald:'Main Menu: alternate Light and Dark enough times.',
-    diamond:'Main Menu: alternate Day and Night enough times.',
-    one:'UnOh Infinity: visit the page once.',
-    nine:'UnOh Infinity: play until Nine unlock condition is met.',
-    anzac:'UnOh Infinity: enter the Anzac code in its code menu.',
-    turquoise:'UnOh Infinity: reach 20 wins.',
-    turquoisecyan:'Main Menu: switch between Turquoise and Cyan back-to-back.',
-    usa:'WrenPacks: trigger a Null reveal.',
-    vomit:'WrenPacks: stay in Light Mode for 5 minutes continuously.'
+    banana:'Battle something yellow.',
+    ketchup:'Power up. A lot.',
+    lightning:'Power up. A LOT.',
+    luxurious:'One card in the hall stands out.',
+    whiteneon:'A clean stop at the hall.',
+    ice:'Vewy Cool 😎',
+    coffee:'Level up your catch game.',
+    windu:'Upgrade before you grind.',
+    jedi:'Win the full cup run.',
+    watermelon:'Play Practice match.',
+    bone:'Leave the music... then return.',
+    blueberry:'A footer link holds a berry.',
+    blackhole:'One wheel slot swallows all.',
+    day:'Catch the vibe.',
+    night:'Impossible gear, impossible night.',
+    cyan:'Click the void.',
+    rose:'Two social doors, both visited.',
+    orange:'Kick off the cup page.',
+    carrot:'A quick flap trip.',
+    caramal:'Hover with patience.',
+    water:'Read the names.',
+    potato:'Lucky starts here.',
+    grape:'Pack opening era.',
+    sun:'Small creators, big light.',
+    shadow:'Spin into darkness.',
+    cheese:'Visit the art cave.',
+    toothpaste:'Go everywhere once.',
+    lucky:'Click until fortune smiles.',
+    glitch:'Settings?',
+    slime:'Wrong code. Right result.',
+    spider:'Click. Click. Click.',
+    bronze:'Credits watcher I.',
+    silver:'Credits watcher II.',
+    gold:'Credits watcher III.',
+    radioactive:'Wheel money starts glowing at seven figures.',
+    snow:'The wheel fortune gets frosty.',
+    money:'In Wren Packs, stack wheel money to seven figures.',
+    cottoncandy:'The wheel wants absurd sugar money.',
+    saber:'The wheel wants impossible money.',
+    skin:'Clicks beyond comfort.',
+    rainbowremastered:'A special pack pull remasters color.',
+    fire:'Big collection heat.',
+    emerald:'Light and dark, back and forth.',
+    diamond:'Day and night, back and forth.',
+    one:'Start UnOh Infinity.',
+    nine:'Keep playing UnOh Infinity.',
+    anzac:'A hidden UnOh word.',
+    turquoise:'Wins in UnOh Infinity.',
+    turquoisecyan:'Alternate two close shades.',
+    usa:'A Null moment in packs.',
+    vomit:'Light mode for a long stretch.'
   };
-  const page=THEME_PAGE_SOURCE[mode]||'Main Menu';
-  return hints[mode]||`${page}: unlock from progression.`;
+  return hints[mode]||'Keep progressing.';
 }
 function updateThemeOwnedCount(){
   const counter=document.getElementById('themeOwnedCount');
@@ -5297,7 +5348,8 @@ function openThemeInfoModal(mode){
   if(!overlay||!title||!status||!body||!selectBtn)return;
   title.textContent=getThemeTitle(mode);
   status.textContent=isUnlocked?'Unlocked':'Locked';
-  body.textContent=getThemeUnlockHint(mode);
+  const source=THEME_PAGE_SOURCE[mode]||'Main Menu';
+  body.innerHTML=`<span class="theme-source-pill">${source}</span><div class="theme-clue">${getThemeUnlockHint(mode)}</div>`;
   selectBtn.disabled=!isUnlocked;
   selectBtn.textContent=isUnlocked?'Select':'Select (Locked)';
   overlay.classList.add('open');
@@ -5322,13 +5374,17 @@ function getPageThemeProgressRows(){
 }
 function renderThemePageStats(){
   const body=document.getElementById('themePageStatsBody');
+  const status=document.getElementById('themePageStatsStatus');
   if(!body)return;
   const rows=getPageThemeProgressRows();
+  const totalThemes=Object.values(rows).reduce((sum,row)=>sum+row.total,0);
+  const ownedThemes=Object.values(rows).reduce((sum,row)=>sum+row.owned,0);
+  if(status)status.textContent=`${ownedThemes}/${totalThemes} Total`;
   const ordered=Object.keys(rows).sort((a,b)=>{
     const p=(rows[b].total-rows[a].total);
     return p!==0?p:a.localeCompare(b);
   });
-  body.innerHTML=ordered.map(page=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.08);"><span style="font-weight:800;color:#f4f6fb;">${page}</span><span style="font-weight:900;color:#d8e2ff;">${rows[page].owned}/${rows[page].total}</span></div>`).join('');
+  body.innerHTML=ordered.map(page=>`<div class="theme-page-row"><span class="theme-page-pill">${page}</span><span class="theme-page-count-pill">${rows[page].owned}/${rows[page].total}</span></div>`).join('');
 }
 function openThemePageStatsModal(){
   renderThemePageStats();
