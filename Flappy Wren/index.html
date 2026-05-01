@@ -423,20 +423,6 @@
     if (!state.ownedSkins.includes(state.selectedSkin)) state.selectedSkin = 'wren';
     if (!state.ownedSkins.includes('wren')) state.ownedSkins.unshift('wren');
 
-    function unlockChinaTheme() {
-      localStorage.setItem('wren_theme_china_unlocked', '1');
-      const ul = JSON.parse(localStorage.getItem('wren_unlocked') || '[]');
-      if (!ul.includes('china')) {
-        ul.push('china');
-        localStorage.setItem('wren_unlocked', JSON.stringify(ul));
-      }
-    }
-
-    // Make sure anyone who already owns the China skin gets the theme right away.
-    if (state.ownedSkins.includes('china')) {
-      unlockChinaTheme();
-    }
-
     function saveState() {
       localStorage.setItem(STORAGE.coins, String(state.coins));
       localStorage.setItem(STORAGE.highScore, String(state.highScore));
@@ -447,9 +433,11 @@
       localStorage.setItem(STORAGE.pipeColor, state.pipeColor);
       localStorage.setItem(STORAGE.ownedPipes, JSON.stringify([...new Set(state.ownedPipes)]));
       localStorage.setItem(STORAGE.redeemedCodes, JSON.stringify([...new Set(state.redeemedCodes)]));
-      if (state.ownedSkins.includes('china')) {
-        // China theme unlock — writes to shared localStorage so main menu picks it up
-        unlockChinaTheme();
+      // China theme unlock — writes to shared localStorage so main menu picks it up
+      if (state.ownedSkins.includes('china') && localStorage.getItem('wren_theme_china_unlocked') !== '1') {
+        localStorage.setItem('wren_theme_china_unlocked', '1');
+        const ul = JSON.parse(localStorage.getItem('wren_unlocked') || '[]');
+        if (!ul.includes('china')) { ul.push('china'); localStorage.setItem('wren_unlocked', JSON.stringify(ul)); }
       }
     }
 
@@ -494,10 +482,7 @@
       renderUI();
       setMessage(`${skin.name} purchased and equipped!`);
       SFX.buy();
-      if (id === 'china') {
-        unlockChinaTheme();
-        setTimeout(() => setMessage('🇨🇳 China theme unlocked in the main menu!', 3000), 1800);
-      }
+      if (id === 'china') setTimeout(() => setMessage('🇨🇳 China theme unlocked in the main menu!', 3000), 1800);
       return true;
     }
 
