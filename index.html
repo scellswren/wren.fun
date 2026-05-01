@@ -1363,52 +1363,103 @@ body.mode-fire{background:linear-gradient(180deg,#220000 0%,#420500 34%,#7a1d00 
       color: #ffffff;
       backdrop-filter: blur(15px);
     }
+    @keyframes chinaShimmer{0%{background-position:200% 50%}100%{background-position:-200% 50%}}
+    @keyframes chinaGlow{0%,100%{opacity:0.55}50%{opacity:0.90}}
+    @keyframes chinaStarSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
     body.mode-china {
       --accent: #ffde00;
-      background: radial-gradient(circle at 20% 20%, #c8001a 0%, #8b0000 60%, #5a0000 100%);
+      background:
+        radial-gradient(ellipse at 8% 12%,  rgba(255,210,0,0.18) 0%, transparent 28%),
+        radial-gradient(ellipse at 92% 88%, rgba(200,0,26,0.60)  0%, transparent 38%),
+        radial-gradient(ellipse at 50% 50%, rgba(160,0,20,0.55)  0%, transparent 70%),
+        linear-gradient(160deg, #8b0000 0%, #c8001a 28%, #a80018 55%, #5a0000 100%);
       color: #fff8d0;
+      overflow: hidden;
     }
     body.mode-china::before {
       content: '';
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(circle at 15% 18%, #ffde00 0%, #ffde00 3.5%, transparent 4%),
-        radial-gradient(circle at 22% 12%, #ffde00 0%, #ffde00 1.5%, transparent 2%),
-        radial-gradient(circle at 26% 17%, #ffde00 0%, #ffde00 1.5%, transparent 2%),
-        radial-gradient(circle at 26% 23%, #ffde00 0%, #ffde00 1.5%, transparent 2%),
-        radial-gradient(circle at 22% 27%, #ffde00 0%, #ffde00 1.5%, transparent 2%),
-        linear-gradient(180deg, rgba(200,0,26,0.10) 0%, transparent 40%);
-      z-index: -2;
+        /* big gold halo top-left — echoes flag's canton glow */
+        radial-gradient(ellipse at 14% 22%, rgba(255,222,0,0.28) 0%, rgba(255,180,0,0.10) 28%, transparent 44%),
+        /* subtle warm glow bottom-right */
+        radial-gradient(ellipse at 88% 80%, rgba(220,40,0,0.30) 0%, transparent 38%),
+        /* repeating star-dot texture — inspired by the five stars */
+        radial-gradient(circle, rgba(255,222,0,0.22) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,200,0,0.12) 1px, transparent 1px);
+      background-size: auto, auto, 72px 72px, 36px 36px;
+      background-position: 0 0, 0 0, 8px 8px, 22px 22px;
+      animation: chinaGlow 4s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
     }
     body.mode-china::after {
       content: '';
       position: fixed;
       inset: 0;
-      background: radial-gradient(ellipse at 50% 0%, rgba(255,222,0,0.10), transparent 55%);
-      z-index: -1;
+      background: linear-gradient(105deg,
+        transparent 0%,
+        rgba(255,222,0,0.06) 20%,
+        rgba(255,240,100,0.14) 38%,
+        rgba(255,222,0,0.06) 56%,
+        transparent 100%);
+      background-size: 300% 100%;
+      animation: chinaShimmer 6s linear infinite;
+      pointer-events: none;
+      z-index: 0;
     }
     body.mode-china h1 {
-      background: linear-gradient(135deg, #ffde00 0%, #ffa500 50%, #ffde00 100%);
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(120deg, #fff0a0 0%, #ffde00 22%, #ffc200 44%, #ffde00 66%, #fff8c0 88%, #ffde00 100%);
+      background-size: 200% auto;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 0 12px rgba(255,222,0,0.5));
+      animation: chinaShimmer 4s linear infinite;
+      filter: drop-shadow(0 0 18px rgba(255,210,0,0.70)) drop-shadow(0 2px 6px rgba(120,0,0,0.50));
     }
-    body.mode-china .btn, body.mode-china .settings-action-btn, body.mode-china #codeBtn, body.mode-china #themesBtn, body.mode-china .mini-btn {
-      background: rgba(255,222,0,0.15);
-      color: #fff8d0;
-      border: 1px solid rgba(255,222,0,0.35);
+    body.mode-china .btn,
+    body.mode-china .settings-action-btn,
+    body.mode-china #codeBtn,
+    body.mode-china #themesBtn,
+    body.mode-china .mini-btn {
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      background: linear-gradient(145deg, rgba(200,10,10,0.72) 0%, rgba(130,0,0,0.85) 100%);
+      color: #ffee88;
+      border: 1px solid rgba(255,222,0,0.55);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,230,80,0.22), 0 0 10px rgba(255,200,0,0.12);
+      text-shadow: 0 0 8px rgba(255,210,0,0.50);
       backdrop-filter: blur(10px);
     }
-    body.mode-china .btn:hover {
-      background: rgba(255,222,0,0.28);
-      box-shadow: 0 0 22px rgba(255,222,0,0.25);
+    body.mode-china #codeBtn,
+    body.mode-china #themesBtn {
+      position: fixed;
+      z-index: 1000;
     }
-    body.mode-china #settingsPanel, body.mode-china #codeModal {
-      background: rgba(90, 0, 0, 0.96);
-      border: 1px solid rgba(255,222,0,0.25);
+    body.mode-china #codeBtn{top:14px;right:14px;}
+    body.mode-china #themesBtn{top:58px;right:14px;}
+    body.mode-china .btn:hover,
+    body.mode-china .settings-action-btn:hover,
+    body.mode-china #codeBtn:hover,
+    body.mode-china #themesBtn:hover,
+    body.mode-china .mini-btn:hover {
+      background: linear-gradient(145deg, rgba(220,20,20,0.85) 0%, rgba(160,0,0,0.95) 100%);
+      box-shadow: 0 6px 22px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,240,100,0.28), 0 0 22px rgba(255,210,0,0.28);
+      border-color: rgba(255,230,0,0.80);
+      transform: translateY(-1px);
+    }
+    body.mode-china #settingsPanel,
+    body.mode-china #codeModal {
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(255,200,0,0.10) 0%, transparent 50%),
+        linear-gradient(180deg, rgba(110,4,4,0.97) 0%, rgba(70,0,0,0.99) 100%);
+      border: 1px solid rgba(255,222,0,0.30);
       color: #fff8d0;
-      backdrop-filter: blur(15px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.60), inset 0 0 40px rgba(255,180,0,0.04);
+      backdrop-filter: blur(16px);
     }
     body.mode-vomit {
       --accent: white;
