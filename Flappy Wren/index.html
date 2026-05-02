@@ -421,6 +421,8 @@
       pipes: [],
       ticks: 0,
       spawnTimer: 0,
+      formationQueue: [],
+      lastPipeTopH: null,
       bgX: 0,
       bird: { x: 0, y: 0, vy: 0, size: 46, rot: 0, bob: 0 },
       countdown: 0,
@@ -545,6 +547,8 @@
       state.pipes = [];
       state.ticks = 0;
       state.spawnTimer = 0;
+      state.formationQueue = [];
+      state.lastPipeTopH = null;
       state.bgX = 0;
       state.bird.x = state.w * 0.38;
       state.bird.y = state.h * 0.42;
@@ -615,11 +619,32 @@
       const marginTop = 60;
       const marginBottom = state.ground + 90;
       const gap = Math.max(170, 220 - Math.min(80, state.score * 2));
-      const adjustedGap = gap + 14;
+      const minGap = 158;
+      let adjustedGap = Math.max(minGap, gap + 8);
       const minTop = 70;
       const maxTop = state.h - marginBottom - adjustedGap - minTop;
-      const topH = minTop + Math.random() * Math.max(80, maxTop);
+      let topH = minTop + Math.random() * Math.max(80, maxTop);
+
+      if (state.formationQueue.length > 0 && Number.isFinite(state.lastPipeTopH)) {
+        const step = state.formationQueue.shift();
+        adjustedGap = Math.max(minGap, adjustedGap + (step.gapDelta || 0));
+        topH = state.lastPipeTopH + (step.topDelta || 0);
+      }
+
+      topH = Math.max(minTop, Math.min(maxTop, topH));
       state.pipes.push({ x: state.w + 60, topH, gap: adjustedGap, scored:false });
+      state.lastPipeTopH = topH;
+
+      // New (fair) formations start appearing from score 80 onward.
+      if (state.score >= 80 && state.formationQueue.length === 0 && Math.random() < 0.28) {
+        const patterns = [
+          [{ topDelta: -44, gapDelta: -6 }, { topDelta: -28, gapDelta: -8 }],
+          [{ topDelta: 44, gapDelta: -6 }, { topDelta: 28, gapDelta: -8 }],
+          [{ topDelta: 52, gapDelta: -6 }, { topDelta: -56, gapDelta: -8 }],
+          [{ topDelta: -36, gapDelta: -4 }, { topDelta: 40, gapDelta: -8 }],
+        ];
+        state.formationQueue = patterns[Math.floor(Math.random() * patterns.length)].slice();
+      }
     }
 
     function drawRoundedRect(x, y, w, h, r) {
@@ -979,12 +1004,12 @@
       if (state.bird.flapAnim === undefined) state.bird.flapAnim = 0;
       state.bird.flapAnim *= 0.82;
 
-      if (state.spawnTimer > 106) {
+      if (state.spawnTimer > 112) {
         spawnPipe();
         state.spawnTimer = 0;
       }
 
-      const speed = 1.9 + Math.min(1.2, state.score * 0.015);
+      const speed = 1.9 + Math.min(60, state.score) * 0.015;
       for (const pipe of state.pipes) {
         pipe.x -= speed;
         const pipeW = 82;
