@@ -689,6 +689,18 @@
       const bottomY = pipe.topH + pipe.gap;
       const h = state.h - state.ground;
       const pc = state.pipeColor || 'green';
+      const clamp01 = (n) => Math.max(0, Math.min(1, n));
+      function blendHex(a, b, t) {
+        const pa = a.replace('#', '');
+        const pb = b.replace('#', '');
+        const ra = parseInt(pa.slice(0, 2), 16), ga = parseInt(pa.slice(2, 4), 16), ba = parseInt(pa.slice(4, 6), 16);
+        const rb = parseInt(pb.slice(0, 2), 16), gb = parseInt(pb.slice(2, 4), 16), bb = parseInt(pb.slice(4, 6), 16);
+        const m = clamp01(t);
+        const r = Math.round(ra + (rb - ra) * m);
+        const g = Math.round(ga + (gb - ga) * m);
+        const bl = Math.round(ba + (bb - ba) * m);
+        return `rgb(${r},${g},${bl})`;
+      }
 
       // Resolve pipe colours from the colour scheme
       function getPipeColors(scheme) {
@@ -727,60 +739,76 @@
       }
 
       const C = getPipeColors(pc);
+      const bodyRim = blendHex(C.light, '#ffffff', 0.35);
+      const bodyCore = blendHex(C.main, '#ffffff', 0.12);
+      const bodyShade = blendHex(C.dark, '#000000', 0.25);
+      const bodyDeep = blendHex(C.shadow, '#000000', 0.35);
+      const capTopHi = blendHex(C.capTop, '#ffffff', 0.45);
+      const capShade = blendHex(C.cap, '#000000', 0.20);
+      const edgeStroke = blendHex(C.shadow, '#000000', 0.45);
 
       function pipePiece(x, y, w, hgt, isTop) {
         if (hgt <= 0) return;
         // Main body gradient — richer 5-stop with a bright left-edge rim light
         const grad = ctx.createLinearGradient(x, 0, x + w, 0);
         if (C.metallic) {
-          grad.addColorStop(0,    C.shadow);
-          grad.addColorStop(0.08, C.light);
-          grad.addColorStop(0.28, C.main);
-          grad.addColorStop(0.55, C.light);
-          grad.addColorStop(0.75, C.main);
-          grad.addColorStop(0.90, C.dark);
-          grad.addColorStop(1,    C.shadow);
+          grad.addColorStop(0,    bodyDeep);
+          grad.addColorStop(0.08, bodyRim);
+          grad.addColorStop(0.28, bodyCore);
+          grad.addColorStop(0.55, bodyRim);
+          grad.addColorStop(0.75, bodyCore);
+          grad.addColorStop(0.90, bodyShade);
+          grad.addColorStop(1,    bodyDeep);
         } else {
-          grad.addColorStop(0,    C.shadow);
-          grad.addColorStop(0.08, C.light);   // bright rim on left edge
-          grad.addColorStop(0.25, C.main);
-          grad.addColorStop(0.60, C.main);
-          grad.addColorStop(0.82, C.dark);
-          grad.addColorStop(1,    C.shadow);
+          grad.addColorStop(0,    bodyDeep);
+          grad.addColorStop(0.10, bodyRim);
+          grad.addColorStop(0.30, bodyCore);
+          grad.addColorStop(0.62, C.main);
+          grad.addColorStop(0.84, bodyShade);
+          grad.addColorStop(1,    bodyDeep);
         }
         ctx.fillStyle = grad;
         ctx.fillRect(x, y, w, hgt);
 
         // Bright left-edge rim highlight (1px sliver)
-        ctx.fillStyle = 'rgba(255,255,255,0.30)';
+        ctx.fillStyle = 'rgba(255,255,255,0.22)';
         ctx.fillRect(x, y, 3, hgt);
 
         // Inner secondary highlight stripe
-        ctx.fillStyle = 'rgba(255,255,255,0.18)';
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
         ctx.fillRect(x + 8, y + (isTop ? 10 : 4), 8, Math.max(0, hgt - 18));
 
         // Right shadow stripe
-        ctx.fillStyle = 'rgba(0,0,0,0.28)';
+        ctx.fillStyle = 'rgba(0,0,0,0.20)';
         ctx.fillRect(x + w - 10, y + 2, 8, Math.max(0, hgt - 6));
+
+        // Vertical gloss to avoid flat-looking solid colors
+        const gloss = ctx.createLinearGradient(0, y, 0, y + hgt);
+        gloss.addColorStop(0, 'rgba(255,255,255,0.10)');
+        gloss.addColorStop(0.26, 'rgba(255,255,255,0.04)');
+        gloss.addColorStop(0.72, 'rgba(0,0,0,0.05)');
+        gloss.addColorStop(1, 'rgba(0,0,0,0.12)');
+        ctx.fillStyle = gloss;
+        ctx.fillRect(x, y, w, hgt);
 
         // Cap (the wider lip)
         const capX = x - (capW - w) / 2;
         const lipY = isTop ? y + hgt - capH : y;
         const capGrad = ctx.createLinearGradient(capX, 0, capX + capW, 0);
         if (C.metallic) {
-          capGrad.addColorStop(0,    C.shadow);
-          capGrad.addColorStop(0.08, C.light);
-          capGrad.addColorStop(0.30, C.capTop);
+          capGrad.addColorStop(0,    bodyDeep);
+          capGrad.addColorStop(0.08, bodyRim);
+          capGrad.addColorStop(0.30, capTopHi);
           capGrad.addColorStop(0.55, C.cap);
-          capGrad.addColorStop(0.82, C.dark);
-          capGrad.addColorStop(1,    C.shadow);
+          capGrad.addColorStop(0.82, capShade);
+          capGrad.addColorStop(1,    bodyDeep);
         } else {
-          capGrad.addColorStop(0,    C.shadow);
-          capGrad.addColorStop(0.08, C.capTop); // bright rim
-          capGrad.addColorStop(0.28, C.cap);
+          capGrad.addColorStop(0,    bodyDeep);
+          capGrad.addColorStop(0.10, capTopHi);
+          capGrad.addColorStop(0.30, C.capTop);
           capGrad.addColorStop(0.62, C.cap);
-          capGrad.addColorStop(0.85, C.dark);
-          capGrad.addColorStop(1,    C.shadow);
+          capGrad.addColorStop(0.86, capShade);
+          capGrad.addColorStop(1,    bodyDeep);
         }
         ctx.fillStyle = capGrad;
         const capR = 8;
@@ -803,28 +831,33 @@
         ctx.fill();
 
         // Cap bright rim (left edge)
-        ctx.fillStyle = 'rgba(255,255,255,0.32)';
+        ctx.fillStyle = 'rgba(255,255,255,0.24)';
         ctx.fillRect(capX, lipY, 3, capH);
 
         // Cap top highlight band
-        ctx.fillStyle = 'rgba(255,255,255,0.20)';
+        ctx.fillStyle = 'rgba(255,255,255,0.16)';
         ctx.fillRect(capX + 6, lipY + 4, capW - 16, 6);
 
         // Cap bottom shadow line
         const shadowSide = isTop ? lipY + capH - 5 : lipY;
-        ctx.fillStyle = 'rgba(0,0,0,0.32)';
+        ctx.fillStyle = 'rgba(0,0,0,0.22)';
         ctx.fillRect(capX, shadowSide, capW, 5);
 
         // Metallic shimmer overlay
         if (C.metallic) {
           const shimmer = ctx.createLinearGradient(x, y, x + w, y + hgt);
           shimmer.addColorStop(0,    'rgba(255,255,255,0)');
-          shimmer.addColorStop(0.30, 'rgba(255,255,255,0.22)');
+          shimmer.addColorStop(0.30, 'rgba(255,255,255,0.18)');
           shimmer.addColorStop(0.55, 'rgba(255,255,255,0.08)');
           shimmer.addColorStop(1,    'rgba(255,255,255,0)');
           ctx.fillStyle = shimmer;
           ctx.fillRect(x, y, w, hgt);
         }
+
+        // Edge stroke for better readability on bright backgrounds
+        ctx.strokeStyle = edgeStroke;
+        ctx.lineWidth = 1.25;
+        ctx.strokeRect(x + 0.625, y + 0.625, w - 1.25, hgt - 1.25);
       }
 
       // Draw outline/shadow behind pipes
@@ -1188,7 +1221,7 @@
     function shopMarkup() {
       const cards = Object.values(skins)
         .slice()
-        .sort((a, b) => (b.price - a.price) || a.name.localeCompare(b.name))
+        .sort((a, b) => (a.price - b.price) || a.name.localeCompare(b.name))
         .map(skin => {
         const owned = state.ownedSkins.includes(skin.id);
         const affordable = state.coins >= skin.price;
@@ -1235,6 +1268,7 @@
     function inventoryMarkup() {
       const ownedSkinCards = Object.values(skins)
         .filter(skin => state.ownedSkins.includes(skin.id))
+        .sort((a, b) => (a.price - b.price) || a.name.localeCompare(b.name))
         .map(skin => {
           const isEquipped = state.selectedSkin === skin.id;
           return `
@@ -1253,6 +1287,7 @@
 
       const ownedPipeCards = pipeColors
         .filter(pc => state.ownedPipes.includes(pc.id) || pc.free)
+        .sort((a, b) => (a.price - b.price) || a.name.localeCompare(b.name))
         .map(pc => {
           const equipped = state.pipeColor === pc.id;
           const swatch = pipeSwatchColors[pc.id] || '#2ecc52';
