@@ -3337,7 +3337,13 @@
     }
 
     function persistThemeUnlock(id, msg) {
-      let unlocked = JSON.parse(localStorage.getItem('wren_unlocked') || '[]');
+      let unlocked;
+      try {
+        unlocked = JSON.parse(localStorage.getItem('wren_unlocked') || '[]');
+      } catch (_) {
+        unlocked = [];
+      }
+      if (!Array.isArray(unlocked)) unlocked = [];
       if (!unlocked.includes(id)) {
         unlocked.push(id);
         localStorage.setItem('wren_unlocked', JSON.stringify(unlocked));
@@ -3360,12 +3366,12 @@
       const inv = JSON.parse(localStorage.getItem("inventory") || "{}");
       const totalChars = Object.values(inv).reduce((sum, v) => sum + (Number(v) || 0), 0);
       
-      if (totalChars >= 7500 && localStorage.getItem(GREEN_FIZZY_THEME_UNLOCK_KEY) !== "1") {
-        localStorage.setItem(GREEN_FIZZY_THEME_UNLOCK_KEY, "1");
+      if (totalChars >= 7500) {
+        if (localStorage.getItem(GREEN_FIZZY_THEME_UNLOCK_KEY) !== "1") localStorage.setItem(GREEN_FIZZY_THEME_UNLOCK_KEY, "1");
         persistThemeUnlock('greenfizzy', "🟢 Green Fizzy theme unlocked! (7,500 characters)");
       }
-      if (totalChars >= 10000 && localStorage.getItem(LANTERN_THEME_UNLOCK_KEY) !== "1") {
-        localStorage.setItem(LANTERN_THEME_UNLOCK_KEY, "1");
+      if (totalChars >= 10000) {
+        if (localStorage.getItem(LANTERN_THEME_UNLOCK_KEY) !== "1") localStorage.setItem(LANTERN_THEME_UNLOCK_KEY, "1");
         persistThemeUnlock('lantern', "🏮 Lantern theme unlocked! (10,000 characters)");
       }
       
@@ -3373,13 +3379,13 @@
         const it = items.find(i => i.name === name);
         return it && it.rarity === "Void" && (Number(inv[name]) || 0) > 0;
       });
-      if (hasVoid && localStorage.getItem(AMATHEST_THEME_UNLOCK_KEY) !== "1") {
-        localStorage.setItem(AMATHEST_THEME_UNLOCK_KEY, "1");
+      if (hasVoid) {
+        if (localStorage.getItem(AMATHEST_THEME_UNLOCK_KEY) !== "1") localStorage.setItem(AMATHEST_THEME_UNLOCK_KEY, "1");
         persistThemeUnlock('amathest', "💎 Amathest theme unlocked! (Void character found)");
       }
       
-      if (hasCompletedAnyPack(inv) && localStorage.getItem(WHITE_SABER_THEME_UNLOCK_KEY) !== "1") {
-        localStorage.setItem(WHITE_SABER_THEME_UNLOCK_KEY, "1");
+      if (hasCompletedAnyPack(inv)) {
+        if (localStorage.getItem(WHITE_SABER_THEME_UNLOCK_KEY) !== "1") localStorage.setItem(WHITE_SABER_THEME_UNLOCK_KEY, "1");
         persistThemeUnlock('whitesaber', "⚪ White Saber theme unlocked! (Pack completed)");
       }
     }
@@ -3387,8 +3393,8 @@
     function toggleTheme() {
       const spamCount = (Number(localStorage.getItem(THEME_PREF_SPAM_KEY) || "0")) + 1;
       localStorage.setItem(THEME_PREF_SPAM_KEY, String(spamCount));
-      if (spamCount >= 10000 && localStorage.getItem(BLACK_WHITE_THEME_UNLOCK_KEY) !== "1") {
-        localStorage.setItem(BLACK_WHITE_THEME_UNLOCK_KEY, "1");
+      if (spamCount >= 10000) {
+        if (localStorage.getItem(BLACK_WHITE_THEME_UNLOCK_KEY) !== "1") localStorage.setItem(BLACK_WHITE_THEME_UNLOCK_KEY, "1");
         persistThemeUnlock('blackwhite', "🏁 Black and White theme unlocked! (Spam master)");
       }
       const current = localStorage.getItem("theme") || "dark";
@@ -3636,7 +3642,13 @@
       renderInventory();
     }
 
-    function goHome() { window.location.href = "https://scellswren.github.io/wren.fun/"; }
+    function goHome() {
+      if (window.location.protocol === "file:") {
+        window.location.href = "Main%20Menu";
+        return;
+      }
+      window.location.href = "https://scellswren.github.io/wren.fun/";
+    }
 
     function updateNotif() {
       const n = document.getElementById("notif");
