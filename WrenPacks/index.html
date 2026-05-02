@@ -2822,6 +2822,12 @@
     const RADIOACTIVE_UNLOCK_KEY = 'wren_theme_radioactive_unlocked';
     const MONEY_UNLOCK_KEY = 'wren_theme_money_unlocked';
     const SNOW_UNLOCK_KEY = 'wren_theme_snow_unlocked';
+    const GREEN_FIZZY_THEME_UNLOCK_KEY = 'wren_theme_greenfizzy_unlocked';
+    const LANTERN_THEME_UNLOCK_KEY = 'wren_theme_lantern_unlocked';
+    const AMATHEST_THEME_UNLOCK_KEY = 'wren_theme_amathest_unlocked';
+    const WHITE_SABER_THEME_UNLOCK_KEY = 'wren_theme_whitesaber_unlocked';
+    const BLACK_WHITE_THEME_UNLOCK_KEY = 'wren_theme_blackwhite_unlocked';
+    const THEME_PREF_SPAM_KEY = 'wren_theme_pref_spam_count';
     const MONEY_BILLION_CODE = 'HHH2sksdne23';
 
     function initAudioCtx() {
@@ -3305,7 +3311,86 @@
       }, 5000);
     }
 
+    function announceThemeUnlock(msg) {
+      const n = document.createElement('div');
+      n.className = 'notif theme-unlock-notif';
+      n.innerHTML = "✨ " + msg;
+      n.style.background = '#8b5cf6';
+      n.style.color = '#fff';
+      n.style.padding = '10px 20px';
+      n.style.borderRadius = '12px';
+      n.style.position = 'fixed';
+      n.style.bottom = '20px';
+      n.style.right = '20px';
+      n.style.zIndex = '10000';
+      n.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)';
+      n.style.opacity = '0';
+      n.style.transition = 'opacity 0.5s, transform 0.5s';
+      n.style.transform = 'translateY(20px)';
+      document.body.appendChild(n);
+      setTimeout(() => { n.style.opacity = '1'; n.style.transform = 'translateY(0)'; }, 100);
+      setTimeout(() => {
+        n.style.opacity = '0';
+        n.style.transform = 'translateY(20px)';
+        setTimeout(() => n.remove(), 500);
+      }, 5000);
+    }
+
+    function persistThemeUnlock(id, msg) {
+      let unlocked = JSON.parse(localStorage.getItem('wren_unlocked') || '[]');
+      if (!unlocked.includes(id)) {
+        unlocked.push(id);
+        localStorage.setItem('wren_unlocked', JSON.stringify(unlocked));
+        announceThemeUnlock(msg);
+      }
+    }
+
+    function hasCompletedAnyPack(inv) {
+      const packKeys = ["normal", "orin", "baldcena"];
+      for (const pk of packKeys) {
+        const packItems = items.filter(i => i.pack === pk);
+        if (packItems.length === 0) continue;
+        const allOwned = packItems.every(i => (Number(inv[i.name]) || 0) > 0);
+        if (allOwned) return true;
+      }
+      return false;
+    }
+
+    function syncWrenPacksThemeUnlocks() {
+      const inv = JSON.parse(localStorage.getItem("inventory") || "{}");
+      const totalChars = Object.values(inv).reduce((sum, v) => sum + (Number(v) || 0), 0);
+      
+      if (totalChars >= 7500 && localStorage.getItem(GREEN_FIZZY_THEME_UNLOCK_KEY) !== "1") {
+        localStorage.setItem(GREEN_FIZZY_THEME_UNLOCK_KEY, "1");
+        persistThemeUnlock('greenfizzy', "🟢 Green Fizzy theme unlocked! (7,500 characters)");
+      }
+      if (totalChars >= 10000 && localStorage.getItem(LANTERN_THEME_UNLOCK_KEY) !== "1") {
+        localStorage.setItem(LANTERN_THEME_UNLOCK_KEY, "1");
+        persistThemeUnlock('lantern', "🏮 Lantern theme unlocked! (10,000 characters)");
+      }
+      
+      const hasVoid = Object.keys(inv).some(name => {
+        const it = items.find(i => i.name === name);
+        return it && it.rarity === "Void" && (Number(inv[name]) || 0) > 0;
+      });
+      if (hasVoid && localStorage.getItem(AMATHEST_THEME_UNLOCK_KEY) !== "1") {
+        localStorage.setItem(AMATHEST_THEME_UNLOCK_KEY, "1");
+        persistThemeUnlock('amathest', "💎 Amathest theme unlocked! (Void character found)");
+      }
+      
+      if (hasCompletedAnyPack(inv) && localStorage.getItem(WHITE_SABER_THEME_UNLOCK_KEY) !== "1") {
+        localStorage.setItem(WHITE_SABER_THEME_UNLOCK_KEY, "1");
+        persistThemeUnlock('whitesaber', "⚪ White Saber theme unlocked! (Pack completed)");
+      }
+    }
+
     function toggleTheme() {
+      const spamCount = (Number(localStorage.getItem(THEME_PREF_SPAM_KEY) || "0")) + 1;
+      localStorage.setItem(THEME_PREF_SPAM_KEY, String(spamCount));
+      if (spamCount >= 10000 && localStorage.getItem(BLACK_WHITE_THEME_UNLOCK_KEY) !== "1") {
+        localStorage.setItem(BLACK_WHITE_THEME_UNLOCK_KEY, "1");
+        persistThemeUnlock('blackwhite', "🏁 Black and White theme unlocked! (Spam master)");
+      }
       const current = localStorage.getItem("theme") || "dark";
       setTheme(current === "dark" ? "light" : "dark");
     }
@@ -3880,6 +3965,7 @@
       inv[name] = (inv[name] || 0) + 1;
       localStorage.setItem("inventory", JSON.stringify(inv));
       syncRadioactiveUnlockFromInventory();
+      syncWrenPacksThemeUnlocks();
     }
 
     function renderInventory() {
@@ -4660,6 +4746,8 @@
       const sbt = document.getElementById("slimeBtnToggle");
       if (sbt) sbt.checked = slime;
       if (slime) document.body.classList.add("slime-buttons");
+
+      syncWrenPacksThemeUnlocks();
 
       const usedCodes = JSON.parse(localStorage.getItem("usedCodes")) || {};
       if (usedCodes["CoolLemons"]) unlockRainbow();
