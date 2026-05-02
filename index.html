@@ -1325,6 +1325,88 @@ body.mode-water h1{background:linear-gradient(135deg,#d8fbff,#6ddcff,#1c8ff5,#8c
       background: rgba(128,128,128,0.20);
       color: #374151;
     }
+    body.mode-greenfizzy{
+      --accent:#4ade80;
+      background:linear-gradient(180deg,#064e3b 0%,#065f46 35%,#059669 100%);
+      color:#ecfdf5;
+      overflow:hidden;
+    }
+    body.mode-greenfizzy::after{
+      content:'';position:fixed;inset:0;
+      background-image:radial-gradient(circle, rgba(255,255,255,0.15) 2px, transparent 2px);
+      background-size:40px 40px;
+      animation:greenFizzyBubbles 12s linear infinite;
+      z-index:0;
+    }
+    @keyframes greenFizzyBubbles {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 -400px; }
+    }
+    body.mode-lantern{
+      --accent:#fcd34d;
+      background:linear-gradient(180deg,#450a0a 0%,#7f1d1d 50%,#991b1b 100%);
+      color:#fef2f2;
+      overflow:hidden;
+    }
+    body.mode-lantern::before{
+      content:'';position:fixed;inset:0;
+      background:radial-gradient(circle at 50% 50%, rgba(252,211,77,0.18) 0%, transparent 60%);
+      z-index:-1;
+      animation:lanternGlow 4s ease-in-out infinite alternate;
+    }
+    @keyframes lanternGlow {
+      0% { opacity: 0.4; transform: scale(1); }
+      100% { opacity: 0.8; transform: scale(1.15); }
+    }
+    body.mode-amathest{
+      --accent:#d8b4fe;
+      background:linear-gradient(135deg,#2e1065 0%,#4c1d95 50%,#5b21b6 100%);
+      color:#f5f3ff;
+      overflow:hidden;
+    }
+    body.mode-amathest::after{
+      content:'';position:fixed;inset:0;
+      background: linear-gradient(135deg, transparent 45%, rgba(216,180,254,0.08) 50%, transparent 55%);
+      background-size: 200% 200%;
+      animation: amathestShimmer 8s linear infinite;
+      z-index:0;
+    }
+    @keyframes amathestShimmer {
+      0% { background-position: 200% 200%; }
+      100% { background-position: -200% -200%; }
+    }
+    body.mode-whitesaber{
+      --accent:#ffffff;
+      background:linear-gradient(180deg,#141414 0%,#000000 100%);
+      color:#ffffff;
+      overflow:hidden;
+    }
+    body.mode-whitesaber::after{
+      content:'';position:fixed;inset:0;
+      background: linear-gradient(90deg, transparent 48%, rgba(255,255,255,0.12) 50%, transparent 52%);
+      background-size: 200% 100%;
+      animation: whiteSaberHum 5s ease-in-out infinite;
+      z-index:0;
+    }
+    @keyframes whiteSaberHum {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.5; }
+    }
+    body.mode-blackwhite{
+      --accent:#ffffff;
+      background:#000000;
+      color:#ffffff;
+      overflow:hidden;
+    }
+    body.mode-blackwhite .btn,
+    body.mode-blackwhite .settings-action-btn,
+    body.mode-blackwhite .mini-btn,
+    body.mode-blackwhite #codeBtn,
+    body.mode-blackwhite #themesBtn{
+      background:#ffffff;
+      color:#000000;
+      border:2px solid #ffffff;
+    }
     #toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.86);background:rgba(16,185,129,0.96);color:white;padding:22px 34px;border-radius:28px;font-family:'Rubik',sans-serif;font-weight:900;font-size:clamp(1.15em,2.5vw,1.8em);line-height:1.25;box-shadow:0 18px 60px rgba(16,185,129,0.45),0 0 0 1px rgba(255,255,255,0.10);opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;z-index:9999;white-space:normal;max-width:min(720px,92vw);text-align:center;}
     #toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
   
@@ -4818,6 +4900,11 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       background:radial-gradient(circle at 35% 30%,#fff8d0 0 14%,#ffd34d 16% 42%,#de2910 44% 78%,#7a0f00 80% 100%);
       border:1px solid rgba(255,230,170,0.38);
     }
+    .mode-dot.greenfizzy-dot{background:radial-gradient(circle at 35% 35%,#4ade80 0 28%,#065f46 100%);border:1px solid rgba(255,255,255,0.15);}
+    .mode-dot.lantern-dot{background:radial-gradient(circle at 35% 35%,#fcd34d 0 28%,#7f1d1d 100%);border:1px solid rgba(255,255,255,0.15);}
+    .mode-dot.amathest-dot{background:radial-gradient(circle at 35% 35%,#d8b4fe 0 28%,#4c1d95 100%);border:1px solid rgba(255,255,255,0.15);}
+    .mode-dot.whitesaber-dot{background:radial-gradient(circle at 35% 35%,#ffffff 0 28%,#444444 100%);border:1px solid rgba(255,255,255,0.15);}
+    .mode-dot.blackwhite-dot{background:linear-gradient(135deg,#ffffff 50%,#000000 50%);border:1px solid rgba(255,255,255,0.3);}
 
     body.mode-orangefizzy{
       --accent:#ffa726;
@@ -5138,6 +5225,11 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       <div class="mode-option locked" id="chinaModeOption" data-mode="china"><span>🇨🇳 China <span id="chinaLock">🔒</span></span><div class="mode-dot china-dot"></div></div>
       <div class="mode-option locked" id="anzacModeOption" data-mode="anzac"><span>🇦🇺 Anzac <span id="anzacLock">🔒</span></span><div class="mode-dot anzac-dot"></div></div>
       <div class="mode-option locked" id="vomitModeOption" data-mode="vomit"><span>🤮 Vomit <span id="vomitLock">🔒</span></span><div class="mode-dot vomit-dot"></div></div>
+      <div class="mode-option locked" id="greenFizzyModeOption" data-mode="greenfizzy"><span>🟢 Green Fizzy <span id="greenFizzyLock">🔒</span></span><div class="mode-dot greenfizzy-dot"></div></div>
+      <div class="mode-option locked" id="lanternModeOption" data-mode="lantern"><span>🏮 Lantern <span id="lanternLock">🔒</span></span><div class="mode-dot lantern-dot"></div></div>
+      <div class="mode-option locked" id="amathestModeOption" data-mode="amathest"><span>💎 Amathest <span id="amathestLock">🔒</span></span><div class="mode-dot amathest-dot"></div></div>
+      <div class="mode-option locked" id="whiteSaberModeOption" data-mode="whitesaber"><span>⚪ White Saber <span id="whiteSaberLock">🔒</span></span><div class="mode-dot whitesaber-dot"></div></div>
+      <div class="mode-option locked" id="blackWhiteModeOption" data-mode="blackwhite"><span>🏁 Black and White <span id="blackWhiteLock">🔒</span></span><div class="mode-dot blackwhite-dot"></div></div>
     </div>
   </div>
 </div>
@@ -5239,6 +5331,11 @@ const ICE_THEME_UNLOCK_KEY='wren_theme_ice_unlocked';
 const CYAN_THEME_UNLOCK_KEY='wren_theme_cyan_unlocked';
 const SPIDER_THEME_UNLOCK_KEY='wren_theme_spider_unlocked';
 const SKIN_THEME_UNLOCK_KEY='wren_theme_skin_unlocked';
+const GREEN_FIZZY_THEME_UNLOCK_KEY='wren_theme_greenfizzy_unlocked';
+const LANTERN_THEME_UNLOCK_KEY='wren_theme_lantern_unlocked';
+const AMATHEST_THEME_UNLOCK_KEY='wren_theme_amathest_unlocked';
+const WHITE_SABER_THEME_UNLOCK_KEY='wren_theme_whitesaber_unlocked';
+const BLACK_WHITE_THEME_UNLOCK_KEY='wren_theme_blackwhite_unlocked';
 const ORANGE_THEME_UNLOCK_KEY='wren_theme_orange_unlocked';
 const ORANGE_FIZZY_THEME_UNLOCK_KEY='wren_theme_orangefizzy_unlocked';
 const DARK_SABER_THEME_UNLOCK_KEY='wren_theme_darksaber_unlocked';
@@ -5368,6 +5465,11 @@ function refreshOneOption(){refreshOption('oneModeOption','oneLock','one');}
 function refreshAnzacOption(){refreshOption('anzacModeOption','anzacLock','anzac');if((localStorage.getItem(MODE_KEY)||'light')==='anzac')spawnAnzacPoppies();}
 function refreshTurquoiseOption(){refreshOption('turquoiseModeOption','turquoiseLock','turquoise');}
 function refreshTurquoiseCyanOption(){refreshOption('turquoiseCyanModeOption','turquoiseCyanLock','turquoisecyan');}
+function refreshGreenFizzyOption(){refreshOption('greenFizzyModeOption','greenFizzyLock','greenfizzy');}
+function refreshLanternOption(){refreshOption('lanternModeOption','lanternLock','lantern');}
+function refreshAmathestOption(){refreshOption('amathestModeOption','amathestLock','amathest');}
+function refreshWhiteSaberOption(){refreshOption('whiteSaberModeOption','whiteSaberLock','whitesaber');}
+function refreshBlackWhiteOption(){refreshOption('blackWhiteModeOption','blackWhiteLock','blackwhite');}
 function refreshNineOption(){refreshOption('nineModeOption','nineLock','nine');if((localStorage.getItem(MODE_KEY)||'light')==='nine')startNineParticles();}
 function unlockNineIfEligible(){return unlockIfEligible('nine',()=>localStorage.getItem(NINE_THEME_UNLOCK_KEY)==='1','9️⃣ Nine unlocked!',refreshNineOption);}
 
@@ -5447,7 +5549,7 @@ cog.addEventListener('click',()=>{
 });
 document.addEventListener('click',e=>{if(!settingsMenu.contains(e.target)&&e.target!==cog){settingsMenu.classList.remove('open');cog.classList.remove('open');}});
 
-const ALL_LOCKED_MODES=['banana','rottenbanana','ketchup','lightning','luxurious','whiteneon','ice','coffee','darth','darksaber','windu','jedi','watermelon','bone','blueberry','blackhole','day','night','cyan','glass','blur','lava','rose','orange','orangefizzy','caramal','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','spider','metal','bronze','silver','gold','radioactive','snow','money','cottoncandy','saber','pizza','skin','rainbowremastered','fire','emerald','diamond','seven','one','nine','anzac','turquoise','turquoisecyan'];
+const ALL_LOCKED_MODES=['banana','rottenbanana','ketchup','lightning','luxurious','whiteneon','ice','coffee','darth','darksaber','windu','jedi','watermelon','bone','blueberry','blackhole','day','night','cyan','glass','blur','lava','rose','orange','orangefizzy','caramal','water','potato','grape','sun','shadow','cheese','toothpaste','lucky','glitch','slime','galaxy','spider','metal','bronze','silver','gold','radioactive','snow','money','cottoncandy','saber','pizza','skin','rainbowremastered','fire','emerald','diamond','seven','one','nine','anzac','turquoise','turquoisecyan','china','usa','vomit','greenfizzy','lantern','amathest','whitesaber','blackwhite'];
 
 function normalizeThemeOptionLabels(){
   document.querySelectorAll('.theme-grid .mode-option').forEach(option=>{
@@ -5533,6 +5635,11 @@ const SCROLLBAR_THEMES={
   emerald:['rgba(0,14,6,0.92)','rgba(0,200,110,0.82)'],
   diamond:['rgba(3,6,16,0.92)','rgba(160,200,255,0.82)'],
   one:['rgba(22,0,31,0.92)','rgba(168,74,255,0.84)'],
+  greenfizzy:['rgba(6,78,59,0.92)','rgba(74,222,128,0.84)'],
+  lantern:['rgba(69,10,10,0.92)','rgba(252,211,77,0.84)'],
+  amathest:['rgba(46,16,101,0.92)','rgba(216,180,254,0.84)'],
+  whitesaber:['rgba(20,20,20,0.94)','rgba(255,255,255,0.86)'],
+  blackwhite:['rgba(10,10,10,0.96)','rgba(255,255,255,0.86)'],
 };
 const THEME_MODAL_SUBTEXTS={
   light:'Bright and simple.',
@@ -5591,7 +5698,17 @@ const THEME_MODAL_SUBTEXTS={
   one:'Purple and numbered.',
   anzac:'A soft Anzac field with scattered poppies.',
   turquoise:'Calm and oceanic turquoise.',
-  turquoisecyan:'A perfect gradient of turquoise and cyan.'
+  turquoisecyan:'A perfect gradient of turquoise and cyan.',
+  china:'Traditional and glowing.',
+  usa:'Patriotic and bold.',
+  vomit:'Truly disgusting.',
+  seven:'Hot, red, and aggressive.',
+  nine:'Cold, grey, and robotic.',
+  greenfizzy:'Fizzy green goodness.',
+  lantern:'Warm traditional glow.',
+  amathest:'Crystalline purple depths.',
+  whitesaber:'Pure cinematic glow.',
+  blackwhite:'Strictly monochrome.',
 };
 function updateThemesModalText(){
   const sub=document.querySelector('#themesModal .themes-sub');
@@ -5613,7 +5730,8 @@ const THEME_PAGE_SOURCE={
   shadow:'The Wren Wheel of Doom',cheese:"Cheese's Art",lucky:'Lucky Generator',
   bronze:'Credits',silver:'Credits',gold:'Credits',
   radioactive:'The Wren Wheel of Doom',money:'Main Menu',snow:'The Wren Wheel of Doom',usa:'Wren Packs',china:'Flappy Wren',metal:'Flappy Wren',vomit:'Wren Packs',
-  cottoncandy:'The Wren Wheel of Doom',saber:'The Wren Wheel of Doom',darksaber:'Flappy Wren',slime:'Main Menu',bone:'Main Menu',whiteneon:'The Hall of Fame'
+  cottoncandy:'The Wren Wheel of Doom',saber:'The Wren Wheel of Doom',darksaber:'Flappy Wren',slime:'Main Menu',bone:'Main Menu',whiteneon:'The Hall of Fame',
+  greenfizzy:'Wren Packs',lantern:'Wren Packs',amathest:'Wren Packs',whitesaber:'Wren Packs',blackwhite:'Wren Packs'
 };
 let activeThemeInfoMode=null;
 function isModeUnlocked(mode){
@@ -5687,7 +5805,12 @@ function getThemeUnlockHint(mode){
     blur:'Get 100+ high score in Flappy Wren.',
     usa:'Trigger Null in Wren Packs.',
     china:'Buy the China skin in Flappy Wren.',
-    vomit:'Stay in Light Mode for 5 minutes.'
+    vomit:'Stay in Light Mode for 5 minutes.',
+    greenfizzy:'Reach 7,500+ characters in Wren Packs.',
+    lantern:'Reach 10,000+ characters in Wren Packs.',
+    amathest:'Acquire a Void character in Wren Packs.',
+    whitesaber:'Complete any character pack in Wren Packs.',
+    blackwhite:'Spam theme preference in Wren Packs 10,000 times.'
   };
   return hints[mode]||'Keep progressing.';
 }
@@ -5978,6 +6101,21 @@ function unlockTurquoiseIfEligible(){
 function unlockTurquoiseCyanIfEligible(){
   return unlockIfEligible('turquoisecyan', () => localStorage.getItem(TURQUOISE_CYAN_THEME_UNLOCK_KEY) === '1', '🩵 Turquoise-Cyan unlocked! A beautiful mix.', refreshTurquoiseCyanOption);
 }
+function unlockGreenFizzyIfEligible(){
+  return unlockIfEligible('greenfizzy', () => localStorage.getItem(GREEN_FIZZY_THEME_UNLOCK_KEY) === '1', '🟢 Green Fizzy unlocked!', refreshGreenFizzyOption);
+}
+function unlockLanternIfEligible(){
+  return unlockIfEligible('lantern', () => localStorage.getItem(LANTERN_THEME_UNLOCK_KEY) === '1', '🏮 Lantern unlocked!', refreshLanternOption);
+}
+function unlockAmathestIfEligible(){
+  return unlockIfEligible('amathest', () => localStorage.getItem(AMATHEST_THEME_UNLOCK_KEY) === '1', '💎 Amathest unlocked!', refreshAmathestOption);
+}
+function unlockWhiteSaberIfEligible(){
+  return unlockIfEligible('whitesaber', () => localStorage.getItem(WHITE_SABER_THEME_UNLOCK_KEY) === '1', '⚪ White Saber unlocked!', refreshWhiteSaberOption);
+}
+function unlockBlackWhiteIfEligible(){
+  return unlockIfEligible('blackwhite', () => localStorage.getItem(BLACK_WHITE_THEME_UNLOCK_KEY) === '1', '🏁 Black and White unlocked!', refreshBlackWhiteOption);
+}
 function checkCreditsUnlocks(){unlockBronzeIfEligible();unlockSilverIfEligible();unlockGoldIfEligible();}
 function announceUnlock(msg){showToast(msg);}
 function consumePendingUnlockNotices(){
@@ -6007,6 +6145,7 @@ function checkAllUnlocks(){
   unlockJediIfEligible();unlockWatermelonIfEligible();unlockBoneIfEligible();
   unlockTurquoiseIfEligible();unlockTurquoiseCyanIfEligible();
   unlockChinaIfEligible();
+  unlockGreenFizzyIfEligible();unlockLanternIfEligible();unlockAmathestIfEligible();unlockWhiteSaberIfEligible();unlockBlackWhiteIfEligible();
   checkObjectAttackThemes();
 }
 function markVisit(w,href){
@@ -6110,8 +6249,8 @@ function startLightningParticles(){
 }
 function stopLightningParticles(){if(lightningInterval){clearInterval(lightningInterval);lightningInterval=null;}document.getElementById('lightningContainer').innerHTML='';}
 
-const CYCLE_THEME_NAMES={'light':'☀️ Light','dark':'🌙 Dark','rainbow':'🌈 Rainbow Neon','banana':'🍌 Banana','rottenbanana':'🍌 Rotten Banana','ketchup':'🍅 Ketchup','lightning':'⚡ Lightning','whiteneon':'⚪ White Neon','ice':'🧊 Ice','luxurious':'✨ Luxurious','rose':'🌹 Rose','orange':'🟠 Orange','orangefizzy':'🟠 Orange Fizzy','caramal':'🍯 Caramal','water':'💧 Water','potato':'🥔 Potato','grape':'🍇 Grape','sun':'☀️ Sun','shadow':'🌑 Shadow','cheese':'🧀 Cheese','toothpaste':'🪥 Toothpaste','lucky':'🐈 Lucky','glitch':'🟩 Glitch','slime':'🟢 Slime','anzac':'🇦🇺 Anzac','cyan':'🩵 Cyan','glass':'✨ Liquid Glass','blur':'🌫️ Blur','lava':'🌋 Lava','galaxy':'🌌 Galaxy','blackhole':'🕳️ Black Hole','spider':'🕷️ Spider','bronze':'🥉 Bronze','silver':'🥈 Silver','gold':'🥇 Gold','radioactive':'☢️ Radioactive','snow':'❄️ Snow','money':'💵 Money','cottoncandy':'🍬 Cotton Candy','saber':'🔵 Saber','darksaber':'⚫ Dark Saber','pizza':'🍕 Pizza','skin':'🩸 Skin','rainbowremastered':'🌈 Rainbow Neon Remastered','day':'🌤️ Day','night':'🌙 Night','emerald':'💚 Emerald','diamond':'💎 Diamond','seven':'7️⃣ Seven','one':'1️⃣ One','nine':'9️⃣ Nine','usa':'🇺🇸 USA','vomit':'🤮 Vomit','turquoise':'🩵 Turquoise','turquoisecyan':'🩵 Turquoise-Cyan','china':'🇨🇳 China'};
-const ALL_CYCLE_THEMES=['light','dark','rainbow','banana','ketchup','lightning','whiteneon','ice','luxurious','rose','orange','caramal','orangefizzy','water','potato','grape','sun','shadow','rottenbanana','cheese','toothpaste','lucky','glitch','slime','cyan','glass','blur','lava','galaxy','blackhole','spider','bronze','silver','gold','radioactive','snow','money','pizza','skin','rainbowremastered','day','night','one','nine','anzac','usa','china','vomit','turquoise','turquoisecyan','darksaber'];
+const CYCLE_THEME_NAMES={'light':'☀️ Light','dark':'🌙 Dark','rainbow':'🌈 Rainbow Neon','banana':'🍌 Banana','rottenbanana':'🍌 Rotten Banana','ketchup':'🍅 Ketchup','lightning':'⚡ Lightning','whiteneon':'⚪ White Neon','ice':'🧊 Ice','luxurious':'✨ Luxurious','rose':'🌹 Rose','orange':'🟠 Orange','orangefizzy':'🟠 Orange Fizzy','caramal':'🍯 Caramal','water':'💧 Water','potato':'🥔 Potato','grape':'🍇 Grape','sun':'☀️ Sun','shadow':'🌑 Shadow','cheese':'🧀 Cheese','toothpaste':'🪥 Toothpaste','lucky':'🐈 Lucky','glitch':'🟩 Glitch','slime':'🟢 Slime','anzac':'🇦🇺 Anzac','cyan':'🩵 Cyan','glass':'✨ Liquid Glass','blur':'🌫️ Blur','lava':'🌋 Lava','galaxy':'🌌 Galaxy','blackhole':'🕳️ Black Hole','spider':'🕷️ Spider','bronze':'🥉 Bronze','silver':'🥈 Silver','gold':'🥇 Gold','radioactive':'☢️ Radioactive','snow':'❄️ Snow','money':'💵 Money','cottoncandy':'🍬 Cotton Candy','saber':'🔵 Saber','darksaber':'⚫ Dark Saber','pizza':'🍕 Pizza','skin':'🩸 Skin','rainbowremastered':'🌈 Rainbow Neon Remastered','day':'🌤️ Day','night':'🌙 Night','emerald':'💚 Emerald','diamond':'💎 Diamond','seven':'7️⃣ Seven','one':'1️⃣ One','nine':'9️⃣ Nine','usa':'🇺🇸 USA','vomit':'🤮 Vomit','turquoise':'🩵 Turquoise','turquoisecyan':'🩵 Turquoise-Cyan','china':'🇨🇳 China','greenfizzy':'🟢 Green Fizzy','lantern':'🏮 Lantern','amathest':'💎 Amathest','whitesaber':'⚪ White Saber','blackwhite':'🏁 Black and White'};
+const ALL_CYCLE_THEMES=['light','dark','rainbow','banana','ketchup','lightning','whiteneon','ice','luxurious','rose','orange','caramal','orangefizzy','water','potato','grape','sun','shadow','rottenbanana','cheese','toothpaste','lucky','glitch','slime','cyan','glass','blur','lava','galaxy','blackhole','spider','bronze','silver','gold','radioactive','snow','money','pizza','skin','rainbowremastered','day','night','one','nine','anzac','usa','china','vomit','turquoise','turquoisecyan','darksaber','greenfizzy','lantern','amathest','whitesaber','blackwhite'];
 let isCycling=false;
 function runThemeCycle(){
   if(isCycling)return;isCycling=true;closeCodeModal();
