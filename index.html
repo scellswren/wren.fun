@@ -4759,15 +4759,15 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     body.mode-china::before{
       content:'★ ★ ★';
       position:fixed;
-      right:18px;
-      left:auto;
-      transform:none;
-      top:34px;
-      font-size:32px;
+      left:50%;
+      right:auto;
+      transform:translateX(-50%);
+      top:76px;
+      font-size:40px;
       line-height:1;
-      letter-spacing:10px;
+      letter-spacing:12px;
       color:#ffd54f;
-      text-shadow:0 0 14px rgba(255,210,80,0.52);
+      text-shadow:0 0 16px rgba(255,210,80,0.56);
       pointer-events:none;
       z-index:0;
       inset:auto;
@@ -4801,6 +4801,18 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       background:linear-gradient(180deg,rgba(74,6,0,0.98) 0%,rgba(126,10,0,0.98) 52%,rgba(168,18,0,0.98) 100%);
       border:1px solid rgba(255,214,120,0.22);
       color:#fff6e8;
+    }
+    body.mode-blur .btn,
+    body.mode-blur .settings-action-btn,
+    body.mode-blur .mini-btn,
+    body.mode-blur #codeBtn,
+    body.mode-blur #themesBtn{
+      background:white;
+      color:#1d1d1f;
+      box-shadow:0 3px 14px rgba(0,0,0,0.1);
+      border:none;
+      backdrop-filter:none;
+      text-shadow:none;
     }
     .mode-dot.china-dot{
       background:radial-gradient(circle at 35% 30%,#fff8d0 0 14%,#ffd34d 16% 42%,#de2910 44% 78%,#7a0f00 80% 100%);
@@ -6296,30 +6308,6 @@ document.getElementById('codeInput').addEventListener('keydown',e=>{if(e.key==='
 document.getElementById('brightnessControl').addEventListener('input',e=>applyBrightness(e.target.value));
 function submitCode(){
   const i=document.getElementById('codeInput'),f=document.getElementById('codeFeedback'),v=i.value.trim(),u=CODES[v];
-  if(v==='OhMyLord8866551'){
-    let unlockedNow=0;
-    ALL_LOCKED_MODES.forEach(mode=>{
-      if(!unlockedFeatures.includes(mode)){
-        persistUnlocked(mode);
-        unlockedNow++;
-      }
-    });
-    document.querySelectorAll('#themesModal .theme-grid .mode-option.locked').forEach(option=>{
-      const mode=option.dataset.mode;
-      if(mode&&unlockedFeatures.includes(mode)){
-        option.classList.remove('locked');
-        const lock=option.querySelector('span span');
-        if(lock&&lock.textContent.includes('🔒')) lock.textContent='';
-      }
-    });
-    updateThemeGrid();
-    i.className='success';
-    f.textContent=unlockedNow>0?`✨ Unlocked ${unlockedNow} themes!`:'✓ All themes already unlocked!';
-    f.className='ok';
-    showToast(unlockedNow>0?`✨ ${unlockedNow} themes unlocked.`:'✓ All themes already unlocked.');
-    setTimeout(closeCodeModal,1400);
-    return;
-  }
   if(v==='Banana294OPo'){i.className='success';f.textContent='🌈 Starting theme tour...';f.className='ok';setTimeout(()=>{runThemeCycle();},600);return;}
   if(v==='Juke229N'){const c=getCreditsCount();if(c<GOLD_THRESHOLD){localStorage.setItem(CREDITS_WATCH_KEY,String(GOLD_THRESHOLD));i.className='success';f.textContent='🎬 Credits counter set to 50!';f.className='ok';checkCreditsUnlocks();showToast('🎬 Cheat applied! Credits count set to 50.');}else{f.textContent='✓ Counter is already at 50 or above!';f.className='ok';i.className='success';}setTimeout(closeCodeModal,1400);return;}
   if(v==='BombaWOWRich'){
