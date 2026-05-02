@@ -289,7 +289,7 @@
         playTone('triangle', 120, 0.36, 0.08, 58, 0.003, 0.33);
         playNoise(0.18, 0.045);
       },
-      button()  { playTone('sine', 520, 0.06, 0.08, 610, 0.004, 0.06); },
+      button()  { playTone('sine', 520, 0.06, getButtonVolume(0.08), 610, 0.004, 0.06); },
       buy()     { [0,70,140,210].forEach((d,i)=>setTimeout(()=>playTone('triangle',[520,660,830,1040][i],0.13,0.10,[660,830,1040,1320][i],0.005,0.12),d)); },
       equip()   { playTone('sine', 760, 0.13, 0.1, 940, 0.005, 0.12); playTone('triangle', 980, 0.11, 0.07, 1180, 0.005, 0.10); },
     };
@@ -348,7 +348,10 @@
       selected: 'flappyWrenSelectedSkin',
       owned: 'flappyWrenOwnedSkins',
       sfxVolume: 'flappyWrenSfxVolume',
+      buttonVolume: 'flappyWrenButtonVolume',
       sfxMuted: 'flappyWrenSfxMuted',
+      musicVolume: 'flappyWrenMusicVolume',
+      musicMuted: 'flappyWrenMusicMuted',
       pipeColor: 'flappyWrenPipeColor',
       ownedPipes: 'flappyWrenOwnedPipes',
       redeemedCodes: 'flappyWrenRedeemedCodes'
@@ -430,7 +433,10 @@
       runBestBaseline: Number(localStorage.getItem(STORAGE.highScore) || '0'),
       surpassedHighThisRun: false,
       sfxVolume: Math.max(0, Math.min(1, Number(localStorage.getItem(STORAGE.sfxVolume) || '0.75'))),
+      buttonVolume: Math.max(0, Math.min(1, Number(localStorage.getItem(STORAGE.buttonVolume) || '0.8'))),
       sfxMuted: localStorage.getItem(STORAGE.sfxMuted) === '1',
+      musicVolume: Math.max(0, Math.min(1, Number(localStorage.getItem(STORAGE.musicVolume) || '0.35'))),
+      musicMuted: localStorage.getItem(STORAGE.musicMuted) === '1',
       pipeColor: localStorage.getItem(STORAGE.pipeColor) || 'green',
       ownedPipes: JSON.parse(localStorage.getItem(STORAGE.ownedPipes) || 'null') || ['green'],
       redeemedCodes: JSON.parse(localStorage.getItem(STORAGE.redeemedCodes) || 'null') || []
@@ -445,7 +451,10 @@
       localStorage.setItem(STORAGE.selected, state.selectedSkin);
       localStorage.setItem(STORAGE.owned, JSON.stringify([...new Set(state.ownedSkins)]));
       localStorage.setItem(STORAGE.sfxVolume, String(state.sfxVolume));
+      localStorage.setItem(STORAGE.buttonVolume, String(state.buttonVolume));
       localStorage.setItem(STORAGE.sfxMuted, state.sfxMuted ? '1' : '0');
+      localStorage.setItem(STORAGE.musicVolume, String(state.musicVolume));
+      localStorage.setItem(STORAGE.musicMuted, state.musicMuted ? '1' : '0');
       localStorage.setItem(STORAGE.pipeColor, state.pipeColor);
       localStorage.setItem(STORAGE.ownedPipes, JSON.stringify([...new Set(state.ownedPipes)]));
       localStorage.setItem(STORAGE.redeemedCodes, JSON.stringify([...new Set(state.redeemedCodes)]));
@@ -461,6 +470,28 @@
       if (state.sfxMuted) return 0;
       return Math.max(0, Math.min(1, state.sfxVolume * mult));
     }
+
+    function getButtonVolume(mult = 1) {
+      if (state.sfxMuted) return 0;
+      return Math.max(0, Math.min(1, state.buttonVolume * mult));
+    }
+
+    const bgMusic = new Audio('Flappy Wren Background Theme.mp3');
+    bgMusic.loop = true;
+    bgMusic.preload = 'auto';
+
+    function applyMusicSettings() {
+      bgMusic.volume = state.musicMuted ? 0 : Math.max(0, Math.min(1, state.musicVolume));
+    }
+
+    function ensureMusicPlayback() {
+      applyMusicSettings();
+      if (state.musicMuted) return;
+      const playPromise = bgMusic.play();
+      if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+    }
+
+    applyMusicSettings();
 
     function setMessage(text, ms = 1600) {
       const el = document.getElementById('message');
@@ -509,12 +540,14 @@
     }
 
     function settingsMarkup() {
-      const percent = Math.round(state.sfxVolume * 100);
+      const sfxPercent = Math.round(state.sfxVolume * 100);
+      const buttonPercent = Math.round(state.buttonVolume * 100);
+      const musicPercent = Math.round(state.musicVolume * 100);
       return `
         <div class="panelHeader">
           <div>
             <h2>Settings</h2>
-            <p>Adjust sound effects volume or mute them.</p>
+            <p>Adjust gameplay sounds, button loudness, and background music.</p>
           </div>
           <div class="sectionSwitch">
             <button class="btn" data-close>Close</button>
@@ -527,14 +560,31 @@
             <h3>Sound Effects</h3>
             <p>Change the volume for gameplay and UI sounds.</p>
             <div class="rangeWrap">
-              <input id="sfxVolumeRange" type="range" min="0" max="100" value="${percent}" />
-              <div class="rangeValue" id="sfxVolumeValue">${percent}%</div>
+              <input id="sfxVolumeRange" type="range" min="0" max="100" value="${sfxPercent}" />
+              <div class="rangeValue" id="sfxVolumeValue">${sfxPercent}%</div>
             </div>
           </div>
           <div class="settingCard">
-            <h3>Mute</h3>
+            <h3>Button Volume</h3>
+            <p>Set how loud menu/button clicks should be.</p>
+            <div class="rangeWrap">
+              <input id="buttonVolumeRange" type="range" min="0" max="100" value="${buttonPercent}" />
+              <div class="rangeValue" id="buttonVolumeValue">${buttonPercent}%</div>
+            </div>
+          </div>
+          <div class="settingCard">
+            <h3>Background Music</h3>
+            <p>Flappy Wren theme music loudness.</p>
+            <div class="rangeWrap">
+              <input id="musicVolumeRange" type="range" min="0" max="100" value="${musicPercent}" />
+              <div class="rangeValue" id="musicVolumeValue">${musicPercent}%</div>
+            </div>
+          </div>
+          <div class="settingCard">
+            <h3>Mute Controls</h3>
             <p>Turn all sound effects on or off instantly.</p>
             <button class="btn dark" id="toggleMuteBtn">${state.sfxMuted ? 'Unmute SFX' : 'Mute SFX'}</button>
+            <button class="btn dark" id="toggleMusicMuteBtn" style="margin-top:10px">${state.musicMuted ? 'Unmute Music' : 'Mute Music'}</button>
           </div>
         </div>`;
     }
@@ -564,6 +614,7 @@
 
     function startGame() {
       resetGame();
+      ensureMusicPlayback();
       document.getElementById('menu').style.display = 'none';
       document.getElementById('hud').classList.remove('hide');
       state.countdown = 3;
@@ -619,8 +670,8 @@
       const marginTop = 60;
       const marginBottom = state.ground + 90;
       const gap = Math.max(170, 220 - Math.min(80, state.score * 2));
-      const minGap = 158;
-      let adjustedGap = Math.max(minGap, gap + 8);
+      const minGap = 154;
+      let adjustedGap = Math.max(minGap, gap + 6);
       const minTop = 70;
       const maxTop = state.h - marginBottom - adjustedGap - minTop;
       let topH = minTop + Math.random() * Math.max(80, maxTop);
@@ -727,40 +778,53 @@
         return `rgb(${r},${g},${bl})`;
       }
 
-      // Resolve pipe colours from the colour scheme
+      // Resolve pipe colours from a shared shading model so every colour
+      // keeps the same "quality" as green (depth, highlights, contrast).
       function getPipeColors(scheme) {
-        const presets = {
-          green:    { main:'#2ecc52', light:'#5aed80', dark:'#1a7a30', shadow:'#0d5020', cap:'#25a844', capTop:'#3bdc60' },
-          blue:     { main:'#2563eb', light:'#60a5fa', dark:'#1e40af', shadow:'#172c7a', cap:'#1d4ed8', capTop:'#3b82f6' },
-          red:      { main:'#dc2626', light:'#f87171', dark:'#991b1b', shadow:'#7f1d1d', cap:'#b91c1c', capTop:'#ef4444' },
-          yellow:   { main:'#facc15', light:'#fde047', dark:'#ca8a04', shadow:'#a16207', cap:'#eab308', capTop:'#fef08a' },
-          brown:    { main:'#92400e', light:'#c97a3a', dark:'#6b2d0a', shadow:'#4c1d08', cap:'#7c3511', capTop:'#a0522d' },
-          pink:     { main:'#db2777', light:'#f472b6', dark:'#9d174d', shadow:'#831843', cap:'#be185d', capTop:'#ec4899' },
-          orange:   { main:'#ea580c', light:'#fb923c', dark:'#9a3412', shadow:'#7c2d12', cap:'#c2410c', capTop:'#f97316' },
-          grey:     { main:'#6b7280', light:'#9ca3af', dark:'#374151', shadow:'#1f2937', cap:'#4b5563', capTop:'#9ca3af' },
-          maroon:   { main:'#7f1d1d', light:'#b45c5c', dark:'#5a1212', shadow:'#3b0a0a', cap:'#6b1414', capTop:'#9f3434' },
-          babyblue: { main:'#7dd3fc', light:'#bae6fd', dark:'#38bdf8', shadow:'#0ea5e9', cap:'#60c5f8', capTop:'#93dcfd' },
-          cyan:     { main:'#06b6d4', light:'#67e8f9', dark:'#0e7490', shadow:'#164e63', cap:'#0891b2', capTop:'#22d3ee' },
-          peach:    { main:'#fb923c', light:'#fed7aa', dark:'#ea580c', shadow:'#c2410c', cap:'#f97316', capTop:'#fdba74' },
-          magenta:  { main:'#c026d3', light:'#e879f9', dark:'#86198f', shadow:'#701a75', cap:'#a21caf', capTop:'#d946ef' },
-          purple:   { main:'#7c3aed', light:'#a78bfa', dark:'#4c1d95', shadow:'#3b0764', cap:'#6d28d9', capTop:'#8b5cf6' },
-          indigo:   { main:'#4338ca', light:'#818cf8', dark:'#312e81', shadow:'#1e1b4b', cap:'#3730a3', capTop:'#6366f1' },
-          apricot:  { main:'#f59e6b', light:'#fcd5a8', dark:'#d97706', shadow:'#92400e', cap:'#e8853e', capTop:'#fbbf85' },
-          turquoise:{ main:'#0d9488', light:'#5eead4', dark:'#0f766e', shadow:'#134e4a', cap:'#0f766e', capTop:'#2dd4bf' },
-          amber:    { main:'#d97706', light:'#fcd34d', dark:'#92400e', shadow:'#78350f', cap:'#b45309', capTop:'#fbbf24' },
-          cream:    { main:'#d4c5a0', light:'#f0e8d0', dark:'#a89060', shadow:'#7a6540', cap:'#c4b080', capTop:'#e8dfc0' },
-          tan:      { main:'#c4a882', light:'#dfc9a4', dark:'#9a7850', shadow:'#6b5030', cap:'#b09060', capTop:'#d0b890' },
-          slate:    { main:'#475569', light:'#94a3b8', dark:'#1e293b', shadow:'#0f172a', cap:'#334155', capTop:'#64748b' },
-          white:    { main:'#e8e8e8', light:'#ffffff', dark:'#c0c0c0', shadow:'#909090', cap:'#d8d8d8', capTop:'#f5f5f5' },
-          black:    { main:'#1a1a1a', light:'#404040', dark:'#0a0a0a', shadow:'#000000', cap:'#222222', capTop:'#333333' },
-          ruby:     { main:'#c0002a', light:'#ff3366', dark:'#800018', shadow:'#50000e', cap:'#a00022', capTop:'#ff2255', metallic:true },
-          gold:     { main:'#c8960c', light:'#ffe066', dark:'#8a6400', shadow:'#5a4000', cap:'#b08010', capTop:'#ffd700', metallic:true },
-          silver:   { main:'#a0a8b8', light:'#d8e0f0', dark:'#606870', shadow:'#303840', cap:'#8890a0', capTop:'#c8d0e0', metallic:true },
-          bronze:   { main:'#a06030', light:'#d4904c', dark:'#703818', shadow:'#402010', cap:'#885028', capTop:'#c07840', metallic:true },
-          emerald:  { main:'#046c30', light:'#22d36a', dark:'#024820', shadow:'#012010', cap:'#056a28', capTop:'#10e050', metallic:true },
-          diamond:  { main:'#9be7ff', light:'#f7feff', dark:'#4db6d9', shadow:'#2d7fa1', cap:'#7ed5f3', capTop:'#ffffff', metallic:true },
+        function hslToHex(h, s, l) {
+          const sat = Math.max(0, Math.min(100, s)) / 100;
+          const lig = Math.max(0, Math.min(100, l)) / 100;
+          const c = (1 - Math.abs(2 * lig - 1)) * sat;
+          const hh = ((h % 360) + 360) % 360 / 60;
+          const x = c * (1 - Math.abs((hh % 2) - 1));
+          let r = 0, g = 0, b = 0;
+          if (hh < 1) { r = c; g = x; }
+          else if (hh < 2) { r = x; g = c; }
+          else if (hh < 3) { g = c; b = x; }
+          else if (hh < 4) { g = x; b = c; }
+          else if (hh < 5) { r = x; b = c; }
+          else { r = c; b = x; }
+          const m = lig - c / 2;
+          const toHex = (v) => Math.round((v + m) * 255).toString(16).padStart(2, '0');
+          return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+        }
+        function makePalette(h, s, l, metallic = false) {
+          return {
+            main: hslToHex(h, s, l),
+            light: hslToHex(h, Math.min(96, s + 8), l + 14),
+            dark: hslToHex(h, s, l - 18),
+            shadow: hslToHex(h, Math.max(18, s - 14), l - 28),
+            cap: hslToHex(h, s, l - 8),
+            capTop: hslToHex(h, Math.min(98, s + 10), l + 8),
+            metallic
+          };
+        }
+        const specs = {
+          green:[132,64,50], blue:[216,68,50], red:[2,74,50], yellow:[52,86,54], brown:[26,62,42],
+          pink:[332,72,52], orange:[24,82,50], grey:[220,12,50], maroon:[355,52,40], babyblue:[198,76,66],
+          cyan:[188,82,46], peach:[25,78,62], magenta:[300,72,50], purple:[265,70,50], indigo:[238,58,48],
+          apricot:[30,82,64], turquoise:[173,78,40], amber:[38,86,46], cream:[42,36,72], tan:[33,44,62],
+          slate:[215,20,42], white:[0,0,88], black:[0,0,13]
         };
-        return presets[scheme] || presets.green;
+        const metallicSpecs = {
+          ruby:[350,88,44], gold:[45,90,45], silver:[215,18,68], bronze:[24,56,45], emerald:[145,86,34], diamond:[198,88,80]
+        };
+        if (metallicSpecs[scheme]) {
+          const [h, s, l] = metallicSpecs[scheme];
+          return makePalette(h, s, l, true);
+        }
+        const [h, s, l] = specs[scheme] || specs.green;
+        return makePalette(h, s, l, false);
       }
 
       const C = getPipeColors(pc);
@@ -1004,7 +1068,7 @@
       if (state.bird.flapAnim === undefined) state.bird.flapAnim = 0;
       state.bird.flapAnim *= 0.82;
 
-      if (state.spawnTimer > 112) {
+      if (state.spawnTimer > 116) {
         spawnPipe();
         state.spawnTimer = 0;
       }
@@ -1406,6 +1470,26 @@
           if (valueEl) valueEl.textContent = Math.round(state.sfxVolume * 100) + '%';
         };
       }
+      const buttonVolumeRange = panel.querySelector('#buttonVolumeRange');
+      if (buttonVolumeRange) {
+        buttonVolumeRange.oninput = () => {
+          state.buttonVolume = Number(buttonVolumeRange.value) / 100;
+          saveState();
+          const valueEl = panel.querySelector('#buttonVolumeValue');
+          if (valueEl) valueEl.textContent = Math.round(state.buttonVolume * 100) + '%';
+        };
+      }
+      const musicVolumeRange = panel.querySelector('#musicVolumeRange');
+      if (musicVolumeRange) {
+        musicVolumeRange.oninput = () => {
+          state.musicVolume = Number(musicVolumeRange.value) / 100;
+          applyMusicSettings();
+          saveState();
+          const valueEl = panel.querySelector('#musicVolumeValue');
+          if (valueEl) valueEl.textContent = Math.round(state.musicVolume * 100) + '%';
+          if (!state.musicMuted) ensureMusicPlayback();
+        };
+      }
       const muteBtn = panel.querySelector('#toggleMuteBtn');
       if (muteBtn) {
         muteBtn.onclick = () => {
@@ -1414,6 +1498,17 @@
           saveState();
           muteBtn.textContent = state.sfxMuted ? 'Unmute SFX' : 'Mute SFX';
           if (wasMuted) SFX.button();
+        };
+      }
+      const musicMuteBtn = panel.querySelector('#toggleMusicMuteBtn');
+      if (musicMuteBtn) {
+        musicMuteBtn.onclick = () => {
+          const wasMuted = state.musicMuted;
+          state.musicMuted = !state.musicMuted;
+          applyMusicSettings();
+          saveState();
+          musicMuteBtn.textContent = state.musicMuted ? 'Unmute Music' : 'Mute Music';
+          if (wasMuted) ensureMusicPlayback();
         };
       }
     }
@@ -1437,7 +1532,8 @@
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('button');
       if (!btn) return;
-      if (btn.id === 'toggleMuteBtn') return;
+      if (btn.id === 'toggleMuteBtn' || btn.id === 'toggleMusicMuteBtn') return;
+      ensureMusicPlayback();
       SFX.button();
     });
 
@@ -1454,9 +1550,14 @@
     });
 
     window.addEventListener('resize', () => { fitCanvas(); });
-    window.addEventListener('pointerdown', (e) => { if (e.target.closest('button')) return; if (document.getElementById('overlay').classList.contains('show')) return; flap(); });
+    window.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('button')) return;
+      if (document.getElementById('overlay').classList.contains('show')) return;
+      ensureMusicPlayback();
+      flap();
+    });
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); flap(); }
+      if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); ensureMusicPlayback(); flap(); }
       if (e.key === 'Escape') closeOverlay();
     });
 
