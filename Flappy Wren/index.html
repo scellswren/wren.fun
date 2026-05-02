@@ -9,7 +9,7 @@
     :root {
       --bg1:#071a0d;
       --bg2:#0b3d1c;
-      --bg3:#e8900a;
+      --bg3:#05160b;
       --panel:rgba(6,16,10,0.92);
       --panel2:rgba(255,255,255,0.07);
       --text:#edfff3;
@@ -25,18 +25,14 @@
     }
     *{box-sizing:border-box}
     html,body{width:100%;height:100%;margin:0;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:
-      radial-gradient(circle at 15% 15%, rgba(255,171,62,.2) 0 18%, transparent 19%),
-      radial-gradient(circle at 78% 16%, rgba(50,210,107,.26) 0 18%, transparent 19%),
-      linear-gradient(180deg, var(--bg1), var(--bg2) 62%, var(--bg3));color:var(--text)}
+      linear-gradient(180deg,#020904 0%,#072510 42%,#04170a 78%,#010503 100%);color:var(--text)}
     body::before{content:"";position:fixed;inset:0;background:
-      linear-gradient(120deg, transparent 20%, rgba(255,255,255,.06) 50%, transparent 80%),
-      radial-gradient(circle at 20% 80%, rgba(255,255,255,.10) 0 4px, transparent 5px),
-      radial-gradient(circle at 75% 25%, rgba(255,255,255,.08) 0 5px, transparent 6px),
-      radial-gradient(circle at 50% 50%, rgba(255,255,255,.06) 0 2px, transparent 3px);
-      pointer-events:none;opacity:.9}
+      linear-gradient(120deg, transparent 10%, rgba(120,255,180,.06) 48%, transparent 86%),
+      linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.28));
+      pointer-events:none;opacity:.95}
     #app{position:relative;width:100%;height:100%}
     #gameWrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:clamp(10px,2vw,24px)}
-    canvas{width:min(100vw,720px);height:min(100vh,960px);max-width:100%;max-height:100%;border-radius:30px;box-shadow:var(--shadow);background:linear-gradient(180deg,#88d8ff 0%,#c8f3ff 30%,#dfffe8 55%,#bdf0c5 100%);display:block}
+    canvas{width:min(100vw,720px);height:min(100vh,960px);max-width:100%;max-height:100%;border-radius:30px;box-shadow:var(--shadow);background:linear-gradient(180deg,#052010 0%,#083019 50%,#04150b 100%);display:block}
     #hud{position:absolute;top:14px;left:160px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:5;gap:12px}
     #homeText{position:fixed;top:10px;left:10px;font-family:'Fredoka One',Arial,sans-serif;font-size:1.6em;cursor:pointer;transition:transform 0.2s;z-index:1000;user-select:none;opacity:0.95;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.4);font-weight:900}
     #homeText:hover{transform:scale(1.12)}
@@ -669,9 +665,10 @@
     function spawnPipe() {
       const marginTop = 60;
       const marginBottom = state.ground + 90;
-      const gap = Math.max(170, 220 - Math.min(80, state.score * 2));
+      const scoreForGap = Math.min(60, state.score);
+      const gap = Math.max(156, 214 - scoreForGap * 0.9);
       const minGap = 154;
-      let adjustedGap = Math.max(minGap, gap + 6);
+      let adjustedGap = Math.max(minGap, gap);
       const minTop = 70;
       const maxTop = state.h - marginBottom - adjustedGap - minTop;
       let topH = minTop + Math.random() * Math.max(80, maxTop);
@@ -712,25 +709,26 @@
     function drawBackground() {
       const w = state.w, h = state.h;
       const sky = ctx.createLinearGradient(0, 0, 0, h);
-      sky.addColorStop(0, '#8edcff');
-      sky.addColorStop(0.45, '#d7fbff');
-      sky.addColorStop(0.74, '#dff6df');
-      sky.addColorStop(1, '#9fe0a7');
+      sky.addColorStop(0, '#061c0f');
+      sky.addColorStop(0.40, '#0a2f19');
+      sky.addColorStop(0.75, '#072312');
+      sky.addColorStop(1, '#020804');
       ctx.fillStyle = sky;
       ctx.fillRect(0, 0, w, h);
 
-      state.bgX = (state.bgX - 0.35) % w;
+      state.bgX = (state.bgX - 0.24) % w;
       for (let i = -1; i < 3; i++) {
         const x = i * w + state.bgX;
-        ctx.fillStyle = 'rgba(255,255,255,0.15)';
-        ctx.beginPath();
-        ctx.ellipse(x + 120, 110, 70, 28, 0.1, 0, Math.PI * 2);
-        ctx.ellipse(x + 480, 90, 100, 36, -0.1, 0, Math.PI * 2);
-        ctx.fill();
+        const fog = ctx.createLinearGradient(x, 0, x + w, 0);
+        fog.addColorStop(0, 'rgba(90,255,160,0)');
+        fog.addColorStop(0.5, 'rgba(90,255,160,0.06)');
+        fog.addColorStop(1, 'rgba(90,255,160,0)');
+        ctx.fillStyle = fog;
+        ctx.fillRect(x, 0, w, h * 0.55);
       }
 
       // distant hills
-      ctx.fillStyle = 'rgba(18,122,54,0.25)';
+      ctx.fillStyle = 'rgba(22,120,62,0.24)';
       ctx.beginPath();
       ctx.moveTo(0, h * 0.68);
       ctx.quadraticCurveTo(w * 0.18, h * 0.56, w * 0.36, h * 0.68);
@@ -744,8 +742,8 @@
       // ground
       const gY = h - state.ground;
       const groundGrad = ctx.createLinearGradient(0, gY, 0, h);
-      groundGrad.addColorStop(0, '#2fbf5e');
-      groundGrad.addColorStop(1, '#176831');
+      groundGrad.addColorStop(0, '#1f8d4a');
+      groundGrad.addColorStop(1, '#0c3d21');
       ctx.fillStyle = groundGrad;
       ctx.fillRect(0, gY, w, state.ground);
 
@@ -1208,6 +1206,7 @@
       state.coins -= pc.price;
       state.ownedPipes.push(id);
       state.pipeColor = id;
+      if (pc.tier === 'metallic') localStorage.setItem('wren_theme_metal_unlocked', '1');
       saveState();
       renderUI();
       setMessage(`${pc.name} pipes purchased and equipped!`);
