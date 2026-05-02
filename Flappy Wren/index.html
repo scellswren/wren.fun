@@ -1186,7 +1186,10 @@
     }
 
     function shopMarkup() {
-      const cards = Object.values(skins).map(skin => {
+      const cards = Object.values(skins)
+        .slice()
+        .sort((a, b) => (b.price - a.price) || a.name.localeCompare(b.name))
+        .map(skin => {
         const owned = state.ownedSkins.includes(skin.id);
         const affordable = state.coins >= skin.price;
         const disabled = !owned && !affordable && !skin.free;
