@@ -2828,6 +2828,7 @@
     const WHITE_SABER_THEME_UNLOCK_KEY = 'wren_theme_whitesaber_unlocked';
     const BLACK_WHITE_THEME_UNLOCK_KEY = 'wren_theme_blackwhite_unlocked';
     const THEME_PREF_SPAM_KEY = 'wren_theme_pref_spam_count';
+    const PENDING_UNLOCK_NOTICES_KEY = 'wren_pending_unlock_notices';
     const MONEY_BILLION_CODE = 'HHH2sksdne23';
 
     function initAudioCtx() {
@@ -3311,29 +3312,17 @@
       }, 5000);
     }
 
-    function announceThemeUnlock(msg) {
-      const n = document.createElement('div');
-      n.className = 'notif theme-unlock-notif';
-      n.innerHTML = "✨ " + msg;
-      n.style.background = '#8b5cf6';
-      n.style.color = '#fff';
-      n.style.padding = '10px 20px';
-      n.style.borderRadius = '12px';
-      n.style.position = 'fixed';
-      n.style.bottom = '20px';
-      n.style.right = '20px';
-      n.style.zIndex = '10000';
-      n.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)';
-      n.style.opacity = '0';
-      n.style.transition = 'opacity 0.5s, transform 0.5s';
-      n.style.transform = 'translateY(20px)';
-      document.body.appendChild(n);
-      setTimeout(() => { n.style.opacity = '1'; n.style.transform = 'translateY(0)'; }, 100);
-      setTimeout(() => {
-        n.style.opacity = '0';
-        n.style.transform = 'translateY(20px)';
-        setTimeout(() => n.remove(), 500);
-      }, 5000);
+    function queueMainMenuUnlockNotice(msg) {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(PENDING_UNLOCK_NOTICES_KEY) || '[]');
+        const notices = Array.isArray(parsed) ? parsed : [];
+        if (!notices.includes(msg)) {
+          notices.push(msg);
+          localStorage.setItem(PENDING_UNLOCK_NOTICES_KEY, JSON.stringify(notices));
+        }
+      } catch (_) {
+        localStorage.setItem(PENDING_UNLOCK_NOTICES_KEY, JSON.stringify([msg]));
+      }
     }
 
     function persistThemeUnlock(id, msg) {
@@ -3347,7 +3336,7 @@
       if (!unlocked.includes(id)) {
         unlocked.push(id);
         localStorage.setItem('wren_unlocked', JSON.stringify(unlocked));
-        announceThemeUnlock(msg);
+        queueMainMenuUnlockNotice(msg);
       }
     }
 
