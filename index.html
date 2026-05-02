@@ -5371,7 +5371,13 @@ const PONG_CUP_WIN_KEY='pong_cup_won';
 const PONG_PRACTICE_PLAYED_KEY='pong_practice_played';
 const SONG_WAS_PLAYING_KEY='wren_song_was_playing';
 
-let unlockedFeatures=JSON.parse(localStorage.getItem(UNLOCK_KEY)||'[]');
+let unlockedFeatures;
+try{
+  unlockedFeatures=JSON.parse(localStorage.getItem(UNLOCK_KEY)||'[]');
+}catch(e){
+  unlockedFeatures=[];
+}
+if(!Array.isArray(unlockedFeatures))unlockedFeatures=[];
 const cog=document.getElementById('settingsCog'),settingsMenu=document.getElementById('settingsMenu');
 
 function persistUnlocked(t){if(!unlockedFeatures.includes(t)){unlockedFeatures.push(t);localStorage.setItem(UNLOCK_KEY,JSON.stringify(unlockedFeatures));}}
@@ -6319,10 +6325,25 @@ window.addEventListener('load',()=>{
 window.addEventListener('pageshow',e=>{if(e.persisted){syncCatchThemeUnlocks();showStoredUnlockNotice();checkAllUnlocks();}});
 
 window.addEventListener('storage',e=>{
-  if(e.key===ANZAC_THEME_UNLOCK_KEY||e.key===CHINA_THEME_UNLOCK_KEY||e.key===METAL_THEME_UNLOCK_KEY||e.key===UNLOCK_KEY){
+  if(
+    e.key===ANZAC_THEME_UNLOCK_KEY||
+    e.key===CHINA_THEME_UNLOCK_KEY||
+    e.key===METAL_THEME_UNLOCK_KEY||
+    e.key===GREEN_FIZZY_THEME_UNLOCK_KEY||
+    e.key===LANTERN_THEME_UNLOCK_KEY||
+    e.key===AMATHEST_THEME_UNLOCK_KEY||
+    e.key===WHITE_SABER_THEME_UNLOCK_KEY||
+    e.key===BLACK_WHITE_THEME_UNLOCK_KEY||
+    e.key===UNLOCK_KEY
+  ){
     refreshAnzacOption();
     refreshChinaOption();
     refreshMetalOption();
+    refreshGreenFizzyOption();
+    refreshLanternOption();
+    refreshAmathestOption();
+    refreshWhiteSaberOption();
+    refreshBlackWhiteOption();
     checkAllUnlocks();
   }
 });
