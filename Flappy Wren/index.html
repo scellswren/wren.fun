@@ -381,7 +381,7 @@
       italy:   { id:'italy',   name:'Italy',               src:'Italy.jpg',               price:500,             accent:'#22c55e' },
       brazil:  { id:'brazil',  name:'Brazil',              src:'Brazil.jpg',              price:500,             accent:'#16a34a' },
       canada:  { id:'canada',  name:'Canada',              src:'Canada.jpg',              price:500,             accent:'#dc2626' },
-      displayedRussia:{ id:'displayedRussia', name:'Displayed Russia', src:'Russia.jpg',  price:500,             accent:'#2563eb' },
+      displayedRussia:{ id:'displayedRussia', name:'Russia', src:'Russia.jpg',  price:500,             accent:'#2563eb' },
       ukraine: { id:'ukraine', name:'Ukraine',             src:'Ukraine.jpg',             price:500,             accent:'#facc15' },
       ogWrenIsOld: { id:'ogWrenIsOld', name:'OG WrenIsOld', src:'OG WrenIsOld.jpg',        price:500,             accent:'#c7a6ff' },
       underTheMatLucky: { id:'underTheMatLucky', name:'Lucky Under A Mat', src:'UnderTheMatLucky.jpg', price:600, accent:'#d6c84f' },
@@ -391,7 +391,7 @@
       george21z:{ id:'george21z', name:'George21z',        src:'George21z.jpg',           price:125,             accent:'#38bdf8' },
       theDairyKing:{ id:'theDairyKing', name:'The Dairy King', src:'TheDairyKing.jpg',    price:250,             accent:'#e5e7eb' },
       zxno:    { id:'zxno',     name:'Zxno',               src:'Zxno.jpg',                price:250,             accent:'#60a5fa' },
-      baldWren:{ id:'baldWren', name:'Displayed Bald Wren',src:'BaldWren.jpg',            price:750,             accent:'#d1d5db' },
+      baldWren:{ id:'baldWren', name:'Bald Wren',src:'BaldWren.jpg',            price:750,             accent:'#d1d5db' },
       cena:    { id:'cena',    name:'Bald Cena',           src:'TheRealBaldCena72.jpg',   price:750,             accent:'#ffd36d' },
       weirdLyingDownLucky:{ id:'weirdLyingDownLucky', name:'Lucky Lying Weirdly', src:'WeirdLyingDownLucky.jpg', price:800, accent:'#f59e0b' },
       christmasWrenIsOld: { id:'christmasWrenIsOld', name:'Christmas WrenIsOld', src:'ChristmasWrenIsOld.jpg', price:800, accent:'#ff6b6b' },
@@ -745,7 +745,6 @@
       const bodyDeep = blendHex(C.shadow, '#000000', 0.35);
       const capTopHi = blendHex(C.capTop, '#ffffff', 0.45);
       const capShade = blendHex(C.cap, '#000000', 0.20);
-      const edgeStroke = blendHex(C.shadow, '#000000', 0.45);
 
       function pipePiece(x, y, w, hgt, isTop) {
         if (hgt <= 0) return;
@@ -854,10 +853,7 @@
           ctx.fillRect(x, y, w, hgt);
         }
 
-        // Edge stroke for better readability on bright backgrounds
-        ctx.strokeStyle = edgeStroke;
-        ctx.lineWidth = 1.25;
-        ctx.strokeRect(x + 0.625, y + 0.625, w - 1.25, hgt - 1.25);
+        // Keep edges smooth without a hard rectangular outline.
       }
 
       // Draw outline/shadow behind pipes
