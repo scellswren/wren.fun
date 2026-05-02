@@ -4973,13 +4973,19 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     body.mode-blur #content,
     body.mode-blur footer,
     body.mode-blur #settingsCog,
-    body.mode-blur #settingsMenu,
     body.mode-blur #codeBtn,
     body.mode-blur #themesBtn,
-    body.mode-blur #fullscreenBtn,
-    body.mode-blur #themesOverlay,
-    body.mode-blur #codeOverlay{
+    body.mode-blur #fullscreenBtn{
       filter:blur(6px) saturate(0.86);
+    }
+    body.mode-blur #settingsPanel,
+    body.mode-blur #codeModal{
+      background:rgba(255,255,255,0.98);
+      color:#111827;
+      border:1px solid rgba(148,163,184,0.28);
+      box-shadow:0 18px 44px rgba(15,23,42,0.18);
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
     }
     body.mode-blur h1{
       filter:blur(5px);
@@ -5465,7 +5471,8 @@ function selectMode(m){
 function applyMode(m){
   stopSnowParticles();stopMoneyParticles();stopLightningParticles();stopFireParticles();stopFizzyBubbles();stopEmeraldParticles();stopDiamondParticles();stopSevenParticles();stopOneParticles();stopNineParticles();clearAnzacPoppies();
   document.body.className='mode-'+m;
-  document.documentElement.className='mode-'+m;
+  const htmlIsModalOpen=document.documentElement.classList.contains('modal-open');
+  document.documentElement.className='mode-'+m+(htmlIsModalOpen?' modal-open':'');
   setScrollbarTheme(m);
   document.querySelectorAll('.mode-option').forEach(o=>o.classList.toggle('active-mode',o.dataset.mode===m));
   if(m==='snow')startSnowParticles();
@@ -5512,6 +5519,12 @@ const SCROLLBAR_THEMES={
   night:['rgba(4,6,14,0.92)','rgba(140,160,255,0.80)'],blueberry:['rgba(2,6,23,0.92)','rgba(96,165,250,0.82)'],
   darth:['rgba(20,0,0,0.92)','rgba(255,80,80,0.78)'],darksaber:['rgba(4,4,4,0.96)','rgba(220,220,220,0.72)'],
   china:['rgba(56,0,0,0.94)','rgba(255,210,96,0.86)'],
+  blur:['rgba(229,238,255,0.96)','rgba(127,146,181,0.84)'],
+  saber:['rgba(0,22,52,0.94)','rgba(120,200,255,0.86)'],
+  seven:['rgba(22,0,0,0.95)','rgba(214,60,60,0.88)'],
+  nine:['rgba(10,10,10,0.96)','rgba(138,138,138,0.86)'],
+  usa:['rgba(0,40,104,0.94)','rgba(191,10,48,0.84)'],
+  vomit:['rgba(57,70,22,0.96)','rgba(161,179,76,0.86)'],
   jedi:['rgba(0,14,0,0.92)','rgba(80,255,80,0.78)'],
   turquoise:['rgba(0,40,40,0.92)','rgba(64,224,208,0.84)'],
   turquoisecyan:['rgba(0,40,60,0.92)','rgba(0,200,220,0.84)'],
@@ -5757,6 +5770,8 @@ function setScrollbarTheme(mode){
   const pair=SCROLLBAR_THEMES[mode]||SCROLLBAR_THEMES.light;
   document.documentElement.style.setProperty('--scroll-track',pair[0]);
   document.documentElement.style.setProperty('--scroll-thumb',pair[1]);
+  document.documentElement.style.setProperty('--themes-scroll-track',pair[0]);
+  document.documentElement.style.setProperty('--themes-scroll-thumb',pair[1]);
   document.documentElement.style.scrollbarColor = `${pair[1]} ${pair[0]}`;
 }
 function refreshOption(id,lid,t){
