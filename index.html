@@ -4676,6 +4676,38 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       color:#f4f6fb !important;
     }
 
+    body.mode-gold{
+      --accent:#ffd54a;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255,246,185,0.56) 0%, transparent 28%),
+        radial-gradient(circle at 80% 22%, rgba(255,214,90,0.48) 0%, transparent 30%),
+        radial-gradient(circle at 74% 72%, rgba(229,166,30,0.44) 0%, transparent 34%),
+        radial-gradient(circle at 24% 76%, rgba(255,230,130,0.34) 0%, transparent 30%),
+        linear-gradient(180deg,#4a2d00 0%,#8d5a00 42%,#2a1800 100%);
+      color:#fff8dc;
+    }
+    body.mode-gold h1{
+      background:linear-gradient(135deg,#fff9d8,#ffe58a,#ffc928,#d28c00,#fff6ce);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      filter:drop-shadow(0 0 14px rgba(255,214,84,0.50)) drop-shadow(0 0 28px rgba(210,140,0,0.35));
+    }
+    body.mode-gold .btn,
+    body.mode-gold .settings-action-btn,
+    body.mode-gold .mini-btn,
+    body.mode-gold #codeBtn,
+    body.mode-gold #themesBtn{
+      background:linear-gradient(145deg,#ffd75a 0%,#d29616 48%,#7a4a00 100%);
+      color:#2b1700;
+      border:1px solid rgba(255,224,130,0.50);
+      box-shadow:0 10px 28px rgba(90,54,0,0.30), inset 0 1px 0 rgba(255,248,205,0.42);
+      text-shadow:0 1px 0 rgba(255,240,185,0.35);
+    }
+    .mode-dot.gold-dot{
+      background:radial-gradient(circle at 35% 30%,#fffbe0 0 14%,#ffd74e 16% 42%,#d3900f 44% 78%,#7a4a00 80% 100%);
+      border:1px solid rgba(255,230,140,0.55);
+    }
+
     body.mode-china{
       --accent:#de2910;
       background:
@@ -5124,7 +5156,8 @@ const DIAMOND_SWITCH_KEY='wren_diamond_switches'; // stores {dayCount, nightCoun
 const CODES={
   'WrenIsOld123':'glass','Hotbeans78':'lava','GooGooGaGa':'galaxy',
   'Juke229N':'cheatCounter','HHH2sksdne23':'oneBillionCheat',
-  'IWillHaveAnXXLPleaseAndThankYou':'pizza','Banana294OPo':'cycleThemes'
+  'IWillHaveAnXXLPleaseAndThankYou':'pizza','Banana294OPo':'cycleThemes',
+  'BombaWOWRich':'moneyThemeCheat','SextillionSurge':'sextillionMoneyCheat'
 };
 const UNLOCK_KEY='wren_unlocked',MODE_KEY='wrenMode';
 const DARTH_THEME_UNLOCK_KEY='wren_theme_darth_unlocked';
@@ -5570,7 +5603,7 @@ function getThemeUnlockHint(mode){
     gold:'Open Credits 50 times.',
     radioactive:'Reach $1,000,000 in The Wren Wheel of Doom.',
     snow:'Reach $1,000,000,000 in The Wren Wheel of Doom.',
-    money:'Enter code HHH2sksdne23.',
+    money:'Unlock this with a secret code.',
     cottoncandy:'Reach $1,000,000,000,000 in The Wren Wheel of Doom.',
     saber:'Reach $1,000,000,000,000,000 in The Wren Wheel of Doom.',
     skin:'Click the background 10,000 times.',
@@ -6220,6 +6253,26 @@ function submitCode(){
   const i=document.getElementById('codeInput'),f=document.getElementById('codeFeedback'),v=i.value.trim(),u=CODES[v];
   if(v==='Banana294OPo'){i.className='success';f.textContent='🌈 Starting theme tour...';f.className='ok';setTimeout(()=>{runThemeCycle();},600);return;}
   if(v==='Juke229N'){const c=getCreditsCount();if(c<GOLD_THRESHOLD){localStorage.setItem(CREDITS_WATCH_KEY,String(GOLD_THRESHOLD));i.className='success';f.textContent='🎬 Credits counter set to 50!';f.className='ok';checkCreditsUnlocks();showToast('🎬 Cheat applied! Credits count set to 50.');}else{f.textContent='✓ Counter is already at 50 or above!';f.className='ok';i.className='success';}setTimeout(closeCodeModal,1400);return;}
+  if(v==='BombaWOWRich'){
+    localStorage.setItem(MONEY_UNLOCK_KEY,'1');
+    if(!unlockedFeatures.includes('money'))persistUnlocked('money');
+    refreshMoneyOption();
+    i.className='success';
+    f.textContent='💵 Money theme unlocked!';
+    f.className='ok';
+    showToast('💵 Money theme unlocked!');
+    setTimeout(closeCodeModal,1400);
+    return;
+  }
+  if(v==='SextillionSurge'){
+    localStorage.setItem(WHEEL_MONEY_KEY,'2678321900000000000000');
+    i.className='success';
+    f.textContent='💰 Set Wheel of Doom money to $2.6783219 Sextillion!';
+    f.className='ok';
+    showToast('💰 Wheel of Doom money set to $2.6783219 Sextillion.');
+    setTimeout(closeCodeModal,1400);
+    return;
+  }
   if(v==='HHH2sksdne23'){localStorage.setItem(WHEEL_MONEY_KEY,String(1000000000));localStorage.setItem(MONEY_UNLOCK_KEY,'1');localStorage.setItem(SNOW_UNLOCK_KEY,'1');i.className='success';f.textContent='💵 Set Wheel of Doom money to $1,000,000,000!';f.className='ok';showToast('💵 Cheat applied! Wheel of Doom set to $1 Billion.');setTimeout(closeCodeModal,1400);return;}
   if(!u){i.className='error';f.textContent="That code isn't valid. Try again!";f.className='err';if(localStorage.getItem(SLIME_USED_KEY)!=='1'){localStorage.setItem(SLIME_USED_KEY,'1');localStorage.setItem(SLIME_THEME_UNLOCK_KEY,'1');persistUnlocked('slime');refreshSlimeOption();announceUnlock('🟢 Slime unlocked! Find it in Settings.');}setTimeout(()=>{i.className='';},600);return;}
   if(unlockedFeatures.includes(u)){f.textContent='✓ You already have this unlocked!';f.className='ok';i.className='success';if(u==='pizza'){syncPizzaUnlock();refreshPizzaOption();}setTimeout(closeCodeModal,1400);return;}
