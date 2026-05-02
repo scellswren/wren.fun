@@ -6296,6 +6296,30 @@ document.getElementById('codeInput').addEventListener('keydown',e=>{if(e.key==='
 document.getElementById('brightnessControl').addEventListener('input',e=>applyBrightness(e.target.value));
 function submitCode(){
   const i=document.getElementById('codeInput'),f=document.getElementById('codeFeedback'),v=i.value.trim(),u=CODES[v];
+  if(v==='OhMyLord8866551'){
+    let unlockedNow=0;
+    ALL_LOCKED_MODES.forEach(mode=>{
+      if(!unlockedFeatures.includes(mode)){
+        persistUnlocked(mode);
+        unlockedNow++;
+      }
+    });
+    document.querySelectorAll('#themesModal .theme-grid .mode-option.locked').forEach(option=>{
+      const mode=option.dataset.mode;
+      if(mode&&unlockedFeatures.includes(mode)){
+        option.classList.remove('locked');
+        const lock=option.querySelector('span span');
+        if(lock&&lock.textContent.includes('🔒')) lock.textContent='';
+      }
+    });
+    updateThemeGrid();
+    i.className='success';
+    f.textContent=unlockedNow>0?`✨ Unlocked ${unlockedNow} themes!`:'✓ All themes already unlocked!';
+    f.className='ok';
+    showToast(unlockedNow>0?`✨ ${unlockedNow} themes unlocked.`:'✓ All themes already unlocked.');
+    setTimeout(closeCodeModal,1400);
+    return;
+  }
   if(v==='Banana294OPo'){i.className='success';f.textContent='🌈 Starting theme tour...';f.className='ok';setTimeout(()=>{runThemeCycle();},600);return;}
   if(v==='Juke229N'){const c=getCreditsCount();if(c<GOLD_THRESHOLD){localStorage.setItem(CREDITS_WATCH_KEY,String(GOLD_THRESHOLD));i.className='success';f.textContent='🎬 Credits counter set to 50!';f.className='ok';checkCreditsUnlocks();showToast('🎬 Cheat applied! Credits count set to 50.');}else{f.textContent='✓ Counter is already at 50 or above!';f.className='ok';i.className='success';}setTimeout(closeCodeModal,1400);return;}
   if(v==='BombaWOWRich'){
