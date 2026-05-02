@@ -549,6 +549,7 @@ body.mode-anzac{
 
     .emerald-particle,.diamond-particle{position:fixed;top:-12vh;pointer-events:none;z-index:0;user-select:none;will-change:transform,opacity;animation:gemFall linear forwards;font-size:24px;line-height:1;text-shadow:none;opacity:0.95;}
     .emerald-particle{color:#4dff8a;}
+    .amethyst-particle{position:fixed;top:-12vh;pointer-events:none;z-index:0;user-select:none;will-change:transform,opacity;animation:gemFall linear forwards;}
     .diamond-particle{color:#61c4ff;}
     @keyframes gemFall{0%{opacity:0;transform:translateY(0) translateX(0) rotate(0deg) scale(var(--scale,1));}10%{opacity:1;}90%{opacity:0.92;}100%{opacity:0;transform:translateY(114vh) translateX(var(--drift)) rotate(var(--spin)) scale(calc(var(--scale,1) * 1.02));}}
 
@@ -1533,6 +1534,8 @@ body.mode-water h1{background:linear-gradient(135deg,#d8fbff,#6ddcff,#1c8ff5,#8c
         repeating-linear-gradient(0deg,#0a0a0a 0px,#0a0a0a 3px,#121212 3px,#121212 6px);
       color:#f0f0f0;
       overflow:hidden;
+    }
+    body.mode-blackwhite > *:not(#themesOverlay){
       filter:grayscale(1) contrast(1.18);
     }
     body.mode-blackwhite::before{
@@ -1584,11 +1587,13 @@ body.mode-water h1{background:linear-gradient(135deg,#d8fbff,#6ddcff,#1c8ff5,#8c
       color:#000000;
       border:2px solid #000000;
       box-shadow:3px 3px 0 #000000, inset 0 1px 0 rgba(255,255,255,0.50);
-      border-radius:2px;
       text-shadow:none;
       font-weight:900;
       letter-spacing:1px;
       text-transform:uppercase;
+    }
+    body.mode-blackwhite #themesOverlay{
+      filter:none;
     }
     body.mode-blackwhite .btn:hover,
     body.mode-blackwhite .settings-action-btn:hover,
@@ -5199,10 +5204,23 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     body.mode-whitesaber .btn,
     body.mode-whitesaber .settings-action-btn,
     body.mode-whitesaber .mini-btn{
+      position:relative;
+      overflow:hidden;
       background:linear-gradient(145deg,#f0f0f0,#d8d8d8 58%,#c0c0c0);
       color:#111111;
       box-shadow:0 0 0 1px rgba(0,0,0,0.10),0 0 18px rgba(0,0,0,0.08),inset 0 0 18px rgba(255,255,255,0.60);
       border:1px solid rgba(0,0,0,0.12);
+    }
+    body.mode-whitesaber .btn::before,
+    body.mode-whitesaber .settings-action-btn::before,
+    body.mode-whitesaber .mini-btn::before{
+      content:'';
+      position:absolute;
+      inset:-2px;
+      background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.05) 42%,rgba(255,255,255,0.80) 50%,rgba(255,255,255,0.05) 58%,transparent 100%);
+      transform:translateX(-130%);
+      animation:saberSweep 2.1s linear infinite;
+      pointer-events:none;
     }
     body.mode-whitesaber .btn:hover,
     body.mode-whitesaber .settings-action-btn:hover,
@@ -5215,10 +5233,21 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     body.mode-whitesaber #codeBtn,
     body.mode-whitesaber #themesBtn{
       position:fixed;
+      overflow:hidden;
       background:linear-gradient(145deg,#f0f0f0,#d8d8d8 58%,#c0c0c0);
       color:#111111;
       box-shadow:0 0 0 1px rgba(0,0,0,0.10),0 0 18px rgba(0,0,0,0.08),inset 0 0 18px rgba(255,255,255,0.60);
       border:1px solid rgba(0,0,0,0.12);
+    }
+    body.mode-whitesaber #codeBtn::before,
+    body.mode-whitesaber #themesBtn::before{
+      content:'';
+      position:absolute;
+      inset:-2px;
+      background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.05) 42%,rgba(255,255,255,0.80) 50%,rgba(255,255,255,0.05) 58%,transparent 100%);
+      transform:translateX(-130%);
+      animation:saberSweep 2.1s linear infinite;
+      pointer-events:none;
     }
     body.mode-whitesaber #codeBtn:hover,
     body.mode-whitesaber #themesBtn:hover{
@@ -5355,7 +5384,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
 <body class="mode-light">
 <canvas id="dayCloudCanvas"></canvas>
 <div class="glass-orb g1"></div><div class="glass-orb g2"></div><div class="glass-orb g3"></div>
-<div id="snowContainer"></div><div id="moneyContainer"></div><div id="lightningContainer"></div><div id="fireContainer"></div><div id="fizzyContainer"></div><div id="emeraldContainer"></div><div id="diamondContainer"></div><div id="sevenContainer"></div><div id="oneContainer"></div><div id="nineContainer"></div>
+<div id="snowContainer"></div><div id="moneyContainer"></div><div id="lightningContainer"></div><div id="fireContainer"></div><div id="fizzyContainer"></div><div id="emeraldContainer"></div><div id="diamondContainer"></div><div id="sevenContainer"></div><div id="oneContainer"></div><div id="nineContainer"></div><div id="amethystContainer"></div>
 <div id="cycleOverlay"></div>
 <div id="cycleBanner"></div>
 <img id="settingsCog" src="settings-cog.png" alt="Settings">
@@ -5843,7 +5872,7 @@ function selectMode(m){
   applyMode(m);localStorage.setItem(MODE_KEY,m);
 }
 function applyMode(m){
-  stopSnowParticles();stopMoneyParticles();stopLightningParticles();stopFireParticles();stopFizzyBubbles();stopEmeraldParticles();stopDiamondParticles();stopSevenParticles();stopOneParticles();stopNineParticles();clearAnzacPoppies();
+  stopSnowParticles();stopMoneyParticles();stopLightningParticles();stopFireParticles();stopFizzyBubbles();stopEmeraldParticles();stopDiamondParticles();stopSevenParticles();stopOneParticles();stopNineParticles();clearAnzacPoppies();stopAmethystParticles();
   document.body.className='mode-'+m;
   const htmlIsModalOpen=document.documentElement.classList.contains('modal-open');
   document.documentElement.className='mode-'+m+(htmlIsModalOpen?' modal-open':'');
@@ -5856,6 +5885,7 @@ function applyMode(m){
   if(m==='orangefizzy'||m==='greenfizzy')startFizzyBubbles();
   if(m==='emerald')startEmeraldParticles();
   if(m==='diamond')startDiamondParticles();
+  if(m==='amethyst')startAmethystParticles();
   if(m==='anzac')spawnAnzacPoppies();
   if(m==='seven'){unlockSevenTheme(false);startSevenParticles();}
   if(m==='one'){unlockOneIfEligible();startOneParticles();}
@@ -6482,10 +6512,14 @@ function startFizzyBubbles(){const c=document.getElementById('fizzyContainer');i
 function stopFizzyBubbles(){if(fizzyInterval){clearInterval(fizzyInterval);fizzyInterval=null;}const c=document.getElementById('fizzyContainer');if(c)c.innerHTML='';}
 function spawnGemParticle(containerId, cls, glyph, filterValue){const c=document.getElementById(containerId);if(!c)return;const p=document.createElement('div');p.className=cls;p.textContent=glyph;const size=18+Math.random()*24;const left=Math.random()*100;const drift=(Math.random()-0.5)*160;const spin=(Math.random()-0.5)*260;const dur=6+Math.random()*6;p.style.cssText=`left:${left}vw;font-size:${size}px;--drift:${drift}px;--spin:${spin}deg;--scale:${0.85+Math.random()*0.55};animation-duration:${dur}s;animation-delay:0s;${filterValue && filterValue !== 'none' ? `filter:${filterValue};` : ''}`;c.appendChild(p);setTimeout(()=>p.remove(),(dur+0.2)*1000);}
 let emeraldInterval=null;let diamondInterval=null;
+let amethystInterval=null;
 function startEmeraldParticles(){const c=document.getElementById('emeraldContainer');if(!c)return;c.innerHTML='';for(let i=0;i<12;i++)setTimeout(()=>spawnGemParticle('emeraldContainer','emerald-particle','◆','none'),Math.random()*900);if(emeraldInterval)clearInterval(emeraldInterval);emeraldInterval=setInterval(()=>spawnGemParticle('emeraldContainer','emerald-particle','◆','none'),420);}
 function stopEmeraldParticles(){if(emeraldInterval){clearInterval(emeraldInterval);emeraldInterval=null;}const c=document.getElementById('emeraldContainer');if(c)c.innerHTML='';}
 function startDiamondParticles(){const c=document.getElementById('diamondContainer');if(!c)return;c.innerHTML='';for(let i=0;i<12;i++)setTimeout(()=>spawnGemParticle('diamondContainer','diamond-particle','◆','none'),Math.random()*900);if(diamondInterval)clearInterval(diamondInterval);diamondInterval=setInterval(()=>spawnGemParticle('diamondContainer','diamond-particle','◆','none'),420);}
 function stopDiamondParticles(){if(diamondInterval){clearInterval(diamondInterval);diamondInterval=null;}const c=document.getElementById('diamondContainer');if(c)c.innerHTML='';}
+function spawnAmethystParticle(){const c=document.getElementById('amethystContainer');if(!c)return;const p=document.createElement('img');p.className='amethyst-particle';p.src='Amethyst.png';const size=20+Math.random()*28;const left=Math.random()*100;const drift=(Math.random()-0.5)*160;const spin=(Math.random()-0.5)*260;const dur=6+Math.random()*6;p.style.cssText=`left:${left}vw;width:${size}px;height:${size}px;--drift:${drift}px;--spin:${spin}deg;--scale:${0.80+Math.random()*0.55};animation-duration:${dur}s;animation-delay:0s;opacity:0.88;`;c.appendChild(p);setTimeout(()=>p.remove(),(dur+0.2)*1000);}
+function startAmethystParticles(){const c=document.getElementById('amethystContainer');if(!c)return;c.innerHTML='';for(let i=0;i<12;i++)setTimeout(spawnAmethystParticle,Math.random()*900);if(amethystInterval)clearInterval(amethystInterval);amethystInterval=setInterval(spawnAmethystParticle,420);}
+function stopAmethystParticles(){if(amethystInterval){clearInterval(amethystInterval);amethystInterval=null;}const c=document.getElementById('amethystContainer');if(c)c.innerHTML='';}
 function spawnSevenParticle(){const c=document.getElementById('sevenContainer');if(!c)return;const p=document.createElement('div');p.className='seven-particle';p.textContent='7';const size=20+Math.random()*30;const left=Math.random()*100;const drift=(Math.random()-0.5)*180;const rotStart=(Math.random()-0.5)*180;const rotEnd=(Math.random()-0.5)*360;const dur=5.0+Math.random()*5.5;p.style.cssText=`left:${left}vw;font-size:${size}px;--drift:${drift}px;--rot-start:${rotStart}deg;--rot-end:${rotEnd}deg;--scale:${0.8+Math.random()*0.7};animation-duration:${dur}s;animation-delay:0s;`;c.appendChild(p);setTimeout(()=>p.remove(),(dur+0.2)*1000);}
 let sevenInterval=null;
 function startSevenParticles(){const c=document.getElementById('sevenContainer');if(!c)return;c.innerHTML='';for(let i=0;i<18;i++)setTimeout(spawnSevenParticle,Math.random()*700);if(sevenInterval)clearInterval(sevenInterval);sevenInterval=setInterval(spawnSevenParticle,300);}
