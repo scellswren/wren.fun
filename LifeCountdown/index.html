@@ -222,7 +222,7 @@
       color: #fff;
     }
 
-    /* DOB */
+    /* DOB typed inputs */
     .dob-row {
       display: flex;
       gap: 0;
@@ -234,9 +234,9 @@
       overflow: hidden;
     }
 
-    .dob-select {
+    .dob-input {
       flex: 1;
-      padding: 13px 8px;
+      padding: 13px 6px;
       border: none;
       border-right: 1px solid var(--card-border);
       background: transparent;
@@ -244,17 +244,17 @@
       font-family: 'Rubik', sans-serif;
       font-size: 0.97em;
       font-weight: 700;
-      cursor: pointer;
       outline: none;
       transition: background 0.18s;
-      appearance: none;
-      -webkit-appearance: none;
       text-align: center;
+      -moz-appearance: textfield;
     }
-    .dob-select:last-child { border-right: none; }
-    .dob-select:focus { background: rgba(155,109,255,0.12); }
-
-    .dob-select option { background: #150f2e; color: var(--text); }
+    .dob-input::-webkit-inner-spin-button,
+    .dob-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .dob-input:last-child { border-right: none; }
+    .dob-input:focus { background: rgba(155,109,255,0.12); }
+    .dob-input::placeholder { color: rgba(240,238,255,0.35); font-weight: 400; }
+    .dob-input.input-error { background: rgba(255,100,100,0.12); }
 
     /* Country selector */
     .country-select {
@@ -596,9 +596,9 @@
 
     <div class="section-label">Date of Birth</div>
     <div class="dob-row">
-      <select class="dob-select" id="dobDay" aria-label="Day"></select>
-      <select class="dob-select" id="dobMonth" aria-label="Month"></select>
-      <select class="dob-select" id="dobYear" aria-label="Year"></select>
+      <input class="dob-input" type="number" id="dobDay"   placeholder="DD"   min="1" max="31" maxlength="2">
+      <input class="dob-input" type="number" id="dobMonth" placeholder="MM"   min="1" max="12" maxlength="2">
+      <input class="dob-input" type="number" id="dobYear"  placeholder="YYYY" min="1900" max="2025" maxlength="4">
     </div>
 
     <div class="section-label">Country / Region</div>
@@ -721,25 +721,6 @@
   let birthDate = null;
   let totalLifeMs = null;
 
-  // --- Populate DOB selects ---
-  (function populateDOB() {
-    const dayEl = document.getElementById('dobDay');
-    const monthEl = document.getElementById('dobMonth');
-    const yearEl = document.getElementById('dobYear');
-
-    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-    dayEl.innerHTML = '<option value="">Day</option>';
-    for (let d = 1; d <= 31; d++) dayEl.innerHTML += `<option value="${d}">${d}</option>`;
-
-    monthEl.innerHTML = '<option value="">Month</option>';
-    months.forEach((m, i) => monthEl.innerHTML += `<option value="${i}">${m}</option>`);
-
-    yearEl.innerHTML = '<option value="">Year</option>';
-    const currentYear = new Date().getFullYear();
-    for (let y = currentYear; y >= 1900; y--) yearEl.innerHTML += `<option value="${y}">${y}</option>`;
-  })();
-
   // --- Particles ---
   (function spawnParticles() {
     const container = document.getElementById('particles');
@@ -769,34 +750,68 @@
     document.getElementById('btnFemale').classList.toggle('selected', g === 'female');
   }
 
+  function isLeapYear(y) { return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); }
+  function daysInMonth(m, y) {
+    // m is 1-indexed
+    const days = [0,31,isLeapYear(y)?29:28,31,30,31,30,31,31,30,31,30,31];
+    return days[m];
+  }
+
   function calculate() {
     const errorEl = document.getElementById('errorMsg');
     errorEl.textContent = '';
+    ['dobDay','dobMonth','dobYear'].forEach(id => document.getElementById(id).classList.remove('input-error'));
 
     if (!selectedGender) { errorEl.textContent = '⚠️ Please select Male or Female.'; return; }
 
-    const day   = parseInt(document.getElementById('dobDay').value);
-    const month = parseInt(document.getElementById('dobMonth').value);
-    const year  = parseInt(document.getElementById('dobYear').value);
-    const country = document.getElementById('countrySelect').value;
+    const dayRaw   = document.getElementById('dobDay').value.trim();
+    const monthRaw = document.getElementById('dobMonth').value.trim();
+    const yearRaw  = document.getElementById('dobYear').value.trim();
+    const country  = document.getElementById('countrySelect').value;
 
-    if (isNaN(day) || isNaN(month) || isNaN(year) || !document.getElementById('dobDay').value || document.getElementById('dobMonth').value === '' || !document.getElementById('dobYear').value) {
-      errorEl.textContent = '⚠️ Please fill in your date of birth.'; return;
+    // Check all filled
+    if (!dayRaw || !monthRaw || !yearRaw) {
+      if (!dayRaw)   document.getElementById('dobDay').classList.add('input-error');
+      if (!monthRaw) document.getElementById('dobMonth').classList.add('input-error');
+      if (!yearRaw)  document.getElementById('dobYear').classList.add('input-error');
+      errorEl.textContent = '⚠️ Please fill in DD, MM, and YYYY.'; return;
+    }
+
+    const day   = parseInt(dayRaw, 10);
+    const month = parseInt(monthRaw, 10);
+    const year  = parseInt(yearRaw, 10);
+
+    // Range checks
+    const currentYear = new Date().getFullYear();
+    if (isNaN(year) || year < 1900 || year > currentYear) {
+      document.getElementById('dobYear').classList.add('input-error');
+      errorEl.textContent = `⚠️ Year must be between 1900 and ${currentYear}.`; return;
+    }
+    if (isNaN(month) || month < 1 || month > 12) {
+      document.getElementById('dobMonth').classList.add('input-error');
+      errorEl.textContent = '⚠️ Month must be between 1 and 12.'; return;
+    }
+    const maxDay = daysInMonth(month, year);
+    if (isNaN(day) || day < 1 || day > maxDay) {
+      document.getElementById('dobDay').classList.add('input-error');
+      errorEl.textContent = `⚠️ ${year}-${String(month).padStart(2,'0')} only has ${maxDay} days.`; return;
+    }
+
+    birthDate = new Date(year, month - 1, day); // month is 0-indexed in Date
+    if (birthDate > new Date()) {
+      document.getElementById('dobDay').classList.add('input-error');
+      document.getElementById('dobMonth').classList.add('input-error');
+      document.getElementById('dobYear').classList.add('input-error');
+      errorEl.textContent = '⚠️ Date of birth can\'t be in the future!'; return;
     }
     if (!country) { errorEl.textContent = '⚠️ Please select your country.'; return; }
-
-    birthDate = new Date(year, month, day);
-    if (isNaN(birthDate.getTime())) { errorEl.textContent = '⚠️ Invalid date.'; return; }
-    if (birthDate > new Date()) { errorEl.textContent = '⚠️ Date of birth can\'t be in the future!'; return; }
 
     const genderIndex = selectedGender === 'male' ? 0 : 1;
     const lifeExpectancy = LIFE_DATA[country][genderIndex];
     const lifeMs = lifeExpectancy * 365.25 * 24 * 3600 * 1000;
-
     endDate = new Date(birthDate.getTime() + lifeMs);
     totalLifeMs = lifeMs;
 
-    // Build summary
     const countryNames = {
       usa:'the United States',uk:'the United Kingdom',india:'India',china:'China',
       australia:'Australia',new_zealand:'New Zealand',canada:'Canada',ireland:'Ireland',
@@ -805,14 +820,33 @@
     };
     const genderLabel = selectedGender === 'male' ? 'male' : 'female';
     const summaryEl = document.getElementById('lifeSummary');
-    summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryNames[country]}</strong>, you are statistically expected to live to approximately <strong>${lifeExpectancy} years</strong> — until around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
 
-    // Show countdown panel
+    const beatTheClock = endDate <= new Date();
+    if (beatTheClock) {
+      summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryNames[country]}</strong>, the statistical limit was <strong>${lifeExpectancy} years</strong> — around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
+    } else {
+      summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryNames[country]}</strong>, you are statistically expected to live to approximately <strong>${lifeExpectancy} years</strong> — until around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
+    }
+
     document.getElementById('setupPanel').classList.add('hidden');
-    const cdPanel = document.getElementById('countdownPanel');
-    cdPanel.classList.add('visible');
+    document.getElementById('countdownPanel').classList.add('visible');
 
-    startCountdown();
+    if (beatTheClock) {
+      showBeatTheClock();
+    } else {
+      startCountdown();
+    }
+  }
+
+  function showBeatTheClock() {
+    clearInterval(countdownInterval);
+    document.querySelector('.enjoy-msg').textContent = '🏆 You Beat The Clock!';
+    document.querySelector('.enjoy-sub').textContent = 'You\'ve outlived the average life expectancy. Incredible!';
+    ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds'].forEach(id => {
+      document.getElementById(id).textContent = '00';
+    });
+    document.getElementById('valMs').textContent = '000';
+    document.getElementById('lifeBar').style.width = '100%';
   }
 
   function startCountdown() {
@@ -827,12 +861,7 @@
 
     if (remaining <= 0) {
       clearInterval(countdownInterval);
-      ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds'].forEach(id => {
-        document.getElementById(id).textContent = '0';
-      });
-      document.getElementById('valMs').textContent = '000';
-      document.querySelector('.enjoy-msg').textContent = '💜 Time\'s a journey, not a race.';
-      document.getElementById('lifeBar').style.width = '100%';
+      showBeatTheClock();
       return;
     }
 
@@ -921,6 +950,7 @@
     setup.classList.remove('hidden');
     document.getElementById('lifeBar').style.width = '0%';
     document.querySelector('.enjoy-msg').textContent = '✨ Enjoy Every Second ✨';
+    document.querySelector('.enjoy-sub').textContent = 'Make each one count — this is your time.';
 
     // Reset form
     selectedGender = null;
@@ -929,6 +959,7 @@
     document.getElementById('dobDay').value = '';
     document.getElementById('dobMonth').value = '';
     document.getElementById('dobYear').value = '';
+    ['dobDay','dobMonth','dobYear'].forEach(id => document.getElementById(id).classList.remove('input-error'));
     document.getElementById('countrySelect').value = '';
     document.getElementById('errorMsg').textContent = '';
 
