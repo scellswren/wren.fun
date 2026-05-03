@@ -561,6 +561,19 @@ body.mode-anzac{
       filter:blur(0.35px) saturate(0.82) brightness(0.9);
     }
     .diamond-particle{color:#61c4ff;}
+    .chocchip-particle{
+      position:fixed;
+      top:-12vh;
+      pointer-events:none;
+      z-index:0;
+      user-select:none;
+      will-change:transform,opacity;
+      animation:gemFall linear forwards;
+      border-radius:50%;
+      background:radial-gradient(circle at 35% 35%,#5a3522 0%,#3c2418 58%,#20130d 100%);
+      box-shadow:0 0 0 1px rgba(255,228,198,0.08), inset 0 1px 1px rgba(255,215,180,0.10);
+      opacity:0.92;
+    }
     @keyframes gemFall{0%{opacity:0;transform:translateY(0) translateX(0) rotate(0deg) scale(var(--scale,1));}10%{opacity:1;}90%{opacity:0.92;}100%{opacity:0;transform:translateY(114vh) translateX(var(--drift)) rotate(var(--spin)) scale(calc(var(--scale,1) * 1.02));}}
 
     body.mode-money{background:radial-gradient(circle at 18% 18%,rgba(50,200,80,0.40) 0%,transparent 28%),radial-gradient(circle at 80% 22%,rgba(30,180,60,0.34) 0%,transparent 28%),radial-gradient(circle at 74% 72%,rgba(80,220,100,0.34) 0%,transparent 34%),radial-gradient(circle at 24% 76%,rgba(50,200,80,0.28) 0%,transparent 30%),linear-gradient(180deg,#001a08 0%,#003010 42%,#000c04 100%);color:#d4ffdd;}
@@ -5477,7 +5490,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
 <body class="mode-light">
 <canvas id="dayCloudCanvas"></canvas>
 <div class="glass-orb g1"></div><div class="glass-orb g2"></div><div class="glass-orb g3"></div>
-<div id="snowContainer"></div><div id="moneyContainer"></div><div id="lightningContainer"></div><div id="fireContainer"></div><div id="fizzyContainer"></div><div id="emeraldContainer"></div><div id="diamondContainer"></div><div id="sevenContainer"></div><div id="oneContainer"></div><div id="nineContainer"></div><div id="amethystContainer"></div>
+<div id="snowContainer"></div><div id="moneyContainer"></div><div id="lightningContainer"></div><div id="fireContainer"></div><div id="fizzyContainer"></div><div id="emeraldContainer"></div><div id="diamondContainer"></div><div id="sevenContainer"></div><div id="oneContainer"></div><div id="nineContainer"></div><div id="amethystContainer"></div><div id="chocchipContainer"></div>
 <div id="cycleOverlay"></div>
 <div id="cycleBanner"></div>
 <img id="settingsCog" src="settings-cog.png" alt="Settings">
@@ -5734,6 +5747,7 @@ const AMATHEST_THEME_UNLOCK_KEY='wren_theme_amethyst_unlocked';
 const WHITE_SABER_THEME_UNLOCK_KEY='wren_theme_whitesaber_unlocked';
 const BLACK_WHITE_THEME_UNLOCK_KEY='wren_theme_blackwhite_unlocked';
 const CHOCOLATE_CHIP_THEME_UNLOCK_KEY='wren_theme_chocolatechip_unlocked';
+const CHOCOLATE_CHIP_STUMBLE_KEY='wren_chocolatechip_stumbled_wrenisold';
 const ORANGE_THEME_UNLOCK_KEY='wren_theme_orange_unlocked';
 const ORANGE_FIZZY_THEME_UNLOCK_KEY='wren_theme_orangefizzy_unlocked';
 const DARK_SABER_THEME_UNLOCK_KEY='wren_theme_darksaber_unlocked';
@@ -5976,7 +5990,7 @@ function selectMode(m){
   applyMode(m);localStorage.setItem(MODE_KEY,m);
 }
 function applyMode(m){
-  stopSnowParticles();stopMoneyParticles();stopLightningParticles();stopFireParticles();stopFizzyBubbles();stopEmeraldParticles();stopDiamondParticles();stopSevenParticles();stopOneParticles();stopNineParticles();clearAnzacPoppies();stopAmethystParticles();
+  stopSnowParticles();stopMoneyParticles();stopLightningParticles();stopFireParticles();stopFizzyBubbles();stopEmeraldParticles();stopDiamondParticles();stopSevenParticles();stopOneParticles();stopNineParticles();clearAnzacPoppies();stopAmethystParticles();stopChocolateChipParticles();
   document.body.className='mode-'+m;
   const htmlIsModalOpen=document.documentElement.classList.contains('modal-open');
   document.documentElement.className='mode-'+m+(htmlIsModalOpen?' modal-open':'');
@@ -5990,6 +6004,7 @@ function applyMode(m){
   if(m==='emerald')startEmeraldParticles();
   if(m==='diamond')startDiamondParticles();
   if(m==='amethyst')startAmethystParticles();
+  if(m==='chocolatechip')startChocolateChipParticles();
   if(m==='anzac')spawnAnzacPoppies();
   if(m==='seven'){unlockSevenTheme(false);startSevenParticles();}
   if(m==='one'){unlockOneIfEligible();startOneParticles();}
@@ -6549,7 +6564,7 @@ function unlockBlackWhiteIfEligible(){
   return unlockIfEligible('blackwhite', () => localStorage.getItem(BLACK_WHITE_THEME_UNLOCK_KEY) === '1', '🏁 Black and White unlocked!', refreshBlackWhiteOption);
 }
 function hasChocolateChipUnlocked(){
-  return localStorage.getItem(CHOCOLATE_CHIP_THEME_UNLOCK_KEY)==='1'||(hasVisitedSmallCreators()&&localStorage.getItem(VISIT_YT_KEY)==='1');
+  return localStorage.getItem(CHOCOLATE_CHIP_THEME_UNLOCK_KEY)==='1'||localStorage.getItem(CHOCOLATE_CHIP_STUMBLE_KEY)==='1';
 }
 function unlockChocolateChipIfEligible(){
   return unlockIfEligible('chocolatechip', hasChocolateChipUnlocked, '🍪 Chocolate Chip unlocked!', refreshChocolateChipOption);
@@ -6589,12 +6604,6 @@ function checkAllUnlocks(){
 function markVisit(w,href){
   if(w==='youtube'){
     localStorage.setItem(VISIT_YT_KEY,'1');
-    if(hasVisitedSmallCreators()&&localStorage.getItem(CHOCOLATE_CHIP_THEME_UNLOCK_KEY)!=='1'){
-      localStorage.setItem(CHOCOLATE_CHIP_THEME_UNLOCK_KEY,'1');
-      persistUnlocked('chocolatechip');
-      refreshChocolateChipOption();
-      announceUnlock('🍪 Chocolate Chip unlocked!');
-    }
   }
   else if(w==='discord')localStorage.setItem(VISIT_DISCORD_KEY,'1');
   else if(w==='credits')localStorage.setItem(VISIT_CREDITS_KEY,'1');
@@ -6608,12 +6617,6 @@ function markVisit(w,href){
   else if(w==='wrenpacks')localStorage.setItem(VISIT_WRENPACKS_KEY,'1');
   else if(w==='smallcreators'){
     localStorage.setItem(VISIT_SMALLCREATORS_KEY,'1');
-    if(localStorage.getItem(VISIT_YT_KEY)==='1'&&localStorage.getItem(CHOCOLATE_CHIP_THEME_UNLOCK_KEY)!=='1'){
-      localStorage.setItem(CHOCOLATE_CHIP_THEME_UNLOCK_KEY,'1');
-      persistUnlocked('chocolatechip');
-      refreshChocolateChipOption();
-      announceUnlock('🍪 Chocolate Chip unlocked!');
-    }
   }
   else if(w==='wheel')localStorage.setItem(VISIT_WHEEL_KEY,'1');
   else if(w==='pongworldcup'){
@@ -6667,6 +6670,10 @@ function stopDiamondParticles(){if(diamondInterval){clearInterval(diamondInterva
 function spawnAmethystParticle(){const c=document.getElementById('amethystContainer');if(!c)return;const p=document.createElement('img');p.className='amethyst-particle';p.src='Amethyst.png';const size=13+Math.random()*16;const left=Math.random()*100;const drift=(Math.random()-0.5)*120;const spin=(Math.random()-0.5)*220;const dur=7+Math.random()*7;p.style.cssText=`left:${left}vw;width:${size}px;height:${size}px;--drift:${drift}px;--spin:${spin}deg;--scale:${0.75+Math.random()*0.35};animation-duration:${dur}s;animation-delay:0s;opacity:${0.38+Math.random()*0.22};filter:blur(${(Math.random()*0.6).toFixed(2)}px) saturate(0.76) brightness(0.88);`;c.appendChild(p);setTimeout(()=>p.remove(),(dur+0.2)*1000);}
 function startAmethystParticles(){const c=document.getElementById('amethystContainer');if(!c)return;c.innerHTML='';for(let i=0;i<12;i++)setTimeout(spawnAmethystParticle,Math.random()*900);if(amethystInterval)clearInterval(amethystInterval);amethystInterval=setInterval(spawnAmethystParticle,420);}
 function stopAmethystParticles(){if(amethystInterval){clearInterval(amethystInterval);amethystInterval=null;}const c=document.getElementById('amethystContainer');if(c)c.innerHTML='';}
+let chocchipInterval=null;
+function spawnChocolateChipParticle(){const c=document.getElementById('chocchipContainer');if(!c)return;const p=document.createElement('div');p.className='chocchip-particle';const size=4+Math.random()*9;const left=Math.random()*100;const drift=(Math.random()-0.5)*95;const spin=(Math.random()-0.5)*160;const dur=5.8+Math.random()*4.6;p.style.cssText=`left:${left}vw;width:${size}px;height:${size}px;--drift:${drift}px;--spin:${spin}deg;--scale:${0.9+Math.random()*0.45};animation-duration:${dur}s;animation-delay:0s;opacity:${0.72+Math.random()*0.24};`;c.appendChild(p);setTimeout(()=>p.remove(),(dur+0.2)*1000);}
+function startChocolateChipParticles(){const c=document.getElementById('chocchipContainer');if(!c)return;c.innerHTML='';for(let i=0;i<36;i++)setTimeout(spawnChocolateChipParticle,Math.random()*800);if(chocchipInterval)clearInterval(chocchipInterval);chocchipInterval=setInterval(spawnChocolateChipParticle,90);}
+function stopChocolateChipParticles(){if(chocchipInterval){clearInterval(chocchipInterval);chocchipInterval=null;}const c=document.getElementById('chocchipContainer');if(c)c.innerHTML='';}
 function spawnSevenParticle(){const c=document.getElementById('sevenContainer');if(!c)return;const p=document.createElement('div');p.className='seven-particle';p.textContent='7';const size=20+Math.random()*30;const left=Math.random()*100;const drift=(Math.random()-0.5)*180;const rotStart=(Math.random()-0.5)*180;const rotEnd=(Math.random()-0.5)*360;const dur=5.0+Math.random()*5.5;p.style.cssText=`left:${left}vw;font-size:${size}px;--drift:${drift}px;--rot-start:${rotStart}deg;--rot-end:${rotEnd}deg;--scale:${0.8+Math.random()*0.7};animation-duration:${dur}s;animation-delay:0s;`;c.appendChild(p);setTimeout(()=>p.remove(),(dur+0.2)*1000);}
 let sevenInterval=null;
 function startSevenParticles(){const c=document.getElementById('sevenContainer');if(!c)return;c.innerHTML='';for(let i=0;i<18;i++)setTimeout(spawnSevenParticle,Math.random()*700);if(sevenInterval)clearInterval(sevenInterval);sevenInterval=setInterval(spawnSevenParticle,300);}
