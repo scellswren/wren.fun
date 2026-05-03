@@ -357,6 +357,11 @@
       margin-bottom: 8px;
       letter-spacing: 0.5px;
       text-shadow: 0 0 16px rgba(196,160,255,0.5);
+      min-height: 1.4em;
+    }
+    .enjoy-msg .beat-clock-banner {
+      display: block;
+      font-size: inherit;
     }
 
     .enjoy-sub {
@@ -572,6 +577,120 @@
     @media (max-width: 360px) {
       .countdown-grid { grid-template-columns: repeat(2, 1fr); }
     }
+
+    /* ── WOOD THEME ── */
+    body.mode-wood {
+      --bg: #3d1f08;
+      --card: rgba(255,220,150,0.07);
+      --card-border: rgba(255,200,100,0.15);
+      --text: #f5e6d0;
+      --muted: rgba(245,230,208,0.65);
+      --accent: #c47d2e;
+      --accent-2: #e8a040;
+      --glow: rgba(196,125,46,0.35);
+    }
+    body.mode-wood {
+      background:
+        repeating-linear-gradient(91deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0.07) 1px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 10px),
+        repeating-linear-gradient(180deg, rgba(120,55,8,0.12) 0px, rgba(70,28,4,0.20) 14px, rgba(120,55,8,0.12) 28px),
+        linear-gradient(160deg,#7b3910 0%,#5a2d0b 18%,#8c4f1a 36%,#6b3810 52%,#9b5820 68%,#5a2d0b 82%,#7b3910 100%);
+      background-attachment: fixed;
+    }
+    body.mode-wood::before {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(89deg, transparent 0px, transparent 4px, rgba(255,210,130,0.05) 4px, rgba(255,210,130,0.05) 5px, transparent 5px, transparent 22px),
+        repeating-linear-gradient(180deg, transparent 0px, transparent 30px, rgba(0,0,0,0.05) 30px, rgba(0,0,0,0.05) 32px);
+      filter: blur(0.3px);
+      z-index: 0;
+    }
+
+    /* "You Bet The Clock" banner styling */
+    .beat-clock-banner {
+      display: inline-block;
+      font-family: 'Orbitron', 'Rubik', sans-serif;
+      font-size: clamp(1.4em, 5vw, 2.2em);
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #fff8e0, #ffd060, #ff8c00, #ffd060, #fff8e0);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: goldShine 3s linear infinite;
+      filter: drop-shadow(0 0 18px rgba(255,180,0,0.7)) drop-shadow(0 0 36px rgba(255,120,0,0.45));
+      text-shadow: none;
+    }
+    @keyframes goldShine {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    /* Country mini-menu */
+    .country-mini-btn {
+      width: 100%;
+      padding: 15px 20px;
+      border-radius: 16px;
+      border: 1.5px solid var(--card-border);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.05em;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      margin-bottom: 10px;
+      transition: border-color 0.2s, background 0.2s;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .country-mini-btn:hover, .country-mini-btn.open {
+      border-color: var(--accent);
+      background: rgba(155,109,255,0.10);
+    }
+    .country-mini-btn .caret { font-size: 0.7em; opacity: 0.7; transition: transform 0.2s; }
+    .country-mini-btn.open .caret { transform: rotate(180deg); }
+
+    #countryMenu {
+      display: none;
+      width: 100%;
+      max-height: 240px;
+      overflow-y: auto;
+      border-radius: 14px;
+      border: 1.5px solid var(--card-border);
+      background: rgba(12,8,24,0.96);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      margin-bottom: 18px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(155,109,255,0.4) transparent;
+    }
+    #countryMenu.open { display: block; }
+    .country-option {
+      padding: 12px 18px;
+      cursor: pointer;
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.97em;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .country-option:last-child { border-bottom: none; }
+    .country-option:hover { background: rgba(155,109,255,0.14); }
+    .country-option.selected { background: rgba(155,109,255,0.22); color: #fff; }
+    .country-flag { font-size: 1.3em; min-width: 1.5em; }
+
   </style>
 </head>
 <body>
@@ -602,27 +721,13 @@
     </div>
 
     <div class="section-label">Country / Region</div>
-    <select class="country-select" id="countrySelect" aria-label="Country">
-      <option value="">— Select your country —</option>
-      <option value="australia">🇦🇺 Australia</option>
-      <option value="brazil">🇧🇷 Brazil</option>
-      <option value="canada">🇨🇦 Canada</option>
-      <option value="china">🇨🇳 China</option>
-      <option value="france">🇫🇷 France</option>
-      <option value="india">🇮🇳 India</option>
-      <option value="indonesia">🇮🇩 Indonesia</option>
-      <option value="ireland">🇮🇪 Ireland</option>
-      <option value="malaysia">🇲🇾 Malaysia</option>
-      <option value="mexico">🇲🇽 Mexico</option>
-      <option value="new_zealand">🇳🇿 New Zealand</option>
-      <option value="philippines">🇵🇭 Philippines</option>
-      <option value="spain">🇪🇸 Spain</option>
-      <option value="thailand">🇹🇭 Thailand</option>
-      <option value="uk">🇬🇧 United Kingdom</option>
-      <option value="usa">🇺🇸 United States</option>
-      <option value="vietnam">🇻🇳 Vietnam</option>
-      <option value="world">🌍 Rest of World</option>
-    </select>
+    <button type="button" class="country-mini-btn" id="countryBtn" onclick="toggleCountryMenu()">
+      <span id="countryBtnLabel">— Select your country —</span>
+      <span class="caret">▼</span>
+    </button>
+    <div id="countryMenu">
+    </div>
+    <input type="hidden" id="countrySelect" value="">
 
     <button id="calcBtn" onclick="calculate()">Calculate My Life ⏳</button>
     <div id="errorMsg"></div>
@@ -804,7 +909,7 @@
       document.getElementById('dobYear').classList.add('input-error');
       errorEl.textContent = '⚠️ Date of birth can\'t be in the future!'; return;
     }
-    if (!country) { errorEl.textContent = '⚠️ Please select your country.'; return; }
+    if (!country || !selectedCountry) { errorEl.textContent = '⚠️ Please select your country.'; return; }
 
     const genderIndex = selectedGender === 'male' ? 0 : 1;
     const lifeExpectancy = LIFE_DATA[country][genderIndex];
@@ -840,7 +945,8 @@
 
   function showBeatTheClock() {
     clearInterval(countdownInterval);
-    document.querySelector('.enjoy-msg').textContent = '🏆 You Beat The Clock!';
+    stopTickSound();
+    document.querySelector('.enjoy-msg').innerHTML = '<span class="beat-clock-banner">🏆 You Bet The Clock!</span>';
     document.querySelector('.enjoy-sub').textContent = 'You\'ve outlived the average life expectancy. Incredible!';
     ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds'].forEach(id => {
       document.getElementById(id).textContent = '00';
@@ -853,6 +959,7 @@
     if (countdownInterval) clearInterval(countdownInterval);
     updateCountdown();
     countdownInterval = setInterval(updateCountdown, 13); // ~75fps for smooth ms
+    startTickSound();
   }
 
   function updateCountdown() {
@@ -941,6 +1048,7 @@
 
   function reset() {
     clearInterval(countdownInterval);
+    stopTickSound();
     endDate = null;
     birthDate = null;
     totalLifeMs = null;
@@ -949,7 +1057,7 @@
     const setup = document.getElementById('setupPanel');
     setup.classList.remove('hidden');
     document.getElementById('lifeBar').style.width = '0%';
-    document.querySelector('.enjoy-msg').textContent = '✨ Enjoy Every Second ✨';
+    document.querySelector('.enjoy-msg').innerHTML = '✨ Enjoy Every Second ✨';
     document.querySelector('.enjoy-sub').textContent = 'Make each one count — this is your time.';
 
     // Reset form
@@ -961,6 +1069,9 @@
     document.getElementById('dobYear').value = '';
     ['dobDay','dobMonth','dobYear'].forEach(id => document.getElementById(id).classList.remove('input-error'));
     document.getElementById('countrySelect').value = '';
+    selectedCountry = '';
+    document.getElementById('countryBtnLabel').textContent = '— Select your country —';
+    document.querySelectorAll('#countryMenu .country-option').forEach(opt => opt.classList.remove('selected'));
     document.getElementById('errorMsg').textContent = '';
 
     msVisible = false;
@@ -971,9 +1082,209 @@
     Object.keys(_prev).forEach(k => delete _prev[k]);
   }
 
-  // Restore mode from main menu
+
+  // ── OS DETECTION (Windows has no flag emoji) ──
+  const isWindows = /Win/i.test(navigator.platform || navigator.userAgent);
+
+  // ── COUNTRY DATA ──
+  const COUNTRIES = [
+    { value: 'australia',   flag: '🇦🇺', winEmoji: '🦘', label: 'Australia' },
+    { value: 'brazil',      flag: '🇧🇷', winEmoji: '🌴', label: 'Brazil' },
+    { value: 'canada',      flag: '🇨🇦', winEmoji: '🍁', label: 'Canada' },
+    { value: 'china',       flag: '🇨🇳', winEmoji: '🐉', label: 'China' },
+    { value: 'france',      flag: '🇫🇷', winEmoji: '🥐', label: 'France' },
+    { value: 'india',       flag: '🇮🇳', winEmoji: '🙏', label: 'India' },
+    { value: 'indonesia',   flag: '🇮🇩', winEmoji: '🏝️', label: 'Indonesia' },
+    { value: 'ireland',     flag: '🇮🇪', winEmoji: '☘️', label: 'Ireland' },
+    { value: 'malaysia',    flag: '🇲🇾', winEmoji: '🌺', label: 'Malaysia' },
+    { value: 'mexico',      flag: '🇲🇽', winEmoji: '🌮', label: 'Mexico' },
+    { value: 'new_zealand', flag: '🇳🇿', winEmoji: '🥝', label: 'New Zealand' },
+    { value: 'philippines', flag: '🇵🇭', winEmoji: '🌊', label: 'Philippines' },
+    { value: 'spain',       flag: '🇪🇸', winEmoji: '💃', label: 'Spain' },
+    { value: 'thailand',    flag: '🇹🇭', winEmoji: '🐘', label: 'Thailand' },
+    { value: 'uk',          flag: '🇬🇧', winEmoji: '☂️', label: 'United Kingdom' },
+    { value: 'usa',         flag: '🇺🇸', winEmoji: '🦅', label: 'United States' },
+    { value: 'vietnam',     flag: '🇻🇳', winEmoji: '🍜', label: 'Vietnam' },
+    { value: 'world',       flag: '🌍', winEmoji: '🌍', label: 'Rest of World' },
+  ];
+
+  let selectedCountry = '';
+
+  function buildCountryMenu() {
+    const menu = document.getElementById('countryMenu');
+    menu.innerHTML = COUNTRIES.map(c => {
+      const emoji = isWindows ? c.winEmoji : c.flag;
+      return `<div class="country-option" data-value="${c.value}" onclick="selectCountry('${c.value}')">
+        <span class="country-flag">${emoji}</span>
+        <span>${c.label}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function toggleCountryMenu() {
+    const menu = document.getElementById('countryMenu');
+    const btn = document.getElementById('countryBtn');
+    const isOpen = menu.classList.contains('open');
+    menu.classList.toggle('open', !isOpen);
+    btn.classList.toggle('open', !isOpen);
+  }
+
+  function selectCountry(val) {
+    selectedCountry = val;
+    document.getElementById('countrySelect').value = val;
+    const c = COUNTRIES.find(x => x.value === val);
+    if (c) {
+      const emoji = isWindows ? c.winEmoji : c.flag;
+      document.getElementById('countryBtnLabel').textContent = emoji + '  ' + c.label;
+    }
+    document.getElementById('countryMenu').classList.remove('open');
+    document.getElementById('countryBtn').classList.remove('open');
+    // Highlight selected
+    document.querySelectorAll('#countryMenu .country-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.value === val);
+    });
+  }
+
+  // Close menu if clicking outside
+  document.addEventListener('click', function(e) {
+    const btn = document.getElementById('countryBtn');
+    const menu = document.getElementById('countryMenu');
+    if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    }
+  });
+
+  // ── TICKING CLOCK SOUND (Avengers-style deep mechanical thud) ──
+  let tickAudioCtx = null;
+  let tickInterval = null;
+  let lastTickSecond = -1;
+
+  function createTickSound() {
+    if (!tickAudioCtx) {
+      tickAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const ctx = tickAudioCtx;
+    const now = ctx.currentTime;
+    const sr = ctx.sampleRate;
+
+    // ── LAYER 1: Deep low mechanical THUD (the "body" of the tick) ──
+    const thudLen = Math.floor(sr * 0.18);
+    const thudBuf = ctx.createBuffer(1, thudLen, sr);
+    const thudData = thudBuf.getChannelData(0);
+    for (let i = 0; i < thudLen; i++) {
+      const t = i / sr;
+      // Sine at ~55Hz (very deep) + 110Hz harmonic, sharp exponential decay
+      thudData[i] = (
+        Math.sin(2 * Math.PI * 55 * t) * 0.7 +
+        Math.sin(2 * Math.PI * 110 * t) * 0.3
+      ) * Math.exp(-t / 0.035);
+    }
+    const thudSrc = ctx.createBufferSource();
+    thudSrc.buffer = thudBuf;
+    const thudGain = ctx.createGain();
+    thudGain.gain.setValueAtTime(1.2, now);
+    thudGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+    thudSrc.connect(thudGain);
+    thudGain.connect(ctx.destination);
+    thudSrc.start(now);
+
+    // ── LAYER 2: Metallic HIGH click (the sharp transient) ──
+    const clickLen = Math.floor(sr * 0.04);
+    const clickBuf = ctx.createBuffer(1, clickLen, sr);
+    const clickData = clickBuf.getChannelData(0);
+    for (let i = 0; i < clickLen; i++) {
+      const t = i / sr;
+      clickData[i] = (Math.random() * 2 - 1) * Math.exp(-t / 0.004) * 0.9;
+    }
+    const clickSrc = ctx.createBufferSource();
+    clickSrc.buffer = clickBuf;
+    // Band-pass to make it metallic (around 2kHz–5kHz)
+    const bpf = ctx.createBiquadFilter();
+    bpf.type = 'bandpass';
+    bpf.frequency.value = 3000;
+    bpf.Q.value = 1.2;
+    const clickGain = ctx.createGain();
+    clickGain.gain.setValueAtTime(0.7, now);
+    clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+    clickSrc.connect(bpf);
+    bpf.connect(clickGain);
+    clickGain.connect(ctx.destination);
+    clickSrc.start(now);
+
+    // ── LAYER 3: Sub-bass BOOM — gives it the Avengers cinematic weight ──
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(80, now);
+    osc.frequency.exponentialRampToValueAtTime(28, now + 0.12); // pitch-drops like a cinematic hit
+    const oscGain = ctx.createGain();
+    oscGain.gain.setValueAtTime(0.55, now);
+    oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+    osc.connect(oscGain);
+    oscGain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.15);
+
+    // ── LAYER 4: Short plate-reverb simulation via multiple comb delays ──
+    const reverbDelays = [0.032, 0.051, 0.073];
+    reverbDelays.forEach((dt, idx) => {
+      const delSrc = ctx.createBufferSource();
+      delSrc.buffer = thudBuf;
+      const del = ctx.createDelay(0.2);
+      del.delayTime.value = dt;
+      const delGain = ctx.createGain();
+      delGain.gain.setValueAtTime(0.18 - idx * 0.04, now);
+      delGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+      delSrc.connect(del);
+      del.connect(delGain);
+      delGain.connect(ctx.destination);
+      delSrc.start(now);
+    });
+  }
+
+  function startTickSound() {
+    stopTickSound();
+    lastTickSecond = -1;
+    tickInterval = setInterval(() => {
+      if (!endDate) return;
+      const now = new Date();
+      const remaining = endDate - now;
+      if (remaining <= 0) return;
+      const currentSecond = Math.floor(remaining / 1000);
+      if (currentSecond !== lastTickSecond) {
+        lastTickSecond = currentSecond;
+        createTickSound();
+      }
+    }, 50);
+  }
+
+  function stopTickSound() {
+    if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
+  }
+
+  // ── WOOD THEME APPLICATION ──
+  function applyWoodTheme() {
+    const woodUnlocked = localStorage.getItem('wren_theme_wood_unlocked') === '1';
+    if (woodUnlocked) {
+      // Only override if no other theme saved, or if it's the saved theme
+      const savedMode = localStorage.getItem('wrenMode');
+      if (!savedMode || savedMode === 'wood') {
+        document.body.className = 'mode-wood';
+        localStorage.setItem('wrenMode', 'wood');
+      }
+    }
+  }
+
+  // ── BUILD COUNTRY MENU ON LOAD ──
+  buildCountryMenu();
+
+  // Restore mode from main menu (wood overrides if unlocked)
   const savedMode = localStorage.getItem('wrenMode') || 'light';
   document.body.className = 'mode-' + savedMode;
+  // Override with wood if unlocked and visiting Life Countdown
+  if (localStorage.getItem('wren_theme_wood_unlocked') === '1') {
+    document.body.className = 'mode-wood';
+  }
 </script>
 
 </body>
