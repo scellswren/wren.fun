@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Life Countdown ⏳</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../Favicon.png">
+  <style>
+    :root {
+      --bg: #0a0a14;
+      --card: rgba(255,255,255,0.05);
+      --card-border: rgba(255,255,255,0.09);
+      --text: #f0eeff;
+      --muted: rgba(240,238,255,0.65);
+      --accent: #9b6dff;
+      --accent-2: #c4a0ff;
+      --glow: rgba(155,109,255,0.3);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: 'Rubik', sans-serif;
+      color: var(--text);
+      text-align: center;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(155,109,255,0.18) 0%, transparent 32%),
+        radial-gradient(circle at 85% 20%, rgba(100,60,220,0.14) 0%, transparent 28%),
+        radial-gradient(circle at 75% 80%, rgba(180,120,255,0.10) 0%, transparent 30%),
+        radial-gradient(circle at 25% 80%, rgba(120,70,255,0.10) 0%, transparent 28%),
+        linear-gradient(180deg, #0e0a1e 0%, #080610 100%);
+      background-attachment: fixed;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(155,109,255,0.10), transparent 18%),
+        radial-gradient(circle at 80% 16%, rgba(100,60,220,0.08), transparent 18%);
+      filter: blur(20px);
+      z-index: 0;
+      animation: floatGlow 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatGlow {
+      from { transform: translate3d(-1.5%, -1%, 0) scale(1); }
+      to   { transform: translate3d(1.5%, 1%, 0) scale(1.05); }
+    }
+
+    /* Particles */
+    #particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(0) scale(1); opacity: 0; }
+      10%  { opacity: 0.4; }
+      90%  { opacity: 0.15; }
+      100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+    }
+
+    #homeText {
+      position: fixed;
+      top: 10px;
+      left: 12px;
+      font-family: 'Rubik', sans-serif;
+      font-weight: 800;
+      font-size: 2em;
+      cursor: pointer;
+      transition: transform 0.2s;
+      z-index: 1000;
+      user-select: none;
+      opacity: 0.95;
+      color: var(--text);
+      text-shadow: 0 0 22px var(--glow);
+    }
+
+    #homeText:hover { transform: scale(1.15); }
+
+    /* Fullscreen button (from Cheese Art) */
+    #fullscreenBtn {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 1000;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.07);
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform 0.2s, background 0.2s;
+    }
+    #fullscreenBtn:hover { transform: scale(1.08); background: rgba(155,109,255,0.2); }
+
+    #content {
+      position: relative;
+      z-index: 1;
+      padding: 80px 18px 80px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(2.2em, 7vw, 4em);
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #fff 20%, var(--accent-2) 60%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      filter: drop-shadow(0 4px 18px rgba(155,109,255,0.35));
+    }
+
+    .tagline {
+      font-size: 1.05em;
+      color: var(--muted);
+      margin-bottom: 36px;
+    }
+
+    /* Setup panel */
+    #setupPanel {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 32px 28px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+
+    #setupPanel.hidden {
+      opacity: 0;
+      transform: scale(0.95);
+      pointer-events: none;
+      position: absolute;
+    }
+
+    .section-label {
+      font-size: 0.8em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent-2);
+      margin-bottom: 12px;
+    }
+
+    /* Gender selector */
+    .gender-row {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .gender-btn {
+      flex: 1;
+      max-width: 160px;
+      padding: 16px 20px;
+      border-radius: 16px;
+      border: 2px solid var(--card-border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.05em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .gender-btn:hover {
+      background: rgba(155,109,255,0.12);
+      border-color: rgba(155,109,255,0.4);
+      transform: translateY(-2px);
+    }
+
+    .gender-btn.selected {
+      background: rgba(155,109,255,0.22);
+      border-color: var(--accent);
+      box-shadow: 0 0 22px rgba(155,109,255,0.25);
+      color: #fff;
+    }
+
+    /* DOB */
+    .dob-row {
+      display: flex;
+      gap: 0;
+      justify-content: center;
+      margin-bottom: 28px;
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .dob-select {
+      flex: 1;
+      padding: 13px 8px;
+      border: none;
+      border-right: 1px solid var(--card-border);
+      background: transparent;
+      color: var(--text);
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.97em;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: background 0.18s;
+      appearance: none;
+      -webkit-appearance: none;
+      text-align: center;
+    }
+    .dob-select:last-child { border-right: none; }
+    .dob-select:focus { background: rgba(155,109,255,0.12); }
+
+    .dob-select option { background: #150f2e; color: var(--text); }
+
+    /* Country selector */
+    .country-select {
+      width: 100%;
+      padding: 15px 20px;
+      border-radius: 16px;
+      border: 1.5px solid var(--card-border);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.05em;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      margin-bottom: 28px;
+      transition: border-color 0.2s, background 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+      text-align: center;
+    }
+
+    .country-select:focus {
+      border-color: var(--accent);
+      background: rgba(155,109,255,0.10);
+    }
+
+    .country-select option { background: #150f2e; color: var(--text); }
+
+    /* Calculate button */
+    #calcBtn {
+      width: 100%;
+      padding: 18px 30px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, #7c3aed 0%, #9b6dff 50%, #c4a0ff 100%);
+      color: #fff;
+      font-family: 'Rubik', sans-serif;
+      font-size: 1.15em;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 10px 30px rgba(155,109,255,0.35);
+      letter-spacing: 0.5px;
+    }
+
+    #calcBtn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 16px 40px rgba(155,109,255,0.5);
+    }
+
+    #calcBtn:active {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    /* Error */
+    #errorMsg {
+      color: #ff7eb3;
+      font-size: 0.92em;
+      margin-top: 12px;
+      min-height: 20px;
+      font-weight: 700;
+    }
+
+    /* Countdown panel */
+    #countdownPanel {
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.5s, transform 0.5s;
+      pointer-events: none;
+    }
+
+    #countdownPanel.visible {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    .life-bar-wrap {
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      height: 12px;
+      margin: 0 auto 28px;
+      max-width: 500px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+    }
+
+    .life-bar {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #9b6dff, #c4a0ff, #ff7eb3);
+      transition: width 1s linear;
+      box-shadow: 0 0 12px rgba(196,160,255,0.5);
+    }
+
+    .enjoy-msg {
+      font-size: 1.1em;
+      font-weight: 700;
+      color: var(--accent-2);
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 16px rgba(196,160,255,0.5);
+    }
+
+    .enjoy-sub {
+      font-size: 0.88em;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .countdown-grid { display: none; }
+    .countdown-grid-ms { display: none; }
+
+    /* === DOOMSDAY DISPLAY === */
+    .doom-header {
+      font-family: 'Orbitron', 'Rubik', sans-serif;
+      font-size: clamp(0.7em, 2vw, 0.9em);
+      font-weight: 700;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: rgba(196,160,255,0.65);
+      margin-bottom: 10px;
+      text-shadow: 0 0 16px rgba(155,109,255,0.4);
+    }
+
+    .doom-display {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px 12px 4px;
+      background: linear-gradient(135deg, rgba(155,109,255,0.07), rgba(0,0,0,0.2));
+      border: 1px solid rgba(155,109,255,0.18);
+      border-radius: 18px;
+      box-shadow: 0 0 60px rgba(155,109,255,0.07), inset 0 1px 0 rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      margin-bottom: 0;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+
+    .doom-seg {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 52px;
+      padding-bottom: 14px;
+    }
+
+    .doom-val {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8em, 5.5vw, 3.6em);
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1;
+      text-shadow: 0 0 18px rgba(196,160,255,0.7), 0 0 50px rgba(155,109,255,0.35);
+      letter-spacing: -1px;
+      display: block;
+    }
+
+    .doom-val.tick { animation: digitTick 0.3s ease; }
+    @keyframes digitTick {
+      0%   { color: #fff; }
+      40%  { color: #c4a0ff; text-shadow: 0 0 28px rgba(196,160,255,1), 0 0 70px rgba(155,109,255,0.8); }
+      100% { color: #fff; }
+    }
+
+    .doom-lbl {
+      font-size: 0.58em;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(196,160,255,0.5);
+      margin-top: 7px;
+    }
+
+    .doom-colon {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.5em, 4.5vw, 3em);
+      font-weight: 900;
+      color: rgba(196,160,255,0.35);
+      padding: 0 2px;
+      line-height: 1;
+      animation: colonBlink 2s ease-in-out infinite;
+      flex-shrink: 0;
+      align-self: flex-start;
+      padding-top: 2px;
+    }
+    @keyframes colonBlink {
+      0%,100% { opacity: 0.35; }
+      50%      { opacity: 0.85; }
+    }
+
+    /* MS row */
+    .doom-ms-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 12px 16px;
+      border: 1px solid rgba(155,109,255,0.18);
+      border-top: none;
+      border-radius: 0 0 18px 18px;
+      background: linear-gradient(135deg, rgba(155,109,255,0.04), rgba(0,0,0,0.15));
+      transition: max-height 0.3s, opacity 0.3s, padding 0.3s;
+      max-height: 60px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .doom-ms-row.ms-hidden {
+      max-height: 0;
+      opacity: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      pointer-events: none;
+      border: none;
+      margin-bottom: 20px;
+    }
+    .doom-ms-label {
+      font-size: 0.65em;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(196,160,255,0.4);
+    }
+    .doom-ms-val {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.05em;
+      font-weight: 700;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 1px;
+      min-width: 3ch;
+    }
+
+    /* MS toggle button */
+    #msToggleBtn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1.5px solid var(--card-border);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.82em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s;
+      margin-bottom: 18px;
+    }
+    #msToggleBtn:hover { background: rgba(155,109,255,0.12); border-color: rgba(155,109,255,0.4); color: var(--text); }
+    #msToggleBtn.ms-on { background: rgba(155,109,255,0.18); border-color: var(--accent); color: #fff; }
+
+    .life-summary {
+      background: rgba(155,109,255,0.08);
+      border: 1px solid rgba(155,109,255,0.2);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 22px;
+      font-size: 0.92em;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .life-summary strong {
+      color: var(--accent-2);
+      font-weight: 800;
+    }
+
+    #resetBtn {
+      padding: 14px 30px;
+      border-radius: 14px;
+      border: 1.5px solid var(--card-border);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.95em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    #resetBtn:hover {
+      background: rgba(155,109,255,0.12);
+      border-color: rgba(155,109,255,0.4);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .divider {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      margin: 28px auto;
+      border-radius: 999px;
+    }
+
+    /* Expired state */
+    .expired-msg {
+      font-size: 1.4em;
+      font-weight: 900;
+      color: #ff7eb3;
+      text-shadow: 0 0 20px rgba(255,126,179,0.5);
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 520px) {
+      #homeText { font-size: 1.7em; }
+      #content { padding: 70px 14px 60px; }
+      #setupPanel { padding: 24px 18px; }
+      .countdown-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .countdown-grid-ms { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .cd-card { padding: 14px 8px 10px; border-radius: 14px; }
+      .gender-row { gap: 10px; }
+    }
+
+    @media (max-width: 360px) {
+      .countdown-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="particles"></div>
+
+<div id="homeText" onclick="goHome()">Wren.fun</div>
+<button id="fullscreenBtn" aria-label="Toggle fullscreen">⛶</button>
+
+<div id="content">
+  <h1>⏳ Life Countdown</h1>
+  <div class="tagline">How much time do you have left?</div>
+
+  <!-- Setup Panel -->
+  <div id="setupPanel">
+
+    <div class="section-label">I am a...</div>
+    <div class="gender-row">
+      <button class="gender-btn" id="btnMale" onclick="selectGender('male')">♂ Male</button>
+      <button class="gender-btn" id="btnFemale" onclick="selectGender('female')">♀ Female</button>
+    </div>
+
+    <div class="section-label">Date of Birth</div>
+    <div class="dob-row">
+      <select class="dob-select" id="dobDay" aria-label="Day"></select>
+      <select class="dob-select" id="dobMonth" aria-label="Month"></select>
+      <select class="dob-select" id="dobYear" aria-label="Year"></select>
+    </div>
+
+    <div class="section-label">Country / Region</div>
+    <select class="country-select" id="countrySelect" aria-label="Country">
+      <option value="">— Select your country —</option>
+      <option value="australia">🇦🇺 Australia</option>
+      <option value="brazil">🇧🇷 Brazil</option>
+      <option value="canada">🇨🇦 Canada</option>
+      <option value="china">🇨🇳 China</option>
+      <option value="france">🇫🇷 France</option>
+      <option value="india">🇮🇳 India</option>
+      <option value="indonesia">🇮🇩 Indonesia</option>
+      <option value="ireland">🇮🇪 Ireland</option>
+      <option value="malaysia">🇲🇾 Malaysia</option>
+      <option value="mexico">🇲🇽 Mexico</option>
+      <option value="new_zealand">🇳🇿 New Zealand</option>
+      <option value="philippines">🇵🇭 Philippines</option>
+      <option value="spain">🇪🇸 Spain</option>
+      <option value="thailand">🇹🇭 Thailand</option>
+      <option value="uk">🇬🇧 United Kingdom</option>
+      <option value="usa">🇺🇸 United States</option>
+      <option value="vietnam">🇻🇳 Vietnam</option>
+      <option value="world">🌍 Rest of World</option>
+    </select>
+
+    <button id="calcBtn" onclick="calculate()">Calculate My Life ⏳</button>
+    <div id="errorMsg"></div>
+  </div>
+
+  <!-- Countdown Panel -->
+  <div id="countdownPanel">
+    <div class="enjoy-msg">✨ Enjoy Every Second ✨</div>
+    <div class="enjoy-sub">Make each one count — this is your time.</div>
+
+    <div class="life-bar-wrap">
+      <div class="life-bar" id="lifeBar" style="width:0%"></div>
+    </div>
+
+    <div class="life-summary" id="lifeSummary"></div>
+
+    <div class="doom-header">YOUR TIME REMAINING</div>
+    <div class="doom-display">
+      <div class="doom-seg">
+        <span class="doom-val" id="valYears">0</span>
+        <div class="doom-lbl">Years</div>
+      </div>
+      <div class="doom-colon">:</div>
+      <div class="doom-seg">
+        <span class="doom-val" id="valMonths">0</span>
+        <div class="doom-lbl">Months</div>
+      </div>
+      <div class="doom-colon">:</div>
+      <div class="doom-seg">
+        <span class="doom-val" id="valDays">0</span>
+        <div class="doom-lbl">Days</div>
+      </div>
+      <div class="doom-colon">:</div>
+      <div class="doom-seg">
+        <span class="doom-val" id="valHours">0</span>
+        <div class="doom-lbl">Hours</div>
+      </div>
+      <div class="doom-colon">:</div>
+      <div class="doom-seg">
+        <span class="doom-val" id="valMinutes">0</span>
+        <div class="doom-lbl">Minutes</div>
+      </div>
+      <div class="doom-colon">:</div>
+      <div class="doom-seg">
+        <span class="doom-val" id="valSeconds">0</span>
+        <div class="doom-lbl">Seconds</div>
+      </div>
+    </div>
+    <div class="doom-ms-row ms-hidden" id="msRow">
+      <span class="doom-ms-label">Milliseconds</span>
+      <span class="doom-ms-val" id="valMs">000</span>
+    </div>
+    <button id="msToggleBtn" onclick="toggleMs()">⚡ Show Milliseconds</button>
+
+    <!-- hidden elements kept for JS compatibility -->
+    <div class="countdown-grid" style="display:none">
+      <div class="cd-card" id="cardYears"><span id="_valYears">0</span></div>
+      <div class="cd-card" id="cardMonths"><span id="_valMonths">0</span></div>
+      <div class="cd-card" id="cardDays"><span id="_valDays">0</span></div>
+    </div>
+    <div class="countdown-grid-ms" style="display:none">
+      <div class="cd-card" id="cardSeconds"><span id="_valSeconds">0</span></div>
+      <div class="cd-card" id="cardMs"><span id="_valMs">0</span></div>
+    </div>
+
+    <button id="resetBtn" onclick="reset()">← Start Over</button>
+  </div>
+</div>
+
+<script>
+  // Life expectancy data [male, female] in years
+  const LIFE_DATA = {
+    usa:         [76.5, 81.4],
+    uk:          [71.2, 76.4],
+    india:       [70.5, 73.6],
+    china:       [75.2, 80.9],
+    australia:   [81.3, 85.2],
+    new_zealand: [80.9, 84.4],
+    canada:      [80.7, 84.3],
+    ireland:     [80.7, 84.4],
+    indonesia:   [70.9, 74.8],
+    vietnam:     [70.6, 79.9],
+    philippines: [67.2, 75.5],
+    malaysia:    [72.6, 77.4],
+    mexico:      [73.4, 79.6],
+    spain:       [81.3, 86.9],
+    brazil:      [72.0, 79.3],
+    france:      [80.0, 85.7],
+    thailand:    [72.2, 79.7],
+    world:       [71.0, 76.0]
+  };
+
+  let selectedGender = null;
+  let countdownInterval = null;
+  let endDate = null;
+  let birthDate = null;
+  let totalLifeMs = null;
+
+  // --- Populate DOB selects ---
+  (function populateDOB() {
+    const dayEl = document.getElementById('dobDay');
+    const monthEl = document.getElementById('dobMonth');
+    const yearEl = document.getElementById('dobYear');
+
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    dayEl.innerHTML = '<option value="">Day</option>';
+    for (let d = 1; d <= 31; d++) dayEl.innerHTML += `<option value="${d}">${d}</option>`;
+
+    monthEl.innerHTML = '<option value="">Month</option>';
+    months.forEach((m, i) => monthEl.innerHTML += `<option value="${i}">${m}</option>`);
+
+    yearEl.innerHTML = '<option value="">Year</option>';
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear; y >= 1900; y--) yearEl.innerHTML += `<option value="${y}">${y}</option>`;
+  })();
+
+  // --- Particles ---
+  (function spawnParticles() {
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 28; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = 2 + Math.random() * 4;
+      p.style.cssText = `
+        width:${size}px;height:${size}px;
+        left:${Math.random()*100}%;
+        bottom:${Math.random()*30}%;
+        animation-duration:${8+Math.random()*14}s;
+        animation-delay:${Math.random()*10}s;
+        opacity:0;
+      `;
+      container.appendChild(p);
+    }
+  })();
+
+  function goHome() {
+    window.location.href = '../index.html';
+  }
+
+  function selectGender(g) {
+    selectedGender = g;
+    document.getElementById('btnMale').classList.toggle('selected', g === 'male');
+    document.getElementById('btnFemale').classList.toggle('selected', g === 'female');
+  }
+
+  function calculate() {
+    const errorEl = document.getElementById('errorMsg');
+    errorEl.textContent = '';
+
+    if (!selectedGender) { errorEl.textContent = '⚠️ Please select Male or Female.'; return; }
+
+    const day   = parseInt(document.getElementById('dobDay').value);
+    const month = parseInt(document.getElementById('dobMonth').value);
+    const year  = parseInt(document.getElementById('dobYear').value);
+    const country = document.getElementById('countrySelect').value;
+
+    if (isNaN(day) || isNaN(month) || isNaN(year) || !document.getElementById('dobDay').value || document.getElementById('dobMonth').value === '' || !document.getElementById('dobYear').value) {
+      errorEl.textContent = '⚠️ Please fill in your date of birth.'; return;
+    }
+    if (!country) { errorEl.textContent = '⚠️ Please select your country.'; return; }
+
+    birthDate = new Date(year, month, day);
+    if (isNaN(birthDate.getTime())) { errorEl.textContent = '⚠️ Invalid date.'; return; }
+    if (birthDate > new Date()) { errorEl.textContent = '⚠️ Date of birth can\'t be in the future!'; return; }
+
+    const genderIndex = selectedGender === 'male' ? 0 : 1;
+    const lifeExpectancy = LIFE_DATA[country][genderIndex];
+    const lifeMs = lifeExpectancy * 365.25 * 24 * 3600 * 1000;
+
+    endDate = new Date(birthDate.getTime() + lifeMs);
+    totalLifeMs = lifeMs;
+
+    // Build summary
+    const countryNames = {
+      usa:'the United States',uk:'the United Kingdom',india:'India',china:'China',
+      australia:'Australia',new_zealand:'New Zealand',canada:'Canada',ireland:'Ireland',
+      indonesia:'Indonesia',vietnam:'Vietnam',philippines:'the Philippines',malaysia:'Malaysia',
+      mexico:'Mexico',spain:'Spain',brazil:'Brazil',france:'France',thailand:'Thailand',world:'the World'
+    };
+    const genderLabel = selectedGender === 'male' ? 'male' : 'female';
+    const summaryEl = document.getElementById('lifeSummary');
+    summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryNames[country]}</strong>, you are statistically expected to live to approximately <strong>${lifeExpectancy} years</strong> — until around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
+
+    // Show countdown panel
+    document.getElementById('setupPanel').classList.add('hidden');
+    const cdPanel = document.getElementById('countdownPanel');
+    cdPanel.classList.add('visible');
+
+    startCountdown();
+  }
+
+  function startCountdown() {
+    if (countdownInterval) clearInterval(countdownInterval);
+    updateCountdown();
+    countdownInterval = setInterval(updateCountdown, 13); // ~75fps for smooth ms
+  }
+
+  function updateCountdown() {
+    const now = new Date();
+    const remaining = endDate - now;
+
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds'].forEach(id => {
+        document.getElementById(id).textContent = '0';
+      });
+      document.getElementById('valMs').textContent = '000';
+      document.querySelector('.enjoy-msg').textContent = '💜 Time\'s a journey, not a race.';
+      document.getElementById('lifeBar').style.width = '100%';
+      return;
+    }
+
+    // Life bar
+    const elapsed = now - birthDate;
+    const pct = Math.min(100, (elapsed / totalLifeMs) * 100);
+    document.getElementById('lifeBar').style.width = pct.toFixed(4) + '%';
+
+    const ms = remaining % 1000;
+
+    // Calendar-accurate years/months/days
+    const endD = endDate;
+    const nowD = now;
+    let years  = endD.getFullYear() - nowD.getFullYear();
+    let months = endD.getMonth()    - nowD.getMonth();
+    let days   = endD.getDate()     - nowD.getDate();
+    if (days < 0)   { months--; days += new Date(endD.getFullYear(), endD.getMonth(), 0).getDate(); }
+    if (months < 0) { years--; months += 12; }
+
+    // Hours/minutes/seconds from remainder within the day
+    const totalSec = Math.floor(remaining / 1000);
+    const secsInDay = totalSec % 86400;
+    const hours   = Math.floor(secsInDay / 3600);
+    const minutes = Math.floor((secsInDay % 3600) / 60);
+    const seconds = secsInDay % 60;
+
+    setVal('valYears',   pad(years));
+    setVal('valMonths',  pad(months));
+    setVal('valDays',    pad(days));
+    setVal('valHours',   pad(hours));
+    setVal('valMinutes', pad(minutes));
+    setVal('valSeconds', pad(seconds));
+    // ms: always update directly (no pulse needed)
+    document.getElementById('valMs').textContent = String(ms).padStart(3, '0');
+  }
+
+  let msVisible = false;
+  function toggleMs() {
+    msVisible = !msVisible;
+    document.getElementById('msRow').classList.toggle('ms-hidden', !msVisible);
+    const btn = document.getElementById('msToggleBtn');
+    btn.textContent = msVisible ? '⚡ Hide Milliseconds' : '⚡ Show Milliseconds';
+    btn.classList.toggle('ms-on', msVisible);
+  }
+
+  // Fullscreen (from Cheese Art)
+  function setFullscreenIcon() {
+    document.getElementById('fullscreenBtn').textContent = document.fullscreenElement ? '⤢' : '⛶';
+  }
+  async function toggleFullscreen() {
+    try {
+      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+      else await document.exitFullscreen();
+      setFullscreenIcon();
+    } catch(e) {}
+  }
+  document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+  document.addEventListener('fullscreenchange', setFullscreenIcon);
+
+  const _prev = {};
+  function setVal(id, val) {
+    if (_prev[id] !== val) {
+      const el = document.getElementById(id);
+      el.textContent = val;
+      el.classList.remove('tick');
+      void el.offsetWidth;
+      el.classList.add('tick');
+      _prev[id] = val;
+    }
+  }
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function formatNum(n) {
+    return n.toLocaleString('en-US');
+  }
+
+  function reset() {
+    clearInterval(countdownInterval);
+    endDate = null;
+    birthDate = null;
+    totalLifeMs = null;
+
+    document.getElementById('countdownPanel').classList.remove('visible');
+    const setup = document.getElementById('setupPanel');
+    setup.classList.remove('hidden');
+    document.getElementById('lifeBar').style.width = '0%';
+    document.querySelector('.enjoy-msg').textContent = '✨ Enjoy Every Second ✨';
+
+    // Reset form
+    selectedGender = null;
+    document.getElementById('btnMale').classList.remove('selected');
+    document.getElementById('btnFemale').classList.remove('selected');
+    document.getElementById('dobDay').value = '';
+    document.getElementById('dobMonth').value = '';
+    document.getElementById('dobYear').value = '';
+    document.getElementById('countrySelect').value = '';
+    document.getElementById('errorMsg').textContent = '';
+
+    msVisible = false;
+    document.getElementById('msRow').classList.add('ms-hidden');
+    document.getElementById('msToggleBtn').textContent = '⚡ Show Milliseconds';
+    document.getElementById('msToggleBtn').classList.remove('ms-on');
+
+    Object.keys(_prev).forEach(k => delete _prev[k]);
+  }
+
+  // Restore mode from main menu
+  const savedMode = localStorage.getItem('wrenMode') || 'light';
+  document.body.className = 'mode-' + savedMode;
+</script>
+
+</body>
+</html>
