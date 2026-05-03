@@ -267,6 +267,7 @@
     const btn = document.getElementById("what-btn");
     const overlay = document.getElementById("overlay");
     const particleContainer = document.getElementById("particles");
+    const CHOCOLATE_CHIP_STUMBLE_KEY = "wren_chocolatechip_stumbled_wrenisold";
     const colors = ["#b517ff", "#ff17c8", "#7b2fff", "#e040fb", "#ce93d8"];
 
     function spawnParticles() {
@@ -302,8 +303,14 @@
       }
     }
 
+    function resetRedirectUi() {
+      overlay.classList.remove("active");
+      btn.classList.remove("launching");
+    }
+
     btn.addEventListener("click", () => {
       const url = creators[Math.floor(Math.random() * creators.length)];
+      const isWrenIsOld = url.toLowerCase().includes("@wrenisold");
 
       btn.classList.add("launching");
       spawnParticles();
@@ -315,6 +322,9 @@
       }, 120);
 
       setTimeout(() => {
+        if (isWrenIsOld) {
+          localStorage.setItem(CHOCOLATE_CHIP_STUMBLE_KEY, "1");
+        }
         window.location.href = url;
       }, 700);
     });
@@ -340,6 +350,12 @@
     document.addEventListener("fullscreenchange", updateFullscreenButton);
     document.addEventListener("webkitfullscreenchange", updateFullscreenButton);
     document.addEventListener("msfullscreenchange", updateFullscreenButton);
+    window.addEventListener("pageshow", resetRedirectUi);
+    window.addEventListener("popstate", resetRedirectUi);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) resetRedirectUi();
+    });
+    resetRedirectUi();
     updateFullscreenButton();
 
     function goHome() {
