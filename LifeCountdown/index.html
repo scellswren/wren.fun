@@ -578,35 +578,6 @@
       .countdown-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
-    /* ── WOOD THEME ── */
-    body.mode-wood {
-      --bg: #3d1f08;
-      --card: rgba(255,220,150,0.07);
-      --card-border: rgba(255,200,100,0.15);
-      --text: #f5e6d0;
-      --muted: rgba(245,230,208,0.65);
-      --accent: #c47d2e;
-      --accent-2: #e8a040;
-      --glow: rgba(196,125,46,0.35);
-    }
-    body.mode-wood {
-      background:
-        repeating-linear-gradient(91deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0.07) 1px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 10px),
-        repeating-linear-gradient(180deg, rgba(120,55,8,0.12) 0px, rgba(70,28,4,0.20) 14px, rgba(120,55,8,0.12) 28px),
-        linear-gradient(160deg,#7b3910 0%,#5a2d0b 18%,#8c4f1a 36%,#6b3810 52%,#9b5820 68%,#5a2d0b 82%,#7b3910 100%);
-      background-attachment: fixed;
-    }
-    body.mode-wood::before {
-      content: "";
-      position: fixed;
-      inset: -20%;
-      pointer-events: none;
-      background:
-        repeating-linear-gradient(89deg, transparent 0px, transparent 4px, rgba(255,210,130,0.05) 4px, rgba(255,210,130,0.05) 5px, transparent 5px, transparent 22px),
-        repeating-linear-gradient(180deg, transparent 0px, transparent 30px, rgba(0,0,0,0.05) 30px, rgba(0,0,0,0.05) 32px);
-      filter: blur(0.3px);
-      z-index: 0;
-    }
 
     /* "You Bet The Clock" banner styling */
     .beat-clock-banner {
@@ -1262,29 +1233,12 @@
     if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
   }
 
-  // ── WOOD THEME APPLICATION ──
-  function applyWoodTheme() {
-    const woodUnlocked = localStorage.getItem('wren_theme_wood_unlocked') === '1';
-    if (woodUnlocked) {
-      // Only override if no other theme saved, or if it's the saved theme
-      const savedMode = localStorage.getItem('wrenMode');
-      if (!savedMode || savedMode === 'wood') {
-        document.body.className = 'mode-wood';
-        localStorage.setItem('wrenMode', 'wood');
-      }
-    }
-  }
-
   // ── BUILD COUNTRY MENU ON LOAD ──
   buildCountryMenu();
 
-  // Restore mode from main menu (wood overrides if unlocked)
+  // Restore mode from main menu
   const savedMode = localStorage.getItem('wrenMode') || 'light';
   document.body.className = 'mode-' + savedMode;
-  // Override with wood if unlocked and visiting Life Countdown
-  if (localStorage.getItem('wren_theme_wood_unlocked') === '1') {
-    document.body.className = 'mode-wood';
-  }
 </script>
 
 </body>
