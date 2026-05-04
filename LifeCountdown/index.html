@@ -662,9 +662,151 @@
     .country-option.selected { background: rgba(155,109,255,0.22); color: #fff; }
     .country-flag { font-size: 1.3em; min-width: 1.5em; }
 
+    /* Cinematic Beat the Clock overlay */
+    #cinematicOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #cinematicOverlay.active { display: flex; }
+    #cinematicCountdown {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.6em, 6vw, 4em);
+      font-weight: 900;
+      color: #fff;
+      text-align: center;
+      text-shadow: 0 0 40px rgba(196,160,255,0.9), 0 0 80px rgba(155,109,255,0.6);
+      letter-spacing: 2px;
+      padding: 20px;
+      transform: scale(0.1);
+      opacity: 0;
+      line-height: 1.1;
+    }
+    #cinematicCountdown.expand {
+      animation: cinematicExpand 1.2s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    @keyframes cinematicExpand {
+      0%   { transform: scale(0.08); opacity: 0; }
+      40%  { opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    #cinematicLabel {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(0.5em, 1.8vw, 0.75em);
+      font-weight: 700;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: rgba(196,160,255,0.5);
+      margin-top: 20px;
+      opacity: 0;
+      transition: opacity 0.6s;
+    }
+    #cinematicLabel.show { opacity: 1; }
+    #cinematicProgress {
+      width: min(500px, 80vw);
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      margin-top: 28px;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.6s;
+    }
+    #cinematicProgress.show { opacity: 1; }
+    #cinematicProgressBar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #9b6dff, #c4a0ff, #ff7eb3);
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(196,160,255,0.8);
+      transition: width 0.05s linear;
+    }
+    /* Full-screen YOU BET THE CLOCK banner */
+    #beatBanner {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: radial-gradient(circle at 50% 50%, rgba(155,109,255,0.25) 0%, rgba(0,0,0,0.98) 70%);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    #beatBanner.active { display: flex; }
+    #beatBannerText {
+      font-family: 'Orbitron', 'Rubik', sans-serif;
+      font-size: clamp(2em, 9vw, 5.5em);
+      font-weight: 900;
+      text-align: center;
+      padding: 20px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #fff8e0, #ffd060, #ff8c00, #ffd060, #fff8e0);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: goldShine 1.5s linear infinite, beatPulse 0.5s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 30px rgba(255,180,0,0.9)) drop-shadow(0 0 60px rgba(255,120,0,0.5));
+    }
+    @keyframes beatPulse {
+      from { transform: scale(0.97); }
+      to   { transform: scale(1.03); }
+    }
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10001;
+    }
+    /* % toggle button */
+    #pctToggleBtn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1.5px solid var(--card-border);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.82em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s;
+      margin-bottom: 18px;
+      margin-left: 8px;
+    }
+    #pctToggleBtn:hover { background: rgba(155,109,255,0.12); border-color: rgba(155,109,255,0.4); color: var(--text); }
+    #pctToggleBtn.pct-on { background: rgba(155,109,255,0.18); border-color: var(--accent); color: #fff; }
+    #lifePercentDisplay {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1em, 3vw, 1.5em);
+      font-weight: 700;
+      color: var(--accent-2);
+      margin-bottom: 14px;
+      display: none;
+      text-shadow: 0 0 16px rgba(196,160,255,0.5);
+      letter-spacing: 2px;
+    }
+    #lifePercentDisplay.pct-visible { display: block; }
+
   </style>
 </head>
 <body>
+
+<canvas id="confettiCanvas"></canvas>
+<div id="cinematicOverlay">
+  <div id="cinematicCountdown"></div>
+  <div id="cinematicLabel">YEARS OF YOUR LIFE</div>
+  <div id="cinematicProgress"><div id="cinematicProgressBar"></div></div>
+</div>
+<div id="beatBanner">
+  <div id="beatBannerText">🏆 YOU BET THE CLOCK!! 🏆</div>
+</div>
 
 <div id="particles"></div>
 
@@ -752,6 +894,8 @@
       <span class="doom-ms-val" id="valMs">000</span>
     </div>
     <button id="msToggleBtn" onclick="toggleMs()">⚡ Show Milliseconds</button>
+    <button id="pctToggleBtn" onclick="togglePct()">% Life Progress</button>
+    <div id="lifePercentDisplay"></div>
 
     <!-- hidden elements kept for JS compatibility -->
     <div class="countdown-grid" style="display:none">
@@ -772,7 +916,7 @@
   // Life expectancy data [male, female] in years
   const LIFE_DATA = {
     usa:         [76.5, 81.4],
-    uk:          [71.2, 76.4],
+    uk:          [79.4, 83.1],
     india:       [70.5, 73.6],
     china:       [75.2, 80.9],
     australia:   [81.3, 85.2],
@@ -780,7 +924,7 @@
     canada:      [80.7, 84.3],
     ireland:     [80.7, 84.4],
     indonesia:   [70.9, 74.8],
-    vietnam:     [70.6, 79.9],
+    vietnam:     [71.6, 79.9],
     philippines: [67.2, 75.5],
     malaysia:    [72.6, 77.4],
     mexico:      [73.4, 79.6],
@@ -788,6 +932,42 @@
     brazil:      [72.0, 79.3],
     france:      [80.0, 85.7],
     thailand:    [72.2, 79.7],
+    argentina:   [73.0, 79.9],
+    portugal:    [79.4, 84.8],
+    italy:       [81.0, 85.4],
+    germany:     [79.0, 83.6],
+    netherlands: [80.5, 83.9],
+    belgium:     [79.5, 83.8],
+    switzerland: [81.9, 85.6],
+    russia:      [68.2, 78.0],
+    turkey:      [75.5, 81.0],
+    greece:      [79.5, 84.0],
+    serbia:      [73.5, 78.5],
+    pakistan:    [66.0, 68.0],
+    bangladesh:  [71.0, 74.5],
+    south_korea: [80.3, 86.1],
+    japan:       [81.5, 87.6],
+    taiwan:      [77.5, 83.8],
+    sri_lanka:   [73.0, 79.5],
+    uae:         [78.5, 80.0],
+    saudi_arabia:[75.0, 77.5],
+    oman:        [75.5, 78.0],
+    jordan:      [73.5, 77.0],
+    iraq:        [68.0, 73.0],
+    nigeria:     [54.5, 56.5],
+    egypt:       [69.5, 74.0],
+    sudan:       [63.0, 67.5],
+    cameroon:    [59.0, 62.5],
+    senegal:     [66.5, 70.0],
+    gambia:      [63.5, 67.5],
+    south_africa:[61.0, 67.5],
+    kenya:       [64.5, 69.5],
+    peru:        [74.5, 79.5],
+    chile:       [78.5, 83.5],
+    panama:      [76.0, 81.5],
+    colombia:    [73.5, 80.0],
+    el_salvador: [70.5, 78.5],
+    fiji:        [67.0, 72.5],
     world:       [71.0, 76.0]
   };
 
@@ -892,7 +1072,15 @@
       usa:'the United States',uk:'the United Kingdom',india:'India',china:'China',
       australia:'Australia',new_zealand:'New Zealand',canada:'Canada',ireland:'Ireland',
       indonesia:'Indonesia',vietnam:'Vietnam',philippines:'the Philippines',malaysia:'Malaysia',
-      mexico:'Mexico',spain:'Spain',brazil:'Brazil',france:'France',thailand:'Thailand',world:'the World'
+      mexico:'Mexico',spain:'Spain',brazil:'Brazil',france:'France',thailand:'Thailand',
+      argentina:'Argentina',portugal:'Portugal',italy:'Italy',germany:'Germany',
+      netherlands:'the Netherlands',belgium:'Belgium',switzerland:'Switzerland',russia:'Russia',
+      turkey:'Turkey',greece:'Greece',serbia:'Serbia',pakistan:'Pakistan',bangladesh:'Bangladesh',
+      south_korea:'South Korea',japan:'Japan',taiwan:'Taiwan',sri_lanka:'Sri Lanka',
+      uae:'the UAE',saudi_arabia:'Saudi Arabia',oman:'Oman',jordan:'Jordan',iraq:'Iraq',
+      nigeria:'Nigeria',egypt:'Egypt',sudan:'Sudan',cameroon:'Cameroon',senegal:'Senegal',
+      gambia:'The Gambia',south_africa:'South Africa',kenya:'Kenya',peru:'Peru',chile:'Chile',
+      panama:'Panama',colombia:'Colombia',el_salvador:'El Salvador',fiji:'Fiji',world:'the World'
     };
     const genderLabel = selectedGender === 'male' ? 'male' : 'female';
     const summaryEl = document.getElementById('lifeSummary');
@@ -905,11 +1093,12 @@
     }
 
     document.getElementById('setupPanel').classList.add('hidden');
-    document.getElementById('countdownPanel').classList.add('visible');
 
     if (beatTheClock) {
+      // Don't show countdownPanel yet — cinematic will reveal it at the end
       showBeatTheClock();
     } else {
+      document.getElementById('countdownPanel').classList.add('visible');
       startCountdown();
     }
   }
@@ -917,13 +1106,200 @@
   function showBeatTheClock() {
     clearInterval(countdownInterval);
     stopTickSound();
-    document.querySelector('.enjoy-msg').innerHTML = '<span class="beat-clock-banner">🏆 You Bet The Clock!</span>';
-    document.querySelector('.enjoy-sub').textContent = 'You\'ve outlived the average life expectancy. Incredible!';
-    ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds'].forEach(id => {
-      document.getElementById(id).textContent = '00';
-    });
-    document.getElementById('valMs').textContent = '000';
-    document.getElementById('lifeBar').style.width = '100%';
+
+    // Launch cinematic scene
+    const overlay = document.getElementById('cinematicOverlay');
+    const cdEl = document.getElementById('cinematicCountdown');
+    const labelEl = document.getElementById('cinematicLabel');
+    const progWrap = document.getElementById('cinematicProgress');
+    const progBar = document.getElementById('cinematicProgressBar');
+
+    overlay.classList.add('active');
+
+    // Darken and expand the countdown number
+    const totalYears = totalLifeMs / (365.25 * 24 * 3600 * 1000);
+    let currentYear = 0;
+    const startYear = birthDate.getFullYear();
+    const endYear = endDate.getFullYear();
+    const yearRange = endYear - startYear;
+
+    cdEl.textContent = startYear;
+    cdEl.style.transform = 'scale(0.08)';
+    cdEl.style.opacity = '0';
+    cdEl.style.transition = 'none';
+
+    // Expand animation
+    setTimeout(() => {
+      cdEl.classList.add('expand');
+      labelEl.classList.add('show');
+      progWrap.classList.add('show');
+    }, 200);
+
+    // Play cinematic whoosh sound on expand
+    playCinematicSound('whoosh');
+
+    // Speed-count from birth year to death year
+    setTimeout(() => {
+      let yr = startYear;
+      const totalDuration = 4000; // 4 seconds total
+      const steps = yearRange;
+      const delay = totalDuration / Math.max(steps, 1);
+
+      const yearInterval = setInterval(() => {
+        yr++;
+        cdEl.textContent = yr;
+        const pct = ((yr - startYear) / yearRange) * 100;
+        progBar.style.width = pct + '%';
+        playCinematicSound('tick-fast');
+
+        if (yr >= endYear) {
+          clearInterval(yearInterval);
+          progBar.style.width = '100%';
+          playCinematicSound('boom');
+
+          // Show confetti + banner after short pause
+          setTimeout(() => {
+            launchConfetti();
+            overlay.classList.remove('active');
+            cdEl.classList.remove('expand');
+
+            const banner = document.getElementById('beatBanner');
+            banner.classList.add('active');
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+              banner.classList.remove('active');
+              stopConfetti();
+              // Show the normal beat state
+              document.getElementById('setupPanel').classList.add('hidden');
+              document.getElementById('countdownPanel').classList.add('visible');
+              document.querySelector('.enjoy-msg').innerHTML = '<span class="beat-clock-banner">🏆 You Bet The Clock!</span>';
+              document.querySelector('.enjoy-sub').textContent = "You've outlived the average life expectancy. Incredible!";
+              ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds'].forEach(id => {
+                document.getElementById(id).textContent = '00';
+              });
+              document.getElementById('valMs').textContent = '000';
+              document.getElementById('lifeBar').style.width = '100%';
+            }, 5000);
+          }, 600);
+        }
+      }, delay);
+    }, 1400);
+  }
+
+  // ── CINEMATIC SOUNDS ──
+  let cinAudioCtx = null;
+  function getCinCtx() {
+    if (!cinAudioCtx) cinAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return cinAudioCtx;
+  }
+
+  function playCinematicSound(type) {
+    try {
+      const ctx = getCinCtx();
+      const now = ctx.currentTime;
+      if (type === 'whoosh') {
+        // Rising whoosh
+        const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.8), ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) {
+          const t = i / ctx.sampleRate;
+          d[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * t / 0.8) * 0.3;
+        }
+        const src = ctx.createBufferSource(); src.buffer = buf;
+        const bpf = ctx.createBiquadFilter(); bpf.type = 'bandpass';
+        bpf.frequency.setValueAtTime(200, now);
+        bpf.frequency.exponentialRampToValueAtTime(2000, now + 0.8);
+        bpf.Q.value = 0.8;
+        const g = ctx.createGain(); g.gain.setValueAtTime(0.4, now); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+        src.connect(bpf); bpf.connect(g); g.connect(ctx.destination); src.start(now);
+      } else if (type === 'tick-fast') {
+        const len = Math.floor(ctx.sampleRate * 0.03);
+        const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) { const t = i / ctx.sampleRate; d[i] = (Math.random() * 2 - 1) * Math.exp(-t / 0.003) * 0.5; }
+        const src = ctx.createBufferSource(); src.buffer = buf;
+        const bpf = ctx.createBiquadFilter(); bpf.type = 'bandpass'; bpf.frequency.value = 4000; bpf.Q.value = 1.5;
+        const g = ctx.createGain(); g.gain.setValueAtTime(0.3, now); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+        src.connect(bpf); bpf.connect(g); g.connect(ctx.destination); src.start(now);
+      } else if (type === 'boom') {
+        // Big cinematic hit
+        const osc = ctx.createOscillator(); osc.type = 'sine';
+        osc.frequency.setValueAtTime(80, now); osc.frequency.exponentialRampToValueAtTime(20, now + 0.5);
+        const g = ctx.createGain(); g.gain.setValueAtTime(1.0, now); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+        osc.connect(g); g.connect(ctx.destination); osc.start(now); osc.stop(now + 0.5);
+        // Noise burst
+        const len = Math.floor(ctx.sampleRate * 0.3);
+        const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) { const t = i / ctx.sampleRate; d[i] = (Math.random() * 2 - 1) * Math.exp(-t / 0.08) * 0.7; }
+        const src = ctx.createBufferSource(); src.buffer = buf;
+        const lpf = ctx.createBiquadFilter(); lpf.type = 'lowpass'; lpf.frequency.value = 800;
+        const g2 = ctx.createGain(); g2.gain.setValueAtTime(0.6, now); g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+        src.connect(lpf); lpf.connect(g2); g2.connect(ctx.destination); src.start(now);
+        // Victory sparkle
+        setTimeout(() => {
+          const ctx2 = getCinCtx(); const now2 = ctx2.currentTime;
+          [880, 1100, 1320, 1760].forEach((freq, i) => {
+            const o = ctx2.createOscillator(); o.type = 'sine'; o.frequency.value = freq;
+            const gv = ctx2.createGain(); gv.gain.setValueAtTime(0, now2 + i * 0.08);
+            gv.gain.linearRampToValueAtTime(0.18, now2 + i * 0.08 + 0.04);
+            gv.gain.exponentialRampToValueAtTime(0.0001, now2 + i * 0.08 + 0.3);
+            o.connect(gv); gv.connect(ctx2.destination); o.start(now2 + i * 0.08); o.stop(now2 + i * 0.08 + 0.32);
+          });
+        }, 100);
+      }
+    } catch(e) {}
+  }
+
+  // ── CONFETTI ──
+  let confettiAnim = null;
+  let confettiParticles = [];
+
+  function launchConfetti() {
+    const canvas = document.getElementById('confettiCanvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+    const colors = ['#9b6dff','#c4a0ff','#ff7eb3','#ffd060','#ff8c00','#fff','#69db7c','#4dabf7'];
+    confettiParticles = [];
+    for (let i = 0; i < 180; i++) {
+      confettiParticles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        w: 6 + Math.random() * 10,
+        h: 3 + Math.random() * 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.15,
+        vx: (Math.random() - 0.5) * 3,
+        vy: 2 + Math.random() * 4,
+        opacity: 1
+      });
+    }
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confettiParticles.forEach(p => {
+        ctx.save();
+        ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+        ctx.rotate(p.rot);
+        ctx.globalAlpha = p.opacity;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+        p.x += p.vx; p.y += p.vy; p.rot += p.rotSpeed;
+        if (p.y > canvas.height) { p.y = -20; p.x = Math.random() * canvas.width; }
+      });
+      confettiAnim = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  function stopConfetti() {
+    if (confettiAnim) { cancelAnimationFrame(confettiAnim); confettiAnim = null; }
+    const canvas = document.getElementById('confettiCanvas');
+    if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    confettiParticles = [];
   }
 
   function startCountdown() {
@@ -974,6 +1350,7 @@
     setVal('valSeconds', pad(seconds));
     // ms: always update directly (no pulse needed)
     document.getElementById('valMs').textContent = String(ms).padStart(3, '0');
+    updatePctDisplay();
   }
 
   let msVisible = false;
@@ -983,6 +1360,23 @@
     const btn = document.getElementById('msToggleBtn');
     btn.textContent = msVisible ? '⚡ Hide Milliseconds' : '⚡ Show Milliseconds';
     btn.classList.toggle('ms-on', msVisible);
+  }
+
+  let pctVisible = false;
+  function togglePct() {
+    pctVisible = !pctVisible;
+    const btn = document.getElementById('pctToggleBtn');
+    const display = document.getElementById('lifePercentDisplay');
+    btn.classList.toggle('pct-on', pctVisible);
+    display.classList.toggle('pct-visible', pctVisible);
+    if (pctVisible) updatePctDisplay();
+  }
+
+  function updatePctDisplay() {
+    if (!pctVisible || !birthDate || !totalLifeMs) return;
+    const elapsed = new Date() - birthDate;
+    const pct = Math.min(100, (elapsed / totalLifeMs) * 100);
+    document.getElementById('lifePercentDisplay').textContent = pct.toFixed(6) + '% of life elapsed';
   }
 
   // Fullscreen (from Cheese Art)
@@ -1050,6 +1444,16 @@
     document.getElementById('msToggleBtn').textContent = '⚡ Show Milliseconds';
     document.getElementById('msToggleBtn').classList.remove('ms-on');
 
+    pctVisible = false;
+    document.getElementById('pctToggleBtn').classList.remove('pct-on');
+    document.getElementById('lifePercentDisplay').classList.remove('pct-visible');
+    document.getElementById('lifePercentDisplay').textContent = '';
+
+    // Clean up cinematic overlays
+    document.getElementById('cinematicOverlay').classList.remove('active');
+    document.getElementById('beatBanner').classList.remove('active');
+    stopConfetti();
+
     Object.keys(_prev).forEach(k => delete _prev[k]);
   }
 
@@ -1059,20 +1463,56 @@
 
   // ── COUNTRY DATA ──
   const COUNTRIES = [
+    { value: 'argentina',   flag: '🇦🇷', winEmoji: '🥩', label: 'Argentina' },
     { value: 'australia',   flag: '🇦🇺', winEmoji: '🦘', label: 'Australia' },
+    { value: 'bangladesh',  flag: '🇧🇩', winEmoji: '🌿', label: 'Bangladesh' },
+    { value: 'belgium',     flag: '🇧🇪', winEmoji: '🍫', label: 'Belgium' },
     { value: 'brazil',      flag: '🇧🇷', winEmoji: '🌴', label: 'Brazil' },
+    { value: 'cameroon',    flag: '🇨🇲', winEmoji: '🦁', label: 'Cameroon' },
     { value: 'canada',      flag: '🇨🇦', winEmoji: '🍁', label: 'Canada' },
+    { value: 'chile',       flag: '🇨🇱', winEmoji: '🌋', label: 'Chile' },
     { value: 'china',       flag: '🇨🇳', winEmoji: '🐉', label: 'China' },
+    { value: 'colombia',    flag: '🇨🇴', winEmoji: '🌺', label: 'Colombia' },
+    { value: 'egypt',       flag: '🇪🇬', winEmoji: '🏺', label: 'Egypt' },
+    { value: 'el_salvador', flag: '🇸🇻', winEmoji: '🌊', label: 'El Salvador' },
+    { value: 'fiji',        flag: '🇫🇯', winEmoji: '🌴', label: 'Fiji' },
     { value: 'france',      flag: '🇫🇷', winEmoji: '🥐', label: 'France' },
+    { value: 'gambia',      flag: '🇬🇲', winEmoji: '🐊', label: 'The Gambia' },
+    { value: 'germany',     flag: '🇩🇪', winEmoji: '🍺', label: 'Germany' },
+    { value: 'greece',      flag: '🇬🇷', winEmoji: '🏛️', label: 'Greece' },
     { value: 'india',       flag: '🇮🇳', winEmoji: '🙏', label: 'India' },
     { value: 'indonesia',   flag: '🇮🇩', winEmoji: '🏝️', label: 'Indonesia' },
+    { value: 'iraq',        flag: '🇮🇶', winEmoji: '🌙', label: 'Iraq' },
     { value: 'ireland',     flag: '🇮🇪', winEmoji: '☘️', label: 'Ireland' },
+    { value: 'italy',       flag: '🇮🇹', winEmoji: '🍕', label: 'Italy' },
+    { value: 'japan',       flag: '🇯🇵', winEmoji: '🗾', label: 'Japan' },
+    { value: 'jordan',      flag: '🇯🇴', winEmoji: '🏜️', label: 'Jordan' },
+    { value: 'kenya',       flag: '🇰🇪', winEmoji: '🦒', label: 'Kenya' },
     { value: 'malaysia',    flag: '🇲🇾', winEmoji: '🌺', label: 'Malaysia' },
     { value: 'mexico',      flag: '🇲🇽', winEmoji: '🌮', label: 'Mexico' },
+    { value: 'netherlands', flag: '🇳🇱', winEmoji: '🌷', label: 'Netherlands' },
     { value: 'new_zealand', flag: '🇳🇿', winEmoji: '🥝', label: 'New Zealand' },
+    { value: 'nigeria',     flag: '🇳🇬', winEmoji: '🥁', label: 'Nigeria' },
+    { value: 'oman',        flag: '🇴🇲', winEmoji: '🏜️', label: 'Oman' },
+    { value: 'pakistan',    flag: '🇵🇰', winEmoji: '🕌', label: 'Pakistan' },
+    { value: 'panama',      flag: '🇵🇦', winEmoji: '⚓', label: 'Panama' },
+    { value: 'peru',        flag: '🇵🇪', winEmoji: '🦙', label: 'Peru' },
     { value: 'philippines', flag: '🇵🇭', winEmoji: '🌊', label: 'Philippines' },
+    { value: 'portugal',    flag: '🇵🇹', winEmoji: '🐟', label: 'Portugal' },
+    { value: 'russia',      flag: '🇷🇺', winEmoji: '❄️', label: 'Russia' },
+    { value: 'saudi_arabia',flag: '🇸🇦', winEmoji: '🕌', label: 'Saudi Arabia' },
+    { value: 'senegal',     flag: '🇸🇳', winEmoji: '🦁', label: 'Senegal' },
+    { value: 'serbia',      flag: '🇷🇸', winEmoji: '🦅', label: 'Serbia' },
+    { value: 'south_africa',flag: '🇿🇦', winEmoji: '🦁', label: 'South Africa' },
+    { value: 'south_korea', flag: '🇰🇷', winEmoji: '🎎', label: 'South Korea' },
     { value: 'spain',       flag: '🇪🇸', winEmoji: '💃', label: 'Spain' },
+    { value: 'sri_lanka',   flag: '🇱🇰', winEmoji: '🐘', label: 'Sri Lanka' },
+    { value: 'sudan',       flag: '🇸🇩', winEmoji: '🌍', label: 'Sudan' },
+    { value: 'switzerland', flag: '🇨🇭', winEmoji: '🏔️', label: 'Switzerland' },
+    { value: 'taiwan',      flag: '🇹🇼', winEmoji: '🏯', label: 'Taiwan' },
     { value: 'thailand',    flag: '🇹🇭', winEmoji: '🐘', label: 'Thailand' },
+    { value: 'turkey',      flag: '🇹🇷', winEmoji: '🌙', label: 'Turkey' },
+    { value: 'uae',         flag: '🇦🇪', winEmoji: '🌆', label: 'UAE' },
     { value: 'uk',          flag: '🇬🇧', winEmoji: '☂️', label: 'United Kingdom' },
     { value: 'usa',         flag: '🇺🇸', winEmoji: '🦅', label: 'United States' },
     { value: 'vietnam',     flag: '🇻🇳', winEmoji: '🍜', label: 'Vietnam' },
