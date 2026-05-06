@@ -794,6 +794,100 @@
     }
     #lifePercentDisplay.pct-visible { display: block; }
 
+/* Mode switch */
+.mode-switch {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 18px 0 26px;
+  flex-wrap: wrap;
+}
+.mode-btn {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--card-border);
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+  font-family: 'Rubik', sans-serif;
+  font-size: 0.9em;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.mode-btn:hover {
+  background: rgba(155,109,255,0.12);
+  border-color: rgba(155,109,255,0.4);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+.mode-btn.active {
+  background: rgba(155,109,255,0.2);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(155,109,255,0.18);
+}
+
+/* Year-end panel */
+#yearEndPanel {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.5s, transform 0.5s;
+  pointer-events: none;
+  display: none;
+}
+#yearEndPanel.visible {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  display: block;
+}
+.year-country-note {
+  font-size: 0.92em;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+.year-percent-display {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.05em, 3.2vw, 1.6em);
+  font-weight: 800;
+  color: var(--accent-2);
+  margin-bottom: 14px;
+  letter-spacing: 2px;
+  text-shadow: 0 0 16px rgba(196,160,255,0.5);
+}
+.year-percent-label {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: rgba(196,160,255,0.55);
+  margin-bottom: 8px;
+}
+.year-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.year-action-btn {
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: 1.5px solid var(--card-border);
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+  font-family: 'Rubik', sans-serif;
+  font-size: 0.92em;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.year-action-btn:hover {
+  background: rgba(155,109,255,0.12);
+  border-color: rgba(155,109,255,0.4);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
   </style>
 </head>
 <body>
@@ -815,9 +909,15 @@
 
 <div id="content">
   <h1>⏳ Life Countdown</h1>
-  <div class="tagline">How much time do you have left?</div>
 
-  <!-- Setup Panel -->
+<div class="tagline">How much time do you have left?</div>
+
+<div class="mode-switch">
+  <button class="mode-btn active" id="lifeModeBtn" onclick="setAppMode('life')">Life Countdown</button>
+  <button class="mode-btn" id="yearModeBtn" onclick="setAppMode('year')">Year End Countdown</button>
+</div>
+
+<!-- Setup Panel -->
   <div id="setupPanel">
 
     <div class="section-label">I am a...</div>
@@ -907,12 +1007,55 @@
       <div class="cd-card" id="cardSeconds"><span id="_valSeconds">0</span></div>
       <div class="cd-card" id="cardMs"><span id="_valMs">0</span></div>
     </div>
-
     <button id="resetBtn" onclick="reset()">← Start Over</button>
+  </div>
+
+  <!-- Year End Panel -->
+  <div id="yearEndPanel">
+    <div class="enjoy-msg">🎉 End of the Year 🎉</div>
+    <div class="enjoy-sub">Your country decides the timezone for this countdown.</div>
+
+    <div class="life-bar-wrap">
+      <div class="life-bar" id="yearBar" style="width:0%"></div>
+    </div>
+
+    <div class="year-country-note" id="yearCountryNote"></div>
+
+    <div class="doom-header">TIME LEFT THIS YEAR</div>
+    <div class="doom-display">
+      <div class="doom-seg">
+        <span class="doom-val" id="yearValDays">0</span>
+        <div class="doom-lbl">Days</div>
+      </div>
+      <div class="doom-colon">:</div>
+      <div class="doom-seg">
+        <span class="doom-val" id="yearValHours">0</span>
+        <div class="doom-lbl">Hours</div>
+      </div>
+      <div class="doom-colon">:</div>
+      <div class="doom-seg">
+        <span class="doom-val" id="yearValMinutes">0</span>
+        <div class="doom-lbl">Minutes</div>
+      </div>
+      <div class="doom-colon">:</div>
+      <div class="doom-seg">
+        <span class="doom-val" id="yearValSeconds">0</span>
+        <div class="doom-lbl">Seconds</div>
+      </div>
+    </div>
+
+    <div class="year-percent-label">Year progress</div>
+    <div class="year-percent-display" id="yearPercentDisplay">0.00%</div>
+
+    <div class="year-controls">
+      <button class="year-action-btn" onclick="setAppMode('life')">Back to Life Countdown</button>
+      <button class="year-action-btn" onclick="startYearEndCountdown()">Refresh Now</button>
+    </div>
   </div>
 </div>
 
 <script>
+
   // Life expectancy data [male, female] in years
   const LIFE_DATA = {
     usa:         [76.5, 81.4],
@@ -976,6 +1119,8 @@
   let endDate = null;
   let birthDate = null;
   let totalLifeMs = null;
+  let yearEndInterval = null;
+  let appMode = 'life';
 
   // --- Particles ---
   (function spawnParticles() {
@@ -1093,6 +1238,7 @@
     }
 
     document.getElementById('setupPanel').classList.add('hidden');
+    setAppMode('life');
 
     if (beatTheClock) {
       // Don't show countdownPanel yet — cinematic will reveal it at the end
@@ -1173,6 +1319,7 @@
               // Show the normal beat state
               document.getElementById('setupPanel').classList.add('hidden');
               document.getElementById('countdownPanel').classList.add('visible');
+              setAppMode('life');
               document.querySelector('.enjoy-msg').innerHTML = '<span class="beat-clock-banner">🏆 You Bet The Clock!</span>';
               document.querySelector('.enjoy-sub').textContent = "You've outlived the average life expectancy. Incredible!";
               ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds'].forEach(id => {
@@ -1379,6 +1526,106 @@
     document.getElementById('lifePercentDisplay').textContent = pct.toFixed(6) + '% of life elapsed';
   }
 
+
+function setAppMode(mode) {
+  appMode = mode;
+  const lifeBtn = document.getElementById('lifeModeBtn');
+  const yearBtn = document.getElementById('yearModeBtn');
+  if (lifeBtn) lifeBtn.classList.toggle('active', mode === 'life');
+  if (yearBtn) yearBtn.classList.toggle('active', mode === 'year');
+
+  const setupPanel = document.getElementById('setupPanel');
+  const lifePanel = document.getElementById('countdownPanel');
+  const yearPanel = document.getElementById('yearEndPanel');
+
+  if (mode === 'year') {
+    if (setupPanel) setupPanel.style.display = 'none';
+    if (lifePanel) lifePanel.style.display = 'none';
+    if (yearPanel) {
+      yearPanel.classList.add('visible');
+      yearPanel.style.display = 'block';
+    }
+    startYearEndCountdown();
+  } else {
+    if (yearPanel) {
+      yearPanel.classList.remove('visible');
+      yearPanel.style.display = 'none';
+    }
+    stopYearEndCountdown();
+
+    if (lifePanel && lifePanel.classList.contains('visible')) {
+      lifePanel.style.display = 'block';
+      if (setupPanel) setupPanel.style.display = 'none';
+    } else {
+      if (lifePanel) lifePanel.style.display = 'none';
+      if (setupPanel) setupPanel.style.display = 'block';
+    }
+  }
+}
+
+let yearEndTick = null;
+function stopYearEndCountdown() {
+  if (yearEndTick) {
+    clearInterval(yearEndTick);
+    yearEndTick = null;
+  }
+}
+
+function updateYearEndCountdown() {
+  const country = selectedCountry || document.getElementById('countrySelect').value || 'world';
+  const noteEl = document.getElementById('yearCountryNote');
+  const pctEl = document.getElementById('yearPercentDisplay');
+  const barEl = document.getElementById('yearBar');
+
+  if (!country) {
+    if (noteEl) noteEl.textContent = 'Pick a country so the countdown uses the right timezone.';
+    if (pctEl) pctEl.textContent = '0.00%';
+    if (barEl) barEl.style.width = '0%';
+    return;
+  }
+
+  const { timeZone, start, end, year } = getYearEndWindow(country);
+  const now = new Date();
+  const remaining = Math.max(0, end - now);
+  const elapsed = Math.max(0, now - start);
+  const total = Math.max(1, end - start);
+  const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
+
+  const totalSec = Math.floor(remaining / 1000);
+  const days = Math.floor(totalSec / 86400);
+  const hours = Math.floor((totalSec % 86400) / 3600);
+  const minutes = Math.floor((totalSec % 3600) / 60);
+  const seconds = totalSec % 60;
+
+  const dEl = document.getElementById('yearValDays');
+  const hEl = document.getElementById('yearValHours');
+  const mEl = document.getElementById('yearValMinutes');
+  const sEl = document.getElementById('yearValSeconds');
+
+  if (dEl) dEl.textContent = String(days);
+  if (hEl) hEl.textContent = String(hours).padStart(2, '0');
+  if (mEl) mEl.textContent = String(minutes).padStart(2, '0');
+  if (sEl) sEl.textContent = String(seconds).padStart(2, '0');
+
+  if (pctEl) pctEl.textContent = pct.toFixed(2) + '%';
+  if (barEl) barEl.style.width = pct.toFixed(4) + '%';
+
+  if (noteEl) {
+    const countryLabel = getCountryName(country);
+    noteEl.textContent = `${countryLabel} uses ${timeZone}. Ends on ${formatTZDate(end, timeZone)} at midnight local time.`;
+  }
+
+  if (remaining <= 0 && yearEndTick) {
+    stopYearEndCountdown();
+  }
+}
+
+function startYearEndCountdown() {
+  stopYearEndCountdown();
+  updateYearEndCountdown();
+  yearEndTick = setInterval(updateYearEndCountdown, 250);
+}
+
   // Fullscreen (from Cheese Art)
   function setFullscreenIcon() {
     document.getElementById('fullscreenBtn').textContent = document.fullscreenElement ? '⤢' : '⛶';
@@ -1439,6 +1686,10 @@
     document.querySelectorAll('#countryMenu .country-option').forEach(opt => opt.classList.remove('selected'));
     document.getElementById('errorMsg').textContent = '';
 
+    document.getElementById('yearEndPanel').classList.remove('visible');
+    document.getElementById('yearEndPanel').style.display = 'none';
+    stopYearEndCountdown();
+
     msVisible = false;
     document.getElementById('msRow').classList.add('ms-hidden');
     document.getElementById('msToggleBtn').textContent = '⚡ Show Milliseconds';
@@ -1455,6 +1706,7 @@
     stopConfetti();
 
     Object.keys(_prev).forEach(k => delete _prev[k]);
+    setAppMode('life');
   }
 
 
@@ -1521,6 +1773,156 @@
 
   let selectedCountry = '';
 
+
+const COUNTRY_TIMEZONES = {
+  argentina: 'America/Argentina/Buenos_Aires',
+  australia: 'Australia/Sydney',
+  bangladesh: 'Asia/Dhaka',
+  belgium: 'Europe/Brussels',
+  brazil: 'America/Sao_Paulo',
+  cameroon: 'Africa/Douala',
+  canada: 'America/Toronto',
+  chile: 'America/Santiago',
+  china: 'Asia/Shanghai',
+  colombia: 'America/Bogota',
+  egypt: 'Africa/Cairo',
+  el_salvador: 'America/El_Salvador',
+  fiji: 'Pacific/Fiji',
+  france: 'Europe/Paris',
+  gambia: 'Africa/Banjul',
+  germany: 'Europe/Berlin',
+  greece: 'Europe/Athens',
+  india: 'Asia/Kolkata',
+  indonesia: 'Asia/Jakarta',
+  iraq: 'Asia/Baghdad',
+  ireland: 'Europe/Dublin',
+  italy: 'Europe/Rome',
+  japan: 'Asia/Tokyo',
+  jordan: 'Asia/Amman',
+  kenya: 'Africa/Nairobi',
+  malaysia: 'Asia/Kuala_Lumpur',
+  mexico: 'America/Mexico_City',
+  netherlands: 'Europe/Amsterdam',
+  new_zealand: 'Pacific/Auckland',
+  nigeria: 'Africa/Lagos',
+  oman: 'Asia/Muscat',
+  pakistan: 'Asia/Karachi',
+  panama: 'America/Panama',
+  peru: 'America/Lima',
+  philippines: 'Asia/Manila',
+  portugal: 'Europe/Lisbon',
+  russia: 'Europe/Moscow',
+  saudi_arabia: 'Asia/Riyadh',
+  senegal: 'Africa/Dakar',
+  serbia: 'Europe/Belgrade',
+  south_africa: 'Africa/Johannesburg',
+  south_korea: 'Asia/Seoul',
+  spain: 'Europe/Madrid',
+  sri_lanka: 'Asia/Colombo',
+  sudan: 'Africa/Khartoum',
+  switzerland: 'Europe/Zurich',
+  taiwan: 'Asia/Taipei',
+  thailand: 'Asia/Bangkok',
+  turkey: 'Europe/Istanbul',
+  uae: 'Asia/Dubai',
+  uk: 'Europe/London',
+  usa: 'America/New_York',
+  vietnam: 'Asia/Ho_Chi_Minh',
+  world: 'UTC'
+};
+
+function getCountryName(val) {
+  const c = COUNTRIES.find(x => x.value === val);
+  return c ? c.label : 'Your selected country';
+}
+
+function getCountryTimeZone(val) {
+  return COUNTRY_TIMEZONES[val] || 'UTC';
+}
+
+function formatCountryLabel(val) {
+  const c = COUNTRIES.find(x => x.value === val);
+  if (!c) return '— Select your country —';
+  const emoji = isWindows ? c.winEmoji : c.flag;
+  return emoji + '  ' + c.label;
+}
+
+function restoreSelectedCountry() {
+  const savedCountry = localStorage.getItem('wrenCountry') || '';
+  if (savedCountry) {
+    selectedCountry = savedCountry;
+    const input = document.getElementById('countrySelect');
+    if (input) input.value = savedCountry;
+    const label = document.getElementById('countryBtnLabel');
+    if (label) label.textContent = formatCountryLabel(savedCountry);
+    document.querySelectorAll('#countryMenu .country-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.value === savedCountry);
+    });
+  }
+}
+
+function saveSelectedCountry(val) {
+  try { localStorage.setItem('wrenCountry', val); } catch(e) {}
+}
+
+function getPartsInTimeZone(date, timeZone) {
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    hourCycle: 'h23'
+  });
+  const parts = dtf.formatToParts(date);
+  const out = {};
+  for (const p of parts) {
+    if (p.type !== 'literal') out[p.type] = p.value;
+  }
+  return out;
+}
+
+function getTimeZoneOffsetMs(date, timeZone) {
+  const parts = getPartsInTimeZone(date, timeZone);
+  const asUTC = Date.UTC(
+    Number(parts.year),
+    Number(parts.month) - 1,
+    Number(parts.day),
+    Number(parts.hour),
+    Number(parts.minute),
+    Number(parts.second)
+  );
+  return asUTC - date.getTime();
+}
+
+function zonedDateToUtc(year, month, day, hour, minute, second, timeZone) {
+  const guess = Date.UTC(year, month - 1, day, hour, minute, second);
+  const offset = getTimeZoneOffsetMs(new Date(guess), timeZone);
+  return new Date(guess - offset);
+}
+
+function getYearEndWindow(country) {
+  const timeZone = getCountryTimeZone(country);
+  const now = new Date();
+  const nowParts = getPartsInTimeZone(now, timeZone);
+  const year = Number(nowParts.year);
+  const start = zonedDateToUtc(year, 1, 1, 0, 0, 0, timeZone);
+  const end = zonedDateToUtc(year + 1, 1, 1, 0, 0, 0, timeZone);
+  return { timeZone, nowParts, year, start, end };
+}
+
+function formatTZDate(date, timeZone) {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+}
+
   function buildCountryMenu() {
     const menu = document.getElementById('countryMenu');
     menu.innerHTML = COUNTRIES.map(c => {
@@ -1545,15 +1947,16 @@
     document.getElementById('countrySelect').value = val;
     const c = COUNTRIES.find(x => x.value === val);
     if (c) {
-      const emoji = isWindows ? c.winEmoji : c.flag;
-      document.getElementById('countryBtnLabel').textContent = emoji + '  ' + c.label;
+      document.getElementById('countryBtnLabel').textContent = formatCountryLabel(val);
     }
+    saveSelectedCountry(val);
     document.getElementById('countryMenu').classList.remove('open');
     document.getElementById('countryBtn').classList.remove('open');
     // Highlight selected
     document.querySelectorAll('#countryMenu .country-option').forEach(opt => {
       opt.classList.toggle('selected', opt.dataset.value === val);
     });
+    if (appMode === 'year') updateYearEndCountdown();
   }
 
   // Close menu if clicking outside
@@ -1675,10 +2078,12 @@
 
   // ── BUILD COUNTRY MENU ON LOAD ──
   buildCountryMenu();
+  restoreSelectedCountry();
 
   // Restore mode from main menu
   const savedMode = localStorage.getItem('wrenMode') || 'light';
   document.body.className = 'mode-' + savedMode;
+  setAppMode('life');
 </script>
 
 </body>
