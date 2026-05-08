@@ -888,6 +888,81 @@
   transform: translateY(-1px);
 }
 
+
+/* Timezone picker for year countdown */
+.year-tz-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 18px;
+}
+.year-tz-btn {
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 16px;
+  border: 1.5px solid var(--card-border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-family: 'Rubik', sans-serif;
+  font-size: 1em;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.year-tz-btn:hover, .year-tz-btn.open {
+  border-color: var(--accent);
+  background: rgba(155,109,255,0.10);
+}
+.year-tz-btn .caret { font-size: 0.7em; opacity: 0.7; transition: transform 0.2s; }
+.year-tz-btn.open .caret { transform: rotate(180deg); }
+
+#yearTzMenu {
+  display: none;
+  width: 100%;
+  max-height: 260px;
+  overflow-y: auto;
+  border-radius: 14px;
+  border: 1.5px solid var(--card-border);
+  background: rgba(12,8,24,0.97);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  margin-top: 6px;
+  margin-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155,109,255,0.4) transparent;
+  position: relative;
+  z-index: 50;
+}
+#yearTzMenu.open { display: block; }
+.tz-option {
+  padding: 11px 18px;
+  cursor: pointer;
+  font-family: 'Rubik', sans-serif;
+  font-size: 0.93em;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: background 0.15s;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.tz-option:last-child { border-bottom: none; }
+.tz-option:hover { background: rgba(155,109,255,0.14); }
+.tz-option.selected { background: rgba(155,109,255,0.22); color: #fff; }
+.tz-option-city { flex: 1; }
+.tz-option-offset {
+  font-family: 'DM Mono', 'Rubik', monospace;
+  font-size: 0.82em;
+  color: rgba(196,160,255,0.65);
+  white-space: nowrap;
+}
   </style>
 </head>
 <body>
@@ -1013,12 +1088,19 @@
   <!-- Year End Panel -->
   <div id="yearEndPanel">
     <div class="enjoy-msg">🎉 End of the Year 🎉</div>
-    <div class="enjoy-sub">Your country decides the timezone for this countdown.</div>
+    <div class="enjoy-sub">Choose your timezone for this countdown.</div>
 
     <div class="life-bar-wrap">
       <div class="life-bar" id="yearBar" style="width:0%"></div>
     </div>
 
+    <div class="year-tz-wrap" id="yearTzWrap">
+      <button type="button" class="year-tz-btn" id="yearTzBtn" onclick="toggleYearTzMenu()">
+        <span id="yearTzBtnLabel">Detecting timezone…</span>
+        <span class="caret">▼</span>
+      </button>
+      <div id="yearTzMenu"></div>
+    </div>
     <div class="year-country-note" id="yearCountryNote"></div>
 
     <div class="doom-header">TIME LEFT THIS YEAR</div>
@@ -1571,20 +1653,140 @@ function stopYearEndCountdown() {
   }
 }
 
+// ── TIMEZONE LIST FOR YEAR COUNTDOWN ──
+const YEAR_TIMEZONES = [
+  { city: 'Baker Island',      iana: 'Etc/GMT+12',              offset: -12 },
+  { city: 'Pago Pago',         iana: 'Pacific/Pago_Pago',       offset: -11 },
+  { city: 'Honolulu',          iana: 'Pacific/Honolulu',        offset: -10 },
+  { city: 'Anchorage',         iana: 'America/Anchorage',       offset: -9  },
+  { city: 'Los Angeles',       iana: 'America/Los_Angeles',     offset: -8  },
+  { city: 'Denver',            iana: 'America/Denver',          offset: -7  },
+  { city: 'Chicago',           iana: 'America/Chicago',         offset: -6  },
+  { city: 'New York',          iana: 'America/New_York',        offset: -5  },
+  { city: 'Halifax',           iana: 'America/Halifax',         offset: -4  },
+  { city: 'St. Johns',         iana: 'America/St_Johns',        offset: -3.5},
+  { city: 'São Paulo',         iana: 'America/Sao_Paulo',       offset: -3  },
+  { city: 'South Georgia',     iana: 'Atlantic/South_Georgia',  offset: -2  },
+  { city: 'Azores',            iana: 'Atlantic/Azores',         offset: -1  },
+  { city: 'London',            iana: 'Europe/London',           offset: 0   },
+  { city: 'Paris',             iana: 'Europe/Paris',            offset: 1   },
+  { city: 'Cairo',             iana: 'Africa/Cairo',            offset: 2   },
+  { city: 'Moscow',            iana: 'Europe/Moscow',           offset: 3   },
+  { city: 'Tehran',            iana: 'Asia/Tehran',             offset: 3.5 },
+  { city: 'Dubai',             iana: 'Asia/Dubai',              offset: 4   },
+  { city: 'Kabul',             iana: 'Asia/Kabul',              offset: 4.5 },
+  { city: 'Karachi',           iana: 'Asia/Karachi',            offset: 5   },
+  { city: 'Kolkata',           iana: 'Asia/Kolkata',            offset: 5.5 },
+  { city: 'Kathmandu',         iana: 'Asia/Kathmandu',          offset: 5.75},
+  { city: 'Dhaka',             iana: 'Asia/Dhaka',              offset: 6   },
+  { city: 'Yangon',            iana: 'Asia/Rangoon',            offset: 6.5 },
+  { city: 'Bangkok',           iana: 'Asia/Bangkok',            offset: 7   },
+  { city: 'Singapore',         iana: 'Asia/Singapore',          offset: 8   },
+  { city: 'Tokyo',             iana: 'Asia/Tokyo',              offset: 9   },
+  { city: 'Adelaide',          iana: 'Australia/Adelaide',      offset: 9.5 },
+  { city: 'Sydney',            iana: 'Australia/Sydney',        offset: 10  },
+  { city: 'Noumea',            iana: 'Pacific/Noumea',          offset: 11  },
+  { city: 'Auckland',          iana: 'Pacific/Auckland',        offset: 12  },
+  { city: "Nuku'alofa",        iana: 'Pacific/Tongatapu',       offset: 13  },
+  { city: 'Kiritimati',        iana: 'Pacific/Kiritimati',      offset: 14  },
+];
+
+function formatTzOffset(offset) {
+  const sign = offset >= 0 ? '+' : '-';
+  const abs = Math.abs(offset);
+  const h = Math.floor(abs);
+  const m = Math.round((abs - h) * 60);
+  return 'UTC' + sign + (m === 0 ? h : h + ':' + String(m).padStart(2,'0'));
+}
+
+let selectedYearTz = null;
+
+function detectUserTz() {
+  try {
+    const userIana = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // Get real offset now
+    const now = new Date();
+    const offsetMin = -now.getTimezoneOffset();
+    const offsetHr = offsetMin / 60;
+    // Find closest match by IANA name first, then offset
+    let match = YEAR_TIMEZONES.find(t => t.iana === userIana);
+    if (!match) match = YEAR_TIMEZONES.reduce((best, t) => {
+      return Math.abs(t.offset - offsetHr) < Math.abs(best.offset - offsetHr) ? t : best;
+    }, YEAR_TIMEZONES[0]);
+    return match;
+  } catch(e) {
+    return YEAR_TIMEZONES.find(t => t.offset === 0);
+  }
+}
+
+function buildYearTzMenu() {
+  const menu = document.getElementById('yearTzMenu');
+  if (!menu) return;
+  menu.innerHTML = YEAR_TIMEZONES.map(t => {
+    return `<div class="tz-option" data-iana="${t.iana}" onclick="selectYearTz('${t.iana}')">
+      <span class="tz-option-city">${t.city}</span>
+      <span class="tz-option-offset">${formatTzOffset(t.offset)}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggleYearTzMenu() {
+  const menu = document.getElementById('yearTzMenu');
+  const btn = document.getElementById('yearTzBtn');
+  const isOpen = menu.classList.contains('open');
+  menu.classList.toggle('open', !isOpen);
+  btn.classList.toggle('open', !isOpen);
+}
+
+function selectYearTz(iana) {
+  const tz = YEAR_TIMEZONES.find(t => t.iana === iana);
+  if (!tz) return;
+  selectedYearTz = tz;
+  const label = document.getElementById('yearTzBtnLabel');
+  if (label) label.textContent = tz.city + '  ' + formatTzOffset(tz.offset);
+  document.querySelectorAll('#yearTzMenu .tz-option').forEach(el => {
+    el.classList.toggle('selected', el.dataset.iana === iana);
+  });
+  const menu = document.getElementById('yearTzMenu');
+  const btn = document.getElementById('yearTzBtn');
+  if (menu) menu.classList.remove('open');
+  if (btn) btn.classList.remove('open');
+  try { localStorage.setItem('wrenYearTz', iana); } catch(e) {}
+  updateYearEndCountdown();
+}
+
+function restoreYearTz() {
+  const saved = localStorage.getItem('wrenYearTz');
+  const tz = (saved && YEAR_TIMEZONES.find(t => t.iana === saved)) || detectUserTz();
+  selectYearTz(tz.iana);
+}
+
+// Close tz menu on outside click
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('yearTzBtn');
+  const menu = document.getElementById('yearTzMenu');
+  if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.classList.remove('open');
+    btn.classList.remove('open');
+  }
+});
+
+function getYearEndWindowByTz(ianaName) {
+  const now = new Date();
+  const nowParts = getPartsInTimeZone(now, ianaName);
+  const year = Number(nowParts.year);
+  const start = zonedDateToUtc(year, 1, 1, 0, 0, 0, ianaName);
+  const end = zonedDateToUtc(year + 1, 1, 1, 0, 0, 0, ianaName);
+  return { timeZone: ianaName, start, end, year };
+}
+
 function updateYearEndCountdown() {
-  const country = selectedCountry || document.getElementById('countrySelect').value || 'world';
+  const tz = selectedYearTz || detectUserTz();
   const noteEl = document.getElementById('yearCountryNote');
   const pctEl = document.getElementById('yearPercentDisplay');
   const barEl = document.getElementById('yearBar');
 
-  if (!country) {
-    if (noteEl) noteEl.textContent = 'Pick a country so the countdown uses the right timezone.';
-    if (pctEl) pctEl.textContent = '0.00%';
-    if (barEl) barEl.style.width = '0%';
-    return;
-  }
-
-  const { timeZone, start, end, year } = getYearEndWindow(country);
+  const { timeZone, start, end } = getYearEndWindowByTz(tz.iana);
   const now = new Date();
   const remaining = Math.max(0, end - now);
   const elapsed = Math.max(0, now - start);
@@ -1611,8 +1813,7 @@ function updateYearEndCountdown() {
   if (barEl) barEl.style.width = pct.toFixed(4) + '%';
 
   if (noteEl) {
-    const countryLabel = getCountryName(country);
-    noteEl.textContent = `${countryLabel} uses ${timeZone}. Ends on ${formatTZDate(end, timeZone)} at midnight local time.`;
+    noteEl.textContent = `${tz.city} (${formatTzOffset(tz.offset)}) — ends ${formatTZDate(end, timeZone)} at midnight.`;
   }
 
   if (remaining <= 0 && yearEndTick) {
@@ -1621,6 +1822,8 @@ function updateYearEndCountdown() {
 }
 
 function startYearEndCountdown() {
+  buildYearTzMenu();
+  restoreYearTz();
   stopYearEndCountdown();
   updateYearEndCountdown();
   yearEndTick = setInterval(updateYearEndCountdown, 250);
