@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ImageDrop — Paste & Download</title>
+  <link rel="icon" type="image/png" href="../Favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Rubik:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3d;
+    --accent: #7c6aff;
+    --accent2: #ff6aab;
+    --text: #eeeef5;
+    --muted: #6b6b8a;
+    --success: #4ade80;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Atmospheric background */
+  body::before {
+    content: '';
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,106,255,0.12) 0%, transparent 70%);
+    top: -200px; left: -200px;
+    pointer-events: none;
+    animation: drift 12s ease-in-out infinite alternate;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,106,171,0.09) 0%, transparent 70%);
+    bottom: -100px; right: -100px;
+    pointer-events: none;
+    animation: drift 16s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(40px, 30px) scale(1.08); }
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 700px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(124,106,255,0.1);
+    border: 1px solid rgba(124,106,255,0.3);
+    border-radius: 100px;
+    padding: 5px 14px;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 6vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+  }
+
+  h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 400;
+  }
+
+  /* Drop Zone */
+  .drop-zone {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 60px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .drop-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(124,106,255,0.04), rgba(255,106,171,0.04));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--accent);
+    background: var(--surface2);
+  }
+  .drop-zone:hover::before, .drop-zone.drag-over::before { opacity: 1; }
+
+  .drop-zone.has-image {
+    border-style: solid;
+    border-color: var(--accent);
+    padding: 20px;
+  }
+
+  .drop-icon {
+    width: 64px; height: 64px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, rgba(124,106,255,0.2), rgba(255,106,171,0.15));
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    transition: transform 0.3s ease;
+  }
+  .drop-zone:hover .drop-icon { transform: scale(1.1) rotate(-4deg); }
+
+  .drop-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .drop-hint {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  kbd {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+  }
+
+  /* Preview */
+  #preview-img {
+    max-width: 100%;
+    max-height: 420px;
+    border-radius: 10px;
+    display: none;
+    margin: 0 auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .preview-meta {
+    display: none;
+    margin-top: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* Controls */
+  .controls {
+    margin-top: 20px;
+    display: none;
+    gap: 12px;
+    flex-direction: column;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .format-row {
+    display: flex;
+    gap: 10px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .fmt-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .fmt-btn.active {
+    background: linear-gradient(135deg, var(--accent), #9b8cff);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(124,106,255,0.35);
+  }
+
+  .fmt-btn:not(.active):hover {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .quality-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+  }
+
+  .quality-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    min-width: 60px;
+  }
+
+  input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #9b8cff);
+    box-shadow: 0 2px 8px rgba(124,106,255,0.5);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+  #quality-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-download {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.25s;
+    box-shadow: 0 6px 24px rgba(124,106,255,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-download::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.08);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .btn-download:hover::before { opacity: 1; }
+  .btn-download:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(124,106,255,0.45); }
+  .btn-download:active { transform: translateY(0); }
+
+  .btn-clear {
+    padding: 15px 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-clear:hover { background: var(--surface2); color: var(--text); border-color: var(--muted); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--success);
+    color: #0a1a0a;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 12px 22px;
+    border-radius: 100px;
+    box-shadow: 0 8px 32px rgba(74,222,128,0.3);
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 100;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Instructions */
+  .instructions {
+    margin-top: 24px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    border: 1px solid var(--border);
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .instructions-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 14px;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .step-num {
+    width: 22px; height: 22px;
+    min-width: 22px;
+    background: linear-gradient(135deg, rgba(124,106,255,0.2), rgba(255,106,171,0.15));
+    border: 1px solid rgba(124,106,255,0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .drop-zone.has-image .drop-empty { display: none; }
+
+  /* ── Tab Navigation ── */
+  .tab-nav {
+    display: flex;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 5px;
+    margin-bottom: 28px;
+    animation: fadeDown 0.5s ease both;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    letter-spacing: 0.3px;
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--accent), #9b8cff);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(124,106,255,0.35);
+  }
+  .tab-btn:not(.active):hover { background: var(--surface2); color: var(--text); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Doc Editor Tab ── */
+  .doc-wrap {
+    animation: fadeUp 0.5s ease both;
+  }
+  .doc-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 10px 16px;
+    flex-wrap: wrap;
+  }
+  .doc-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .doc-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+  .doc-toolbar-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .doc-fmt-row {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 3px;
+    border: 1px solid var(--border);
+  }
+  .doc-fmt-btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .doc-fmt-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  .doc-fmt-btn:not(.active):hover { background: var(--border); color: var(--text); }
+
+  .btn-grab-all {
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    box-shadow: 0 3px 12px rgba(124,106,255,0.3);
+  }
+  .btn-grab-all:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,106,255,0.45); }
+  .btn-grab-all:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-clear-doc {
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-clear-doc:hover { background: var(--surface2); color: var(--text); }
+
+  /* The actual doc-like editing surface */
+  .doc-page {
+    background: #fff;
+    border-radius: 0 0 var(--radius) var(--radius);
+    min-height: 500px;
+    padding: 48px 56px;
+    outline: none;
+    font-family: 'Georgia', serif;
+    font-size: 15px;
+    line-height: 1.8;
+    color: #1a1a2e;
+    border: 1px solid var(--border);
+    border-top: none;
+    overflow-y: auto;
+    cursor: text;
+    position: relative;
+  }
+  .doc-page:empty::before {
+    content: 'Paste anything from Google Docs or Slides here (Ctrl+V or ⌘V). Any images in the content will automatically appear below for download.';
+    color: #aaa;
+    font-style: italic;
+    pointer-events: none;
+  }
+  .doc-page img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 8px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: outline 0.15s;
+  }
+  .doc-page img:hover { outline: 3px solid #7c6aff; outline-offset: 2px; }
+  .doc-page img.selected { outline: 3px solid #ff6aab; outline-offset: 2px; }
+
+  /* Image gallery after grab */
+  .doc-img-gallery {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+    animation: fadeUp 0.4s ease both;
+  }
+  .doc-img-gallery.visible { display: flex; }
+
+  .gallery-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .gallery-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    transition: border-color 0.2s;
+  }
+  .gallery-item:hover { border-color: var(--accent); }
+  .gallery-thumb {
+    width: 64px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+  .gallery-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .gallery-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .gallery-dims {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .gallery-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .btn-dl-single {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), #9b8cff);
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-dl-single:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124,106,255,0.4); }
+
+  .no-images-msg {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 12px;
+  }
+
+  /* ── Wren.fun home link ── */
+  #wrenHome {
+    position: fixed;
+    top: 14px;
+    left: 20px;
+    z-index: 1000;
+    font-size: 1.5em;
+    font-family: 'Rubik', sans-serif;
+    color: #ffffff;
+    text-decoration: none;
+    transition: opacity 0.8s ease, transform 0.2s ease;
+    display: inline-block;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  #wrenHome:hover { transform: scale(1.15); }
+
+  /* ── Fullscreen button ── */
+  #fullscreenBtn {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    background: rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.78);
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 9px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85em;
+    font-weight: 700;
+    transition: background 0.2s, color 0.2s;
+    z-index: 1000;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    appearance: none;
+    outline: none;
+  }
+  #fullscreenBtn:hover { background: rgba(255,255,255,0.16); color: white; }
+  #fullscreenBtn:active { background: rgba(255,255,255,0.10); }
+</style>
+</head>
+<body>
+
+<a id="wrenHome" href="https://scellswren.github.io/wren.fun/">Wren.fun</a>
+<button id="fullscreenBtn" onclick="toggleFullscreen()">⛶</button>
+
+<div class="wrapper">
+  <header>
+    <div class="logo-tag">Image Grabber</div>
+    <h1>Paste. <span>Download.</span></h1>
+    <p class="subtitle">Copy any image from Google Slides, Docs, or the web — paste it here and save it.</p>
+  </header>
+
+  <!-- Tab Nav -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="paste">🖼 Paste & Drag</button>
+    <button class="tab-btn" data-tab="doc">📄 Paste Into Page</button>
+  </div>
+
+  <!-- Tab: Paste Zone -->
+  <div class="tab-panel active" id="tab-paste">
+
+  <div class="drop-zone" id="dropZone" tabindex="0">
+    <div class="drop-empty">
+      <div class="drop-icon">🖼️</div>
+      <div class="drop-title">Paste your image here</div>
+      <div class="drop-hint">Press <kbd>Ctrl</kbd>+<kbd>V</kbd> or <kbd>⌘</kbd>+<kbd>V</kbd> to paste</div>
+    </div>
+    <img id="preview-img" alt="Pasted image preview" />
+    <div class="preview-meta" id="preview-meta"></div>
+  </div>
+
+  <div class="controls" id="controls">
+    <div class="format-row">
+      <button class="fmt-btn active" data-fmt="png">PNG</button>
+      <button class="fmt-btn" data-fmt="jpeg">JPG</button>
+    </div>
+
+    <div class="quality-row" id="quality-row" style="display:none;">
+      <span class="quality-label">Quality</span>
+      <input type="range" id="quality-slider" min="10" max="100" value="92" />
+      <span id="quality-val">92%</span>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-download" id="downloadBtn">⬇ Download Image</button>
+      <button class="btn-clear" id="clearBtn">✕ Clear</button>
+    </div>
+  </div>
+
+  <div class="instructions" id="instructions">
+    <div class="instructions-title">How to use</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>Open Google Slides (or any webpage), right-click the image and choose <strong style="color:var(--text)">Copy Image</strong>.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>Click anywhere on the paste zone above, then press <kbd>Ctrl</kbd>+<kbd>V</kbd> (or <kbd>⌘V</kbd> on Mac).</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>Choose your format (PNG or JPG), then hit <strong style="color:var(--text)">Download Image</strong>.</div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /tab-paste -->
+
+  <!-- Tab: Doc Editor -->
+  <div class="tab-panel" id="tab-doc">
+    <div class="doc-wrap">
+
+      <div class="doc-toolbar">
+        <div class="doc-toolbar-left">
+          <span class="doc-hint">📋 Paste from Google Docs/Slides — images are auto-detected</span>
+        </div>
+        <div class="doc-toolbar-right">
+          <div class="doc-fmt-row">
+            <button class="doc-fmt-btn active" data-dfmt="png">PNG</button>
+            <button class="doc-fmt-btn" data-dfmt="jpeg">JPG</button>
+          </div>
+          <button class="btn-grab-all" id="grabAllBtn" disabled>⬇ Grab Images</button>
+          <button class="btn-clear-doc" id="clearDocBtn">✕ Clear</button>
+        </div>
+      </div>
+
+      <div class="doc-page" id="docPage" contenteditable="true" spellcheck="false"></div>
+
+      <div class="no-images-msg" id="noImagesMsg">No images found in the pasted content. Try copying a section that contains images.</div>
+
+      <div class="doc-img-gallery" id="docGallery">
+        <div class="gallery-header" id="galleryHeader"></div>
+        <div id="galleryItems"></div>
+      </div>
+
+    </div>
+  </div><!-- /tab-doc -->
+
+</div>
+
+<div class="toast" id="toast">✓ Image downloaded!</div>
+
+<script>
+  let currentBlob = null;
+  let currentFormat = 'png';
+
+  const dropZone = document.getElementById('dropZone');
+  const previewImg = document.getElementById('preview-img');
+  const previewMeta = document.getElementById('preview-meta');
+  const controls = document.getElementById('controls');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const qualityRow = document.getElementById('quality-row');
+  const qualitySlider = document.getElementById('quality-slider');
+  const qualityVal = document.getElementById('quality-val');
+  const toast = document.getElementById('toast');
+  const instructions = document.getElementById('instructions');
+
+  // Format buttons
+  document.querySelectorAll('.fmt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fmt-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFormat = btn.dataset.fmt;
+      qualityRow.style.display = currentFormat === 'jpeg' ? 'flex' : 'none';
+      updateDownloadBtn();
+    });
+  });
+
+  qualitySlider.addEventListener('input', () => {
+    qualityVal.textContent = qualitySlider.value + '%';
+  });
+
+  function updateDownloadBtn() {
+    downloadBtn.textContent = `⬇ Download as .${currentFormat === 'jpeg' ? 'jpg' : 'png'}`;
+  }
+
+  dropZone.addEventListener('focus', () => {});
+
+  // Also support drag-drop
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.classList.add('drag-over');
+  });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const items = e.dataTransfer.items;
+    for (let item of items) {
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        loadFile(item.getAsFile());
+        return;
+      }
+    }
+  });
+
+  function handlePaste(e) {
+    const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+    if (!items) return;
+    for (let item of items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        loadFile(item.getAsFile());
+        return;
+      }
+    }
+  }
+
+  function loadFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      showPreview(ev.target.result, file);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function showPreview(dataUrl, file) {
+    previewImg.src = dataUrl;
+    previewImg.style.display = 'block';
+    previewMeta.style.display = 'block';
+
+    previewImg.onload = () => {
+      const w = previewImg.naturalWidth;
+      const h = previewImg.naturalHeight;
+      const kb = file ? Math.round(file.size / 1024) : '?';
+      previewMeta.textContent = `${w} × ${h}px  •  ~${kb} KB`;
+    };
+
+    dropZone.classList.add('has-image');
+    controls.style.display = 'flex';
+    instructions.style.display = 'none';
+    updateDownloadBtn();
+
+    // Store blob for download
+    fetch(dataUrl).then(r => r.blob()).then(b => { currentBlob = b; });
+  }
+
+  downloadBtn.addEventListener('click', () => {
+    if (!previewImg.src || previewImg.src === window.location.href) return;
+
+    const canvas = document.createElement('canvas');
+    const img = new Image();
+    img.src = previewImg.src;
+    img.onload = () => {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      if (currentFormat === 'jpeg') {
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      ctx.drawImage(img, 0, 0);
+      const quality = currentFormat === 'jpeg' ? parseInt(qualitySlider.value) / 100 : undefined;
+      const mimeType = currentFormat === 'jpeg' ? 'image/jpeg' : 'image/png';
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `image.${currentFormat === 'jpeg' ? 'jpg' : 'png'}`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        showToast();
+      }, mimeType, quality);
+    };
+  });
+
+  clearBtn.addEventListener('click', () => {
+    previewImg.src = '';
+    previewImg.style.display = 'none';
+    previewMeta.style.display = 'none';
+    previewMeta.textContent = '';
+    dropZone.classList.remove('has-image');
+    controls.style.display = 'none';
+    instructions.style.display = 'block';
+    currentBlob = null;
+  });
+
+  function showToast() {
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // ── Tab Switching ──
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ── Doc Editor ──
+  const docPage = document.getElementById('docPage');
+  const grabAllBtn = document.getElementById('grabAllBtn');
+  const clearDocBtn = document.getElementById('clearDocBtn');
+  const docGallery = document.getElementById('docGallery');
+  const galleryItems = document.getElementById('galleryItems');
+  const galleryHeader = document.getElementById('galleryHeader');
+  const noImagesMsg = document.getElementById('noImagesMsg');
+  let docFormat = 'png';
+
+  document.querySelectorAll('.doc-fmt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.doc-fmt-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      docFormat = btn.dataset.dfmt;
+    });
+  });
+
+  const docObserver = new MutationObserver(() => { updateGrabBtn(); autoScanImages(); });
+  docObserver.observe(docPage, { childList: true, subtree: true });
+  docPage.addEventListener('input', () => { updateGrabBtn(); autoScanImages(); });
+
+  function updateGrabBtn() {
+    const imgs = docPage.querySelectorAll('img');
+    grabAllBtn.disabled = imgs.length === 0;
+    grabAllBtn.textContent = imgs.length > 0 ? `⬇ Download All (${imgs.length})` : '⬇ Grab Images';
+  }
+
+  let autoScanTimer = null;
+  function autoScanImages() {
+    clearTimeout(autoScanTimer);
+    autoScanTimer = setTimeout(() => {
+      const imgs = docPage.querySelectorAll('img');
+      if (imgs.length > 0) {
+        grabAllBtn.click();
+      }
+    }, 400);
+  }
+
+  grabAllBtn.addEventListener('click', () => {
+    const imgs = Array.from(docPage.querySelectorAll('img'));
+    noImagesMsg.style.display = 'none';
+    galleryItems.innerHTML = '';
+    docGallery.classList.remove('visible');
+
+    if (imgs.length === 0) {
+      noImagesMsg.style.display = 'block';
+      return;
+    }
+
+    galleryHeader.textContent = `Found ${imgs.length} image${imgs.length > 1 ? 's' : ''} — click to download`;
+    docGallery.classList.add('visible');
+
+    imgs.forEach((img, i) => {
+      const entry = document.createElement('div');
+      entry.className = 'gallery-item';
+
+      const thumb = document.createElement('img');
+      thumb.className = 'gallery-thumb';
+      thumb.src = img.src;
+      thumb.alt = '';
+
+      const info = document.createElement('div');
+      info.className = 'gallery-info';
+
+      const name = document.createElement('div');
+      name.className = 'gallery-name';
+      name.textContent = `image_${i + 1}.${docFormat === 'jpeg' ? 'jpg' : 'png'}`;
+
+      const dims = document.createElement('div');
+      dims.className = 'gallery-dims';
+      dims.textContent = 'Loading…';
+
+      const tempImg = new Image();
+      tempImg.onload = () => { dims.textContent = `${tempImg.naturalWidth} × ${tempImg.naturalHeight}px`; };
+      tempImg.src = img.src;
+
+      info.appendChild(name);
+      info.appendChild(dims);
+
+      const actions = document.createElement('div');
+      actions.className = 'gallery-actions';
+
+      const dlBtn = document.createElement('button');
+      dlBtn.className = 'btn-dl-single';
+      dlBtn.textContent = '⬇ Download';
+      dlBtn.addEventListener('click', () => downloadDocImage(img.src, i + 1));
+
+      actions.appendChild(dlBtn);
+      entry.appendChild(thumb);
+      entry.appendChild(info);
+      entry.appendChild(actions);
+      galleryItems.appendChild(entry);
+    });
+  });
+
+  function downloadDocImage(src, index) {
+    const canvas = document.createElement('canvas');
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      if (docFormat === 'jpeg') {
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      ctx.drawImage(img, 0, 0);
+      const mimeType = docFormat === 'jpeg' ? 'image/jpeg' : 'image/png';
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `image_${index}.${docFormat === 'jpeg' ? 'jpg' : 'png'}`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        showToast();
+      }, mimeType, 0.92);
+    };
+    img.onerror = () => {
+      const a = document.createElement('a');
+      a.href = src;
+      a.download = `image_${index}.${docFormat === 'jpeg' ? 'jpg' : 'png'}`;
+      a.target = '_blank';
+      a.click();
+      showToast();
+    };
+    img.src = src;
+  }
+
+  clearDocBtn.addEventListener('click', () => {
+    docPage.innerHTML = '';
+    docGallery.classList.remove('visible');
+    galleryItems.innerHTML = '';
+    noImagesMsg.style.display = 'none';
+    grabAllBtn.disabled = true;
+    grabAllBtn.textContent = '⬇ Grab Images';
+  });
+
+  // Only intercept paste for paste-zone tab; let doc editor handle its own paste natively
+  document.removeEventListener('paste', handlePaste);
+  document.addEventListener('paste', (e) => {
+    const activeTab = document.querySelector('.tab-btn.active')?.dataset?.tab;
+    if (activeTab === 'doc') return;
+    handlePaste(e);
+  });
+
+  // ── Fullscreen ──
+  function updateFullscreenButton() {
+    const btn = document.getElementById('fullscreenBtn');
+    if (!btn) return;
+    btn.textContent = document.fullscreenElement ? '🗗' : '⛶';
+  }
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  }
+  document.addEventListener('fullscreenchange', updateFullscreenButton);
+  updateFullscreenButton();
+</script>
+</body>
+</html>
