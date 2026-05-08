@@ -1240,7 +1240,8 @@
     return days[m];
   }
 
-  function calculate() {
+  
+function calculate() {
     const errorEl = document.getElementById('errorMsg');
     errorEl.textContent = '';
     ['dobDay','dobMonth','dobYear'].forEach(id => document.getElementById(id).classList.remove('input-error'));
@@ -1250,7 +1251,12 @@
     const dayRaw   = document.getElementById('dobDay').value.trim();
     const monthRaw = document.getElementById('dobMonth').value.trim();
     const yearRaw  = document.getElementById('dobYear').value.trim();
-    const country  = document.getElementById('countrySelect').value;
+    const countryInput = document.getElementById('countrySelect').value;
+    const country = countryInput || selectedCountry;
+
+    // Keep the hidden/select state in sync even if the click handler missed it.
+    if (country && !selectedCountry) selectedCountry = country;
+    if (country && !countryInput) document.getElementById('countrySelect').value = country;
 
     // Check all filled
     if (!dayRaw || !monthRaw || !yearRaw) {
@@ -1287,7 +1293,7 @@
       document.getElementById('dobYear').classList.add('input-error');
       errorEl.textContent = '⚠️ Date of birth can\'t be in the future!'; return;
     }
-    if (!country || !selectedCountry) { errorEl.textContent = '⚠️ Please select your country.'; return; }
+    if (!country) { errorEl.textContent = '⚠️ Please select your country.'; return; }
 
     const genderIndex = selectedGender === 'male' ? 0 : 1;
     const lifeExpectancy = LIFE_DATA[country][genderIndex];
@@ -1322,11 +1328,16 @@
     document.getElementById('setupPanel').classList.add('hidden');
     setAppMode('life');
 
+    const lifePanel = document.getElementById('countdownPanel');
+    if (lifePanel) {
+      lifePanel.style.display = 'block';
+      lifePanel.classList.add('visible');
+    }
+
     if (beatTheClock) {
       // Don't show countdownPanel yet — cinematic will reveal it at the end
       showBeatTheClock();
     } else {
-      document.getElementById('countdownPanel').classList.add('visible');
       startCountdown();
     }
   }
@@ -1400,8 +1411,12 @@
               stopConfetti();
               // Show the normal beat state
               document.getElementById('setupPanel').classList.add('hidden');
-              document.getElementById('countdownPanel').classList.add('visible');
               setAppMode('life');
+              const lifePanel = document.getElementById('countdownPanel');
+              if (lifePanel) {
+                lifePanel.style.display = 'block';
+                lifePanel.classList.add('visible');
+              }
               document.querySelector('.enjoy-msg').innerHTML = '<span class="beat-clock-banner">🏆 You Bet The Clock!</span>';
               document.querySelector('.enjoy-sub').textContent = "You've outlived the average life expectancy. Incredible!";
               ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds'].forEach(id => {
@@ -1609,6 +1624,7 @@
   }
 
 
+
 function setAppMode(mode) {
   appMode = mode;
   const lifeBtn = document.getElementById('lifeModeBtn');
@@ -1622,7 +1638,10 @@ function setAppMode(mode) {
 
   if (mode === 'year') {
     if (setupPanel) setupPanel.style.display = 'none';
-    if (lifePanel) lifePanel.style.display = 'none';
+    if (lifePanel) {
+      lifePanel.classList.remove('visible');
+      lifePanel.style.display = 'none';
+    }
     if (yearPanel) {
       yearPanel.classList.add('visible');
       yearPanel.style.display = 'block';
@@ -1635,12 +1654,15 @@ function setAppMode(mode) {
     }
     stopYearEndCountdown();
 
-    if (lifePanel && lifePanel.classList.contains('visible')) {
+    if (lifePanel) {
       lifePanel.style.display = 'block';
-      if (setupPanel) setupPanel.style.display = 'none';
-    } else {
-      if (lifePanel) lifePanel.style.display = 'none';
-      if (setupPanel) setupPanel.style.display = 'block';
+      if (lifePanel.classList.contains('visible')) {
+        if (setupPanel) setupPanel.style.display = 'none';
+      } else {
+        if (setupPanel) setupPanel.style.display = 'block';
+      }
+    } else if (setupPanel) {
+      setupPanel.style.display = 'block';
     }
   }
 }
