@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ImageDrop — Paste & Download</title>
+<title>Paste Image</title>
   <link rel="icon" type="image/png" href="../Favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Rubik:wght@700&display=swap" rel="stylesheet">
 <style>
@@ -559,7 +559,7 @@
     position: relative;
   }
   .doc-page:empty::before {
-    content: 'Paste anything from Google Docs or Slides here (Ctrl+V or ⌘V). Any images in the content will automatically appear below for download.';
+    content: 'Paste any content here (Ctrl+V or ⌘V). Any images found will automatically appear below for download.';
     color: #aaa;
     font-style: italic;
     pointer-events: none;
@@ -710,7 +710,7 @@
   <header>
     <div class="logo-tag">Image Grabber</div>
     <h1>Paste. <span>Download.</span></h1>
-    <p class="subtitle">Copy any image from Google Slides, Docs, or the web — paste it here and save it.</p>
+    <p class="subtitle">Paste ANY Image</p>
   </header>
 
   <!-- Tab Nav -->
@@ -755,11 +755,11 @@
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
-        <div>Open Google Slides (or any webpage), right-click the image and choose <strong style="color:var(--text)">Copy Image</strong>.</div>
+        <div>Right-click any image on any page and choose <strong style="color:var(--text)">Copy Image</strong>.</div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <div>Click anywhere on the paste zone above, then press <kbd>Ctrl</kbd>+<kbd>V</kbd> (or <kbd>⌘V</kbd> on Mac).</div>
+        <div>Click anywhere on the paste zone above, then press <kbd>Ctrl</kbd>+<kbd>V</kbd> (or <kbd>⌘V</kbd> on Mac) to paste.</div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
@@ -776,14 +776,14 @@
 
       <div class="doc-toolbar">
         <div class="doc-toolbar-left">
-          <span class="doc-hint">📋 Paste from Google Docs/Slides — images are auto-detected</span>
+          <span class="doc-hint">📋 Paste any content — images are auto-detected</span>
         </div>
         <div class="doc-toolbar-right">
           <div class="doc-fmt-row">
             <button class="doc-fmt-btn active" data-dfmt="png">PNG</button>
             <button class="doc-fmt-btn" data-dfmt="jpeg">JPG</button>
           </div>
-          <button class="btn-grab-all" id="grabAllBtn" disabled>⬇ Grab Images</button>
+          <button class="btn-grab-all" id="grabAllBtn" disabled></button>
           <button class="btn-clear-doc" id="clearDocBtn">✕ Clear</button>
         </div>
       </div>
@@ -981,7 +981,7 @@
   function updateGrabBtn() {
     const imgs = docPage.querySelectorAll('img');
     grabAllBtn.disabled = imgs.length === 0;
-    grabAllBtn.textContent = imgs.length > 0 ? `⬇ Download All (${imgs.length})` : '⬇ Grab Images';
+    grabAllBtn.textContent = imgs.length > 0 ? `⬇ Download All (${imgs.length})` : '';
   }
 
   let autoScanTimer = null;
@@ -1093,7 +1093,7 @@
     galleryItems.innerHTML = '';
     noImagesMsg.style.display = 'none';
     grabAllBtn.disabled = true;
-    grabAllBtn.textContent = '⬇ Grab Images';
+    grabAllBtn.textContent = '';
   });
 
   // Only intercept paste for paste-zone tab; let doc editor handle its own paste natively
