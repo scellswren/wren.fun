@@ -1084,7 +1084,7 @@
           <div class="vsite-pill">🎶 Spotify</div>
           <div class="vsite-pill">+ many more</div>
         </div>
-        <p class="video-note">Downloads are handled via <a href="https://cobalt.tools" target="_blank" style="color:var(--accent)">cobalt.tools</a> — a free, open-source video downloader. No tracking, no ads.</p>
+        <p class="video-note">Paste a link, choose MP3 or MP4, and hit download — you'll be sent to the best free downloader for that platform. No installs needed.</p>
       </div>
 
     </div>
@@ -1457,7 +1457,7 @@
     } catch { return 'video'; }
   }
 
-  videoDownloadBtn.addEventListener('click', async () => {
+  videoDownloadBtn.addEventListener('click', () => {
     const url = videoUrlInput.value.trim();
     if (!url) {
       videoUrlInput.focus();
@@ -1468,82 +1468,44 @@
 
     try { new URL(url); } catch {
       setVideoStatus('❌', 'Invalid URL', 'Please paste a valid link.', 'error');
-      videoStatus.style.display = 'block';
       return;
     }
 
     const platform = detectPlatform(url);
-    videoDownloadBtn.disabled = true;
-    setVideoStatus('⏳', `Fetching from ${platform}…`, url);
+    const encoded = encodeURIComponent(url);
 
-    try {
-      // Use cobalt.tools API - free, open-source video downloader
-      const cobaltApi = 'https://api.cobalt.tools/';
+    // Pick the best downloader per platform
+    let downloaderUrl;
 
-      const body = {
-        url: url,
-        downloadMode: currentVFmt === 'mp3' ? 'audio' : 'auto',
-        videoQuality: currentQuality,
-        audioFormat: 'mp3',
-        filenameStyle: 'pretty',
-        twitterGif: false,
-      };
-
-      const res = await fetch(cobaltApi, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-
-      const data = await res.json();
-
-      if (data.status === 'error') {
-        throw new Error(data.error?.code || 'Cobalt returned an error');
+    if (currentVFmt === 'mp3') {
+      // For audio: y2mate handles MP3 from most platforms well
+      downloaderUrl = `https://www.y2mate.com/en872/analyze/ajax?url=${encoded}&q_auto=1&ajax=1`;
+      // Just open cobalt for audio — most reliable
+      downloaderUrl = `https://cobalt.tools/#${encoded}`;
+    } else {
+      // MP4: route per platform
+      const host = (() => { try { return new URL(url).hostname.replace('www.', ''); } catch { return ''; } })();
+      if (host.includes('youtube') || host.includes('youtu.be')) {
+        downloaderUrl = `https://yt1s.com/en/youtube-to-mp4?q=${encoded}`;
+      } else if (host.includes('tiktok')) {
+        downloaderUrl = `https://snaptik.app/?url=${encoded}`;
+      } else if (host.includes('instagram')) {
+        downloaderUrl = `https://snapinsta.app/?url=${encoded}`;
+      } else if (host.includes('twitter') || host.includes('x.com')) {
+        downloaderUrl = `https://twittervideodownloader.com/?url=${encoded}`;
+      } else {
+        downloaderUrl = `https://cobalt.tools/#${encoded}`;
       }
-
-      let downloadUrl = null;
-      let filename = null;
-
-      if (data.status === 'redirect' || data.status === 'stream') {
-        downloadUrl = data.url;
-        filename = data.filename || `download.${currentVFmt}`;
-      } else if (data.status === 'tunnel') {
-        downloadUrl = data.url;
-        filename = data.filename || `download.${currentVFmt}`;
-      } else if (data.status === 'picker') {
-        // Multiple streams (e.g. Instagram carousel) — just take the first
-        downloadUrl = data.picker?.[0]?.url;
-        filename = `download.${currentVFmt}`;
-      }
-
-      if (!downloadUrl) throw new Error('No download URL returned');
-
-      setVideoStatus('✅', 'Download starting…', filename, 'done');
-
-      // Trigger download
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = filename;
-      a.target = '_blank';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      showVideoToast();
-
-      setTimeout(() => {
-        videoStatus.style.display = 'none';
-        videoDownloadBtn.disabled = false;
-      }, 4000);
-
-    } catch (err) {
-      console.error(err);
-      setVideoStatus('❌', 'Download failed', err.message || 'Try a different link or check the URL.', 'error');
-      videoDownloadBtn.disabled = false;
     }
+
+    setVideoStatus('🚀', `Opening downloader for ${platform}…`, 'A new tab will open — click Download there to save your file.', 'done');
+    showVideoToast();
+
+    setTimeout(() => {
+      window.open(downloaderUrl, '_blank');
+      videoStatus.style.display = 'none';
+      videoDownloadBtn.disabled = false;
+    }, 600);
   });
 
   // Allow pressing Enter in the URL field
