@@ -6051,147 +6051,20 @@ const cog=document.getElementById('settingsCog'),settingsMenu=document.getElemen
 
 function persistUnlocked(t){if(!unlockedFeatures.includes(t)){unlockedFeatures.push(t);localStorage.setItem(UNLOCK_KEY,JSON.stringify(unlockedFeatures));}}
 
-// ── ORE THEME ALTERNATING SWITCH LOGIC ──────────────────────────
-function getEmeraldSwitches(){
-  try{return JSON.parse(localStorage.getItem(EMERALD_SWITCH_KEY)||'{"lightCount":0,"darkCount":0,"lastMode":null,"valid":true}');}
-  catch(e){return{lightCount:0,darkCount:0,lastMode:null,valid:true};}
-}
-function setEmeraldSwitches(d){localStorage.setItem(EMERALD_SWITCH_KEY,JSON.stringify(d));}
-function getDiamondSwitches(){
-  try{return JSON.parse(localStorage.getItem(DIAMOND_SWITCH_KEY)||'{"dayCount":0,"nightCount":0,"lastMode":null,"valid":true}');}
-  catch(e){return{dayCount:0,nightCount:0,lastMode:null,valid:true};}
-}
-function setDiamondSwitches(d){localStorage.setItem(DIAMOND_SWITCH_KEY,JSON.stringify(d));}
-
-// Called whenever a mode is applied — checks if it's part of an ore unlock chain
-function trackTurquoiseCyanSwitch(m){
-  if(localStorage.getItem(TURQUOISE_CYAN_THEME_UNLOCK_KEY)==='1')return;
-  const lastMode=localStorage.getItem('wren_last_tc_mode');
-  if((lastMode==='turquoise'&&m==='cyan')||(lastMode==='cyan'&&m==='turquoise')){
-    localStorage.setItem(TURQUOISE_CYAN_THEME_UNLOCK_KEY,'1');
-    persistUnlocked('turquoisecyan');
-    refreshTurquoiseCyanOption();
-    announceUnlock('🩵 Turquoise-Cyan unlocked! A beautiful mix.');
-  }
-  if(m==='turquoise'||m==='cyan'){
-    localStorage.setItem('wren_last_tc_mode',m);
-  }
-}
-function trackOreSwitches(newMode){
-  // EMERALD: must alternate light → dark → light → dark... exactly, 15 each = 30 total switches
-  if(newMode==='light'||newMode==='dark'){
-    if(localStorage.getItem(EMERALD_THEME_UNLOCK_KEY)!=='1'){
-      let d=getEmeraldSwitches();
-      if(d.lastMode===null){
-        // Starting fresh — light must go first
-        if(newMode==='light'){d.lightCount=1;d.darkCount=0;d.valid=true;}
-        else{d.lightCount=0;d.darkCount=0;d.valid=false;}
-      }else if(newMode===d.lastMode){
-        // Same mode twice — chain broken, reset
-        d={lightCount:newMode==='light'?1:0,darkCount:newMode==='dark'?1:0,lastMode:newMode,valid:newMode==='light'};
-      }else{
-        // Alternated correctly
-        if(d.valid){
-          if(newMode==='dark')d.darkCount++;
-          else d.lightCount++;
-        }
-      }
-      d.lastMode=newMode;
-      setEmeraldSwitches(d);
-      // Check if threshold reached: 15 light + 15 dark with strict alternation
-      if(d.valid&&d.lightCount>=15&&d.darkCount>=15){
-        localStorage.setItem(EMERALD_THEME_UNLOCK_KEY,'1');
-        persistUnlocked('emerald');
-        refreshEmeraldOption();
-        announceUnlock('💚 Emerald unlocked! The ore rewards persistence.');
-      }
+function syncUnlockedThemesFromStorage(){
+  try {
+    const seen = new Set(Array.isArray(unlockedFeatures) ? unlockedFeatures : []);
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i) || '';
+      if (!key.startsWith('wren_theme_') || !key.endsWith('_unlocked')) continue;
+      if (localStorage.getItem(key) !== '1') continue;
+      const mode = key.slice('wren_theme_'.length, -'_unlocked'.length);
+      if (mode) seen.add(mode);
     }
-  }
-  // DIAMOND: must alternate day → night → day → night... exactly, 15 each
-  if(newMode==='day'||newMode==='night'){
-    if(localStorage.getItem(DIAMOND_THEME_UNLOCK_KEY)!=='1'){
-      let d=getDiamondSwitches();
-      if(d.lastMode===null){
-        if(newMode==='day'){d.dayCount=1;d.nightCount=0;d.valid=true;}
-        else{d.dayCount=0;d.nightCount=0;d.valid=false;}
-      }else if(newMode===d.lastMode){
-        d={dayCount:newMode==='day'?1:0,nightCount:newMode==='night'?1:0,lastMode:newMode,valid:newMode==='day'};
-      }else{
-        if(d.valid){
-          if(newMode==='night')d.nightCount++;
-          else d.dayCount++;
-        }
-      }
-      d.lastMode=newMode;
-      setDiamondSwitches(d);
-      if(d.valid&&d.dayCount>=15&&d.nightCount>=15){
-        localStorage.setItem(DIAMOND_THEME_UNLOCK_KEY,'1');
-        persistUnlocked('diamond');
-        refreshDiamondOption();
-        announceUnlock('💎 Diamond unlocked! A gem of patience.');
-      }
-    }
-  }
+    unlockedFeatures = Array.from(seen);
+    localStorage.setItem(UNLOCK_KEY, JSON.stringify(unlockedFeatures));
+  } catch (e) {}
 }
-
-function refreshEmeraldOption(){refreshOption('emeraldModeOption','emeraldLock','emerald');}
-function refreshDiamondOption(){refreshOption('diamondModeOption','diamondLock','diamond');}
-function refreshOneOption(){refreshOption('oneModeOption','oneLock','one');}
-function refreshAnzacOption(){refreshOption('anzacModeOption','anzacLock','anzac');if((localStorage.getItem(MODE_KEY)||'light')==='anzac')spawnAnzacPoppies();}
-function refreshTurquoiseOption(){refreshOption('turquoiseModeOption','turquoiseLock','turquoise');}
-function refreshTurquoiseCyanOption(){refreshOption('turquoiseCyanModeOption','turquoiseCyanLock','turquoisecyan');}
-function refreshGreenFizzyOption(){refreshOption('greenFizzyModeOption','greenFizzyLock','greenfizzy');}
-function refreshBlueFizzyOption(){refreshOption('blueFizzyModeOption','blueFizzyLock','bluefizzy');}
-function refreshLanternOption(){refreshOption('lanternModeOption','lanternLock','lantern');}
-function refreshAmethystOption(){refreshOption('amethystModeOption','amethystLock','amethyst');}
-function refreshWhiteSaberOption(){refreshOption('whiteSaberModeOption','whiteSaberLock','whitesaber');}
-function refreshBlackWhiteOption(){refreshOption('blackWhiteModeOption','blackWhiteLock','blackwhite');}
-function refreshChocolateChipOption(){refreshOption('chocolateChipModeOption','chocolateChipLock','chocolatechip');}
-function refreshNineOption(){refreshOption('nineModeOption','nineLock','nine');if((localStorage.getItem(MODE_KEY)||'light')==='nine')startNineParticles();}
-function unlockNineIfEligible(){return unlockIfEligible('nine',()=>localStorage.getItem(NINE_THEME_UNLOCK_KEY)==='1','9️⃣ Nine unlocked!',refreshNineOption);}
-
-let anzacPoppyLayer=null;
-function getAnzacPoppyLayer(){
-  if(anzacPoppyLayer&&document.body.contains(anzacPoppyLayer))return anzacPoppyLayer;
-  const existing=document.getElementById('anzacPoppyLayer');
-  if(existing){anzacPoppyLayer=existing;return anzacPoppyLayer;}
-  const layer=document.createElement('div');
-  layer.id='anzacPoppyLayer';
-  layer.className='anzac-poppy-layer';
-  document.body.appendChild(layer);
-  anzacPoppyLayer=layer;
-  return layer;
-}
-function clearAnzacPoppies(){
-  const layer=document.getElementById('anzacPoppyLayer');
-  if(layer)layer.remove();
-  anzacPoppyLayer=null;
-}
-function spawnAnzacPoppies(){
-  clearAnzacPoppies();
-  const layer=getAnzacPoppyLayer();
-  const spots=[
-    [6,16,0.92,-20],[12,70,0.72,12],[18,30,0.86,-10],[24,84,0.68,18],
-    [30,12,0.78,4],[36,54,0.74,-14],[42,26,0.9,16],[49,78,0.70,-6],
-    [56,20,0.82,-16],[63,64,0.79,10],[70,38,0.88,-8],[76,82,0.70,14],
-    [83,14,0.76,-8],[89,48,0.74,9],[94,76,0.68,-12],[8,45,0.66,7],
-    [27,58,0.64,-5],[53,88,0.62,11],[67,8,0.60,-9],[87,26,0.64,13]
-  ];
-  spots.forEach(([x,y,scale,rot],i)=>{
-    const img=document.createElement('img');
-    img.src='Poppy.png';
-    img.alt='';
-    img.className='anzac-poppy';
-    img.style.left=x+'%';
-    img.style.top=y+'%';
-    img.style.setProperty('--scale',scale);
-    img.style.setProperty('--rot',rot+'deg');
-    img.style.width=(32+Math.round(scale*18))+'px';
-    img.style.animationDelay=(i*0.13)+'s';
-    layer.appendChild(img);
-  });
-}
-
 function checkObjectAttackThemes(){
   const visitedOA=localStorage.getItem(OA_VISITED_KEY)==='1';
   if(visitedOA&&!unlockedFeatures.includes('banana')){persistUnlocked('banana');refreshBananaOption();}
@@ -7513,6 +7386,50 @@ function initDayClouds(){
   window.addEventListener('resize',()=>{resize();init();});init();draw();
 }
 if (!window._oaCheckInterval) window._oaCheckInterval = setInterval(()=>{checkObjectAttackThemes();},5000);
+
+// Restore unlock state saved in individual theme keys too, so Peach/Blue Fizzy and others stay unlocked.
+syncUnlockedThemesFromStorage();
+const _safeRefresh = (fn) => { try { if (typeof fn === 'function') fn(); } catch (e) {} };
+_safeRefresh(refreshBlueFizzyOption);
+_safeRefresh(refreshPeachOption);
+_safeRefresh(refreshGreenFizzyOption);
+_safeRefresh(refreshOrangeFizzyOption);
+_safeRefresh(refreshCarrotOption);
+_safeRefresh(refreshWoodOption);
+_safeRefresh(refreshBlueberryOption);
+_safeRefresh(refreshBlackHoleOption);
+_safeRefresh(refreshCyanOption);
+_safeRefresh(refreshSpiderOption);
+_safeRefresh(refreshMetalOption);
+_safeRefresh(refreshSkinOption);
+_safeRefresh(refreshDayOption);
+_safeRefresh(refreshNightOption);
+_safeRefresh(refreshGlassOption);
+_safeRefresh(refreshLavaOption);
+_safeRefresh(refreshRoseOption);
+_safeRefresh(refreshOrangeOption);
+_safeRefresh(refreshWaterOption);
+_safeRefresh(refreshPotatoOption);
+_safeRefresh(refreshGrapeOption);
+_safeRefresh(refreshSunOption);
+_safeRefresh(refreshShadowOption);
+_safeRefresh(refreshCheeseOption);
+_safeRefresh(refreshToothpasteOption);
+_safeRefresh(refreshLuckyOption);
+_safeRefresh(refreshGlitchOption);
+_safeRefresh(refreshSlimeOption);
+_safeRefresh(refreshGalaxyOption);
+_safeRefresh(refreshBronzeOption);
+_safeRefresh(refreshSilverOption);
+_safeRefresh(refreshGoldOption);
+_safeRefresh(refreshEmeraldOption);
+_safeRefresh(refreshDiamondOption);
+_safeRefresh(refreshOneOption);
+_safeRefresh(refreshNineOption);
+_safeRefresh(refreshAnzacOption);
+_safeRefresh(refreshTurquoiseOption);
+_safeRefresh(refreshTurquoiseCyanOption);
+
 </script>
 </body>
 </html>
