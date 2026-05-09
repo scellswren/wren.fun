@@ -697,8 +697,234 @@
     appearance: none;
     outline: none;
   }
-  #fullscreenBtn:hover { background: rgba(255,255,255,0.16); color: white; }
-  #fullscreenBtn:active { background: rgba(255,255,255,0.10); }
+  /* ── MP3/MP4 Downloader Tab ── */
+  .video-wrap {
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .video-input-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px 32px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .video-input-area::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(124,106,255,0.04), rgba(255,106,171,0.04));
+    pointer-events: none;
+  }
+
+  .video-icon {
+    font-size: 42px;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 4px 12px rgba(124,106,255,0.4));
+  }
+
+  .video-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .video-subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 24px;
+  }
+
+  .video-url-input {
+    width: 100%;
+    padding: 14px 18px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    margin-bottom: 20px;
+  }
+
+  .video-url-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124,106,255,0.15);
+  }
+
+  .video-url-input::placeholder { color: var(--muted); }
+
+  .video-fmt-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .vfmt-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .vfmt-btn.active {
+    border-color: var(--accent);
+    background: rgba(124,106,255,0.12);
+    color: var(--text);
+    box-shadow: 0 4px 16px rgba(124,106,255,0.2);
+  }
+
+  .vfmt-btn:not(.active):hover {
+    border-color: var(--muted);
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  .vfmt-icon { font-size: 24px; }
+  .vfmt-label { font-size: 16px; font-weight: 700; font-family: 'DM Mono', monospace; }
+  .vfmt-desc { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .vfmt-btn.active .vfmt-desc { color: var(--accent); }
+
+  .video-quality-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+  }
+
+  .vqual-btns {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .vqual-btn {
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+
+  .vqual-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .vqual-btn:not(.active):hover {
+    background: var(--surface2);
+    color: var(--text);
+    border-color: var(--muted);
+  }
+
+  .video-dl-btn {
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  /* Status / loading area */
+  .video-status {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    text-align: center;
+    margin-top: 16px;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .vstatus-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    animation: spin 1.2s linear infinite;
+  }
+
+  .vstatus-icon.done { animation: none; }
+  .vstatus-icon.error { animation: none; }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .vstatus-text {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .vstatus-sub {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    word-break: break-all;
+  }
+
+  /* Site pills */
+  .video-instructions {
+    margin-top: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+  }
+
+  .vsite-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .vsite-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+  }
+
+  .video-note {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+
+  #videoToast {
+    bottom: 80px;
+    transform: translateX(-50%) translateY(160px);
+  }
+  #videoToast.show {
+    transform: translateX(-50%) translateY(0);
+  }
 </style>
 </head>
 <body>
@@ -717,6 +943,7 @@
   <div class="tab-nav">
     <button class="tab-btn active" data-tab="paste">🖼 Paste & Drag</button>
     <button class="tab-btn" data-tab="doc">📄 Paste Into Page</button>
+    <button class="tab-btn" data-tab="video">🎬 MP3 / MP4</button>
   </div>
 
   <!-- Tab: Paste Zone -->
@@ -800,9 +1027,73 @@
     </div>
   </div><!-- /tab-doc -->
 
+  <!-- Tab: MP3 / MP4 Downloader -->
+  <div class="tab-panel" id="tab-video">
+    <div class="video-wrap">
+
+      <div class="video-input-area">
+        <div class="video-icon">🎬</div>
+        <div class="video-title">Paste a video link</div>
+        <div class="video-subtitle">YouTube · TikTok · Instagram · X · Snapchat · Reddit · and more</div>
+        <input type="url" id="videoUrlInput" class="video-url-input" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" spellcheck="false" />
+
+        <div class="video-fmt-row">
+          <button class="vfmt-btn active" data-vfmt="mp4" id="vfmtMp4">
+            <span class="vfmt-icon">🎥</span>
+            <span class="vfmt-label">MP4</span>
+            <span class="vfmt-desc">Video + Audio</span>
+          </button>
+          <button class="vfmt-btn" data-vfmt="mp3" id="vfmtMp3">
+            <span class="vfmt-icon">🎵</span>
+            <span class="vfmt-label">MP3</span>
+            <span class="vfmt-desc">Audio only</span>
+          </button>
+        </div>
+
+        <div class="video-quality-row" id="videoQualityRow">
+          <span class="quality-label">Quality</span>
+          <div class="vqual-btns">
+            <button class="vqual-btn" data-q="3840">4K</button>
+            <button class="vqual-btn active" data-q="1080">1080p</button>
+            <button class="vqual-btn" data-q="720">720p</button>
+            <button class="vqual-btn" data-q="480">480p</button>
+            <button class="vqual-btn" data-q="360">360p</button>
+          </div>
+        </div>
+
+        <button class="btn-download video-dl-btn" id="videoDownloadBtn">⬇ Fetch & Download</button>
+      </div>
+
+      <div class="video-status" id="videoStatus" style="display:none;">
+        <div class="vstatus-icon" id="vStatusIcon">⏳</div>
+        <div class="vstatus-text" id="vStatusText">Fetching video info…</div>
+        <div class="vstatus-sub" id="vStatusSub"></div>
+      </div>
+
+      <div class="video-instructions">
+        <div class="instructions-title">Supported sites</div>
+        <div class="vsite-grid">
+          <div class="vsite-pill">▶ YouTube</div>
+          <div class="vsite-pill">♪ TikTok</div>
+          <div class="vsite-pill">📸 Instagram</div>
+          <div class="vsite-pill">𝕏 Twitter / X</div>
+          <div class="vsite-pill">👻 Snapchat</div>
+          <div class="vsite-pill">🎵 SoundCloud</div>
+          <div class="vsite-pill">🎬 Reddit</div>
+          <div class="vsite-pill">📌 Pinterest</div>
+          <div class="vsite-pill">🎶 Spotify</div>
+          <div class="vsite-pill">+ many more</div>
+        </div>
+        <p class="video-note">Downloads are handled via <a href="https://cobalt.tools" target="_blank" style="color:var(--accent)">cobalt.tools</a> — a free, open-source video downloader. No tracking, no ads.</p>
+      </div>
+
+    </div>
+  </div><!-- /tab-video -->
+
 </div>
 
 <div class="toast" id="toast">✓ Image downloaded!</div>
+<div class="toast" id="videoToast" style="background:var(--accent); color:#fff;">✓ Download started!</div>
 
 <script>
   let currentBlob = null;
@@ -1104,6 +1395,176 @@
     handlePaste(e);
   });
 
+  // ── MP3/MP4 Downloader ──
+  const videoUrlInput = document.getElementById('videoUrlInput');
+  const videoDownloadBtn = document.getElementById('videoDownloadBtn');
+  const videoStatus = document.getElementById('videoStatus');
+  const vStatusIcon = document.getElementById('vStatusIcon');
+  const vStatusText = document.getElementById('vStatusText');
+  const vStatusSub = document.getElementById('vStatusSub');
+  const videoToast = document.getElementById('videoToast');
+  const videoQualityRow = document.getElementById('videoQualityRow');
+
+  let currentVFmt = 'mp4';
+  let currentQuality = '1080';
+
+  // Format toggle
+  document.querySelectorAll('.vfmt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.vfmt-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentVFmt = btn.dataset.vfmt;
+      videoQualityRow.style.display = currentVFmt === 'mp4' ? 'flex' : 'none';
+    });
+  });
+
+  // Quality toggle
+  document.querySelectorAll('.vqual-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.vqual-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentQuality = btn.dataset.q;
+    });
+  });
+
+  function setVideoStatus(icon, text, sub, iconClass = '') {
+    videoStatus.style.display = 'block';
+    vStatusIcon.textContent = icon;
+    vStatusIcon.className = 'vstatus-icon' + (iconClass ? ' ' + iconClass : '');
+    vStatusText.textContent = text;
+    vStatusSub.textContent = sub;
+  }
+
+  function showVideoToast() {
+    videoToast.classList.add('show');
+    setTimeout(() => videoToast.classList.remove('show'), 3000);
+  }
+
+  function detectPlatform(url) {
+    try {
+      const u = new URL(url);
+      const host = u.hostname.replace('www.', '');
+      if (host.includes('youtube.com') || host.includes('youtu.be')) return 'YouTube';
+      if (host.includes('tiktok.com')) return 'TikTok';
+      if (host.includes('instagram.com')) return 'Instagram';
+      if (host.includes('twitter.com') || host.includes('x.com')) return 'X / Twitter';
+      if (host.includes('snapchat.com')) return 'Snapchat';
+      if (host.includes('reddit.com')) return 'Reddit';
+      if (host.includes('soundcloud.com')) return 'SoundCloud';
+      if (host.includes('pinterest.com')) return 'Pinterest';
+      if (host.includes('spotify.com')) return 'Spotify';
+      return host;
+    } catch { return 'video'; }
+  }
+
+  videoDownloadBtn.addEventListener('click', async () => {
+    const url = videoUrlInput.value.trim();
+    if (!url) {
+      videoUrlInput.focus();
+      videoUrlInput.style.borderColor = 'var(--accent2)';
+      setTimeout(() => videoUrlInput.style.borderColor = '', 1200);
+      return;
+    }
+
+    try { new URL(url); } catch {
+      setVideoStatus('❌', 'Invalid URL', 'Please paste a valid link.', 'error');
+      videoStatus.style.display = 'block';
+      return;
+    }
+
+    const platform = detectPlatform(url);
+    videoDownloadBtn.disabled = true;
+    setVideoStatus('⏳', `Fetching from ${platform}…`, url);
+
+    try {
+      // Use cobalt.tools API - free, open-source video downloader
+      const cobaltApi = 'https://api.cobalt.tools/';
+
+      const body = {
+        url: url,
+        downloadMode: currentVFmt === 'mp3' ? 'audio' : 'auto',
+        videoQuality: currentQuality,
+        audioFormat: 'mp3',
+        filenameStyle: 'pretty',
+        twitterGif: false,
+      };
+
+      const res = await fetch(cobaltApi, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+
+      if (data.status === 'error') {
+        throw new Error(data.error?.code || 'Cobalt returned an error');
+      }
+
+      let downloadUrl = null;
+      let filename = null;
+
+      if (data.status === 'redirect' || data.status === 'stream') {
+        downloadUrl = data.url;
+        filename = data.filename || `download.${currentVFmt}`;
+      } else if (data.status === 'tunnel') {
+        downloadUrl = data.url;
+        filename = data.filename || `download.${currentVFmt}`;
+      } else if (data.status === 'picker') {
+        // Multiple streams (e.g. Instagram carousel) — just take the first
+        downloadUrl = data.picker?.[0]?.url;
+        filename = `download.${currentVFmt}`;
+      }
+
+      if (!downloadUrl) throw new Error('No download URL returned');
+
+      setVideoStatus('✅', 'Download starting…', filename, 'done');
+
+      // Trigger download
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = filename;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      showVideoToast();
+
+      setTimeout(() => {
+        videoStatus.style.display = 'none';
+        videoDownloadBtn.disabled = false;
+      }, 4000);
+
+    } catch (err) {
+      console.error(err);
+      setVideoStatus('❌', 'Download failed', err.message || 'Try a different link or check the URL.', 'error');
+      videoDownloadBtn.disabled = false;
+    }
+  });
+
+  // Allow pressing Enter in the URL field
+  videoUrlInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') videoDownloadBtn.click();
+  });
+
+  // Auto-paste from clipboard when switching to video tab
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (btn.dataset.tab === 'video' && !videoUrlInput.value) {
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text && (text.startsWith('http://') || text.startsWith('https://'))) {
+            videoUrlInput.value = text;
+          }
+        } catch { /* clipboard permission denied, skip */ }
+      }
+    });
+  });
+
   // ── Fullscreen ──
   function updateFullscreenButton() {
     const btn = document.getElementById('fullscreenBtn');
@@ -1119,6 +1580,7 @@
   }
   document.addEventListener('fullscreenchange', updateFullscreenButton);
   updateFullscreenButton();
+
 </script>
 </body>
 </html>
