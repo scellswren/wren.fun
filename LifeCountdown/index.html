@@ -1214,6 +1214,14 @@
   let totalLifeMs = null;
   let yearEndInterval = null;
   let appMode = 'life';
+  const isWindows = /Win/i.test(navigator.userAgent || navigator.platform || '');
+  let selectedCountry = normalizeCountryValue(localStorage.getItem('wrenCountry') || '');
+  let COUNTRIES = [];
+  let countriesLoaded = false;
+  const COUNTRY_TIMEZONES = {};
+  let showMilliseconds = false;
+  let showPercent = false;
+
 
   // --- Particles ---
   (function spawnParticles() {
@@ -1765,15 +1773,219 @@ async function calculate() {
     if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
   }
 
-  // ── BUILD COUNTRY MENU ON LOAD ──
-  ensureCountryDataLoaded();
-  buildCountryMenu();
-  restoreSelectedCountry();
 
-  // Restore mode from main menu
-  const savedMode = localStorage.getItem('wrenMode') || 'light';
-  document.body.className = 'mode-' + savedMode;
-  setAppMode('life');
+  const __originalPlayCinematicSound = playCinematicSound;
+  function playCinematicSound(type) {
+    try {
+      if (type === 'tick-fast' || type === 'tick-slow') {
+        const ctx = getCinCtx();
+        const now = ctx.currentTime;
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+        const dur = type === 'tick-slow' ? 0.18 : 0.10;
+        osc1.type = 'triangle';
+        osc2.type = 'sine';
+        osc1.frequency.setValueAtTime(type === 'tick-slow' ? 160 : 210, now);
+        osc2.frequency.setValueAtTime(type === 'tick-slow' ? 320 : 420, now);
+        filter.type = 'bandpass';
+        filter.frequency.value = type === 'tick-slow' ? 900 : 1300;
+        filter.Q.value = 4.5;
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(type === 'tick-slow' ? 0.12 : 0.08, now + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        osc1.connect(filter); osc2.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+        osc1.start(now); osc2.start(now); osc1.stop(now + dur); osc2.stop(now + dur);
+        return;
+      }
+    } catch (e) {}
+    return __originalPlayCinematicSound(type);
+  }
+
+  function formatMs(ms) {
+    return String(Math.max(0, Math.min(999, Math.floor(ms)))).padStart(3, '0');
+  }
+
+  function formatRelativeParts(msRemaining) {
+    const totalSeconds = Math.max(0, Math.floor(msRemaining / 1000));
+    const years = Math.floor(totalSeconds / (365.25 * 24 * 3600));
+    const months = Math.floor((totalSeconds % Math.floor(365.25 * 24 * 3600)) / (30.4375 * 24 * 3600));
+    const days = Math.floor((totalSeconds % (24 * 3600)) / (24 * 3600));
+    const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return { years, months, days, hours, minutes, seconds, ms: msRemaining % 1000 };
+  }
+
+  function writeCountdownParts(parts) {
+    const ids = ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds'];
+    const values = [parts.years, parts.months, parts.days, parts.hours, parts.minutes, parts.seconds];
+    ids.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const text = String(Math.max(0, values[i])).padStart(i < 2 ? 2 : 2, '0');
+      if (el.textContent !== text) {
+        el.textContent = text;
+        el.classList.remove('tick');
+        void el.offsetWidth;
+        el.classList.add('tick');
+        setTimeout(() => el.classList.remove('tick'), 280);
+      }
+    });
+    const msEl = document.getElementById('valMs');
+    if (msEl) msEl.textContent = formatMs(parts.ms);
+  }
+
+  function updateLifePercent(msRemaining) {
+    const percent = totalLifeMs ? Math.max(0, Math.min(100, ((totalLifeMs - msRemaining) / totalLifeMs) * 100)) : 0;
+    const bar = document.getElementById('lifeBar');
+    if (bar) bar.style.width = percent.toFixed(2) + '%';
+    const pctEl = document.getElementById('lifePercentDisplay');
+    if (pctEl) pctEl.textContent = showPercent ? percent.toFixed(2) + '%' : '';
+  }
+
+  function updateCountdown() {
+    if (!endDate) return;
+    const msRemaining = Math.max(0, endDate.getTime() - Date.now());
+    writeCountdownParts(formatRelativeParts(msRemaining));
+    updateLifePercent(msRemaining);
+    if (msRemaining <= 0) stopTickSound();
+  }
+
+  function startCountdown() {
+    clearInterval(countdownInterval);
+    countdownInterval = setInterval(updateCountdown, 250);
+    updateCountdown();
+    startTickSound();
+  }
+
+  function setAppMode(mode) {
+    appMode = mode === 'year' ? 'year' : 'life';
+    const lifeBtn = document.getElementById('lifeModeBtn');
+    const yearBtn = document.getElementById('yearModeBtn');
+    const lifePanel = document.getElementById('countdownPanel');
+    const yearPanel = document.getElementById('yearEndPanel');
+    if (lifeBtn) lifeBtn.classList.toggle('active', appMode === 'life');
+    if (yearBtn) yearBtn.classList.toggle('active', appMode === 'year');
+    if (lifePanel) {
+      lifePanel.style.display = appMode === 'life' ? 'block' : 'none';
+      lifePanel.classList.toggle('visible', appMode === 'life');
+    }
+    if (yearPanel) {
+      yearPanel.style.display = appMode === 'year' ? 'block' : 'none';
+      yearPanel.classList.toggle('visible', appMode === 'year');
+    }
+    if (appMode === 'year') startYearEndCountdown();
+    else clearInterval(yearEndInterval);
+  }
+
+  function computeYearEndRemaining() {
+    const now = new Date();
+    const nextYear = now.getFullYear() + 1;
+    const end = new Date(nextYear, 0, 1, 0, 0, 0, 0);
+    return Math.max(0, end - now);
+  }
+
+  function updateYearEndCountdown() {
+    const remaining = computeYearEndRemaining();
+    const parts = formatRelativeParts(remaining);
+    const ids = ['yearValYears','yearValMonths','yearValDays','yearValHours','yearValMinutes','yearValSeconds'];
+    const values = [parts.years, parts.months, parts.days, parts.hours, parts.minutes, parts.seconds];
+    ids.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = String(Math.max(0, values[i])).padStart(2, '0');
+    });
+    const pctEl = document.getElementById('yearPercentDisplay');
+    if (pctEl) {
+      const yearStart = new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0).getTime();
+      const yearEnd = new Date(new Date().getFullYear() + 1, 0, 1, 0, 0, 0, 0).getTime();
+      const pct = Math.max(0, Math.min(100, ((Date.now() - yearStart) / (yearEnd - yearStart)) * 100));
+      pctEl.textContent = pct.toFixed(2) + '%';
+    }
+    return remaining;
+  }
+
+  function startYearEndCountdown() {
+    clearInterval(yearEndInterval);
+    yearEndInterval = setInterval(updateYearEndCountdown, 250);
+    updateYearEndCountdown();
+  }
+
+  function toggleMs() {
+    showMilliseconds = !showMilliseconds;
+    const row = document.getElementById('msRow');
+    const btn = document.getElementById('msToggleBtn');
+    if (row) row.classList.toggle('ms-hidden', !showMilliseconds);
+    if (btn) {
+      btn.classList.toggle('ms-on', showMilliseconds);
+      btn.textContent = showMilliseconds ? '⚡ Hide Milliseconds' : '⚡ Show Milliseconds';
+    }
+    updateCountdown();
+  }
+
+  function togglePct() {
+    showPercent = !showPercent;
+    const btn = document.getElementById('pctToggleBtn');
+    if (btn) btn.textContent = showPercent ? '% Life Progress: On' : '% Life Progress';
+    updateCountdown();
+  }
+
+  function reset() {
+    clearInterval(countdownInterval);
+    clearInterval(yearEndInterval);
+    stopTickSound();
+    endDate = null;
+    birthDate = null;
+    totalLifeMs = null;
+    const setup = document.getElementById('setupPanel');
+    const countdown = document.getElementById('countdownPanel');
+    const yearPanel = document.getElementById('yearEndPanel');
+    if (setup) { setup.classList.remove('hidden'); setup.style.display = 'block'; }
+    if (countdown) { countdown.classList.remove('visible'); countdown.style.display = 'none'; }
+    if (yearPanel) { yearPanel.classList.remove('visible'); yearPanel.style.display = 'none'; }
+    const msg = document.querySelector('.enjoy-msg');
+    const sub = document.querySelector('.enjoy-sub');
+    if (msg) msg.innerHTML = '✨ Enjoy Every Second ✨';
+    if (sub) sub.textContent = 'Make each one count — this is your time.';
+    document.getElementById('lifePercentDisplay').textContent = '';
+    document.getElementById('errorMsg').textContent = '';
+    ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds','valMs'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = id === 'valMs' ? '000' : '00';
+    });
+    if (document.getElementById('lifeBar')) document.getElementById('lifeBar').style.width = '0%';
+    setAppMode('life');
+  }
+
+  function getBestCountryList() {
+    if (COUNTRIES.length) return COUNTRIES;
+    return Object.keys(LIFE_DATA).filter(k => !/^[a-z]+_[a-z]+$/.test(k) || k === 'new_zealand').map(k => ({ value: k, label: k.replace(/_/g, ' ').replace(/\w/g, c => c.toUpperCase()), flag: '🌍', winEmoji: '🌍', regionValue: '' }));
+  }
+
+  function syncSelectedCountryToUI() {
+    const input = document.getElementById('countrySelect');
+    if (input) input.value = selectedCountry || '';
+    const label = document.getElementById('countryBtnLabel');
+    if (label) label.textContent = selectedCountry ? formatCountryLabel(selectedCountry) : '— Select your country —';
+  }
+
+  function refreshCountryMenuNow() {
+    renderCountryMenu();
+    restoreSelectedCountry();
+  }
+
+  // ── BUILD COUNTRY MENU ON LOAD ──
+  (async () => {
+    await ensureCountryDataLoaded();
+    if (!COUNTRIES.length) {
+      // fallback to built-in list to avoid an empty menu if the API is unreachable
+      COUNTRIES = getBestCountryList();
+      refreshCountryMenuNow();
+    }
+    syncSelectedCountryToUI();
+    refreshCountryMenuNow();
+    setAppMode('life');
+  })();
 </script>
 
 </body>
