@@ -256,32 +256,8 @@
     .dob-input::placeholder { color: rgba(240,238,255,0.35); font-weight: 400; }
     .dob-input.input-error { background: rgba(255,100,100,0.12); }
 
-    /* Country selector */
-    .country-select {
-      width: 100%;
-      padding: 15px 20px;
-      border-radius: 16px;
-      border: 1.5px solid var(--card-border);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      font-family: 'Rubik', sans-serif;
-      font-size: 1.05em;
-      font-weight: 700;
-      cursor: pointer;
-      outline: none;
-      margin-bottom: 28px;
-      transition: border-color 0.2s, background 0.2s;
-      appearance: none;
-      -webkit-appearance: none;
-      text-align: center;
-    }
-
-    .country-select:focus {
-      border-color: var(--accent);
-      background: rgba(155,109,255,0.10);
-    }
-
-    .country-select option { background: #150f2e; color: var(--text); }
+    /* Country selector (legacy, kept for compat) */
+    .country-select { display: none; }
 
     /* Calculate button */
     #calcBtn {
@@ -601,7 +577,12 @@
       100% { background-position: 200% center; }
     }
 
-    /* Country mini-menu */
+    /* ── COUNTRY PICKER BUTTON ── */
+    .country-picker-wrap {
+      position: relative;
+      width: 100%;
+      margin-bottom: 18px;
+    }
     .country-mini-btn {
       width: 100%;
       padding: 15px 20px;
@@ -614,7 +595,6 @@
       font-weight: 700;
       cursor: pointer;
       outline: none;
-      margin-bottom: 10px;
       transition: border-color 0.2s, background 0.2s;
       text-align: left;
       display: flex;
@@ -629,26 +609,80 @@
     .country-mini-btn .caret { font-size: 0.7em; opacity: 0.7; transition: transform 0.2s; }
     .country-mini-btn.open .caret { transform: rotate(180deg); }
 
+    /* ── COUNTRY PICKER DROPDOWN — floats as a physical panel ── */
     #countryMenu {
       display: none;
-      width: 100%;
-      max-height: 240px;
-      overflow-y: auto;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      z-index: 500;
       border-radius: 14px;
       border: 1.5px solid var(--card-border);
-      background: rgba(12,8,24,0.96);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      margin-bottom: 18px;
+      background: rgba(10,6,22,0.98);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(155,109,255,0.12);
+      overflow: hidden;
+    }
+    #countryMenu.open { display: block; }
+
+    /* Tabs */
+    .picker-tabs {
+      display: flex;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .picker-tab {
+      flex: 1;
+      padding: 11px 0;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.88em;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .picker-tab:hover { background: rgba(155,109,255,0.10); color: var(--text); }
+    .picker-tab.active { color: #fff; background: rgba(155,109,255,0.18); border-bottom: 2px solid var(--accent); }
+
+    /* Search */
+    .picker-search {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .picker-search input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--card-border);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.92em;
+      font-weight: 700;
+      outline: none;
+    }
+    .picker-search input:focus { border-color: var(--accent); background: rgba(155,109,255,0.10); }
+    .picker-search input::placeholder { color: rgba(240,238,255,0.35); font-weight: 400; }
+
+    /* List */
+    .picker-list {
+      max-height: 220px;
+      overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: rgba(155,109,255,0.4) transparent;
     }
-    #countryMenu.open { display: block; }
+    .picker-tab-panel { display: none; }
+    .picker-tab-panel.active { display: block; }
+
     .country-option {
-      padding: 12px 18px;
+      padding: 11px 18px;
       cursor: pointer;
       font-family: 'Rubik', sans-serif;
-      font-size: 0.97em;
+      font-size: 0.95em;
       font-weight: 700;
       color: var(--text);
       display: flex;
@@ -660,7 +694,26 @@
     .country-option:last-child { border-bottom: none; }
     .country-option:hover { background: rgba(155,109,255,0.14); }
     .country-option.selected { background: rgba(155,109,255,0.22); color: #fff; }
-    .country-flag { font-size: 1.3em; min-width: 1.5em; }
+    .country-flag { font-size: 1.25em; min-width: 1.5em; }
+    .country-option-sub { font-size: 0.78em; color: rgba(196,160,255,0.55); font-weight: 400; margin-left: auto; white-space: nowrap; }
+
+    /* Region group header */
+    .region-group-header {
+      padding: 8px 16px 4px;
+      font-size: 0.72em;
+      font-weight: 900;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(196,160,255,0.5);
+      background: rgba(155,109,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .picker-empty {
+      padding: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9em;
+    }
 
     /* Cinematic Beat the Clock overlay */
     #cinematicOverlay {
@@ -970,7 +1023,7 @@
 <canvas id="confettiCanvas"></canvas>
 <div id="cinematicOverlay">
   <div id="cinematicCountdown"></div>
-  <div id="cinematicLabel">YEARS OF YOUR LIFE</div>
+  <div id="cinematicLabel">YEARS REMAINING</div>
   <div id="cinematicProgress"><div id="cinematicProgressBar"></div></div>
 </div>
 <div id="beatBanner">
@@ -1009,11 +1062,24 @@
     </div>
 
     <div class="section-label">Country / Region</div>
-    <button type="button" class="country-mini-btn" id="countryBtn" onclick="toggleCountryMenu()">
-      <span id="countryBtnLabel">— Select your country —</span>
-      <span class="caret">▼</span>
-    </button>
-    <div id="countryMenu">
+    <div class="country-picker-wrap">
+      <button type="button" class="country-mini-btn" id="countryBtn" onclick="toggleCountryMenu()">
+        <span id="countryBtnLabel">— Select your country —</span>
+        <span class="caret">▼</span>
+      </button>
+      <div id="countryMenu">
+        <div class="picker-tabs">
+          <button class="picker-tab active" id="tabCountries" onclick="switchPickerTab('countries')">🌍 Countries</button>
+          <button class="picker-tab" id="tabRegions" onclick="switchPickerTab('regions')">🗺️ Regions</button>
+        </div>
+        <div class="picker-search">
+          <input type="text" id="countrySearch" placeholder="Search…" oninput="filterCountryMenu()" autocomplete="off">
+        </div>
+        <div class="picker-list">
+          <div class="picker-tab-panel active" id="panelCountries"></div>
+          <div class="picker-tab-panel" id="panelRegions"></div>
+        </div>
+      </div>
     </div>
     <input type="hidden" id="countrySelect" value="">
 
@@ -1138,63 +1204,239 @@
 
 <script>
 
-  // Life expectancy data [male, female] in years
+  // Life expectancy data [male, female] in years (WHO/World Bank 2023 data)
   const LIFE_DATA = {
-    usa:         [76.5, 81.4],
-    uk:          [79.4, 83.1],
-    india:       [70.5, 73.6],
-    china:       [75.2, 80.9],
-    australia:   [81.3, 85.2],
-    new_zealand: [80.9, 84.4],
-    canada:      [80.7, 84.3],
-    ireland:     [80.7, 84.4],
-    indonesia:   [70.9, 74.8],
-    vietnam:     [71.6, 79.9],
-    philippines: [67.2, 75.5],
-    malaysia:    [72.6, 77.4],
-    mexico:      [73.4, 79.6],
-    spain:       [81.3, 86.9],
-    brazil:      [72.0, 79.3],
-    france:      [80.0, 85.7],
-    thailand:    [72.2, 79.7],
-    argentina:   [73.0, 79.9],
-    portugal:    [79.4, 84.8],
-    italy:       [81.0, 85.4],
-    germany:     [79.0, 83.6],
-    netherlands: [80.5, 83.9],
-    belgium:     [79.5, 83.8],
-    switzerland: [81.9, 85.6],
-    russia:      [68.2, 78.0],
-    turkey:      [75.5, 81.0],
-    greece:      [79.5, 84.0],
-    serbia:      [73.5, 78.5],
-    pakistan:    [66.0, 68.0],
-    bangladesh:  [71.0, 74.5],
-    south_korea: [80.3, 86.1],
-    japan:       [81.5, 87.6],
-    taiwan:      [77.5, 83.8],
-    sri_lanka:   [73.0, 79.5],
-    uae:         [78.5, 80.0],
-    saudi_arabia:[75.0, 77.5],
-    oman:        [75.5, 78.0],
-    jordan:      [73.5, 77.0],
-    iraq:        [68.0, 73.0],
-    nigeria:     [54.5, 56.5],
-    egypt:       [69.5, 74.0],
-    sudan:       [63.0, 67.5],
-    cameroon:    [59.0, 62.5],
-    senegal:     [66.5, 70.0],
-    gambia:      [63.5, 67.5],
-    south_africa:[61.0, 67.5],
-    kenya:       [64.5, 69.5],
-    peru:        [74.5, 79.5],
-    chile:       [78.5, 83.5],
-    panama:      [76.0, 81.5],
-    colombia:    [73.5, 80.0],
-    el_salvador: [70.5, 78.5],
-    fiji:        [67.0, 72.5],
-    world:       [71.0, 76.0]
+    // ── NORTH AMERICA ──
+    usa:                    [76.5, 81.4],
+    canada:                 [80.7, 84.3],
+    cuba:                   [76.5, 81.0],
+    jamaica:                [74.0, 78.5],
+    haiti:                  [62.5, 66.5],
+    dominican_republic:     [72.0, 78.0],
+    trinidad:               [71.5, 77.5],
+    barbados:               [75.0, 79.5],
+    bahamas:                [73.0, 79.0],
+    puerto_rico:            [76.5, 83.5],
+    antigua:                [74.5, 79.0],
+    saint_lucia:            [73.0, 78.5],
+    grenada:                [72.5, 77.5],
+    saint_vincent:          [72.0, 77.0],
+    saint_kitts:            [73.5, 78.0],
+    dominica:               [74.0, 78.5],
+    // ── CENTRAL AMERICA ──
+    mexico:                 [73.4, 79.6],
+    guatemala:              [70.5, 77.0],
+    belize:                 [71.5, 77.0],
+    honduras:               [73.5, 79.0],
+    el_salvador:            [70.5, 78.5],
+    nicaragua:              [73.5, 79.5],
+    costa_rica:             [77.5, 82.5],
+    panama:                 [76.0, 81.5],
+    // ── SOUTH AMERICA ──
+    colombia:               [73.5, 80.0],
+    venezuela:              [70.5, 77.5],
+    guyana:                 [66.5, 73.5],
+    suriname:               [69.5, 75.5],
+    french_guiana:          [74.0, 80.0],
+    ecuador:                [74.0, 79.5],
+    peru:                   [74.5, 79.5],
+    brazil:                 [72.0, 79.3],
+    bolivia:                [69.5, 74.5],
+    paraguay:               [73.0, 78.5],
+    chile:                  [78.5, 83.5],
+    argentina:              [73.0, 79.9],
+    uruguay:                [76.0, 81.5],
+    // ── EUROPE ──
+    uk:                     [79.4, 83.1],
+    ireland:                [80.7, 84.4],
+    france:                 [80.0, 85.7],
+    germany:                [79.0, 83.6],
+    italy:                  [81.0, 85.4],
+    spain:                  [81.3, 86.9],
+    portugal:               [79.4, 84.8],
+    andorra:                [81.0, 85.0],
+    netherlands:            [80.5, 83.9],
+    belgium:                [79.5, 83.8],
+    luxembourg:             [80.5, 84.5],
+    switzerland:            [81.9, 85.6],
+    austria:                [79.5, 84.0],
+    liechtenstein:          [82.0, 86.0],
+    monaco:                 [85.0, 89.5],
+    san_marino:             [83.0, 87.5],
+    sweden:                 [81.5, 84.7],
+    norway:                 [81.5, 84.8],
+    denmark:                [80.0, 83.5],
+    finland:                [79.5, 84.5],
+    iceland:                [81.5, 84.5],
+    greece:                 [79.5, 84.0],
+    cyprus:                 [80.0, 84.5],
+    malta:                  [81.0, 85.0],
+    poland:                 [74.5, 81.5],
+    czech_republic:         [76.5, 82.0],
+    slovakia:               [74.5, 81.0],
+    hungary:                [74.0, 80.5],
+    romania:                [73.5, 79.5],
+    bulgaria:               [72.5, 79.5],
+    croatia:                [75.5, 81.0],
+    serbia:                 [73.5, 78.5],
+    slovenia:               [79.0, 84.0],
+    estonia:                [74.5, 82.5],
+    latvia:                 [71.5, 80.5],
+    lithuania:              [72.0, 80.5],
+    albania:                [77.0, 81.0],
+    north_macedonia:        [74.5, 78.5],
+    bosnia:                 [74.5, 79.5],
+    montenegro:             [75.5, 80.5],
+    kosovo:                 [72.0, 76.5],
+    // ── EURASIA ──
+    russia:                 [68.2, 78.0],
+    ukraine:                [68.5, 77.5],
+    belarus:                [68.5, 78.0],
+    moldova:                [68.5, 76.5],
+    georgia:                [70.5, 77.5],
+    armenia:                [71.5, 79.0],
+    azerbaijan:             [72.0, 76.5],
+    kazakhstan:             [68.0, 76.5],
+    uzbekistan:             [71.5, 75.0],
+    kyrgyzstan:             [70.0, 76.0],
+    tajikistan:             [70.0, 75.5],
+    turkmenistan:           [65.0, 71.5],
+    // ── MIDDLE EAST ──
+    turkey:                 [75.5, 81.0],
+    israel:                 [81.0, 84.5],
+    palestine:              [73.0, 76.5],
+    lebanon:                [77.5, 81.0],
+    jordan:                 [73.5, 77.0],
+    uae:                    [78.5, 80.0],
+    saudi_arabia:           [75.0, 77.5],
+    qatar:                  [79.0, 81.5],
+    kuwait:                 [75.0, 79.0],
+    bahrain:                [76.0, 79.5],
+    oman:                   [75.5, 78.0],
+    iran:                   [74.5, 77.0],
+    iraq:                   [68.0, 73.0],
+    syria:                  [64.5, 70.5],
+    yemen:                  [62.0, 65.5],
+    afghanistan:            [63.0, 65.5],
+    // ── ASIA ──
+    china:                  [75.2, 80.9],
+    japan:                  [81.5, 87.6],
+    south_korea:            [80.3, 86.1],
+    taiwan:                 [77.5, 83.8],
+    hong_kong:              [82.5, 88.0],
+    macao:                  [81.0, 86.5],
+    mongolia:               [69.0, 76.0],
+    north_korea:            [67.0, 74.5],
+    india:                  [70.5, 73.6],
+    pakistan:               [66.0, 68.0],
+    bangladesh:             [71.0, 74.5],
+    sri_lanka:              [73.0, 79.5],
+    nepal:                  [70.0, 72.5],
+    bhutan:                 [71.0, 74.0],
+    maldives:               [78.5, 81.0],
+    // ── SOUTHEAST ASIA ──
+    indonesia:              [70.9, 74.8],
+    philippines:            [67.2, 75.5],
+    vietnam:                [72.0, 79.9],
+    thailand:               [72.2, 79.7],
+    malaysia:               [72.6, 77.4],
+    singapore:              [81.5, 86.1],
+    myanmar:                [65.5, 69.5],
+    cambodia:               [67.5, 72.5],
+    laos:                   [66.5, 70.0],
+    brunei:                 [74.5, 78.5],
+    timor_leste:            [67.5, 71.5],
+    // ── AFRICA ──
+    nigeria:                [54.5, 56.5],
+    ethiopia:               [66.5, 70.5],
+    egypt:                  [69.5, 74.0],
+    south_africa:           [61.0, 67.5],
+    kenya:                  [64.5, 69.5],
+    ghana:                  [63.0, 66.5],
+    tanzania:               [65.0, 68.5],
+    uganda:                 [63.5, 68.0],
+    senegal:                [66.5, 70.0],
+    cameroon:               [59.0, 62.5],
+    ivory_coast:            [57.0, 60.5],
+    mali:                   [58.0, 61.5],
+    niger:                  [61.5, 64.5],
+    burkina_faso:           [59.0, 62.5],
+    guinea:                 [59.5, 62.0],
+    guinea_bissau:          [57.0, 60.0],
+    sudan:                  [63.0, 67.5],
+    south_sudan:            [55.5, 58.5],
+    angola:                 [60.5, 64.0],
+    mozambique:             [58.5, 62.0],
+    madagascar:             [64.5, 68.0],
+    zambia:                 [63.0, 68.0],
+    zimbabwe:               [59.5, 64.5],
+    malawi:                 [61.5, 65.5],
+    rwanda:                 [68.5, 72.0],
+    burundi:                [61.0, 65.0],
+    somalia:                [55.0, 58.5],
+    eritrea:                [64.0, 68.5],
+    djibouti:               [66.0, 70.5],
+    morocco:                [74.0, 77.5],
+    algeria:                [75.5, 78.0],
+    tunisia:                [75.5, 79.0],
+    libya:                  [73.0, 77.5],
+    mauritius:              [73.5, 79.5],
+    botswana:               [64.5, 70.5],
+    namibia:                [61.5, 67.5],
+    lesotho:                [53.5, 57.5],
+    eswatini:               [57.5, 61.0],
+    gabon:                  [64.5, 68.0],
+    congo:                  [60.5, 64.0],
+    drc:                    [59.0, 62.5],
+    gambia:                 [63.5, 67.5],
+    sierra_leone:           [52.5, 54.5],
+    liberia:                [63.0, 66.0],
+    togo:                   [61.0, 65.0],
+    benin:                  [61.5, 65.5],
+    chad:                   [52.5, 55.5],
+    central_african_republic:[52.0, 55.0],
+    equatorial_guinea:      [57.5, 62.0],
+    sao_tome:               [68.0, 72.5],
+    cape_verde:             [73.5, 78.5],
+    seychelles:             [73.0, 79.0],
+    comoros:                [63.0, 67.5],
+    mauritania:             [64.5, 68.0],
+    western_sahara:         [69.0, 73.0],
+    // ── OCEANIA ──
+    australia:              [81.3, 85.2],
+    new_zealand:            [80.9, 84.4],
+    fiji:                   [67.0, 72.5],
+    papua_new_guinea:       [62.5, 66.5],
+    solomon_islands:        [71.0, 74.5],
+    vanuatu:                [71.0, 74.0],
+    samoa:                  [71.5, 76.5],
+    tonga:                  [70.0, 75.0],
+    kiribati:               [65.5, 70.5],
+    micronesia:             [68.5, 72.0],
+    marshall_islands:       [67.0, 71.5],
+    palau:                  [69.5, 74.5],
+    nauru:                  [63.0, 67.5],
+    tuvalu:                 [66.0, 70.5],
+    // ── REGION AVERAGES (for Regions tab) ──
+    region_north_america:   [76.2, 81.0],
+    region_central_america: [73.0, 79.0],
+    region_south_america:   [73.0, 79.5],
+    region_europe:          [78.5, 84.0],
+    region_iberia:          [80.4, 85.9],
+    region_eurasia:         [68.5, 77.0],
+    region_siberia:         [62.0, 73.0],
+    region_middle_east:     [73.5, 77.5],
+    region_asia:            [74.0, 79.5],
+    region_southeast_asia:  [70.5, 76.0],
+    region_africa:          [61.5, 65.5],
+    region_north_africa:    [73.5, 77.5],
+    region_oceania:         [75.0, 79.5],
+    region_antarctica:      [70.0, 75.0], // research station workers (based on home country averages)
+    world:                  [71.0, 76.0],
   };
+
+  // ── OS DETECTION (Windows has no flag emoji) ──
+  const isWindows = /Win/i.test(navigator.platform || navigator.userAgent);
 
   let selectedGender = null;
   let countdownInterval = null;
@@ -1203,6 +1445,8 @@
   let totalLifeMs = null;
   let yearEndInterval = null;
   let appMode = 'life';
+  let selectedCountry = '';
+  let currentPickerTab = 'countries';
 
   // --- Particles ---
   (function spawnParticles() {
@@ -1294,6 +1538,7 @@ function calculate() {
       errorEl.textContent = '⚠️ Date of birth can\'t be in the future!'; return;
     }
     if (!country) { errorEl.textContent = '⚠️ Please select your country.'; return; }
+    if (!LIFE_DATA[country]) { errorEl.textContent = '⚠️ No data available for selected country.'; return; }
 
     const genderIndex = selectedGender === 'male' ? 0 : 1;
     const lifeExpectancy = LIFE_DATA[country][genderIndex];
@@ -1301,28 +1546,15 @@ function calculate() {
     endDate = new Date(birthDate.getTime() + lifeMs);
     totalLifeMs = lifeMs;
 
-    const countryNames = {
-      usa:'the United States',uk:'the United Kingdom',india:'India',china:'China',
-      australia:'Australia',new_zealand:'New Zealand',canada:'Canada',ireland:'Ireland',
-      indonesia:'Indonesia',vietnam:'Vietnam',philippines:'the Philippines',malaysia:'Malaysia',
-      mexico:'Mexico',spain:'Spain',brazil:'Brazil',france:'France',thailand:'Thailand',
-      argentina:'Argentina',portugal:'Portugal',italy:'Italy',germany:'Germany',
-      netherlands:'the Netherlands',belgium:'Belgium',switzerland:'Switzerland',russia:'Russia',
-      turkey:'Turkey',greece:'Greece',serbia:'Serbia',pakistan:'Pakistan',bangladesh:'Bangladesh',
-      south_korea:'South Korea',japan:'Japan',taiwan:'Taiwan',sri_lanka:'Sri Lanka',
-      uae:'the UAE',saudi_arabia:'Saudi Arabia',oman:'Oman',jordan:'Jordan',iraq:'Iraq',
-      nigeria:'Nigeria',egypt:'Egypt',sudan:'Sudan',cameroon:'Cameroon',senegal:'Senegal',
-      gambia:'The Gambia',south_africa:'South Africa',kenya:'Kenya',peru:'Peru',chile:'Chile',
-      panama:'Panama',colombia:'Colombia',el_salvador:'El Salvador',fiji:'Fiji',world:'the World'
-    };
     const genderLabel = selectedGender === 'male' ? 'male' : 'female';
     const summaryEl = document.getElementById('lifeSummary');
+    const countryDisplayName = getCountryName(country);
 
     const beatTheClock = endDate <= new Date();
     if (beatTheClock) {
-      summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryNames[country]}</strong>, the statistical limit was <strong>${lifeExpectancy} years</strong> — around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
+      summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryDisplayName}</strong>, the statistical limit was <strong>${lifeExpectancy} years</strong> — around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
     } else {
-      summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryNames[country]}</strong>, you are statistically expected to live to approximately <strong>${lifeExpectancy} years</strong> — until around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
+      summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryDisplayName}</strong>, you are statistically expected to live to approximately <strong>${lifeExpectancy} years</strong> — until around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
     }
 
     document.getElementById('setupPanel').classList.add('hidden');
@@ -1346,7 +1578,9 @@ function calculate() {
     clearInterval(countdownInterval);
     stopTickSound();
 
-    // Launch cinematic scene
+    // 🏆 Unlock Blue Fizzy theme!
+    try { localStorage.setItem('wren_theme_bluefizzy_unlocked', '1'); } catch(e) {}
+
     const overlay = document.getElementById('cinematicOverlay');
     const cdEl = document.getElementById('cinematicCountdown');
     const labelEl = document.getElementById('cinematicLabel');
@@ -1355,48 +1589,45 @@ function calculate() {
 
     overlay.classList.add('active');
 
-    // Darken and expand the countdown number
-    const totalYears = totalLifeMs / (365.25 * 24 * 3600 * 1000);
-    let currentYear = 0;
-    const startYear = birthDate.getFullYear();
-    const endYear = endDate.getFullYear();
-    const yearRange = endYear - startYear;
+    // Count DOWN from life expectancy years to 0 over ~10 seconds
+    const totalYears = Math.round(totalLifeMs / (365.25 * 24 * 3600 * 1000));
+    let currentYr = totalYears;
 
-    cdEl.textContent = startYear;
+    cdEl.textContent = totalYears;
     cdEl.style.transform = 'scale(0.08)';
     cdEl.style.opacity = '0';
     cdEl.style.transition = 'none';
 
-    // Expand animation
     setTimeout(() => {
       cdEl.classList.add('expand');
       labelEl.classList.add('show');
       progWrap.classList.add('show');
     }, 200);
 
-    // Play cinematic whoosh sound on expand
     playCinematicSound('whoosh');
 
-    // Speed-count from birth year to death year
+    // Total 10 seconds, easing: early steps fast, last step = 1 second
+    // We use a quadratic ease-in schedule: delay for step i = BASE * (i/totalYears)^2
+    // But ensure total sums to 10000ms and last interval = ~1000ms
+    const TOTAL_MS = 10000;
+    const steps = totalYears; // count from totalYears down to 1
+
+    // Build schedule: each step delay = totalMs * (2*i - 1) / steps^2
+    // That gives sum = totalMs, with last step = totalMs*(2*steps-1)/steps^2 ≈ 2*totalMs/steps for large steps
+    // Instead: use ease-out curve where delay grows as step decreases
+    // delay(i) = k * (steps - i + 1)  (linear slowdown)
+    // sum = k * sum(1..steps) = k * steps*(steps+1)/2 = TOTAL_MS => k = 2*TOTAL_MS/(steps*(steps+1))
+    const k = (2 * TOTAL_MS) / (steps * (steps + 1));
+
     setTimeout(() => {
-      let yr = startYear;
-      const totalDuration = 4000; // 4 seconds total
-      const steps = yearRange;
-      const delay = totalDuration / Math.max(steps, 1);
+      let yr = totalYears;
+      let elapsed = 0;
 
-      const yearInterval = setInterval(() => {
-        yr++;
-        cdEl.textContent = yr;
-        const pct = ((yr - startYear) / yearRange) * 100;
-        progBar.style.width = pct + '%';
-        playCinematicSound('tick-fast');
-
-        if (yr >= endYear) {
-          clearInterval(yearInterval);
+      function scheduleNextStep() {
+        if (yr <= 0) {
+          // Done
           progBar.style.width = '100%';
           playCinematicSound('boom');
-
-          // Show confetti + banner after short pause
           setTimeout(() => {
             launchConfetti();
             overlay.classList.remove('active');
@@ -1405,11 +1636,9 @@ function calculate() {
             const banner = document.getElementById('beatBanner');
             banner.classList.add('active');
 
-            // Auto-dismiss after 5 seconds
             setTimeout(() => {
               banner.classList.remove('active');
               stopConfetti();
-              // Show the normal beat state
               document.getElementById('setupPanel').classList.add('hidden');
               setAppMode('life');
               const lifePanel = document.getElementById('countdownPanel');
@@ -1426,8 +1655,22 @@ function calculate() {
               document.getElementById('lifeBar').style.width = '100%';
             }, 5000);
           }, 600);
+          return;
         }
-      }, delay);
+
+        yr--;
+        const pct = ((totalYears - yr) / totalYears) * 100;
+        cdEl.textContent = yr;
+        progBar.style.width = pct + '%';
+        playCinematicSound('tick-fast');
+
+        // Delay for next step: grows as yr gets smaller (slowing down)
+        const stepsLeft = yr + 1; // stepsLeft at this point
+        const delay = k * stepsLeft;
+        setTimeout(scheduleNextStep, delay);
+      }
+
+      scheduleNextStep();
     }, 1400);
   }
 
@@ -1935,125 +2178,407 @@ function startYearEndCountdown() {
   }
 
 
-  // ── OS DETECTION (Windows has no flag emoji) ──
-  const isWindows = /Win/i.test(navigator.platform || navigator.userAgent);
-
-  // ── COUNTRY DATA ──
+  // ── FULL WORLD COUNTRY LIST ──
   const COUNTRIES = [
-    { value: 'argentina',   flag: '🇦🇷', winEmoji: '🥩', label: 'Argentina' },
-    { value: 'australia',   flag: '🇦🇺', winEmoji: '🦘', label: 'Australia' },
-    { value: 'bangladesh',  flag: '🇧🇩', winEmoji: '🌿', label: 'Bangladesh' },
-    { value: 'belgium',     flag: '🇧🇪', winEmoji: '🍫', label: 'Belgium' },
-    { value: 'brazil',      flag: '🇧🇷', winEmoji: '🌴', label: 'Brazil' },
-    { value: 'cameroon',    flag: '🇨🇲', winEmoji: '🦁', label: 'Cameroon' },
-    { value: 'canada',      flag: '🇨🇦', winEmoji: '🍁', label: 'Canada' },
-    { value: 'chile',       flag: '🇨🇱', winEmoji: '🌋', label: 'Chile' },
-    { value: 'china',       flag: '🇨🇳', winEmoji: '🐉', label: 'China' },
-    { value: 'colombia',    flag: '🇨🇴', winEmoji: '🌺', label: 'Colombia' },
-    { value: 'egypt',       flag: '🇪🇬', winEmoji: '🏺', label: 'Egypt' },
-    { value: 'el_salvador', flag: '🇸🇻', winEmoji: '🌊', label: 'El Salvador' },
-    { value: 'fiji',        flag: '🇫🇯', winEmoji: '🌴', label: 'Fiji' },
-    { value: 'france',      flag: '🇫🇷', winEmoji: '🥐', label: 'France' },
-    { value: 'gambia',      flag: '🇬🇲', winEmoji: '🐊', label: 'The Gambia' },
-    { value: 'germany',     flag: '🇩🇪', winEmoji: '🍺', label: 'Germany' },
-    { value: 'greece',      flag: '🇬🇷', winEmoji: '🏛️', label: 'Greece' },
-    { value: 'india',       flag: '🇮🇳', winEmoji: '🙏', label: 'India' },
-    { value: 'indonesia',   flag: '🇮🇩', winEmoji: '🏝️', label: 'Indonesia' },
-    { value: 'iraq',        flag: '🇮🇶', winEmoji: '🌙', label: 'Iraq' },
-    { value: 'ireland',     flag: '🇮🇪', winEmoji: '☘️', label: 'Ireland' },
-    { value: 'italy',       flag: '🇮🇹', winEmoji: '🍕', label: 'Italy' },
-    { value: 'japan',       flag: '🇯🇵', winEmoji: '🗾', label: 'Japan' },
-    { value: 'jordan',      flag: '🇯🇴', winEmoji: '🏜️', label: 'Jordan' },
-    { value: 'kenya',       flag: '🇰🇪', winEmoji: '🦒', label: 'Kenya' },
-    { value: 'malaysia',    flag: '🇲🇾', winEmoji: '🌺', label: 'Malaysia' },
-    { value: 'mexico',      flag: '🇲🇽', winEmoji: '🌮', label: 'Mexico' },
-    { value: 'netherlands', flag: '🇳🇱', winEmoji: '🌷', label: 'Netherlands' },
-    { value: 'new_zealand', flag: '🇳🇿', winEmoji: '🥝', label: 'New Zealand' },
-    { value: 'nigeria',     flag: '🇳🇬', winEmoji: '🥁', label: 'Nigeria' },
-    { value: 'oman',        flag: '🇴🇲', winEmoji: '🏜️', label: 'Oman' },
-    { value: 'pakistan',    flag: '🇵🇰', winEmoji: '🕌', label: 'Pakistan' },
-    { value: 'panama',      flag: '🇵🇦', winEmoji: '⚓', label: 'Panama' },
-    { value: 'peru',        flag: '🇵🇪', winEmoji: '🦙', label: 'Peru' },
-    { value: 'philippines', flag: '🇵🇭', winEmoji: '🌊', label: 'Philippines' },
-    { value: 'portugal',    flag: '🇵🇹', winEmoji: '🐟', label: 'Portugal' },
-    { value: 'russia',      flag: '🇷🇺', winEmoji: '❄️', label: 'Russia' },
-    { value: 'saudi_arabia',flag: '🇸🇦', winEmoji: '🕌', label: 'Saudi Arabia' },
-    { value: 'senegal',     flag: '🇸🇳', winEmoji: '🦁', label: 'Senegal' },
-    { value: 'serbia',      flag: '🇷🇸', winEmoji: '🦅', label: 'Serbia' },
-    { value: 'south_africa',flag: '🇿🇦', winEmoji: '🦁', label: 'South Africa' },
-    { value: 'south_korea', flag: '🇰🇷', winEmoji: '🎎', label: 'South Korea' },
-    { value: 'spain',       flag: '🇪🇸', winEmoji: '💃', label: 'Spain' },
-    { value: 'sri_lanka',   flag: '🇱🇰', winEmoji: '🐘', label: 'Sri Lanka' },
-    { value: 'sudan',       flag: '🇸🇩', winEmoji: '🌍', label: 'Sudan' },
-    { value: 'switzerland', flag: '🇨🇭', winEmoji: '🏔️', label: 'Switzerland' },
-    { value: 'taiwan',      flag: '🇹🇼', winEmoji: '🏯', label: 'Taiwan' },
-    { value: 'thailand',    flag: '🇹🇭', winEmoji: '🐘', label: 'Thailand' },
-    { value: 'turkey',      flag: '🇹🇷', winEmoji: '🌙', label: 'Turkey' },
-    { value: 'uae',         flag: '🇦🇪', winEmoji: '🌆', label: 'UAE' },
-    { value: 'uk',          flag: '🇬🇧', winEmoji: '☂️', label: 'United Kingdom' },
-    { value: 'usa',         flag: '🇺🇸', winEmoji: '🦅', label: 'United States' },
-    { value: 'vietnam',     flag: '🇻🇳', winEmoji: '🍜', label: 'Vietnam' },
-    { value: 'world',       flag: '🌍', winEmoji: '🌍', label: 'Rest of World' },
+    // ── NORTH AMERICA ──
+    { value:'usa',                  flag:'🇺🇸', winEmoji:'🦅', label:'United States' },
+    { value:'canada',               flag:'🇨🇦', winEmoji:'🍁', label:'Canada' },
+    { value:'cuba',                 flag:'🇨🇺', winEmoji:'🎵', label:'Cuba' },
+    { value:'jamaica',              flag:'🇯🇲', winEmoji:'🎵', label:'Jamaica' },
+    { value:'haiti',                flag:'🇭🇹', winEmoji:'🌴', label:'Haiti' },
+    { value:'dominican_republic',   flag:'🇩🇴', winEmoji:'🌴', label:'Dominican Republic' },
+    { value:'trinidad',             flag:'🇹🇹', winEmoji:'🦜', label:'Trinidad & Tobago' },
+    { value:'barbados',             flag:'🇧🇧', winEmoji:'🌊', label:'Barbados' },
+    { value:'bahamas',              flag:'🇧🇸', winEmoji:'🌊', label:'Bahamas' },
+    { value:'puerto_rico',          flag:'🇵🇷', winEmoji:'🌺', label:'Puerto Rico' },
+    { value:'antigua',              flag:'🇦🇬', winEmoji:'🌊', label:'Antigua & Barbuda' },
+    { value:'saint_lucia',          flag:'🇱🇨', winEmoji:'🌴', label:'Saint Lucia' },
+    { value:'grenada',              flag:'🇬🇩', winEmoji:'🌶️', label:'Grenada' },
+    { value:'saint_vincent',        flag:'🇻🇨', winEmoji:'🌴', label:'Saint Vincent & the Grenadines' },
+    { value:'saint_kitts',          flag:'🇰🇳', winEmoji:'🌺', label:'Saint Kitts & Nevis' },
+    { value:'dominica',             flag:'🇩🇲', winEmoji:'🦜', label:'Dominica' },
+    // ── CENTRAL AMERICA ──
+    { value:'mexico',               flag:'🇲🇽', winEmoji:'🌮', label:'Mexico' },
+    { value:'guatemala',            flag:'🇬🇹', winEmoji:'🦜', label:'Guatemala' },
+    { value:'belize',               flag:'🇧🇿', winEmoji:'🌴', label:'Belize' },
+    { value:'honduras',             flag:'🇭🇳', winEmoji:'🦜', label:'Honduras' },
+    { value:'el_salvador',          flag:'🇸🇻', winEmoji:'🌊', label:'El Salvador' },
+    { value:'nicaragua',            flag:'🇳🇮', winEmoji:'🦜', label:'Nicaragua' },
+    { value:'costa_rica',           flag:'🇨🇷', winEmoji:'🦋', label:'Costa Rica' },
+    { value:'panama',               flag:'🇵🇦', winEmoji:'⚓', label:'Panama' },
+    // ── SOUTH AMERICA ──
+    { value:'colombia',             flag:'🇨🇴', winEmoji:'🌺', label:'Colombia' },
+    { value:'venezuela',            flag:'🇻🇪', winEmoji:'💧', label:'Venezuela' },
+    { value:'guyana',               flag:'🇬🇾', winEmoji:'🌿', label:'Guyana' },
+    { value:'suriname',             flag:'🇸🇷', winEmoji:'🌿', label:'Suriname' },
+    { value:'french_guiana',        flag:'🇬🇫', winEmoji:'🌿', label:'French Guiana' },
+    { value:'ecuador',              flag:'🇪🇨', winEmoji:'🦜', label:'Ecuador' },
+    { value:'peru',                 flag:'🇵🇪', winEmoji:'🦙', label:'Peru' },
+    { value:'brazil',               flag:'🇧🇷', winEmoji:'🌴', label:'Brazil' },
+    { value:'bolivia',              flag:'🇧🇴', winEmoji:'🦙', label:'Bolivia' },
+    { value:'paraguay',             flag:'🇵🇾', winEmoji:'🌿', label:'Paraguay' },
+    { value:'chile',                flag:'🇨🇱', winEmoji:'🌋', label:'Chile' },
+    { value:'argentina',            flag:'🇦🇷', winEmoji:'🥩', label:'Argentina' },
+    { value:'uruguay',              flag:'🇺🇾', winEmoji:'🐄', label:'Uruguay' },
+    // ── EUROPE ──
+    { value:'uk',                   flag:'🇬🇧', winEmoji:'☂️', label:'United Kingdom' },
+    { value:'ireland',              flag:'🇮🇪', winEmoji:'☘️', label:'Ireland' },
+    { value:'france',               flag:'🇫🇷', winEmoji:'🥐', label:'France' },
+    { value:'germany',              flag:'🇩🇪', winEmoji:'🍺', label:'Germany' },
+    { value:'italy',                flag:'🇮🇹', winEmoji:'🍕', label:'Italy' },
+    { value:'spain',                flag:'🇪🇸', winEmoji:'💃', label:'Spain' },
+    { value:'portugal',             flag:'🇵🇹', winEmoji:'🐟', label:'Portugal' },
+    { value:'andorra',              flag:'🇦🇩', winEmoji:'🏔️', label:'Andorra' },
+    { value:'netherlands',          flag:'🇳🇱', winEmoji:'🌷', label:'Netherlands' },
+    { value:'belgium',              flag:'🇧🇪', winEmoji:'🍫', label:'Belgium' },
+    { value:'luxembourg',           flag:'🇱🇺', winEmoji:'🏰', label:'Luxembourg' },
+    { value:'switzerland',          flag:'🇨🇭', winEmoji:'🏔️', label:'Switzerland' },
+    { value:'liechtenstein',        flag:'🇱🇮', winEmoji:'🏔️', label:'Liechtenstein' },
+    { value:'austria',              flag:'🇦🇹', winEmoji:'🎵', label:'Austria' },
+    { value:'monaco',               flag:'🇲🇨', winEmoji:'🎰', label:'Monaco' },
+    { value:'san_marino',           flag:'🇸🇲', winEmoji:'🏰', label:'San Marino' },
+    { value:'sweden',               flag:'🇸🇪', winEmoji:'🌿', label:'Sweden' },
+    { value:'norway',               flag:'🇳🇴', winEmoji:'🏔️', label:'Norway' },
+    { value:'denmark',              flag:'🇩🇰', winEmoji:'🧜', label:'Denmark' },
+    { value:'finland',              flag:'🇫🇮', winEmoji:'🌲', label:'Finland' },
+    { value:'iceland',              flag:'🇮🇸', winEmoji:'🌋', label:'Iceland' },
+    { value:'greece',               flag:'🇬🇷', winEmoji:'🏛️', label:'Greece' },
+    { value:'cyprus',               flag:'🇨🇾', winEmoji:'🌊', label:'Cyprus' },
+    { value:'malta',                flag:'🇲🇹', winEmoji:'🌊', label:'Malta' },
+    { value:'poland',               flag:'🇵🇱', winEmoji:'🦅', label:'Poland' },
+    { value:'czech_republic',       flag:'🇨🇿', winEmoji:'🍺', label:'Czech Republic' },
+    { value:'slovakia',             flag:'🇸🇰', winEmoji:'🏔️', label:'Slovakia' },
+    { value:'hungary',              flag:'🇭🇺', winEmoji:'🌶️', label:'Hungary' },
+    { value:'romania',              flag:'🇷🇴', winEmoji:'🐻', label:'Romania' },
+    { value:'bulgaria',             flag:'🇧🇬', winEmoji:'🌹', label:'Bulgaria' },
+    { value:'croatia',              flag:'🇭🇷', winEmoji:'🌊', label:'Croatia' },
+    { value:'serbia',               flag:'🇷🇸', winEmoji:'🦅', label:'Serbia' },
+    { value:'slovenia',             flag:'🇸🇮', winEmoji:'🏔️', label:'Slovenia' },
+    { value:'estonia',              flag:'🇪🇪', winEmoji:'🌲', label:'Estonia' },
+    { value:'latvia',               flag:'🇱🇻', winEmoji:'🌲', label:'Latvia' },
+    { value:'lithuania',            flag:'🇱🇹', winEmoji:'🌲', label:'Lithuania' },
+    { value:'albania',              flag:'🇦🇱', winEmoji:'🦅', label:'Albania' },
+    { value:'north_macedonia',      flag:'🇲🇰', winEmoji:'☀️', label:'North Macedonia' },
+    { value:'bosnia',               flag:'🇧🇦', winEmoji:'🌿', label:'Bosnia & Herzegovina' },
+    { value:'montenegro',           flag:'🇲🇪', winEmoji:'🦅', label:'Montenegro' },
+    { value:'kosovo',               flag:'🇽🇰', winEmoji:'🌟', label:'Kosovo' },
+    // ── EURASIA ──
+    { value:'russia',               flag:'🇷🇺', winEmoji:'❄️', label:'Russia' },
+    { value:'ukraine',              flag:'🇺🇦', winEmoji:'🌻', label:'Ukraine' },
+    { value:'belarus',              flag:'🇧🇾', winEmoji:'🌿', label:'Belarus' },
+    { value:'moldova',              flag:'🇲🇩', winEmoji:'🍷', label:'Moldova' },
+    { value:'georgia',              flag:'🇬🇪', winEmoji:'🏔️', label:'Georgia' },
+    { value:'armenia',              flag:'🇦🇲', winEmoji:'🏔️', label:'Armenia' },
+    { value:'azerbaijan',           flag:'🇦🇿', winEmoji:'🛢️', label:'Azerbaijan' },
+    { value:'kazakhstan',           flag:'🇰🇿', winEmoji:'🦅', label:'Kazakhstan' },
+    { value:'uzbekistan',           flag:'🇺🇿', winEmoji:'🕌', label:'Uzbekistan' },
+    { value:'kyrgyzstan',           flag:'🇰🇬', winEmoji:'🏔️', label:'Kyrgyzstan' },
+    { value:'tajikistan',           flag:'🇹🇯', winEmoji:'🏔️', label:'Tajikistan' },
+    { value:'turkmenistan',         flag:'🇹🇲', winEmoji:'🌕', label:'Turkmenistan' },
+    // ── MIDDLE EAST ──
+    { value:'turkey',               flag:'🇹🇷', winEmoji:'🌙', label:'Turkey' },
+    { value:'israel',               flag:'🇮🇱', winEmoji:'✡️', label:'Israel' },
+    { value:'palestine',            flag:'🇵🇸', winEmoji:'🌿', label:'Palestine' },
+    { value:'lebanon',              flag:'🇱🇧', winEmoji:'🌲', label:'Lebanon' },
+    { value:'jordan',               flag:'🇯🇴', winEmoji:'🏜️', label:'Jordan' },
+    { value:'uae',                  flag:'🇦🇪', winEmoji:'🌆', label:'UAE' },
+    { value:'saudi_arabia',         flag:'🇸🇦', winEmoji:'🕌', label:'Saudi Arabia' },
+    { value:'qatar',                flag:'🇶🇦', winEmoji:'🏟️', label:'Qatar' },
+    { value:'kuwait',               flag:'🇰🇼', winEmoji:'🛢️', label:'Kuwait' },
+    { value:'bahrain',              flag:'🇧🇭', winEmoji:'🌊', label:'Bahrain' },
+    { value:'oman',                 flag:'🇴🇲', winEmoji:'🏜️', label:'Oman' },
+    { value:'iran',                 flag:'🇮🇷', winEmoji:'🌹', label:'Iran' },
+    { value:'iraq',                 flag:'🇮🇶', winEmoji:'🌙', label:'Iraq' },
+    { value:'syria',                flag:'🇸🇾', winEmoji:'🏛️', label:'Syria' },
+    { value:'yemen',                flag:'🇾🇪', winEmoji:'☕', label:'Yemen' },
+    { value:'afghanistan',          flag:'🇦🇫', winEmoji:'🏔️', label:'Afghanistan' },
+    // ── ASIA ──
+    { value:'china',                flag:'🇨🇳', winEmoji:'🐉', label:'China' },
+    { value:'japan',                flag:'🇯🇵', winEmoji:'🗾', label:'Japan' },
+    { value:'south_korea',          flag:'🇰🇷', winEmoji:'🎎', label:'South Korea' },
+    { value:'north_korea',          flag:'🇰🇵', winEmoji:'⭐', label:'North Korea' },
+    { value:'taiwan',               flag:'🇹🇼', winEmoji:'🏯', label:'Taiwan' },
+    { value:'hong_kong',            flag:'🇭🇰', winEmoji:'🌆', label:'Hong Kong' },
+    { value:'macao',                flag:'🇲🇴', winEmoji:'🎲', label:'Macao' },
+    { value:'mongolia',             flag:'🇲🇳', winEmoji:'🐎', label:'Mongolia' },
+    { value:'india',                flag:'🇮🇳', winEmoji:'🙏', label:'India' },
+    { value:'pakistan',             flag:'🇵🇰', winEmoji:'🕌', label:'Pakistan' },
+    { value:'bangladesh',           flag:'🇧🇩', winEmoji:'🌿', label:'Bangladesh' },
+    { value:'sri_lanka',            flag:'🇱🇰', winEmoji:'🐘', label:'Sri Lanka' },
+    { value:'nepal',                flag:'🇳🇵', winEmoji:'🏔️', label:'Nepal' },
+    { value:'bhutan',               flag:'🇧🇹', winEmoji:'🐉', label:'Bhutan' },
+    { value:'maldives',             flag:'🇲🇻', winEmoji:'🌊', label:'Maldives' },
+    // ── SOUTHEAST ASIA ──
+    { value:'indonesia',            flag:'🇮🇩', winEmoji:'🏝️', label:'Indonesia' },
+    { value:'philippines',          flag:'🇵🇭', winEmoji:'🌊', label:'Philippines' },
+    { value:'vietnam',              flag:'🇻🇳', winEmoji:'🍜', label:'Vietnam' },
+    { value:'thailand',             flag:'🇹🇭', winEmoji:'🐘', label:'Thailand' },
+    { value:'malaysia',             flag:'🇲🇾', winEmoji:'🌺', label:'Malaysia' },
+    { value:'singapore',            flag:'🇸🇬', winEmoji:'🦁', label:'Singapore' },
+    { value:'myanmar',              flag:'🇲🇲', winEmoji:'🏛️', label:'Myanmar' },
+    { value:'cambodia',             flag:'🇰🇭', winEmoji:'🏛️', label:'Cambodia' },
+    { value:'laos',                 flag:'🇱🇦', winEmoji:'🌿', label:'Laos' },
+    { value:'brunei',               flag:'🇧🇳', winEmoji:'🛢️', label:'Brunei' },
+    { value:'timor_leste',          flag:'🇹🇱', winEmoji:'🌴', label:'Timor-Leste' },
+    // ── AFRICA ──
+    { value:'nigeria',              flag:'🇳🇬', winEmoji:'🥁', label:'Nigeria' },
+    { value:'ethiopia',             flag:'🇪🇹', winEmoji:'☕', label:'Ethiopia' },
+    { value:'south_africa',         flag:'🇿🇦', winEmoji:'🦁', label:'South Africa' },
+    { value:'kenya',                flag:'🇰🇪', winEmoji:'🦒', label:'Kenya' },
+    { value:'ghana',                flag:'🇬🇭', winEmoji:'🌟', label:'Ghana' },
+    { value:'tanzania',             flag:'🇹🇿', winEmoji:'🦒', label:'Tanzania' },
+    { value:'uganda',               flag:'🇺🇬', winEmoji:'🦍', label:'Uganda' },
+    { value:'senegal',              flag:'🇸🇳', winEmoji:'🦁', label:'Senegal' },
+    { value:'cameroon',             flag:'🇨🇲', winEmoji:'🦁', label:'Cameroon' },
+    { value:'ivory_coast',          flag:'🇨🇮', winEmoji:'🐘', label:'Ivory Coast' },
+    { value:'mali',                 flag:'🇲🇱', winEmoji:'🌵', label:'Mali' },
+    { value:'niger',                flag:'🇳🇪', winEmoji:'🌵', label:'Niger' },
+    { value:'burkina_faso',         flag:'🇧🇫', winEmoji:'🌿', label:'Burkina Faso' },
+    { value:'guinea',               flag:'🇬🇳', winEmoji:'🥁', label:'Guinea' },
+    { value:'guinea_bissau',        flag:'🇬🇼', winEmoji:'🌿', label:'Guinea-Bissau' },
+    { value:'sudan',                flag:'🇸🇩', winEmoji:'🌍', label:'Sudan' },
+    { value:'south_sudan',          flag:'🇸🇸', winEmoji:'🌍', label:'South Sudan' },
+    { value:'angola',               flag:'🇦🇴', winEmoji:'🌍', label:'Angola' },
+    { value:'mozambique',           flag:'🇲🇿', winEmoji:'🌊', label:'Mozambique' },
+    { value:'madagascar',           flag:'🇲🇬', winEmoji:'🦎', label:'Madagascar' },
+    { value:'zambia',               flag:'🇿🇲', winEmoji:'🦁', label:'Zambia' },
+    { value:'zimbabwe',             flag:'🇿🇼', winEmoji:'🦏', label:'Zimbabwe' },
+    { value:'malawi',               flag:'🇲🇼', winEmoji:'🌿', label:'Malawi' },
+    { value:'rwanda',               flag:'🇷🇼', winEmoji:'🌿', label:'Rwanda' },
+    { value:'burundi',              flag:'🇧🇮', winEmoji:'🌿', label:'Burundi' },
+    { value:'somalia',              flag:'🇸🇴', winEmoji:'🌊', label:'Somalia' },
+    { value:'eritrea',              flag:'🇪🇷', winEmoji:'🌊', label:'Eritrea' },
+    { value:'djibouti',             flag:'🇩🇯', winEmoji:'🌊', label:'Djibouti' },
+    { value:'botswana',             flag:'🇧🇼', winEmoji:'🦓', label:'Botswana' },
+    { value:'namibia',              flag:'🇳🇦', winEmoji:'🦁', label:'Namibia' },
+    { value:'lesotho',              flag:'🇱🇸', winEmoji:'🏔️', label:'Lesotho' },
+    { value:'eswatini',             flag:'🇸🇿', winEmoji:'🌿', label:'Eswatini' },
+    { value:'gabon',                flag:'🇬🇦', winEmoji:'🐆', label:'Gabon' },
+    { value:'congo',                flag:'🇨🇬', winEmoji:'🦍', label:'Congo' },
+    { value:'drc',                  flag:'🇨🇩', winEmoji:'🦍', label:'DR Congo' },
+    { value:'gambia',               flag:'🇬🇲', winEmoji:'🐊', label:'The Gambia' },
+    { value:'sierra_leone',         flag:'🇸🇱', winEmoji:'🌍', label:'Sierra Leone' },
+    { value:'liberia',              flag:'🇱🇷', winEmoji:'🌍', label:'Liberia' },
+    { value:'togo',                 flag:'🇹🇬', winEmoji:'🌍', label:'Togo' },
+    { value:'benin',                flag:'🇧🇯', winEmoji:'🌍', label:'Benin' },
+    { value:'chad',                 flag:'🇹🇩', winEmoji:'🌵', label:'Chad' },
+    { value:'central_african_republic', flag:'🇨🇫', winEmoji:'🌿', label:'Central African Republic' },
+    { value:'equatorial_guinea',    flag:'🇬🇶', winEmoji:'🌿', label:'Equatorial Guinea' },
+    { value:'mauritius',            flag:'🇲🇺', winEmoji:'🌊', label:'Mauritius' },
+    { value:'cape_verde',           flag:'🇨🇻', winEmoji:'🌊', label:'Cape Verde' },
+    { value:'seychelles',           flag:'🇸🇨', winEmoji:'🌴', label:'Seychelles' },
+    { value:'comoros',              flag:'🇰🇲', winEmoji:'🌴', label:'Comoros' },
+    { value:'sao_tome',             flag:'🇸🇹', winEmoji:'🌴', label:'São Tomé & Príncipe' },
+    { value:'mauritania',           flag:'🇲🇷', winEmoji:'🌵', label:'Mauritania' },
+    { value:'western_sahara',       flag:'🌍',  winEmoji:'🌵', label:'Western Sahara' },
+    // ── NORTH AFRICA ──
+    { value:'egypt',                flag:'🇪🇬', winEmoji:'🏺', label:'Egypt' },
+    { value:'morocco',              flag:'🇲🇦', winEmoji:'🌹', label:'Morocco' },
+    { value:'algeria',              flag:'🇩🇿', winEmoji:'🌵', label:'Algeria' },
+    { value:'tunisia',              flag:'🇹🇳', winEmoji:'☀️', label:'Tunisia' },
+    { value:'libya',                flag:'🇱🇾', winEmoji:'🏜️', label:'Libya' },
+    // ── OCEANIA ──
+    { value:'australia',            flag:'🇦🇺', winEmoji:'🦘', label:'Australia' },
+    { value:'new_zealand',          flag:'🇳🇿', winEmoji:'🥝', label:'New Zealand' },
+    { value:'fiji',                 flag:'🇫🇯', winEmoji:'🌴', label:'Fiji' },
+    { value:'papua_new_guinea',     flag:'🇵🇬', winEmoji:'🦜', label:'Papua New Guinea' },
+    { value:'solomon_islands',      flag:'🇸🇧', winEmoji:'🌊', label:'Solomon Islands' },
+    { value:'vanuatu',              flag:'🇻🇺', winEmoji:'🌋', label:'Vanuatu' },
+    { value:'samoa',                flag:'🇼🇸', winEmoji:'🌴', label:'Samoa' },
+    { value:'tonga',                flag:'🇹🇴', winEmoji:'🌊', label:'Tonga' },
+    { value:'kiribati',             flag:'🇰🇮', winEmoji:'🌊', label:'Kiribati' },
+    { value:'micronesia',           flag:'🇫🇲', winEmoji:'🌊', label:'Micronesia' },
+    { value:'marshall_islands',     flag:'🇲🇭', winEmoji:'🌊', label:'Marshall Islands' },
+    { value:'palau',                flag:'🇵🇼', winEmoji:'🌊', label:'Palau' },
+    { value:'nauru',                flag:'🇳🇷', winEmoji:'🌊', label:'Nauru' },
+    { value:'tuvalu',               flag:'🇹🇻', winEmoji:'🌊', label:'Tuvalu' },
   ];
 
-  let selectedCountry = '';
+  // Region definitions for the Regions tab
+  const REGIONS = [
+    { id:'north_america',  label:'🌎 North America',   countries:['usa','canada','cuba','jamaica','haiti','dominican_republic','trinidad','barbados','bahamas'] },
+    { id:'central_america',label:'🌎 Central America',  countries:['mexico','guatemala','belize','honduras','el_salvador','nicaragua','costa_rica','panama'] },
+    { id:'south_america',  label:'🌎 South America',    countries:['colombia','venezuela','guyana','suriname','ecuador','peru','brazil','bolivia','paraguay','chile','argentina','uruguay'] },
+    { id:'europe',         label:'🌍 Europe',            countries:['uk','ireland','france','germany','italy','spain','netherlands','belgium','switzerland','austria','sweden','norway','denmark','finland','greece','poland','czech_republic','slovakia','hungary','romania','bulgaria','croatia','serbia','slovenia','luxembourg','iceland','estonia','latvia','lithuania','albania','north_macedonia','bosnia','montenegro','kosovo','cyprus','malta'] },
+    { id:'iberia',         label:'🌍 Iberia',            countries:['portugal','spain'] },
+    { id:'eurasia',        label:'🌏 Eurasia',           countries:['russia','ukraine','belarus','moldova','georgia','armenia','azerbaijan','kazakhstan','uzbekistan','kyrgyzstan','tajikistan','turkmenistan'] },
+    { id:'siberia',        label:'❄️ Siberia',            countries:['russia'] },
+    { id:'middle_east',    label:'🌍 Middle East',       countries:['turkey','israel','lebanon','jordan','uae','saudi_arabia','qatar','kuwait','bahrain','oman','iran','iraq','syria','yemen','afghanistan'] },
+    { id:'asia',           label:'🌏 Asia',              countries:['china','japan','south_korea','taiwan','hong_kong','macao','mongolia','north_korea','india','pakistan','bangladesh','sri_lanka','nepal','bhutan'] },
+    { id:'southeast_asia', label:'🌏 South East Asia',   countries:['indonesia','philippines','vietnam','thailand','malaysia','singapore','myanmar','cambodia','laos'] },
+    { id:'africa',         label:'🌍 Africa',            countries:['nigeria','ethiopia','south_africa','kenya','ghana','tanzania','uganda','senegal','cameroon','ivory_coast','mali','niger','burkina_faso','guinea','south_sudan','angola','mozambique','madagascar','zambia','zimbabwe','malawi','rwanda','burundi','somalia','eritrea','djibouti','botswana','namibia','gabon','congo','drc','gambia','sierra_leone','liberia','togo','benin','chad','central_african_republic','equatorial_guinea','mauritius','cape_verde','seychelles','comoros','sao_tome','sudan'] },
+    { id:'north_africa',   label:'🌍 North Africa',      countries:['egypt','morocco','algeria','tunisia','libya','sudan'] },
+    { id:'oceania',        label:'🌏 Oceania',           countries:['australia','new_zealand','fiji','papua_new_guinea','solomon_islands','vanuatu','samoa','tonga','kiribati'] },
+  ];
+
+  function formatCountryLabel(val) {
+    const c = COUNTRIES.find(x => x.value === val);
+    if (!c) return '— Select your country —';
+    const emoji = isWindows ? c.winEmoji : c.flag;
+    return emoji + '  ' + c.label;
+  }
+
+  function buildCountryMenu() {
+    // Countries tab
+    const panelCountries = document.getElementById('panelCountries');
+    panelCountries.innerHTML = COUNTRIES.map(c => {
+      const emoji = isWindows ? c.winEmoji : c.flag;
+      return `<div class="country-option" data-value="${c.value}" onclick="selectCountry('${c.value}')">
+        <span class="country-flag">${emoji}</span>
+        <span>${c.label}</span>
+      </div>`;
+    }).join('');
+
+    // Regions tab
+    const panelRegions = document.getElementById('panelRegions');
+    panelRegions.innerHTML = REGIONS.map(r => {
+      const items = r.countries.map(val => {
+        const c = COUNTRIES.find(x => x.value === val);
+        if (!c) return '';
+        const emoji = isWindows ? c.winEmoji : c.flag;
+        return `<div class="country-option" data-value="${c.value}" onclick="selectCountry('${c.value}')">
+          <span class="country-flag">${emoji}</span>
+          <span>${c.label}</span>
+        </div>`;
+      }).join('');
+      return `<div class="region-group-header">${r.label}</div>${items}`;
+    }).join('');
+  }
+
+  function switchPickerTab(tab) {
+    currentPickerTab = tab;
+    document.getElementById('tabCountries').classList.toggle('active', tab === 'countries');
+    document.getElementById('tabRegions').classList.toggle('active', tab === 'regions');
+    document.getElementById('panelCountries').classList.toggle('active', tab === 'countries');
+    document.getElementById('panelRegions').classList.toggle('active', tab === 'regions');
+    // Clear search when switching tabs
+    const search = document.getElementById('countrySearch');
+    if (search) { search.value = ''; filterCountryMenu(); }
+  }
+
+  function filterCountryMenu() {
+    const q = (document.getElementById('countrySearch')?.value || '').toLowerCase();
+    const panel = currentPickerTab === 'countries'
+      ? document.getElementById('panelCountries')
+      : document.getElementById('panelRegions');
+    const options = panel.querySelectorAll('.country-option');
+    let found = 0;
+    options.forEach(opt => {
+      const label = opt.textContent.toLowerCase();
+      const show = !q || label.includes(q);
+      opt.style.display = show ? '' : 'none';
+      if (show) found++;
+    });
+    // Hide region headers that have no visible children (for Regions tab)
+    if (currentPickerTab === 'regions') {
+      panel.querySelectorAll('.region-group-header').forEach(hdr => {
+        let sib = hdr.nextElementSibling;
+        let anyVisible = false;
+        while (sib && !sib.classList.contains('region-group-header')) {
+          if (sib.style.display !== 'none') anyVisible = true;
+          sib = sib.nextElementSibling;
+        }
+        hdr.style.display = anyVisible ? '' : 'none';
+      });
+    }
+    // Remove/add empty state
+    let empty = panel.querySelector('.picker-empty');
+    if (found === 0) {
+      if (!empty) { empty = document.createElement('div'); empty.className = 'picker-empty'; empty.textContent = 'No results found.'; panel.appendChild(empty); }
+    } else {
+      if (empty) empty.remove();
+    }
+  }
+
+  function toggleCountryMenu() {
+    const menu = document.getElementById('countryMenu');
+    const btn = document.getElementById('countryBtn');
+    const isOpen = menu.classList.contains('open');
+    menu.classList.toggle('open', !isOpen);
+    btn.classList.toggle('open', !isOpen);
+    if (!isOpen) {
+      const search = document.getElementById('countrySearch');
+      if (search) { search.value = ''; filterCountryMenu(); search.focus(); }
+    }
+  }
+
+  function selectCountry(val) {
+    selectedCountry = val;
+    document.getElementById('countrySelect').value = val;
+    document.getElementById('countryBtnLabel').textContent = formatCountryLabel(val);
+    saveSelectedCountry(val);
+    document.getElementById('countryMenu').classList.remove('open');
+    document.getElementById('countryBtn').classList.remove('open');
+    // Highlight selected in both panels
+    document.querySelectorAll('#countryMenu .country-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.value === val);
+    });
+    if (appMode === 'year') updateYearEndCountdown();
+  }
 
 
 const COUNTRY_TIMEZONES = {
-  argentina: 'America/Argentina/Buenos_Aires',
-  australia: 'Australia/Sydney',
-  bangladesh: 'Asia/Dhaka',
-  belgium: 'Europe/Brussels',
-  brazil: 'America/Sao_Paulo',
-  cameroon: 'Africa/Douala',
-  canada: 'America/Toronto',
-  chile: 'America/Santiago',
-  china: 'Asia/Shanghai',
-  colombia: 'America/Bogota',
-  egypt: 'Africa/Cairo',
-  el_salvador: 'America/El_Salvador',
-  fiji: 'Pacific/Fiji',
-  france: 'Europe/Paris',
-  gambia: 'Africa/Banjul',
-  germany: 'Europe/Berlin',
-  greece: 'Europe/Athens',
-  india: 'Asia/Kolkata',
-  indonesia: 'Asia/Jakarta',
-  iraq: 'Asia/Baghdad',
-  ireland: 'Europe/Dublin',
-  italy: 'Europe/Rome',
-  japan: 'Asia/Tokyo',
-  jordan: 'Asia/Amman',
-  kenya: 'Africa/Nairobi',
-  malaysia: 'Asia/Kuala_Lumpur',
-  mexico: 'America/Mexico_City',
-  netherlands: 'Europe/Amsterdam',
-  new_zealand: 'Pacific/Auckland',
-  nigeria: 'Africa/Lagos',
-  oman: 'Asia/Muscat',
-  pakistan: 'Asia/Karachi',
-  panama: 'America/Panama',
-  peru: 'America/Lima',
-  philippines: 'Asia/Manila',
-  portugal: 'Europe/Lisbon',
-  russia: 'Europe/Moscow',
-  saudi_arabia: 'Asia/Riyadh',
-  senegal: 'Africa/Dakar',
-  serbia: 'Europe/Belgrade',
-  south_africa: 'Africa/Johannesburg',
-  south_korea: 'Asia/Seoul',
-  spain: 'Europe/Madrid',
-  sri_lanka: 'Asia/Colombo',
-  sudan: 'Africa/Khartoum',
-  switzerland: 'Europe/Zurich',
-  taiwan: 'Asia/Taipei',
-  thailand: 'Asia/Bangkok',
-  turkey: 'Europe/Istanbul',
-  uae: 'Asia/Dubai',
-  uk: 'Europe/London',
-  usa: 'America/New_York',
-  vietnam: 'Asia/Ho_Chi_Minh',
-  world: 'UTC'
+  usa:'America/New_York', canada:'America/Toronto', mexico:'America/Mexico_City',
+  guatemala:'America/Guatemala', belize:'America/Belize', honduras:'America/Tegucigalpa',
+  el_salvador:'America/El_Salvador', nicaragua:'America/Managua', costa_rica:'America/Costa_Rica',
+  panama:'America/Panama', cuba:'America/Havana', jamaica:'America/Jamaica',
+  haiti:'America/Port-au-Prince', dominican_republic:'America/Santo_Domingo',
+  trinidad:'America/Port_of_Spain', barbados:'America/Barbados', bahamas:'America/Nassau',
+  colombia:'America/Bogota', venezuela:'America/Caracas', guyana:'America/Guyana',
+  suriname:'America/Paramaribo', ecuador:'America/Guayaquil', peru:'America/Lima',
+  brazil:'America/Sao_Paulo', bolivia:'America/La_Paz', paraguay:'America/Asuncion',
+  chile:'America/Santiago', argentina:'America/Argentina/Buenos_Aires', uruguay:'America/Montevideo',
+  uk:'Europe/London', ireland:'Europe/Dublin', france:'Europe/Paris', germany:'Europe/Berlin',
+  italy:'Europe/Rome', spain:'Europe/Madrid', portugal:'Europe/Lisbon',
+  netherlands:'Europe/Amsterdam', belgium:'Europe/Brussels', switzerland:'Europe/Zurich',
+  austria:'Europe/Vienna', sweden:'Europe/Stockholm', norway:'Europe/Oslo',
+  denmark:'Europe/Copenhagen', finland:'Europe/Helsinki', greece:'Europe/Athens',
+  poland:'Europe/Warsaw', czech_republic:'Europe/Prague', slovakia:'Europe/Bratislava',
+  hungary:'Europe/Budapest', romania:'Europe/Bucharest', bulgaria:'Europe/Sofia',
+  croatia:'Europe/Zagreb', serbia:'Europe/Belgrade', slovenia:'Europe/Ljubljana',
+  luxembourg:'Europe/Luxembourg', iceland:'Atlantic/Reykjavik', estonia:'Europe/Tallinn',
+  latvia:'Europe/Riga', lithuania:'Europe/Vilnius', albania:'Europe/Tirane',
+  north_macedonia:'Europe/Skopje', bosnia:'Europe/Sarajevo', montenegro:'Europe/Podgorica',
+  kosovo:'Europe/Belgrade', cyprus:'Asia/Nicosia', malta:'Europe/Malta',
+  russia:'Europe/Moscow', ukraine:'Europe/Kiev', belarus:'Europe/Minsk',
+  moldova:'Europe/Chisinau', georgia:'Asia/Tbilisi', armenia:'Asia/Yerevan',
+  azerbaijan:'Asia/Baku', kazakhstan:'Asia/Almaty', uzbekistan:'Asia/Tashkent',
+  kyrgyzstan:'Asia/Bishkek', tajikistan:'Asia/Dushanbe', turkmenistan:'Asia/Ashgabat',
+  turkey:'Europe/Istanbul', israel:'Asia/Jerusalem', lebanon:'Asia/Beirut',
+  jordan:'Asia/Amman', uae:'Asia/Dubai', saudi_arabia:'Asia/Riyadh',
+  qatar:'Asia/Qatar', kuwait:'Asia/Kuwait', bahrain:'Asia/Bahrain',
+  oman:'Asia/Muscat', iran:'Asia/Tehran', iraq:'Asia/Baghdad',
+  syria:'Asia/Damascus', yemen:'Asia/Aden', afghanistan:'Asia/Kabul',
+  china:'Asia/Shanghai', japan:'Asia/Tokyo', south_korea:'Asia/Seoul',
+  taiwan:'Asia/Taipei', hong_kong:'Asia/Hong_Kong', macao:'Asia/Macau',
+  mongolia:'Asia/Ulaanbaatar', north_korea:'Asia/Pyongyang',
+  india:'Asia/Kolkata', pakistan:'Asia/Karachi', bangladesh:'Asia/Dhaka',
+  sri_lanka:'Asia/Colombo', nepal:'Asia/Kathmandu', bhutan:'Asia/Thimphu',
+  indonesia:'Asia/Jakarta', philippines:'Asia/Manila', vietnam:'Asia/Ho_Chi_Minh',
+  thailand:'Asia/Bangkok', malaysia:'Asia/Kuala_Lumpur', singapore:'Asia/Singapore',
+  myanmar:'Asia/Rangoon', cambodia:'Asia/Phnom_Penh', laos:'Asia/Vientiane',
+  nigeria:'Africa/Lagos', ethiopia:'Africa/Addis_Ababa', south_africa:'Africa/Johannesburg',
+  kenya:'Africa/Nairobi', ghana:'Africa/Accra', tanzania:'Africa/Dar_es_Salaam',
+  uganda:'Africa/Kampala', senegal:'Africa/Dakar', cameroon:'Africa/Douala',
+  ivory_coast:'Africa/Abidjan', mali:'Africa/Bamako', niger:'Africa/Niamey',
+  burkina_faso:'Africa/Ouagadougou', guinea:'Africa/Conakry', sudan:'Africa/Khartoum',
+  south_sudan:'Africa/Juba', angola:'Africa/Luanda', mozambique:'Africa/Maputo',
+  madagascar:'Indian/Antananarivo', zambia:'Africa/Lusaka', zimbabwe:'Africa/Harare',
+  malawi:'Africa/Blantyre', rwanda:'Africa/Kigali', burundi:'Africa/Bujumbura',
+  somalia:'Africa/Mogadishu', eritrea:'Africa/Asmara', djibouti:'Africa/Djibouti',
+  botswana:'Africa/Gaborone', namibia:'Africa/Windhoek', gabon:'Africa/Libreville',
+  congo:'Africa/Brazzaville', drc:'Africa/Kinshasa', gambia:'Africa/Banjul',
+  sierra_leone:'Africa/Freetown', liberia:'Africa/Monrovia', togo:'Africa/Lome',
+  benin:'Africa/Porto-Novo', chad:'Africa/Ndjamena',
+  central_african_republic:'Africa/Bangui', equatorial_guinea:'Africa/Malabo',
+  mauritius:'Indian/Mauritius', cape_verde:'Atlantic/Cape_Verde',
+  seychelles:'Indian/Mahe', comoros:'Indian/Comoro', sao_tome:'Africa/Sao_Tome',
+  egypt:'Africa/Cairo', morocco:'Africa/Casablanca', algeria:'Africa/Algiers',
+  tunisia:'Africa/Tunis', libya:'Africa/Tripoli',
+  australia:'Australia/Sydney', new_zealand:'Pacific/Auckland', fiji:'Pacific/Fiji',
+  papua_new_guinea:'Pacific/Port_Moresby', solomon_islands:'Pacific/Guadalcanal',
+  vanuatu:'Pacific/Efate', samoa:'Pacific/Apia', tonga:'Pacific/Tongatapu',
+  kiribati:'Pacific/Tarawa', world:'UTC'
 };
 
 function getCountryName(val) {
@@ -2065,30 +2590,23 @@ function getCountryTimeZone(val) {
   return COUNTRY_TIMEZONES[val] || 'UTC';
 }
 
-function formatCountryLabel(val) {
-  const c = COUNTRIES.find(x => x.value === val);
-  if (!c) return '— Select your country —';
-  const emoji = isWindows ? c.winEmoji : c.flag;
-  return emoji + '  ' + c.label;
-}
-
-function restoreSelectedCountry() {
-  const savedCountry = localStorage.getItem('wrenCountry') || '';
-  if (savedCountry) {
-    selectedCountry = savedCountry;
-    const input = document.getElementById('countrySelect');
-    if (input) input.value = savedCountry;
-    const label = document.getElementById('countryBtnLabel');
-    if (label) label.textContent = formatCountryLabel(savedCountry);
-    document.querySelectorAll('#countryMenu .country-option').forEach(opt => {
-      opt.classList.toggle('selected', opt.dataset.value === savedCountry);
-    });
+  function restoreSelectedCountry() {
+    const savedCountry = localStorage.getItem('wrenCountry') || '';
+    if (savedCountry && LIFE_DATA[savedCountry]) {
+      selectedCountry = savedCountry;
+      const input = document.getElementById('countrySelect');
+      if (input) input.value = savedCountry;
+      const label = document.getElementById('countryBtnLabel');
+      if (label) label.textContent = formatCountryLabel(savedCountry);
+      document.querySelectorAll('#countryMenu .country-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.value === savedCountry);
+      });
+    }
   }
-}
 
-function saveSelectedCountry(val) {
-  try { localStorage.setItem('wrenCountry', val); } catch(e) {}
-}
+  function saveSelectedCountry(val) {
+    try { localStorage.setItem('wrenCountry', val); } catch(e) {}
+  }
 
 function getPartsInTimeZone(date, timeZone) {
   const dtf = new Intl.DateTimeFormat('en-US', {
@@ -2148,49 +2666,14 @@ function formatTZDate(date, timeZone) {
   }).format(date);
 }
 
-  function buildCountryMenu() {
-    const menu = document.getElementById('countryMenu');
-    menu.innerHTML = COUNTRIES.map(c => {
-      const emoji = isWindows ? c.winEmoji : c.flag;
-      return `<div class="country-option" data-value="${c.value}" onclick="selectCountry('${c.value}')">
-        <span class="country-flag">${emoji}</span>
-        <span>${c.label}</span>
-      </div>`;
-    }).join('');
-  }
-
-  function toggleCountryMenu() {
-    const menu = document.getElementById('countryMenu');
-    const btn = document.getElementById('countryBtn');
-    const isOpen = menu.classList.contains('open');
-    menu.classList.toggle('open', !isOpen);
-    btn.classList.toggle('open', !isOpen);
-  }
-
-  function selectCountry(val) {
-    selectedCountry = val;
-    document.getElementById('countrySelect').value = val;
-    const c = COUNTRIES.find(x => x.value === val);
-    if (c) {
-      document.getElementById('countryBtnLabel').textContent = formatCountryLabel(val);
-    }
-    saveSelectedCountry(val);
-    document.getElementById('countryMenu').classList.remove('open');
-    document.getElementById('countryBtn').classList.remove('open');
-    // Highlight selected
-    document.querySelectorAll('#countryMenu .country-option').forEach(opt => {
-      opt.classList.toggle('selected', opt.dataset.value === val);
-    });
-    if (appMode === 'year') updateYearEndCountdown();
-  }
-
   // Close menu if clicking outside
   document.addEventListener('click', function(e) {
-    const btn = document.getElementById('countryBtn');
+    const wrap = document.querySelector('.country-picker-wrap');
     const menu = document.getElementById('countryMenu');
-    if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
+    const btn = document.getElementById('countryBtn');
+    if (wrap && menu && !wrap.contains(e.target)) {
       menu.classList.remove('open');
-      btn.classList.remove('open');
+      btn && btn.classList.remove('open');
     }
   });
 
@@ -2207,78 +2690,64 @@ function formatTZDate(date, timeZone) {
     const now = ctx.currentTime;
     const sr = ctx.sampleRate;
 
-    // ── LAYER 1: Deep low mechanical THUD (the "body" of the tick) ──
-    const thudLen = Math.floor(sr * 0.18);
-    const thudBuf = ctx.createBuffer(1, thudLen, sr);
-    const thudData = thudBuf.getChannelData(0);
-    for (let i = 0; i < thudLen; i++) {
-      const t = i / sr;
-      // Sine at ~55Hz (very deep) + 110Hz harmonic, sharp exponential decay
-      thudData[i] = (
-        Math.sin(2 * Math.PI * 55 * t) * 0.7 +
-        Math.sin(2 * Math.PI * 110 * t) * 0.3
-      ) * Math.exp(-t / 0.035);
-    }
-    const thudSrc = ctx.createBufferSource();
-    thudSrc.buffer = thudBuf;
-    const thudGain = ctx.createGain();
-    thudGain.gain.setValueAtTime(1.2, now);
-    thudGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
-    thudSrc.connect(thudGain);
-    thudGain.connect(ctx.destination);
-    thudSrc.start(now);
-
-    // ── LAYER 2: Metallic HIGH click (the sharp transient) ──
-    const clickLen = Math.floor(sr * 0.04);
+    // ── LAYER 1: Sharp initial transient (the "click") ──
+    const clickLen = Math.floor(sr * 0.008);
     const clickBuf = ctx.createBuffer(1, clickLen, sr);
     const clickData = clickBuf.getChannelData(0);
     for (let i = 0; i < clickLen; i++) {
       const t = i / sr;
-      clickData[i] = (Math.random() * 2 - 1) * Math.exp(-t / 0.004) * 0.9;
+      clickData[i] = (Math.random() * 2 - 1) * Math.exp(-t / 0.0018) * 1.0;
     }
-    const clickSrc = ctx.createBufferSource();
-    clickSrc.buffer = clickBuf;
-    // Band-pass to make it metallic (around 2kHz–5kHz)
-    const bpf = ctx.createBiquadFilter();
-    bpf.type = 'bandpass';
-    bpf.frequency.value = 3000;
-    bpf.Q.value = 1.2;
+    const clickSrc = ctx.createBufferSource(); clickSrc.buffer = clickBuf;
+    const hpf = ctx.createBiquadFilter(); hpf.type = 'highpass'; hpf.frequency.value = 5000;
     const clickGain = ctx.createGain();
-    clickGain.gain.setValueAtTime(0.7, now);
-    clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
-    clickSrc.connect(bpf);
-    bpf.connect(clickGain);
-    clickGain.connect(ctx.destination);
+    clickGain.gain.setValueAtTime(1.2, now);
+    clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.008);
+    clickSrc.connect(hpf); hpf.connect(clickGain); clickGain.connect(ctx.destination);
     clickSrc.start(now);
 
-    // ── LAYER 3: Sub-bass BOOM — gives it the Avengers cinematic weight ──
-    const osc = ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(80, now);
-    osc.frequency.exponentialRampToValueAtTime(28, now + 0.12); // pitch-drops like a cinematic hit
-    const oscGain = ctx.createGain();
-    oscGain.gain.setValueAtTime(0.55, now);
-    oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
-    osc.connect(oscGain);
-    oscGain.connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.15);
+    // ── LAYER 2: Mechanical body resonance ──
+    const bodyLen = Math.floor(sr * 0.06);
+    const bodyBuf = ctx.createBuffer(1, bodyLen, sr);
+    const bodyData = bodyBuf.getChannelData(0);
+    for (let i = 0; i < bodyLen; i++) {
+      const t = i / sr;
+      bodyData[i] = (
+        Math.sin(2 * Math.PI * 800 * t) * 0.5 +
+        Math.sin(2 * Math.PI * 1400 * t) * 0.3 +
+        (Math.random() * 2 - 1) * 0.15
+      ) * Math.exp(-t / 0.012);
+    }
+    const bodySrc = ctx.createBufferSource(); bodySrc.buffer = bodyBuf;
+    const bpf = ctx.createBiquadFilter(); bpf.type = 'bandpass'; bpf.frequency.value = 1100; bpf.Q.value = 1.8;
+    const bodyGain = ctx.createGain();
+    bodyGain.gain.setValueAtTime(0.55, now + 0.001);
+    bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+    bodySrc.connect(bpf); bpf.connect(bodyGain); bodyGain.connect(ctx.destination);
+    bodySrc.start(now + 0.001);
 
-    // ── LAYER 4: Short plate-reverb simulation via multiple comb delays ──
-    const reverbDelays = [0.032, 0.051, 0.073];
-    reverbDelays.forEach((dt, idx) => {
-      const delSrc = ctx.createBufferSource();
-      delSrc.buffer = thudBuf;
-      const del = ctx.createDelay(0.2);
-      del.delayTime.value = dt;
-      const delGain = ctx.createGain();
-      delGain.gain.setValueAtTime(0.18 - idx * 0.04, now);
-      delGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
-      delSrc.connect(del);
-      del.connect(delGain);
-      delGain.connect(ctx.destination);
-      delSrc.start(now);
-    });
+    // ── LAYER 3: Low thud for weight ──
+    const thudOsc = ctx.createOscillator(); thudOsc.type = 'sine';
+    thudOsc.frequency.setValueAtTime(120, now);
+    thudOsc.frequency.exponentialRampToValueAtTime(45, now + 0.04);
+    const thudGain = ctx.createGain();
+    thudGain.gain.setValueAtTime(0.28, now);
+    thudGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+    thudOsc.connect(thudGain); thudGain.connect(ctx.destination);
+    thudOsc.start(now); thudOsc.stop(now + 0.05);
+
+    // ── LAYER 4: Subtle tail (clock case resonance) ──
+    const tailLen = Math.floor(sr * 0.12);
+    const tailBuf = ctx.createBuffer(1, tailLen, sr);
+    const tailData = tailBuf.getChannelData(0);
+    for (let i = 0; i < tailLen; i++) {
+      const t = i / sr;
+      tailData[i] = Math.sin(2 * Math.PI * 320 * t) * Math.exp(-t / 0.025) * 0.18;
+    }
+    const tailSrc = ctx.createBufferSource(); tailSrc.buffer = tailBuf;
+    const tailGain = ctx.createGain(); tailGain.gain.value = 0.35;
+    tailSrc.connect(tailGain); tailGain.connect(ctx.destination);
+    tailSrc.start(now + 0.003);
   }
 
   function startTickSound() {
