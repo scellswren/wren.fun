@@ -632,9 +632,7 @@
     #countryMenu {
       display: none;
       width: 100%;
-      max-height: 240px;
-      overflow-y: auto;
-      border-radius: 14px;
+      border-radius: 16px;
       border: 1.5px solid var(--card-border);
       background: rgba(12,8,24,0.96);
       backdrop-filter: blur(14px);
@@ -642,25 +640,27 @@
       margin-bottom: 18px;
       scrollbar-width: thin;
       scrollbar-color: rgba(155,109,255,0.4) transparent;
+      overflow: hidden;
     }
     #countryMenu.open { display: block; }
-    .country-option {
-      padding: 12px 18px;
-      cursor: pointer;
-      font-family: 'Rubik', sans-serif;
-      font-size: 0.97em;
-      font-weight: 700;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: background 0.15s;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
+    .country-menu-shell{display:flex;flex-direction:column;max-height:360px;}
+    .country-tabs{display:flex;gap:8px;padding:10px 10px 0;flex-wrap:wrap;}
+    .country-tab{flex:1 1 120px;padding:11px 14px;border-radius:12px;border:1px solid var(--card-border);background:rgba(255,255,255,0.05);color:var(--muted);font-family:'Rubik',sans-serif;font-weight:800;cursor:pointer;transition:all 0.2s;}
+    .country-tab.active{background:rgba(155,109,255,0.2);border-color:var(--accent);color:#fff;}
+    .country-search-wrap{padding:10px 10px 0;}
+    #countrySearch{width:100%;padding:13px 16px;border-radius:12px;border:1px solid var(--card-border);background:rgba(255,255,255,0.05);color:var(--text);font-family:'Rubik',sans-serif;font-weight:700;outline:none;}
+    #countrySearch::placeholder{color:rgba(240,238,255,0.45);}
+    .region-grid{display:none;gap:8px;padding:10px;flex-wrap:wrap;max-height:160px;overflow:auto;}
+    .region-grid.active{display:flex;}
+    .region-chip{padding:10px 12px;border-radius:999px;border:1px solid var(--card-border);background:rgba(255,255,255,0.05);color:var(--text);font-size:0.9em;font-weight:800;cursor:pointer;transition:all 0.18s;}
+    .region-chip.active{background:rgba(155,109,255,0.2);border-color:var(--accent);color:#fff;}
+    .country-list{max-height:220px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(155,109,255,0.4) transparent;border-top:1px solid rgba(255,255,255,0.04);}
+    .country-option {padding: 12px 18px;cursor: pointer;font-family: 'Rubik', sans-serif;font-size: 0.97em;font-weight: 700;color: var(--text);display: flex;align-items: center;gap: 10px;transition: background 0.15s;border-bottom: 1px solid rgba(255,255,255,0.04);}    
     .country-option:last-child { border-bottom: none; }
     .country-option:hover { background: rgba(155,109,255,0.14); }
     .country-option.selected { background: rgba(155,109,255,0.22); color: #fff; }
     .country-flag { font-size: 1.3em; min-width: 1.5em; }
+    .country-empty{padding:16px 18px;color:var(--muted);font-weight:700;}
 
     /* Cinematic Beat the Clock overlay */
     #cinematicOverlay {
@@ -1014,6 +1014,17 @@
       <span class="caret">▼</span>
     </button>
     <div id="countryMenu">
+      <div class="country-menu-shell">
+        <div class="country-tabs">
+          <button type="button" class="country-tab active" data-tab="countries" onclick="setCountryMenuTab('countries')">Countries</button>
+          <button type="button" class="country-tab" data-tab="regions" onclick="setCountryMenuTab('regions')">Regions</button>
+        </div>
+        <div class="country-search-wrap" id="countrySearchWrap">
+          <input type="search" id="countrySearch" placeholder="Search a country..." oninput="updateCountrySearch(this.value)">
+        </div>
+        <div class="region-grid" id="regionGrid"></div>
+        <div class="country-list" id="countryList"></div>
+      </div>
     </div>
     <input type="hidden" id="countrySelect" value="">
 
@@ -1241,7 +1252,7 @@
   }
 
   
-function calculate() {
+async function calculate() {
     const errorEl = document.getElementById('errorMsg');
     errorEl.textContent = '';
     ['dobDay','dobMonth','dobYear'].forEach(id => document.getElementById(id).classList.remove('input-error'));
@@ -1251,8 +1262,10 @@ function calculate() {
     const dayRaw   = document.getElementById('dobDay').value.trim();
     const monthRaw = document.getElementById('dobMonth').value.trim();
     const yearRaw  = document.getElementById('dobYear').value.trim();
+    await ensureLifeDataLoaded();
+
     const countryInput = document.getElementById('countrySelect').value;
-    const country = countryInput || selectedCountry;
+    const country = resolveCountryValue(countryInput || selectedCountry);
 
     // Keep the hidden/select state in sync even if the click handler missed it.
     if (country && !selectedCountry) selectedCountry = country;
@@ -1296,33 +1309,22 @@ function calculate() {
     if (!country) { errorEl.textContent = '⚠️ Please select your country.'; return; }
 
     const genderIndex = selectedGender === 'male' ? 0 : 1;
-    const lifeExpectancy = LIFE_DATA[country][genderIndex];
+    const lifeExpectancy = (LIFE_DATA[country] && LIFE_DATA[country][genderIndex]) || null;
+    if (lifeExpectancy == null) { errorEl.textContent = '⚠️ Life expectancy data is still loading for this country.'; return; }
     const lifeMs = lifeExpectancy * 365.25 * 24 * 3600 * 1000;
     endDate = new Date(birthDate.getTime() + lifeMs);
     totalLifeMs = lifeMs;
+    lastLifeExpectancy = lifeExpectancy;
 
-    const countryNames = {
-      usa:'the United States',uk:'the United Kingdom',india:'India',china:'China',
-      australia:'Australia',new_zealand:'New Zealand',canada:'Canada',ireland:'Ireland',
-      indonesia:'Indonesia',vietnam:'Vietnam',philippines:'the Philippines',malaysia:'Malaysia',
-      mexico:'Mexico',spain:'Spain',brazil:'Brazil',france:'France',thailand:'Thailand',
-      argentina:'Argentina',portugal:'Portugal',italy:'Italy',germany:'Germany',
-      netherlands:'the Netherlands',belgium:'Belgium',switzerland:'Switzerland',russia:'Russia',
-      turkey:'Turkey',greece:'Greece',serbia:'Serbia',pakistan:'Pakistan',bangladesh:'Bangladesh',
-      south_korea:'South Korea',japan:'Japan',taiwan:'Taiwan',sri_lanka:'Sri Lanka',
-      uae:'the UAE',saudi_arabia:'Saudi Arabia',oman:'Oman',jordan:'Jordan',iraq:'Iraq',
-      nigeria:'Nigeria',egypt:'Egypt',sudan:'Sudan',cameroon:'Cameroon',senegal:'Senegal',
-      gambia:'The Gambia',south_africa:'South Africa',kenya:'Kenya',peru:'Peru',chile:'Chile',
-      panama:'Panama',colombia:'Colombia',el_salvador:'El Salvador',fiji:'Fiji',world:'the World'
-    };
+    const countryName = getCountryName(country);
     const genderLabel = selectedGender === 'male' ? 'male' : 'female';
     const summaryEl = document.getElementById('lifeSummary');
 
     const beatTheClock = endDate <= new Date();
     if (beatTheClock) {
-      summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryNames[country]}</strong>, the statistical limit was <strong>${lifeExpectancy} years</strong> — around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
+      summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryName}</strong>, the statistical limit was <strong>${lifeExpectancy.toFixed(1)} years</strong> — around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
     } else {
-      summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryNames[country]}</strong>, you are statistically expected to live to approximately <strong>${lifeExpectancy} years</strong> — until around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
+      summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryName}</strong>, you are statistically expected to live to approximately <strong>${lifeExpectancy.toFixed(1)} years</strong> — until around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
     }
 
     document.getElementById('setupPanel').classList.add('hidden');
@@ -1346,7 +1348,6 @@ function calculate() {
     clearInterval(countdownInterval);
     stopTickSound();
 
-    // Launch cinematic scene
     const overlay = document.getElementById('cinematicOverlay');
     const cdEl = document.getElementById('cinematicCountdown');
     const labelEl = document.getElementById('cinematicLabel');
@@ -1354,83 +1355,328 @@ function calculate() {
     const progBar = document.getElementById('cinematicProgressBar');
 
     overlay.classList.add('active');
-
-    // Darken and expand the countdown number
-    const totalYears = totalLifeMs / (365.25 * 24 * 3600 * 1000);
-    let currentYear = 0;
-    const startYear = birthDate.getFullYear();
-    const endYear = endDate.getFullYear();
-    const yearRange = endYear - startYear;
-
-    cdEl.textContent = startYear;
-    cdEl.style.transform = 'scale(0.08)';
-    cdEl.style.opacity = '0';
+    labelEl.textContent = 'YEARS LEFT';
+    progWrap.classList.add('show');
     cdEl.style.transition = 'none';
+    cdEl.style.opacity = '0';
+    cdEl.style.transform = 'scale(0.08)';
 
-    // Expand animation
+    const startValue = Math.max(2, Math.ceil(lastLifeExpectancy || 1));
+    const lastStepDuration = 1000;
+    const nonFinalSteps = Math.max(0, startValue - 2);
+    const durations = [];
+    let weightedTotal = 0;
+    for (let i = 1; i <= nonFinalSteps; i++) {
+      const weight = Math.pow(i / Math.max(nonFinalSteps, 1), 2.1);
+      durations.push(weight);
+      weightedTotal += weight;
+    }
+    const scaledDurations = durations.map(w => weightedTotal ? ((10000 - lastStepDuration) * w / weightedTotal) : 0);
+
+    const formatLabel = (n) => String(n);
+    cdEl.textContent = formatLabel(startValue);
+    playCinematicSound('whoosh');
+
     setTimeout(() => {
       cdEl.classList.add('expand');
       labelEl.classList.add('show');
       progWrap.classList.add('show');
-    }, 200);
+      let current = startValue;
+      let elapsed = 0;
 
-    // Play cinematic whoosh sound on expand
-    playCinematicSound('whoosh');
-
-    // Speed-count from birth year to death year
-    setTimeout(() => {
-      let yr = startYear;
-      const totalDuration = 4000; // 4 seconds total
-      const steps = yearRange;
-      const delay = totalDuration / Math.max(steps, 1);
-
-      const yearInterval = setInterval(() => {
-        yr++;
-        cdEl.textContent = yr;
-        const pct = ((yr - startYear) / yearRange) * 100;
-        progBar.style.width = pct + '%';
-        playCinematicSound('tick-fast');
-
-        if (yr >= endYear) {
-          clearInterval(yearInterval);
+      const runStep = () => {
+        if (current <= 1) {
+          cdEl.textContent = '1';
           progBar.style.width = '100%';
-          playCinematicSound('boom');
-
-          // Show confetti + banner after short pause
+          playCinematicSound('tick-slow');
           setTimeout(() => {
-            launchConfetti();
-            overlay.classList.remove('active');
-            cdEl.classList.remove('expand');
-
-            const banner = document.getElementById('beatBanner');
-            banner.classList.add('active');
-
-            // Auto-dismiss after 5 seconds
+            playCinematicSound('boom');
             setTimeout(() => {
-              banner.classList.remove('active');
-              stopConfetti();
-              // Show the normal beat state
-              document.getElementById('setupPanel').classList.add('hidden');
-              setAppMode('life');
-              const lifePanel = document.getElementById('countdownPanel');
-              if (lifePanel) {
-                lifePanel.style.display = 'block';
-                lifePanel.classList.add('visible');
-              }
-              document.querySelector('.enjoy-msg').innerHTML = '<span class="beat-clock-banner">🏆 You Bet The Clock!</span>';
-              document.querySelector('.enjoy-sub').textContent = "You've outlived the average life expectancy. Incredible!";
-              ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds'].forEach(id => {
-                document.getElementById(id).textContent = '00';
-              });
-              document.getElementById('valMs').textContent = '000';
-              document.getElementById('lifeBar').style.width = '100%';
-            }, 5000);
-          }, 600);
+              launchConfetti();
+              overlay.classList.remove('active');
+              cdEl.classList.remove('expand');
+              localStorage.setItem('wren_theme_bluefizzy_unlocked', '1');
+              if (typeof refreshBlueFizzyOption === 'function') refreshBlueFizzyOption();
+              if (typeof persistUnlocked === 'function') { persistUnlocked('bluefizzy'); }
+              if (typeof announceUnlock === 'function') announceUnlock('🔵 Blue Fizzy unlocked!');
+              const banner = document.getElementById('beatBanner');
+              banner.classList.add('active');
+              setTimeout(() => {
+                banner.classList.remove('active');
+                stopConfetti();
+                document.getElementById('setupPanel').classList.add('hidden');
+                setAppMode('life');
+                const lifePanel = document.getElementById('countdownPanel');
+                if (lifePanel) {
+                  lifePanel.style.display = 'block';
+                  lifePanel.classList.add('visible');
+                }
+                document.querySelector('.enjoy-msg').innerHTML = '<span class="beat-clock-banner">🏆 You Bet The Clock!</span>';
+                document.querySelector('.enjoy-sub').textContent = 'You have outlived the average life expectancy. Incredible!';
+                ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds'].forEach(id => {
+                  document.getElementById(id).textContent = '00';
+                });
+                document.getElementById('valMs').textContent = '000';
+                document.getElementById('lifeBar').style.width = '100%';
+              }, 5000);
+            }, 150);
+          }, lastStepDuration);
+          return;
         }
-      }, delay);
-    }, 1400);
+
+        const idx = startValue - current;
+        const stepDuration = idx < scaledDurations.length ? Math.max(70, scaledDurations[idx]) : 180;
+        current -= 1;
+        cdEl.textContent = formatLabel(current);
+        const pct = ((startValue - current) / Math.max(startValue - 1, 1)) * 100;
+        progBar.style.width = Math.min(100, pct).toFixed(2) + '%';
+        playCinematicSound(current <= 3 ? 'tick-slow' : 'tick-fast');
+        elapsed += stepDuration;
+        setTimeout(runStep, stepDuration);
+      };
+
+      setTimeout(runStep, 120);
+    }, 220);
   }
 
+  // ── COUNTRY / REGION PICKER (dynamic data + search + regions) ──
+  const WORLD_BANK_COUNTRY_URL = 'https://api.worldbank.org/v2/country?format=json&per_page=400';
+  const WORLD_BANK_FEMALE_URL = 'https://api.worldbank.org/v2/country/all/indicator/SP.DYN.LE00.FE.IN?format=json&per_page=20000';
+  const WORLD_BANK_MALE_URL = 'https://api.worldbank.org/v2/country/all/indicator/SP.DYN.LE00.MA.IN?format=json&per_page=20000';
+
+  const REGION_FILTERS = [
+    { value: 'all', label: 'All Countries' },
+    { value: 'south_america', label: 'South America' },
+    { value: 'north_america', label: 'North America' },
+    { value: 'europe', label: 'Europe' },
+    { value: 'africa', label: 'Africa' },
+    { value: 'asia', label: 'Asia' },
+    { value: 'oceania', label: 'Oceania' },
+    { value: 'middle_east', label: 'Middle East' },
+    { value: 'euroasia', label: 'Euroasia' },
+    { value: 'southeast_asia', label: 'South East Asia' },
+    { value: 'central_america', label: 'Central America' },
+    { value: 'siberia', label: 'Siberia' },
+    { value: 'north_africa', label: 'North Africa' },
+    { value: 'iberia', label: 'Iberia' }
+  ];
+
+  const LEGACY_COUNTRY_ALIASES = {
+    usa: 'USA', uk: 'GBR', india: 'IND', china: 'CHN', australia: 'AUS', new_zealand: 'NZL', canada: 'CAN', ireland: 'IRL', indonesia: 'IDN', vietnam: 'VNM', philippines: 'PHL', malaysia: 'MYS', mexico: 'MEX', spain: 'ESP', brazil: 'BRA', france: 'FRA', thailand: 'THA', argentina: 'ARG', portugal: 'PRT', italy: 'ITA', germany: 'DEU', netherlands: 'NLD', belgium: 'BEL', switzerland: 'CHE', russia: 'RUS', turkey: 'TUR', greece: 'GRC', serbia: 'SRB', pakistan: 'PAK', bangladesh: 'BGD', south_korea: 'KOR', japan: 'JPN', taiwan: 'TWN', sri_lanka: 'LKA', uae: 'ARE', saudi_arabia: 'SAU', oman: 'OMN', jordan: 'JOR', iraq: 'IRQ', nigeria: 'NGA', egypt: 'EGY', sudan: 'SDN', cameroon: 'CMR', senegal: 'SEN', gambia: 'GMB', south_africa: 'ZAF', kenya: 'KEN', peru: 'PER', chile: 'CHL', panama: 'PAN', colombia: 'COL', el_salvador: 'SLV', fiji: 'FJI', world: 'WLD'
+  };
+
+  const REGION_NAME_SETS = {
+    south_america: new Set(['argentina','bolivia','brazil','chile','colombia','ecuador','guyana','paraguay','peru','suriname','uruguay','venezuela','venezuela rb','french guiana']),
+    north_america: new Set(['canada','united states','united states of america','usa','mexico','bermuda','greenland','saint pierre and miquelon']),
+    middle_east: new Set(['saudi arabia','united arab emirates','uae','qatar','kuwait','bahrain','oman','yemen','jordan','iraq','israel','lebanon','syria','syrian arab republic','palestine','iran','islamic republic of iran','turkey']),
+    euroasia: new Set(['russia','russian federation','kazakhstan','uzbekistan','turkmenistan','kyrgyz republic','tajikistan','armenia','azerbaijan','georgia','belarus','moldova','ukraine']),
+    southeast_asia: new Set(['brunei darussalam','cambodia','indonesia','lao pdr','laos','malaysia','myanmar','philippines','singapore','thailand','timor-leste','vietnam','east timor']),
+    central_america: new Set(['belize','costa rica','el salvador','guatemala','honduras','nicaragua','panama']),
+    siberia: new Set(['russian federation']),
+    north_africa: new Set(['algeria','egypt','libya','morocco','tunisia','mauritania','sudan','western sahara']),
+    iberia: new Set(['spain','portugal','andorra','gibraltar'])
+  };
+
+  let countryMenuTab = 'countries';
+  let selectedRegion = 'all';
+  let countrySearch = '';
+  let countryDataPromise = null;
+  let lastLifeExpectancy = 0;
+
+  function safeLower(value) {
+    return String(value || '').trim().toLowerCase();
+  }
+  function flagEmojiFromIso2(iso2) {
+    const code = String(iso2 || '').toUpperCase();
+    if (!/^[A-Z]{2}$/.test(code)) return '🌍';
+    return String.fromCodePoint(...[...code].map(ch => 127397 + ch.charCodeAt(0)));
+  }
+  function normalizeCountryValue(value) {
+    if (!value) return '';
+    if (LIFE_DATA[value]) return value;
+    return LEGACY_COUNTRY_ALIASES[value] || value;
+  }
+  function resolveCountryValue(value) {
+    const normalized = normalizeCountryValue(value);
+    if (LIFE_DATA[normalized]) return normalized;
+    return normalized;
+  }
+  function getCountryName(val) {
+    const code = resolveCountryValue(val);
+    const c = COUNTRIES.find(x => x.value === code);
+    return c ? c.label : 'Your selected country';
+  }
+  function formatCountryLabel(val) {
+    const code = resolveCountryValue(val);
+    const c = COUNTRIES.find(x => x.value === code);
+    if (!c) return '— Select your country —';
+    const emoji = isWindows ? (c.winEmoji || c.flag) : (c.flag || c.winEmoji || '🌍');
+    return emoji + '  ' + c.label;
+  }
+  function getCountryTimeZone(val) {
+    return COUNTRY_TIMEZONES[val] || 'UTC';
+  }
+  function isCountryInRegion(country, region) {
+    const name = safeLower(country.label || country.name || '');
+    const regionValue = safeLower(country.regionValue || country.region || '');
+    const continent = safeLower(country.continent || '');
+    if (region === 'all') return true;
+    if (REGION_NAME_SETS[region] && REGION_NAME_SETS[region].has(name)) return true;
+    if (region === 'south_america') return regionValue.includes('latin america') && !REGION_NAME_SETS.central_america.has(name);
+    if (region === 'north_america') return name === 'canada' || name.includes('united states') || name === 'mexico' || name === 'bermuda' || name === 'greenland';
+    if (region === 'europe') return regionValue.includes('europe') && !REGION_NAME_SETS.iberia.has(name) && !REGION_NAME_SETS.euroasia.has(name);
+    if (region === 'africa') return regionValue.includes('sub-saharan africa') || (regionValue.includes('middle east') && false);
+    if (region === 'asia') return regionValue.includes('east asia') || regionValue.includes('south asia') || regionValue.includes('middle east') || regionValue.includes('pacific') || name === 'turkey';
+    if (region === 'oceania') return regionValue.includes('east asia & pacific') && (name.includes('australia') || name.includes('new zealand') || name.includes('fiji') || name.includes('samoa') || name.includes('tonga') || name.includes('vanuatu') || name.includes('papua new guinea') || name.includes('solomon') || name.includes('kiribati') || name.includes('tuvalu') || name.includes('nauru') || name.includes('micronesia') || name.includes('palau') || name.includes('marshall'));
+    if (region === 'middle_east') return REGION_NAME_SETS.middle_east.has(name);
+    if (region === 'euroasia') return REGION_NAME_SETS.euroasia.has(name);
+    if (region === 'southeast_asia') return REGION_NAME_SETS.southeast_asia.has(name);
+    if (region === 'central_america') return REGION_NAME_SETS.central_america.has(name);
+    if (region === 'siberia') return REGION_NAME_SETS.siberia.has(name);
+    if (region === 'north_africa') return REGION_NAME_SETS.north_africa.has(name);
+    if (region === 'iberia') return REGION_NAME_SETS.iberia.has(name);
+    return false;
+  }
+  function getFilteredCountries() {
+    const query = safeLower(countrySearch);
+    return COUNTRIES.filter(country => {
+      if (selectedRegion !== 'all' && !isCountryInRegion(country, selectedRegion)) return false;
+      if (!query) return true;
+      return safeLower(country.label).includes(query) || safeLower(country.value).includes(query);
+    });
+  }
+  function renderRegionChips() {
+    const grid = document.getElementById('regionGrid');
+    if (!grid) return;
+    grid.innerHTML = REGION_FILTERS.map(region => `<button type="button" class="region-chip ${selectedRegion===region.value ? 'active' : ''}" onclick="selectRegionFilter('${region.value}')">${region.label}</button>`).join('');
+  }
+  function renderCountryMenu() {
+    const list = document.getElementById('countryList');
+    const searchWrap = document.getElementById('countrySearchWrap');
+    const regionGrid = document.getElementById('regionGrid');
+    if (!list || !searchWrap || !regionGrid) return;
+    const countriesMode = countryMenuTab === 'countries';
+    searchWrap.style.display = countriesMode ? 'block' : 'none';
+    regionGrid.classList.toggle('active', !countriesMode);
+    if (!countriesMode) renderRegionChips();
+    const items = countriesMode ? getFilteredCountries() : getFilteredCountries().slice(0, 5000);
+    list.innerHTML = items.map(c => {
+      const emoji = isWindows ? (c.winEmoji || c.flag) : (c.flag || c.winEmoji || '🌍');
+      return `<div class="country-option ${resolveCountryValue(selectedCountry)===c.value ? 'selected' : ''}" data-value="${c.value}" onclick="selectCountry('${c.value}')"><span class="country-flag">${emoji}</span><span>${c.label}</span></div>`;
+    }).join('') || '<div class="country-empty">No countries match your search.</div>';
+  }
+  function buildCountryMenu() { renderCountryMenu(); }
+  function setCountryMenuTab(tab) {
+    countryMenuTab = tab === 'regions' ? 'regions' : 'countries';
+    document.querySelectorAll('.country-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === countryMenuTab));
+    renderCountryMenu();
+  }
+  function updateCountrySearch(value) {
+    countrySearch = value || '';
+    renderCountryMenu();
+  }
+  function selectRegionFilter(region) {
+    selectedRegion = region;
+    renderRegionChips();
+    renderCountryMenu();
+  }
+  function toggleCountryMenu() {
+    const menu = document.getElementById('countryMenu');
+    const btn = document.getElementById('countryBtn');
+    const isOpen = menu.classList.contains('open');
+    menu.classList.toggle('open', !isOpen);
+    btn.classList.toggle('open', !isOpen);
+    if (!isOpen) setCountryMenuTab('countries');
+  }
+  function selectCountry(val) {
+    selectedCountry = resolveCountryValue(val);
+    document.getElementById('countrySelect').value = selectedCountry;
+    document.getElementById('countryBtnLabel').textContent = formatCountryLabel(selectedCountry);
+    saveSelectedCountry(selectedCountry);
+    document.getElementById('countryMenu').classList.remove('open');
+    document.getElementById('countryBtn').classList.remove('open');
+    document.querySelectorAll('#countryMenu .country-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.value === selectedCountry);
+    });
+    if (appMode === 'year') updateYearEndCountdown();
+  }
+  function restoreSelectedCountry() {
+    const savedCountry = normalizeCountryValue(localStorage.getItem('wrenCountry') || '');
+    if (savedCountry) {
+      selectedCountry = savedCountry;
+      const input = document.getElementById('countrySelect');
+      if (input) input.value = savedCountry;
+      const label = document.getElementById('countryBtnLabel');
+      if (label) label.textContent = formatCountryLabel(savedCountry);
+    }
+    document.querySelectorAll('#countryMenu .country-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.value === selectedCountry);
+    });
+  }
+  function saveSelectedCountry(val) { try { localStorage.setItem('wrenCountry', val); } catch(e) {} }
+  document.addEventListener('click', function(e) {
+    const btn = document.getElementById('countryBtn');
+    const menu = document.getElementById('countryMenu');
+    if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    }
+  });
+  function latestValuesByCountry(rows) {
+    const map = new Map();
+    rows.forEach(row => {
+      const code = row && row.country && row.country.id;
+      const value = row && row.value;
+      const year = Number(row && row.date ? row.date : 0);
+      if (!code || value == null || Number.isNaN(year)) return;
+      const prev = map.get(code);
+      if (!prev || year > prev.year) map.set(code, { year, value: Number(value) });
+    });
+    return map;
+  }
+  async function ensureCountryDataLoaded() {
+    if (countryDataPromise) return countryDataPromise;
+    countryDataPromise = (async () => {
+      try {
+        const [countryRes, femaleRes, maleRes] = await Promise.all([
+          fetch(WORLD_BANK_COUNTRY_URL),
+          fetch(WORLD_BANK_FEMALE_URL),
+          fetch(WORLD_BANK_MALE_URL)
+        ]);
+        const countryJson = await countryRes.json();
+        const femaleJson = await femaleRes.json();
+        const maleJson = await maleRes.json();
+        const rawCountries = Array.isArray(countryJson) ? countryJson[1] : [];
+        const femaleMap = latestValuesByCountry(Array.isArray(femaleJson) ? femaleJson[1] : []);
+        const maleMap = latestValuesByCountry(Array.isArray(maleJson) ? maleJson[1] : []);
+        const dynamicCountries = rawCountries.filter(c => c && c.region && safeLower(c.region.value) !== 'aggregates' && /^[A-Z]{3}$/.test(c.id)).map(c => ({
+          value: c.id,
+          label: c.name,
+          flag: flagEmojiFromIso2(c.iso2Code),
+          winEmoji: flagEmojiFromIso2(c.iso2Code),
+          regionValue: c.region && c.region.value ? c.region.value : ''
+        }));
+        COUNTRIES.splice(0, COUNTRIES.length, ...dynamicCountries);
+        Object.keys(LIFE_DATA).forEach(k => delete LIFE_DATA[k]);
+        dynamicCountries.forEach(country => {
+          const male = maleMap.get(country.value);
+          const female = femaleMap.get(country.value);
+          if (male && female) LIFE_DATA[country.value] = [Number(male.value), Number(female.value)];
+        });
+        // keep a few legacy aliases alive for old saved values
+        Object.entries(LEGACY_COUNTRY_ALIASES).forEach(([legacy, code]) => {
+          if (LIFE_DATA[code]) LIFE_DATA[legacy] = LIFE_DATA[code];
+        });
+        countriesLoaded = true;
+        buildCountryMenu();
+        restoreSelectedCountry();
+      } catch (err) {
+        console.warn('Country data load failed, using built-in list.', err);
+      }
+    })();
+    return countryDataPromise;
+  }
+  function ensureLifeDataLoaded(){ return ensureCountryDataLoaded(); }
   // ── CINEMATIC SOUNDS ──
   let cinAudioCtx = null;
   function getCinCtx() {
@@ -1442,859 +1688,77 @@ function calculate() {
     try {
       const ctx = getCinCtx();
       const now = ctx.currentTime;
-      if (type === 'whoosh') {
-        // Rising whoosh
-        const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.8), ctx.sampleRate);
-        const d = buf.getChannelData(0);
-        for (let i = 0; i < d.length; i++) {
+      const makeNoise = (dur, gain, highpassHz, lowpassHz) => {
+        const buffer = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * dur)), ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < data.length; i++) {
           const t = i / ctx.sampleRate;
-          d[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * t / 0.8) * 0.3;
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-t * 8);
         }
-        const src = ctx.createBufferSource(); src.buffer = buf;
-        const bpf = ctx.createBiquadFilter(); bpf.type = 'bandpass';
-        bpf.frequency.setValueAtTime(200, now);
-        bpf.frequency.exponentialRampToValueAtTime(2000, now + 0.8);
-        bpf.Q.value = 0.8;
-        const g = ctx.createGain(); g.gain.setValueAtTime(0.4, now); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
-        src.connect(bpf); bpf.connect(g); g.connect(ctx.destination); src.start(now);
-      } else if (type === 'tick-fast') {
-        const len = Math.floor(ctx.sampleRate * 0.03);
-        const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-        const d = buf.getChannelData(0);
-        for (let i = 0; i < len; i++) { const t = i / ctx.sampleRate; d[i] = (Math.random() * 2 - 1) * Math.exp(-t / 0.003) * 0.5; }
-        const src = ctx.createBufferSource(); src.buffer = buf;
-        const bpf = ctx.createBiquadFilter(); bpf.type = 'bandpass'; bpf.frequency.value = 4000; bpf.Q.value = 1.5;
-        const g = ctx.createGain(); g.gain.setValueAtTime(0.3, now); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
-        src.connect(bpf); bpf.connect(g); g.connect(ctx.destination); src.start(now);
+        const src = ctx.createBufferSource();
+        src.buffer = buffer;
+        const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = highpassHz;
+        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = lowpassHz;
+        const g = ctx.createGain(); g.gain.setValueAtTime(gain, now); g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        src.connect(hp); hp.connect(lp); lp.connect(g); g.connect(ctx.destination); src.start(now);
+      };
+      if (type === 'whoosh') {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(240, now);
+        osc.frequency.exponentialRampToValueAtTime(90, now + 0.7);
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.28, now + 0.05);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.75);
+        osc.connect(g); g.connect(ctx.destination); osc.start(now); osc.stop(now + 0.8);
+        makeNoise(0.55, 0.08, 1400, 6500);
+      } else if (type === 'tick-fast' || type === 'tick-slow') {
+        const dur = type === 'tick-slow' ? 0.18 : 0.11;
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(type === 'tick-slow' ? 145 : 190, now);
+        osc.frequency.exponentialRampToValueAtTime(type === 'tick-slow' ? 72 : 95, now + dur);
+        filter.type = 'lowpass'; filter.frequency.value = type === 'tick-slow' ? 2200 : 3200;
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(type === 'tick-slow' ? 0.35 : 0.26, now + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        osc.connect(filter); filter.connect(g); g.connect(ctx.destination); osc.start(now); osc.stop(now + dur);
+        makeNoise(dur * 0.8, type === 'tick-slow' ? 0.12 : 0.08, 1800, 7000);
       } else if (type === 'boom') {
-        // Big cinematic hit
-        const osc = ctx.createOscillator(); osc.type = 'sine';
-        osc.frequency.setValueAtTime(80, now); osc.frequency.exponentialRampToValueAtTime(20, now + 0.5);
-        const g = ctx.createGain(); g.gain.setValueAtTime(1.0, now); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
-        osc.connect(g); g.connect(ctx.destination); osc.start(now); osc.stop(now + 0.5);
-        // Noise burst
-        const len = Math.floor(ctx.sampleRate * 0.3);
-        const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-        const d = buf.getChannelData(0);
-        for (let i = 0; i < len; i++) { const t = i / ctx.sampleRate; d[i] = (Math.random() * 2 - 1) * Math.exp(-t / 0.08) * 0.7; }
-        const src = ctx.createBufferSource(); src.buffer = buf;
-        const lpf = ctx.createBiquadFilter(); lpf.type = 'lowpass'; lpf.frequency.value = 800;
-        const g2 = ctx.createGain(); g2.gain.setValueAtTime(0.6, now); g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
-        src.connect(lpf); lpf.connect(g2); g2.connect(ctx.destination); src.start(now);
-        // Victory sparkle
-        setTimeout(() => {
-          const ctx2 = getCinCtx(); const now2 = ctx2.currentTime;
-          [880, 1100, 1320, 1760].forEach((freq, i) => {
-            const o = ctx2.createOscillator(); o.type = 'sine'; o.frequency.value = freq;
-            const gv = ctx2.createGain(); gv.gain.setValueAtTime(0, now2 + i * 0.08);
-            gv.gain.linearRampToValueAtTime(0.18, now2 + i * 0.08 + 0.04);
-            gv.gain.exponentialRampToValueAtTime(0.0001, now2 + i * 0.08 + 0.3);
-            o.connect(gv); gv.connect(ctx2.destination); o.start(now2 + i * 0.08); o.stop(now2 + i * 0.08 + 0.32);
-          });
-        }, 100);
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(90, now);
+        osc.frequency.exponentialRampToValueAtTime(32, now + 0.28);
+        filter.type = 'lowpass'; filter.frequency.value = 180;
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.8, now + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+        osc.connect(filter); filter.connect(g); g.connect(ctx.destination); osc.start(now); osc.stop(now + 0.38);
+        makeNoise(0.28, 0.12, 80, 2600);
       }
     } catch(e) {}
   }
 
-  // ── CONFETTI ──
-  let confettiAnim = null;
-  let confettiParticles = [];
-
-  function launchConfetti() {
-    const canvas = document.getElementById('confettiCanvas');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const ctx = canvas.getContext('2d');
-    const colors = ['#9b6dff','#c4a0ff','#ff7eb3','#ffd060','#ff8c00','#fff','#69db7c','#4dabf7'];
-    confettiParticles = [];
-    for (let i = 0; i < 180; i++) {
-      confettiParticles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height - canvas.height,
-        w: 6 + Math.random() * 10,
-        h: 3 + Math.random() * 6,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        rot: Math.random() * Math.PI * 2,
-        rotSpeed: (Math.random() - 0.5) * 0.15,
-        vx: (Math.random() - 0.5) * 3,
-        vy: 2 + Math.random() * 4,
-        opacity: 1
-      });
-    }
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      confettiParticles.forEach(p => {
-        ctx.save();
-        ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
-        ctx.rotate(p.rot);
-        ctx.globalAlpha = p.opacity;
-        ctx.fillStyle = p.color;
-        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-        ctx.restore();
-        p.x += p.vx; p.y += p.vy; p.rot += p.rotSpeed;
-        if (p.y > canvas.height) { p.y = -20; p.x = Math.random() * canvas.width; }
-      });
-      confettiAnim = requestAnimationFrame(draw);
-    }
-    draw();
-  }
-
-  function stopConfetti() {
-    if (confettiAnim) { cancelAnimationFrame(confettiAnim); confettiAnim = null; }
-    const canvas = document.getElementById('confettiCanvas');
-    if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-    confettiParticles = [];
-  }
-
-  function startCountdown() {
-    if (countdownInterval) clearInterval(countdownInterval);
-    updateCountdown();
-    countdownInterval = setInterval(updateCountdown, 13); // ~75fps for smooth ms
-    startTickSound();
-  }
-
-  function updateCountdown() {
-    const now = new Date();
-    const remaining = endDate - now;
-
-    if (remaining <= 0) {
-      clearInterval(countdownInterval);
-      showBeatTheClock();
-      return;
-    }
-
-    // Life bar
-    const elapsed = now - birthDate;
-    const pct = Math.min(100, (elapsed / totalLifeMs) * 100);
-    document.getElementById('lifeBar').style.width = pct.toFixed(4) + '%';
-
-    const ms = remaining % 1000;
-
-    // Calendar-accurate years/months/days
-    const endD = endDate;
-    const nowD = now;
-    let years  = endD.getFullYear() - nowD.getFullYear();
-    let months = endD.getMonth()    - nowD.getMonth();
-    let days   = endD.getDate()     - nowD.getDate();
-    if (days < 0)   { months--; days += new Date(endD.getFullYear(), endD.getMonth(), 0).getDate(); }
-    if (months < 0) { years--; months += 12; }
-
-    // Hours/minutes/seconds from remainder within the day
-    const totalSec = Math.floor(remaining / 1000);
-    const secsInDay = totalSec % 86400;
-    const hours   = Math.floor(secsInDay / 3600);
-    const minutes = Math.floor((secsInDay % 3600) / 60);
-    const seconds = secsInDay % 60;
-
-    setVal('valYears',   pad(years));
-    setVal('valMonths',  pad(months));
-    setVal('valDays',    pad(days));
-    setVal('valHours',   pad(hours));
-    setVal('valMinutes', pad(minutes));
-    setVal('valSeconds', pad(seconds));
-    // ms: always update directly (no pulse needed)
-    document.getElementById('valMs').textContent = String(ms).padStart(3, '0');
-    updatePctDisplay();
-  }
-
-  let msVisible = false;
-  function toggleMs() {
-    msVisible = !msVisible;
-    document.getElementById('msRow').classList.toggle('ms-hidden', !msVisible);
-    const btn = document.getElementById('msToggleBtn');
-    btn.textContent = msVisible ? '⚡ Hide Milliseconds' : '⚡ Show Milliseconds';
-    btn.classList.toggle('ms-on', msVisible);
-  }
-
-  let pctVisible = false;
-  function togglePct() {
-    pctVisible = !pctVisible;
-    const btn = document.getElementById('pctToggleBtn');
-    const display = document.getElementById('lifePercentDisplay');
-    btn.classList.toggle('pct-on', pctVisible);
-    display.classList.toggle('pct-visible', pctVisible);
-    if (pctVisible) updatePctDisplay();
-  }
-
-  function updatePctDisplay() {
-    if (!pctVisible || !birthDate || !totalLifeMs) return;
-    const elapsed = new Date() - birthDate;
-    const pct = Math.min(100, (elapsed / totalLifeMs) * 100);
-    document.getElementById('lifePercentDisplay').textContent = pct.toFixed(6) + '% of life elapsed';
-  }
-
-
-
-function setAppMode(mode) {
-  appMode = mode;
-  const lifeBtn = document.getElementById('lifeModeBtn');
-  const yearBtn = document.getElementById('yearModeBtn');
-  if (lifeBtn) lifeBtn.classList.toggle('active', mode === 'life');
-  if (yearBtn) yearBtn.classList.toggle('active', mode === 'year');
-
-  const setupPanel = document.getElementById('setupPanel');
-  const lifePanel = document.getElementById('countdownPanel');
-  const yearPanel = document.getElementById('yearEndPanel');
-
-  if (mode === 'year') {
-    if (setupPanel) setupPanel.style.display = 'none';
-    if (lifePanel) {
-      lifePanel.classList.remove('visible');
-      lifePanel.style.display = 'none';
-    }
-    if (yearPanel) {
-      yearPanel.classList.add('visible');
-      yearPanel.style.display = 'block';
-    }
-    startYearEndCountdown();
-  } else {
-    if (yearPanel) {
-      yearPanel.classList.remove('visible');
-      yearPanel.style.display = 'none';
-    }
-    stopYearEndCountdown();
-
-    if (lifePanel) {
-      lifePanel.style.display = 'block';
-      if (lifePanel.classList.contains('visible')) {
-        if (setupPanel) setupPanel.style.display = 'none';
-      } else {
-        if (setupPanel) setupPanel.style.display = 'block';
-      }
-    } else if (setupPanel) {
-      setupPanel.style.display = 'block';
-    }
-  }
-}
-
-let yearEndTick = null;
-function stopYearEndCountdown() {
-  if (yearEndTick) {
-    clearInterval(yearEndTick);
-    yearEndTick = null;
-  }
-}
-
-// ── TIMEZONE LIST FOR YEAR COUNTDOWN ──
-const YEAR_TIMEZONES = [
-  { city: 'Baker Island',      iana: 'Etc/GMT+12',              offset: -12 },
-  { city: 'Pago Pago',         iana: 'Pacific/Pago_Pago',       offset: -11 },
-  { city: 'Honolulu',          iana: 'Pacific/Honolulu',        offset: -10 },
-  { city: 'Anchorage',         iana: 'America/Anchorage',       offset: -9  },
-  { city: 'Los Angeles',       iana: 'America/Los_Angeles',     offset: -8  },
-  { city: 'Denver',            iana: 'America/Denver',          offset: -7  },
-  { city: 'Chicago',           iana: 'America/Chicago',         offset: -6  },
-  { city: 'New York',          iana: 'America/New_York',        offset: -5  },
-  { city: 'Halifax',           iana: 'America/Halifax',         offset: -4  },
-  { city: 'St. Johns',         iana: 'America/St_Johns',        offset: -3.5},
-  { city: 'São Paulo',         iana: 'America/Sao_Paulo',       offset: -3  },
-  { city: 'South Georgia',     iana: 'Atlantic/South_Georgia',  offset: -2  },
-  { city: 'Azores',            iana: 'Atlantic/Azores',         offset: -1  },
-  { city: 'London',            iana: 'Europe/London',           offset: 0   },
-  { city: 'Paris',             iana: 'Europe/Paris',            offset: 1   },
-  { city: 'Cairo',             iana: 'Africa/Cairo',            offset: 2   },
-  { city: 'Moscow',            iana: 'Europe/Moscow',           offset: 3   },
-  { city: 'Tehran',            iana: 'Asia/Tehran',             offset: 3.5 },
-  { city: 'Dubai',             iana: 'Asia/Dubai',              offset: 4   },
-  { city: 'Kabul',             iana: 'Asia/Kabul',              offset: 4.5 },
-  { city: 'Karachi',           iana: 'Asia/Karachi',            offset: 5   },
-  { city: 'Kolkata',           iana: 'Asia/Kolkata',            offset: 5.5 },
-  { city: 'Kathmandu',         iana: 'Asia/Kathmandu',          offset: 5.75},
-  { city: 'Dhaka',             iana: 'Asia/Dhaka',              offset: 6   },
-  { city: 'Yangon',            iana: 'Asia/Rangoon',            offset: 6.5 },
-  { city: 'Bangkok',           iana: 'Asia/Bangkok',            offset: 7   },
-  { city: 'Singapore',         iana: 'Asia/Singapore',          offset: 8   },
-  { city: 'Tokyo',             iana: 'Asia/Tokyo',              offset: 9   },
-  { city: 'Adelaide',          iana: 'Australia/Adelaide',      offset: 9.5 },
-  { city: 'Sydney',            iana: 'Australia/Sydney',        offset: 10  },
-  { city: 'Noumea',            iana: 'Pacific/Noumea',          offset: 11  },
-  { city: 'Auckland',          iana: 'Pacific/Auckland',        offset: 12  },
-  { city: "Nuku'alofa",        iana: 'Pacific/Tongatapu',       offset: 13  },
-  { city: 'Kiritimati',        iana: 'Pacific/Kiritimati',      offset: 14  },
-];
-
-function formatTzOffset(offset) {
-  const sign = offset >= 0 ? '+' : '-';
-  const abs = Math.abs(offset);
-  const h = Math.floor(abs);
-  const m = Math.round((abs - h) * 60);
-  return 'UTC' + sign + (m === 0 ? h : h + ':' + String(m).padStart(2,'0'));
-}
-
-let selectedYearTz = null;
-
-function detectUserTz() {
-  try {
-    const userIana = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    // Get real offset now
-    const now = new Date();
-    const offsetMin = -now.getTimezoneOffset();
-    const offsetHr = offsetMin / 60;
-    // Find closest match by IANA name first, then offset
-    let match = YEAR_TIMEZONES.find(t => t.iana === userIana);
-    if (!match) match = YEAR_TIMEZONES.reduce((best, t) => {
-      return Math.abs(t.offset - offsetHr) < Math.abs(best.offset - offsetHr) ? t : best;
-    }, YEAR_TIMEZONES[0]);
-    return match;
-  } catch(e) {
-    return YEAR_TIMEZONES.find(t => t.offset === 0);
-  }
-}
-
-function buildYearTzMenu() {
-  const menu = document.getElementById('yearTzMenu');
-  if (!menu) return;
-  menu.innerHTML = YEAR_TIMEZONES.map(t => {
-    return `<div class="tz-option" data-iana="${t.iana}" onclick="selectYearTz('${t.iana}')">
-      <span class="tz-option-city">${t.city}</span>
-      <span class="tz-option-offset">${formatTzOffset(t.offset)}</span>
-    </div>`;
-  }).join('');
-}
-
-function toggleYearTzMenu() {
-  const menu = document.getElementById('yearTzMenu');
-  const btn = document.getElementById('yearTzBtn');
-  const isOpen = menu.classList.contains('open');
-  menu.classList.toggle('open', !isOpen);
-  btn.classList.toggle('open', !isOpen);
-}
-
-function selectYearTz(iana) {
-  const tz = YEAR_TIMEZONES.find(t => t.iana === iana);
-  if (!tz) return;
-  selectedYearTz = tz;
-  const label = document.getElementById('yearTzBtnLabel');
-  if (label) label.textContent = tz.city + '  ' + formatTzOffset(tz.offset);
-  document.querySelectorAll('#yearTzMenu .tz-option').forEach(el => {
-    el.classList.toggle('selected', el.dataset.iana === iana);
-  });
-  const menu = document.getElementById('yearTzMenu');
-  const btn = document.getElementById('yearTzBtn');
-  if (menu) menu.classList.remove('open');
-  if (btn) btn.classList.remove('open');
-  try { localStorage.setItem('wrenYearTz', iana); } catch(e) {}
-  updateYearEndCountdown();
-}
-
-function restoreYearTz() {
-  const saved = localStorage.getItem('wrenYearTz');
-  const tz = (saved && YEAR_TIMEZONES.find(t => t.iana === saved)) || detectUserTz();
-  selectYearTz(tz.iana);
-}
-
-// Close tz menu on outside click
-document.addEventListener('click', function(e) {
-  const btn = document.getElementById('yearTzBtn');
-  const menu = document.getElementById('yearTzMenu');
-  if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
-    menu.classList.remove('open');
-    btn.classList.remove('open');
-  }
-});
-
-function getYearEndWindowByTz(ianaName) {
-  const now = new Date();
-  const nowParts = getPartsInTimeZone(now, ianaName);
-  const year = Number(nowParts.year);
-  const start = zonedDateToUtc(year, 1, 1, 0, 0, 0, ianaName);
-  const end = zonedDateToUtc(year + 1, 1, 1, 0, 0, 0, ianaName);
-  return { timeZone: ianaName, start, end, year };
-}
-
-function updateYearEndCountdown() {
-  const tz = selectedYearTz || detectUserTz();
-  const noteEl = document.getElementById('yearCountryNote');
-  const pctEl = document.getElementById('yearPercentDisplay');
-  const barEl = document.getElementById('yearBar');
-
-  const { timeZone, start, end } = getYearEndWindowByTz(tz.iana);
-  const now = new Date();
-  const remaining = Math.max(0, end - now);
-  const elapsed = Math.max(0, now - start);
-  const total = Math.max(1, end - start);
-  const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
-
-  const totalSec = Math.floor(remaining / 1000);
-  const days = Math.floor(totalSec / 86400);
-  const hours = Math.floor((totalSec % 86400) / 3600);
-  const minutes = Math.floor((totalSec % 3600) / 60);
-  const seconds = totalSec % 60;
-
-  const dEl = document.getElementById('yearValDays');
-  const hEl = document.getElementById('yearValHours');
-  const mEl = document.getElementById('yearValMinutes');
-  const sEl = document.getElementById('yearValSeconds');
-
-  if (dEl) dEl.textContent = String(days);
-  if (hEl) hEl.textContent = String(hours).padStart(2, '0');
-  if (mEl) mEl.textContent = String(minutes).padStart(2, '0');
-  if (sEl) sEl.textContent = String(seconds).padStart(2, '0');
-
-  if (pctEl) pctEl.textContent = pct.toFixed(2) + '%';
-  if (barEl) barEl.style.width = pct.toFixed(4) + '%';
-
-  if (noteEl) {
-    noteEl.textContent = `${tz.city} (${formatTzOffset(tz.offset)}) — ends ${formatTZDate(end, timeZone)} at midnight.`;
-  }
-
-  if (remaining <= 0 && yearEndTick) {
-    stopYearEndCountdown();
-  }
-}
-
-function startYearEndCountdown() {
-  buildYearTzMenu();
-  restoreYearTz();
-  stopYearEndCountdown();
-  updateYearEndCountdown();
-  yearEndTick = setInterval(updateYearEndCountdown, 250);
-}
-
-  // Fullscreen (from Cheese Art)
-  function setFullscreenIcon() {
-    document.getElementById('fullscreenBtn').textContent = document.fullscreenElement ? '⤢' : '⛶';
-  }
-  async function toggleFullscreen() {
-    try {
-      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
-      else await document.exitFullscreen();
-      setFullscreenIcon();
-    } catch(e) {}
-  }
-  document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
-  document.addEventListener('fullscreenchange', setFullscreenIcon);
-
-  const _prev = {};
-  function setVal(id, val) {
-    if (_prev[id] !== val) {
-      const el = document.getElementById(id);
-      el.textContent = val;
-      el.classList.remove('tick');
-      void el.offsetWidth;
-      el.classList.add('tick');
-      _prev[id] = val;
-    }
-  }
-
-  function pad(n) { return String(n).padStart(2, '0'); }
-
-  function formatNum(n) {
-    return n.toLocaleString('en-US');
-  }
-
-  function reset() {
-    clearInterval(countdownInterval);
-    stopTickSound();
-    endDate = null;
-    birthDate = null;
-    totalLifeMs = null;
-
-    document.getElementById('countdownPanel').classList.remove('visible');
-    const setup = document.getElementById('setupPanel');
-    setup.classList.remove('hidden');
-    document.getElementById('lifeBar').style.width = '0%';
-    document.querySelector('.enjoy-msg').innerHTML = '✨ Enjoy Every Second ✨';
-    document.querySelector('.enjoy-sub').textContent = 'Make each one count — this is your time.';
-
-    // Reset form
-    selectedGender = null;
-    document.getElementById('btnMale').classList.remove('selected');
-    document.getElementById('btnFemale').classList.remove('selected');
-    document.getElementById('dobDay').value = '';
-    document.getElementById('dobMonth').value = '';
-    document.getElementById('dobYear').value = '';
-    ['dobDay','dobMonth','dobYear'].forEach(id => document.getElementById(id).classList.remove('input-error'));
-    document.getElementById('countrySelect').value = '';
-    selectedCountry = '';
-    document.getElementById('countryBtnLabel').textContent = '— Select your country —';
-    document.querySelectorAll('#countryMenu .country-option').forEach(opt => opt.classList.remove('selected'));
-    document.getElementById('errorMsg').textContent = '';
-
-    document.getElementById('yearEndPanel').classList.remove('visible');
-    document.getElementById('yearEndPanel').style.display = 'none';
-    stopYearEndCountdown();
-
-    msVisible = false;
-    document.getElementById('msRow').classList.add('ms-hidden');
-    document.getElementById('msToggleBtn').textContent = '⚡ Show Milliseconds';
-    document.getElementById('msToggleBtn').classList.remove('ms-on');
-
-    pctVisible = false;
-    document.getElementById('pctToggleBtn').classList.remove('pct-on');
-    document.getElementById('lifePercentDisplay').classList.remove('pct-visible');
-    document.getElementById('lifePercentDisplay').textContent = '';
-
-    // Clean up cinematic overlays
-    document.getElementById('cinematicOverlay').classList.remove('active');
-    document.getElementById('beatBanner').classList.remove('active');
-    stopConfetti();
-
-    Object.keys(_prev).forEach(k => delete _prev[k]);
-    setAppMode('life');
-  }
-
-
-  // ── OS DETECTION (Windows has no flag emoji) ──
-  const isWindows = /Win/i.test(navigator.platform || navigator.userAgent);
-
-  // ── COUNTRY DATA ──
-  const COUNTRIES = [
-    { value: 'argentina',   flag: '🇦🇷', winEmoji: '🥩', label: 'Argentina' },
-    { value: 'australia',   flag: '🇦🇺', winEmoji: '🦘', label: 'Australia' },
-    { value: 'bangladesh',  flag: '🇧🇩', winEmoji: '🌿', label: 'Bangladesh' },
-    { value: 'belgium',     flag: '🇧🇪', winEmoji: '🍫', label: 'Belgium' },
-    { value: 'brazil',      flag: '🇧🇷', winEmoji: '🌴', label: 'Brazil' },
-    { value: 'cameroon',    flag: '🇨🇲', winEmoji: '🦁', label: 'Cameroon' },
-    { value: 'canada',      flag: '🇨🇦', winEmoji: '🍁', label: 'Canada' },
-    { value: 'chile',       flag: '🇨🇱', winEmoji: '🌋', label: 'Chile' },
-    { value: 'china',       flag: '🇨🇳', winEmoji: '🐉', label: 'China' },
-    { value: 'colombia',    flag: '🇨🇴', winEmoji: '🌺', label: 'Colombia' },
-    { value: 'egypt',       flag: '🇪🇬', winEmoji: '🏺', label: 'Egypt' },
-    { value: 'el_salvador', flag: '🇸🇻', winEmoji: '🌊', label: 'El Salvador' },
-    { value: 'fiji',        flag: '🇫🇯', winEmoji: '🌴', label: 'Fiji' },
-    { value: 'france',      flag: '🇫🇷', winEmoji: '🥐', label: 'France' },
-    { value: 'gambia',      flag: '🇬🇲', winEmoji: '🐊', label: 'The Gambia' },
-    { value: 'germany',     flag: '🇩🇪', winEmoji: '🍺', label: 'Germany' },
-    { value: 'greece',      flag: '🇬🇷', winEmoji: '🏛️', label: 'Greece' },
-    { value: 'india',       flag: '🇮🇳', winEmoji: '🙏', label: 'India' },
-    { value: 'indonesia',   flag: '🇮🇩', winEmoji: '🏝️', label: 'Indonesia' },
-    { value: 'iraq',        flag: '🇮🇶', winEmoji: '🌙', label: 'Iraq' },
-    { value: 'ireland',     flag: '🇮🇪', winEmoji: '☘️', label: 'Ireland' },
-    { value: 'italy',       flag: '🇮🇹', winEmoji: '🍕', label: 'Italy' },
-    { value: 'japan',       flag: '🇯🇵', winEmoji: '🗾', label: 'Japan' },
-    { value: 'jordan',      flag: '🇯🇴', winEmoji: '🏜️', label: 'Jordan' },
-    { value: 'kenya',       flag: '🇰🇪', winEmoji: '🦒', label: 'Kenya' },
-    { value: 'malaysia',    flag: '🇲🇾', winEmoji: '🌺', label: 'Malaysia' },
-    { value: 'mexico',      flag: '🇲🇽', winEmoji: '🌮', label: 'Mexico' },
-    { value: 'netherlands', flag: '🇳🇱', winEmoji: '🌷', label: 'Netherlands' },
-    { value: 'new_zealand', flag: '🇳🇿', winEmoji: '🥝', label: 'New Zealand' },
-    { value: 'nigeria',     flag: '🇳🇬', winEmoji: '🥁', label: 'Nigeria' },
-    { value: 'oman',        flag: '🇴🇲', winEmoji: '🏜️', label: 'Oman' },
-    { value: 'pakistan',    flag: '🇵🇰', winEmoji: '🕌', label: 'Pakistan' },
-    { value: 'panama',      flag: '🇵🇦', winEmoji: '⚓', label: 'Panama' },
-    { value: 'peru',        flag: '🇵🇪', winEmoji: '🦙', label: 'Peru' },
-    { value: 'philippines', flag: '🇵🇭', winEmoji: '🌊', label: 'Philippines' },
-    { value: 'portugal',    flag: '🇵🇹', winEmoji: '🐟', label: 'Portugal' },
-    { value: 'russia',      flag: '🇷🇺', winEmoji: '❄️', label: 'Russia' },
-    { value: 'saudi_arabia',flag: '🇸🇦', winEmoji: '🕌', label: 'Saudi Arabia' },
-    { value: 'senegal',     flag: '🇸🇳', winEmoji: '🦁', label: 'Senegal' },
-    { value: 'serbia',      flag: '🇷🇸', winEmoji: '🦅', label: 'Serbia' },
-    { value: 'south_africa',flag: '🇿🇦', winEmoji: '🦁', label: 'South Africa' },
-    { value: 'south_korea', flag: '🇰🇷', winEmoji: '🎎', label: 'South Korea' },
-    { value: 'spain',       flag: '🇪🇸', winEmoji: '💃', label: 'Spain' },
-    { value: 'sri_lanka',   flag: '🇱🇰', winEmoji: '🐘', label: 'Sri Lanka' },
-    { value: 'sudan',       flag: '🇸🇩', winEmoji: '🌍', label: 'Sudan' },
-    { value: 'switzerland', flag: '🇨🇭', winEmoji: '🏔️', label: 'Switzerland' },
-    { value: 'taiwan',      flag: '🇹🇼', winEmoji: '🏯', label: 'Taiwan' },
-    { value: 'thailand',    flag: '🇹🇭', winEmoji: '🐘', label: 'Thailand' },
-    { value: 'turkey',      flag: '🇹🇷', winEmoji: '🌙', label: 'Turkey' },
-    { value: 'uae',         flag: '🇦🇪', winEmoji: '🌆', label: 'UAE' },
-    { value: 'uk',          flag: '🇬🇧', winEmoji: '☂️', label: 'United Kingdom' },
-    { value: 'usa',         flag: '🇺🇸', winEmoji: '🦅', label: 'United States' },
-    { value: 'vietnam',     flag: '🇻🇳', winEmoji: '🍜', label: 'Vietnam' },
-    { value: 'world',       flag: '🌍', winEmoji: '🌍', label: 'Rest of World' },
-  ];
-
-  let selectedCountry = '';
-
-
-const COUNTRY_TIMEZONES = {
-  argentina: 'America/Argentina/Buenos_Aires',
-  australia: 'Australia/Sydney',
-  bangladesh: 'Asia/Dhaka',
-  belgium: 'Europe/Brussels',
-  brazil: 'America/Sao_Paulo',
-  cameroon: 'Africa/Douala',
-  canada: 'America/Toronto',
-  chile: 'America/Santiago',
-  china: 'Asia/Shanghai',
-  colombia: 'America/Bogota',
-  egypt: 'Africa/Cairo',
-  el_salvador: 'America/El_Salvador',
-  fiji: 'Pacific/Fiji',
-  france: 'Europe/Paris',
-  gambia: 'Africa/Banjul',
-  germany: 'Europe/Berlin',
-  greece: 'Europe/Athens',
-  india: 'Asia/Kolkata',
-  indonesia: 'Asia/Jakarta',
-  iraq: 'Asia/Baghdad',
-  ireland: 'Europe/Dublin',
-  italy: 'Europe/Rome',
-  japan: 'Asia/Tokyo',
-  jordan: 'Asia/Amman',
-  kenya: 'Africa/Nairobi',
-  malaysia: 'Asia/Kuala_Lumpur',
-  mexico: 'America/Mexico_City',
-  netherlands: 'Europe/Amsterdam',
-  new_zealand: 'Pacific/Auckland',
-  nigeria: 'Africa/Lagos',
-  oman: 'Asia/Muscat',
-  pakistan: 'Asia/Karachi',
-  panama: 'America/Panama',
-  peru: 'America/Lima',
-  philippines: 'Asia/Manila',
-  portugal: 'Europe/Lisbon',
-  russia: 'Europe/Moscow',
-  saudi_arabia: 'Asia/Riyadh',
-  senegal: 'Africa/Dakar',
-  serbia: 'Europe/Belgrade',
-  south_africa: 'Africa/Johannesburg',
-  south_korea: 'Asia/Seoul',
-  spain: 'Europe/Madrid',
-  sri_lanka: 'Asia/Colombo',
-  sudan: 'Africa/Khartoum',
-  switzerland: 'Europe/Zurich',
-  taiwan: 'Asia/Taipei',
-  thailand: 'Asia/Bangkok',
-  turkey: 'Europe/Istanbul',
-  uae: 'Asia/Dubai',
-  uk: 'Europe/London',
-  usa: 'America/New_York',
-  vietnam: 'Asia/Ho_Chi_Minh',
-  world: 'UTC'
-};
-
-function getCountryName(val) {
-  const c = COUNTRIES.find(x => x.value === val);
-  return c ? c.label : 'Your selected country';
-}
-
-function getCountryTimeZone(val) {
-  return COUNTRY_TIMEZONES[val] || 'UTC';
-}
-
-function formatCountryLabel(val) {
-  const c = COUNTRIES.find(x => x.value === val);
-  if (!c) return '— Select your country —';
-  const emoji = isWindows ? c.winEmoji : c.flag;
-  return emoji + '  ' + c.label;
-}
-
-function restoreSelectedCountry() {
-  const savedCountry = localStorage.getItem('wrenCountry') || '';
-  if (savedCountry) {
-    selectedCountry = savedCountry;
-    const input = document.getElementById('countrySelect');
-    if (input) input.value = savedCountry;
-    const label = document.getElementById('countryBtnLabel');
-    if (label) label.textContent = formatCountryLabel(savedCountry);
-    document.querySelectorAll('#countryMenu .country-option').forEach(opt => {
-      opt.classList.toggle('selected', opt.dataset.value === savedCountry);
-    });
-  }
-}
-
-function saveSelectedCountry(val) {
-  try { localStorage.setItem('wrenCountry', val); } catch(e) {}
-}
-
-function getPartsInTimeZone(date, timeZone) {
-  const dtf = new Intl.DateTimeFormat('en-US', {
-    timeZone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-    hourCycle: 'h23'
-  });
-  const parts = dtf.formatToParts(date);
-  const out = {};
-  for (const p of parts) {
-    if (p.type !== 'literal') out[p.type] = p.value;
-  }
-  return out;
-}
-
-function getTimeZoneOffsetMs(date, timeZone) {
-  const parts = getPartsInTimeZone(date, timeZone);
-  const asUTC = Date.UTC(
-    Number(parts.year),
-    Number(parts.month) - 1,
-    Number(parts.day),
-    Number(parts.hour),
-    Number(parts.minute),
-    Number(parts.second)
-  );
-  return asUTC - date.getTime();
-}
-
-function zonedDateToUtc(year, month, day, hour, minute, second, timeZone) {
-  const guess = Date.UTC(year, month - 1, day, hour, minute, second);
-  const offset = getTimeZoneOffsetMs(new Date(guess), timeZone);
-  return new Date(guess - offset);
-}
-
-function getYearEndWindow(country) {
-  const timeZone = getCountryTimeZone(country);
-  const now = new Date();
-  const nowParts = getPartsInTimeZone(now, timeZone);
-  const year = Number(nowParts.year);
-  const start = zonedDateToUtc(year, 1, 1, 0, 0, 0, timeZone);
-  const end = zonedDateToUtc(year + 1, 1, 1, 0, 0, 0, timeZone);
-  return { timeZone, nowParts, year, start, end };
-}
-
-function formatTZDate(date, timeZone) {
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone,
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
-}
-
-  function buildCountryMenu() {
-    const menu = document.getElementById('countryMenu');
-    menu.innerHTML = COUNTRIES.map(c => {
-      const emoji = isWindows ? c.winEmoji : c.flag;
-      return `<div class="country-option" data-value="${c.value}" onclick="selectCountry('${c.value}')">
-        <span class="country-flag">${emoji}</span>
-        <span>${c.label}</span>
-      </div>`;
-    }).join('');
-  }
-
-  function toggleCountryMenu() {
-    const menu = document.getElementById('countryMenu');
-    const btn = document.getElementById('countryBtn');
-    const isOpen = menu.classList.contains('open');
-    menu.classList.toggle('open', !isOpen);
-    btn.classList.toggle('open', !isOpen);
-  }
-
-  function selectCountry(val) {
-    selectedCountry = val;
-    document.getElementById('countrySelect').value = val;
-    const c = COUNTRIES.find(x => x.value === val);
-    if (c) {
-      document.getElementById('countryBtnLabel').textContent = formatCountryLabel(val);
-    }
-    saveSelectedCountry(val);
-    document.getElementById('countryMenu').classList.remove('open');
-    document.getElementById('countryBtn').classList.remove('open');
-    // Highlight selected
-    document.querySelectorAll('#countryMenu .country-option').forEach(opt => {
-      opt.classList.toggle('selected', opt.dataset.value === val);
-    });
-    if (appMode === 'year') updateYearEndCountdown();
-  }
-
-  // Close menu if clicking outside
-  document.addEventListener('click', function(e) {
-    const btn = document.getElementById('countryBtn');
-    const menu = document.getElementById('countryMenu');
-    if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
-      menu.classList.remove('open');
-      btn.classList.remove('open');
-    }
-  });
-
-  // ── TICKING CLOCK SOUND (Avengers-style deep mechanical thud) ──
-  let tickAudioCtx = null;
   let tickInterval = null;
   let lastTickSecond = -1;
-
-  function createTickSound() {
-    if (!tickAudioCtx) {
-      tickAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    const ctx = tickAudioCtx;
-    const now = ctx.currentTime;
-    const sr = ctx.sampleRate;
-
-    // ── LAYER 1: Deep low mechanical THUD (the "body" of the tick) ──
-    const thudLen = Math.floor(sr * 0.18);
-    const thudBuf = ctx.createBuffer(1, thudLen, sr);
-    const thudData = thudBuf.getChannelData(0);
-    for (let i = 0; i < thudLen; i++) {
-      const t = i / sr;
-      // Sine at ~55Hz (very deep) + 110Hz harmonic, sharp exponential decay
-      thudData[i] = (
-        Math.sin(2 * Math.PI * 55 * t) * 0.7 +
-        Math.sin(2 * Math.PI * 110 * t) * 0.3
-      ) * Math.exp(-t / 0.035);
-    }
-    const thudSrc = ctx.createBufferSource();
-    thudSrc.buffer = thudBuf;
-    const thudGain = ctx.createGain();
-    thudGain.gain.setValueAtTime(1.2, now);
-    thudGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
-    thudSrc.connect(thudGain);
-    thudGain.connect(ctx.destination);
-    thudSrc.start(now);
-
-    // ── LAYER 2: Metallic HIGH click (the sharp transient) ──
-    const clickLen = Math.floor(sr * 0.04);
-    const clickBuf = ctx.createBuffer(1, clickLen, sr);
-    const clickData = clickBuf.getChannelData(0);
-    for (let i = 0; i < clickLen; i++) {
-      const t = i / sr;
-      clickData[i] = (Math.random() * 2 - 1) * Math.exp(-t / 0.004) * 0.9;
-    }
-    const clickSrc = ctx.createBufferSource();
-    clickSrc.buffer = clickBuf;
-    // Band-pass to make it metallic (around 2kHz–5kHz)
-    const bpf = ctx.createBiquadFilter();
-    bpf.type = 'bandpass';
-    bpf.frequency.value = 3000;
-    bpf.Q.value = 1.2;
-    const clickGain = ctx.createGain();
-    clickGain.gain.setValueAtTime(0.7, now);
-    clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
-    clickSrc.connect(bpf);
-    bpf.connect(clickGain);
-    clickGain.connect(ctx.destination);
-    clickSrc.start(now);
-
-    // ── LAYER 3: Sub-bass BOOM — gives it the Avengers cinematic weight ──
-    const osc = ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(80, now);
-    osc.frequency.exponentialRampToValueAtTime(28, now + 0.12); // pitch-drops like a cinematic hit
-    const oscGain = ctx.createGain();
-    oscGain.gain.setValueAtTime(0.55, now);
-    oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
-    osc.connect(oscGain);
-    oscGain.connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.15);
-
-    // ── LAYER 4: Short plate-reverb simulation via multiple comb delays ──
-    const reverbDelays = [0.032, 0.051, 0.073];
-    reverbDelays.forEach((dt, idx) => {
-      const delSrc = ctx.createBufferSource();
-      delSrc.buffer = thudBuf;
-      const del = ctx.createDelay(0.2);
-      del.delayTime.value = dt;
-      const delGain = ctx.createGain();
-      delGain.gain.setValueAtTime(0.18 - idx * 0.04, now);
-      delGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
-      delSrc.connect(del);
-      del.connect(delGain);
-      delGain.connect(ctx.destination);
-      delSrc.start(now);
-    });
-  }
-
   function startTickSound() {
     stopTickSound();
     lastTickSecond = -1;
     tickInterval = setInterval(() => {
       if (!endDate) return;
-      const now = new Date();
-      const remaining = endDate - now;
+      const remaining = endDate - new Date();
       if (remaining <= 0) return;
       const currentSecond = Math.floor(remaining / 1000);
       if (currentSecond !== lastTickSecond) {
         lastTickSecond = currentSecond;
-        createTickSound();
+        playCinematicSound(currentSecond <= 5 ? 'tick-slow' : 'tick-fast');
       }
-    }, 50);
+    }, 80);
   }
 
   function stopTickSound() {
@@ -2302,6 +1766,7 @@ function formatTZDate(date, timeZone) {
   }
 
   // ── BUILD COUNTRY MENU ON LOAD ──
+  ensureCountryDataLoaded();
   buildCountryMenu();
   restoreSelectedCountry();
 
