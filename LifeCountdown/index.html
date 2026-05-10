@@ -2394,32 +2394,34 @@ function startYearEndCountdown() {
     { value:'tuvalu',               flag:'🇹🇻', winEmoji:'🌊', label:'Tuvalu' },
   ];
 
-  // Region definitions for the Regions tab
+  // Regions tab — each entry is directly selectable, uses region_* key from LIFE_DATA
   const REGIONS = [
-    { id:'north_america',  label:'🌎 North America',   countries:['usa','canada','cuba','jamaica','haiti','dominican_republic','trinidad','barbados','bahamas'] },
-    { id:'central_america',label:'🌎 Central America',  countries:['mexico','guatemala','belize','honduras','el_salvador','nicaragua','costa_rica','panama'] },
-    { id:'south_america',  label:'🌎 South America',    countries:['colombia','venezuela','guyana','suriname','ecuador','peru','brazil','bolivia','paraguay','chile','argentina','uruguay'] },
-    { id:'europe',         label:'🌍 Europe',            countries:['uk','ireland','france','germany','italy','spain','netherlands','belgium','switzerland','austria','sweden','norway','denmark','finland','greece','poland','czech_republic','slovakia','hungary','romania','bulgaria','croatia','serbia','slovenia','luxembourg','iceland','estonia','latvia','lithuania','albania','north_macedonia','bosnia','montenegro','kosovo','cyprus','malta'] },
-    { id:'iberia',         label:'🌍 Iberia',            countries:['portugal','spain'] },
-    { id:'eurasia',        label:'🌏 Eurasia',           countries:['russia','ukraine','belarus','moldova','georgia','armenia','azerbaijan','kazakhstan','uzbekistan','kyrgyzstan','tajikistan','turkmenistan'] },
-    { id:'siberia',        label:'❄️ Siberia',            countries:['russia'] },
-    { id:'middle_east',    label:'🌍 Middle East',       countries:['turkey','israel','lebanon','jordan','uae','saudi_arabia','qatar','kuwait','bahrain','oman','iran','iraq','syria','yemen','afghanistan'] },
-    { id:'asia',           label:'🌏 Asia',              countries:['china','japan','south_korea','taiwan','hong_kong','macao','mongolia','north_korea','india','pakistan','bangladesh','sri_lanka','nepal','bhutan'] },
-    { id:'southeast_asia', label:'🌏 South East Asia',   countries:['indonesia','philippines','vietnam','thailand','malaysia','singapore','myanmar','cambodia','laos'] },
-    { id:'africa',         label:'🌍 Africa',            countries:['nigeria','ethiopia','south_africa','kenya','ghana','tanzania','uganda','senegal','cameroon','ivory_coast','mali','niger','burkina_faso','guinea','south_sudan','angola','mozambique','madagascar','zambia','zimbabwe','malawi','rwanda','burundi','somalia','eritrea','djibouti','botswana','namibia','gabon','congo','drc','gambia','sierra_leone','liberia','togo','benin','chad','central_african_republic','equatorial_guinea','mauritius','cape_verde','seychelles','comoros','sao_tome','sudan'] },
-    { id:'north_africa',   label:'🌍 North Africa',      countries:['egypt','morocco','algeria','tunisia','libya','sudan'] },
-    { id:'oceania',        label:'🌏 Oceania',           countries:['australia','new_zealand','fiji','papua_new_guinea','solomon_islands','vanuatu','samoa','tonga','kiribati'] },
+    { value:'region_north_america',  flag:'🌎', winEmoji:'🌎', label:'North America' },
+    { value:'region_central_america',flag:'🌎', winEmoji:'🌎', label:'Central America' },
+    { value:'region_south_america',  flag:'🌎', winEmoji:'🌎', label:'South America' },
+    { value:'region_europe',         flag:'🌍', winEmoji:'🌍', label:'Europe' },
+    { value:'region_iberia',         flag:'🌍', winEmoji:'🌍', label:'Iberia' },
+    { value:'region_eurasia',        flag:'🌍', winEmoji:'🌍', label:'Eurasia' },
+    { value:'region_siberia',        flag:'❄️', winEmoji:'❄️', label:'Siberia' },
+    { value:'region_middle_east',    flag:'🌍', winEmoji:'🌍', label:'Middle East' },
+    { value:'region_asia',           flag:'🌏', winEmoji:'🌏', label:'Asia' },
+    { value:'region_southeast_asia', flag:'🌏', winEmoji:'🌏', label:'South East Asia' },
+    { value:'region_africa',         flag:'🌍', winEmoji:'🌍', label:'Africa' },
+    { value:'region_north_africa',   flag:'🌍', winEmoji:'🌍', label:'North Africa' },
+    { value:'region_oceania',        flag:'🌏', winEmoji:'🌏', label:'Oceania' },
+    { value:'region_antarctica',     flag:'🧊', winEmoji:'🧊', label:'Antarctica' },
+    { value:'world',                 flag:'🌍', winEmoji:'🌍', label:'World' },
   ];
 
   function formatCountryLabel(val) {
-    const c = COUNTRIES.find(x => x.value === val);
+    const c = COUNTRIES.find(x => x.value === val) || REGIONS.find(x => x.value === val);
     if (!c) return '— Select your country —';
     const emoji = isWindows ? c.winEmoji : c.flag;
     return emoji + '  ' + c.label;
   }
 
   function buildCountryMenu() {
-    // Countries tab
+    // Countries tab — list every country
     const panelCountries = document.getElementById('panelCountries');
     panelCountries.innerHTML = COUNTRIES.map(c => {
       const emoji = isWindows ? c.winEmoji : c.flag;
@@ -2429,19 +2431,14 @@ function startYearEndCountdown() {
       </div>`;
     }).join('');
 
-    // Regions tab
+    // Regions tab — each region is its own selectable entry
     const panelRegions = document.getElementById('panelRegions');
     panelRegions.innerHTML = REGIONS.map(r => {
-      const items = r.countries.map(val => {
-        const c = COUNTRIES.find(x => x.value === val);
-        if (!c) return '';
-        const emoji = isWindows ? c.winEmoji : c.flag;
-        return `<div class="country-option" data-value="${c.value}" onclick="selectCountry('${c.value}')">
-          <span class="country-flag">${emoji}</span>
-          <span>${c.label}</span>
-        </div>`;
-      }).join('');
-      return `<div class="region-group-header">${r.label}</div>${items}`;
+      const emoji = isWindows ? r.winEmoji : r.flag;
+      return `<div class="country-option" data-value="${r.value}" onclick="selectCountry('${r.value}')">
+        <span class="country-flag">${emoji}</span>
+        <span>${r.label}</span>
+      </div>`;
     }).join('');
   }
 
@@ -2451,7 +2448,6 @@ function startYearEndCountdown() {
     document.getElementById('tabRegions').classList.toggle('active', tab === 'regions');
     document.getElementById('panelCountries').classList.toggle('active', tab === 'countries');
     document.getElementById('panelRegions').classList.toggle('active', tab === 'regions');
-    // Clear search when switching tabs
     const search = document.getElementById('countrySearch');
     if (search) { search.value = ''; filterCountryMenu(); }
   }
@@ -2464,24 +2460,10 @@ function startYearEndCountdown() {
     const options = panel.querySelectorAll('.country-option');
     let found = 0;
     options.forEach(opt => {
-      const label = opt.textContent.toLowerCase();
-      const show = !q || label.includes(q);
+      const show = !q || opt.textContent.toLowerCase().includes(q);
       opt.style.display = show ? '' : 'none';
       if (show) found++;
     });
-    // Hide region headers that have no visible children (for Regions tab)
-    if (currentPickerTab === 'regions') {
-      panel.querySelectorAll('.region-group-header').forEach(hdr => {
-        let sib = hdr.nextElementSibling;
-        let anyVisible = false;
-        while (sib && !sib.classList.contains('region-group-header')) {
-          if (sib.style.display !== 'none') anyVisible = true;
-          sib = sib.nextElementSibling;
-        }
-        hdr.style.display = anyVisible ? '' : 'none';
-      });
-    }
-    // Remove/add empty state
     let empty = panel.querySelector('.picker-empty');
     if (found === 0) {
       if (!empty) { empty = document.createElement('div'); empty.className = 'picker-empty'; empty.textContent = 'No results found.'; panel.appendChild(empty); }
@@ -2578,11 +2560,31 @@ const COUNTRY_TIMEZONES = {
   australia:'Australia/Sydney', new_zealand:'Pacific/Auckland', fiji:'Pacific/Fiji',
   papua_new_guinea:'Pacific/Port_Moresby', solomon_islands:'Pacific/Guadalcanal',
   vanuatu:'Pacific/Efate', samoa:'Pacific/Apia', tonga:'Pacific/Tongatapu',
-  kiribati:'Pacific/Tarawa', world:'UTC'
+  kiribati:'Pacific/Tarawa',
+  micronesia:'Pacific/Pohnpei', marshall_islands:'Pacific/Majuro',
+  palau:'Pacific/Palau', nauru:'Pacific/Nauru', tuvalu:'Pacific/Funafuti',
+  puerto_rico:'America/Puerto_Rico', french_guiana:'America/Cayenne',
+  antigua:'America/Antigua', saint_lucia:'America/St_Lucia',
+  grenada:'America/Grenada', saint_vincent:'America/St_Vincent',
+  saint_kitts:'America/St_Kitts', dominica:'America/Dominica',
+  andorra:'Europe/Andorra', liechtenstein:'Europe/Vaduz',
+  monaco:'Europe/Monaco', san_marino:'Europe/San_Marino',
+  palestine:'Asia/Gaza', maldives:'Indian/Maldives',
+  brunei:'Asia/Brunei', timor_leste:'Asia/Dili',
+  guinea_bissau:'Africa/Bissau', lesotho:'Africa/Maseru',
+  eswatini:'Africa/Mbabane', mauritania:'Africa/Nouakchott',
+  western_sahara:'Africa/El_Aaiun',
+  // regions use UTC
+  region_north_america:'UTC', region_central_america:'UTC',
+  region_south_america:'UTC', region_europe:'UTC',
+  region_iberia:'UTC', region_eurasia:'UTC', region_siberia:'UTC',
+  region_middle_east:'UTC', region_asia:'UTC', region_southeast_asia:'UTC',
+  region_africa:'UTC', region_north_africa:'UTC', region_oceania:'UTC',
+  region_antarctica:'UTC', world:'UTC'
 };
 
 function getCountryName(val) {
-  const c = COUNTRIES.find(x => x.value === val);
+  const c = COUNTRIES.find(x => x.value === val) || REGIONS.find(x => x.value === val);
   return c ? c.label : 'Your selected country';
 }
 
