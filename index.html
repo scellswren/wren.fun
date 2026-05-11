@@ -5426,9 +5426,9 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
         linear-gradient(180deg,#000c1a 0%,#001428 25%,#000e20 55%,#000609 100%);
       color:#c8eeff;
     }
-    /* Aurora borealis layer */
+    /* Aurora — opacity fade only, no transform = no scrollbar */
     body.mode-antarctica::before{
-      content:'';position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+      content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       background:
         radial-gradient(ellipse 80% 25% at 20% 8%,rgba(0,220,150,0.22) 0%,transparent 100%),
         radial-gradient(ellipse 60% 20% at 70% 5%,rgba(80,160,255,0.28) 0%,transparent 100%),
@@ -5437,15 +5437,13 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       animation:antarcticaAurora 8s ease-in-out infinite alternate;
     }
     @keyframes antarcticaAurora{
-      0%  {opacity:0.6;transform:scaleX(1) translateY(0px);}
-      25% {opacity:1.0;transform:scaleX(1.04) translateY(-6px);}
-      50% {opacity:0.7;transform:scaleX(0.97) translateY(4px);}
-      75% {opacity:0.9;transform:scaleX(1.02) translateY(-3px);}
-      100%{opacity:0.65;transform:scaleX(1) translateY(0px);}
+      0%  {opacity:0.55;}
+      50% {opacity:1.0;}
+      100%{opacity:0.60;}
     }
-    /* Ice crystal overlay */
+    /* Ice glow at base — static */
     body.mode-antarctica::after{
-      content:'';position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+      content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       background:
         radial-gradient(circle at 25% 92%,rgba(180,230,255,0.15) 0%,transparent 20%),
         radial-gradient(circle at 75% 95%,rgba(200,240,255,0.12) 0%,transparent 18%),
@@ -5459,27 +5457,39 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       animation:iceShimmer 4s linear infinite;
     }
     @keyframes iceShimmer{0%{background-position:0% center;}100%{background-position:200% center;}}
+    /* Frozen buttons — static frosted glass, no moving parts */
     body.mode-antarctica .btn,
     body.mode-antarctica .settings-action-btn,
     body.mode-antarctica .mini-btn{
-      background:linear-gradient(145deg,rgba(0,30,60,0.95),rgba(0,50,100,0.90),rgba(0,30,60,0.95));
+      background:
+        linear-gradient(160deg,rgba(200,235,255,0.16) 0%,rgba(60,140,210,0.10) 40%,rgba(0,25,60,0.94) 100%);
       color:#c8eeff;
-      box-shadow:0 6px 24px rgba(0,100,200,0.4),0 0 0 1px rgba(100,200,255,0.2) inset,0 0 20px rgba(0,160,255,0.08);
-      border:1px solid rgba(80,180,255,0.3);
+      box-shadow:
+        0 6px 24px rgba(0,100,200,0.4),
+        0 0 0 1px rgba(160,220,255,0.22) inset,
+        0 1px 0 rgba(220,240,255,0.20) inset;
+      border:1px solid rgba(80,180,255,0.28);
       position:relative;overflow:hidden;
+      text-shadow:0 0 10px rgba(140,210,255,0.6);
     }
+    /* Static frost highlight — top-left specular sheen like ice */
     body.mode-antarctica .btn::before,
     body.mode-antarctica .mini-btn::before{
-      content:'';position:absolute;inset:-100%;
-      background:linear-gradient(90deg,transparent,rgba(180,230,255,0.15),transparent);
-      transform:translateX(-100%);
-      animation:iceSweep 3s linear infinite;
+      content:'';position:absolute;inset:0;pointer-events:none;
+      background:
+        linear-gradient(130deg,rgba(255,255,255,0.14) 0%,rgba(200,235,255,0.04) 30%,transparent 55%),
+        radial-gradient(ellipse 70% 40% at 50% 0%,rgba(200,240,255,0.10) 0%,transparent 100%);
     }
-    @keyframes iceSweep{0%{transform:translateX(-200%);}100%{transform:translateX(200%);}}
     body.mode-antarctica .btn:hover,
     body.mode-antarctica .mini-btn:hover{
-      box-shadow:0 10px 34px rgba(0,140,240,0.55),0 0 0 1px rgba(140,220,255,0.3) inset,0 0 30px rgba(0,180,255,0.15);
+      background:
+        linear-gradient(160deg,rgba(200,235,255,0.24) 0%,rgba(80,160,220,0.14) 40%,rgba(0,35,80,0.96) 100%);
+      box-shadow:
+        0 10px 34px rgba(0,140,240,0.55),
+        0 0 0 1px rgba(180,230,255,0.32) inset,
+        0 1px 0 rgba(240,250,255,0.28) inset;
       border-color:rgba(140,220,255,0.45);
+      text-shadow:0 0 16px rgba(160,230,255,0.9);
     }
     body.mode-antarctica #settingsPanel{
       background:rgba(0,10,24,0.96);
@@ -5495,6 +5505,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     }
     body.mode-antarctica #codeModal{background:rgba(0,8,20,0.98);border:1px solid rgba(60,160,240,0.22);color:#c8eeff;}
     body.mode-antarctica .mode-option.active-mode{color:#40c8ff;text-shadow:0 0 12px rgba(0,180,255,0.8);}
+    /* Antarctica scrollbar — page only, overridden in modals below */
     body.mode-antarctica ::-webkit-scrollbar-thumb{background:rgba(0,160,255,0.45) !important;border-radius:99px !important;}
     body.mode-antarctica *{scrollbar-color:rgba(0,160,255,0.45) transparent !important;}
     .mode-dot.antarctica-dot{
@@ -5513,7 +5524,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       content:'';position:absolute;inset:0;border-radius:50%;
       background:linear-gradient(145deg,rgba(255,255,255,0.5) 0%,transparent 45%);
     }
-    @keyframes dotAurora{0%{opacity:0.4;}100%{opacity:1;}}
+    @keyframes dotAurora{0%{opacity:0.4;}100%{opacity:1.0;}}
 
     /* ── THEMED SCROLLBARS — every theme gets its own ── */
     body.mode-light ::-webkit-scrollbar-thumb{background:rgba(100,100,120,0.35) !important;}
@@ -5599,6 +5610,35 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     body.mode-galaxy *{scrollbar-color:rgba(120,60,220,0.5) transparent;}
     body.mode-china *{scrollbar-color:rgba(220,40,40,0.55) transparent;}
     body.mode-usa *{scrollbar-color:rgba(40,80,200,0.5) transparent;}
+
+    /* ── MODAL SCROLLBARS — always neutral, never themed ── */
+    /* Themes modal grid */
+    #themesOverlay .theme-grid,
+    #themesOverlay .theme-grid *{
+      scrollbar-color:rgba(255,255,255,0.28) transparent !important;
+    }
+    #themesOverlay .theme-grid::-webkit-scrollbar-thumb,
+    #themesOverlay .theme-grid *::-webkit-scrollbar-thumb{
+      background:rgba(255,255,255,0.28) !important;
+    }
+    /* Theme info panel */
+    #themeInfoOverlay .theme-info-body,
+    #themeInfoOverlay .theme-info-body *{
+      scrollbar-color:rgba(255,255,255,0.25) transparent !important;
+    }
+    #themeInfoOverlay .theme-info-body::-webkit-scrollbar-thumb,
+    #themeInfoOverlay .theme-info-body *::-webkit-scrollbar-thumb{
+      background:rgba(255,255,255,0.25) !important;
+    }
+    /* Page stats modal */
+    #themePageStatsOverlay #themePageStatsBody,
+    #themePageStatsOverlay #themePageStatsBody *{
+      scrollbar-color:rgba(255,255,255,0.25) transparent !important;
+    }
+    #themePageStatsOverlay #themePageStatsBody::-webkit-scrollbar-thumb,
+    #themePageStatsOverlay #themePageStatsBody *::-webkit-scrollbar-thumb{
+      background:rgba(255,255,255,0.25) !important;
+    }
 
     body.mode-whitesaber{
       overflow:hidden;
