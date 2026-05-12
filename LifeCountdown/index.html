@@ -170,11 +170,20 @@
       transition: opacity 0.4s, transform 0.4s;
     }
 
+    /* ── PANEL STAGE: only ever one panel visible, no layout shift ── */
+    #panelStage {
+      position: relative;
+    }
+    #setupPanel {
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
     #setupPanel.hidden {
       opacity: 0;
-      transform: scale(0.96) translateY(-8px);
+      transform: scale(0.97);
       pointer-events: none;
       position: absolute;
+      top: 0; left: 0; right: 0;
+      visibility: hidden;
     }
 
     .section-label {
@@ -761,21 +770,59 @@
       overflow: hidden;
     }
     #cinematicOverlay.active { display: flex; }
-    #cinematicCountdown {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(1.6em, 6vw, 4.5em);
-      font-weight: 900;
-      color: #fff;
-      text-align: center;
-      text-shadow: 0 0 40px rgba(196,160,255,0.9), 0 0 100px rgba(155,109,255,0.5);
-      letter-spacing: 2px;
-      padding: 20px;
-      transform: scale(0.1);
+
+    /* Cinematic grid */
+    #cinematicGrid {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      padding: 0 12px;
       opacity: 0;
-      line-height: 1.1;
+      transform: scale(0.08);
+      transition: none;
     }
-    #cinematicCountdown.expand {
+    #cinematicGrid.expand {
       animation: cinematicExpand 1.2s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    .cin-seg {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: clamp(48px, 10vw, 90px);
+      padding-bottom: 4px;
+    }
+    .cin-val {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8em, 6vw, 4.2em);
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1;
+      letter-spacing: -1px;
+      text-shadow: 0 0 20px rgba(196,160,255,0.85), 0 0 60px rgba(155,109,255,0.4);
+      display: block;
+      min-width: 2ch;
+      text-align: center;
+    }
+    .cin-lbl {
+      font-family: 'Rubik', sans-serif;
+      font-size: clamp(0.45em, 1.2vw, 0.6em);
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(196,160,255,0.5);
+      margin-top: 8px;
+    }
+    .cin-colon {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.4em, 4.5vw, 3.4em);
+      font-weight: 900;
+      color: rgba(155,109,255,0.35);
+      line-height: 1;
+      padding-top: 2px;
+      animation: colonBlink 2s ease-in-out infinite;
+      flex-shrink: 0;
     }
     @keyframes cinematicExpand {
       0%   { transform: scale(0.08); opacity: 0; }
@@ -1159,9 +1206,15 @@
 
     #setupPanel.hidden {
       opacity: 0;
-      transform: scale(0.95);
+      transform: scale(0.97);
       pointer-events: none;
       position: absolute;
+      top: 0; left: 0; right: 0;
+      visibility: hidden;
+    }
+
+    .mode-switch.hidden {
+      display: none;
     }
 
     .section-label {
@@ -2013,7 +2066,19 @@
 
 <canvas id="confettiCanvas"></canvas>
 <div id="cinematicOverlay">
-  <div id="cinematicCountdown"></div>
+  <div id="cinematicGrid">
+    <div class="cin-seg"><span class="cin-val" id="cinY">00</span><div class="cin-lbl">YEARS</div></div>
+    <div class="cin-colon">:</div>
+    <div class="cin-seg"><span class="cin-val" id="cinMo">00</span><div class="cin-lbl">MONTHS</div></div>
+    <div class="cin-colon">:</div>
+    <div class="cin-seg"><span class="cin-val" id="cinD">00</span><div class="cin-lbl">DAYS</div></div>
+    <div class="cin-colon">:</div>
+    <div class="cin-seg"><span class="cin-val" id="cinH">00</span><div class="cin-lbl">HOURS</div></div>
+    <div class="cin-colon">:</div>
+    <div class="cin-seg"><span class="cin-val" id="cinMin">00</span><div class="cin-lbl">MINS</div></div>
+    <div class="cin-colon">:</div>
+    <div class="cin-seg"><span class="cin-val" id="cinS">00</span><div class="cin-lbl">SECS</div></div>
+  </div>
   <div id="cinematicLabel">YEARS REMAINING</div>
   <div id="cinematicProgress"><div id="cinematicProgressBar"></div></div>
 </div>
@@ -2036,7 +2101,8 @@
   <button class="mode-btn" id="yearModeBtn" onclick="setAppMode('year')">Year End Countdown</button>
 </div>
 
-<!-- Setup Panel -->
+<!-- Panel Stage: setup and countdown swap here -->
+<div id="panelStage">
   <div id="setupPanel">
 
     <div class="section-label">I am a...</div>
@@ -2077,6 +2143,8 @@
     <button id="calcBtn" onclick="calculate()">Calculate My Life ⏳</button>
     <div id="errorMsg"></div>
   </div>
+
+  </div><!-- end setupPanel -->
 
   <!-- Countdown Panel -->
   <div id="countdownPanel">
@@ -2142,7 +2210,8 @@
       <div class="cd-card" id="cardMs"><span id="_valMs">0</span></div>
     </div>
     <button id="resetBtn" onclick="reset()">← Start Over</button>
-  </div>
+  </div><!-- end countdownPanel -->
+</div><!-- end panelStage -->
 
   <!-- Year End Panel -->
   <div id="yearEndPanel">
@@ -2550,14 +2619,9 @@ function calculate() {
       summaryEl.innerHTML = `Based on average life expectancy for a <strong>${genderLabel}</strong> in <strong>${countryDisplayName}</strong>, you are statistically expected to live to approximately <strong>${lifeExpectancy} years</strong> — until around <strong>${endDate.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})}</strong>.`;
     }
 
-    document.getElementById('setupPanel').classList.add('hidden');
-    setAppMode('life');
-
-    const lifePanel = document.getElementById('countdownPanel');
-    if (lifePanel) {
-      lifePanel.style.display = 'block';
-      lifePanel.classList.add('visible');
-    }
+    const modeSwitch = document.querySelector('.mode-switch');
+    if (modeSwitch) modeSwitch.classList.add('hidden');
+    showPanel('countdown');
 
     if (beatTheClock) {
       // Don't show countdownPanel yet — cinematic will reveal it at the end
@@ -2570,69 +2634,81 @@ function calculate() {
   function showBeatTheClock() {
     clearInterval(countdownInterval);
     stopTickSound();
-
     try { localStorage.setItem('wren_theme_bluefizzy_unlocked', '1'); } catch(e) {}
 
-    const overlay = document.getElementById('cinematicOverlay');
-    const cdEl = document.getElementById('cinematicCountdown');
-    const labelEl = document.getElementById('cinematicLabel');
-    const progWrap = document.getElementById('cinematicProgress');
-    const progBar = document.getElementById('cinematicProgressBar');
+    var overlay  = document.getElementById('cinematicOverlay');
+    var grid     = document.getElementById('cinematicGrid');
+    var labelEl  = document.getElementById('cinematicLabel');
+    var progWrap = document.getElementById('cinematicProgress');
+    var progBar  = document.getElementById('cinematicProgressBar');
 
     overlay.classList.add('active');
 
-    const bY = birthDate.getFullYear(), bM = birthDate.getMonth(), bD = birthDate.getDate();
-    const eY = endDate.getFullYear(),   eM = endDate.getMonth(),   eD = endDate.getDate();
-    let totalMonths = (eY - bY) * 12 + (eM - bM);
-    if (eD < bD) totalMonths--;
-    const totalYears = Math.floor(totalMonths / 12);
-    const totalDays  = Math.floor(totalLifeMs / (1000 * 60 * 60 * 24));
-    const totalHoursRaw = Math.floor(totalLifeMs / (1000 * 60 * 60));
+    // Accurate calendar values: how much life from birthDate to endDate
+    var bY = birthDate.getFullYear(), bM = birthDate.getMonth(),  bD = birthDate.getDate();
+    var eY = endDate.getFullYear(),   eM = endDate.getMonth(),    eD = endDate.getDate();
 
-    cdEl.style.transform = 'scale(0.08)';
-    cdEl.style.opacity = '0';
-    cdEl.style.transition = 'none';
-    cdEl.textContent = totalYears;
-    labelEl.textContent = 'YEARS';
+    // Total months
+    var totalMonthsFull = (eY - bY) * 12 + (eM - bM);
+    if (eD < bD) totalMonthsFull--;
+
+    var startYears   = Math.floor(totalMonthsFull / 12);
+    var startMonths  = totalMonthsFull % 12;
+
+    // Remaining ms after years+months stripped
+    var afterYearsMs = totalLifeMs - startYears * 365.25 * 24 * 3600 * 1000 - startMonths * 30.44 * 24 * 3600 * 1000;
+    var startDays    = Math.max(0, Math.floor(afterYearsMs / (24 * 3600 * 1000)));
+    var afterDaysMs  = afterYearsMs - startDays * 24 * 3600 * 1000;
+    var startHours   = Math.max(0, Math.floor(afterDaysMs / (3600 * 1000)));
+    var afterHoursMs = afterDaysMs - startHours * 3600 * 1000;
+    var startMins    = Math.max(0, Math.floor(afterHoursMs / 60000));
+    var startSecs    = Math.max(0, Math.floor((afterHoursMs - startMins * 60000) / 1000));
+
+    var pad = function(n) { return String(Math.max(0, Math.floor(n))).padStart(2,'0'); };
+
+    // Set initial values
+    document.getElementById('cinY').textContent   = pad(startYears);
+    document.getElementById('cinMo').textContent  = pad(startMonths);
+    document.getElementById('cinD').textContent   = pad(startDays);
+    document.getElementById('cinH').textContent   = pad(startHours);
+    document.getElementById('cinMin').textContent = pad(startMins);
+    document.getElementById('cinS').textContent   = pad(startSecs);
+
+    grid.style.opacity = '0';
+    grid.style.transform = 'scale(0.08)';
+    grid.style.transition = 'none';
+    labelEl.classList.remove('show');
+    progWrap.classList.remove('show');
+    progBar.style.width = '0%';
 
     setTimeout(function() {
-      cdEl.classList.add('expand');
+      grid.classList.add('expand');
+      labelEl.textContent = 'YOUR LIFE — COUNTING DOWN';
       labelEl.classList.add('show');
       progWrap.classList.add('show');
     }, 200);
 
     playCinematicSound('whoosh');
 
-    function animateDown(from, durationMs, pctStart, pctEnd, onTick, onDone) {
-      if (from <= 0) { progBar.style.width = pctEnd + '%'; onDone(); return; }
-      var k = (2 * durationMs) / (from * (from + 1));
-      var val = from;
-      function step() {
-        if (val <= 0) { progBar.style.width = pctEnd + '%'; onDone(); return; }
-        val--;
-        progBar.style.width = (pctStart + (pctEnd - pctStart) * ((from - val) / from)) + '%';
-        onTick(val);
-        playCinematicSound('tick-fast');
-        setTimeout(step, k * (val + 1));
-      }
-      step();
-    }
+    var DURATION = 10000; // 10 seconds total
+    var startTime = null;
 
     function finish() {
       playCinematicSound('boom');
       setTimeout(function() {
         launchConfetti();
         overlay.classList.remove('active');
-        cdEl.classList.remove('expand');
+        grid.classList.remove('expand');
         var banner = document.getElementById('beatBanner');
         banner.classList.add('active');
         setTimeout(function() {
           banner.classList.remove('active');
           stopConfetti();
           document.getElementById('setupPanel').classList.add('hidden');
-          setAppMode('life');
-          var lifePanel = document.getElementById('countdownPanel');
-          if (lifePanel) { lifePanel.style.display = 'block'; lifePanel.classList.add('visible'); }
+
+          var modeSwitch = document.querySelector('.mode-switch');
+          if (modeSwitch) modeSwitch.classList.add('hidden');
+          showPanel('countdown');
           document.querySelector('.enjoy-msg').innerHTML = '<span class="beat-clock-banner">You Beat The Clock!</span>';
           document.querySelector('.enjoy-sub').textContent = "You've outlived the average life expectancy. Incredible!";
           ['valYears','valMonths','valDays','valHours','valMinutes','valSeconds'].forEach(function(id) {
@@ -2645,45 +2721,41 @@ function calculate() {
     }
 
     setTimeout(function() {
-      // Phase 1: Years  (0-40%,  3.5s)
-      animateDown(totalYears, 3500, 0, 40,
-        function(val) { cdEl.textContent = val; labelEl.textContent = 'YEARS'; },
-        function() {
-          // Phase 2: Months (40-58%, 2s)
-          animateDown(totalMonths, 2000, 40, 58,
-            function(val) { cdEl.textContent = val; labelEl.textContent = 'MONTHS'; },
-            function() {
-              // Phase 3: Days (58-74%, 1.5s)
-              var daysShow = Math.min(totalDays, 500);
-              animateDown(daysShow, 1500, 58, 74,
-                function(val) { cdEl.textContent = val + (totalDays > 500 ? '+' : ''); labelEl.textContent = 'DAYS'; },
-                function() {
-                  // Phase 4: Hours (74-86%, 1s)
-                  var hoursShow = Math.min(totalHoursRaw % 8760, 200);
-                  animateDown(hoursShow, 1000, 74, 86,
-                    function(val) { cdEl.textContent = val; labelEl.textContent = 'HOURS'; },
-                    function() {
-                      // Phase 5: HH:MM:SS sweep (86-100%, 1s)
-                      labelEl.textContent = 'HH : MM : SS';
-                      var t5start = Date.now();
-                      var t5dur = 1000;
-                      function tick5() {
-                        var f = Math.min((Date.now() - t5start) / t5dur, 1);
-                        var pad2 = function(n) { return String(Math.floor(n)).padStart(2, '0'); };
-                        cdEl.textContent = pad2(24*(1-f)) + ':' + pad2(60*(1-f)) + ':' + pad2(60*(1-f));
-                        progBar.style.width = (86 + 14 * f) + '%';
-                        if (f < 1) { setTimeout(tick5, 28); }
-                        else { cdEl.textContent = '00:00:00'; finish(); }
-                      }
-                      tick5();
-                    }
-                  );
-                }
-              );
-            }
-          );
+      function frame(ts) {
+        if (!startTime) startTime = ts;
+        var elapsed = ts - startTime;
+        var t = Math.min(elapsed / DURATION, 1);
+        // Ease: fast start, crawls to zero — t^0.35 maps 0→1 with heavy front-loading
+        var eased = Math.pow(t, 0.35);
+        var inv = 1 - eased; // goes from 1→0, fast then slow
+
+        var y   = Math.floor(startYears  * inv);
+        var mo  = Math.floor(startMonths * inv);
+        var d   = Math.floor(startDays   * inv);
+        var h   = Math.floor(startHours  * inv);
+        var m   = Math.floor(startMins   * inv);
+        var s   = Math.floor(startSecs   * inv);
+
+        document.getElementById('cinY').textContent   = pad(y);
+        document.getElementById('cinMo').textContent  = pad(mo);
+        document.getElementById('cinD').textContent   = pad(d);
+        document.getElementById('cinH').textContent   = pad(h);
+        document.getElementById('cinMin').textContent = pad(m);
+        document.getElementById('cinS').textContent   = pad(s);
+
+        progBar.style.width = (eased * 100) + '%';
+
+        if (t < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          ['cinY','cinMo','cinD','cinH','cinMin','cinS'].forEach(function(id) {
+            document.getElementById(id).textContent = '00';
+          });
+          progBar.style.width = '100%';
+          finish();
         }
-      );
+      }
+      requestAnimationFrame(frame);
     }, 1400);
   }
 
@@ -2891,38 +2963,51 @@ function setAppMode(mode) {
   if (lifeBtn) lifeBtn.classList.toggle('active', mode === 'life');
   if (yearBtn) yearBtn.classList.toggle('active', mode === 'year');
 
+  const modeSwitch = document.querySelector('.mode-switch');
   const setupPanel = document.getElementById('setupPanel');
-  const lifePanel = document.getElementById('countdownPanel');
-  const yearPanel = document.getElementById('yearEndPanel');
+  const lifePanel  = document.getElementById('countdownPanel');
+  const yearPanel  = document.getElementById('yearEndPanel');
 
   if (mode === 'year') {
-    // Always hide both setup and life panels when switching to year
-    if (setupPanel) { setupPanel.style.display = 'none'; setupPanel.classList.add('hidden'); }
-    if (lifePanel) { lifePanel.classList.remove('visible'); lifePanel.style.display = 'none'; }
-    // Stop life countdown and tick sound while in year mode
+    // Show year panel, hide everything else
+    if (modeSwitch) modeSwitch.classList.remove('hidden');
+    showPanel(null); // hide both setup + countdown
     if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
     stopTickSound();
     if (yearPanel) { yearPanel.classList.add('visible'); yearPanel.style.display = 'block'; }
     startYearEndCountdown();
   } else {
+    // Hide year panel
     if (yearPanel) { yearPanel.classList.remove('visible'); yearPanel.style.display = 'none'; }
     stopYearEndCountdown();
 
-    const hasCountdown = lifePanel && lifePanel.classList.contains('visible');
-    if (hasCountdown) {
-      if (setupPanel) { setupPanel.style.display = 'none'; setupPanel.classList.add('hidden'); }
-      if (lifePanel) { lifePanel.style.display = 'block'; }
-      // Resume countdown if we have an endDate
-      if (endDate && endDate > new Date()) {
-        startCountdown();
-      }
+    const counting = lifePanel && lifePanel.classList.contains('visible');
+    if (counting) {
+      // Countdown is active — hide setup, show modeswitch hidden, show countdown
+      if (modeSwitch) modeSwitch.classList.add('hidden');
+      showPanel('countdown');
+      if (endDate && endDate > new Date()) startCountdown();
     } else {
-      if (setupPanel) {
-        setupPanel.style.display = 'block';
-        setupPanel.classList.remove('hidden');
-      }
-      if (lifePanel) { lifePanel.style.display = 'block'; }
+      // No countdown yet — show setup form
+      if (modeSwitch) modeSwitch.classList.remove('hidden');
+      showPanel('setup');
     }
+  }
+}
+
+// showPanel: 'setup' | 'countdown' | null
+function showPanel(which) {
+  const setup     = document.getElementById('setupPanel');
+  const countdown = document.getElementById('countdownPanel');
+  if (which === 'setup') {
+    if (setup)     { setup.classList.remove('hidden'); }
+    if (countdown) { countdown.classList.remove('visible'); }
+  } else if (which === 'countdown') {
+    if (setup)     { setup.classList.add('hidden'); }
+    if (countdown) { countdown.classList.add('visible'); }
+  } else {
+    if (setup)     { setup.classList.add('hidden'); }
+    if (countdown) { countdown.classList.remove('visible'); }
   }
 }
 
@@ -3149,9 +3234,9 @@ function startYearEndCountdown() {
     birthDate = null;
     totalLifeMs = null;
 
-    document.getElementById('countdownPanel').classList.remove('visible');
-    const setup = document.getElementById('setupPanel');
-    setup.classList.remove('hidden');
+    const modeSwitch = document.querySelector('.mode-switch');
+    if (modeSwitch) modeSwitch.classList.remove('hidden');
+    showPanel('setup');
     document.getElementById('lifeBar').style.width = '0%';
     document.querySelector('.enjoy-msg').innerHTML = '✨ Enjoy Every Second ✨';
     document.querySelector('.enjoy-sub').textContent = 'Make each one count — this is your time.';
