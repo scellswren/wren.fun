@@ -569,6 +569,34 @@
   const savedMode = localStorage.getItem(MODE_KEY) || 'light';
   document.body.className = 'mode-' + savedMode;
 
+  const TOTAL_ARTWORKS = 36;
+  const VIEWED_KEY = 'wren_cheeseArt_viewed';
+  const BLUECHEESE_KEY = 'wren_theme_bluecheese_unlocked';
+
+  // Load already-viewed set
+  let viewedSet = new Set();
+  try {
+    const stored = localStorage.getItem(VIEWED_KEY);
+    if (stored) viewedSet = new Set(JSON.parse(stored));
+  } catch(e) {}
+
+  function markArtViewed(index) {
+    viewedSet.add(index);
+    try { localStorage.setItem(VIEWED_KEY, JSON.stringify([...viewedSet])); } catch(e) {}
+    if (viewedSet.size >= TOTAL_ARTWORKS && localStorage.getItem(BLUECHEESE_KEY) !== '1') {
+      try { localStorage.setItem(BLUECHEESE_KEY, '1'); } catch(e) {}
+      // Show a brief unlock toast
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#3a1878,#6d28d9);color:#f0eaff;font-family:Rubik,sans-serif;font-weight:800;font-size:1em;padding:14px 24px;border-radius:999px;z-index:9999;box-shadow:0 8px 32px rgba(100,40,220,0.5);border:1px solid rgba(180,140,255,0.4);white-space:nowrap;animation:toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;';
+      toast.textContent = '🫐 Blue Cheese theme unlocked!';
+      const style = document.createElement('style');
+      style.textContent = '@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(20px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}';
+      document.head.appendChild(style);
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.transition = 'opacity 0.5s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3500);
+    }
+  }
+
   function goHome() {
     window.location.href = "../index.html";
   }
@@ -653,6 +681,7 @@
 
     wrap.addEventListener('click', () => {
       openPreview(img.currentSrc || img.src, img.alt, wrap);
+      markArtViewed(i);
     });
 
     wrap.appendChild(img);
