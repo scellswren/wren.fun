@@ -1127,12 +1127,29 @@ kbd{
       <button type="button" class="guide-close" id="guide-close-btn" onclick="closeCardGuide()">✕</button>
     </div>
 
+    <!-- SEARCH BAR -->
+    <div style="padding:0 4px 18px;">
+      <div style="position:relative;">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1em;opacity:0.5;pointer-events:none;">🔍</span>
+        <input id="guide-search" type="text" placeholder="Search cards…" autocomplete="off"
+          style="width:100%;padding:11px 14px 11px 40px;border-radius:14px;border:1px solid rgba(255,255,255,0.12);
+          background:rgba(255,255,255,0.07);color:var(--text);font-family:'Nunito',sans-serif;font-weight:700;
+          font-size:0.95em;outline:none;transition:border-color 0.2s,background 0.2s;backdrop-filter:blur(8px);"
+          oninput="filterGuideCards(this.value)"
+          onfocus="this.style.borderColor='rgba(168,85,247,0.6)';this.style.background='rgba(255,255,255,0.1)'"
+          onblur="this.style.borderColor='rgba(255,255,255,0.12)';this.style.background='rgba(255,255,255,0.07)'">
+      </div>
+      <div id="guide-search-empty" style="display:none;padding:18px;text-align:center;color:var(--muted);font-weight:700;font-size:0.9em;">No cards match your search.</div>
+    </div>
+
+    <div id="guide-all-content">
+
     <!-- ══ NON-WILD SECTION ══ -->
     <div class="guide-big-section" style="margin-bottom:20px;">
       <div class="guide-big-section-icon">🎨</div>
       <div>
-        <div class="guide-big-section-title">Non-Wild Cards</div>
-        <div class="guide-big-section-sub">Colour-matched • Common to Legendary</div>
+        <div class="guide-big-section-title">Coloured Cards</div>
+        <div class="guide-big-section-sub">Match by colour or type • Common to Rare</div>
       </div>
     </div>
 
@@ -1199,6 +1216,36 @@ kbd{
           </div>
           <div class="price-tag"><div class="rarity-label rarity-common">● COMMON</div></div>
         </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲+2</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Coin Flip +2</div>
+              <div class="guide-card-desc">50% chance the next player draws 2. 50% chance nothing happens.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-common">● COMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲⊘</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Coin Flip Skip</div>
+              <div class="guide-card-desc">50% chance the next player is skipped. 50% chance nothing happens.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-common">● COMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲↩</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Coin Flip Reverse</div>
+              <div class="guide-card-desc">50% chance the direction reverses. 50% chance nothing happens.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-common">● COMMON</div></div>
+        </div>
       </div>
     </div>
 
@@ -1227,6 +1274,16 @@ kbd{
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.85em;">+6</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Draw +6</div>
+              <div class="guide-card-desc">Next player draws 6. Stackable with other +6s.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
             <div class="guide-card-mini gcm-purple" style="font-size:0.72em;">🎨</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Colour Shift</div>
@@ -1240,7 +1297,7 @@ kbd{
             <div class="guide-card-mini gcm-purple" style="font-size:0.72em;">🪞</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Mirror</div>
-              <div class="guide-card-desc">Reflects a draw penalty back OR acts as a Skip. Once a Mirror reflects a stack, only another Mirror can nullify it. Can be played when targeted by a Skip or + card even if colour doesn't match!</div>
+              <div class="guide-card-desc">Reflects a draw penalty back, or acts as a Skip. Can stack on other Mirrors. Playable against any Skip or + card regardless of colour!</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1287,6 +1344,26 @@ kbd{
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">↩️+6</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Combo Reverse +6</div>
+              <div class="guide-card-desc">Reverses direction AND stacks +6 onto the next player.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">↩️+8</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Combo Reverse +8</div>
+              <div class="guide-card-desc">Reverses direction AND stacks +8 onto the next player.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
             <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">↩️⊘</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Skip Reverse</div>
@@ -1310,7 +1387,7 @@ kbd{
             <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">+2 (1s)</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Light Draw +2</div>
-              <div class="guide-card-desc">Next player draws 2 cards, but they are guaranteed to be '1's.</div>
+              <div class="guide-card-desc">Next player draws 2 cards, but they are guaranteed to be 1s.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1330,37 +1407,87 @@ kbd{
             <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🎯⊘</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Target Skip</div>
-              <div class="guide-card-desc">Pick any player to skip their next turn. Precision tactical strike.</div>
+              <div class="guide-card-desc">Pick any player to skip their next turn.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲+2</div>
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🌀</div>
             <div class="guide-card-info">
-              <div class="guide-card-name">Coin Flip +2</div>
-              <div class="guide-card-desc">50% chance the next player draws 2. 50% chance nothing happens.</div>
+              <div class="guide-card-name">Teleport</div>
+              <div class="guide-card-desc">Pick exactly who gets the very next turn. Warp the flow of play.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲⊘</div>
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🌫️</div>
             <div class="guide-card-info">
-              <div class="guide-card-name">Coin Flip Skip</div>
-              <div class="guide-card-desc">50% chance the next player is skipped. 50% chance nothing happens.</div>
+              <div class="guide-card-name">Blur</div>
+              <div class="guide-card-desc">Blurs the targeted player's screen for 1 minute. Bots struggle to read the board.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲↩</div>
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">✊📄✂️</div>
             <div class="guide-card-info">
-              <div class="guide-card-name">Coin Flip Reverse</div>
-              <div class="guide-card-desc">50% chance the direction reverses. 50% chance nothing happens.</div>
+              <div class="guide-card-name">Rock Paper Scissors</div>
+              <div class="guide-card-desc">Force a duel with the next player. Loser draws 4 cards.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🚫🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Suppress Wild</div>
+              <div class="guide-card-desc">For one full round, any colour can be played — colour matching is disabled for everyone.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲+4</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Coin Flip +4</div>
+              <div class="guide-card-desc">50% chance the next player draws 4. 50% chance nothing happens.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲+6</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Coin Flip +6</div>
+              <div class="guide-card-desc">50% chance the next player draws 6. 50% chance nothing happens.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲+8</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Coin Flip +8</div>
+              <div class="guide-card-desc">50% chance the next player draws 8. 50% chance nothing happens.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲+10</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Coin Flip +10</div>
+              <div class="guide-card-desc">50% chance the next player draws 10. 50% chance nothing happens.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1406,7 +1533,7 @@ kbd{
             <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">+4 (1s)</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Light Draw +4</div>
-              <div class="guide-card-desc">Next player draws 4 cards, but they are guaranteed to be '1's.</div>
+              <div class="guide-card-desc">Next player draws 4 cards, but they are guaranteed to be 1s.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -1416,27 +1543,7 @@ kbd{
             <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">-2</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Helper -2</div>
-              <div class="guide-card-desc">Removes 2 cards from the next player's hand. A massive boost!</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.7em;">🎯+4</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Heavy Strike</div>
-              <div class="guide-card-desc">Pick a specific player to draw +4. No escape.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🎯⊘</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Target Skip</div>
-              <div class="guide-card-desc">Pick a player to skip their next turn. Total control.</div>
+              <div class="guide-card-desc">Removes 2 cards from the next player's hand. A big boost for them!</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -1457,126 +1564,6 @@ kbd{
             <div class="guide-card-info">
               <div class="guide-card-name">Target +4 Skip</div>
               <div class="guide-card-desc">Pick a player to draw 4 cards and skip their next turn.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">🌀</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Teleport</div>
-              <div class="guide-card-desc">Pick exactly who gets the very next turn. Warp the flow of time.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.7em;">🌟</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Miracle</div>
-              <div class="guide-card-desc">Wild card — play anytime and choose a colour. Only useful when you have 11+ cards. Instantly trims your hand down to exactly 10 cards. Excess cards vanish!</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.72em;">🌫️</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Blur</div>
-              <div class="guide-card-desc">Blurs the targeted player's screen for 1 minute. The blur is severe, bots struggle to read the board, and the affected player can view the effect but no countdown is shown.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">✊📄✂️</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Rock Paper Scissors</div>
-              <div class="guide-card-desc">Force a rock-paper-scissors duel with the next player. Whoever loses picks up 4 cards.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.85em;">+6</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Draw +6</div>
-              <div class="guide-card-desc">Next player draws 6. Stackable with other +6s. Rare.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲+6</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Coin Flip +6</div>
-              <div class="guide-card-desc">50% chance the next player draws 6. 50% chance nothing happens.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.85em;">+8</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Draw +8</div>
-              <div class="guide-card-desc">Next player draws 8. Stackable with other +8s. Rare but powerful.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲+8</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Coin Flip +8</div>
-              <div class="guide-card-desc">50% chance the next player draws 8. 50% chance nothing happens.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">↩️+6</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Combo Reverse +6</div>
-              <div class="guide-card-desc">Reverses direction AND stacks +6 onto the next player.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.65em;">↩️+8</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Combo Reverse +8</div>
-              <div class="guide-card-desc">Reverses direction AND stacks +8 onto the next player.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲+4</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Coin Flip +4</div>
-              <div class="guide-card-desc">50% chance the next player draws 4. 50% chance nothing happens.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-purple" style="font-size:0.82em;">🎲+10</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Coin Flip +10</div>
-              <div class="guide-card-desc">50% chance the next player draws 10. 50% chance nothing happens.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -1631,7 +1618,47 @@ kbd{
             <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲+1🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Coin Flip +1</div>
-              <div class="guide-card-desc">Play anytime. 50% chance the next player draws 1. 50% chance nothing happens.</div>
+              <div class="guide-card-desc">Play anytime. 50% chance the next player draws 1.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-common">● COMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲+2🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Wild Coin Flip +2</div>
+              <div class="guide-card-desc">Play anytime. 50% chance the next player draws 2.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-common">● COMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲⊘🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Wild Coin Flip Skip</div>
+              <div class="guide-card-desc">Play anytime. 50% chance the next player is skipped.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-common">● COMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲↩🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Wild Coin Flip Reverse</div>
+              <div class="guide-card-desc">Play anytime. 50% chance the direction reverses.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-common">● COMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.7em;">🌟</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Miracle</div>
+              <div class="guide-card-desc">Wild card — play anytime, choose a colour. If you have 11+ cards, instantly trims your hand to exactly 10. Excess cards vanish!</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-common">● COMMON</div></div>
@@ -1697,7 +1724,7 @@ kbd{
             <div class="guide-card-mini gcm-wild" style="font-size:0.65em;">🪞🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Mirror</div>
-              <div class="guide-card-desc">Wild version of Mirror. Once a Wild Mirror reflects a stack, only another Mirror can nullify it. Can be played when targeted by Skip or + cards of any colour!</div>
+              <div class="guide-card-desc">Wild Mirror. Reflects a draw stack or acts as a Skip. Can stack on other Mirrors of any colour!</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1717,7 +1744,7 @@ kbd{
             <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">+2 (1s)🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Light Draw +2 (Wild)</div>
-              <div class="guide-card-desc">Next player draws 2 cards, but they are guaranteed to be '1's.</div>
+              <div class="guide-card-desc">Next player draws 2 cards guaranteed to be 1s.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1727,7 +1754,7 @@ kbd{
             <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">-1🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Helper -1 (Wild)</div>
-              <div class="guide-card-desc">Removes 1 card from the next player's hand. Helps them win!</div>
+              <div class="guide-card-desc">Removes 1 card from the next player's hand.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1744,30 +1771,70 @@ kbd{
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲+2🌈</div>
+            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲+4🌈</div>
             <div class="guide-card-info">
-              <div class="guide-card-name">Wild Coin Flip +2</div>
-              <div class="guide-card-desc">Play anytime. 50% chance the next player draws 2. 50% chance nothing happens.</div>
+              <div class="guide-card-name">Wild Coin Flip +4</div>
+              <div class="guide-card-desc">Play anytime. 50% chance the next player draws 4.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲⊘🌈</div>
+            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲+6🌈</div>
             <div class="guide-card-info">
-              <div class="guide-card-name">Wild Coin Flip Skip</div>
-              <div class="guide-card-desc">Play anytime. 50% chance the next player is skipped. 50% chance nothing happens.</div>
+              <div class="guide-card-name">Wild Coin Flip +6</div>
+              <div class="guide-card-desc">Play anytime. 50% chance next player draws 6.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲↩🌈</div>
+            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲+8🌈</div>
             <div class="guide-card-info">
-              <div class="guide-card-name">Wild Coin Flip Reverse</div>
-              <div class="guide-card-desc">Play anytime. 50% chance the direction reverses. 50% chance nothing happens.</div>
+              <div class="guide-card-name">Wild Coin Flip +8</div>
+              <div class="guide-card-desc">Play anytime. 50% chance next player draws 8.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲+10🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Wild Coin Flip +10</div>
+              <div class="guide-card-desc">Play anytime. 50% chance the next player draws 10.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.65em;">🚫🌈🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Wild Suppress Wild</div>
+              <div class="guide-card-desc">Play anytime. For one full round, colour matching is disabled — anyone can play anything.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">✊📄✂️🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Wild Rock Paper Scissors</div>
+              <div class="guide-card-desc">Play anytime. Force a duel with any player you choose. Loser draws 4 cards.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.65em;">🗑️🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Purge</div>
+              <div class="guide-card-desc">You discard ALL cards of your chosen colour from your own hand.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-uncommon">◆ UNCOMMON</div></div>
@@ -1780,10 +1847,30 @@ kbd{
       <div class="guide-cards">
         <div class="guide-card-item">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.65em;">🗑️🌈</div>
+            <div class="guide-card-mini gcm-wild" style="font-size:0.75em;">+6🌈</div>
             <div class="guide-card-info">
-              <div class="guide-card-name">Purge</div>
-              <div class="guide-card-desc">You discard ALL cards of your chosen colour from your own hand.</div>
+              <div class="guide-card-name">Wild Draw +6</div>
+              <div class="guide-card-desc">Play anytime. Next player draws 6. Stackable.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.75em;">+8🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Wild Draw +8</div>
+              <div class="guide-card-desc">Play anytime. Next player draws 8. Stackable.</div>
+            </div>
+          </div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
+        </div>
+        <div class="guide-card-item">
+          <div class="guide-card-top">
+            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">+10🌈</div>
+            <div class="guide-card-info">
+              <div class="guide-card-name">Wild Draw +10</div>
+              <div class="guide-card-desc">Play anytime. Forces the next player to draw 10 cards.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -1833,7 +1920,7 @@ kbd{
             <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">↩️+6🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Reverse +6</div>
-              <div class="guide-card-desc">Wild + Reverse + Draw 6 stack. Chaos engine.</div>
+              <div class="guide-card-desc">Wild + Reverse + Draw 6 stack.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -1844,46 +1931,6 @@ kbd{
             <div class="guide-card-info">
               <div class="guide-card-name">Wild Reverse +8</div>
               <div class="guide-card-desc">Wild + Reverse + Draw 8 stack. The game-ender.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.75em;">+6🌈</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Wild Draw +6</div>
-              <div class="guide-card-desc">Play anytime. Next player draws 6. Stackable.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.75em;">+8🌈</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Wild Draw +8</div>
-              <div class="guide-card-desc">Play anytime. Next player draws 8. Stackable.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲+6🌈</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Wild Coin Flip +6</div>
-              <div class="guide-card-desc">Play anytime. 50% chance next player draws 6.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲+8🌈</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Wild Coin Flip +8</div>
-              <div class="guide-card-desc">Play anytime. 50% chance next player draws 8.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -1903,7 +1950,7 @@ kbd{
             <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">+4 (1s)🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Light Draw +4 (Wild)</div>
-              <div class="guide-card-desc">Next player draws 4 cards, but they are guaranteed to be '1's.</div>
+              <div class="guide-card-desc">Next player draws 4 cards guaranteed to be 1s.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -1913,17 +1960,7 @@ kbd{
             <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">-2🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Helper -2 (Wild)</div>
-              <div class="guide-card-desc">Removes 2 cards from the next player's hand. Helping them win!</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">🎯⊘🌈</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Target Skip (Wild)</div>
-              <div class="guide-card-desc">Pick a player to skip their next turn. Playable anytime.</div>
+              <div class="guide-card-desc">Removes 2 cards from the next player's hand.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -1933,7 +1970,7 @@ kbd{
             <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">🎯⊘+2🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Target +2 Skip (Wild)</div>
-              <div class="guide-card-desc">Pick a player to draw 2 and skip their turn. Chaos pick.</div>
+              <div class="guide-card-desc">Pick a player to draw 2 and skip their turn.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -1943,7 +1980,7 @@ kbd{
             <div class="guide-card-mini gcm-wild" style="font-size:0.55em;">🎯⊘+4🌈</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Target +4 Skip (Wild)</div>
-              <div class="guide-card-desc">Pick a player to draw 4 and skip their turn. The ultimate pick.</div>
+              <div class="guide-card-desc">Pick a player to draw 4 and skip their turn.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -1960,55 +1997,14 @@ kbd{
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲+4🌈</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Wild Coin Flip +4</div>
-              <div class="guide-card-desc">Play anytime. 50% chance the next player draws 4. 50% chance nothing happens.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">+10🌈</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Wild +10</div>
-              <div class="guide-card-desc">Play anytime. Forces the next player to draw 10 cards.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.82em;">🎲+10🌈</div>
-            <div class="guide-card-info">
-              <div class="guide-card-name">Wild Coin Flip +10</div>
-              <div class="guide-card-desc">Play anytime. 50% chance the next player draws 10. 50% chance nothing happens.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
-            <div class="guide-card-mini gcm-wild" style="font-size:0.72em;">✊📄✂️🌈</div>
-            <div class="guide-card-info">
-              <div class="rare-badge">★ RARE · WILD</div>
-              <div class="guide-card-name">Wild Rock Paper Scissors</div>
-              <div class="guide-card-desc">Play anytime. Force a rock-paper-scissors duel with any player. Whoever loses picks up 4 cards.</div>
-            </div>
-          </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
-        </div>
-        <div class="guide-card-item">
-          <div class="guide-card-top">
             <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🔀</div>
             <div class="guide-card-info">
               <div class="rare-badge">RARE · WILD</div>
               <div class="guide-card-name">Swap Decks</div>
-              <div class="guide-card-desc">Full hand exchange with any player you choose.</div>
+              <div class="guide-card-desc">Full hand exchange with the player who has the fewest cards.</div>
             </div>
           </div>
-          <div class="price-tag"><div class="rarity-label rarity-rare">◆ RARE</div></div>
+          <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
         </div>
       </div>
     </div>
@@ -2049,14 +2045,23 @@ kbd{
       </div>
     </div>
 
+    <!-- ══ LEGENDARY (RARE-CLASS) SECTION ══ -->
+    <div class="guide-big-section" style="margin-top:24px;margin-bottom:20px;background:linear-gradient(90deg,rgba(168,85,247,0.22),rgba(255,214,0,0.08));">
+      <div class="guide-big-section-icon">✦</div>
+      <div>
+        <div class="guide-big-section-title">Legendary Cards</div>
+        <div class="guide-big-section-sub">Rare-class • Glowing purple border • Play anytime</div>
+      </div>
+    </div>
+
     <div class="guide-section">
-      <div class="guide-section-title">Legendary Wild <span>Hard to get</span></div>
+      <div class="guide-section-title">Legendary <span>Hard to get</span></div>
       <div class="guide-cards">
         <div class="guide-card-item">
           <div class="guide-card-top">
             <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">❄️</div>
             <div class="guide-card-info">
-              <div class="rare-badge">LEGENDARY · WILD</div>
+              <div class="rare-badge">LEGENDARY · RARE</div>
               <div class="guide-card-name">Hand Freeze</div>
               <div class="guide-card-desc">Locks a player out of the game until someone draws a card.</div>
             </div>
@@ -2067,7 +2072,7 @@ kbd{
           <div class="guide-card-top">
             <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🎭</div>
             <div class="guide-card-info">
-              <div class="rare-badge">LEGENDARY · WILD</div>
+              <div class="rare-badge">LEGENDARY · RARE</div>
               <div class="guide-card-name">Steal Wild</div>
               <div class="guide-card-desc">The next wild card played is stolen by you instead.</div>
             </div>
@@ -2078,7 +2083,7 @@ kbd{
           <div class="guide-card-top">
             <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🌪️</div>
             <div class="guide-card-info">
-              <div class="rare-badge">LEGENDARY · WILD</div>
+              <div class="rare-badge">LEGENDARY · RARE</div>
               <div class="guide-card-name">Shuffle Storm</div>
               <div class="guide-card-desc">All players' hands are collected and randomly redistributed.</div>
             </div>
@@ -2089,7 +2094,7 @@ kbd{
           <div class="guide-card-top">
             <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">⚔️</div>
             <div class="guide-card-info">
-              <div class="rare-badge">LEGENDARY · WILD</div>
+              <div class="rare-badge">LEGENDARY · RARE</div>
               <div class="guide-card-name">Double Edge</div>
               <div class="guide-card-desc">You draw 2, but the next player draws 5. Painful sacrifice.</div>
             </div>
@@ -2100,7 +2105,7 @@ kbd{
           <div class="guide-card-top">
             <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🥔</div>
             <div class="guide-card-info">
-              <div class="rare-badge">LEGENDARY · WILD</div>
+              <div class="rare-badge">LEGENDARY · RARE</div>
               <div class="guide-card-name">Hot Potato</div>
               <div class="guide-card-desc">Next player has 2 seconds to play a card or take +4!</div>
             </div>
@@ -2111,7 +2116,7 @@ kbd{
           <div class="guide-card-top">
             <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">☭</div>
             <div class="guide-card-info">
-              <div class="rare-badge">LEGENDARY · WILD</div>
+              <div class="rare-badge">LEGENDARY · RARE</div>
               <div class="guide-card-name">Communism</div>
               <div class="guide-card-desc">Equalises card counts. Everyone ends up with the average number of cards.</div>
             </div>
@@ -2122,7 +2127,7 @@ kbd{
           <div class="guide-card-top">
             <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🍌✨</div>
             <div class="guide-card-info">
-              <div class="rare-badge">LEGENDARY · WILD</div>
+              <div class="rare-badge">LEGENDARY · RARE</div>
               <div class="guide-card-name">Super Banana</div>
               <div class="guide-card-desc">Replaces a target's entire hand with coloured Banana cards.</div>
             </div>
@@ -2133,7 +2138,7 @@ kbd{
           <div class="guide-card-top">
             <div class="guide-card-mini gcm-rare" style="font-size:0.7em;">🚫🌈</div>
             <div class="guide-card-info">
-              <div class="rare-badge">LEGENDARY · WILD</div>
+              <div class="rare-badge">LEGENDARY · RARE</div>
               <div class="guide-card-name">Disarm Wilds</div>
               <div class="guide-card-desc">Forces all players to discard every wild card in their hand instantly.</div>
             </div>
@@ -2144,7 +2149,7 @@ kbd{
           <div class="guide-card-top">
             <div class="guide-card-mini gcm-rare" style="font-size:0.65em;">🎯+4</div>
             <div class="guide-card-info">
-              <div class="rare-badge">LEGENDARY · WILD</div>
+              <div class="rare-badge">LEGENDARY · RARE</div>
               <div class="guide-card-name">Heavy Strike</div>
               <div class="guide-card-desc">Choose a specific player to take +4 cards. No escape.</div>
             </div>
@@ -2202,7 +2207,7 @@ kbd{
             <div class="guide-card-info">
               <div class="rare-badge" style="color:#FFD600;">BEYOND MYTHIC</div>
               <div class="guide-card-name">The Obliterator</div>
-              <div class="guide-card-desc">0.1% drop chance. Forces the next player to draw a catastrophic +99 cards.</div>
+              <div class="guide-card-desc">0.1% drop chance. Wild card. Forces the next player to draw a catastrophic +99 cards.</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-beyond">💀 BEYOND</div></div>
@@ -2220,8 +2225,11 @@ kbd{
         </div>
       </div>
     </div>
+
+    </div><!-- end #guide-all-content -->
   </div>
 </div>
+
 
 <!-- ═══ GAME ═══ -->
 <div class="screen hidden" id="game-screen">
@@ -2473,7 +2481,41 @@ setInterval(spawnDecoCard,2000);for(let i=0;i<6;i++) setTimeout(()=>spawnDecoCar
 
 /* ═══ CARD GUIDE ═══ */
 function openCardGuide(){ const el=document.getElementById('card-guide'); if(el) el.classList.remove('hidden'); refreshSecretUnlocks(); }
-function closeCardGuide(){ const el=document.getElementById('card-guide'); if(el) el.classList.add('hidden'); }
+function closeCardGuide(){ const el=document.getElementById('card-guide'); if(el){ el.classList.add('hidden'); const s=document.getElementById('guide-search'); if(s) s.value=''; filterGuideCards(''); } }
+
+function filterGuideCards(query){
+  const q = query.trim().toLowerCase();
+  const allContent = document.getElementById('guide-all-content');
+  const emptyMsg = document.getElementById('guide-search-empty');
+  if(!allContent) return;
+
+  // Show all when query is empty
+  if(!q){
+    allContent.style.display = '';
+    if(emptyMsg) emptyMsg.style.display = 'none';
+    allContent.querySelectorAll('.guide-card-item,.guide-section,.guide-big-section').forEach(el => el.style.display = '');
+    return;
+  }
+
+  // Hide big section headers when searching
+  allContent.querySelectorAll('.guide-big-section').forEach(el => el.style.display = 'none');
+
+  let anyVisible = false;
+  // Check each section
+  allContent.querySelectorAll('.guide-section').forEach(section => {
+    let sectionHasMatch = false;
+    section.querySelectorAll('.guide-card-item').forEach(item => {
+      const text = item.textContent.toLowerCase();
+      const match = text.includes(q);
+      item.style.display = match ? '' : 'none';
+      if(match) sectionHasMatch = true;
+    });
+    section.style.display = sectionHasMatch ? '' : 'none';
+    if(sectionHasMatch) anyVisible = true;
+  });
+
+  if(emptyMsg) emptyMsg.style.display = anyVisible ? 'none' : 'block';
+}
 
 /* ═══ CODES ═══ */
 let orinCheatActive = localStorage.getItem('unoh_orin_cheat') === 'true';
