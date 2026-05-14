@@ -868,6 +868,60 @@ body.blur-active .game-top-actions{filter:none;}
   50% { transform: translateX(-50%) scale(1.1); }
   100% { transform: translateX(-50%) scale(1); }
 }
+/* ── QOL: UNO BADGE ── */
+.uno-badge{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);
+  z-index:500;pointer-events:none;
+  font-family:'Fredoka One',cursive;font-size:clamp(2.5em,8vw,4.5em);
+  color:#FF3B3B;text-shadow:0 0 40px rgba(255,59,59,0.8),0 0 80px rgba(255,59,59,0.4);
+  background:rgba(0,0,0,0.85);padding:16px 36px;border-radius:22px;
+  border:3px solid #FF3B3B;
+  animation:unoPop 2s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes unoPop{
+  0%{transform:translate(-50%,-50%) scale(0);opacity:0}
+  15%{transform:translate(-50%,-50%) scale(1.15);opacity:1}
+  30%{transform:translate(-50%,-50%) scale(1);opacity:1}
+  70%{transform:translate(-50%,-50%) scale(1);opacity:1}
+  100%{transform:translate(-50%,-50%) scale(0.85);opacity:0}
+}
+
+/* ── QOL: CARD COUNT BADGE ── */
+.hand-card-count{
+  position:absolute;top:-52px;left:50%;transform:translateX(-50%);
+  font-size:0.72em;font-weight:900;color:rgba(255,255,255,0.5);
+  letter-spacing:1px;text-transform:uppercase;pointer-events:none;
+  white-space:nowrap;transition:color 0.3s;
+}
+.hand-card-count.uno-warning{color:#FF3B3B;animation:pulse 0.8s ease-in-out infinite;text-shadow:0 0 10px rgba(255,59,59,0.6);}
+
+/* ── QOL: KEYBOARD HINT ── */
+.kbd-hint{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);
+  border-radius:8px;padding:5px 14px;font-size:0.68em;font-weight:700;
+  color:rgba(255,255,255,0.4);pointer-events:none;z-index:10;letter-spacing:0.5px;
+  backdrop-filter:blur(8px);
+}
+kbd{
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);
+  border-radius:4px;padding:1px 6px;font-family:monospace;font-size:0.95em;
+}
+
+/* ── QOL: LAST PLAYED TOOLTIP ── */
+.last-played-hint{
+  position:absolute;top:-30px;right:4px;
+  font-size:0.65em;font-weight:800;color:rgba(255,255,255,0.4);
+  letter-spacing:0.5px;pointer-events:none;white-space:nowrap;
+}
+
+/* ── QOL: PLAYABLE CARD LIFT ── */
+.hand-card.playable .game-card{
+  transform:translateY(-10px);
+}
+.hand-card.playable:hover .game-card{
+  transform:translateY(-38px) scale(1.15) rotate(2deg) !important;
+}
 </style>
 </head>
 <body>
@@ -1419,10 +1473,10 @@ body.blur-active .game-top-actions{filter:none;}
         </div>
         <div class="guide-card-item">
           <div class="guide-card-top">
-            <div class="guide-card-mini gcm-miracle" style="font-size:0.7em;">🌟</div>
+            <div class="guide-card-mini gcm-wild" style="font-size:0.7em;">🌟</div>
             <div class="guide-card-info">
               <div class="guide-card-name">Miracle</div>
-              <div class="guide-card-desc">Only useful when you have 11+ cards. Instantly trims your hand down to exactly 10 cards. Excess cards vanish!</div>
+              <div class="guide-card-desc">Wild card — play anytime and choose a colour. Only useful when you have 11+ cards. Instantly trims your hand down to exactly 10 cards. Excess cards vanish!</div>
             </div>
           </div>
           <div class="price-tag"><div class="rarity-label rarity-rare">★ RARE</div></div>
@@ -2190,12 +2244,15 @@ body.blur-active .game-top-actions{filter:none;}
   <div class="player-area">
     <div class="player-info">
       <div class="player-name-label" id="player-name-label">YOU</div>
+      <div class="last-played-hint" id="last-played-hint"></div>
     </div>
     <div class="hand-scroll-container">
+      <div class="hand-card-count" id="hand-card-count"></div>
       <div class="hand-container" id="player-hand"></div>
     </div>
   </div>
 </div>
+<div class="kbd-hint" id="kbd-hint" style="display:none;"><kbd>D</kbd> draw &nbsp;·&nbsp; <kbd>Space</kbd> draw</div>
 
 <div class="status-bar"><div class="status-msg" id="status-msg"></div></div>
 
@@ -2504,6 +2561,16 @@ document.addEventListener('keydown', (e) => {
       }
     }
   }
+  // D or Space = draw a card during your turn
+  if((e.key === 'd' || e.key === 'D' || e.key === ' ') && gameRunning && !state.gameOver){
+    const anyModalOpen = ['card-selector-modal','sandbox-modal','team-modal','codes-modal','card-guide','color-picker','player-picker','rps-modal']
+      .some(id => { const el=document.getElementById(id); return el && !el.classList.contains('hidden'); });
+    const inputFocused = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
+    if(!anyModalOpen && !inputFocused){
+      e.preventDefault();
+      drawFromDeck();
+    }
+  }
 });
 
 /* ═══ CARD DEFINITIONS ═══ */
@@ -2599,8 +2666,8 @@ function buildDeck(ignoreCustomPool = false, includeAllCards = false, settings =
     // Helper card - Colored version
     deck.push({color,value:'helperCol',type:'helper',num:1,label:'-1'});
     if(p(0.8)) deck.push({color,value:'helper2Col',type:'helper',num:2,label:'-2'});
-    // Miracle card (rare per colour)
-    if(p(0.7)) deck.push({color,value:'miracle',type:'miracle',label:'🌟',isMiracle:true});
+    // Miracle card (wild - play anytime)
+    if(p(0.7)) deck.push({color:'wild',value:'miracle',type:'miracle',label:'🌟',isMiracle:true});
   }
 
   // Wild cards
@@ -3923,6 +3990,8 @@ function renderPlayerHand(){
     label.style.color='';
   }
   updatePendingDrawBadge();
+  updateHandBadge();
+  checkAndShowUno();
 }
 function updatePendingDrawBadge(){
   const badge=document.getElementById('pending-draw-badge');
@@ -3966,6 +4035,8 @@ function isPlayable(card){
   if(card.type==='mirror'||card.type==='wildMirror'){
     if(state.pendingDraw>0) return true; // Being hit by draw stack → can always mirror
     if(top&&(top.type==='skip'||top.type==='skipAll'||top.type==='wildSkip'||top.type==='wildSkipAll')) return true;
+    // Allow stacking mirrors on mirrors regardless of color
+    if(top&&(top.type==='mirror'||top.type==='wildMirror')) return true;
     // Also playable normally by colour match or wild
     if(card.type==='wildMirror') return true;
     if(card.color===cc) return true;
@@ -4144,6 +4215,7 @@ async function executePlayCard(playerIdx,cardIdx){
   }
 
   state.discard.push(card);
+  renderDiscard(); // Always update discard pile immediately so the card shows regardless of what path follows
 
   // Copycat check
   if(card.type==='copycat'&&lastMove){
@@ -4509,7 +4581,6 @@ async function applyCardEffect(card, playerIdx, chosenColor){
       const p=state.players[playerIdx];
       if(p.cards.length<=LIMIT){
         showStatus(`🌟 Miracle: You need more than ${LIMIT} cards to use this!`,2000);
-        // Card was wasted — no effect, turn ends
       } else {
         const removed=p.cards.length-LIMIT;
         p.cards=p.cards.slice(0,LIMIT);
@@ -4517,6 +4588,7 @@ async function applyCardEffect(card, playerIdx, chosenColor){
         spawnFloatMsg(`-${removed}💫`,'#00c8c8',playerIdx);
         if(playerIdx===0) renderPlayerHand(); else updateOpponentZone(playerIdx);
       }
+      // Color was already chosen via the wild color picker flow
       break;
     }
 
@@ -4952,7 +5024,8 @@ async function applyCardEffect(card, playerIdx, chosenColor){
     }
   }
 
-  if(!extraTurn && !skipAdvance && state.pendingDraw===0){
+  const isPlusCard = card.type==='plus' || card.type==='wildPlus';
+  if(!extraTurn && !skipAdvance && (state.pendingDraw===0 || isPlusCard)){
     const justPlayedKey = getChainPlayKey(card);
     if(justPlayedKey){
       const playerAfterPlay = state.players[playerIdx];
@@ -5053,7 +5126,8 @@ function finishTurn(playerIdx){
   else{updateOpponentZone(playerIdx);renderPlayerHand();}
 
   // If there's a pending draw and the current (human-controlled) player can't stack, auto-draw for them
-  if(!state.gameOver && isHumanControlledTurn && state.pendingDraw > 0){
+  // But skip auto-draw if we're in the middle of a + card chain
+  if(!state.gameOver && isHumanControlledTurn && state.pendingDraw > 0 && !state.chainingKey){
     const hasStackable = current.cards.some(c => canStackDraw(c));
     if(!hasStackable){
       if(!autoDrawing){
@@ -5516,6 +5590,69 @@ let statusTimer=null;
 function showStatus(msg,dur=2000){
   const el=document.getElementById('status-msg');el.textContent=msg;el.classList.add('show');
   if(statusTimer) clearTimeout(statusTimer);statusTimer=setTimeout(()=>el.classList.remove('show'),dur);
+}
+
+/* ── QOL: UNO ALERT ── */
+let lastUnoAlertedIdx = -1;
+let lastUnoCardCount = -1;
+function checkAndShowUno(){
+  if(!gameRunning || !state || state.gameOver) return;
+  for(let i=0;i<state.players.length;i++){
+    const p = state.players[i];
+    if(p.cards.length === 1){
+      // Only alert once per "entering 1 card" moment
+      if(lastUnoAlertedIdx !== i || lastUnoCardCount !== 1){
+        lastUnoAlertedIdx = i;
+        lastUnoCardCount = 1;
+        const banner = document.createElement('div');
+        banner.className = 'uno-badge';
+        banner.textContent = i === 0 ? '🃏 UNO!' : `🃏 ${p.name}: UNO!`;
+        document.body.appendChild(banner);
+        setTimeout(()=>banner.remove(), 2100);
+        playSound('skip');
+      }
+      return;
+    }
+  }
+  // Reset tracker if nobody is at 1 card
+  if(!state.players.some(p=>p.cards.length===1)){
+    lastUnoAlertedIdx = -1;
+    lastUnoCardCount = -1;
+  }
+}
+
+/* ── QOL: UPDATE HAND BADGE & HINTS ── */
+function updateHandBadge(){
+  const badge = document.getElementById('hand-card-count');
+  const hint = document.getElementById('last-played-hint');
+  const kbdHint = document.getElementById('kbd-hint');
+  if(!badge || !state || !state.players) return;
+
+  const displayIdx = (state.currentPlayer !== 0 && state.players[state.currentPlayer]?.isControlledBot) ? state.currentPlayer : 0;
+  const count = state.players[displayIdx]?.cards.length ?? 0;
+  const isMyTurn = state.currentPlayer === displayIdx && gameRunning && !state.gameOver;
+
+  if(count === 0){
+    badge.textContent = '';
+  } else if(count === 1){
+    badge.textContent = '⚠️ UNO!';
+    badge.classList.add('uno-warning');
+  } else {
+    badge.textContent = `${count} card${count !== 1 ? 's' : ''}`;
+    badge.classList.remove('uno-warning');
+  }
+
+  // Last played hint
+  if(hint && lastMove && isMyTurn){
+    const top = state.discard[state.discard.length-1];
+    if(top) hint.textContent = `Last played: ${getReadableCardLabel(top)}`;
+    else hint.textContent = '';
+  } else if(hint){
+    hint.textContent = '';
+  }
+
+  // Keyboard draw hint — show only on your turn when not in a modal
+  if(kbdHint) kbdHint.style.display = isMyTurn ? 'block' : 'none';
 }
 function spawnFloatMsg(text,color,playerIdx){
   const el=document.createElement('div');el.className='float-msg';el.textContent=text;el.style.color=color;
