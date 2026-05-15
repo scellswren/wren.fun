@@ -500,7 +500,7 @@
       margin-bottom: 18px;
     }
 
-    #msToggleBtn, #pctToggleBtn {
+    #msToggleBtn, #pctToggleBtn, #mvMsToggleBtn {
       padding: 9px 18px;
       border-radius: 999px;
       border: 1.5px solid rgba(255,255,255,0.1);
@@ -513,13 +513,13 @@
       transition: all 0.18s;
       letter-spacing: 0.3px;
     }
-    #msToggleBtn:hover, #pctToggleBtn:hover {
+    #msToggleBtn:hover, #pctToggleBtn:hover, #mvMsToggleBtn:hover {
       background: rgba(155,109,255,0.12);
       border-color: rgba(155,109,255,0.4);
       color: var(--text);
       transform: translateY(-1px);
     }
-    #msToggleBtn.ms-on, #pctToggleBtn.pct-on {
+    #msToggleBtn.ms-on, #pctToggleBtn.pct-on, #mvMsToggleBtn.active {
       background: rgba(155,109,255,0.2);
       border-color: var(--accent);
       color: #fff;
@@ -2131,7 +2131,6 @@
     </div>
     <button id="resetBtn" onclick="reset()">← Start Over</button>
   </div><!-- end countdownPanel -->
-</div><!-- end panelStage -->
 
   <!-- Year End Panel -->
   <div id="yearEndPanel">
@@ -2153,6 +2152,11 @@
 
     <div class="doom-header">TIME LEFT THIS YEAR</div>
     <div class="doom-display">
+      <div class="doom-seg">
+        <span class="doom-val" id="yearValMonths">0</span>
+        <div class="doom-lbl">Months</div>
+      </div>
+      <div class="doom-colon">:</div>
       <div class="doom-seg">
         <span class="doom-val" id="yearValDays">0</span>
         <div class="doom-lbl">Days</div>
@@ -2195,7 +2199,7 @@
         <span class="mv-date">July 31, 2026</span>
       </button>
       <button class="marvel-movie-btn" id="mvBtn1" onclick="selectMarvelMovie(1)">
-        <span class="mv-icon">🌎</span>
+        <span class="mv-icon">💀</span>
         <span class="mv-name">Avengers: Doomsday</span>
         <span class="mv-date">December 18, 2026</span>
       </button>
@@ -2208,6 +2212,11 @@
 
     <div class="doom-header" id="marvelHeader">UNTIL SPIDER-MAN: BRAND NEW DAY</div>
     <div class="doom-display">
+      <div class="doom-seg">
+        <span class="doom-val" id="mvValMonths">0</span>
+        <div class="doom-lbl">Months</div>
+      </div>
+      <div class="doom-colon">:</div>
       <div class="doom-seg">
         <span class="doom-val" id="mvValDays">0</span>
         <div class="doom-lbl">Days</div>
@@ -2229,16 +2238,20 @@
       </div>
     </div>
 
-    <div class="doom-ms-row" id="mvMsRow">
+    <div class="doom-ms-row ms-hidden" id="mvMsRow">
       <span class="doom-ms-label">Milliseconds</span>
       <span class="doom-ms-val" id="mvValMs">000</span>
+    </div>
+
+    <div class="toggle-btn-row">
+      <button id="mvMsToggleBtn" onclick="toggleMvMs()">⚡ Milliseconds</button>
     </div>
 
     <div class="marvel-released-msg" id="marvelReleasedMsg" style="display:none">
       🎉 This film has already been released! 🎉
     </div>
-  </div>
-</div>
+  </div><!-- end marvelPanel --><!-- end marvelPanel -->
+</div><!-- end panelStage -->
 
 <script>
 
@@ -2947,37 +2960,33 @@ function setAppMode(mode) {
   const yearPanel   = document.getElementById('yearEndPanel');
   const marvelPanel = document.getElementById('marvelPanel');
 
-  // Hide marvel panel unless we're in marvel mode
-  if (marvelPanel) {
-    if (mode === 'marvel') {
-      marvelPanel.classList.add('visible');
-      marvelPanel.style.display = 'block';
-    } else {
-      marvelPanel.classList.remove('visible');
-      marvelPanel.style.display = 'none';
-      stopMarvelCountdown();
-    }
-  }
+  // Always hide year + marvel first, then show correct one
+  if (yearPanel)   { yearPanel.classList.remove('visible');   yearPanel.style.display   = 'none'; }
+  if (marvelPanel) { marvelPanel.classList.remove('visible'); marvelPanel.style.display = 'none'; stopMarvelCountdown(); }
 
   if (mode === 'year') {
-    // Show year panel, hide everything else
     if (modeSwitch) modeSwitch.classList.remove('hidden');
-    showPanel(null); // hide both setup + countdown
+    // Fully hide life panels from flow
+    if (setupPanel)  { setupPanel.classList.add('hidden'); }
+    if (lifePanel)   { lifePanel.classList.remove('visible'); lifePanel.style.display = 'none'; }
     if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
     stopTickSound();
-    if (yearPanel) { yearPanel.classList.add('visible'); yearPanel.style.display = 'block'; }
+    if (yearPanel) { yearPanel.style.display = 'block'; requestAnimationFrame(() => yearPanel.classList.add('visible')); }
     startYearEndCountdown();
+
   } else if (mode === 'marvel') {
     if (modeSwitch) modeSwitch.classList.remove('hidden');
-    showPanel(null);
+    if (setupPanel)  { setupPanel.classList.add('hidden'); }
+    if (lifePanel)   { lifePanel.classList.remove('visible'); lifePanel.style.display = 'none'; }
     if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
     stopTickSound();
-    if (yearPanel) { yearPanel.classList.remove('visible'); yearPanel.style.display = 'none'; }
     stopYearEndCountdown();
+    if (marvelPanel) { marvelPanel.style.display = 'block'; requestAnimationFrame(() => marvelPanel.classList.add('visible')); }
     startMarvelCountdown();
+
   } else {
-    // life mode
-    if (yearPanel) { yearPanel.classList.remove('visible'); yearPanel.style.display = 'none'; }
+    // life mode — restore countdownPanel to flow
+    if (lifePanel) lifePanel.style.display = '';
     stopYearEndCountdown();
 
     const counting = lifePanel && lifePanel.classList.contains('visible');
@@ -3156,12 +3165,10 @@ function updateYearEndCountdown() {
   const total = Math.max(1, end - start);
   const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
 
-  const totalSec = Math.floor(remaining / 1000);
-  const days = Math.floor(totalSec / 86400);
-  const hours = Math.floor((totalSec % 86400) / 3600);
-  const minutes = Math.floor((totalSec % 3600) / 60);
-  const seconds = totalSec % 60;
+  // Calendar-aware months + days remaining
+  const { months, days, hours, minutes, seconds } = calendarRemaining(now, end);
 
+  setVal('yearValMonths',  String(months));
   setVal('yearValDays',    String(days));
   setVal('yearValHours',   String(hours).padStart(2, '0'));
   setVal('yearValMinutes', String(minutes).padStart(2, '0'));
@@ -3188,46 +3195,54 @@ function startYearEndCountdown() {
 }
 
 // ── MARVEL COUNTDOWN ──
+// Marvel's official YouTube countdown targets midnight US Eastern Time
+// Winter ET = UTC-5, so midnight ET = 05:00 UTC
+// Summer Spider-Man: July 31 = EDT (UTC-4), so midnight EDT = 04:00 UTC
 const MARVEL_MOVIES = [
   {
     id: 0,
     name: 'Spider-Man: Brand New Day',
     icon: '🕷️',
     date: 'July 31, 2026',
-    // July 31, 2026 00:00:00 UTC
-    utc: Date.UTC(2026, 6, 31, 0, 0, 0)
+    utc: Date.UTC(2026, 6, 31, 4, 0, 0)
   },
   {
     id: 1,
     name: 'Avengers: Doomsday',
-    icon: '🌎',
+    icon: '💀',
     date: 'December 18, 2026',
-    // December 18, 2026 00:00:00 UTC
-    utc: Date.UTC(2026, 11, 18, 0, 0, 0)
+    utc: Date.UTC(2026, 11, 18, 4, 0, 0)
   },
   {
     id: 2,
     name: 'Avengers: Secret Wars',
     icon: '⚔️',
     date: 'December 17, 2027',
-    // December 17, 2027 00:00:00 UTC
-    utc: Date.UTC(2027, 11, 17, 0, 0, 0)
+    utc: Date.UTC(2027, 11, 17, 4, 0, 0)
   }
 ];
 
 let selectedMarvelMovie = 0;
 let marvelTick = null;
-let marvelPrevSecond = -1;
+let mvMsVisible = false;
+
+function toggleMvMs() {
+  mvMsVisible = !mvMsVisible;
+  const row = document.getElementById('mvMsRow');
+  const btn = document.getElementById('mvMsToggleBtn');
+  if (row) row.classList.toggle('ms-hidden', !mvMsVisible);
+  if (btn) btn.classList.toggle('active', mvMsVisible);
+  // Switch interval speed
+  stopMarvelCountdown();
+  marvelTick = setInterval(updateMarvelCountdown, mvMsVisible ? 13 : 1000);
+}
 
 function selectMarvelMovie(idx) {
   selectedMarvelMovie = idx;
-  marvelPrevSecond = -1;
-  // Update button states
   MARVEL_MOVIES.forEach((_, i) => {
     const btn = document.getElementById('mvBtn' + i);
     if (btn) btn.classList.toggle('active', i === idx);
   });
-  // Update header
   const hdr = document.getElementById('marvelHeader');
   if (hdr) hdr.textContent = 'UNTIL ' + MARVEL_MOVIES[idx].name.toUpperCase();
   updateMarvelCountdown();
@@ -3239,15 +3254,15 @@ function updateMarvelCountdown() {
   const remaining = Math.max(0, movie.utc - now);
   const releasedMsg = document.getElementById('marvelReleasedMsg');
   const display = document.querySelector('#marvelPanel .doom-display');
-  const msRow = document.getElementById('mvMsRow');
 
   if (remaining <= 0) {
-    // Already released
+    setVal('mvValMonths',  '00');
     setVal('mvValDays',    '00');
     setVal('mvValHours',   '00');
     setVal('mvValMinutes', '00');
     setVal('mvValSeconds', '00');
-    document.getElementById('mvValMs').textContent = '000';
+    const msEl = document.getElementById('mvValMs');
+    if (msEl) msEl.textContent = '000';
     if (releasedMsg) releasedMsg.style.display = 'block';
     if (display) display.style.opacity = '0.4';
     return;
@@ -3256,29 +3271,63 @@ function updateMarvelCountdown() {
   if (releasedMsg) releasedMsg.style.display = 'none';
   if (display) display.style.opacity = '1';
 
+  const nowDate = new Date(now);
+  const endDate2 = new Date(movie.utc);
+  const { months, days, hours, minutes, seconds } = calendarRemaining(nowDate, endDate2);
   const ms = remaining % 1000;
-  const totalSec = Math.floor(remaining / 1000);
+
+  setVal('mvValMonths',  String(months));
+  setVal('mvValDays',    String(days));
+  setVal('mvValHours',   String(hours).padStart(2, '0'));
+  setVal('mvValMinutes', String(minutes).padStart(2, '0'));
+  setVal('mvValSeconds', String(seconds).padStart(2, '0'));
+
+  if (mvMsVisible) {
+    const msEl = document.getElementById('mvValMs');
+    if (msEl) msEl.textContent = String(ms).padStart(3, '0');
+  }
+}
+
+function startMarvelCountdown() {
+  stopMarvelCountdown();
+  selectMarvelMovie(selectedMarvelMovie);
+  marvelTick = setInterval(updateMarvelCountdown, mvMsVisible ? 13 : 1000);
+}
+
+function stopMarvelCountdown() {
+  if (marvelTick) { clearInterval(marvelTick); marvelTick = null; }
+}
+
+// ── calendar-aware remaining: months + leftover days/hours/mins/secs ──
+function calendarRemaining(fromDate, toDate) {
+  if (toDate <= fromDate) return { months: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
+
+  let y1 = fromDate.getFullYear(), m1 = fromDate.getMonth(), d1 = fromDate.getDate();
+  let h1 = fromDate.getHours(), min1 = fromDate.getMinutes(), s1 = fromDate.getSeconds();
+  let y2 = toDate.getFullYear(),   m2 = toDate.getMonth(),   d2 = toDate.getDate();
+  let h2 = toDate.getHours(), min2 = toDate.getMinutes(), s2 = toDate.getSeconds();
+
+  let months = (y2 - y1) * 12 + (m2 - m1);
+
+  // Build the date that is exactly `months` months from fromDate
+  let pivot = new Date(fromDate);
+  pivot.setMonth(pivot.getMonth() + months);
+
+  // If pivot is past toDate, back off one month
+  if (pivot > toDate) {
+    months--;
+    pivot = new Date(fromDate);
+    pivot.setMonth(pivot.getMonth() + months);
+  }
+
+  const diffMs = toDate - pivot;
+  const totalSec = Math.floor(diffMs / 1000);
   const days    = Math.floor(totalSec / 86400);
   const hours   = Math.floor((totalSec % 86400) / 3600);
   const minutes = Math.floor((totalSec % 3600) / 60);
   const seconds = totalSec % 60;
 
-  setVal('mvValDays',    String(days));
-  setVal('mvValHours',   String(hours).padStart(2, '0'));
-  setVal('mvValMinutes', String(minutes).padStart(2, '0'));
-  setVal('mvValSeconds', String(seconds).padStart(2, '0'));
-  document.getElementById('mvValMs').textContent = String(ms).padStart(3, '0');
-}
-
-function startMarvelCountdown() {
-  stopMarvelCountdown();
-  // Select first movie and start ticking
-  selectMarvelMovie(selectedMarvelMovie);
-  marvelTick = setInterval(updateMarvelCountdown, 13); // ~75fps for ms
-}
-
-function stopMarvelCountdown() {
-  if (marvelTick) { clearInterval(marvelTick); marvelTick = null; }
+  return { months, days, hours, minutes, seconds };
 }
 
   // Fullscreen (from Cheese Art)
