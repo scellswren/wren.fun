@@ -760,7 +760,13 @@ function renderPractice(){
       item.addEventListener('click',()=>{
         Sound.click();
         // Flag that a practice match has been played — unlocks Watermelon on main menu
-        try{localStorage.setItem('pong_practice_played','1');}catch(e){}
+        try{
+          localStorage.setItem('pong_practice_played','1');
+          // Track total practice matches for Coral theme unlock (10 matches)
+          const pm = parseInt(localStorage.getItem('pong_practice_count')||'0') + 1;
+          localStorage.setItem('pong_practice_count', String(pm));
+          if(pm >= 10) localStorage.setItem('pong_coral_unlocked','1');
+        }catch(e){}
         startPong({
           player:me,
           cpu:c,
@@ -921,7 +927,15 @@ function endTournament(){
   if(isC){
     Sound.champion();flash('gold');setTimeout(()=>{sparks(innerWidth/2,innerHeight/2,'#ffd700',20);sparks(innerWidth/4,innerHeight/3,'#bf00ff',12);},300);
     // Unlock Jedi theme on main menu — flag that a cup has been won
-    try{localStorage.setItem('pong_cup_won','1');}catch(e){}
+    try{
+      localStorage.setItem('pong_cup_won','1');
+      // Midnight theme unlocks on 10th championship
+      if(pwcWins >= 10) localStorage.setItem('pong_midnight_unlocked','1');
+      // Track total championships for Obsidian (need 3 — the hard one)
+      const pwcWins = parseInt(localStorage.getItem('pong_championship_count')||'0') + 1;
+      localStorage.setItem('pong_championship_count', String(pwcWins));
+      if(pwcWins >= 3) localStorage.setItem('pong_obsidian_unlocked','1');
+    }catch(e){}
   }
   const med=['🥇','🥈','🥉','4️⃣'],pod=document.getElementById('podium');pod.innerHTML='';
   pos.forEach((p,i)=>{const c=COUNTRIES.find(x=>x.name===p.country);const r=document.createElement('div');r.className=`podium-row place-${i+1}${p.country===save.country?' is-you':''}`;r.innerHTML=`<span class="podium-medal">${med[i]}</span><span class="podium-flag">${c?c.flag:'🌍'}</span><span class="podium-name">${p.country.toUpperCase()}</span>${p.country===save.country?'<span style="font-size:11px;color:var(--neon-blue)">YOU</span>':''}`;pod.appendChild(r);});
@@ -1194,12 +1208,20 @@ function showResult(pw,S){
   }else{
     // Cup mode: only show Continue on win; loss triggers the callback automatically
     if(pw){
+      // Track consecutive cup match wins for Red Fizzy (need 3 in a row)
+      try{
+        const streak = parseInt(localStorage.getItem('pong_cup_win_streak')||'0') + 1;
+        localStorage.setItem('pong_cup_win_streak', String(streak));
+        if(streak >= 3) localStorage.setItem('pong_redfizzy_unlocked','1');
+      }catch(e){}
       const continueBtn=document.createElement('button');
       continueBtn.className='btn btn-green';
       continueBtn.innerHTML='<span>▶ CONTINUE</span>';
       continueBtn.onclick=()=>{Sound.click();S.onWin(S.ps,S.as);};
       btns.appendChild(continueBtn);
     }else{
+      // Reset win streak on loss
+      try{ localStorage.setItem('pong_cup_win_streak','0'); }catch(e){}
       // Loss in cup — fire the callback after a brief delay so the result screen is visible
       setTimeout(()=>{if(S.onLoss)S.onLoss(S.ps,S.as);},1800);
     }
