@@ -7,9 +7,9 @@
   <style>
     :root { --accent:#7c3aed; --transition:0.45s cubic-bezier(0.4,0,0.2,1); --page-brightness:1; --scroll-track:rgba(0,0,0,0.08); --scroll-thumb:rgba(124,58,237,0.72); }
     *{box-sizing:border-box;margin:0;padding:0;}
-    html{scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track);overflow-y:auto;}
+    html{scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track);overflow-y:scroll;overflow-x:hidden;}
     html,body{overflow-x:hidden;}
-    body{font-family:'Rubik',sans-serif;text-align:center;min-height:100vh;transition:background var(--transition),color var(--transition),filter 0.22s ease;overflow-y:auto;filter:brightness(var(--page-brightness));}
+    body{font-family:'Rubik',sans-serif;text-align:center;min-height:100vh;transition:background var(--transition),color var(--transition),filter 0.22s ease;overflow-x:hidden;overflow-y:visible;filter:brightness(var(--page-brightness));}
     html::-webkit-scrollbar{width:11px;}
     html::-webkit-scrollbar-track{background:var(--scroll-track);}
     html::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:999px;border:3px solid var(--scroll-track);}
@@ -1031,7 +1031,7 @@ body.mode-water h1{background:linear-gradient(135deg,#d8fbff,#6ddcff,#1c8ff5,#8c
     }
     #scrollTopBtn:hover { background: rgba(155,109,255,0.25); border-color: rgba(155,109,255,0.4); color: #fff; }
 
-    /* ── SEARCH BAR ── */
+    /* ── SEARCH BAR — visible on all themes ── */
     #pageSearch {
       display: block;
       width: 100%;
@@ -1039,18 +1039,60 @@ body.mode-water h1{background:linear-gradient(135deg,#d8fbff,#6ddcff,#1c8ff5,#8c
       margin: 0 auto 20px;
       padding: 11px 20px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.06);
-      color: inherit;
+      border: 1px solid rgba(127,127,127,0.3);
+      background: rgba(0,0,0,0.25);
+      color: #ffffff !important;
       font-family: 'Rubik', sans-serif;
       font-size: 0.92em;
       font-weight: 600;
       outline: none;
       transition: border-color 0.2s, background 0.2s;
       text-align: center;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
     }
-    #pageSearch::placeholder { color: rgba(255,255,255,0.3); font-weight: 400; }
-    #pageSearch:focus { border-color: rgba(155,109,255,0.5); background: rgba(155,109,255,0.08); }
+    #pageSearch::placeholder { color: rgba(255,255,255,0.45) !important; font-weight: 400; }
+    #pageSearch:focus { border-color: rgba(155,109,255,0.5); background: rgba(0,0,0,0.35); }
+    /* Light/bright theme overrides — ensure text is always readable */
+    body.mode-light #pageSearch,
+    body.mode-day #pageSearch,
+    body.mode-glass #pageSearch,
+    body.mode-rainbow #pageSearch,
+    body.mode-whiteneon #pageSearch,
+    body.mode-toothpaste #pageSearch,
+    body.mode-lucky #pageSearch,
+    body.mode-bluecheese #pageSearch,
+    body.mode-cheese #pageSearch,
+    body.mode-coral #pageSearch,
+    body.mode-banana #pageSearch,
+    body.mode-bone #pageSearch,
+    body.mode-snow #pageSearch,
+    body.mode-peach #pageSearch,
+    body.mode-antarctica #pageSearch,
+    body.mode-blur #pageSearch,
+    body.mode-blackwhite #pageSearch {
+      background: rgba(0,0,0,0.12);
+      color: #111111 !important;
+      border-color: rgba(0,0,0,0.2);
+    }
+    body.mode-light #pageSearch::placeholder,
+    body.mode-day #pageSearch::placeholder,
+    body.mode-glass #pageSearch::placeholder,
+    body.mode-rainbow #pageSearch::placeholder,
+    body.mode-whiteneon #pageSearch::placeholder,
+    body.mode-toothpaste #pageSearch::placeholder,
+    body.mode-lucky #pageSearch::placeholder,
+    body.mode-bluecheese #pageSearch::placeholder,
+    body.mode-cheese #pageSearch::placeholder,
+    body.mode-coral #pageSearch::placeholder,
+    body.mode-banana #pageSearch::placeholder,
+    body.mode-bone #pageSearch::placeholder,
+    body.mode-snow #pageSearch::placeholder,
+    body.mode-peach #pageSearch::placeholder,
+    body.mode-antarctica #pageSearch::placeholder,
+    body.mode-blur #pageSearch::placeholder,
+    body.mode-blackwhite #pageSearch::placeholder { color: rgba(0,0,0,0.4) !important; }
     body.mode-light .btn{background:#f0f0f0;color:black;box-shadow:0 4px 8px rgba(0,0,0,0.1);}
     body.mode-dark .btn{background:#1c1c2e;color:#f0f0f0;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
     body.mode-rainbow .btn{background:rgba(255,255,255,0.55);color:#111;box-shadow:0 4px 16px rgba(0,0,0,0.15);backdrop-filter:blur(8px);}
@@ -3041,6 +3083,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     #themesOverlay{
       position:fixed;inset:0;z-index:9050;display:flex;align-items:center;justify-content:center;padding:16px;
       opacity:0;pointer-events:none;transition:opacity 0.25s ease;
+      overflow:hidden;
       background:var(--themes-overlay,rgba(0,0,0,0.48));
       backdrop-filter:blur(var(--themes-overlay-blur,8px)) saturate(var(--themes-overlay-saturate,1));
     }
@@ -4694,9 +4737,14 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     
     /* ===== THEME TAB OVERRIDE: FULLSCREEN + STATIC STYLE ===== */
     html.modal-open,
-    body.modal-open{
+    body.modal-open,
+    html[class].modal-open,
+    body[class].modal-open{
       overflow:hidden !important;
+      overflow-x:hidden !important;
+      overflow-y:hidden !important;
       height:100% !important;
+      max-height:100% !important;
     }
 
     #themesOverlay{
@@ -4730,16 +4778,33 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       align-items:center !important;
       justify-content:center !important;
       padding:18px !important;
+      box-sizing:border-box !important;
       background:rgba(8,10,14,0.72) !important;
       backdrop-filter:blur(8px) !important;
       -webkit-backdrop-filter:blur(8px) !important;
       opacity:0 !important;
       pointer-events:none !important;
       transition:opacity 0.16s ease !important;
+      overflow-y:auto !important;
     }
     #themeInfoOverlay.open{
       opacity:1 !important;
       pointer-events:auto !important;
+    }
+    #themeInfoModal{
+      width:min(540px,calc(100vw - 28px)) !important;
+      max-height:calc(100vh - 36px) !important;
+      border-radius:18px !important;
+      border:1px solid rgba(255,255,255,0.12) !important;
+      background:linear-gradient(180deg,#171b24 0%,#11141c 100%) !important;
+      box-shadow:0 18px 40px rgba(0,0,0,0.38) !important;
+      color:#f4f6fb !important;
+      overflow:hidden !important;
+      display:flex !important;
+      flex-direction:column !important;
+      position:relative !important;
+      margin:auto !important;
+      flex-shrink:0 !important;
     }
     #themePageStatsOverlay{
       position:fixed !important;
@@ -4749,12 +4814,14 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       align-items:center !important;
       justify-content:center !important;
       padding:18px !important;
+      box-sizing:border-box !important;
       background:rgba(8,10,14,0.74) !important;
       backdrop-filter:blur(8px) !important;
       -webkit-backdrop-filter:blur(8px) !important;
       opacity:0 !important;
       pointer-events:none !important;
       transition:opacity 0.16s ease !important;
+      overflow-y:auto !important;
     }
     #themePageStatsOverlay.open{
       display:flex !important;
@@ -4772,6 +4839,9 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       overflow:hidden !important;
       display:flex !important;
       flex-direction:column !important;
+      position:relative !important;
+      margin:auto !important;
+      flex-shrink:0 !important;
     }
     #themeInfoModal{
       width:min(540px,calc(100vw - 28px)) !important;
@@ -5758,6 +5828,66 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     }
     @keyframes dotAurora{0%{opacity:0.4;}100%{opacity:1.0;}}
 
+    /* ── RED FIZZY THEME (Win 3 cup matches in a row) ── */
+    body.mode-redfizzy{background:radial-gradient(circle at 18% 18%,rgba(255,80,80,0.32) 0%,transparent 28%),radial-gradient(circle at 82% 22%,rgba(200,30,30,0.28) 0%,transparent 26%),radial-gradient(circle at 70% 72%,rgba(255,60,60,0.22) 0%,transparent 32%),linear-gradient(180deg,#1a0000 0%,#3a0a0a 42%,#120000 100%);color:#ffe8e8;}
+    body.mode-redfizzy::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(circle at 30% 20%,rgba(255,80,80,0.12) 0%,transparent 30%),radial-gradient(circle at 70% 70%,rgba(200,40,40,0.10) 0%,transparent 28%);}
+    body.mode-redfizzy h1{background:linear-gradient(135deg,#ffe8e8,#ff6060,#cc2020,#ff6060,#ffe8e8);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:rfShine 4s linear infinite;}
+    @keyframes rfShine{0%{background-position:0% center;}100%{background-position:200% center;}}
+    body.mode-redfizzy .btn{background:linear-gradient(145deg,#3a0a0a,#6b1010,#4a0808);color:#ffe8e8;box-shadow:0 8px 28px rgba(180,20,20,0.45),inset 0 1px 0 rgba(255,255,255,0.10);border:1px solid rgba(255,80,80,0.28);}
+    body.mode-redfizzy .btn:hover{box-shadow:0 12px 36px rgba(200,30,30,0.55);}
+    body.mode-redfizzy #settingsPanel{background:rgba(26,0,0,0.96);border:1px solid rgba(255,80,80,0.2);color:#ffe8e8;}
+    body.mode-redfizzy #codeBtn,body.mode-redfizzy #themesBtn{background:rgba(30,0,0,0.93);color:#ffe8e8;backdrop-filter:blur(16px);border:1px solid rgba(255,60,60,0.2);}
+    body.mode-redfizzy #codeModal{background:rgba(20,0,0,0.98);border:1px solid rgba(255,60,60,0.2);color:#ffe8e8;}
+    body.mode-redfizzy .mode-option.active-mode{color:#ff6060;}
+    body.mode-redfizzy ::-webkit-scrollbar-thumb{background:rgba(220,40,40,0.5) !important;border-radius:99px !important;}
+    body.mode-redfizzy *{scrollbar-color:rgba(220,40,40,0.5) transparent !important;}
+    .mode-dot.redfizzy-dot{background:radial-gradient(circle at 35% 30%,#ffe8e8 0 12%,#ff8080 14% 44%,#cc2020 46% 78%,#4a0000 80% 100%);border:1px solid rgba(255,80,80,0.4);}
+
+    /* ── CORAL THEME (Play 10 practice matches) ── */
+    body.mode-coral{background:radial-gradient(circle at 22% 20%,rgba(255,120,90,0.36) 0%,transparent 30%),radial-gradient(circle at 78% 70%,rgba(220,80,60,0.28) 0%,transparent 32%),linear-gradient(180deg,#1e0800 0%,#3d1408 40%,#160600 100%);color:#fff0ec;}
+    body.mode-coral::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(circle at 40% 30%,rgba(255,140,100,0.10) 0%,transparent 28%);}
+    body.mode-coral h1{background:linear-gradient(135deg,#fff0ec,#ff8060,#e8402a,#ff8060,#fff0ec);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:coralShine 4s linear infinite;}
+    @keyframes coralShine{0%{background-position:0% center;}100%{background-position:200% center;}}
+    body.mode-coral .btn{background:linear-gradient(145deg,#3d1408,#7a2810,#4e1808);color:#fff0ec;box-shadow:0 8px 28px rgba(180,60,30,0.4),inset 0 1px 0 rgba(255,255,255,0.10);border:1px solid rgba(255,120,80,0.28);}
+    body.mode-coral .btn:hover{box-shadow:0 12px 36px rgba(200,70,40,0.5);}
+    body.mode-coral #settingsPanel{background:rgba(28,6,0,0.96);border:1px solid rgba(255,110,70,0.2);color:#fff0ec;}
+    body.mode-coral #codeBtn,body.mode-coral #themesBtn{background:rgba(32,8,0,0.93);color:#fff0ec;backdrop-filter:blur(16px);border:1px solid rgba(255,100,60,0.2);}
+    body.mode-coral #codeModal{background:rgba(22,5,0,0.98);border:1px solid rgba(255,100,60,0.2);color:#fff0ec;}
+    body.mode-coral .mode-option.active-mode{color:#ff7050;}
+    body.mode-coral ::-webkit-scrollbar-thumb{background:rgba(220,80,50,0.5) !important;border-radius:99px !important;}
+    body.mode-coral *{scrollbar-color:rgba(220,80,50,0.5) transparent !important;}
+    .mode-dot.coral-dot{background:radial-gradient(circle at 35% 30%,#fff4f0 0 12%,#ffaa88 14% 44%,#e85030 46% 78%,#5e1808 80% 100%);border:1px solid rgba(255,110,70,0.4);}
+
+    /* ── MIDNIGHT THEME (Win World Cup 10 times) ── */
+    body.mode-midnight{background:radial-gradient(circle at 20% 10%,rgba(40,50,120,0.30) 0%,transparent 35%),radial-gradient(circle at 80% 80%,rgba(20,30,90,0.22) 0%,transparent 30%),linear-gradient(180deg,#00000a 0%,#02020e 50%,#000008 100%);color:#c8ccff;}
+    body.mode-midnight::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 20% at 50% 5%,rgba(60,80,180,0.14) 0%,transparent 100%);}
+    body.mode-midnight h1{background:linear-gradient(135deg,#e8ecff,#8899ee,#4455cc,#8899ee,#e8ecff);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 2px 16px rgba(80,100,220,0.5));animation:midShine 6s linear infinite;}
+    @keyframes midShine{0%{background-position:0% center;}100%{background-position:200% center;}}
+    body.mode-midnight .btn{background:linear-gradient(145deg,#080818,#141428,#0a0a20);color:#c8ccff;box-shadow:0 8px 28px rgba(40,50,160,0.35),inset 0 1px 0 rgba(255,255,255,0.06);border:1px solid rgba(80,100,200,0.22);}
+    body.mode-midnight .btn:hover{box-shadow:0 12px 36px rgba(60,80,200,0.45);}
+    body.mode-midnight #settingsPanel{background:rgba(2,2,18,0.97);border:1px solid rgba(70,90,200,0.20);color:#c8ccff;}
+    body.mode-midnight #codeBtn,body.mode-midnight #themesBtn{background:rgba(4,4,20,0.94);color:#c8ccff;backdrop-filter:blur(16px);border:1px solid rgba(70,90,200,0.18);}
+    body.mode-midnight #codeModal{background:rgba(2,2,14,0.98);border:1px solid rgba(70,90,200,0.18);color:#c8ccff;}
+    body.mode-midnight .mode-option.active-mode{color:#8899ee;}
+    body.mode-midnight ::-webkit-scrollbar-thumb{background:rgba(70,90,200,0.45) !important;border-radius:99px !important;}
+    body.mode-midnight *{scrollbar-color:rgba(70,90,200,0.45) transparent !important;}
+    .mode-dot.midnight-dot{background:radial-gradient(circle at 35% 28%,rgba(220,230,255,0.9) 0 8%,rgba(140,160,240,0.9) 10% 32%,rgba(60,80,180,0.95) 34% 65%,rgba(10,12,50,1) 67% 100%);border:1px solid rgba(70,100,220,0.4);}
+
+    /* ── OBSIDIAN THEME (Win World Cup 3 times — the hard one) ── */
+    body.mode-obsidian{background:radial-gradient(circle at 25% 20%,rgba(80,60,80,0.28) 0%,transparent 30%),radial-gradient(circle at 75% 70%,rgba(50,40,60,0.22) 0%,transparent 28%),linear-gradient(180deg,#050308 0%,#0a0710 50%,#030206 100%);color:#d4c8e8;}
+    body.mode-obsidian::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 50% 15% at 50% 2%,rgba(120,80,160,0.12) 0%,transparent 100%);}
+    body.mode-obsidian h1{background:linear-gradient(135deg,#e8e0f0,#9880c0,#604880,#9880c0,#e8e0f0);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 2px 18px rgba(120,80,180,0.5));animation:obsShine 6s linear infinite;}
+    @keyframes obsShine{0%{background-position:0% center;}100%{background-position:200% center;}}
+    body.mode-obsidian .btn{background:linear-gradient(145deg,#0c0810,#1a1020,#0e0a14);color:#d4c8e8;box-shadow:0 8px 28px rgba(80,40,120,0.35),inset 0 1px 0 rgba(255,255,255,0.06);border:1px solid rgba(120,80,160,0.22);}
+    body.mode-obsidian .btn:hover{box-shadow:0 12px 36px rgba(100,60,150,0.45);}
+    body.mode-obsidian #settingsPanel{background:rgba(6,4,10,0.97);border:1px solid rgba(100,70,140,0.20);color:#d4c8e8;}
+    body.mode-obsidian #codeBtn,body.mode-obsidian #themesBtn{background:rgba(8,6,12,0.94);color:#d4c8e8;backdrop-filter:blur(16px);border:1px solid rgba(100,70,140,0.18);}
+    body.mode-obsidian #codeModal{background:rgba(5,3,8,0.98);border:1px solid rgba(100,70,140,0.18);color:#d4c8e8;}
+    body.mode-obsidian .mode-option.active-mode{color:#9880c0;}
+    body.mode-obsidian ::-webkit-scrollbar-thumb{background:rgba(100,70,160,0.45) !important;border-radius:99px !important;}
+    body.mode-obsidian *{scrollbar-color:rgba(100,70,160,0.45) transparent !important;}
+    .mode-dot.obsidian-dot{background:radial-gradient(circle at 35% 28%,rgba(220,210,240,0.9) 0 8%,rgba(150,120,200,0.9) 10% 32%,rgba(80,50,120,0.95) 34% 65%,rgba(8,5,14,1) 67% 100%);border:1px solid rgba(100,70,160,0.4);}
+
     /* ── THEMED SCROLLBARS — every theme gets its own ── */
     body.mode-light ::-webkit-scrollbar-thumb{background:rgba(100,100,120,0.35) !important;}
     body.mode-dark ::-webkit-scrollbar-thumb{background:rgba(180,180,200,0.25) !important;}
@@ -5845,6 +5975,10 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     body.mode-usa *{scrollbar-color:rgba(40,80,200,0.5) transparent;}
     body.mode-antarctica *{scrollbar-color:rgba(0,160,255,0.45) transparent;}
     body.mode-bluecheese *{scrollbar-color:rgba(60,90,200,0.5) transparent;}
+    body.mode-redfizzy *{scrollbar-color:rgba(220,40,40,0.5) transparent;}
+    body.mode-coral *{scrollbar-color:rgba(220,80,50,0.5) transparent;}
+    body.mode-midnight *{scrollbar-color:rgba(70,90,200,0.45) transparent;}
+    body.mode-obsidian *{scrollbar-color:rgba(100,70,160,0.45) transparent;}
     /* html element (document scrollbar) — must be targeted separately */
     body.mode-light::-webkit-scrollbar-thumb{background:rgba(100,100,120,0.35);}
     body.mode-dark::-webkit-scrollbar-thumb{background:rgba(180,180,200,0.25);}
@@ -5878,6 +6012,10 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     body.mode-bluefizzy{scrollbar-color:rgba(40,140,255,0.5) transparent;}
     body.mode-snow{scrollbar-color:rgba(180,210,240,0.5) transparent;}
     body.mode-darth{scrollbar-color:rgba(220,30,30,0.55) transparent;}
+    body.mode-redfizzy{scrollbar-color:rgba(220,40,40,0.5) transparent;}
+    body.mode-coral{scrollbar-color:rgba(220,80,50,0.5) transparent;}
+    body.mode-midnight{scrollbar-color:rgba(70,90,200,0.45) transparent;}
+    body.mode-obsidian{scrollbar-color:rgba(100,70,160,0.45) transparent;}
     /* Themes modal grid */
     #themesOverlay .theme-grid,
     #themesOverlay .theme-grid *{
@@ -6354,6 +6492,10 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       <div class="mode-option locked" id="usaModeOption" data-mode="usa"><span>🇺🇸 USA <span id="usaLock">🔒</span></span><div class="mode-dot usa-dot"></div></div>
       <div class="mode-option locked" id="chinaModeOption" data-mode="china"><span>🇨🇳 China <span id="chinaLock">🔒</span></span><div class="mode-dot china-dot"></div></div>
       <div class="mode-option locked" id="antarcticaModeOption" data-mode="antarctica"><span>🧊 Antarctica <span id="antarcticaLock">🔒</span></span><div class="mode-dot antarctica-dot"></div></div>
+      <div class="mode-option locked" id="redfizzyModeOption" data-mode="redfizzy"><span>🔴 Red Fizzy <span id="redfizzyLock">🔒</span></span><div class="mode-dot redfizzy-dot"></div></div>
+      <div class="mode-option locked" id="coralModeOption" data-mode="coral"><span>🪸 Coral <span id="coralLock">🔒</span></span><div class="mode-dot coral-dot"></div></div>
+      <div class="mode-option locked" id="midnightModeOption" data-mode="midnight"><span>🌙 Midnight <span id="midnightLock">🔒</span></span><div class="mode-dot midnight-dot"></div></div>
+      <div class="mode-option locked" id="obsidianModeOption" data-mode="obsidian"><span>🖤 Obsidian <span id="obsidianLock">🔒</span></span><div class="mode-dot obsidian-dot"></div></div>
       <div class="mode-option locked" id="lanternModeOption" data-mode="lantern"><span>🏮 Lantern <span id="lanternLock">🔒</span></span><div class="mode-dot lantern-dot"></div></div>
       <div class="mode-option locked" id="anzacModeOption" data-mode="anzac"><span>🇦🇺 Anzac <span id="anzacLock">🔒</span></span><div class="mode-dot anzac-dot"></div></div>
       <div class="mode-option locked" id="vomitModeOption" data-mode="vomit"><span>🤮 Vomit <span id="vomitLock">🔒</span></span><div class="mode-dot vomit-dot"></div></div>
@@ -6472,6 +6614,10 @@ const BLUE_FIZZY_THEME_UNLOCK_KEY='wren_theme_bluefizzy_unlocked';
 const PEACH_THEME_UNLOCK_KEY='wren_theme_peach_unlocked';
 const ANTARCTICA_THEME_UNLOCK_KEY='wren_theme_antarctica_unlocked';
 const BLUECHEESE_THEME_UNLOCK_KEY='wren_theme_bluecheese_unlocked';
+const REDFIZZY_THEME_UNLOCK_KEY='pong_redfizzy_unlocked';
+const CORAL_THEME_UNLOCK_KEY='pong_coral_unlocked';
+const MIDNIGHT_THEME_UNLOCK_KEY='pong_midnight_unlocked';
+const OBSIDIAN_THEME_UNLOCK_KEY='pong_obsidian_unlocked';
 const LANTERN_THEME_UNLOCK_KEY='wren_theme_lantern_unlocked';
 const AMATHEST_THEME_UNLOCK_KEY='wren_theme_amethyst_unlocked';
 const WHITE_SABER_THEME_UNLOCK_KEY='wren_theme_whitesaber_unlocked';
@@ -6617,6 +6763,14 @@ function refreshGreenFizzyOption(){refreshOption('greenFizzyModeOption','greenFi
 function refreshBlueFizzyOption(){refreshOption('blueFizzyModeOption','blueFizzyLock','bluefizzy');}
 function refreshPeachOption(){refreshOption('peachModeOption','peachLock','peach');}
 function refreshAntarcticaOption(){refreshOption('antarcticaModeOption','antarcticaLock','antarctica');}
+function refreshRedFizzyOption(){refreshOption('redfizzyModeOption','redfizzyLock','redfizzy');}
+function refreshCoralOption(){refreshOption('coralModeOption','coralLock','coral');}
+function refreshMidnightOption(){refreshOption('midnightModeOption','midnightLock','midnight');}
+function refreshObsidianOption(){refreshOption('obsidianModeOption','obsidianLock','obsidian');}
+function unlockRedFizzyIfEligible(){return unlockIfEligible('redfizzy',()=>localStorage.getItem(REDFIZZY_THEME_UNLOCK_KEY)==='1','🔴 Red Fizzy unlocked!!',refreshRedFizzyOption);}
+function unlockCoralIfEligible(){return unlockIfEligible('coral',()=>localStorage.getItem(CORAL_THEME_UNLOCK_KEY)==='1','🪸 Coral unlocked!!',refreshCoralOption);}
+function unlockMidnightIfEligible(){return unlockIfEligible('midnight',()=>localStorage.getItem(MIDNIGHT_THEME_UNLOCK_KEY)==='1','🌙 Midnight unlocked!!',refreshMidnightOption);}
+function unlockObsidianIfEligible(){return unlockIfEligible('obsidian',()=>localStorage.getItem(OBSIDIAN_THEME_UNLOCK_KEY)==='1','🖤 Obsidian unlocked!!',refreshObsidianOption);}
 function refreshLanternOption(){refreshOption('lanternModeOption','lanternLock','lantern');}
 function refreshAmethystOption(){refreshOption('amethystModeOption','amethystLock','amethyst');}
 function refreshWhiteSaberOption(){refreshOption('whiteSaberModeOption','whiteSaberLock','whitesaber');}
@@ -6701,7 +6855,7 @@ cog.addEventListener('click',()=>{
 });
 document.addEventListener('click',e=>{if(!settingsMenu.contains(e.target)&&e.target!==cog){settingsMenu.classList.remove('open');cog.classList.remove('open');}});
 
-const ALL_LOCKED_MODES=['banana','rottenbanana','ketchup','lightning','luxurious','whiteneon','ice','coffee','darth','darksaber','windu','jedi','watermelon','bone','blueberry','blackhole','day','night','cyan','glass','blur','lava','rose','orange','orangefizzy','caramal','water','potato','grape','sun','shadow','cheese','bluecheese','toothpaste','lucky','glitch','slime','galaxy','spider','metal','bronze','silver','gold','radioactive','snow','money','cottoncandy','saber','pizza','skin','rainbowremastered','fire','emerald','diamond','seven','one','nine','anzac','turquoise','turquoisecyan','china','usa','vomit','greenfizzy','lantern','amethyst','whitesaber','blackwhite','chocolatechip','wood','bluefizzy','peach','antarctica'];
+const ALL_LOCKED_MODES=['banana','rottenbanana','ketchup','lightning','luxurious','whiteneon','ice','coffee','darth','darksaber','windu','jedi','watermelon','bone','blueberry','blackhole','day','night','cyan','glass','blur','lava','rose','orange','orangefizzy','caramal','water','potato','grape','sun','shadow','cheese','bluecheese','toothpaste','lucky','glitch','slime','galaxy','spider','metal','bronze','silver','gold','radioactive','snow','money','cottoncandy','saber','pizza','skin','rainbowremastered','fire','emerald','diamond','seven','one','nine','anzac','turquoise','turquoisecyan','china','usa','vomit','greenfizzy','lantern','amethyst','whitesaber','blackwhite','chocolatechip','wood','bluefizzy','peach','antarctica','carrot','redfizzy','coral','midnight','obsidian'];
 
 function normalizeThemeOptionLabels(){
   document.querySelectorAll('.theme-grid .mode-option').forEach(option=>{
@@ -6724,7 +6878,8 @@ function selectMode(m){
 }
 function applyMode(m){
   stopSnowParticles();stopMoneyParticles();stopLightningParticles();stopFireParticles();stopFizzyBubbles();stopEmeraldParticles();stopDiamondParticles();stopSevenParticles();stopOneParticles();stopNineParticles();clearAnzacPoppies();stopAmethystParticles();stopChocolateChipParticles();
-  document.body.className='mode-'+m;
+  const bodyIsModalOpen=document.body.classList.contains('modal-open');
+  document.body.className='mode-'+m+(bodyIsModalOpen?' modal-open':'');
   const htmlIsModalOpen=document.documentElement.classList.contains('modal-open');
   document.documentElement.className='mode-'+m+(htmlIsModalOpen?' modal-open':'');
   setScrollbarTheme(m);
@@ -6825,6 +6980,10 @@ const THEME_MODAL_SUBTEXTS={
   bluefizzy:'Blue fizzy soda style with rising bubbles.',
   peach:'Soft peachy warm glow.',
   antarctica:'Icy deep blue Antarctic theme with aurora shimmer.',
+  redfizzy:'Red fizzy soda with rising crimson bubbles.',
+  coral:'Warm coral sunset tones.',
+  midnight:'The dead of night — deep dark blue.',
+  obsidian:'Dark volcanic glass — pure prestige.',
   caramal:'Hover Credits.',
   water:'Cool and smooth.',
   potato:'Earthy and rustic.',
@@ -6832,6 +6991,7 @@ const THEME_MODAL_SUBTEXTS={
   sun:'Bright and golden.',
   shadow:'Muted and moody.',
   cheese:'Yellow, rich, and tasty.',
+  carrot:'Orange and crunchy.',
   bluecheese:'Deep purple — mouldy and magnificent.',
   toothpaste:'Clean and minty.',
   lucky:'Clean silver luck style.',
@@ -6896,7 +7056,11 @@ const THEME_PAGE_SOURCE={
   wood:'Life Countdown',
   bluefizzy:'Life Countdown',
   peach:'Easy Image Download',
-  antarctica:'Life Countdown'
+  antarctica:'Life Countdown',
+  redfizzy:'Pong World Cup',
+  coral:'Pong World Cup',
+  midnight:'Pong World Cup',
+  obsidian:'Pong World Cup'
 };
 let activeThemeInfoMode=null;
 function isModeUnlocked(mode){
@@ -6920,7 +7084,7 @@ function getThemeUnlockHint(mode){
     lightning:'Reach 5,000,000 Power in Object Attack.',
     luxurious:'Click George21z in The Hall of Fame.',
     whiteneon:'Visit The Hall of Fame.',
-    ice:'Select the exact text "Vewy Cool 😎".',
+    ice:'Vewy cool 😎',
     coffee:'Reach Level 20 in Catch Anything.',
     windu:'Buy x2 XP in Catch Anything.',
     jedi:'Win in The Pong World Cup.',
@@ -6942,6 +7106,7 @@ function getThemeUnlockHint(mode){
     sun:'Visit Small Creators.',
     shadow:'Visit The Wren Wheel of Doom.',
     cheese:"Visit Cheese's Art.",
+    carrot:'Visit Flappy Wren.',
     bluecheese:"View all artwork in Cheese's Art.",
     toothpaste:'Visit all main pages.',
     lucky:'Click in Lucky Generator enough times.',
@@ -6981,7 +7146,11 @@ function getThemeUnlockHint(mode){
     wood:'Visit Life Countdown and watch the seconds tick away.',
     bluefizzy:'Complete Life.',
     peach:'Visit Easy Image Download.',
-    antarctica:'Be born in Antarctica.'
+    antarctica:'Be born in Antarctica.',
+    redfizzy:'Win 3 Pong World Cup matches in a row.',
+    coral:'Play 10 practice matches in Pong World Cup.',
+    midnight:'Win the Pong World Cup 10 times.',
+    obsidian:'Win the Pong World Cup 3 times.'
   };
   return hints[mode]||'Keep progressing.';
 }
@@ -7109,6 +7278,7 @@ function refreshRoseOption(){refreshOption('roseModeOption','roseLock','rose');}
 function refreshOrangeOption(){refreshOption('orangeModeOption','orangeLock','orange');}
 function refreshOrangeFizzyOption(){refreshOption('orangeFizzyModeOption','orangeFizzyLock','orangefizzy');}
 function refreshCarrotOption(){refreshOption('carrotModeOption','carrotLock','carrot');}
+function unlockCarrotIfEligible(){return unlockIfEligible('carrot',()=>localStorage.getItem(CARROT_THEME_UNLOCK_KEY)==='1','🥕 Carrot unlocked!',refreshCarrotOption);}
 function refreshCaramalOption(){refreshOption('caramalModeOption','caramalLock','caramal');}
 function refreshWaterOption(){refreshOption('waterModeOption','waterLock','water');}
 function refreshPotatoOption(){refreshOption('potatoModeOption','potatoLock','potato');}
@@ -7363,7 +7533,7 @@ unlockWoodIfEligible();unlockToothpasteIfEligible();
   unlockJediIfEligible();unlockWatermelonIfEligible();unlockBoneIfEligible();
   unlockTurquoiseIfEligible();unlockTurquoiseCyanIfEligible();
   unlockChinaIfEligible();
-  unlockGreenFizzyIfEligible();unlockBlueFizzyIfEligible();unlockPeachIfEligible();unlockAntarcticaIfEligible();unlockBluecheeseIfEligible();unlockLanternIfEligible();unlockAmethystIfEligible();unlockWhiteSaberIfEligible();unlockBlackWhiteIfEligible();unlockChocolateChipIfEligible();
+  unlockGreenFizzyIfEligible();unlockBlueFizzyIfEligible();unlockPeachIfEligible();unlockAntarcticaIfEligible();unlockBluecheeseIfEligible();unlockCarrotIfEligible();unlockRedFizzyIfEligible();unlockCoralIfEligible();unlockMidnightIfEligible();unlockObsidianIfEligible();unlockLanternIfEligible();unlockAmethystIfEligible();unlockWhiteSaberIfEligible();unlockBlackWhiteIfEligible();unlockChocolateChipIfEligible();
   checkObjectAttackThemes();
 }
 function markVisit(w,href){
@@ -7579,6 +7749,13 @@ window.addEventListener('storage',e=>{
     refreshWhiteSaberOption();
     refreshBlackWhiteOption();
     refreshChocolateChipOption();
+    refreshCarrotOption();
+    refreshBluecheeseOption();
+    refreshAntarcticaOption();
+    refreshRedFizzyOption();
+    refreshCoralOption();
+    refreshMidnightOption();
+    refreshObsidianOption();
     checkAllUnlocks();
   }
 });
@@ -8090,7 +8267,7 @@ const THEME_DISPLAY_NAMES = {
   turquoise:'Turquoise',turquoisecyan:'Turquoise Cyan',china:'China',usa:'USA',vomit:'Vomit',
   greenfizzy:'Green Fizzy',lantern:'Lantern',amethyst:'Amethyst',whitesaber:'White Saber',
   blackwhite:'Black & White',chocolatechip:'Choc Chip',wood:'Wood',bluefizzy:'Blue Fizzy',
-  peach:'Peach',antarctica:'Antarctica'
+  peach:'Peach',antarctica:'Antarctica',redfizzy:'Red Fizzy',coral:'Coral',midnight:'Midnight',obsidian:'Obsidian'
 };
 
 function announceUnlock(msg) {
@@ -8131,9 +8308,18 @@ function updateThemeCountBadge() {
   const badge = document.getElementById('themeCountBadge');
   if (!badge) return;
   try {
-    const unlocked = JSON.parse(localStorage.getItem('wren_unlocked') || '[]');
-    const total = typeof ALL_LOCKED_MODES !== 'undefined' ? ALL_LOCKED_MODES.length + 2 : 80;
-    badge.textContent = (unlocked.length + 2) + '/' + total;
+    const grid = document.querySelector('#themesModal .theme-grid');
+    if (grid) {
+      const items = Array.from(grid.children);
+      const total = items.length;
+      const owned = items.filter(item => !item.classList.contains('locked')).length;
+      badge.textContent = owned + '/' + total;
+    } else {
+      // Fallback before modal is first opened: use unlockedFeatures
+      const ownedLocked = typeof unlockedFeatures !== 'undefined' ? unlockedFeatures.length : 0;
+      const total = typeof ALL_LOCKED_MODES !== 'undefined' ? ALL_LOCKED_MODES.length + 2 : 80;
+      badge.textContent = (ownedLocked + 2) + '/' + total;
+    }
   } catch(e) {}
 }
 updateThemeCountBadge();
@@ -8185,7 +8371,7 @@ document.addEventListener('keydown', function(e) {
 
 // Hook applyMode so theme pill + badge update when theme changes
 const _origApplyMode = applyMode;
-window.applyMode = function(m) { _origApplyMode(m); updateActiveThemePill(); updateThemeCountBadge(); };
+window.applyMode = function(m) { _origApplyMode(m); updateActiveThemePill(); updateThemeCountBadge(); updateThemeOwnedCount(); };
 
 window.scrollTo({ top: 0, behavior: 'instant' });
 
