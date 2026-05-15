@@ -898,39 +898,127 @@
       z-index: 10001;
     }
 
-    /* Mode switch */
+    /* Mode switch — 3 tabs */
     .mode-switch {
       display: flex;
-      gap: 8px;
+      gap: 5px;
       justify-content: center;
       margin: 16px 0 28px;
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 999px;
       padding: 5px;
-      max-width: 380px;
+      max-width: 540px;
       margin-left: auto;
       margin-right: auto;
+      flex-wrap: wrap;
     }
     .mode-btn {
       flex: 1;
-      padding: 10px 18px;
+      padding: 9px 10px;
       border-radius: 999px;
       border: none;
       background: transparent;
       color: var(--muted);
       font-family: 'Rubik', sans-serif;
-      font-size: 0.88em;
+      font-size: 0.82em;
       font-weight: 800;
       cursor: pointer;
       transition: all 0.22s ease;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
     }
     .mode-btn:hover { color: var(--text); }
     .mode-btn.active {
       background: rgba(155,109,255,0.25);
       color: #fff;
       box-shadow: 0 2px 12px rgba(155,109,255,0.2);
+    }
+
+    /* Marvel panel */
+    #marvelPanel {
+      opacity: 0;
+      transform: scale(0.96) translateY(10px);
+      transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1), transform 0.5s cubic-bezier(0.22,1,0.36,1);
+      pointer-events: none;
+      display: none;
+    }
+    #marvelPanel.visible {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
+      display: block;
+    }
+    .marvel-picker {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .marvel-movie-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      border-radius: 18px;
+      border: 1.5px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-family: 'Rubik', sans-serif;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      text-align: left;
+      width: 100%;
+    }
+    .marvel-movie-btn:hover {
+      background: rgba(155,109,255,0.1);
+      border-color: rgba(155,109,255,0.35);
+      color: var(--text);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(155,109,255,0.15);
+    }
+    .marvel-movie-btn.active {
+      background: rgba(155,109,255,0.2);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 0 3px rgba(155,109,255,0.12), 0 8px 28px rgba(155,109,255,0.22);
+    }
+    .mv-icon { font-size: 1.6em; flex-shrink: 0; }
+    .mv-name { font-size: 1em; font-weight: 800; flex: 1; line-height: 1.2; }
+    .mv-date {
+      font-size: 0.78em;
+      color: rgba(196,160,255,0.65);
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .marvel-movie-btn.active .mv-date { color: rgba(196,160,255,0.85); }
+    #mvMsRow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 12px 16px;
+      border: 1px solid rgba(155,109,255,0.18);
+      border-top: none;
+      border-radius: 0 0 22px 22px;
+      background: linear-gradient(145deg, rgba(155,109,255,0.04), rgba(0,0,0,0.18));
+      margin-bottom: 20px;
+    }
+    .marvel-released-msg {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.1em;
+      font-weight: 700;
+      color: var(--accent-2);
+      text-align: center;
+      padding: 24px 12px;
+      text-shadow: 0 0 20px rgba(196,160,255,0.5);
+      letter-spacing: 2px;
+    }
+    @media (max-width: 500px) {
+      .mode-switch { max-width: 100%; padding: 4px; gap: 3px; border-radius: 16px; }
+      .mode-btn { font-size: 0.72em; padding: 7px 6px; }
+      .mv-date { display: none; }
     }
 
     /* Year-end panel */
@@ -1891,175 +1979,6 @@
     }
     #lifePercentDisplay.pct-visible { display: block; }
 
-/* Mode switch */
-.mode-switch {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin: 18px 0 26px;
-  flex-wrap: wrap;
-}
-.mode-btn {
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: 1.5px solid var(--card-border);
-  background: rgba(255,255,255,0.05);
-  color: var(--muted);
-  font-family: 'Rubik', sans-serif;
-  font-size: 0.9em;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-.mode-btn:hover {
-  background: rgba(155,109,255,0.12);
-  border-color: rgba(155,109,255,0.4);
-  color: var(--text);
-  transform: translateY(-1px);
-}
-.mode-btn.active {
-  background: rgba(155,109,255,0.2);
-  border-color: var(--accent);
-  color: #fff;
-  box-shadow: 0 0 20px rgba(155,109,255,0.18);
-}
-
-/* Year-end panel */
-#yearEndPanel {
-  opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 0.5s, transform 0.5s;
-  pointer-events: none;
-  display: none;
-}
-#yearEndPanel.visible {
-  opacity: 1;
-  transform: scale(1);
-  pointer-events: auto;
-  display: block;
-}
-.year-country-note {
-  font-size: 0.92em;
-  color: var(--muted);
-  margin-bottom: 20px;
-}
-.year-percent-display {
-  font-family: 'Orbitron', monospace;
-  font-size: clamp(1.05em, 3.2vw, 1.6em);
-  font-weight: 800;
-  color: var(--accent-2);
-  margin-bottom: 14px;
-  letter-spacing: 2px;
-  text-shadow: 0 0 16px rgba(196,160,255,0.5);
-}
-.year-percent-label {
-  font-size: 0.75em;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  color: rgba(196,160,255,0.55);
-  margin-bottom: 8px;
-}
-.year-controls {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 20px;
-}
-.year-action-btn {
-  padding: 12px 18px;
-  border-radius: 14px;
-  border: 1.5px solid var(--card-border);
-  background: rgba(255,255,255,0.05);
-  color: var(--muted);
-  font-family: 'Rubik', sans-serif;
-  font-size: 0.92em;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.18s;
-}
-.year-action-btn:hover {
-  background: rgba(155,109,255,0.12);
-  border-color: rgba(155,109,255,0.4);
-  color: var(--text);
-  transform: translateY(-1px);
-}
-
-
-/* Timezone picker for year countdown */
-.year-tz-wrap {
-  position: relative;
-  width: 100%;
-  margin-bottom: 18px;
-}
-.year-tz-btn {
-  width: 100%;
-  padding: 14px 20px;
-  border-radius: 16px;
-  border: 1.5px solid var(--card-border);
-  background: rgba(255,255,255,0.06);
-  color: var(--text);
-  font-family: 'Rubik', sans-serif;
-  font-size: 1em;
-  font-weight: 700;
-  cursor: pointer;
-  outline: none;
-  transition: border-color 0.2s, background 0.2s;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-.year-tz-btn:hover, .year-tz-btn.open {
-  border-color: var(--accent);
-  background: rgba(155,109,255,0.10);
-}
-.year-tz-btn .caret { font-size: 0.7em; opacity: 0.7; transition: transform 0.2s; }
-.year-tz-btn.open .caret { transform: rotate(180deg); }
-
-#yearTzMenu {
-  display: none;
-  width: 100%;
-  max-height: 260px;
-  overflow-y: auto;
-  border-radius: 14px;
-  border: 1.5px solid var(--card-border);
-  background: rgba(12,8,24,0.97);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  margin-top: 6px;
-  margin-bottom: 8px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(155,109,255,0.4) transparent;
-  position: relative;
-  z-index: 50;
-}
-#yearTzMenu.open { display: block; }
-.tz-option {
-  padding: 11px 18px;
-  cursor: pointer;
-  font-family: 'Rubik', sans-serif;
-  font-size: 0.93em;
-  font-weight: 700;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  transition: background 0.15s;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.tz-option:last-child { border-bottom: none; }
-.tz-option:hover { background: rgba(155,109,255,0.14); }
-.tz-option.selected { background: rgba(155,109,255,0.22); color: #fff; }
-.tz-option-city { flex: 1; }
-.tz-option-offset {
-  font-family: 'DM Mono', 'Rubik', monospace;
-  font-size: 0.82em;
-  color: rgba(196,160,255,0.65);
-  white-space: nowrap;
-}
   </style>
 </head>
 <body>
@@ -2099,6 +2018,7 @@
 <div class="mode-switch">
   <button class="mode-btn active" id="lifeModeBtn" onclick="setAppMode('life')">Life Countdown</button>
   <button class="mode-btn" id="yearModeBtn" onclick="setAppMode('year')">Year End Countdown</button>
+  <button class="mode-btn" id="marvelModeBtn" onclick="setAppMode('marvel')">🎬 Marvel Countdown</button>
 </div>
 
 <!-- Panel Stage: setup and countdown swap here -->
@@ -2260,6 +2180,62 @@
     <div class="year-controls">
       <button class="year-action-btn" onclick="setAppMode('life')">Back to Life Countdown</button>
       <button class="year-action-btn" onclick="startYearEndCountdown()">Refresh Now</button>
+    </div>
+  </div>
+
+  <!-- Marvel Countdown Panel -->
+  <div id="marvelPanel">
+    <div class="enjoy-msg">🎬 Marvel Countdown 🎬</div>
+    <div class="enjoy-sub">Pick a film to see how long until release day.</div>
+
+    <div class="marvel-picker">
+      <button class="marvel-movie-btn active" id="mvBtn0" onclick="selectMarvelMovie(0)">
+        <span class="mv-icon">🕷️</span>
+        <span class="mv-name">Spider-Man: Brand New Day</span>
+        <span class="mv-date">July 31, 2026</span>
+      </button>
+      <button class="marvel-movie-btn" id="mvBtn1" onclick="selectMarvelMovie(1)">
+        <span class="mv-icon">🌎</span>
+        <span class="mv-name">Avengers: Doomsday</span>
+        <span class="mv-date">December 18, 2026</span>
+      </button>
+      <button class="marvel-movie-btn" id="mvBtn2" onclick="selectMarvelMovie(2)">
+        <span class="mv-icon">⚔️</span>
+        <span class="mv-name">Avengers: Secret Wars</span>
+        <span class="mv-date">December 17, 2027</span>
+      </button>
+    </div>
+
+    <div class="doom-header" id="marvelHeader">UNTIL SPIDER-MAN: BRAND NEW DAY</div>
+    <div class="doom-display">
+      <div class="doom-seg">
+        <span class="doom-val" id="mvValDays">0</span>
+        <div class="doom-lbl">Days</div>
+      </div>
+      <div class="doom-colon">:</div>
+      <div class="doom-seg">
+        <span class="doom-val" id="mvValHours">0</span>
+        <div class="doom-lbl">Hours</div>
+      </div>
+      <div class="doom-colon">:</div>
+      <div class="doom-seg">
+        <span class="doom-val" id="mvValMinutes">0</span>
+        <div class="doom-lbl">Minutes</div>
+      </div>
+      <div class="doom-colon">:</div>
+      <div class="doom-seg">
+        <span class="doom-val" id="mvValSeconds">0</span>
+        <div class="doom-lbl">Seconds</div>
+      </div>
+    </div>
+
+    <div class="doom-ms-row" id="mvMsRow">
+      <span class="doom-ms-label">Milliseconds</span>
+      <span class="doom-ms-val" id="mvValMs">000</span>
+    </div>
+
+    <div class="marvel-released-msg" id="marvelReleasedMsg" style="display:none">
+      🎉 This film has already been released! 🎉
     </div>
   </div>
 </div>
@@ -2958,15 +2934,30 @@ function calculate() {
 
 function setAppMode(mode) {
   appMode = mode;
-  const lifeBtn = document.getElementById('lifeModeBtn');
-  const yearBtn = document.getElementById('yearModeBtn');
-  if (lifeBtn) lifeBtn.classList.toggle('active', mode === 'life');
-  if (yearBtn) yearBtn.classList.toggle('active', mode === 'year');
+  const lifeBtn   = document.getElementById('lifeModeBtn');
+  const yearBtn   = document.getElementById('yearModeBtn');
+  const marvelBtn = document.getElementById('marvelModeBtn');
+  if (lifeBtn)   lifeBtn.classList.toggle('active',   mode === 'life');
+  if (yearBtn)   yearBtn.classList.toggle('active',   mode === 'year');
+  if (marvelBtn) marvelBtn.classList.toggle('active', mode === 'marvel');
 
-  const modeSwitch = document.querySelector('.mode-switch');
-  const setupPanel = document.getElementById('setupPanel');
-  const lifePanel  = document.getElementById('countdownPanel');
-  const yearPanel  = document.getElementById('yearEndPanel');
+  const modeSwitch  = document.querySelector('.mode-switch');
+  const setupPanel  = document.getElementById('setupPanel');
+  const lifePanel   = document.getElementById('countdownPanel');
+  const yearPanel   = document.getElementById('yearEndPanel');
+  const marvelPanel = document.getElementById('marvelPanel');
+
+  // Hide marvel panel unless we're in marvel mode
+  if (marvelPanel) {
+    if (mode === 'marvel') {
+      marvelPanel.classList.add('visible');
+      marvelPanel.style.display = 'block';
+    } else {
+      marvelPanel.classList.remove('visible');
+      marvelPanel.style.display = 'none';
+      stopMarvelCountdown();
+    }
+  }
 
   if (mode === 'year') {
     // Show year panel, hide everything else
@@ -2976,19 +2967,25 @@ function setAppMode(mode) {
     stopTickSound();
     if (yearPanel) { yearPanel.classList.add('visible'); yearPanel.style.display = 'block'; }
     startYearEndCountdown();
+  } else if (mode === 'marvel') {
+    if (modeSwitch) modeSwitch.classList.remove('hidden');
+    showPanel(null);
+    if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+    stopTickSound();
+    if (yearPanel) { yearPanel.classList.remove('visible'); yearPanel.style.display = 'none'; }
+    stopYearEndCountdown();
+    startMarvelCountdown();
   } else {
-    // Hide year panel
+    // life mode
     if (yearPanel) { yearPanel.classList.remove('visible'); yearPanel.style.display = 'none'; }
     stopYearEndCountdown();
 
     const counting = lifePanel && lifePanel.classList.contains('visible');
     if (counting) {
-      // Countdown is active — hide setup, show modeswitch hidden, show countdown
       if (modeSwitch) modeSwitch.classList.add('hidden');
       showPanel('countdown');
       if (endDate && endDate > new Date()) startCountdown();
     } else {
-      // No countdown yet — show setup form
       if (modeSwitch) modeSwitch.classList.remove('hidden');
       showPanel('setup');
     }
@@ -3165,15 +3162,10 @@ function updateYearEndCountdown() {
   const minutes = Math.floor((totalSec % 3600) / 60);
   const seconds = totalSec % 60;
 
-  const dEl = document.getElementById('yearValDays');
-  const hEl = document.getElementById('yearValHours');
-  const mEl = document.getElementById('yearValMinutes');
-  const sEl = document.getElementById('yearValSeconds');
-
-  if (dEl) dEl.textContent = String(days);
-  if (hEl) hEl.textContent = String(hours).padStart(2, '0');
-  if (mEl) mEl.textContent = String(minutes).padStart(2, '0');
-  if (sEl) sEl.textContent = String(seconds).padStart(2, '0');
+  setVal('yearValDays',    String(days));
+  setVal('yearValHours',   String(hours).padStart(2, '0'));
+  setVal('yearValMinutes', String(minutes).padStart(2, '0'));
+  setVal('yearValSeconds', String(seconds).padStart(2, '0'));
 
   if (pctEl) pctEl.textContent = pct.toFixed(2) + '%';
   if (barEl) barEl.style.width = pct.toFixed(4) + '%';
@@ -3192,7 +3184,101 @@ function startYearEndCountdown() {
   restoreYearTz();
   stopYearEndCountdown();
   updateYearEndCountdown();
-  yearEndTick = setInterval(updateYearEndCountdown, 250);
+  yearEndTick = setInterval(updateYearEndCountdown, 1000);
+}
+
+// ── MARVEL COUNTDOWN ──
+const MARVEL_MOVIES = [
+  {
+    id: 0,
+    name: 'Spider-Man: Brand New Day',
+    icon: '🕷️',
+    date: 'July 31, 2026',
+    // July 31, 2026 00:00:00 UTC
+    utc: Date.UTC(2026, 6, 31, 0, 0, 0)
+  },
+  {
+    id: 1,
+    name: 'Avengers: Doomsday',
+    icon: '🌎',
+    date: 'December 18, 2026',
+    // December 18, 2026 00:00:00 UTC
+    utc: Date.UTC(2026, 11, 18, 0, 0, 0)
+  },
+  {
+    id: 2,
+    name: 'Avengers: Secret Wars',
+    icon: '⚔️',
+    date: 'December 17, 2027',
+    // December 17, 2027 00:00:00 UTC
+    utc: Date.UTC(2027, 11, 17, 0, 0, 0)
+  }
+];
+
+let selectedMarvelMovie = 0;
+let marvelTick = null;
+let marvelPrevSecond = -1;
+
+function selectMarvelMovie(idx) {
+  selectedMarvelMovie = idx;
+  marvelPrevSecond = -1;
+  // Update button states
+  MARVEL_MOVIES.forEach((_, i) => {
+    const btn = document.getElementById('mvBtn' + i);
+    if (btn) btn.classList.toggle('active', i === idx);
+  });
+  // Update header
+  const hdr = document.getElementById('marvelHeader');
+  if (hdr) hdr.textContent = 'UNTIL ' + MARVEL_MOVIES[idx].name.toUpperCase();
+  updateMarvelCountdown();
+}
+
+function updateMarvelCountdown() {
+  const movie = MARVEL_MOVIES[selectedMarvelMovie];
+  const now = Date.now();
+  const remaining = Math.max(0, movie.utc - now);
+  const releasedMsg = document.getElementById('marvelReleasedMsg');
+  const display = document.querySelector('#marvelPanel .doom-display');
+  const msRow = document.getElementById('mvMsRow');
+
+  if (remaining <= 0) {
+    // Already released
+    setVal('mvValDays',    '00');
+    setVal('mvValHours',   '00');
+    setVal('mvValMinutes', '00');
+    setVal('mvValSeconds', '00');
+    document.getElementById('mvValMs').textContent = '000';
+    if (releasedMsg) releasedMsg.style.display = 'block';
+    if (display) display.style.opacity = '0.4';
+    return;
+  }
+
+  if (releasedMsg) releasedMsg.style.display = 'none';
+  if (display) display.style.opacity = '1';
+
+  const ms = remaining % 1000;
+  const totalSec = Math.floor(remaining / 1000);
+  const days    = Math.floor(totalSec / 86400);
+  const hours   = Math.floor((totalSec % 86400) / 3600);
+  const minutes = Math.floor((totalSec % 3600) / 60);
+  const seconds = totalSec % 60;
+
+  setVal('mvValDays',    String(days));
+  setVal('mvValHours',   String(hours).padStart(2, '0'));
+  setVal('mvValMinutes', String(minutes).padStart(2, '0'));
+  setVal('mvValSeconds', String(seconds).padStart(2, '0'));
+  document.getElementById('mvValMs').textContent = String(ms).padStart(3, '0');
+}
+
+function startMarvelCountdown() {
+  stopMarvelCountdown();
+  // Select first movie and start ticking
+  selectMarvelMovie(selectedMarvelMovie);
+  marvelTick = setInterval(updateMarvelCountdown, 13); // ~75fps for ms
+}
+
+function stopMarvelCountdown() {
+  if (marvelTick) { clearInterval(marvelTick); marvelTick = null; }
 }
 
   // Fullscreen (from Cheese Art)
@@ -3258,6 +3344,9 @@ function startYearEndCountdown() {
     document.getElementById('yearEndPanel').classList.remove('visible');
     document.getElementById('yearEndPanel').style.display = 'none';
     stopYearEndCountdown();
+    const mpanel = document.getElementById('marvelPanel');
+    if (mpanel) { mpanel.classList.remove('visible'); mpanel.style.display = 'none'; }
+    stopMarvelCountdown();
 
     msVisible = false;
     document.getElementById('msRow').classList.add('ms-hidden');
