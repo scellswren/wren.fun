@@ -6846,7 +6846,43 @@ try{
 if(!Array.isArray(unlockedFeatures))unlockedFeatures=[];
 const cog=document.getElementById('settingsCog'),settingsMenu=document.getElementById('settingsMenu');
 
-function persistUnlocked(t){if(!unlockedFeatures.includes(t)){unlockedFeatures.push(t);localStorage.setItem(UNLOCK_KEY,JSON.stringify(unlockedFeatures));}}
+const THEME_UNLOCK_STORAGE_KEYS={
+  usa:USA_THEME_UNLOCK_KEY,china:CHINA_THEME_UNLOCK_KEY,metal:METAL_THEME_UNLOCK_KEY,vomit:VOMIT_THEME_UNLOCK_KEY,
+  emerald:EMERALD_THEME_UNLOCK_KEY,diamond:DIAMOND_THEME_UNLOCK_KEY,turquoise:TURQUOISE_THEME_UNLOCK_KEY,
+  turquoisecyan:TURQUOISE_CYAN_THEME_UNLOCK_KEY,darth:DARTH_THEME_UNLOCK_KEY,coffee:COFFEE_THEME_UNLOCK_KEY,
+  windu:WINDU_THEME_UNLOCK_KEY,blueberry:BLUEBERRY_THEME_UNLOCK_KEY,blackhole:BLACKHOLE_THEME_UNLOCK_KEY,
+  wood:WOOD_THEME_UNLOCK_KEY,carrot:CARROT_THEME_UNLOCK_KEY,lucky:LUCKY_THEME_UNLOCK_KEY,glitch:GLITCH_THEME_UNLOCK_KEY,
+  slime:SLIME_THEME_UNLOCK_KEY,galaxy:GALAXY_THEME_UNLOCK_KEY,radioactive:RADIOACTIVE_UNLOCK_KEY,ice:ICE_THEME_UNLOCK_KEY,
+  cyan:CYAN_THEME_UNLOCK_KEY,spider:SPIDER_THEME_UNLOCK_KEY,skin:SKIN_THEME_UNLOCK_KEY,greenfizzy:GREEN_FIZZY_THEME_UNLOCK_KEY,
+  bluefizzy:BLUE_FIZZY_THEME_UNLOCK_KEY,peach:PEACH_THEME_UNLOCK_KEY,antarctica:ANTARCTICA_THEME_UNLOCK_KEY,
+  bluecheese:BLUECHEESE_THEME_UNLOCK_KEY,redfizzy:REDFIZZY_THEME_UNLOCK_KEY,coral:CORAL_THEME_UNLOCK_KEY,
+  midnight:MIDNIGHT_THEME_UNLOCK_KEY,obsidian:OBSIDIAN_THEME_UNLOCK_KEY,lantern:LANTERN_THEME_UNLOCK_KEY,
+  amethyst:AMATHEST_THEME_UNLOCK_KEY,whitesaber:WHITE_SABER_THEME_UNLOCK_KEY,blackwhite:BLACK_WHITE_THEME_UNLOCK_KEY,
+  chocolatechip:CHOCOLATE_CHIP_THEME_UNLOCK_KEY,orange:ORANGE_THEME_UNLOCK_KEY,orangefizzy:ORANGE_FIZZY_THEME_UNLOCK_KEY,
+  darksaber:DARK_SABER_THEME_UNLOCK_KEY,blur:BLUR_THEME_UNLOCK_KEY,caramal:CARAMAL_THEME_UNLOCK_KEY,money:MONEY_UNLOCK_KEY,
+  snow:SNOW_UNLOCK_KEY,cottoncandy:COTTON_CANDY_UNLOCK_KEY,saber:SABER_UNLOCK_KEY,pizza:PIZZA_THEME_UNLOCK_KEY,
+  day:DAY_UNLOCK_KEY,night:NIGHT_THEME_UNLOCK_KEY,luxurious:LUXURIOUS_THEME_UNLOCK_KEY,
+  rainbowremastered:RAINBOW_REMASTERED_THEME_UNLOCK_KEY,fire:FIRE_THEME_UNLOCK_KEY,anzac:ANZAC_THEME_UNLOCK_KEY,
+  jedi:JEDI_THEME_UNLOCK_KEY,watermelon:WATERMELON_THEME_UNLOCK_KEY,bone:BONE_THEME_UNLOCK_KEY,
+  seven:SEVEN_THEME_UNLOCK_KEY,one:ONE_THEME_UNLOCK_KEY,nine:NINE_THEME_UNLOCK_KEY
+};
+function persistThemeUnlockKey(mode){
+  const key=THEME_UNLOCK_STORAGE_KEYS[mode];
+  if(key)localStorage.setItem(key,'1');
+}
+function syncPersistedThemeUnlockKeys(){
+  unlockedFeatures.forEach(mode=>persistThemeUnlockKey(mode));
+}
+function persistUnlocked(t){
+  persistThemeUnlockKey(t);
+  if(!unlockedFeatures.includes(t)){
+    unlockedFeatures.push(t);
+    localStorage.setItem(UNLOCK_KEY,JSON.stringify(unlockedFeatures));
+  }
+  if(typeof updateThemeOwnedCount==='function')updateThemeOwnedCount();
+  else if(typeof updateThemeCountBadge==='function')updateThemeCountBadge();
+}
+syncPersistedThemeUnlockKeys();
 
 // ── ORE THEME ALTERNATING SWITCH LOGIC ──────────────────────────
 function getEmeraldSwitches(){
@@ -8194,6 +8230,7 @@ function submitCode(){
     localStorage.setItem(GLITCH_COG_COUNT_KEY,String(GLITCH_TARGET));localStorage.setItem(SLIME_USED_KEY,'1');
     localStorage.setItem(LUCKY_CLICK_COUNT_KEY,'50');
     allKeys.forEach(([key,mode])=>{localStorage.setItem(key,'1');persistUnlocked(mode);});
+    ALL_LOCKED_MODES.forEach(mode=>persistUnlocked(mode));
     syncPizzaUnlock();checkAllUnlocks();checkObjectAttackThemes();checkCreditsUnlocks();
     i.className='success';f.textContent='🎁 All themes unlocked!';f.className='ok';
     showToast('🎁 FishFinger556 — all themes unlocked!');
