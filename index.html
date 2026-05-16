@@ -7,13 +7,15 @@
   <style>
     :root { --accent:#7c3aed; --transition:0.45s cubic-bezier(0.4,0,0.2,1); --page-brightness:1; --scroll-track:rgba(0,0,0,0.08); --scroll-thumb:rgba(124,58,237,0.72); }
     *{box-sizing:border-box;margin:0;padding:0;}
-    html{scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track);overflow-y:scroll;overflow-x:hidden;}
+    html{overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track);}
     html,body{overflow-x:hidden;}
-    body{font-family:'Rubik',sans-serif;text-align:center;min-height:100vh;transition:background var(--transition),color var(--transition),filter 0.22s ease;overflow-x:hidden;overflow-y:visible;filter:brightness(var(--page-brightness));}
-    html::-webkit-scrollbar{width:11px;}
+    body{font-family:'Rubik',sans-serif;text-align:center;min-height:100vh;transition:background var(--transition),color var(--transition),filter 0.22s ease;overflow-x:hidden;overflow-y:visible;scrollbar-width:none;filter:brightness(var(--page-brightness));}
+    body::-webkit-scrollbar{display:none;}
+    html::-webkit-scrollbar{width:8px;}
     html::-webkit-scrollbar-track{background:var(--scroll-track);}
-    html::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:999px;border:3px solid var(--scroll-track);}
+    html::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:999px;border:2px solid var(--scroll-track);}
     html::-webkit-scrollbar-thumb:hover{background:var(--scroll-thumb);}
+    html::-webkit-scrollbar-button{display:none;}
     body.mode-light{background:#f5f5f7;color:#1d1d1f;}
     body.mode-dark{background:#0a0a0f;color:#f0f0f0;}
     body.mode-rainbow{animation:rainbowBG 10s linear infinite;color:#111;}
@@ -21,7 +23,7 @@
     body.mode-glass{background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(120,80,255,0.35) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 20%,rgba(0,200,255,0.3) 0%,transparent 55%),radial-gradient(ellipse 70% 60% at 60% 80%,rgba(255,100,180,0.25) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 10% 80%,rgba(0,255,180,0.2) 0%,transparent 55%),linear-gradient(135deg,#e8f4fd 0%,#f0e8ff 30%,#fde8f4 60%,#e8fff4 100%);color:#1a1a2e;}
     body.mode-glass::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 25% 35%,rgba(255,255,255,0.6) 0%,transparent 50%),radial-gradient(circle at 75% 65%,rgba(255,255,255,0.4) 0%,transparent 45%);pointer-events:none;z-index:0;}
     body.mode-cyan{background:radial-gradient(circle at 20% 25%,rgba(128,240,255,0.38) 0%,transparent 34%),radial-gradient(circle at 80% 68%,rgba(0,210,255,0.36) 0%,transparent 38%),radial-gradient(circle at 50% 15%,rgba(210,255,255,0.24) 0%,transparent 32%),linear-gradient(180deg,#001821 0%,#007d96 45%,#001018 100%);color:#eaffff;}
-    body.mode-spider{background:#050505;color:#f2f2f2;overflow-x:hidden;overflow-y:auto;position:relative;isolation:isolate;}
+    body.mode-spider{background:#050505;color:#f2f2f2;overflow-x:hidden;position:relative;isolation:isolate;}
     body.mode-spider::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.98;background:
       linear-gradient(90deg,transparent calc(50% - 1.5px),rgba(255,255,255,0.96) calc(50% - 1.5px) calc(50% + 1.5px),transparent calc(50% + 1.5px)),
       linear-gradient(0deg,transparent calc(50% - 1.5px),rgba(255,255,255,0.96) calc(50% - 1.5px) calc(50% + 1.5px),transparent calc(50% + 1.5px)),
@@ -968,22 +970,6 @@ body.mode-water h1{background:linear-gradient(135deg,#d8fbff,#6ddcff,#1c8ff5,#8c
     }
 
     /* ── CLOCK WIDGET ── */
-    #clockWidget {
-      position: fixed;
-      top: 18px;
-      right: 70px;
-      font-family: 'Rubik', sans-serif;
-      font-size: 0.82em;
-      font-weight: 800;
-      color: rgba(255,255,255,0.55);
-      letter-spacing: 1.5px;
-      z-index: 999;
-      cursor: default;
-      transition: color 0.2s;
-      user-select: none;
-    }
-    #clockWidget:hover { color: rgba(255,255,255,0.85); }
-
     /* ── THEME COUNT BADGE ON THEMES BTN ── */
     #themeCountBadge {
       display: inline-flex;
@@ -1002,34 +988,7 @@ body.mode-water h1{background:linear-gradient(135deg,#d8fbff,#6ddcff,#1c8ff5,#8c
     }
 
     /* ── SCROLL TO TOP BUTTON ── */
-    #scrollTopBtn {
-      position: fixed;
-      bottom: 28px;
-      right: 20px;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.7);
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(12px);
-      z-index: 998;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 0.25s, transform 0.25s, background 0.18s;
-      pointer-events: none;
-    }
-    #scrollTopBtn.visible {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-    #scrollTopBtn:hover { background: rgba(155,109,255,0.25); border-color: rgba(155,109,255,0.4); color: #fff; }
+
 
     /* ── SEARCH BAR — visible on all themes ── */
     #pageSearch {
@@ -6364,8 +6323,6 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
   </div>
 </div>
 <button id="codeBtn" onclick="openCodeModal()">🔑 Enter Code</button>
-<div id="clockWidget"></div>
-<button id="scrollTopBtn" title="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 <button id="themesBtn" onclick="openThemesModal()">🎨 Themes <span id="activeThemePill"></span><span id="themeCountBadge"></span></button>
 <div id="codeOverlay">
   <div id="codeModal">
@@ -6453,6 +6410,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       <div class="mode-option locked" id="orangeFizzyModeOption" data-mode="orangefizzy"><span>🟠 Orange Fizzy <span id="orangeFizzyLock">🔒</span></span><div class="mode-dot orange-fizzy-dot"></div></div>
       <div class="mode-option locked" id="greenFizzyModeOption" data-mode="greenfizzy"><span>🟢 Green Fizzy <span id="greenFizzyLock">🔒</span></span><div class="mode-dot greenfizzy-dot"></div></div>
       <div class="mode-option locked" id="blueFizzyModeOption" data-mode="bluefizzy"><span>🔵 Blue Fizzy <span id="blueFizzyLock">🔒</span></span><div class="mode-dot blue-fizzy-dot"></div></div>
+      <div class="mode-option locked" id="redfizzyModeOption" data-mode="redfizzy"><span>🔴 Red Fizzy <span id="redfizzyLock">🔒</span></span><div class="mode-dot redfizzy-dot"></div></div>
       <div class="mode-option locked" id="peachModeOption" data-mode="peach"><span>🍑 Peach <span id="peachLock">🔒</span></span><div class="mode-dot peach-dot"></div></div>
       <div class="mode-option locked" id="caramalModeOption" data-mode="caramal"><span>🍯 Caramal <span id="caramalLock">🔒</span></span><div class="mode-dot caramal-dot"></div></div>
       <div class="mode-option locked" id="waterModeOption" data-mode="water"><span>💧 Water <span id="waterLock">🔒</span></span><div class="mode-dot water-dot"></div></div>
@@ -6492,7 +6450,6 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       <div class="mode-option locked" id="usaModeOption" data-mode="usa"><span>🇺🇸 USA <span id="usaLock">🔒</span></span><div class="mode-dot usa-dot"></div></div>
       <div class="mode-option locked" id="chinaModeOption" data-mode="china"><span>🇨🇳 China <span id="chinaLock">🔒</span></span><div class="mode-dot china-dot"></div></div>
       <div class="mode-option locked" id="antarcticaModeOption" data-mode="antarctica"><span>🧊 Antarctica <span id="antarcticaLock">🔒</span></span><div class="mode-dot antarctica-dot"></div></div>
-      <div class="mode-option locked" id="redfizzyModeOption" data-mode="redfizzy"><span>🔴 Red Fizzy <span id="redfizzyLock">🔒</span></span><div class="mode-dot redfizzy-dot"></div></div>
       <div class="mode-option locked" id="coralModeOption" data-mode="coral"><span>🪸 Coral <span id="coralLock">🔒</span></span><div class="mode-dot coral-dot"></div></div>
       <div class="mode-option locked" id="midnightModeOption" data-mode="midnight"><span>🌙 Midnight <span id="midnightLock">🔒</span></span><div class="mode-dot midnight-dot"></div></div>
       <div class="mode-option locked" id="obsidianModeOption" data-mode="obsidian"><span>🖤 Obsidian <span id="obsidianLock">🔒</span></span><div class="mode-dot obsidian-dot"></div></div>
@@ -8325,27 +8282,6 @@ function updateThemeCountBadge() {
 updateThemeCountBadge();
 
 // ── QoL: LIVE CLOCK ──
-(function initClock() {
-  const el = document.getElementById('clockWidget');
-  if (!el) return;
-  function tick() {
-    const n = new Date();
-    const pad = x => String(x).padStart(2,'0');
-    el.textContent = pad(n.getHours()) + ':' + pad(n.getMinutes()) + ':' + pad(n.getSeconds());
-  }
-  tick();
-  setInterval(tick, 1000);
-})();
-
-// ── QoL: SCROLL TO TOP BUTTON ──
-(function initScrollTop() {
-  const btn = document.getElementById('scrollTopBtn');
-  if (!btn) return;
-  window.addEventListener('scroll', () => {
-    btn.classList.toggle('visible', window.scrollY > 300);
-  }, { passive: true });
-})();
-
 // ── QoL: PAGE SEARCH ──
 function filterPageButtons(query) {
   const q = query.trim().toLowerCase();
