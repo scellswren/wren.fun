@@ -115,6 +115,23 @@
   .menu-flag{font-size:48px;}
   .menu-country-name{font-family:'Orbitron',monospace;font-size:18px;color:var(--neon-cyan);font-weight:700;}
   .menu-year{font-size:13px;color:var(--text-dim);font-family:'Orbitron',monospace;}
+  .menu-meta{display:flex;flex-direction:column;gap:6px;}
+  .menu-cup-count{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    width:max-content;
+    padding:5px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,215,0,0.34);
+    background:linear-gradient(135deg,rgba(45,28,0,0.92),rgba(20,12,0,0.96));
+    color:var(--neon-gold);
+    font-family:'Orbitron',monospace;
+    font-size:11px;
+    letter-spacing:1.6px;
+    box-shadow:0 0 18px rgba(255,215,0,0.10), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  .menu-cup-count strong{font-size:13px;color:#fff2a8;}
   .menu-buttons{display:flex;flex-direction:column;gap:10px;width:min(300px,95vw);}
   .menu-btn{width:100%;padding:13px;font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;border:1px solid var(--border);background:var(--panel);color:var(--text);cursor:pointer;border-radius:8px;transition:all 0.25s;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;}
   .menu-btn::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--neon-blue),var(--neon-purple));transform:scaleY(0);transition:transform 0.2s;}
@@ -296,7 +313,11 @@
   <div class="glow-line"></div>
   <div class="menu-header">
     <div class="menu-flag" id="menu-flag">🌍</div>
-    <div style="flex:1"><div class="menu-country-name" id="menu-country-name">—</div><div class="menu-year">YEAR <span id="menu-year-num">2000</span></div></div>
+    <div class="menu-meta" style="flex:1">
+      <div class="menu-country-name" id="menu-country-name">—</div>
+      <div class="menu-year">YEAR <span id="menu-year-num">2000</span></div>
+      <div class="menu-cup-count">🏆 <strong id="menu-cup-wins">0</strong> WORLD CUPS WON</div>
+    </div>
   </div>
   <div class="menu-buttons">
     <button class="menu-btn resume-btn" id="btn-resume-cup" style="display:none"><span class="icon">⚡</span> RESUME CUP</button>
@@ -584,6 +605,23 @@ function computeStats(save){
   let cur=0;for(let i=rec.length-1;i>=0;i--){if(rec[i]==='w')cur++;else break;}
   return{wins,total,cur,best,rec:rec.slice(-10)};
 }
+function getSaveWorldCupWins(save){
+  const st=computeStats(save);
+  return st?st.wins:0;
+}
+function getTotalWorldCupWins(){
+  return G.saves.reduce((sum,save)=>sum+getSaveWorldCupWins(save),0);
+}
+function syncPongWorldCupThemeUnlocks(){
+  const totalWins=getTotalWorldCupWins();
+  const practiceCount=parseInt(localStorage.getItem('pong_practice_count')||'0');
+  if(totalWins>0)localStorage.setItem('pong_cup_won','1');
+  localStorage.setItem('pong_championship_count',String(totalWins));
+  if(practiceCount>=10)localStorage.setItem('pong_coral_unlocked','1');
+  if(totalWins>=3)localStorage.setItem('pong_obsidian_unlocked','1');
+  if(totalWins>=5)localStorage.setItem('pong_redfizzy_unlocked','1');
+  if(totalWins>=10)localStorage.setItem('pong_midnight_unlocked','1');
+}
 function renderStats(){
   const save=getSave(),cont=document.getElementById('stats-container');cont.innerHTML='';
   if(!save)return;
@@ -669,9 +707,11 @@ function renderCountrySelect(){
 function renderMenu(){
   const save=getSave();if(!save)return;
   const c=COUNTRIES.find(x=>x.name===save.country);
+  syncPongWorldCupThemeUnlocks();
   document.getElementById('menu-flag').textContent=c?c.flag:'🌍';
   document.getElementById('menu-country-name').textContent=save.country.toUpperCase();
   document.getElementById('menu-year-num').textContent=save.year;
+  document.getElementById('menu-cup-wins').textContent=getSaveWorldCupWins(save);
   const resumeBtn=document.getElementById('btn-resume-cup');
   const ip=getInProgress();
   if(ip){
@@ -766,6 +806,7 @@ function renderPractice(){
           const pm = parseInt(localStorage.getItem('pong_practice_count')||'0') + 1;
           localStorage.setItem('pong_practice_count', String(pm));
           if(pm >= 10) localStorage.setItem('pong_coral_unlocked','1');
+          syncPongWorldCupThemeUnlocks();
         }catch(e){}
         startPong({
           player:me,
@@ -926,16 +967,7 @@ function endTournament(){
   document.getElementById('tourney-end-year').textContent=`YEAR ${save.year-1}`;
   if(isC){
     Sound.champion();flash('gold');setTimeout(()=>{sparks(innerWidth/2,innerHeight/2,'#ffd700',20);sparks(innerWidth/4,innerHeight/3,'#bf00ff',12);},300);
-    // Unlock Jedi theme on main menu — flag that a cup has been won
-    try{
-      localStorage.setItem('pong_cup_won','1');
-      // Midnight theme unlocks on 10th championship
-      if(pwcWins >= 10) localStorage.setItem('pong_midnight_unlocked','1');
-      // Track total championships for Obsidian (need 3 — the hard one)
-      const pwcWins = parseInt(localStorage.getItem('pong_championship_count')||'0') + 1;
-      localStorage.setItem('pong_championship_count', String(pwcWins));
-      if(pwcWins >= 3) localStorage.setItem('pong_obsidian_unlocked','1');
-    }catch(e){}
+    syncPongWorldCupThemeUnlocks();
   }
   const med=['🥇','🥈','🥉','4️⃣'],pod=document.getElementById('podium');pod.innerHTML='';
   pos.forEach((p,i)=>{const c=COUNTRIES.find(x=>x.name===p.country);const r=document.createElement('div');r.className=`podium-row place-${i+1}${p.country===save.country?' is-you':''}`;r.innerHTML=`<span class="podium-medal">${med[i]}</span><span class="podium-flag">${c?c.flag:'🌍'}</span><span class="podium-name">${p.country.toUpperCase()}</span>${p.country===save.country?'<span style="font-size:11px;color:var(--neon-blue)">YOU</span>':''}`;pod.appendChild(r);});
@@ -1208,20 +1240,12 @@ function showResult(pw,S){
   }else{
     // Cup mode: only show Continue on win; loss triggers the callback automatically
     if(pw){
-      // Track consecutive cup match wins for Red Fizzy (need 3 in a row)
-      try{
-        const streak = parseInt(localStorage.getItem('pong_cup_win_streak')||'0') + 1;
-        localStorage.setItem('pong_cup_win_streak', String(streak));
-        if(streak >= 3) localStorage.setItem('pong_redfizzy_unlocked','1');
-      }catch(e){}
       const continueBtn=document.createElement('button');
       continueBtn.className='btn btn-green';
       continueBtn.innerHTML='<span>▶ CONTINUE</span>';
       continueBtn.onclick=()=>{Sound.click();S.onWin(S.ps,S.as);};
       btns.appendChild(continueBtn);
     }else{
-      // Reset win streak on loss
-      try{ localStorage.setItem('pong_cup_win_streak','0'); }catch(e){}
       // Loss in cup — fire the callback after a brief delay so the result screen is visible
       setTimeout(()=>{if(S.onLoss)S.onLoss(S.ps,S.as);},1800);
     }
@@ -1253,6 +1277,7 @@ document.addEventListener('fullscreenchange', syncFullscreenButton);
 
 // ── INIT ─────────────────────────────────────────
 loadAll();renderSaveSlots();syncFullscreenButton();
+syncPongWorldCupThemeUnlocks();
 updateHomeBtn('save');
 document.querySelectorAll('.diff-btn').forEach(b=>b.classList.toggle('active',b.dataset.diff===G.settings.difficulty));
 document.addEventListener('click',()=>{try{new(window.AudioContext||window.webkitAudioContext)().resume();}catch(e){}},{once:true});
