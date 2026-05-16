@@ -4777,9 +4777,9 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       justify-content:center !important;
       padding:18px !important;
       box-sizing:border-box !important;
-      background:rgba(8,10,14,0.74) !important;
-      backdrop-filter:blur(8px) !important;
-      -webkit-backdrop-filter:blur(8px) !important;
+      background:rgba(8,10,14,0.88) !important;
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
       opacity:0 !important;
       pointer-events:none !important;
       transition:opacity 0.16s ease !important;
@@ -4804,6 +4804,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       position:relative !important;
       margin:auto !important;
       flex-shrink:0 !important;
+      contain:layout paint style !important;
     }
     #themeInfoModal{
       width:min(540px,calc(100vw - 28px)) !important;
@@ -4858,6 +4859,9 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       max-height:46vh !important;
       overflow-y:auto !important;
       padding:8px 10px !important;
+      overscroll-behavior:contain !important;
+      -webkit-overflow-scrolling:touch !important;
+      contain:layout paint !important;
     }
     #themePageStatsBody::-webkit-scrollbar{width:5px !important;}
     #themePageStatsBody::-webkit-scrollbar-track{background:transparent !important;}
@@ -4886,6 +4890,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       gap:10px !important;
       padding:9px 4px !important;
       border-bottom:1px solid rgba(255,255,255,0.06) !important;
+      contain:layout paint style !important;
     }
     .theme-page-row:last-child{ border-bottom:none !important; }
     .theme-page-pill{
@@ -6202,12 +6207,10 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       background:rgba(255,255,255,0.25) !important;
     }
     /* Page stats modal */
-    #themePageStatsOverlay #themePageStatsBody,
-    #themePageStatsOverlay #themePageStatsBody *{
+    #themePageStatsOverlay #themePageStatsBody{
       scrollbar-color:rgba(255,255,255,0.25) transparent !important;
     }
-    #themePageStatsOverlay #themePageStatsBody::-webkit-scrollbar-thumb,
-    #themePageStatsOverlay #themePageStatsBody *::-webkit-scrollbar-thumb{
+    #themePageStatsOverlay #themePageStatsBody::-webkit-scrollbar-thumb{
       background:rgba(255,255,255,0.25) !important;
     }
 
@@ -7352,14 +7355,27 @@ function populateThemePageFilterOptions(){
   select.innerHTML='<option value="all">All Pages</option>'+pages.map(page=>`<option value="${page}">${page}</option>`).join('');
   select.value=pages.includes(current)?current:'all';
 }
+function getThemeOwnershipStats(){
+  const grid=document.querySelector('#themesModal .theme-grid');
+  if(grid){
+    const items=Array.from(grid.children);
+    return {
+      owned: items.filter(item=>!item.classList.contains('locked')).length,
+      total: items.length
+    };
+  }
+  const total=3+(typeof ALL_LOCKED_MODES!=='undefined'?ALL_LOCKED_MODES.length:0);
+  const ownedLocked=(typeof unlockedFeatures!=='undefined'&&Array.isArray(unlockedFeatures))
+    ? unlockedFeatures.filter(mode=>ALL_LOCKED_MODES.includes(mode)).length
+    : 0;
+  return {owned:3+ownedLocked,total};
+}
 function updateThemeOwnedCount(){
   const counter=document.getElementById('themeOwnedCount');
-  const grid=document.querySelector('#themesModal .theme-grid');
-  if(!counter||!grid)return;
-  const items=Array.from(grid.children);
-  const total=items.length;
-  const owned=items.filter(item=>!item.classList.contains('locked')).length;
+  if(!counter)return;
+  const {owned,total}=getThemeOwnershipStats();
   counter.textContent=`${owned}/${total}`;
+  updateThemeCountBadge();
 }
 function openThemeInfoModal(mode){
   activeThemeInfoMode=mode;
@@ -8532,18 +8548,8 @@ function updateThemeCountBadge() {
   const badge = document.getElementById('themeCountBadge');
   if (!badge) return;
   try {
-    const grid = document.querySelector('#themesModal .theme-grid');
-    if (grid) {
-      const items = Array.from(grid.children);
-      const total = items.length;
-      const owned = items.filter(item => !item.classList.contains('locked')).length;
-      badge.textContent = owned + '/' + total;
-    } else {
-      // Fallback before modal is first opened: use unlockedFeatures
-      const ownedLocked = typeof unlockedFeatures !== 'undefined' ? unlockedFeatures.length : 0;
-      const total = typeof ALL_LOCKED_MODES !== 'undefined' ? ALL_LOCKED_MODES.length + 2 : 80;
-      badge.textContent = (ownedLocked + 2) + '/' + total;
-    }
+    const {owned,total}=getThemeOwnershipStats();
+    badge.textContent = owned + '/' + total;
   } catch(e) {}
 }
 updateThemeCountBadge();
