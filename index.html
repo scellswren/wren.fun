@@ -3051,6 +3051,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     #themesOverlay.open{opacity:1;pointer-events:auto;}
     #themesModal{
       width:min(1120px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:hidden;
+      display:flex;flex-direction:column;
       border-radius:30px;transform:scale(0.95) translateY(18px);transition:transform 0.3s cubic-bezier(0.34,1.4,0.64,1),box-shadow 0.3s ease;
       position:relative;background:var(--themes-surface,rgba(10,12,18,0.94));color:var(--themes-text,#f7f7fb);
       box-shadow:var(--themes-shadow,0 24px 70px rgba(0,0,0,0.34));border:1px solid var(--themes-border,rgba(255,255,255,0.12));
@@ -3066,7 +3067,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       background:var(--themes-close-bg,rgba(255,255,255,0.08));color:var(--themes-close-text,inherit);
       box-shadow:var(--themes-close-shadow,none);transition:transform 0.18s,background 0.18s,filter 0.18s,box-shadow 0.18s;}
     .themes-close:hover{transform:scale(1.06) rotate(4deg);background:var(--themes-close-hover-bg,rgba(255,255,255,0.14));filter:brightness(1.03);box-shadow:var(--themes-close-hover-shadow,none);}
-    .theme-grid{padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;max-height:calc(100vh - 156px);overflow:auto;background:var(--themes-grid-bg,transparent);scrollbar-width:thin;scrollbar-color:var(--themes-scroll-thumb,rgba(255,255,255,0.3)) var(--themes-scroll-track,transparent);}
+    .theme-grid{padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;flex:1;min-height:0;overflow:auto;background:var(--themes-grid-bg,transparent);scrollbar-width:thin;scrollbar-color:var(--themes-scroll-thumb,rgba(255,255,255,0.3)) var(--themes-scroll-track,transparent);}
     .theme-grid::-webkit-scrollbar{width:10px;}
     .theme-grid::-webkit-scrollbar-track{background:var(--themes-scroll-track,transparent);}
     .theme-grid::-webkit-scrollbar-thumb{background:var(--themes-scroll-thumb,rgba(255,255,255,0.28));border-radius:999px;border:3px solid var(--themes-scroll-track,transparent);}
@@ -3086,7 +3087,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     @media (max-width: 720px){
       #themesModal{width:min(100vw - 20px,1120px);border-radius:24px;}
       .themes-top{padding:18px 16px 12px;}
-      .theme-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));padding:14px;gap:10px;max-height:calc(100vh - 132px);}
+      .theme-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));padding:14px;gap:10px;}
       .theme-grid .mode-option{padding:13px 14px;min-height:68px;border-radius:18px;}
     }
     body.mode-light {
@@ -5096,23 +5097,62 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       background:#141b26 !important;
       color:#eef3ff !important;
     }
-    .themes-controls .search-group{
+    .themes-controls{
+      display:grid !important;
+      grid-template-columns:minmax(280px,1.35fr) minmax(0,1fr) auto !important;
+      gap:16px 18px !important;
+      align-items:stretch !important;
+      padding:18px 20px 20px !important;
+      background:linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.025)) !important;
+      border-bottom:1px solid rgba(255,255,255,0.08) !important;
+    }
+    .themes-controls .control-group{
+      min-width:0 !important;
+      display:flex !important;
+      flex-direction:column !important;
+      align-items:stretch !important;
+      gap:8px !important;
+      padding:12px !important;
+      border-radius:18px !important;
+      background:rgba(255,255,255,0.04) !important;
+      border:1px solid rgba(255,255,255,0.08) !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.05) !important;
+    }
+    .themes-controls .control-group.search-group{
+      grid-column:1 / 2 !important;
+      justify-content:center !important;
+      padding:14px !important;
+      background:linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.035)) !important;
+      border-color:rgba(173,214,255,0.16) !important;
+    }
+    .themes-controls .controls-stack{
+      grid-column:2 / 3 !important;
+      display:grid !important;
+      grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+      gap:12px !important;
       min-width:0 !important;
     }
-    .themes-controls .search-group label{
+    .themes-controls .search-group label,
+    .themes-controls .control-group label,
+    .theme-count-label{
       flex-shrink:0 !important;
+      font-size:0.72rem !important;
+      font-weight:800 !important;
+      letter-spacing:0.16em !important;
+      text-transform:uppercase !important;
+      color:rgba(235,244,255,0.68) !important;
     }
     .theme-search{
       width:100% !important;
       min-width:0 !important;
-      border-radius:12px !important;
+      border-radius:16px !important;
       border:1px solid rgba(173,214,255,0.22) !important;
       background:linear-gradient(180deg,#1f2a3c 0%,#141c2a 54%,#101720 100%) !important;
       color:#f0f7ff !important;
       font:inherit !important;
-      font-size:0.86rem !important;
+      font-size:0.92rem !important;
       font-weight:700 !important;
-      padding:8px 12px !important;
+      padding:12px 14px !important;
       box-shadow:inset 0 1px 0 rgba(216,238,255,0.12),0 8px 18px rgba(8,14,25,0.30) !important;
       transition:border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, transform 0.16s ease !important;
     }
@@ -5131,14 +5171,14 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     }
     .theme-count-pill{
       justify-self:center !important;
-      min-width:84px !important;
+      min-width:92px !important;
       text-align:center !important;
-      padding:8px 14px !important;
+      padding:10px 16px !important;
       border-radius:999px !important;
       border:1px solid rgba(167,185,255,0.30) !important;
       background:linear-gradient(145deg,rgba(92,118,255,0.22),rgba(124,58,237,0.20)) !important;
       color:#eef3ff !important;
-      font-size:0.85rem !important;
+      font-size:0.9rem !important;
       font-weight:900 !important;
       letter-spacing:0.4px !important;
       box-shadow:0 6px 18px rgba(28,36,61,0.32) !important;
@@ -5168,10 +5208,64 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       color:#e8d8ff !important;
     }
     .theme-count-wrap{
+      grid-column:3 / 4 !important;
       display:flex !important;
       align-items:center !important;
-      gap:8px !important;
-      justify-self:center !important;
+      gap:10px !important;
+      justify-self:stretch !important;
+      align-self:stretch !important;
+      padding:12px 14px !important;
+      border-radius:18px !important;
+      background:linear-gradient(180deg,rgba(124,58,237,0.12),rgba(255,255,255,0.04)) !important;
+      border:1px solid rgba(167,185,255,0.16) !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.05) !important;
+    }
+    .theme-count-meta{
+      display:flex !important;
+      flex-direction:column !important;
+      gap:7px !important;
+      min-width:0 !important;
+      flex:1 1 auto !important;
+      text-align:left !important;
+    }
+    .themes-controls select{
+      width:100% !important;
+      min-width:0 !important;
+      border-radius:14px !important;
+      padding:11px 13px !important;
+      font-size:0.88rem !important;
+      line-height:1.2 !important;
+    }
+    @media (max-width: 980px){
+      .themes-controls{
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+      }
+      .themes-controls .control-group.search-group{
+        grid-column:1 / -1 !important;
+      }
+      .themes-controls .controls-stack{
+        grid-column:1 / 2 !important;
+      }
+      .theme-count-wrap{
+        grid-column:2 / 3 !important;
+      }
+    }
+    @media (max-width: 720px){
+      .themes-controls{
+        grid-template-columns:minmax(0,1fr) !important;
+        gap:12px !important;
+        padding:14px !important;
+      }
+      .themes-controls .controls-stack{
+        grid-column:1 / -1 !important;
+        grid-template-columns:1fr !important;
+      }
+      .theme-count-wrap{
+        grid-column:1 / -1 !important;
+      }
+      .themes-controls .control-group{
+        padding:11px !important;
+      }
     }
 
     .theme-grid{
@@ -5896,8 +5990,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       background:
         radial-gradient(ellipse at 50% 100%,rgba(255,137,99,0.18) 0%,transparent 30%),
         radial-gradient(ellipse at 12% 100%,rgba(255,102,138,0.14) 0%,transparent 24%),
-        radial-gradient(ellipse at 86% 100%,rgba(96,232,210,0.16) 0%,transparent 24%),
-        repeating-linear-gradient(90deg,transparent 0 46px,rgba(255,255,255,0.025) 46px 48px,transparent 48px 92px);
+        radial-gradient(ellipse at 86% 100%,rgba(96,232,210,0.16) 0%,transparent 24%);
       opacity:0.95;
     }
     body.mode-coral::after{
@@ -6466,35 +6559,40 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     <div class="themes-controls">
       <div class="control-group search-group">
         <label>Search:</label>
-        <input type="text" id="themeSearch" class="theme-search" placeholder="Search themes..." oninput="updateThemeGrid(); saveThemeControls()" autocomplete="off">
+        <input type="text" id="themeSearch" class="theme-search" placeholder="Search themes or pages..." oninput="updateThemeGrid(); saveThemeControls()" autocomplete="off">
       </div>
-      <div class="control-group">
-        <label>Filter:</label>
-        <select id="themeFilter" onchange="updateThemeGrid(); saveThemeControls()">
-          <option value="all">Show All</option>
-          <option value="unlocked">Hide Unlocked</option>
-          <option value="locked">Hide Locked</option>
-        </select>
+      <div class="controls-stack">
+        <div class="control-group">
+          <label>Filter:</label>
+          <select id="themeFilter" onchange="updateThemeGrid(); saveThemeControls()">
+            <option value="all">Show All</option>
+            <option value="unlocked">Hide Unlocked</option>
+            <option value="locked">Hide Locked</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Page:</label>
+          <select id="themePageFilter" onchange="updateThemeGrid(); saveThemeControls()">
+            <option value="all">All Pages</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Sort:</label>
+          <select id="themeSort" onchange="updateThemeGrid(); saveThemeControls()">
+            <option value="normal">Normal</option>
+            <option value="alpha">Alphabetical</option>
+            <option value="emoji">Emoji</option>
+            <option value="page">Page</option>
+            <option value="length">Name Length</option>
+          </select>
+        </div>
       </div>
       <div class="theme-count-wrap">
-        <div class="theme-count-pill" id="themeOwnedCount">0/0</div>
+        <div class="theme-count-meta">
+          <div class="theme-count-label">Unlocked</div>
+          <div class="theme-count-pill" id="themeOwnedCount">0/0</div>
+        </div>
         <button type="button" class="theme-progress-btn" id="themePageProgressBtn" title="Theme Progress By Site">ⓘ</button>
-      </div>
-      <div class="control-group">
-        <label>Page:</label>
-        <select id="themePageFilter" onchange="updateThemeGrid(); saveThemeControls()">
-          <option value="all">All Pages</option>
-        </select>
-      </div>
-      <div class="control-group">
-        <label>Sort:</label>
-        <select id="themeSort" onchange="updateThemeGrid(); saveThemeControls()">
-          <option value="normal">Normal</option>
-          <option value="alpha">Alphabetical</option>
-          <option value="emoji">Emoji</option>
-          <option value="page">Page</option>
-          <option value="length">Name Length</option>
-        </select>
       </div>
     </div>
     <div class="theme-grid">
@@ -6656,7 +6754,8 @@ const CODES={
   'WrenIsOld123':'glass','Hotbeans78':'lava','GooGooGaGa':'galaxy',
   'Juke229N':'cheatCounter','HHH2sksdne23':'oneBillionCheat',
   'IWillHaveAnXXLPleaseAndThankYou':'pizza','Banana294OPo':'cycleThemes',
-  'BombaWOWRich':'moneyThemeCheat','SextillionSurge':'sextillionMoneyCheat'
+  'BombaWOWRich':'moneyThemeCheat','SextillionSurge':'sextillionMoneyCheat',
+  'FoodIsNotFree!2323':'unlockMissingThemes'
 };
 const UNLOCK_KEY='wren_unlocked',MODE_KEY='wrenMode';
 const DARTH_THEME_UNLOCK_KEY='wren_theme_darth_unlocked';
@@ -7957,6 +8056,22 @@ function updateThemeGrid() {
   visibleItems.forEach(item => grid.appendChild(item));
   updateThemeOwnedCount();
 }
+function syncThemeOptionLocks(){
+  document.querySelectorAll('#themesModal .theme-grid .mode-option[data-mode]').forEach(option=>{
+    const mode=option.dataset.mode||'';
+    if(!ALL_LOCKED_MODES.includes(mode))return;
+    const lockEl=option.querySelector('span[id$="Lock"]');
+    if(unlockedFeatures.includes(mode)){
+      option.classList.remove('locked');
+      if(lockEl)lockEl.textContent='';
+    }else{
+      option.classList.add('locked');
+      if(lockEl)lockEl.textContent='🔒';
+    }
+    option.onclick=()=>openThemeInfoModal(mode);
+  });
+  updateThemeGrid();
+}
 function closeThemesModal(){
   document.getElementById('themesOverlay').classList.remove('open');
   document.body.classList.remove('modal-open');
@@ -8067,6 +8182,24 @@ function submitCode(){
     i.className='success';f.textContent='🎁 All themes unlocked!';f.className='ok';
     showToast('🎁 FishFinger556 — all themes unlocked!');
     setTimeout(closeCodeModal,1400);return;
+  }
+  if(v==='FoodIsNotFree!2323'){
+    const missingModes=ALL_LOCKED_MODES.filter(mode=>!unlockedFeatures.includes(mode));
+    if(!missingModes.length){
+      i.className='success';
+      f.textContent='✓ You already have every locked theme!';
+      f.className='ok';
+      setTimeout(closeCodeModal,1400);
+      return;
+    }
+    missingModes.forEach(mode=>persistUnlocked(mode));
+    syncThemeOptionLocks();
+    i.className='success';
+    f.textContent=`🎨 Unlocked ${missingModes.length} new theme${missingModes.length===1?'':'s'}!`;
+    f.className='ok';
+    showToast(`🎨 FoodIsNotFree!2323 unlocked ${missingModes.length} missing theme${missingModes.length===1?'':'s'}!`);
+    setTimeout(closeCodeModal,1400);
+    return;
   }
   if(!u){i.className='error';f.textContent="That code isn't valid. Try again!";f.className='err';if(localStorage.getItem(SLIME_USED_KEY)!=='1'){localStorage.setItem(SLIME_USED_KEY,'1');localStorage.setItem(SLIME_THEME_UNLOCK_KEY,'1');persistUnlocked('slime');refreshSlimeOption();announceUnlock('🟢 Slime unlocked! Find it in Settings.');}setTimeout(()=>{i.className='';},600);return;}
   if(unlockedFeatures.includes(u)){f.textContent='✓ You already have this unlocked!';f.className='ok';i.className='success';if(u==='pizza'){syncPizzaUnlock();refreshPizzaOption();}setTimeout(closeCodeModal,1400);return;}
