@@ -1283,14 +1283,14 @@ document.querySelectorAll('.diff-btn').forEach(b=>b.classList.toggle('active',b.
 document.addEventListener('click',()=>{try{new(window.AudioContext||window.webkitAudioContext)().resume();}catch(e){}},{once:true});
 
 // ── SONG STATE PERSISTENCE ────────────────────────
-// Save whether the in-game sound is on when leaving, so the main menu can
-// auto-resume its own song (Song.mp3) and unlock the Bone theme.
-// We repurpose wren_song_was_playing to mean "user had audio on in Pong".
+// Do not force the main menu song on when leaving this page.
+// The main menu should only resume its own song if the user had already
+// manually enabled it there before coming to Pong World Cup.
 (function saveSongStateOnLeave(){
   function saveState(){
     try{
-      // G.settings.sound reflects whether in-game audio is enabled
-      localStorage.setItem('wren_song_was_playing', G.settings.sound ? '1' : '0');
+      const existing = localStorage.getItem('wren_song_was_playing');
+      if(existing === null) localStorage.setItem('wren_song_was_playing', '0');
     }catch(e){}
   }
   window.addEventListener('beforeunload', saveState);
