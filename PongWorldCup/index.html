@@ -343,6 +343,10 @@
     <div class="practice-title">🎯 PRACTICE MODE</div>
     <div class="practice-sub">NO STAKES · JUST REPS</div>
   </div>
+  <div id="practice-counter" style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid rgba(0,212,255,0.35);background:linear-gradient(135deg,rgba(0,20,40,0.92),rgba(0,70,110,0.72));color:var(--neon-cyan);font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1.8px;box-shadow:0 0 18px rgba(0,212,255,0.12);">
+    <span>🎮</span>
+    <span>PRACTICE GAMES PLAYED: <strong id="practice-count-value" style="color:#ffffff;">0</strong></span>
+  </div>
   <div class="practice-tier-legend">
     <span class="tier-badge pwr tier-s">★★★ ELITE</span>
     <span class="tier-badge pwr tier-a">★★ STRONG</span>
@@ -779,7 +783,11 @@ function renderPractice(){
   const me=COUNTRIES.find(c=>c.name===save.country);
   const grid=document.getElementById('practice-country-grid');
   const inp=document.getElementById('practice-search-input');
+  const practiceCountEl=document.getElementById('practice-count-value');
   inp.value='';
+  if(practiceCountEl){
+    practiceCountEl.textContent = String(parseInt(localStorage.getItem('pong_practice_count')||'0'));
+  }
 
   const render=f=>{
     grid.innerHTML='';
