@@ -296,6 +296,38 @@
     gap: 10px;
   }
 
+  .name-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+  }
+
+  .name-input {
+    flex: 1;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .name-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124,106,255,0.15);
+  }
+
+  .name-input::placeholder {
+    color: var(--muted);
+  }
+
   .btn-download {
     flex: 1;
     padding: 15px;
@@ -697,7 +729,7 @@
     appearance: none;
     outline: none;
   }
-  /* ── MP3/MP4 Downloader Tab ── */
+  /* ── Text File Tab ── */
   .video-wrap {
     animation: fadeUp 0.5s ease both;
   }
@@ -884,30 +916,12 @@
     word-break: break-all;
   }
 
-  /* Site pills */
   .video-instructions {
     margin-top: 20px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 20px 24px;
-  }
-
-  .vsite-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 12px 0;
-  }
-
-  .vsite-pill {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    padding: 5px 14px;
-    font-size: 12px;
-    font-family: 'DM Mono', monospace;
-    color: var(--muted);
   }
 
   .video-note {
@@ -943,7 +957,7 @@
   <div class="tab-nav">
     <button class="tab-btn active" data-tab="paste">🖼 Paste & Drag</button>
     <button class="tab-btn" data-tab="doc">📄 Paste Into Page</button>
-    <button class="tab-btn" data-tab="video">🎬 MP3 / MP4</button>
+    <button class="tab-btn" data-tab="video">📝 Text File</button>
   </div>
 
   <!-- Tab: Paste Zone -->
@@ -963,6 +977,11 @@
     <div class="format-row">
       <button class="fmt-btn active" data-fmt="png">PNG</button>
       <button class="fmt-btn" data-fmt="jpeg">JPG</button>
+    </div>
+
+    <div class="name-row">
+      <span class="quality-label">Name</span>
+      <input type="text" id="fileNameInput" class="name-input" value="Wren.fun_Image" placeholder="Wren.fun_Image" />
     </div>
 
     <div class="quality-row" id="quality-row" style="display:none;">
@@ -1006,6 +1025,7 @@
           <span class="doc-hint">📋 Paste any content — images are auto-detected</span>
         </div>
         <div class="doc-toolbar-right">
+          <input type="text" id="docFileNameInput" class="name-input" value="Wren.fun_Image" placeholder="Wren.fun_Image" style="width:200px; flex:none; padding:9px 12px;">
           <div class="doc-fmt-row">
             <button class="doc-fmt-btn active" data-dfmt="png">PNG</button>
             <button class="doc-fmt-btn" data-dfmt="jpeg">JPG</button>
@@ -1027,64 +1047,28 @@
     </div>
   </div><!-- /tab-doc -->
 
-  <!-- Tab: MP3 / MP4 Downloader -->
+  <!-- Tab: Text File Downloader -->
   <div class="tab-panel" id="tab-video">
     <div class="video-wrap">
 
       <div class="video-input-area">
-        <div class="video-icon">🎬</div>
-        <div class="video-title">Paste a video link</div>
-        <div class="video-subtitle">YouTube · TikTok · Instagram · X · Snapchat · Reddit · and more</div>
-        <input type="url" id="videoUrlInput" class="video-url-input" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" spellcheck="false" />
-
-        <div class="video-fmt-row">
-          <button class="vfmt-btn active" data-vfmt="mp4" id="vfmtMp4">
-            <span class="vfmt-icon">🎥</span>
-            <span class="vfmt-label">MP4</span>
-            <span class="vfmt-desc">Video + Audio</span>
-          </button>
-          <button class="vfmt-btn" data-vfmt="mp3" id="vfmtMp3">
-            <span class="vfmt-icon">🎵</span>
-            <span class="vfmt-label">MP3</span>
-            <span class="vfmt-desc">Audio only</span>
-          </button>
-        </div>
-
-        <div class="video-quality-row" id="videoQualityRow">
-          <span class="quality-label">Quality</span>
-          <div class="vqual-btns">
-            <button class="vqual-btn" data-q="3840">4K</button>
-            <button class="vqual-btn active" data-q="1080">1080p</button>
-            <button class="vqual-btn" data-q="720">720p</button>
-            <button class="vqual-btn" data-q="480">480p</button>
-            <button class="vqual-btn" data-q="360">360p</button>
-          </div>
-        </div>
-
-        <button class="btn-download video-dl-btn" id="videoDownloadBtn">⬇ Fetch & Download</button>
+        <div class="video-icon">📝</div>
+        <div class="video-title">Turn text into a file</div>
+        <div class="video-subtitle">Anything you type here will download as a plain text file</div>
+        <input type="text" id="videoFileNameInput" class="video-url-input" value="Wren.fun_Image" placeholder="Wren.fun_Image" autocomplete="off" spellcheck="false" />
+        <textarea id="videoUrlInput" class="video-url-input" placeholder="Type or paste your text here..." autocomplete="off" spellcheck="true" style="min-height:220px; resize:vertical; margin-bottom:16px;"></textarea>
+        <button class="btn-download video-dl-btn" id="videoDownloadBtn">⬇ Download Text File</button>
       </div>
 
       <div class="video-status" id="videoStatus" style="display:none;">
-        <div class="vstatus-icon" id="vStatusIcon">⏳</div>
-        <div class="vstatus-text" id="vStatusText">Fetching video info…</div>
+        <div class="vstatus-icon" id="vStatusIcon">📝</div>
+        <div class="vstatus-text" id="vStatusText">Preparing text file…</div>
         <div class="vstatus-sub" id="vStatusSub"></div>
       </div>
 
       <div class="video-instructions">
-        <div class="instructions-title">Supported sites</div>
-        <div class="vsite-grid">
-          <div class="vsite-pill">▶ YouTube</div>
-          <div class="vsite-pill">♪ TikTok</div>
-          <div class="vsite-pill">📸 Instagram</div>
-          <div class="vsite-pill">𝕏 Twitter / X</div>
-          <div class="vsite-pill">👻 Snapchat</div>
-          <div class="vsite-pill">🎵 SoundCloud</div>
-          <div class="vsite-pill">🎬 Reddit</div>
-          <div class="vsite-pill">📌 Pinterest</div>
-          <div class="vsite-pill">🎶 Spotify</div>
-          <div class="vsite-pill">+ many more</div>
-        </div>
-        <p class="video-note">Paste a link, choose MP3 or MP4, and hit download — you'll be sent to the best free downloader for that platform. No installs needed.</p>
+        <div class="instructions-title">How it works</div>
+        <p class="video-note">Set a filename, type whatever you want, then press download. The file saves as a simple <strong style="color:var(--text)">.txt</strong> file.</p>
       </div>
 
     </div>
@@ -1093,7 +1077,7 @@
 </div>
 
 <div class="toast" id="toast">✓ Image downloaded!</div>
-<div class="toast" id="videoToast" style="background:var(--accent); color:#fff;">✓ Download started!</div>
+<div class="toast" id="videoToast" style="background:var(--accent); color:#fff;">✓ File downloaded!</div>
 
 <script>
   let currentBlob = null;
@@ -1110,6 +1094,7 @@
   const qualityVal = document.getElementById('quality-val');
   const toast = document.getElementById('toast');
   const instructions = document.getElementById('instructions');
+  const fileNameInput = document.getElementById('fileNameInput');
 
   // Format buttons
   document.querySelectorAll('.fmt-btn').forEach(btn => {
@@ -1128,6 +1113,30 @@
 
   function updateDownloadBtn() {
     downloadBtn.textContent = `⬇ Download as .${currentFormat === 'jpeg' ? 'jpg' : 'png'}`;
+  }
+
+  function sanitizeFileName(name, fallback = 'Wren.fun_Image') {
+    const cleaned = String(name || '')
+      .replace(/[<>:"/\\|?*\x00-\x1F]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/\.+$/g, '');
+    return cleaned || fallback;
+  }
+
+  function triggerDownload(blob, fileName) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+
+  function unlockLimeTheme() {
+    localStorage.setItem('wren_theme_lime_unlocked', '1');
   }
 
   dropZone.addEventListener('focus', () => {});
@@ -1210,12 +1219,9 @@
       const quality = currentFormat === 'jpeg' ? parseInt(qualitySlider.value) / 100 : undefined;
       const mimeType = currentFormat === 'jpeg' ? 'image/jpeg' : 'image/png';
       canvas.toBlob(blob => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `image.${currentFormat === 'jpeg' ? 'jpg' : 'png'}`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        const baseName = sanitizeFileName(fileNameInput.value);
+        triggerDownload(blob, `${baseName}.${currentFormat === 'jpeg' ? 'jpg' : 'png'}`);
+        unlockLimeTheme();
         showToast();
       }, mimeType, quality);
     };
@@ -1255,6 +1261,7 @@
   const galleryItems = document.getElementById('galleryItems');
   const galleryHeader = document.getElementById('galleryHeader');
   const noImagesMsg = document.getElementById('noImagesMsg');
+  const docFileNameInput = document.getElementById('docFileNameInput');
   let docFormat = 'png';
 
   document.querySelectorAll('.doc-fmt-btn').forEach(btn => {
@@ -1286,7 +1293,7 @@
     }, 400);
   }
 
-  grabAllBtn.addEventListener('click', () => {
+  grabAllBtn.addEventListener('click', async () => {
     const imgs = Array.from(docPage.querySelectorAll('img'));
     noImagesMsg.style.display = 'none';
     galleryItems.innerHTML = '';
@@ -1297,8 +1304,9 @@
       return;
     }
 
-    galleryHeader.textContent = `Found ${imgs.length} image${imgs.length > 1 ? 's' : ''} — click to download`;
+    galleryHeader.textContent = `Found ${imgs.length} image${imgs.length > 1 ? 's' : ''} — downloading all`;
     docGallery.classList.add('visible');
+    const baseName = sanitizeFileName(docFileNameInput.value);
 
     imgs.forEach((img, i) => {
       const entry = document.createElement('div');
@@ -1314,7 +1322,7 @@
 
       const name = document.createElement('div');
       name.className = 'gallery-name';
-      name.textContent = `image_${i + 1}.${docFormat === 'jpeg' ? 'jpg' : 'png'}`;
+      name.textContent = `${baseName}_${i + 1}.${docFormat === 'jpeg' ? 'jpg' : 'png'}`;
 
       const dims = document.createElement('div');
       dims.className = 'gallery-dims';
@@ -1333,7 +1341,7 @@
       const dlBtn = document.createElement('button');
       dlBtn.className = 'btn-dl-single';
       dlBtn.textContent = '⬇ Download';
-      dlBtn.addEventListener('click', () => downloadDocImage(img.src, i + 1));
+      dlBtn.addEventListener('click', () => downloadDocImage(img.src, i + 1, baseName));
 
       actions.appendChild(dlBtn);
       entry.appendChild(thumb);
@@ -1341,9 +1349,15 @@
       entry.appendChild(actions);
       galleryItems.appendChild(entry);
     });
+
+    for (let i = 0; i < imgs.length; i++) {
+      downloadDocImage(imgs[i].src, i + 1, baseName);
+      await new Promise(resolve => setTimeout(resolve, 120));
+    }
+    unlockLimeTheme();
   });
 
-  function downloadDocImage(src, index) {
+  function downloadDocImage(src, index, baseName = sanitizeFileName(docFileNameInput.value)) {
     const canvas = document.createElement('canvas');
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -1358,22 +1372,20 @@
       ctx.drawImage(img, 0, 0);
       const mimeType = docFormat === 'jpeg' ? 'image/jpeg' : 'image/png';
       canvas.toBlob(blob => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `image_${index}.${docFormat === 'jpeg' ? 'jpg' : 'png'}`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        triggerDownload(blob, `${baseName}_${index}.${docFormat === 'jpeg' ? 'jpg' : 'png'}`);
+        unlockLimeTheme();
         showToast();
       }, mimeType, 0.92);
     };
     img.onerror = () => {
-      const a = document.createElement('a');
-      a.href = src;
-      a.download = `image_${index}.${docFormat === 'jpeg' ? 'jpg' : 'png'}`;
-      a.target = '_blank';
-      a.click();
-      showToast();
+      fetch(src)
+        .then(r => r.blob())
+        .then(blob => {
+          triggerDownload(blob, `${baseName}_${index}.${docFormat === 'jpeg' ? 'jpg' : 'png'}`);
+          unlockLimeTheme();
+          showToast();
+        })
+        .catch(() => {});
     };
     img.src = src;
   }
@@ -1395,37 +1407,15 @@
     handlePaste(e);
   });
 
-  // ── MP3/MP4 Downloader ──
+  // ── Text File Downloader ──
   const videoUrlInput = document.getElementById('videoUrlInput');
+  const videoFileNameInput = document.getElementById('videoFileNameInput');
   const videoDownloadBtn = document.getElementById('videoDownloadBtn');
   const videoStatus = document.getElementById('videoStatus');
   const vStatusIcon = document.getElementById('vStatusIcon');
   const vStatusText = document.getElementById('vStatusText');
   const vStatusSub = document.getElementById('vStatusSub');
   const videoToast = document.getElementById('videoToast');
-  const videoQualityRow = document.getElementById('videoQualityRow');
-
-  let currentVFmt = 'mp4';
-  let currentQuality = '1080';
-
-  // Format toggle
-  document.querySelectorAll('.vfmt-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.vfmt-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentVFmt = btn.dataset.vfmt;
-      videoQualityRow.style.display = currentVFmt === 'mp4' ? 'flex' : 'none';
-    });
-  });
-
-  // Quality toggle
-  document.querySelectorAll('.vqual-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.vqual-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentQuality = btn.dataset.q;
-    });
-  });
 
   function setVideoStatus(icon, text, sub, iconClass = '') {
     videoStatus.style.display = 'block';
@@ -1458,73 +1448,28 @@
   }
 
   videoDownloadBtn.addEventListener('click', () => {
-    const url = videoUrlInput.value.trim();
-    if (!url) {
+    const text = videoUrlInput.value;
+    if (!text.trim()) {
       videoUrlInput.focus();
       videoUrlInput.style.borderColor = 'var(--accent2)';
       setTimeout(() => videoUrlInput.style.borderColor = '', 1200);
       return;
     }
-
-    try { new URL(url); } catch {
-      setVideoStatus('❌', 'Invalid URL', 'Please paste a valid link.', 'error');
-      return;
-    }
-
-    const platform = detectPlatform(url);
-    const encoded = encodeURIComponent(url);
-
-    // Pick the best downloader per platform
-    let downloaderUrl;
-
-    if (currentVFmt === 'mp3') {
-      // For audio: y2mate handles MP3 from most platforms well
-      downloaderUrl = `https://www.y2mate.com/en872/analyze/ajax?url=${encoded}&q_auto=1&ajax=1`;
-      // Just open cobalt for audio — most reliable
-      downloaderUrl = `https://cobalt.tools/#${encoded}`;
-    } else {
-      // MP4: route per platform
-      const host = (() => { try { return new URL(url).hostname.replace('www.', ''); } catch { return ''; } })();
-      if (host.includes('youtube') || host.includes('youtu.be')) {
-        downloaderUrl = `https://yt1s.com/en/youtube-to-mp4?q=${encoded}`;
-      } else if (host.includes('tiktok')) {
-        downloaderUrl = `https://snaptik.app/?url=${encoded}`;
-      } else if (host.includes('instagram')) {
-        downloaderUrl = `https://snapinsta.app/?url=${encoded}`;
-      } else if (host.includes('twitter') || host.includes('x.com')) {
-        downloaderUrl = `https://twittervideodownloader.com/?url=${encoded}`;
-      } else {
-        downloaderUrl = `https://cobalt.tools/#${encoded}`;
-      }
-    }
-
-    setVideoStatus('🚀', `Opening downloader for ${platform}…`, 'A new tab will open — click Download there to save your file.', 'done');
+    const baseName = sanitizeFileName(videoFileNameInput.value);
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    triggerDownload(blob, `${baseName}.txt`);
+    setVideoStatus('✓', 'Text file downloaded!', `${baseName}.txt`, 'done');
     showVideoToast();
-
-    setTimeout(() => {
-      window.open(downloaderUrl, '_blank');
-      videoStatus.style.display = 'none';
-      videoDownloadBtn.disabled = false;
-    }, 600);
   });
 
-  // Allow pressing Enter in the URL field
-  videoUrlInput.addEventListener('keydown', (e) => {
+  // Allow pressing Enter in the filename field
+  videoFileNameInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') videoDownloadBtn.click();
   });
 
-  // Auto-paste from clipboard when switching to video tab
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      if (btn.dataset.tab === 'video' && !videoUrlInput.value) {
-        try {
-          const text = await navigator.clipboard.readText();
-          if (text && (text.startsWith('http://') || text.startsWith('https://'))) {
-            videoUrlInput.value = text;
-          }
-        } catch { /* clipboard permission denied, skip */ }
-      }
-    });
+  // Allow Ctrl+Enter in the text field
+  videoUrlInput.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') videoDownloadBtn.click();
   });
 
   // ── Fullscreen ──
