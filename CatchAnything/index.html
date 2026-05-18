@@ -902,6 +902,17 @@
         <button class="xp-boost-btn" id="xpBoostBtn" type="button" onclick="buyXpBoost()">Buy for 25 tokens</button>
         <div class="xp-boost-owned" id="xpBoostOwnedText">Permanent upgrade. Only needs to be bought once.</div>
       </div>
+      <div class="xp-boost-card" id="xpBoost5Card" style="display:none">
+        <div class="xp-boost-head">
+          <div>
+            <div class="xp-boost-title">x5 XP Boost</div>
+            <div class="xp-boost-meta">Requires x2 first. Replaces x2 with a permanent x5 XP multiplier.</div>
+          </div>
+          <div class="xp-boost-badge" id="xpBoost5Badge">Locked</div>
+        </div>
+        <button class="xp-boost-btn" id="xpBoost5Btn" type="button" onclick="buyXpBoost5()">Buy for 55 tokens</button>
+        <div class="xp-boost-owned" id="xpBoost5OwnedText">Unlocks after you buy x2 XP. It does not stack to x10.</div>
+      </div>
       <div class="exchange-grid" id="exchangeGrid"></div>
     </div>
     <div class="card" style="font-size:0.85em;color:var(--muted);line-height:1.75">
@@ -964,7 +975,7 @@
 
 <div class="modal-backdrop" id="xpBoostConfirmModal">
   <div class="modal-box" role="dialog" aria-modal="true">
-    <div class="modal-title">Buy x2 XP Boost?</div>
+    <div class="modal-title" id="xpBoostConfirmTitle">Buy x2 XP Boost?</div>
     <div class="modal-text" id="xpBoostConfirmText"></div>
     <div class="modal-actions">
       <button class="modal-btn ghost" onclick="closeXpBoostConfirm()">Cancel</button>
@@ -1262,6 +1273,7 @@ const EXCHANGE_COST_KEY = 'catchAnything_exchangeCosts_v1';
 const MODE_KEY = 'catchAnythingMode_v2_thispage';
 const BALL_TYPES = ['normal','super','omega','god'];
 const VALID_SELECTED_BALLS = new Set(BALL_TYPES);
+const INFINITE_BALL_COUNT = 'Infinity';
 
 function createDefaultState() {
   return { balls:{normal:0,super:0,omega:0,god:0}, inventory:{}, encounter:null, throwsLeft:0, selectedBall:'normal', level:1, xp:0, tokens:0, xpMultiplier:1 };
@@ -1271,7 +1283,21 @@ let exchangeCosts = { impossible: 15 };
 
 function isPlainObject(v) { return !!v && typeof v==='object' && !Array.isArray(v); }
 function safeParseSave(raw) { if(!raw) return null; try{const p=JSON.parse(raw);return isPlainObject(p)?p:null}catch(e){return null} }
-function sanitizeBalls(b) { const o={normal:0,super:0,omega:0,god:0}; if(!isPlainObject(b))return o; BALL_TYPES.forEach(t=>{const n=Number(b[t]);o[t]=Number.isFinite(n)&&n>0?Math.floor(n):0});return o; }
+function isInfiniteBallCount(v){ return v===INFINITE_BALL_COUNT; }
+function getBallCountNumber(v){ return isInfiniteBallCount(v)?Infinity:Math.max(0,Math.floor(Number(v)||0)); }
+function formatBallCount(v){ return isInfiniteBallCount(v)?INFINITE_BALL_COUNT:getBallCountNumber(v).toLocaleString(); }
+function getSerializableBallCount(v){ return isInfiniteBallCount(v)?INFINITE_BALL_COUNT:getBallCountNumber(v); }
+function sanitizeBalls(b) {
+  const o={normal:0,super:0,omega:0,god:0};
+  if(!isPlainObject(b))return o;
+  BALL_TYPES.forEach(t=>{
+    const raw=b[t];
+    if(raw===INFINITE_BALL_COUNT){o[t]=INFINITE_BALL_COUNT;return;}
+    const n=Number(raw);
+    o[t]=Number.isFinite(n)&&n>0?Math.floor(n):0;
+  });
+  return o;
+}
 function sanitizeInventory(inv) {
   const o = {};
   if (!isPlainObject(inv)) return o;
@@ -1288,10 +1314,39 @@ function sanitizeInventory(inv) {
 }
 function sanitizeSelectedBall(v){ return VALID_SELECTED_BALLS.has(v)?v:'normal'; }
 function sanitizeProgressNumber(v,fb){ const n=Number(v); return Number.isFinite(n)&&n>=0?Math.floor(n):fb; }
+function getXpMultiplierValue(){
+  const mult=Number(state.xpMultiplier);
+  if(mult>=5)return 5;
+  if(mult>=2)return 2;
+  return 1;
+}
+function getXpMultiplierLabel(){ return `x${getXpMultiplierValue()}`; }
+function hasX2XpOwned(){ return getXpMultiplierValue()>=2; }
+function hasX5XpOwned(){ return getXpMultiplierValue()>=5; }
+function getBallInventoryCount(type){ return getBallCountNumber(state.balls[type]); }
+function addBallCount(type, amount){
+  if(isInfiniteBallCount(state.balls[type]))return;
+  state.balls[type]=getBallCountNumber(state.balls[type])+amount;
+}
+function spendBall(type){
+  if(isInfiniteBallCount(state.balls[type]))return true;
+  const current=getBallCountNumber(state.balls[type]);
+  if(current<=0)return false;
+  state.balls[type]=current-1;
+  return true;
+}
 
 function normalizeLoadedState(raw){
   const s=safeParseSave(raw);if(!s)return null;
-  return{balls:sanitizeBalls(s.balls),inventory:sanitizeInventory(s.inventory),selectedBall:sanitizeSelectedBall(s.selectedBall),level:sanitizeProgressNumber(s.level,1),xp:sanitizeProgressNumber(s.xp,0),tokens:sanitizeProgressNumber(s.tokens,0),xpMultiplier:Number(s.xpMultiplier)>=2?2:1};
+  return{balls:sanitizeBalls(s.balls),inventory:sanitizeInventory(s.inventory),selectedBall:sanitizeSelectedBall(s.selectedBall),level:sanitizeProgressNumber(s.level,1),xp:sanitizeProgressNumber(s.xp,0),tokens:sanitizeProgressNumber(s.tokens,0),xpMultiplier:Number(s.xpMultiplier)>=5?5:Number(s.xpMultiplier)>=2?2:1};
+}
+function mergeBalls(base, extra){
+  const merged={};
+  BALL_TYPES.forEach(type=>{
+    if(isInfiniteBallCount(base?.[type])||isInfiniteBallCount(extra?.[type])){merged[type]=INFINITE_BALL_COUNT;return;}
+    merged[type]=Math.max(getBallCountNumber(base?.[type]),getBallCountNumber(extra?.[type]));
+  });
+  return merged;
 }
 function mergeInventory(base, extra) {
   const merged = { ...base };
@@ -1318,7 +1373,7 @@ function loadState(){
     state.balls=c.balls;state.selectedBall=c.selectedBall;state.level=c.level;state.xp=c.xp;state.tokens=c.tokens;state.xpMultiplier=c.xpMultiplier||1;state.inventory=c.inventory;
     for(let i=1;i<candidates.length;i++){
       state.inventory=mergeInventory(state.inventory,candidates[i].inventory);
-      state.balls=sanitizeBalls({...state.balls,...candidates[i].balls});
+      state.balls=mergeBalls(state.balls,candidates[i].balls);
       if(!VALID_SELECTED_BALLS.has(state.selectedBall))state.selectedBall=candidates[i].selectedBall;
       state.level=Math.max(state.level,candidates[i].level);
       state.xp=Math.max(state.xp,candidates[i].xp);
@@ -1334,7 +1389,9 @@ function loadState(){
 }
 
 function buildSavePayload(){
-  return JSON.stringify({balls:state.balls,inventory:state.inventory,selectedBall:state.selectedBall,level:state.level,xp:state.xp,tokens:state.tokens,xpMultiplier:state.xpMultiplier,updatedAt:Date.now()});
+  const balls={};
+  BALL_TYPES.forEach(type=>{balls[type]=getSerializableBallCount(state.balls[type]);});
+  return JSON.stringify({balls,inventory:state.inventory,selectedBall:state.selectedBall,level:state.level,xp:state.xp,tokens:state.tokens,xpMultiplier:getXpMultiplierValue(),updatedAt:Date.now()});
 }
 
 function saveState(){
@@ -1473,13 +1530,18 @@ function updateLevelUI(){
   nowEl.textContent=now.toLocaleString();
   needEl.textContent=need.toLocaleString();
   fillEl.style.width=pct.toFixed(2)+'%';
-  // Show x2 badge
+  // Keep the dock badge synced with the active permanent XP multiplier.
   const dock=document.getElementById('xpDockInner');
   const existing=dock.querySelector('.x2-badge');
-  if(state.xpMultiplier>=2&&!existing){
-    const badge=document.createElement('span');badge.className='x2-badge';badge.textContent='x2 XP';
-    dock.insertBefore(badge,dock.firstChild.nextSibling);
-  }else if(state.xpMultiplier<2&&existing){existing.remove();}
+  if(getXpMultiplierValue()>=2){
+    if(existing)existing.textContent=`${getXpMultiplierLabel()} XP`;
+    else{
+      const badge=document.createElement('span');
+      badge.className='x2-badge';
+      badge.textContent=`${getXpMultiplierLabel()} XP`;
+      dock.insertBefore(badge,dock.firstChild.nextSibling);
+    }
+  }else if(existing){existing.remove();}
   updateBallOddsDisplay();
   renderXpRewardGrids();
 }
@@ -1505,19 +1567,19 @@ function updateBallOddsDisplay(){
 }
 
 function renderXpRewardGrids(){
-  const mult=state.xpMultiplier||1;
+  const mult=getXpMultiplierValue();
   const isBoosted=mult>=2;
   const catchXps=[['Easy','easy',100],['Normal','normal',300],['Decent','decent',750],['Hard','hard',2000],['Very Hard','superhard',4000],['Impossible','impossible',35000]];
   const rollXps=[['Normal Ball','normal-ball',10],['Super Ball','super-ball',50],['Omega Ball','omega-ball',200],['God Light','god-ball',20000]];
   function buildGrid(grids){
     const html=`
       <div class="xp-reward-card">
-        <div class="xp-reward-title">Catch XP${isBoosted?' <span style="color:#fbbf24;font-size:0.85em">(x2 active!)</span>':''}</div>
-        ${catchXps.map(([label,col,base])=>`<div class="xp-reward-item"><span class="xp-reward-name" style="color:var(--${col})">${label}</span><span class="xp-reward-value${isBoosted?' boosted':''}">${isBoosted?(base*2).toLocaleString():base.toLocaleString()} XP${isBoosted?'':''}</span></div>`).join('')}
+        <div class="xp-reward-title">Catch XP${isBoosted?` <span style="color:#fbbf24;font-size:0.85em">(${getXpMultiplierLabel()} active!)</span>`:''}</div>
+        ${catchXps.map(([label,col,base])=>`<div class="xp-reward-item"><span class="xp-reward-name" style="color:var(--${col})">${label}</span><span class="xp-reward-value${isBoosted?' boosted':''}">${isBoosted?(base*mult).toLocaleString():base.toLocaleString()} XP</span></div>`).join('')}
       </div>
       <div class="xp-reward-card">
-        <div class="xp-reward-title">Ball Roll XP${isBoosted?' <span style="color:#fbbf24;font-size:0.85em">(x2 active!)</span>':''}</div>
-        ${rollXps.map(([label,col,base])=>`<div class="xp-reward-item"><span class="xp-reward-name" style="color:var(--${col})">${label}</span><span class="xp-reward-value${isBoosted?' boosted':''}">${isBoosted?(base*2).toLocaleString():base.toLocaleString()} XP</span></div>`).join('')}
+        <div class="xp-reward-title">Ball Roll XP${isBoosted?` <span style="color:#fbbf24;font-size:0.85em">(${getXpMultiplierLabel()} active!)</span>`:''}</div>
+        ${rollXps.map(([label,col,base])=>`<div class="xp-reward-item"><span class="xp-reward-name" style="color:var(--${col})">${label}</span><span class="xp-reward-value${isBoosted?' boosted':''}">${isBoosted?(base*mult).toLocaleString():base.toLocaleString()} XP</span></div>`).join('')}
       </div>`;
     grids.forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=html;});
   }
@@ -1525,7 +1587,7 @@ function renderXpRewardGrids(){
   // Boost badge labels
   ['overlayBoostBadge','levelsTabBoostBadge'].forEach(id=>{
     const el=document.getElementById(id);
-    if(el)el.innerHTML=isBoosted?'<span class="x2-badge" style="display:inline-block;margin-left:6px">x2 XP ACTIVE</span>':'';
+    if(el)el.innerHTML=isBoosted?`<span class="x2-badge" style="display:inline-block;margin-left:6px">${getXpMultiplierLabel()} XP ACTIVE</span>`:'';
   });
 }
 
@@ -1573,7 +1635,7 @@ function spawnXPFly(amount,diff,sourceRect,cls=''){
 
 function awardXp(amount,diff,sourceRect){
   if(!amount||amount<=0)return;
-  const totalAmount=Math.max(0,Math.round(amount*(state.xpMultiplier||1)));
+  const totalAmount=Math.max(0,Math.round(amount*getXpMultiplierValue()));
   spawnXPFly(totalAmount,diff,sourceRect,diff==='impossible'?'levelup':'');
   state.xp+=totalAmount;
   let leveled=false;
@@ -1585,15 +1647,15 @@ function awardXp(amount,diff,sourceRect){
     state.tokens+=tokenGain;
     // Level 100: give 4 God Light balls
     if(state.level===100){
-      state.balls.god+=4;
+      addBallCount('god',4);
       playSpecialSound('level100');
     }
     // Level 120+: give balls every level
     if(state.level>=120){
-      state.balls.normal+=100;
-      state.balls.super+=50;
-      state.balls.omega+=10;
-      state.balls.god+=1;
+      addBallCount('normal',100);
+      addBallCount('super',50);
+      addBallCount('omega',10);
+      addBallCount('god',1);
     }
     playLevelUpSound();
     flashLevelDock();
@@ -1824,7 +1886,7 @@ function getBalls(){
   const got=rollBallOutcome();
   const rollXp={normal:10,super:50,omega:200,god:20000};
   if(got){
-    state.balls[got]++;saveState();updateBallCounts();renderBallSelector();
+    addBallCount(got,1);saveState();updateBallCounts();renderBallSelector();
     if(state.encounter)renderEncounter();
     const labels={normal:'⚾ Normal Wren Ball!',super:'🎾 Super Wren Ball!',omega:'🏀 Omega Wren Ball!!',god:'✨ GOD LIGHT WREN BALL!!!'};
     const count=got==='god'?7:got==='omega'?5:got==='super'?3:2;
@@ -1832,7 +1894,7 @@ function getBalls(){
     for(let i=0;i<count;i++)spawnFlyText(labels[got],'fly-'+got,cx,cy,i);
     if(got==='god')spawnSparkles(cx,cy);
     const xpEarned=rollXp[got];
-    const displayXp=(state.xpMultiplier||1)>=2?xpEarned*2:xpEarned;
+    const displayXp=xpEarned*getXpMultiplierValue();
     toast.textContent=labels[got]+`  (+${displayXp.toLocaleString()} XP)`;
     toast.className='ball-result-toast show got-'+got;
     awardXp(xpEarned,got,rect);
@@ -1901,7 +1963,7 @@ function spawnSparkles(cx,cy){
 function updateBallCounts(){
   ['normal','super','omega','god'].forEach(b=>{
     const el=document.getElementById('cnt-'+b);
-    if(el)el.textContent=state.balls[b];
+    if(el)el.textContent=formatBallCount(state.balls[b]);
   });
 }
 
@@ -1912,16 +1974,16 @@ function renderBallSelector(){
     const btn=document.createElement('button');
     const isSel=state.selectedBall===b;
     btn.className='ball-select-btn'+(isSel?' selected-'+b:'');
-    btn.disabled=state.balls[b]===0&&!isSel;
+    btn.disabled=getBallInventoryCount(b)===0&&!isSel;
     const names={normal:'Normal',super:'Super',omega:'Omega',god:'God Light'};
-    btn.innerHTML=`${BALL_ICONS[b]} ${names[b]} <span style="opacity:0.65">(${state.balls[b]})</span>`;
+    btn.innerHTML=`${BALL_ICONS[b]} ${names[b]} <span style="opacity:0.65">(${formatBallCount(state.balls[b])})</span>`;
     btn.onclick=()=>{
-      if(state.balls[b]>0){playButtonSound();state.selectedBall=b;saveState();renderBallSelector();if(state.encounter)renderEncounter();}
+      if(getBallInventoryCount(b)>0){playButtonSound();state.selectedBall=b;saveState();renderBallSelector();if(state.encounter)renderEncounter();}
     };
     sel.appendChild(btn);
   });
-  if(state.balls[state.selectedBall]===0){
-    const fb=['normal','super','omega','god'].find(b=>state.balls[b]>0);
+  if(getBallInventoryCount(state.selectedBall)===0){
+    const fb=['normal','super','omega','god'].find(b=>getBallInventoryCount(b)>0);
     if(fb){state.selectedBall=fb;saveState();renderBallSelector();}
   }
 }
@@ -2061,9 +2123,10 @@ function findEncounter(){
 function throwBall(){
   const ball=state.selectedBall;
   if(!state.encounter||state.throwsLeft<=0)return;
-  if(state.balls[ball]<=0){showThrowResult('❌ No '+BALL_NAMES[ball]+' left! Pick another.','miss-result');return;}
+  if(getBallInventoryCount(ball)<=0){showThrowResult('❌ No '+BALL_NAMES[ball]+' left! Pick another.','miss-result');return;}
   playThrowSound();
-  state.balls[ball]--;saveState();updateBallCounts();renderBallSelector();
+  if(!spendBall(ball)){showThrowResult('❌ No '+BALL_NAMES[ball]+' left! Pick another.','miss-result');return;}
+  saveState();updateBallCounts();renderBallSelector();
   if(state.encounter)renderEncounter();
   const{diff,item}=state.encounter;
   const rate=Math.min(1,THINGS[diff].rate*BALL_MULT[ball]);
@@ -2081,7 +2144,7 @@ function throwBall(){
       <div class="encounter-difficulty diff-${diff}">${DIFF_LABELS[diff]}</div>
       <div style="font-size:0.85em;color:var(--muted)">Added to your inventory</div>`;
     const catchXp=getCatchXp(diff);
-    const displayXp=(state.xpMultiplier||1)>=2?catchXp*2:catchXp;
+    const displayXp=catchXp*getXpMultiplierValue();
     showThrowResult(`✅ You caught ${item}! +${displayXp.toLocaleString()} XP`,'caught-result');
     const r=box.getBoundingClientRect();
     playCatchSound(diff);
@@ -2232,13 +2295,39 @@ function getExchangeTotalCount(){
 }
 
 function updateXpBoostUI(){
-  const owned=Number(state.xpMultiplier)>=2;
+  const hasX2=hasX2XpOwned();
+  const hasX5=hasX5XpOwned();
   const badge=document.getElementById('xpBoostBadge');
   const button=document.getElementById('xpBoostBtn');
   const ownedText=document.getElementById('xpBoostOwnedText');
-  if(badge)badge.textContent=owned?'Owned':'Not owned';
-  if(button){button.disabled=owned;button.textContent=owned?'Already owned':'Buy for 25 tokens';}
-  if(ownedText)ownedText.textContent=owned?'Permanent upgrade owned. x2 XP is active on your save.':'Permanent upgrade. Only needs to be bought once.';
+  if(badge)badge.textContent=hasX2?'Owned':'Not owned';
+  if(button){
+    button.disabled=hasX2;
+    button.textContent=hasX2?'Already owned':'Buy for 25 tokens';
+  }
+  if(ownedText){
+    ownedText.textContent=hasX5
+      ?'Permanent upgrade owned. x2 is unlocked, but your save now runs at x5 XP.'
+      :hasX2
+        ?'Permanent upgrade owned. x2 XP is active on your save.'
+        :'Permanent upgrade. Only needs to be bought once.';
+  }
+
+  const x5Card=document.getElementById('xpBoost5Card');
+  const x5Badge=document.getElementById('xpBoost5Badge');
+  const x5Button=document.getElementById('xpBoost5Btn');
+  const x5OwnedText=document.getElementById('xpBoost5OwnedText');
+  if(x5Card)x5Card.style.display=hasX2?'block':'none';
+  if(x5Badge)x5Badge.textContent=hasX5?'Owned':'Not owned';
+  if(x5Button){
+    x5Button.disabled=!hasX2||hasX5;
+    x5Button.textContent=hasX5?'Already owned':'Buy for 55 tokens';
+  }
+  if(x5OwnedText){
+    x5OwnedText.textContent=hasX5
+      ?'Permanent upgrade owned. x5 XP is active on your save.'
+      :'Requires x2 first. Buying x5 replaces x2, it does not stack to x10.';
+  }
 }
 
 function renderExchangeTab(){
@@ -2315,10 +2404,22 @@ function confirmExchange(){
   playBallRollSound('super');
 }
 
+let pendingXpBoostPurchase='x2';
 function buyXpBoost(){
-  if(Number(state.xpMultiplier)>=2){updateXpBoostUI();return;}
+  if(hasX2XpOwned()){updateXpBoostUI();return;}
   playModalSound();
+  pendingXpBoostPurchase='x2';
+  document.getElementById('xpBoostConfirmTitle').textContent='Buy x2 XP Boost?';
   document.getElementById('xpBoostConfirmText').innerHTML='Are you sure? It costs <b>25 tokens</b> and permanently doubles all XP you earn.';
+  document.getElementById('xpBoostConfirmModal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function buyXpBoost5(){
+  if(!hasX2XpOwned()||hasX5XpOwned()){updateXpBoostUI();return;}
+  playModalSound();
+  pendingXpBoostPurchase='x5';
+  document.getElementById('xpBoostConfirmTitle').textContent='Buy x5 XP Boost?';
+  document.getElementById('xpBoostConfirmText').innerHTML='Are you sure? It costs <b>55 tokens</b>, requires <b>x2 XP</b>, and permanently sets your save to <b>x5 XP</b>. It does <b>not</b> stack to x10.';
   document.getElementById('xpBoostConfirmModal').classList.add('show');
   document.body.style.overflow='hidden';
 }
@@ -2327,7 +2428,21 @@ function closeXpBoostConfirm(){
   document.body.style.overflow='';
 }
 function confirmXpBoostPurchase(){
-  if(Number(state.xpMultiplier)>=2){closeXpBoostConfirm();updateXpBoostUI();return;}
+  if(pendingXpBoostPurchase==='x5'){
+    if(!hasX2XpOwned()||hasX5XpOwned()){closeXpBoostConfirm();updateXpBoostUI();return;}
+    if(state.tokens<55){alert("You don't have enough tokens.");return;}
+    state.tokens-=55;
+    state.xpMultiplier=5;
+    saveState();
+    closeXpBoostConfirm();
+    updateXpBoostUI();
+    renderExchangeTab();
+    const toast=document.getElementById('exchangeOwnedToast');
+    if(toast){toast.textContent='x5 XP Boost purchased! Confetti theme unlocked!';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2400);}
+    playLevelUpSound();
+    return;
+  }
+  if(hasX2XpOwned()){closeXpBoostConfirm();updateXpBoostUI();return;}
   if(state.tokens<25){alert("You don't have enough tokens.");return;}
   state.tokens-=25;state.xpMultiplier=2;saveState();closeXpBoostConfirm();updateXpBoostUI();renderExchangeTab();
   const toast=document.getElementById('exchangeOwnedToast');
