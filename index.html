@@ -5384,6 +5384,9 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       border-color:rgba(255,220,120,0.22) !important;
       box-shadow:inset 0 1px 0 rgba(255,255,255,0.02), 0 0 0 1px rgba(255,220,120,0.10) !important;
     }
+    .theme-grid .mode-option.locked > .theme-favorite-btn{
+      display:none !important;
+    }
     .theme-grid .mode-option > .theme-favorite-btn{
       flex:0 0 auto !important;
       width:34px !important;
@@ -6672,13 +6675,29 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     }
 
     body.mode-inverted{
-      background:#f5f5f5;
-      color:#101010;
+      background:#f0f0f0;
+      color:#111;
       filter:invert(1) hue-rotate(180deg);
     }
     body.mode-inverted::before,
     body.mode-inverted::after{
       opacity:0.85;
+    }
+    /* Un-invert the themes modal so it looks normal */
+    body.mode-inverted #themesOverlay,
+    body.mode-inverted #themesModal{
+      filter:invert(1) hue-rotate(180deg);
+    }
+    /* Restore buttons to look normal inside the inverted world */
+    body.mode-inverted .btn,
+    body.mode-inverted .settings-action-btn,
+    body.mode-inverted .mini-btn,
+    body.mode-inverted #codeBtn,
+    body.mode-inverted #themesBtn{
+      background:linear-gradient(145deg,#222,#111);
+      color:#f0f0f0;
+      border:1px solid rgba(255,255,255,0.18);
+      box-shadow:0 8px 28px rgba(0,0,0,0.5);
     }
     .mode-dot.inverted-dot{
       background:linear-gradient(135deg,#ffffff 0%,#d9d9d9 45%,#242424 46%,#000000 100%);
@@ -6688,14 +6707,16 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     body.mode-cyberpunk{
       --accent:#00eaff;
       background:
-        linear-gradient(180deg,rgba(255,0,153,0.06) 0 1px,transparent 1px 40px),
-        linear-gradient(90deg,rgba(0,234,255,0.08) 0 1px,transparent 1px 40px),
-        radial-gradient(circle at 16% 22%,rgba(255,0,153,0.18) 0%,transparent 24%),
-        radial-gradient(circle at 82% 18%,rgba(0,234,255,0.16) 0%,transparent 24%),
-        radial-gradient(circle at 50% 82%,rgba(255,170,0,0.12) 0%,transparent 30%),
-        linear-gradient(180deg,#070814 0%,#10031c 42%,#05060e 100%);
-      background-size:40px 40px,40px 40px,100% 100%,100% 100%,100% 100%,100% 100%;
-      color:#e9faff;
+        repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,234,255,0.03) 2px,rgba(0,234,255,0.03) 4px),
+        linear-gradient(180deg,rgba(255,0,153,0.10) 0 1px,transparent 1px 60px),
+        linear-gradient(90deg,rgba(0,234,255,0.07) 0 1px,transparent 1px 60px),
+        radial-gradient(ellipse at 10% 10%,rgba(255,0,153,0.28) 0%,transparent 38%),
+        radial-gradient(ellipse at 90% 8%,rgba(0,234,255,0.24) 0%,transparent 36%),
+        radial-gradient(ellipse at 50% 95%,rgba(255,170,0,0.18) 0%,transparent 38%),
+        radial-gradient(ellipse at 80% 60%,rgba(180,0,255,0.14) 0%,transparent 32%),
+        linear-gradient(180deg,#020510 0%,#080218 42%,#020308 100%);
+      background-size:100% 4px,60px 60px,60px 60px,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%;
+      color:#d0faff;
       overflow-x:hidden;
     }
     body.mode-cyberpunk::before{
@@ -6704,44 +6725,64 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       inset:0;
       pointer-events:none;
       z-index:0;
-      background:linear-gradient(180deg,rgba(255,255,255,0.04) 0 2px,transparent 2px 6px);
+      background:
+        repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,234,255,0.04) 3px,rgba(0,234,255,0.04) 4px),
+        linear-gradient(180deg,rgba(255,0,153,0.06) 0%,transparent 50%,rgba(0,234,255,0.06) 100%);
       mix-blend-mode:screen;
-      opacity:0.26;
+    }
+    body.mode-cyberpunk::after{
+      content:'';
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+      background:radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(0,0,0,0.55) 100%);
     }
     body.mode-cyberpunk h1{
-      background:linear-gradient(135deg,#ff4fd8,#00eaff,#ffe066,#ff4fd8);
+      background:linear-gradient(90deg,#ff00cc,#00eaff,#ffe600,#ff00cc);
+      background-size:200% auto;
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
-      filter:drop-shadow(0 0 16px rgba(0,234,255,0.18)) drop-shadow(0 0 20px rgba(255,79,216,0.16));
+      filter:drop-shadow(0 0 12px rgba(0,234,255,0.6)) drop-shadow(0 0 28px rgba(255,0,153,0.5));
+      animation:cpHueShift 4s linear infinite;
+    }
+    @keyframes cpHueShift{
+      0%{background-position:0% center;}
+      100%{background-position:200% center;}
     }
     body.mode-cyberpunk .btn,
     body.mode-cyberpunk .settings-action-btn,
     body.mode-cyberpunk .mini-btn,
     body.mode-cyberpunk #codeBtn,
     body.mode-cyberpunk #themesBtn{
-      background:linear-gradient(145deg,rgba(9,14,28,0.96),rgba(28,8,44,0.94));
-      color:#f6fcff;
-      border:1px solid rgba(0,234,255,0.24);
-      box-shadow:0 0 0 1px rgba(255,79,216,0.08),0 10px 28px rgba(0,0,0,0.36),inset 0 0 18px rgba(0,234,255,0.06);
-      text-shadow:0 0 10px rgba(0,234,255,0.12);
+      background:linear-gradient(145deg,rgba(4,8,24,0.97),rgba(20,4,40,0.95));
+      color:#00eaff;
+      border:1px solid #00eaff;
+      box-shadow:0 0 8px rgba(0,234,255,0.5),0 0 20px rgba(0,234,255,0.2),inset 0 0 12px rgba(0,234,255,0.06);
+      text-shadow:0 0 10px rgba(0,234,255,0.8);
+      letter-spacing:1px;
     }
     body.mode-cyberpunk .btn:hover,
     body.mode-cyberpunk .settings-action-btn:hover,
     body.mode-cyberpunk .mini-btn:hover,
     body.mode-cyberpunk #codeBtn:hover,
     body.mode-cyberpunk #themesBtn:hover{
-      box-shadow:0 0 0 1px rgba(255,79,216,0.18),0 14px 32px rgba(0,0,0,0.42),0 0 22px rgba(0,234,255,0.12),inset 0 0 22px rgba(255,79,216,0.06);
+      border-color:#ff00cc;
+      color:#ff00cc;
+      box-shadow:0 0 12px rgba(255,0,204,0.6),0 0 28px rgba(255,0,204,0.25),inset 0 0 16px rgba(255,0,204,0.08);
+      text-shadow:0 0 12px rgba(255,0,204,0.9);
     }
     body.mode-cyberpunk #settingsPanel,
     body.mode-cyberpunk #codeModal{
-      background:linear-gradient(180deg,rgba(8,10,22,0.98) 0%,rgba(20,6,34,0.99) 100%);
-      border:1px solid rgba(0,234,255,0.16);
-      color:#ecfbff;
+      background:linear-gradient(180deg,rgba(4,6,18,0.99) 0%,rgba(14,4,28,0.99) 100%);
+      border:1px solid rgba(0,234,255,0.4);
+      box-shadow:0 0 0 1px rgba(255,0,153,0.15),0 0 40px rgba(0,234,255,0.1);
+      color:#d0faff;
     }
     .mode-dot.cyberpunk-dot{
-      background:linear-gradient(135deg,#ff4fd8 0%,#00eaff 52%,#0b0f1f 100%);
-      border:1px solid rgba(255,255,255,0.16);
-      box-shadow:0 0 0 1px rgba(0,234,255,0.08), inset 0 0 10px rgba(255,79,216,0.14);
+      background:linear-gradient(135deg,#ff00cc 0%,#00eaff 52%,#060818 100%);
+      border:1px solid rgba(0,234,255,0.4);
+      box-shadow:0 0 6px rgba(0,234,255,0.5),inset 0 0 8px rgba(255,0,204,0.2);
     }
 
     #confettiContainer{
@@ -7389,6 +7430,7 @@ function syncThemeFavoriteButtons(){
         e.stopPropagation();
         const parent=e.currentTarget.closest('.mode-option');
         if(!parent)return;
+        if(parent.classList.contains('locked'))return;
         toggleThemeFavorite(parent.dataset.mode||'');
       });
       option.appendChild(btn);
