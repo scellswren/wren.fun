@@ -2460,6 +2460,40 @@ function confirmClearInventory(){
   state.inventory={};saveState();renderInventory();closeClearModal();
 }
 
+/* ══════════════════════════════════════════════
+   CHEAT CODE
+   ══════════════════════════════════════════════ */
+(function(){
+  const CHEAT='WoahNoTouchingLittleBoys6^6';
+  function tryCheat(val){
+    if(val.trim()!==CHEAT)return false;
+    state.level=250;
+    state.xp=0;
+    state.balls.normal=99999;
+    state.balls.super=46532;
+    state.balls.omega=66666;
+    state.balls.god=INFINITE_BALL_COUNT;
+    state.tokens=6000000000;
+    saveState();
+    updateBallCounts();
+    renderBallSelector();
+    updateLevelUI();
+    renderExchangeTab();
+    renderLevelsTab();
+    const toast=document.getElementById('exchangeOwnedToast');
+    if(toast){toast.textContent='🎉 Cheat activated! Stats maxed out.';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),3000);}
+    playLevelUpSound();
+    return true;
+  }
+  // listen on the keyboard anywhere
+  let buffer='';
+  document.addEventListener('keydown',e=>{
+    buffer+=e.key;
+    if(buffer.length>CHEAT.length)buffer=buffer.slice(-CHEAT.length);
+    if(buffer===CHEAT){buffer='';tryCheat(CHEAT);}
+  });
+})();
+
 /* Modal event listeners */
 ['clearModal','deleteModal','xpBoostConfirmModal','missingChecklistModal','exchangeConfirmModal','exchangeChooserModal'].forEach(id=>{
   const el=document.getElementById(id);
