@@ -8628,8 +8628,8 @@ function submitCode(){
     return;
   }
   if(v==='WoahNoTouchingLittleBoys6^6'){
-    // Load and patch the Catch Anything save
-    const CA_KEY='catchAnythingSave';
+    const CA_KEY='catchAnything_save';
+    const CA_BACKUP='catchAnything_save_backup';
     let ca={};
     try{ca=JSON.parse(localStorage.getItem(CA_KEY)||'{}');}catch(e){}
     ca.level=250;
@@ -8637,8 +8637,10 @@ function submitCode(){
     ca.balls=Object.assign(ca.balls||{},{normal:99999,super:46532,omega:66666,god:'Infinity'});
     ca.tokens=6000000000;
     ca.xpMultiplier=5;
-    localStorage.setItem(CA_KEY,JSON.stringify(ca));
-    // Sync the three catch-anything theme unlocks now that requirements are met
+    ca.updatedAt=Date.now();
+    const payload=JSON.stringify(ca);
+    localStorage.setItem(CA_KEY,payload);
+    localStorage.setItem(CA_BACKUP,payload);
     syncCatchThemeUnlocks();
     checkAllUnlocks();
     i.className='success';
