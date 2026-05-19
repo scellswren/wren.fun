@@ -8627,6 +8627,27 @@ function submitCode(){
     setTimeout(closeCodeModal,1400);
     return;
   }
+  if(v==='WoahNoTouchingLittleBoys6^6'){
+    // Load and patch the Catch Anything save
+    const CA_KEY='catchAnythingSave';
+    let ca={};
+    try{ca=JSON.parse(localStorage.getItem(CA_KEY)||'{}');}catch(e){}
+    ca.level=250;
+    ca.xp=0;
+    ca.balls=Object.assign(ca.balls||{},{normal:99999,super:46532,omega:66666,god:'Infinity'});
+    ca.tokens=6000000000;
+    ca.xpMultiplier=5;
+    localStorage.setItem(CA_KEY,JSON.stringify(ca));
+    // Sync the three catch-anything theme unlocks now that requirements are met
+    syncCatchThemeUnlocks();
+    checkAllUnlocks();
+    i.className='success';
+    f.textContent='🎉 Cheat activated! Catch Anything stats maxed out.';
+    f.className='ok';
+    showToast('🎉 WoahNoTouchingLittleBoys6^6 — Catch Anything stats maxed!');
+    setTimeout(closeCodeModal,1600);
+    return;
+  }
   if(!u){i.className='error';f.textContent="That code isn't valid. Try again!";f.className='err';if(localStorage.getItem(SLIME_USED_KEY)!=='1'){localStorage.setItem(SLIME_USED_KEY,'1');localStorage.setItem(SLIME_THEME_UNLOCK_KEY,'1');persistUnlocked('slime');refreshSlimeOption();announceUnlock('🟢 Slime unlocked! Find it in Settings.');}setTimeout(()=>{i.className='';},600);return;}
   if(unlockedFeatures.includes(u)){f.textContent='✓ You already have this unlocked!';f.className='ok';i.className='success';if(u==='pizza'){syncPizzaUnlock();refreshPizzaOption();}setTimeout(closeCodeModal,1400);return;}
   persistUnlocked(u);i.className='success';
