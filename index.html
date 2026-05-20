@@ -6674,34 +6674,58 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       border:1px solid rgba(255,255,255,0.24);
     }
 
+    /* ── INVERTED THEME — inverted version of Orange (light bg, cool-toned accents) ── */
     body.mode-inverted{
-      background:#f0f0f0;
-      color:#111;
-      filter:invert(1) hue-rotate(180deg);
+      background:radial-gradient(circle at 20% 25%,rgba(0,75,165,0.38) 0%,transparent 34%),
+        radial-gradient(circle at 80% 68%,rgba(0,135,255,0.36) 0%,transparent 38%),
+        radial-gradient(circle at 50% 15%,rgba(45,35,85,0.26) 0%,transparent 32%),
+        linear-gradient(180deg,#d3edff 0%,#84c9ff 45%,#e7f7ff 100%);
+      color:#001122;
     }
-    body.mode-inverted::before,
-    body.mode-inverted::after{
-      opacity:0.85;
+    body.mode-inverted::before{
+      content:'';position:fixed;inset:0;
+      background:radial-gradient(circle at 30% 25%,rgba(0,90,190,0.18) 0%,transparent 25%),
+        radial-gradient(circle at 70% 55%,rgba(0,145,255,0.16) 0%,transparent 30%);
+      pointer-events:none;z-index:0;
     }
-    /* Un-invert the themes modal so it looks normal */
-    body.mode-inverted #themesOverlay,
-    body.mode-inverted #themesModal{
-      filter:invert(1) hue-rotate(180deg);
+    body.mode-inverted::after{content:none;}
+    body.mode-inverted h1{
+      background:linear-gradient(135deg,#002744,#004b8a,#0095ff,#002744);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      filter:drop-shadow(0 0 12px rgba(0,149,255,0.35));
     }
-    /* Restore buttons to look normal inside the inverted world */
     body.mode-inverted .btn,
     body.mode-inverted .settings-action-btn,
-    body.mode-inverted .mini-btn,
+    body.mode-inverted .mini-btn{
+      background:linear-gradient(145deg,#004eb0,#002a7a);
+      color:#d6eeff;
+      box-shadow:0 8px 28px rgba(0,80,200,0.25);
+      border:1px solid rgba(100,180,255,0.22);
+    }
     body.mode-inverted #codeBtn,
     body.mode-inverted #themesBtn{
-      background:linear-gradient(145deg,#222,#111);
-      color:#f0f0f0;
-      border:1px solid rgba(255,255,255,0.18);
-      box-shadow:0 8px 28px rgba(0,0,0,0.5);
+      background:rgba(0,36,80,0.90);
+      color:#d6eeff;
+      backdrop-filter:blur(14px);
+      border:1px solid rgba(100,180,255,0.28);
+      box-shadow:0 8px 22px rgba(0,50,140,0.22);
+    }
+    body.mode-inverted #settingsPanel,
+    body.mode-inverted #codeModal{
+      background:rgba(0,28,64,0.97);
+      border:1px solid rgba(100,180,255,0.22);
+      color:#d6eeff;
+      box-shadow:0 18px 44px rgba(0,20,60,0.48), inset 0 0 26px rgba(255,255,255,0.03);
+    }
+    body.mode-inverted #themesModal{
+      background:rgba(0,24,56,0.97);
+      border:1px solid rgba(100,180,255,0.18);
+      color:#d6eeff;
     }
     .mode-dot.inverted-dot{
-      background:linear-gradient(135deg,#ffffff 0%,#d9d9d9 45%,#242424 46%,#000000 100%);
-      border:1px solid rgba(255,255,255,0.22);
+      background:linear-gradient(135deg,#d3edff 0%,#84c9ff 45%,#003a8c 46%,#001c44 100%);
+      border:1px solid rgba(100,180,255,0.30);
     }
 
     body.mode-cyberpunk{
@@ -6836,7 +6860,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
   </div>
 </div>
 <button id="codeBtn" onclick="openCodeModal()">🔑 Enter Code</button>
-<button id="themesBtn" onclick="openThemesModal()">🎨 Themes <span id="activeThemePill"></span><span id="themeCountBadge"></span></button>
+<button id="themesBtn" onclick="openThemesModal()">🎨 <span id="activeThemePill">Themes</span> <span id="themeCountBadge"></span></button>
 <div id="codeOverlay">
   <div id="codeModal">
     <div class="code-modal-top">
@@ -8982,7 +9006,8 @@ const THEME_DISPLAY_NAMES = {
   turquoise:'Turquoise',turquoisecyan:'Turquoise Cyan',china:'China',usa:'USA',vomit:'Vomit',
   greenfizzy:'Green Fizzy',lantern:'Lantern',amethyst:'Amethyst',whitesaber:'White Saber',
   blackwhite:'Black & White',chocolatechip:'Choc Chip',wood:'Wood',bluefizzy:'Blue Fizzy',
-  peach:'Peach',antarctica:'Antarctica',redfizzy:'Red Fizzy',coral:'Coral',midnight:'Midnight',obsidian:'Obsidian'
+  peach:'Peach',antarctica:'Antarctica',redfizzy:'Red Fizzy',coral:'Coral',midnight:'Midnight',obsidian:'Obsidian',
+  inverted:'Inverted',confetti:'Confetti',cyberpunk:'Cyberpunk'
 };
 
 function announceUnlock(msg) {
