@@ -108,6 +108,59 @@
     }
     body.theme-lightning #bgLightning{ display:block; }
 
+    /* ===== BLUE FIRE THEME ===== */
+    body.theme-bluefire{
+      --bg:#000d22;
+      --bg2:#001840;
+      --surface:rgba(0,160,255,0.05);
+      --surface2:rgba(0,160,255,0.10);
+      --border:rgba(0,160,255,0.18);
+      --purple:#38bfff;
+      --blue:#0ea5e9;
+      --cyan:#7dd8ff;
+      --text:#e8f4ff;
+      --muted:rgba(200,235,255,0.55);
+      --accent1:#38bfff;
+      --accent2:#0055cc;
+      --btn-grad:linear-gradient(135deg,#0055cc,#0090ff);
+      --glow:rgba(0,160,255,0.65);
+      --grid-color:rgba(0,160,255,0.04);
+      --title-grad:linear-gradient(135deg,#c8f0ff,#44bbff,#0055ff);
+    }
+    body.theme-bluefire::before{
+      background-image:
+        linear-gradient(rgba(0,160,255,0.05) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(0,160,255,0.05) 1px,transparent 1px) !important;
+    }
+
+    /* ===== DISCO THEME ===== */
+    body.theme-disco{
+      --bg:#0a0014;
+      --bg2:#120020;
+      --surface:rgba(200,0,255,0.05);
+      --surface2:rgba(200,0,255,0.10);
+      --border:rgba(200,100,255,0.20);
+      --purple:#d460ff;
+      --blue:#60b0ff;
+      --cyan:#60ffee;
+      --text:#fff;
+      --muted:rgba(255,200,255,0.60);
+      --accent1:#ff60d0;
+      --accent2:#a020f0;
+      --btn-grad:linear-gradient(90deg,#ff0080,#ff6a00,#ffe600,#00ff99,#00c3ff,#7c00ff);
+      --glow:rgba(200,0,255,0.60);
+      --grid-color:rgba(180,0,255,0.04);
+      --title-grad:linear-gradient(90deg,#ff0080,#ff9900,#ffe600,#00ff99,#00c3ff,#a000ff,#ff0080);
+    }
+    body.theme-disco::before{
+      background-image:
+        linear-gradient(rgba(200,0,255,0.05) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(200,0,255,0.05) 1px,transparent 1px) !important;
+    }
+    body.theme-disco .modal{ background:rgba(18,0,36,0.92); border-color:rgba(200,80,255,0.4); }
+    body.theme-disco .big-btn{ background:linear-gradient(90deg,#ff0080,#ff6a00,#ffe600,#00ff99,#00c3ff,#7c00ff);background-size:300% 100%;color:#fff;animation:discoBtnOA 2s linear infinite; }
+    @keyframes discoBtnOA{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
     /* ===== BASE STYLES ===== */
     *{box-sizing:border-box;margin:0;padding:0;}
     body{
@@ -1099,6 +1152,7 @@ function saveState(){
     localStorage.setItem(SAVE_KEY,payload);
     LEGACY_SAVE_KEYS.forEach(k=>localStorage.setItem(k,payload));
   }catch(e){}
+  checkMainMenuThemeUnlocks();
 }
 function loadState(){
   let best=null,bestScore=-1;
@@ -1145,7 +1199,30 @@ const THEME_THRESHOLDS=[
   {id:'normal',power:0,label:'Normal',emoji:'✨'},
 ];
 
+const BLUEFIRE_UNLOCK_KEY='wren_theme_bluefire_unlocked';
+const DISCO_UNLOCK_KEY='wren_theme_disco_unlocked';
+const OA_TOTAL_OBJECTS=[...OBJECTS_BY_CRATE.easy,...OBJECTS_BY_CRATE.normal,...OBJECTS_BY_CRATE.hard,...OBJECTS_BY_CRATE.grandmaster].length;
+
+function checkMainMenuThemeUnlocks(){
+  try{
+    // Blue Fire — collect all objects
+    const ownedCount=Object.keys(state.inventory).length;
+    if(ownedCount>=OA_TOTAL_OBJECTS&&localStorage.getItem(BLUEFIRE_UNLOCK_KEY)!=='1'){
+      localStorage.setItem(BLUEFIRE_UNLOCK_KEY,'1');
+      showToast('🔵🔥 Blue Fire theme unlocked on Main Menu!');
+    }
+    // Disco — reach 20,000,000 power
+    if(state.power>=20000000&&localStorage.getItem(DISCO_UNLOCK_KEY)!=='1'){
+      localStorage.setItem(DISCO_UNLOCK_KEY,'1');
+      showToast('🪩 Disco theme unlocked on Main Menu!');
+    }
+  }catch(e){}
+}
+
 function getEarnedTheme(){
+  const ownedCount=Object.keys(state.inventory).length;
+  if(ownedCount>=OA_TOTAL_OBJECTS) return 'bluefire';
+  if(state.power>=20000000) return 'disco';
   if(state.power>=5000000) return 'lightning';
   if(state.power>=50000) return 'ketchup';
   return 'banana';
