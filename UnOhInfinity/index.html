@@ -2619,6 +2619,12 @@ document.addEventListener('keydown', (e) => {
 const COLOR_HEX={red:'#FF3B3B',blue:'#2B7FFF',yellow:'#FFD600',green:'#22D46B',purple:'#A855F7',wild:'#A855F7',rare:'#A855F7'};
 const ANZAC_THEME_UNLOCK_KEY='wren_theme_anzac_unlocked';
 const NINE_THEME_UNLOCK_KEY='wren_theme_nine_unlocked';
+const OPAL_THEME_UNLOCK_KEY='unoh_opal_unlocked';
+const CAMO_THEME_UNLOCK_KEY='unoh_camo_unlocked';
+const PLASMA_THEME_UNLOCK_KEY='unoh_plasma_unlocked';
+const MINT_THEME_UNLOCK_KEY='unoh_mint_unlocked';
+const PURPLEFIZZY_THEME_UNLOCK_KEY='unoh_purplefizzy_unlocked';
+const PENDING_UNLOCK_NOTICES_KEY='wren_pending_unlock_notices';
 
 function showCodePopup(msg){
   const popup=document.createElement('div');
@@ -2628,6 +2634,34 @@ function showCodePopup(msg){
   raf(()=>{popup.style.opacity='1';popup.style.transform='translateX(-50%) translateY(0) scale(1)';});
   setTimeout(()=>{popup.style.opacity='0';popup.style.transform='translateX(-50%) translateY(-10px) scale(0.96)';setTimeout(()=>popup.remove(),260);},1700);
 }
+function queueMainMenuUnlockNotice(msg){
+  try{
+    const raw=localStorage.getItem(PENDING_UNLOCK_NOTICES_KEY);
+    const list=raw?JSON.parse(raw):[];
+    const notices=Array.isArray(list)?list:[];
+    notices.push(msg);
+    localStorage.setItem(PENDING_UNLOCK_NOTICES_KEY,JSON.stringify(notices.slice(-12)));
+  }catch(_){}
+}
+function unlockUnOhTheme(key,msg,announce=false){
+  if(localStorage.getItem(key)==='1') return false;
+  localStorage.setItem(key,'1');
+  if(announce){
+    queueMainMenuUnlockNotice(msg);
+    showCodePopup(msg);
+  }
+  return true;
+}
+function syncUnOhThemeUnlocks(announce=false){
+  const wins=parseInt(localStorage.getItem('unoh_wins')||'0',10)||0;
+  const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0',10)||0;
+  if(wins>=10) unlockUnOhTheme(OPAL_THEME_UNLOCK_KEY,'💠 Opal unlocked in Main Menu!',announce);
+  if(wins>=50) unlockUnOhTheme(CAMO_THEME_UNLOCK_KEY,'🪖 Camo unlocked in Main Menu!',announce);
+  if(wins>=100) unlockUnOhTheme(PLASMA_THEME_UNLOCK_KEY,'⚡ Plasma unlocked in Main Menu!',announce);
+  if(teamWins>=10) unlockUnOhTheme(MINT_THEME_UNLOCK_KEY,'🌿 Mint unlocked in Main Menu!',announce);
+  if(teamWins>=20) unlockUnOhTheme(PURPLEFIZZY_THEME_UNLOCK_KEY,'🟣 Purple Fizzy unlocked in Main Menu!',announce);
+}
+syncUnOhThemeUnlocks();
 
 function refreshSecretUnlocks(){
   const el = document.getElementById('beyond-million-guide-item');
@@ -5604,10 +5638,13 @@ async function endGame(winnerIdx){
         if(teamMode){
           const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0')+1;
           localStorage.setItem('unoh_team_wins',teamWins);
+          syncUnOhThemeUnlocks(true);
         } else {
           const wins=parseInt(localStorage.getItem('unoh_wins')||'0')+1;
           localStorage.setItem('unoh_wins',wins);
+          syncUnOhThemeUnlocks(true);
         }
+        updateMenuStats();
       }
     } else {
       const winner=state.players[winnerIdx];
@@ -5617,6 +5654,8 @@ async function endGame(winnerIdx){
         if(!isSandboxGame){
           const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0')+1;
           localStorage.setItem('unoh_team_wins',teamWins);
+          syncUnOhThemeUnlocks(true);
+          updateMenuStats();
         }
       } else {
         document.getElementById('end-icon').textContent='😭';document.getElementById('end-title').textContent=winner.name+' Wins!';
