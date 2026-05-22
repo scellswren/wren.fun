@@ -1989,10 +1989,6 @@ body.mode-fire{background:linear-gradient(180deg,#220000 0%,#420500 34%,#7a1d00 
     body.mode-bluefire #settingsPanel{background:rgba(0,14,42,0.97);border:1px solid rgba(0,160,255,0.22);color:#e8f4ff;}
     body.mode-bluefire #codeModal{background:rgba(0,14,42,0.99);border:1px solid rgba(0,160,255,0.22);color:#e8f4ff;}
     body.mode-bluefire #themesModal{background:rgba(0,18,54,0.97);border:1px solid rgba(0,150,255,0.18);color:#e8f4ff;}
-    body.mode-bluefire .theme-search{background:linear-gradient(180deg,#001840 0%,#000e2e 54%,#000820 100%) !important;border:1px solid rgba(0,150,255,0.28) !important;color:#c8e8ff !important;box-shadow:inset 0 1px 0 rgba(0,200,255,0.12),0 6px 14px rgba(0,10,40,0.28) !important;}
-    body.mode-bluefire .theme-search::placeholder{color:rgba(160,220,255,0.50) !important;}
-    body.mode-bluefire .theme-search:hover{background:linear-gradient(180deg,#002050 0%,#001438 100%) !important;border-color:rgba(0,200,255,0.50) !important;}
-    body.mode-bluefire .theme-search:focus{border-color:rgba(80,210,255,0.72) !important;box-shadow:0 0 0 2px rgba(0,200,255,0.22), inset 0 1px 0 rgba(0,200,255,0.16) !important;}
     body.mode-bluefire ::-webkit-scrollbar-thumb{background:rgba(0,140,255,0.55) !important;}
     body.mode-bluefire{scrollbar-color:rgba(0,140,255,0.55) transparent;}
     /* Blue fire particles: hue-rotate + saturate turns the orange gif pure blue; drop-shadow is blue not red */
@@ -5172,6 +5168,9 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       text-transform:uppercase !important;
       color:rgba(235,244,255,0.58) !important;
     }
+    /* Search bar is locked — high specificity beats any per-theme override */
+    #themesModal .theme-search,
+    #themesOverlay .theme-search,
     .theme-search{
       width:100% !important;
       min-width:0 !important;
@@ -5186,14 +5185,20 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       box-shadow:inset 0 1px 0 rgba(216,238,255,0.10),0 6px 14px rgba(8,14,25,0.24) !important;
       transition:border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, transform 0.16s ease !important;
     }
+    #themesModal .theme-search::placeholder,
+    #themesOverlay .theme-search::placeholder,
     .theme-search::placeholder{
       color:rgba(240,247,255,0.46) !important;
     }
+    #themesModal .theme-search:hover,
+    #themesOverlay .theme-search:hover,
     .theme-search:hover{
       border-color:rgba(145,222,255,0.50) !important;
       background:linear-gradient(180deg,#253249 0%,#182338 100%) !important;
       transform:translateY(-1px) !important;
     }
+    #themesModal .theme-search:focus,
+    #themesOverlay .theme-search:focus,
     .theme-search:focus{
       outline:none !important;
       border-color:rgba(140,232,255,0.72) !important;
@@ -6698,181 +6703,203 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       border:1px solid rgba(255,255,255,0.24);
     }
 
-    /* ── INVERTED THEME — inverted version of Orange (light bg, cool-toned accents) ── */
+    /* ── INVERTED THEME — Chromebook high-contrast (Ctrl+Shift+H) ── */
     body.mode-inverted{
-      background:radial-gradient(circle at 20% 25%,rgba(0,75,165,0.38) 0%,transparent 34%),
-        radial-gradient(circle at 80% 68%,rgba(0,135,255,0.36) 0%,transparent 38%),
-        radial-gradient(circle at 50% 15%,rgba(45,35,85,0.26) 0%,transparent 32%),
-        linear-gradient(180deg,#d3edff 0%,#84c9ff 45%,#e7f7ff 100%);
-      color:#001122;
+      background:#000000;
+      color:#ffffff;
     }
-    body.mode-inverted::before{
-      content:'';position:fixed;inset:0;
-      background:radial-gradient(circle at 30% 25%,rgba(0,90,190,0.18) 0%,transparent 25%),
-        radial-gradient(circle at 70% 55%,rgba(0,145,255,0.16) 0%,transparent 30%);
-      pointer-events:none;z-index:0;
-    }
-    body.mode-inverted::after{content:none;}
+    body.mode-inverted::before,
+    body.mode-inverted::after{ content:none; }
     body.mode-inverted h1{
-      background:linear-gradient(135deg,#002744,#004b8a,#0095ff,#002744);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      filter:drop-shadow(0 0 12px rgba(0,149,255,0.35));
+      background:none;
+      -webkit-background-clip:unset;
+      -webkit-text-fill-color:#ffffff;
+      color:#ffffff;
+      filter:none;
+      text-shadow:0 0 1px #fff;
     }
     body.mode-inverted .btn,
     body.mode-inverted .settings-action-btn,
     body.mode-inverted .mini-btn{
-      background:linear-gradient(145deg,#004eb0,#002a7a);
-      color:#d6eeff;
-      box-shadow:0 8px 28px rgba(0,80,200,0.25);
-      border:1px solid rgba(100,180,255,0.22);
+      background:#000000;
+      color:#ffffff;
+      border:2px solid #ffffff;
+      box-shadow:none;
+      border-radius:6px;
+    }
+    body.mode-inverted .btn:hover,
+    body.mode-inverted .settings-action-btn:hover,
+    body.mode-inverted .mini-btn:hover{
+      background:#ffffff;
+      color:#000000;
+      border-color:#ffffff;
     }
     body.mode-inverted #codeBtn,
     body.mode-inverted #themesBtn{
-      background:rgba(0,36,80,0.90);
-      color:#d6eeff;
-      backdrop-filter:blur(14px);
-      border:1px solid rgba(100,180,255,0.28);
-      box-shadow:0 8px 22px rgba(0,50,140,0.22);
+      background:#000000;
+      color:#00ffee;
+      border:2px solid #00ffee;
+      box-shadow:0 0 10px rgba(0,255,238,0.35);
+      backdrop-filter:none;
+      border-radius:6px;
+    }
+    body.mode-inverted #codeBtn:hover,
+    body.mode-inverted #themesBtn:hover{
+      background:#00ffee;
+      color:#000000;
     }
     body.mode-inverted #settingsPanel,
     body.mode-inverted #codeModal{
-      background:rgba(0,28,64,0.97);
-      border:1px solid rgba(100,180,255,0.22);
-      color:#d6eeff;
-      box-shadow:0 18px 44px rgba(0,20,60,0.48), inset 0 0 26px rgba(255,255,255,0.03);
+      background:#000000;
+      border:2px solid #ffffff;
+      color:#ffffff;
+      box-shadow:none;
     }
     body.mode-inverted #themesModal{
-      background:rgba(0,24,56,0.97);
-      border:1px solid rgba(100,180,255,0.18);
-      color:#d6eeff;
+      background:#000000;
+      border:2px solid #00ffee;
+      color:#ffffff;
     }
+    body.mode-inverted a{ color:#00ffee; }
+    body.mode-inverted a:hover{ color:#ffffff; }
+    body.mode-inverted ::-webkit-scrollbar-thumb{background:#ffffff !important;}
+    body.mode-inverted{scrollbar-color:#ffffff transparent;}
     .mode-dot.inverted-dot{
-      background:linear-gradient(135deg,#d3edff 0%,#84c9ff 45%,#003a8c 46%,#001c44 100%);
-      border:1px solid rgba(100,180,255,0.30);
+      background:linear-gradient(135deg,#ffffff 0%,#ffffff 49%,#000000 50%,#000000 100%);
+      border:2px solid #00ffee;
     }
-    body.mode-inverted .theme-search{
-      background:linear-gradient(180deg,#cce5ff 0%,#b8d8ff 54%,#a8cfff 100%) !important;
-      border:1px solid rgba(0,90,200,0.30) !important;
-      color:#001833 !important;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,0.50),0 6px 14px rgba(0,40,120,0.12) !important;
-    }
-    body.mode-inverted .theme-search::placeholder{ color:rgba(0,30,80,0.50) !important; }
-    body.mode-inverted .theme-search:hover{
-      background:linear-gradient(180deg,#d6ecff 0%,#c2deff 100%) !important;
-      border-color:rgba(0,120,255,0.50) !important;
-    }
-    body.mode-inverted .theme-search:focus{
-      border-color:rgba(0,140,255,0.72) !important;
-      box-shadow:0 0 0 2px rgba(0,140,255,0.22), inset 0 1px 0 rgba(255,255,255,0.50) !important;
-    }
-    body.mode-inverted ::-webkit-scrollbar-thumb{background:rgba(0,100,220,0.5) !important;}
-    body.mode-inverted{scrollbar-color:rgba(0,100,220,0.5) transparent;}
 
 
-    /* ── DISCO THEME — dark disco room, ball reflections, red/green spotlights ── */
-    @keyframes discoBallSpin{0%{transform:translateX(-50%) rotate(0deg);}100%{transform:translateX(-50%) rotate(360deg);}}
-    @keyframes discoSpotA{0%,100%{opacity:0;transform:rotate(0deg) scaleX(1);}12%{opacity:0.55;}25%{opacity:0;}50%{opacity:0.42;transform:rotate(14deg) scaleX(0.85);}75%{opacity:0;}}
-    @keyframes discoSpotB{0%,100%{opacity:0;}18%{opacity:0.48;}33%{opacity:0;}60%{opacity:0.38;transform:rotate(-10deg);}80%{opacity:0;}}
-    @keyframes discoSpotC{0%,100%{opacity:0;}8%{opacity:0.52;}22%{opacity:0;}55%{opacity:0.44;}72%{opacity:0;}}
-    @keyframes discoSpotD{0%,100%{opacity:0;}30%{opacity:0.46;}45%{opacity:0;}70%{opacity:0.40;}88%{opacity:0;}}
-    @keyframes discoFloorFlash{0%,100%{opacity:0;}50%{opacity:1;}}
-    @keyframes discoDotFlicker{0%,100%{opacity:0.15;}50%{opacity:0.55;}}
-    @keyframes discoH1Pulse{0%,100%{filter:drop-shadow(0 0 10px rgba(220,30,60,0.7));}50%{filter:drop-shadow(0 0 22px rgba(30,200,80,0.8));}}
+    /* ── DISCO THEME — deep blue-purple room, disco ball, pink/blue/purple spots, laser beams ── */
+    @keyframes discoBallRot{0%{transform:translateX(-50%) rotate(0deg);}100%{transform:translateX(-50%) rotate(360deg);}}
+    @keyframes discoH1{
+      0%  {filter:drop-shadow(0 0 8px rgba(255,80,200,0.8));}
+      33% {filter:drop-shadow(0 0 14px rgba(120,80,255,0.9));}
+      66% {filter:drop-shadow(0 0 10px rgba(80,200,255,0.8));}
+      100%{filter:drop-shadow(0 0 8px rgba(255,80,200,0.8));}
+    }
+    @keyframes discoDotFlicker{
+      0%,100%{opacity:0.12;transform:scale(1);}
+      50%{opacity:0.70;transform:scale(1.3);}
+    }
+    @keyframes discoLaser{
+      0%  {opacity:0;clip-path:inset(0 100% 0 0);}
+      8%  {opacity:1;clip-path:inset(0 0% 0 0);}
+      85% {opacity:0.85;clip-path:inset(0 0% 0 0);}
+      100%{opacity:0;clip-path:inset(0 0% 0 0);}
+    }
+    @keyframes discoTileShimmer{
+      0%,100%{opacity:0.55;}50%{opacity:1;}
+    }
 
     body.mode-disco{
       background:
-        radial-gradient(ellipse 80% 40% at 50% 0%, rgba(80,0,0,0.55) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 30% at 20% 100%, rgba(0,60,20,0.35) 0%, transparent 55%),
-        radial-gradient(ellipse 60% 30% at 80% 100%, rgba(0,20,60,0.30) 0%, transparent 55%),
-        linear-gradient(180deg,#0a0008 0%,#100012 40%,#0c000a 100%);
-      color:#f0e8f8;
+        radial-gradient(ellipse 90% 50% at 50% -10%,rgba(90,20,180,0.55) 0%,transparent 60%),
+        radial-gradient(ellipse 70% 40% at 10% 70%,rgba(180,20,120,0.22) 0%,transparent 50%),
+        radial-gradient(ellipse 70% 40% at 90% 70%,rgba(30,60,180,0.22) 0%,transparent 50%),
+        linear-gradient(180deg,#050010 0%,#090018 35%,#05000e 100%);
+      color:#f0e0ff;
       overflow:hidden;
     }
-    /* Disco ball at the top */
+    /* Ceiling string */
     body.mode-disco::before{
-      content:'🪩';
-      position:fixed;top:-18px;left:50%;
-      transform:translateX(-50%);
-      font-size:3.2em;
-      pointer-events:none;z-index:2;
-      animation:discoBallSpin 4s linear infinite;
-      filter:drop-shadow(0 0 18px rgba(255,255,255,0.55)) drop-shadow(0 0 8px rgba(255,255,255,0.9));
-    }
-    /* Thin string holding the ball */
-    body.mode-disco::after{
       content:'';
       position:fixed;top:0;left:50%;
-      width:1px;height:34px;
-      background:linear-gradient(to bottom,rgba(255,255,255,0.5),rgba(255,255,255,0.1));
-      pointer-events:none;z-index:1;
+      width:2px;height:52px;
+      background:linear-gradient(to bottom,rgba(200,180,255,0.6),rgba(200,180,255,0.15));
+      pointer-events:none;z-index:3;
     }
-    /* Disco room light beams — injected via JS */
-    .disco-spot{
+    /* Disco ball */
+    body.mode-disco::after{
+      content:'🪩';
+      position:fixed;top:36px;left:50%;
+      font-size:3.8em;line-height:1;
+      transform:translateX(-50%);
+      pointer-events:none;z-index:3;
+      animation:discoBallRot 5s linear infinite;
+      filter:drop-shadow(0 0 24px rgba(200,140,255,0.7)) drop-shadow(0 0 8px rgba(255,255,255,0.9));
+    }
+
+    /* Laser beam elements (JS-injected) */
+    .disco-laser{
       position:fixed;
-      top:0;left:50%;
-      width:3px;
-      transform-origin:top center;
-      pointer-events:none;z-index:0;
-      border-radius:0 0 40px 40px;
+      height:2px;
+      pointer-events:none;
+      z-index:1;
+      border-radius:2px;
+      transform-origin:left center;
+      animation:discoLaser linear both;
     }
-    .disco-spot.red{
-      background:linear-gradient(to bottom,rgba(220,10,10,0) 0%,rgba(220,10,10,0.55) 40%,rgba(220,10,10,0) 100%);
-      box-shadow:0 0 18px 6px rgba(220,10,10,0.25);
-    }
-    .disco-spot.green{
-      background:linear-gradient(to bottom,rgba(20,200,60,0) 0%,rgba(20,200,60,0.50) 40%,rgba(20,200,60,0) 100%);
-      box-shadow:0 0 18px 6px rgba(20,200,60,0.20);
-    }
-    .disco-spot.blue{
-      background:linear-gradient(to bottom,rgba(30,80,255,0) 0%,rgba(30,80,255,0.45) 40%,rgba(30,80,255,0) 100%);
-      box-shadow:0 0 18px 6px rgba(30,80,255,0.18);
-    }
-    /* Small dot reflections scattered on floor */
-    .disco-reflect{
+    /* Dot reflections (JS-injected) */
+    .disco-dot{
       position:fixed;
       border-radius:50%;
-      pointer-events:none;z-index:0;
+      pointer-events:none;
+      z-index:1;
+      animation:discoDotFlicker ease-in-out infinite;
+    }
+
+    /* Buttons — disco-ball tile look: dark with mirror-tile shimmer */
+    body.mode-disco .btn,
+    body.mode-disco .settings-action-btn,
+    body.mode-disco .mini-btn,
+    body.mode-disco #codeBtn,
+    body.mode-disco #themesBtn{
+      background:
+        repeating-linear-gradient(
+          45deg,
+          rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 3px,
+          transparent 3px, transparent 8px
+        ),
+        repeating-linear-gradient(
+          -45deg,
+          rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 3px,
+          transparent 3px, transparent 8px
+        ),
+        linear-gradient(145deg,#1a0840 0%,#0d0528 100%);
+      color:#e8d0ff;
+      border:1px solid rgba(200,140,255,0.35);
+      box-shadow:
+        0 8px 24px rgba(0,0,0,0.60),
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 0 14px rgba(160,80,255,0.18);
+    }
+    body.mode-disco .btn:hover,
+    body.mode-disco .settings-action-btn:hover,
+    body.mode-disco .mini-btn:hover,
+    body.mode-disco #codeBtn:hover,
+    body.mode-disco #themesBtn:hover{
+      border-color:rgba(255,140,230,0.55);
+      box-shadow:0 12px 30px rgba(0,0,0,0.70), 0 0 22px rgba(255,80,200,0.28), inset 0 1px 0 rgba(255,255,255,0.16);
+      color:#fff0ff;
     }
     body.mode-disco h1{
-      background:linear-gradient(135deg,#ff2244,#ff6688,#ffffff,#22dd66,#88ffcc);
+      background:linear-gradient(135deg,#ff80d4,#c080ff,#80c8ff,#ff80d4);
+      background-size:300% 300%;
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
-      animation:discoH1Pulse 2.5s ease-in-out infinite;
+      animation:discoH1 3s ease-in-out infinite;
     }
-    body.mode-disco .btn,body.mode-disco .settings-action-btn,body.mode-disco .mini-btn,
-    body.mode-disco #codeBtn,body.mode-disco #themesBtn{
-      background:linear-gradient(145deg,#2a0018 0%,#1a000f 100%);
-      color:#ffb8cc;
-      border:1px solid rgba(220,30,60,0.40);
-      box-shadow:0 8px 22px rgba(0,0,0,0.60), inset 0 1px 0 rgba(255,100,130,0.18), 0 0 12px rgba(220,30,60,0.15);
-    }
-    body.mode-disco .btn:hover,body.mode-disco .settings-action-btn:hover,body.mode-disco .mini-btn:hover,
-    body.mode-disco #codeBtn:hover,body.mode-disco #themesBtn:hover{
-      border-color:rgba(30,200,80,0.55);
-      box-shadow:0 12px 28px rgba(0,0,0,0.70), 0 0 18px rgba(30,200,80,0.22);
-      color:#b8ffd0;
-    }
-    body.mode-disco .mode-option.active-mode{color:#ff6688;}
+    body.mode-disco .mode-option.active-mode{color:#ff80d4;}
     body.mode-disco #codeBtn{top:14px;right:14px;}
     body.mode-disco #themesBtn{top:58px;right:14px;}
-    body.mode-disco #settingsPanel{background:rgba(8,0,12,0.98);border:1px solid rgba(220,30,60,0.22);color:#f0e8f8;}
-    body.mode-disco #codeModal{background:rgba(8,0,12,0.99);border:1px solid rgba(220,30,60,0.22);color:#f0e8f8;}
-    body.mode-disco #themesModal{background:rgba(10,0,14,0.98);border:1px solid rgba(30,200,80,0.18);color:#f0e8f8;}
-    body.mode-disco .theme-search{background:linear-gradient(180deg,#160010 0%,#0e000a 54%,#080006 100%) !important;border:1px solid rgba(220,30,60,0.28) !important;color:#ffe0e8 !important;box-shadow:inset 0 1px 0 rgba(220,30,60,0.12),0 6px 14px rgba(0,0,20,0.40) !important;}
-    body.mode-disco .theme-search::placeholder{color:rgba(255,180,200,0.45) !important;}
-    body.mode-disco .theme-search:hover{background:linear-gradient(180deg,#1e0016 0%,#140010 100%) !important;border-color:rgba(30,200,80,0.40) !important;}
-    body.mode-disco .theme-search:focus{border-color:rgba(30,200,80,0.65) !important;box-shadow:0 0 0 2px rgba(30,200,80,0.18), inset 0 1px 0 rgba(220,30,60,0.14) !important;}
-    body.mode-disco ::-webkit-scrollbar-thumb{background:rgba(220,30,60,0.50) !important;}
-    body.mode-disco{scrollbar-color:rgba(220,30,60,0.50) transparent;}
+    body.mode-disco #settingsPanel{background:rgba(5,0,16,0.98);border:1px solid rgba(160,80,255,0.28);color:#f0e0ff;}
+    body.mode-disco #codeModal{background:rgba(5,0,16,0.99);border:1px solid rgba(160,80,255,0.28);color:#f0e0ff;}
+    body.mode-disco #themesModal{background:rgba(6,0,18,0.98);border:1px solid rgba(200,100,255,0.22);color:#f0e0ff;}
+    body.mode-disco ::-webkit-scrollbar-thumb{background:rgba(160,80,255,0.55) !important;}
+    body.mode-disco{scrollbar-color:rgba(160,80,255,0.55) transparent;}
     .mode-dot.disco-dot{
       background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9) 0%, transparent 18%),
-        radial-gradient(circle at 70% 20%, rgba(255,255,255,0.6) 0%, transparent 12%),
-        radial-gradient(circle at 50% 70%, rgba(255,255,255,0.4) 0%, transparent 14%),
-        conic-gradient(from 0deg, #220010 0deg, #001a08 60deg, #00081a 120deg, #220010 180deg, #001a08 240deg, #00081a 300deg, #220010 360deg);
-      border:1px solid rgba(255,255,255,0.28);
-      box-shadow:0 0 8px rgba(220,30,60,0.30), 0 0 14px rgba(30,200,80,0.20);
+        radial-gradient(circle at 28% 28%,rgba(255,255,255,0.95) 0%,transparent 14%),
+        radial-gradient(circle at 68% 22%,rgba(255,200,255,0.7) 0%,transparent 10%),
+        radial-gradient(circle at 44% 65%,rgba(180,140,255,0.6) 0%,transparent 12%),
+        radial-gradient(circle at 75% 72%,rgba(140,220,255,0.5) 0%,transparent 10%),
+        conic-gradient(from 0deg,
+          #1a0840 0deg,#120630 40deg,#200850 80deg,#0d0428 120deg,
+          #1e0648 160deg,#100530 200deg,#1a0840 240deg,#0d0428 280deg,
+          #1a0840 320deg,#120630 360deg);
+      border:1px solid rgba(200,140,255,0.35);
+      box-shadow:0 0 10px rgba(160,80,255,0.35),0 0 4px rgba(255,255,255,0.2);
     }
 
     body.mode-cyberpunk{
@@ -7668,7 +7695,7 @@ function applyMode(m){
   trackOreSwitches(m);
   trackTurquoiseCyanSwitch(m);
   // Update themes button label and count
-  updateActiveThemePill();
+  updateActiveThemePill(m);
   updateThemeCountBadge();
 }
 
@@ -8423,50 +8450,83 @@ function stopBluefireParticles(){if(bluefireInterval){clearInterval(bluefireInte
 
 /* ── DISCO LIGHTS ── */
 let discoInterval=null;
-let discoSpotEls=[];
-let discoReflectEls=[];
+let discoEls=[];
+
 function startDiscoLights(){
   stopDiscoLights();
-  // Create 6 beams: 2 red, 2 green, 2 blue
-  const colours=['red','red','green','green','blue','blue'];
-  const heights=['55vh','65vh','60vh','70vh','58vh','68vh'];
-  const baseAngles=[-38,-22,18,32,-50,44];
-  colours.forEach((col,i)=>{
-    const el=document.createElement('div');
-    el.className='disco-spot '+col;
-    el.style.height=heights[i];
-    el.style.transform=`rotate(${baseAngles[i]}deg)`;
-    document.body.appendChild(el);
-    discoSpotEls.push(el);
-  });
-  // Spawn ~30 tiny floor reflection dots
-  const dotColours=['rgba(220,30,60,0.55)','rgba(20,200,60,0.50)','rgba(80,120,255,0.45)','rgba(255,255,255,0.35)'];
-  for(let i=0;i<32;i++){
+
+  // Colours matching the image: pink, purple, blue, cyan
+  const laserCols=[
+    {r:'rgba(255,60,180,',g:'rgba(255,60,180,0.85)',s:'rgba(255,60,180,0.4)'},
+    {r:'rgba(140,60,255,',g:'rgba(140,60,255,0.85)',s:'rgba(140,60,255,0.35)'},
+    {r:'rgba(60,140,255,',g:'rgba(60,140,255,0.85)',s:'rgba(60,140,255,0.35)'},
+    {r:'rgba(200,80,255,',g:'rgba(200,80,255,0.85)',s:'rgba(200,80,255,0.35)'},
+    {r:'rgba(80,220,255,',g:'rgba(80,220,255,0.80)',s:'rgba(80,220,255,0.30)'},
+  ];
+  const dotCols=[
+    'rgba(255,80,200,',
+    'rgba(160,80,255,',
+    'rgba(80,160,255,',
+    'rgba(200,200,255,',
+    'rgba(255,180,255,',
+  ];
+
+  // Scatter floor/wall reflection dots
+  for(let i=0;i<42;i++){
     const dot=document.createElement('div');
-    dot.className='disco-reflect';
-    const size=3+Math.random()*6;
-    const col=dotColours[Math.floor(Math.random()*dotColours.length)];
-    dot.style.cssText=`width:${size}px;height:${size}px;background:${col};left:${Math.random()*100}vw;top:${55+Math.random()*44}vh;box-shadow:0 0 ${size*2}px ${col};animation:discoDotFlicker ${1.2+Math.random()*2.8}s ${Math.random()*2}s ease-in-out infinite;`;
+    dot.className='disco-dot';
+    const size=2+Math.random()*5;
+    const col=dotCols[Math.floor(Math.random()*dotCols.length)];
+    const op=(0.3+Math.random()*0.5).toFixed(2);
+    const dur=(0.8+Math.random()*2.4).toFixed(2);
+    const delay=(Math.random()*3).toFixed(2);
+    // Scatter across whole screen — floor-biased
+    const top=Math.random()<0.65?(55+Math.random()*44):(10+Math.random()*55);
+    dot.style.cssText=`width:${size}px;height:${size}px;left:${(Math.random()*98).toFixed(1)}vw;top:${top.toFixed(1)}vh;background:${col}${op});box-shadow:0 0 ${(size*2.5).toFixed(0)}px ${col}0.8);animation-duration:${dur}s;animation-delay:${delay}s;`;
     document.body.appendChild(dot);
-    discoReflectEls.push(dot);
+    discoEls.push(dot);
   }
-  // Slowly sweep beams
-  let tick=0;
+
+  // Sweeping laser beams
+  function fireLaser(){
+    if(!document.body.classList.contains('mode-disco'))return;
+    const c=laserCols[Math.floor(Math.random()*laserCols.length)];
+    const el=document.createElement('div');
+    el.className='disco-laser';
+    // Random angle: mostly horizontal-ish (-30 to +30 deg) from various points
+    const fromLeft=Math.random()<0.5;
+    const topPct=8+Math.random()*84;
+    const angle=(Math.random()-0.5)*52;
+    const length=55+Math.random()*45;
+    const dur=2.5+Math.random()*2;
+    el.style.cssText=`
+      top:${topPct}vh;
+      ${fromLeft?'left:0':'right:0'};
+      width:${length}vw;
+      background:linear-gradient(to right,${c.g},transparent);
+      box-shadow:0 0 8px 2px ${c.s};
+      transform:rotate(${fromLeft?angle:-angle}deg);
+      animation-duration:${dur}s;
+      animation-delay:0s;
+    `;
+    document.body.appendChild(el);
+    discoEls.push(el);
+    setTimeout(()=>{el.remove();const idx=discoEls.indexOf(el);if(idx>-1)discoEls.splice(idx,1);},(dur+0.3)*1000);
+  }
+
+  // Fire first batch immediately
+  for(let i=0;i<3;i++) setTimeout(fireLaser, i*300);
+  // Then fire randomly
   discoInterval=setInterval(()=>{
-    tick+=0.012;
-    discoSpotEls.forEach((el,i)=>{
-      const phase=tick+(i*Math.PI*0.55);
-      const angle=baseAngles[i]+Math.sin(phase)*28;
-      const op=0.18+Math.abs(Math.sin(phase*0.7))*0.55;
-      el.style.transform=`rotate(${angle}deg)`;
-      el.style.opacity=op;
-    });
-  },30);
+    if(Math.random()<0.6) fireLaser();
+  }, 900);
 }
+
 function stopDiscoLights(){
   if(discoInterval){clearInterval(discoInterval);discoInterval=null;}
-  discoSpotEls.forEach(el=>el.remove());discoSpotEls=[];
-  discoReflectEls.forEach(el=>el.remove());discoReflectEls=[];
+  discoEls.forEach(el=>{ try{el.remove();}catch(e){} });
+  discoEls=[];
+  document.querySelectorAll('.disco-laser,.disco-dot').forEach(el=>el.remove());
 }
 let fizzyInterval=null;
 function spawnFizzyBubble(){
@@ -9262,11 +9322,11 @@ function showToast(m) {
 }
 
 // ── QoL: ACTIVE THEME PILL ──
-function updateActiveThemePill() {
+function updateActiveThemePill(mode) {
   const pill = document.getElementById('activeThemePill');
   if (!pill) return;
-  const mode = localStorage.getItem('wrenMode') || 'light';
-  const label = THEME_DISPLAY_NAMES[mode] || mode.charAt(0).toUpperCase() + mode.slice(1);
+  const m = mode || localStorage.getItem('wrenMode') || 'light';
+  const label = THEME_DISPLAY_NAMES[m] || m.charAt(0).toUpperCase() + m.slice(1);
   pill.textContent = label;
 }
 updateActiveThemePill();
