@@ -6703,70 +6703,69 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
       border:1px solid rgba(255,255,255,0.24);
     }
 
-    /* ── INVERTED THEME — Chromebook high-contrast (Ctrl+Shift+H) ── */
+    /* ── INVERTED THEME — colour-inverted Orange (cool blue palette) ── */
     body.mode-inverted{
-      background:#000000;
-      color:#ffffff;
+      /* Orange used #2a1200→#7b3600 dark warm; inverted = light cool blue */
+      background:
+        radial-gradient(circle at 20% 25%,rgba(0,160,255,0.38) 0%,transparent 34%),
+        radial-gradient(circle at 80% 68%,rgba(0,90,220,0.36) 0%,transparent 38%),
+        radial-gradient(circle at 50% 15%,rgba(180,230,255,0.26) 0%,transparent 32%),
+        linear-gradient(180deg,#cce8ff 0%,#6bb8f5 45%,#d6f0ff 100%);
+      color:#001933;
     }
-    body.mode-inverted::before,
-    body.mode-inverted::after{ content:none; }
+    body.mode-inverted::before{
+      content:'';position:fixed;inset:0;
+      background:
+        radial-gradient(circle at 30% 25%,rgba(0,140,255,0.18) 0%,transparent 25%),
+        radial-gradient(circle at 70% 55%,rgba(0,80,200,0.14) 0%,transparent 30%);
+      pointer-events:none;z-index:0;
+    }
+    body.mode-inverted::after{content:none;}
+    /* h1: inverted orange gradient (warm amber→fire) becomes cool (ice→sky→blue) */
     body.mode-inverted h1{
-      background:none;
-      -webkit-background-clip:unset;
-      -webkit-text-fill-color:#ffffff;
-      color:#ffffff;
-      filter:none;
-      text-shadow:0 0 1px #fff;
+      background:linear-gradient(135deg,#e8f8ff,#90d8ff,#1a8fff,#005fcc,#b8e8ff);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      filter:drop-shadow(0 0 12px rgba(0,140,255,0.35));
     }
-    body.mode-inverted .btn,
+    /* Buttons: same shape as orange but blue gradient instead of amber */
+    body.mode-inverted .btn{
+      background:linear-gradient(145deg,#60b8ff,#0055cc);
+      color:#e8f4ff;
+      box-shadow:0 8px 28px rgba(0,100,255,0.25);
+    }
     body.mode-inverted .settings-action-btn,
     body.mode-inverted .mini-btn{
-      background:#000000;
-      color:#ffffff;
-      border:2px solid #ffffff;
-      box-shadow:none;
-      border-radius:6px;
-    }
-    body.mode-inverted .btn:hover,
-    body.mode-inverted .settings-action-btn:hover,
-    body.mode-inverted .mini-btn:hover{
-      background:#ffffff;
-      color:#000000;
-      border-color:#ffffff;
+      background:linear-gradient(145deg,#60b8ff,#0055cc);
+      color:#e8f4ff;
     }
     body.mode-inverted #codeBtn,
     body.mode-inverted #themesBtn{
-      background:#000000;
-      color:#00ffee;
-      border:2px solid #00ffee;
-      box-shadow:0 0 10px rgba(0,255,238,0.35);
-      backdrop-filter:none;
-      border-radius:6px;
-    }
-    body.mode-inverted #codeBtn:hover,
-    body.mode-inverted #themesBtn:hover{
-      background:#00ffee;
-      color:#000000;
+      background:rgba(0,20,60,0.88);
+      color:#cce8ff;
+      backdrop-filter:blur(14px);
+      border:1px solid rgba(0,160,255,0.28);
+      box-shadow:0 8px 22px rgba(0,40,140,0.22);
     }
     body.mode-inverted #settingsPanel,
     body.mode-inverted #codeModal{
-      background:#000000;
-      border:2px solid #ffffff;
-      color:#ffffff;
-      box-shadow:none;
+      background:rgba(0,18,50,0.97);
+      border:1px solid rgba(0,160,255,0.22);
+      color:#cce8ff;
+      box-shadow:0 18px 44px rgba(0,10,40,0.48), inset 0 0 26px rgba(255,255,255,0.03);
     }
     body.mode-inverted #themesModal{
-      background:#000000;
-      border:2px solid #00ffee;
-      color:#ffffff;
+      background:rgba(0,16,46,0.97);
+      border:1px solid rgba(0,140,255,0.18);
+      color:#cce8ff;
     }
-    body.mode-inverted a{ color:#00ffee; }
-    body.mode-inverted a:hover{ color:#ffffff; }
-    body.mode-inverted ::-webkit-scrollbar-thumb{background:#ffffff !important;}
-    body.mode-inverted{scrollbar-color:#ffffff transparent;}
+    body.mode-inverted ::-webkit-scrollbar-thumb{background:rgba(0,120,255,0.55) !important;}
+    body.mode-inverted{scrollbar-color:rgba(0,120,255,0.55) transparent;}
     .mode-dot.inverted-dot{
-      background:linear-gradient(135deg,#ffffff 0%,#ffffff 49%,#000000 50%,#000000 100%);
-      border:2px solid #00ffee;
+      background:
+        radial-gradient(circle at 35% 35%,#e8f8ff 0 20%,#60b8ff 35%,#0055cc 68%,#001840 100%);
+      border:1px solid rgba(0,180,255,0.22);
+      box-shadow:0 0 0 1px rgba(0,60,150,0.14), inset 0 0 8px rgba(100,200,255,0.18);
     }
 
 
@@ -6805,37 +6804,46 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     body.mode-disco::before{
       content:'';
       position:fixed;top:0;left:50%;
-      width:2px;height:52px;
-      background:linear-gradient(to bottom,rgba(200,180,255,0.6),rgba(200,180,255,0.15));
-      pointer-events:none;z-index:3;
+      width:2px;height:48px;
+      background:linear-gradient(to bottom,rgba(200,180,255,0.7),rgba(200,180,255,0.1));
+      pointer-events:none;z-index:4;
     }
-    /* Disco ball */
+    /* Disco ball — JS canvas injected, ::after is the glow halo */
     body.mode-disco::after{
-      content:'🪩';
-      position:fixed;top:36px;left:50%;
-      font-size:3.8em;line-height:1;
+      content:'';
+      position:fixed;top:48px;left:50%;
+      width:72px;height:72px;
       transform:translateX(-50%);
-      pointer-events:none;z-index:3;
-      animation:discoBallRot 5s linear infinite;
-      filter:drop-shadow(0 0 24px rgba(200,140,255,0.7)) drop-shadow(0 0 8px rgba(255,255,255,0.9));
+      border-radius:50%;
+      background:radial-gradient(circle at 38% 32%,rgba(255,255,255,0.18) 0%,transparent 55%);
+      box-shadow:0 0 40px 18px rgba(180,100,255,0.35), 0 0 80px 30px rgba(100,80,255,0.18);
+      pointer-events:none;z-index:4;
+    }
+    /* The actual ball canvas sits in #discoBallCanvas, injected by JS */
+    #discoBallCanvas{
+      position:fixed;top:48px;left:50%;
+      transform:translateX(-50%);
+      pointer-events:none;z-index:5;
+      border-radius:50%;
+      box-shadow:0 0 28px 10px rgba(200,140,255,0.45), 0 0 60px 20px rgba(120,80,255,0.22);
     }
 
-    /* Laser beam elements (JS-injected) */
+    /* Laser beam elements (JS-injected) — z-index:-1 keeps them behind all page content */
     .disco-laser{
       position:fixed;
-      height:2px;
+      height:3px;
       pointer-events:none;
-      z-index:1;
-      border-radius:2px;
+      z-index:-1;
+      border-radius:3px;
       transform-origin:left center;
       animation:discoLaser linear both;
     }
     /* Dot reflections (JS-injected) */
-    .disco-dot{
+    .disco-reflect-dot{
       position:fixed;
       border-radius:50%;
       pointer-events:none;
-      z-index:1;
+      z-index:-1;
       animation:discoDotFlicker ease-in-out infinite;
     }
 
@@ -8452,81 +8460,138 @@ function stopBluefireParticles(){if(bluefireInterval){clearInterval(bluefireInte
 let discoInterval=null;
 let discoEls=[];
 
+/* ── Disco ball: canvas drawn as a proper mirror-tile sphere ── */
+function drawDiscoBall(canvas,angle){
+  const S=canvas.width,R=S/2,ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,S,S);
+  // Base sphere clip
+  ctx.save();ctx.beginPath();ctx.arc(R,R,R-1,0,Math.PI*2);ctx.clip();
+  // Dark sphere background
+  const bg=ctx.createRadialGradient(R*0.6,R*0.4,R*0.05,R,R,R);
+  bg.addColorStop(0,'#5a3a8a');bg.addColorStop(0.5,'#1a0840');bg.addColorStop(1,'#0a0020');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,S,S);
+  // Mirror tiles — rows of small rectangles that shimmer
+  const tileW=S/10,tileH=S/14;
+  const cols=['#fff','#ddc8ff','#b8d8ff','#ffc8f0','#c8f0ff','#ffe0b8'];
+  for(let row=0;row<14;row++){
+    for(let col=0;col<10;col++){
+      const cx=(col+0.5)*tileW,cy=(row+0.5)*tileH;
+      // Only draw tiles inside the circle
+      if((cx-R)**2+(cy-R)**2>(R-2)**2)continue;
+      // Brightness varies by angle for spin effect
+      const phase=((col/10+angle/(Math.PI*2))%1);
+      const bright=0.15+0.7*Math.abs(Math.sin(phase*Math.PI+row*0.4));
+      const c=cols[(row*3+col)%cols.length];
+      ctx.globalAlpha=bright;
+      // Slight 3D curve — tiles near edges are thinner
+      const distR=Math.sqrt((cx-R)**2+(cy-R)**2)/R;
+      const tw=tileW*0.7*(1-distR*0.4),th=tileH*0.6*(1-distR*0.3);
+      ctx.fillStyle=c;
+      ctx.beginPath();ctx.roundRect(cx-tw/2,cy-th/2,tw,th,1.5);ctx.fill();
+    }
+  }
+  ctx.globalAlpha=1;
+  // Specular highlight
+  const hl=ctx.createRadialGradient(R*0.55,R*0.38,0,R*0.6,R*0.42,R*0.32);
+  hl.addColorStop(0,'rgba(255,255,255,0.75)');hl.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=hl;ctx.fillRect(0,0,S,S);
+  ctx.restore();
+}
+let discoBallAngle=0;
+let discoBallRAF=null;
+function startDiscoBall(){
+  let canvas=document.getElementById('discoBallCanvas');
+  if(!canvas){canvas=document.createElement('canvas');canvas.id='discoBallCanvas';canvas.width=72;canvas.height=72;document.body.appendChild(canvas);}
+  function tick(){
+    discoBallAngle+=0.012;
+    drawDiscoBall(canvas,discoBallAngle);
+    discoBallRAF=requestAnimationFrame(tick);
+  }
+  tick();
+}
+function stopDiscoBall(){
+  if(discoBallRAF){cancelAnimationFrame(discoBallRAF);discoBallRAF=null;}
+  const c=document.getElementById('discoBallCanvas');
+  if(c)c.remove();
+}
+
+/* ── Laser beams: symmetric fan from ball position ── */
+// Fixed set of angles — symmetric pairs radiating from near-top-centre like spotlight arms
+const LASER_ARMS=[
+  {angle:-75,col:'rgba(255,60,200',glow:'rgba(255,60,200,0.35)'},
+  {angle:-55,col:'rgba(200,80,255',glow:'rgba(200,80,255,0.30)'},
+  {angle:-38,col:'rgba(80,140,255',glow:'rgba(80,140,255,0.28)'},
+  {angle:-22,col:'rgba(255,120,220',glow:'rgba(255,120,220,0.32)'},
+  {angle: 22,col:'rgba(255,120,220',glow:'rgba(255,120,220,0.32)'},
+  {angle: 38,col:'rgba(80,140,255',glow:'rgba(80,140,255,0.28)'},
+  {angle: 55,col:'rgba(200,80,255',glow:'rgba(200,80,255,0.30)'},
+  {angle: 75,col:'rgba(255,60,200',glow:'rgba(255,60,200,0.35)'},
+];
+
+// Reflect dot colours (floor scatter)
+const DOT_COLS=['rgba(255,80,200,','rgba(160,80,255,','rgba(80,160,255,','rgba(200,180,255,','rgba(255,180,255,'];
+
 function startDiscoLights(){
   stopDiscoLights();
+  startDiscoBall();
 
-  // Colours matching the image: pink, purple, blue, cyan
-  const laserCols=[
-    {r:'rgba(255,60,180,',g:'rgba(255,60,180,0.85)',s:'rgba(255,60,180,0.4)'},
-    {r:'rgba(140,60,255,',g:'rgba(140,60,255,0.85)',s:'rgba(140,60,255,0.35)'},
-    {r:'rgba(60,140,255,',g:'rgba(60,140,255,0.85)',s:'rgba(60,140,255,0.35)'},
-    {r:'rgba(200,80,255,',g:'rgba(200,80,255,0.85)',s:'rgba(200,80,255,0.35)'},
-    {r:'rgba(80,220,255,',g:'rgba(80,220,255,0.80)',s:'rgba(80,220,255,0.30)'},
-  ];
-  const dotCols=[
-    'rgba(255,80,200,',
-    'rgba(160,80,255,',
-    'rgba(80,160,255,',
-    'rgba(200,200,255,',
-    'rgba(255,180,255,',
-  ];
-
-  // Scatter floor/wall reflection dots
-  for(let i=0;i<42;i++){
+  // Scatter floor reflection dots — z-index:-1, behind everything
+  for(let i=0;i<38;i++){
     const dot=document.createElement('div');
-    dot.className='disco-dot';
+    dot.className='disco-reflect-dot';
     const size=2+Math.random()*5;
-    const col=dotCols[Math.floor(Math.random()*dotCols.length)];
-    const op=(0.3+Math.random()*0.5).toFixed(2);
-    const dur=(0.8+Math.random()*2.4).toFixed(2);
-    const delay=(Math.random()*3).toFixed(2);
-    // Scatter across whole screen — floor-biased
-    const top=Math.random()<0.65?(55+Math.random()*44):(10+Math.random()*55);
-    dot.style.cssText=`width:${size}px;height:${size}px;left:${(Math.random()*98).toFixed(1)}vw;top:${top.toFixed(1)}vh;background:${col}${op});box-shadow:0 0 ${(size*2.5).toFixed(0)}px ${col}0.8);animation-duration:${dur}s;animation-delay:${delay}s;`;
+    const col=DOT_COLS[Math.floor(Math.random()*DOT_COLS.length)];
+    const op=(0.25+Math.random()*0.50).toFixed(2);
+    const dur=(0.9+Math.random()*2.2).toFixed(2);
+    const delay=(Math.random()*3.5).toFixed(2);
+    const top=Math.random()<0.7?(58+Math.random()*40):(20+Math.random()*40);
+    dot.style.cssText=`width:${size}px;height:${size}px;left:${(Math.random()*98).toFixed(1)}vw;top:${top.toFixed(1)}vh;background:${col}${op});box-shadow:0 0 ${Math.round(size*2.8)}px ${col}0.85);animation-duration:${dur}s;animation-delay:${delay}s;`;
     document.body.appendChild(dot);
     discoEls.push(dot);
   }
 
-  // Sweeping laser beams
-  function fireLaser(){
+  // Build laser arms — they originate from ball position (top:60px, left:50vw)
+  // Each arm cycles on/off with a staggered interval
+  let armPhase=0;
+  function updateArms(){
     if(!document.body.classList.contains('mode-disco'))return;
-    const c=laserCols[Math.floor(Math.random()*laserCols.length)];
-    const el=document.createElement('div');
-    el.className='disco-laser';
-    // Random angle: mostly horizontal-ish (-30 to +30 deg) from various points
-    const fromLeft=Math.random()<0.5;
-    const topPct=8+Math.random()*84;
-    const angle=(Math.random()-0.5)*52;
-    const length=55+Math.random()*45;
-    const dur=2.5+Math.random()*2;
-    el.style.cssText=`
-      top:${topPct}vh;
-      ${fromLeft?'left:0':'right:0'};
-      width:${length}vw;
-      background:linear-gradient(to right,${c.g},transparent);
-      box-shadow:0 0 8px 2px ${c.s};
-      transform:rotate(${fromLeft?angle:-angle}deg);
-      animation-duration:${dur}s;
-      animation-delay:0s;
-    `;
-    document.body.appendChild(el);
-    discoEls.push(el);
-    setTimeout(()=>{el.remove();const idx=discoEls.indexOf(el);if(idx>-1)discoEls.splice(idx,1);},(dur+0.3)*1000);
+    armPhase+=0.018;
+    LASER_ARMS.forEach((arm,i)=>{
+      let el=document.getElementById('disco-arm-'+i);
+      if(!el){
+        el=document.createElement('div');
+        el.id='disco-arm-'+i;
+        el.className='disco-laser';
+        // Origin from ball centre (60+36=96px from top, 50vw)
+        el.style.position='fixed';
+        el.style.top='96px';
+        el.style.left='50vw';
+        el.style.transformOrigin='left center';
+        el.style.width='65vw';
+        el.style.animation='none';
+        document.body.appendChild(el);
+        discoEls.push(el);
+      }
+      // Opacity pulses: each arm has a different phase offset so they ripple
+      const op=Math.max(0,Math.sin(armPhase+i*0.55)*0.7+0.1);
+      const intens=0.5+op*0.5;
+      el.style.opacity=op;
+      el.style.background='linear-gradient(to right,'+arm.col+','+intens.toFixed(2)+') 0%,'+arm.col+',0.04) 100%)';
+      el.style.boxShadow=`0 0 10px 3px ${arm.glow}`;
+      el.style.transform=`rotate(${arm.angle}deg)`;
+    });
   }
-
-  // Fire first batch immediately
-  for(let i=0;i<3;i++) setTimeout(fireLaser, i*300);
-  // Then fire randomly
-  discoInterval=setInterval(()=>{
-    if(Math.random()<0.6) fireLaser();
-  }, 900);
+  discoInterval=setInterval(updateArms,30);
+  updateArms();
 }
 
 function stopDiscoLights(){
   if(discoInterval){clearInterval(discoInterval);discoInterval=null;}
+  stopDiscoBall();
   discoEls.forEach(el=>{ try{el.remove();}catch(e){} });
   discoEls=[];
-  document.querySelectorAll('.disco-laser,.disco-dot').forEach(el=>el.remove());
+  document.querySelectorAll('.disco-laser,.disco-reflect-dot,#discoBallCanvas').forEach(el=>el.remove());
+  LASER_ARMS.forEach((_,i)=>{const e=document.getElementById('disco-arm-'+i);if(e)e.remove();});
 }
 let fizzyInterval=null;
 function spawnFizzyBubble(){
