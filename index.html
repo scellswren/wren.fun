@@ -7844,6 +7844,20 @@ function unlockRedFizzyIfEligible(){return unlockIfEligible('redfizzy',()=>local
     function unlockPlasmaIfEligible(){return unlockIfEligible('plasma',()=>(parseInt(localStorage.getItem('unoh_wins')) || 0) >= 100,'⚡ Plasma unlocked!!',refreshPlasmaOption);}
     function unlockMintIfEligible(){return unlockIfEligible('mint',()=>(parseInt(localStorage.getItem('unoh_team_wins')) || 0) >= 10,'🌿 Mint unlocked!!',refreshMintOption);}
 function unlockPurpleFizzyIfEligible(){return unlockIfEligible('purplefizzy',()=>(parseInt(localStorage.getItem('unoh_team_wins')) || 0) >= 20,'🟣 Purple Fizzy unlocked!!',refreshPurpleFizzyOption);}
+function syncUnOhInfinityThemeUnlocks(){
+  const wins=parseInt(localStorage.getItem('unoh_wins')||'0',10)||0;
+  const teamWins=parseInt(localStorage.getItem('unoh_team_wins')||'0',10)||0;
+  const syncTheme=(mode,key,eligible,refreshFn)=>{
+    if(eligible)localStorage.setItem(key,'1');
+    if(localStorage.getItem(key)==='1'||eligible)persistUnlocked(mode);
+    refreshFn();
+  };
+  syncTheme('opal',OPAL_THEME_UNLOCK_KEY,wins>=10,refreshOpalOption);
+  syncTheme('camo',CAMO_THEME_UNLOCK_KEY,wins>=50,refreshCamoOption);
+  syncTheme('plasma',PLASMA_THEME_UNLOCK_KEY,wins>=100,refreshPlasmaOption);
+  syncTheme('mint',MINT_THEME_UNLOCK_KEY,teamWins>=10,refreshMintOption);
+  syncTheme('purplefizzy',PURPLEFIZZY_THEME_UNLOCK_KEY,teamWins>=20,refreshPurpleFizzyOption);
+}
 function unlockCoralIfEligible(){return unlockIfEligible('coral',()=>localStorage.getItem(CORAL_THEME_UNLOCK_KEY)==='1','🪸 Coral unlocked!!',refreshCoralOption);}function unlockMidnightIfEligible(){return unlockIfEligible('midnight',()=>localStorage.getItem(MIDNIGHT_THEME_UNLOCK_KEY)==='1','🌙 Midnight unlocked!!',refreshMidnightOption);}
 function unlockObsidianIfEligible(){return unlockIfEligible('obsidian',()=>localStorage.getItem(OBSIDIAN_THEME_UNLOCK_KEY)==='1','🖤 Obsidian unlocked!!',refreshObsidianOption);}
 function refreshLanternOption(){refreshOption('lanternModeOption','lanternLock','lantern');}
@@ -8750,7 +8764,7 @@ unlockWoodIfEligible();unlockToothpasteIfEligible();unlockLimeIfEligible();
   unlockJediIfEligible();unlockWatermelonIfEligible();unlockBoneIfEligible();
   unlockTurquoiseIfEligible();unlockTurquoiseCyanIfEligible();
   unlockChinaIfEligible();
-  unlockGreenFizzyIfEligible();unlockBlueFizzyIfEligible();unlockPeachIfEligible();unlockAntarcticaIfEligible();unlockBluecheeseIfEligible();unlockCarrotIfEligible();unlockRedFizzyIfEligible();unlockCoralIfEligible();unlockMidnightIfEligible();unlockObsidianIfEligible();unlockLanternIfEligible();unlockAmethystIfEligible();unlockWhiteSaberIfEligible();unlockBlackWhiteIfEligible();unlockChocolateChipIfEligible();
+  unlockGreenFizzyIfEligible();unlockBlueFizzyIfEligible();unlockPeachIfEligible();unlockAntarcticaIfEligible();unlockBluecheeseIfEligible();unlockCarrotIfEligible();unlockRedFizzyIfEligible();syncUnOhInfinityThemeUnlocks();unlockOpalIfEligible();unlockCamoIfEligible();unlockPlasmaIfEligible();unlockMintIfEligible();unlockPurpleFizzyIfEligible();unlockCoralIfEligible();unlockMidnightIfEligible();unlockObsidianIfEligible();unlockLanternIfEligible();unlockAmethystIfEligible();unlockWhiteSaberIfEligible();unlockBlackWhiteIfEligible();unlockChocolateChipIfEligible();
   checkObjectAttackThemes();
 }
 function markVisit(w,href){
