@@ -1655,79 +1655,119 @@ body.mode-water h1{background:linear-gradient(135deg,#d8fbff,#6ddcff,#1c8ff5,#8c
       box-shadow:0 18px 44px rgba(8,14,6,0.42), inset 0 0 24px rgba(255,255,255,0.03);
     }
     body.mode-plasma {
-      --accent: #c084ff;
-      background:
-        radial-gradient(ellipse at 50% 0%, rgba(180,80,255,0.22) 0%, transparent 55%),
-        radial-gradient(circle at 12% 30%, rgba(160,60,255,0.20) 0%, transparent 30%),
-        radial-gradient(circle at 88% 25%, rgba(200,80,255,0.16) 0%, transparent 28%),
-        radial-gradient(circle at 40% 85%, rgba(140,40,220,0.18) 0%, transparent 30%),
-        linear-gradient(180deg, #030008 0%, #0d0320 28%, #160630 54%, #060012 100%);
-      color: #f5eeff;
+      --accent: #9b30ff;
+      background: #000000;
+      color: #e8d5ff;
       overflow: hidden;
-      animation: plasma-pulse 6s ease-in-out infinite alternate;
+      animation: plasma-void 10s ease-in-out infinite alternate;
     }
+    /* Deep cracked-void base layer */
     body.mode-plasma::before {
-      content: '';
-      position: fixed;
-      inset: -20% -5%;
-      pointer-events: none;
-      background:
-        linear-gradient(96deg,  transparent 22%, rgba(210,100,255,0.00) 34%, rgba(210,100,255,0.55) 38%, rgba(255,255,255,0.18) 40%, rgba(210,100,255,0.55) 42%, transparent 50%),
-        linear-gradient(275deg, transparent 38%, rgba(180,60,255,0.00) 47%, rgba(180,60,255,0.38) 50%, rgba(255,255,255,0.10) 51%, rgba(180,60,255,0.38) 53%, transparent 60%),
-        linear-gradient(140deg, transparent 55%, rgba(220,120,255,0.00) 63%, rgba(220,120,255,0.30) 66%, rgba(255,255,255,0.08) 67.5%, rgba(220,120,255,0.30) 69%, transparent 76%);
-      filter: blur(2px);
-      animation: plasma-arcs 3.8s ease-in-out infinite alternate;
-    }
-    body.mode-plasma::after {
       content: '';
       position: fixed;
       inset: 0;
       pointer-events: none;
-      background-image:
-        radial-gradient(circle at 18% 30%, rgba(255,255,255,0.92) 0 1px, transparent 1.5px),
-        radial-gradient(circle at 62% 18%, rgba(230,180,255,0.80) 0 1px, transparent 1.5px),
-        radial-gradient(circle at 74% 68%, rgba(220,150,255,0.78) 0 1.2px, transparent 1.8px),
-        radial-gradient(circle at 32% 78%, rgba(255,255,255,0.65) 0 1px, transparent 1.5px),
-        radial-gradient(circle at 85% 50%, rgba(200,120,255,0.70) 0 1px, transparent 1.5px),
-        repeating-linear-gradient(180deg, transparent 0px, transparent 3px, rgba(180,60,255,0.03) 3px, rgba(180,60,255,0.03) 4px);
-      animation: plasma-stars 4.8s ease-in-out infinite alternate;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 40% at 50% 100%, rgba(100,20,180,0.55) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 30% at 20% 0%,   rgba(80,0,140,0.40)  0%, transparent 60%),
+        radial-gradient(ellipse 50% 25% at 80% 10%,  rgba(110,10,160,0.30) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 20% at 50% 50%,  rgba(60,0,100,0.20)  0%, transparent 65%),
+        linear-gradient(180deg, #000000 0%, #06000f 35%, #0a0018 65%, #000000 100%);
+      animation: plasma-breathe 7s ease-in-out infinite alternate;
     }
-    body.mode-plasma h1{
-      background:linear-gradient(135deg,#fff0ff,#e0aaff,#c060ff,#f5d0ff);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      filter:drop-shadow(0 0 6px rgba(200,100,255,0.80)) drop-shadow(0 0 2px rgba(255,255,255,0.60));
+    /* Laser beam scan lines */
+    body.mode-plasma::after {
+      content: '';
+      position: fixed;
+      inset: -50% -20%;
+      pointer-events: none;
+      z-index: 1;
+      background:
+        linear-gradient(102deg,
+          transparent 0%,   transparent 30%,
+          rgba(140,0,255,0.00) 38%,
+          rgba(140,0,255,0.60) 39.5%, rgba(200,100,255,0.90) 40%, rgba(140,0,255,0.60) 40.5%,
+          rgba(140,0,255,0.00) 42%,   transparent 52%,
+          transparent 100%),
+        linear-gradient(258deg,
+          transparent 0%,   transparent 44%,
+          rgba(120,0,220,0.00) 51%,
+          rgba(120,0,220,0.50) 52.5%, rgba(180,80,255,0.75) 53%,  rgba(120,0,220,0.50) 53.5%,
+          rgba(120,0,220,0.00) 55%,   transparent 65%,
+          transparent 100%),
+        linear-gradient(175deg,
+          transparent 0%,   transparent 62%,
+          rgba(160,20,255,0.00) 68%,
+          rgba(160,20,255,0.40) 69%,  rgba(210,130,255,0.60) 69.5%, rgba(160,20,255,0.40) 70%,
+          rgba(160,20,255,0.00) 71.5%, transparent 80%,
+          transparent 100%);
+      filter: blur(1px);
+      animation: plasma-lasers 5s ease-in-out infinite alternate;
+    }
+    /* Cracked-glass text */
+    body.mode-plasma h1 {
+      position: relative;
+      z-index: 2;
+      color: #ffffff;
+      -webkit-text-fill-color: transparent;
+      background: linear-gradient(160deg,
+        #ffffff 0%, #d8b4fe 15%,
+        #1a0030 22%, #ffffff 28%,
+        #9b30ff 35%, #1a0030 40%,
+        #ffffff 44%, #c084fc 52%,
+        #1a0030 57%, #ffffff 62%,
+        #7c3aed 70%, #000000 76%,
+        #c084fc 82%, #ffffff 90%,
+        #000000 95%, #d8b4fe 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      filter: none;
+      text-shadow: none;
+      animation: plasma-crack-flicker 4s steps(1, end) infinite;
     }
     body.mode-plasma .btn,
     body.mode-plasma .settings-action-btn,
     body.mode-plasma .mini-btn,
     body.mode-plasma #codeBtn,
-    body.mode-plasma #themesBtn{
-      background:linear-gradient(145deg,#6b28c8 0%,#35107a 54%,#130040 100%);
-      color:#f5eeff;
-      border:1px solid rgba(200,130,255,0.30);
-      box-shadow:0 10px 28px rgba(10,4,30,0.55), inset 0 0 0 1px rgba(200,130,255,0.10), 0 0 10px rgba(180,80,255,0.12);
+    body.mode-plasma #themesBtn {
+      background: linear-gradient(145deg, #1a0035 0%, #0a0018 55%, #000000 100%);
+      color: #d8b4fe;
+      border: 1px solid rgba(140,0,255,0.35);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.80), inset 0 0 0 1px rgba(160,60,255,0.10), 0 0 14px rgba(120,0,220,0.20);
     }
     body.mode-plasma #settingsPanel,
-    body.mode-plasma #codeModal{
-      background:linear-gradient(180deg,rgba(8,3,20,0.98) 0%,rgba(20,8,50,0.98) 55%,rgba(10,3,30,0.98) 100%);
-      border:1px solid rgba(180,100,255,0.22);
-      color:#f0eaff;
-      box-shadow:0 18px 44px rgba(4,1,16,0.60), inset 0 0 28px rgba(160,60,255,0.08);
+    body.mode-plasma #codeModal {
+      background: linear-gradient(180deg, rgba(0,0,0,0.99) 0%, rgba(8,0,20,0.99) 55%, rgba(0,0,0,0.99) 100%);
+      border: 1px solid rgba(140,0,255,0.25);
+      color: #e8d5ff;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.90), inset 0 0 30px rgba(100,0,200,0.06);
     }
-    @keyframes plasma-pulse {
-      0%   { filter: saturate(1.0) brightness(1.00); }
-      40%  { filter: saturate(1.30) brightness(1.06); }
-      100% { filter: saturate(1.15) brightness(1.10); }
+    @keyframes plasma-void {
+      0%   { filter: brightness(1.00) contrast(1.00); }
+      50%  { filter: brightness(1.06) contrast(1.05); }
+      100% { filter: brightness(0.96) contrast(1.02); }
     }
-    @keyframes plasma-arcs {
-      0%   { transform: translateX(-4%) translateY(-2%) skewY(-0.5deg); opacity: 0.55; }
-      50%  { opacity: 1.0; }
-      100% { transform: translateX(4%)  translateY(2%)  skewY(0.5deg);  opacity: 0.60; }
+    @keyframes plasma-breathe {
+      0%   { opacity: 0.85; transform: scale(1.00); }
+      50%  { opacity: 1.00; transform: scale(1.02); }
+      100% { opacity: 0.90; transform: scale(1.00); }
     }
-    @keyframes plasma-stars {
-      0%   { transform: translateY(0px);   opacity: 0.45; }
-      100% { transform: translateY(-8px);  opacity: 0.90; }
+    @keyframes plasma-lasers {
+      0%   { transform: translateX(-8%) translateY(-6%) rotate(-1deg); opacity: 0.70; }
+      25%  { opacity: 1.00; }
+      75%  { opacity: 0.85; }
+      100% { transform: translateX(8%)  translateY(6%)  rotate(1deg);  opacity: 0.75; }
+    }
+    @keyframes plasma-crack-flicker {
+      0%,  9%  { filter: none; }
+      10%, 11% { filter: brightness(2.0) drop-shadow(0 0 2px #9b30ff); }
+      12%, 49% { filter: none; }
+      50%, 51% { filter: brightness(1.6) drop-shadow(0 0 1px #c084fc); }
+      52%, 74% { filter: none; }
+      75%, 76% { filter: brightness(2.2) drop-shadow(0 0 3px #7c3aed); }
+      77%,100% { filter: none; }
     }
     body.mode-mint {
       --accent: #79f0b6;
@@ -6438,11 +6478,11 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
     }
     .mode-dot.plasma-dot{
       background:
-        radial-gradient(circle at 36% 30%, #ffffff 0 8%, rgba(255,255,255,0.12) 9% 100%),
-        radial-gradient(circle at 70% 32%, rgba(103,219,255,0.88) 0 12%, transparent 13%),
-        linear-gradient(140deg,#120523 0%,#4b1dac 48%,#0f2a67 100%);
-      border:1px solid rgba(166,144,255,0.34);
-      box-shadow:0 0 12px rgba(114,104,255,0.28);
+        linear-gradient(102deg, transparent 38%, rgba(155,48,255,0.85) 39.5%, rgba(200,120,255,1.0) 40%, rgba(155,48,255,0.85) 40.5%, transparent 42%),
+        radial-gradient(ellipse at 50% 100%, rgba(100,20,180,0.70) 0%, transparent 70%),
+        linear-gradient(140deg,#000000 0%,#0a0018 55%,#000000 100%);
+      border:1px solid rgba(140,0,255,0.35);
+      box-shadow:0 0 10px rgba(120,0,220,0.40);
     }
     .mode-dot.mint-dot{
       background:
