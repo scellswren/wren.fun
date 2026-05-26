@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Cat Clicker</title>
+  <title>Tiki Clicker</title>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="../Favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -336,6 +336,40 @@
     }
     #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
+    /* ── RANDOM TIKI ── */
+    #randomTikiContainer {
+      position:fixed; top:0; left:0; width:100%; height:60px;
+      pointer-events:none; z-index:8000; overflow:visible;
+    }
+    .flying-tiki {
+      position:absolute; top:8px; font-size:2.4em;
+      cursor:pointer; pointer-events:all; user-select:none;
+      filter: drop-shadow(0 0 12px rgba(80,160,255,0.9)) drop-shadow(0 0 24px rgba(80,160,255,0.6));
+      animation: tikilFly linear forwards;
+      transform-origin: center;
+    }
+    @keyframes tikilFly {
+      from { left: -80px; }
+      to   { left: calc(100% + 80px); }
+    }
+    .flying-tiki.clicked {
+      animation: tikiFlyExpand 0.25s ease-out forwards !important;
+      pointer-events:none;
+    }
+    @keyframes tikiFlyExpand {
+      0%   { transform:scale(1);   opacity:1; }
+      40%  { transform:scale(2.8); opacity:1; }
+      100% { transform:scale(0);   opacity:0; }
+    }
+    .tiki-particle {
+      position:absolute; pointer-events:none; font-size:0.9em;
+      animation: tikiParticleFly linear forwards;
+    }
+    @keyframes tikiParticleFly {
+      0%   { opacity:0.9; transform:translate(0,0) scale(1); }
+      100% { opacity:0;   transform:translate(var(--px), var(--py)) scale(0.3); }
+    }
+
     /* ── REBIRTH ANIMATION ── */
     #rebirthOverlay {
       position:fixed; inset:0; z-index:9500; pointer-events:none;
@@ -422,7 +456,7 @@
 
 <!-- SLOT SCREEN -->
 <div id="slotScreen">
-  <h2>🐱 Cat Clicker</h2>
+  <h2>🐱 Tiki Clicker</h2>
   <div class="slot-sub">Pick a save slot</div>
   <div class="slot-cards" id="slotCards"></div>
 </div>
@@ -441,7 +475,7 @@
 
 <!-- GAME SCREEN -->
 <div id="app">
-  <h1>🐱 Cat Clicker</h1>
+  <h1>🐱 Tiki Clicker</h1>
   <div id="slotLabel">SLOT 1</div>
   <span id="clickCount">0</span>
   <div id="cpsDisplay">No auto-clicks yet</div>
@@ -499,11 +533,11 @@
 <div id="previewOverlay" onclick="closePreview()">
   <img id="previewImage" alt="Tiki the Cat">
 </div>
-<!-- Cat Jail Modal -->
+<!-- Tiki Jail Modal -->
 <div class="modal-overlay" id="jailModal">
   <div class="modal-box" style="border-color:rgba(255,50,50,0.6);background:linear-gradient(180deg,#1a0000 0%,#0a0000 100%)">
     <h3 style="color:#ff3333">🚔 TIKI JAIL!</h3>
-    <p>You failed to repay your loan! You've been thrown in Cat Jail.<br><br>
+    <p>You failed to repay your loan! You've been thrown in Tiki Jail.<br><br>
     Your clicks have been wiped and you're now in debt.<br>
     You cannot click for <strong id="jailTimerDisplay" style="color:#ff4444">6:00</strong>.</p>
     <p style="font-size:0.8em;color:rgba(255,100,100,0.6);margin-top:-10px">The timer pauses if you leave the page.</p>
@@ -513,6 +547,7 @@
   </div>
 </div>
 
+<div id="randomTikiContainer"></div>
 <div id="rebirthOverlay">
   <div id="rebirthText"></div>
 </div>
@@ -683,7 +718,7 @@ function emptyState(){
     multLevel:1, multPurchased:0,
     frenzyOwned:false,
     rebirthCount:0,
-    // Cat Bank
+    // Tiki Bank
     loanOriginal:0, loanOwed:0, loanTakenAt:0, loanLastInterest:0,
     jailTimeLeft:0, inJail:false,
   };
@@ -898,7 +933,7 @@ function updateDisplay(){
 // ═══════════════════════════════════════════
 
 function handleClick(e){
-  if(state.inJail){ showToast('🚔 You\'re in Cat Jail! Wait for the timer.'); return; }
+  if(state.inJail){ showToast('🚔 You\'re in Tiki Jail! Wait for the timer.'); return; }
   const frenzyMult = frenzyActive ? 3 : 1;
   const base = getEffectiveMultLevel();
   const gain = Math.max(1, Math.ceil(base * frenzyMult));
@@ -1025,12 +1060,12 @@ function renderExtrasShop(){
   lbl.className='shop-section-label'; lbl.textContent='🔥 Special Events';
   el.appendChild(lbl);
   if(state.frenzyOwned){
-    el.appendChild(item(true,true,'🔥 Cat Frenzy',
+    el.appendChild(item(true,true,'🔥 Tiki Frenzy',
       '25% chance every minute: x3 clicks, x2 auto speed, blood-red screen & raining Tikis for 20s!',
       '✅ Owned — frenzy checks running','','Owned'));
   } else {
     const can=state.clicks>=50000;
-    el.appendChild(item(can,false,'🔥 Cat Frenzy',
+    el.appendChild(item(can,false,'🔥 Tiki Frenzy',
       '25% chance every minute: x3 clicks, x2 faster auto, animated blood-red background & raining Tikis for 20 seconds!',
       'Cost: 🐱 50,000 clicks',
       'buyFrenzy','Buy'));
@@ -1040,6 +1075,21 @@ function renderExtrasShop(){
     fb.className='shop-item owned-item'; fb.style.marginTop='8px';
     fb.innerHTML='<div class="item-info"><div class="item-name" style="color:#ff4444">🔥 FRENZY ACTIVE!</div><div class="item-desc" style="color:#ff8888">Time remaining: '+frenzyTimeLeft+'s</div></div>';
     el.appendChild(fb);
+  }
+  // Random Tiki
+  const lbl2=document.createElement('div');
+  lbl2.className='shop-section-label'; lbl2.textContent='🐱 Lucky Events';
+  el.appendChild(lbl2);
+  if(state.randomTikiOwned){
+    el.appendChild(item(true,true,'💙 Random Tiki',
+      '35% chance every minute: a blue tiki flies across the top! Click it for +15% of your clicks!',
+      '✅ Owned — tikis may appear!','','Owned'));
+  } else {
+    const canRt=state.clicks>=200000;
+    el.appendChild(item(canRt,false,'💙 Random Tiki',
+      '35% chance every minute: a blue tiki flies across the screen! Click it before it escapes for +15% of your clicks!',
+      'Cost: 🐱 200,000 clicks',
+      'buyRandomTiki','Buy'));
   }
 }
 
@@ -1156,7 +1206,7 @@ function buyFrenzy(){
   sfxBuy();
   state.clicks-=50000; state.frenzyOwned=true;
   saveCurrentSlot(); updateDisplay(); startFrenzySystem();
-  showToast('🔥 Cat Frenzy unlocked! 25% chance per minute.');
+  showToast('🔥 Tiki Frenzy unlocked! 25% chance per minute.');
 }
 
 function triggerRebirthAnimation(rc){
@@ -1192,21 +1242,136 @@ function doRebirth(){
   const rc  =(state.rebirthCount||0)+1;
   const fo  =state.frenzyOwned;
   const afk =state.afkAutoOwned;
-  const autoLv=state.autoLevel;
+  const rto =state.randomTikiOwned;
   state=emptyState();
-  state.rebirthCount =rc;
-  state.frenzyOwned  =fo;
-  state.afkAutoOwned =afk;
-  state.autoLevel    =autoLv;
+  state.rebirthCount   =rc;
+  state.frenzyOwned    =fo;
+  state.afkAutoOwned   =afk;
+  state.randomTikiOwned=rto;
   saveCurrentSlot();
   clearAutoSubs();if(autoWorker){clearInterval(autoWorker);autoWorker=null;}
   if(fo) startFrenzySystem();
-  if(autoLv) startAutoClick();
   updateDisplay();
   triggerRebirthAnimation(rc);
   showToast('✨ Rebirth #'+rc+'! Rebirth multiplier is now x'+rc+'! Extras kept!');
 }
 
+
+
+// ═══════════════════════════════════════════
+//  RANDOM TIKI  (Tiki Extras — NEVER resets on rebirth)
+//  35% chance every minute to spawn a blue tiki flying across the top.
+//  Click it for +15% of current clicks. Spawns particles as it flies.
+// ═══════════════════════════════════════════
+
+let randomTikiTimer = null;
+let activeFlyingTiki = null;
+
+function startRandomTiki(){
+  if(randomTikiTimer) clearInterval(randomTikiTimer);
+  if(!state.randomTikiOwned) return;
+  randomTikiTimer = setInterval(()=>{
+    if(!state.randomTikiOwned) return;
+    if(Math.random() < 0.35) spawnFlyingTiki();
+  }, 60000);
+}
+
+function spawnFlyingTiki(){
+  if(activeFlyingTiki) return; // only one at a time
+  const container = document.getElementById('randomTikiContainer');
+  if(!container) return;
+
+  const tiki = document.createElement('div');
+  tiki.className = 'flying-tiki';
+  tiki.textContent = '🐱';
+  tiki.style.animationDuration = '5s';
+  tiki.style.top = (4 + Math.random() * 28) + 'px';
+  container.appendChild(tiki);
+  activeFlyingTiki = tiki;
+
+  // Spawn trailing particles continuously while flying
+  let particleInterval = setInterval(()=>{
+    if(!tiki.isConnected){ clearInterval(particleInterval); return; }
+    spawnTikiParticle(tiki, container);
+  }, 120);
+
+  // Click handler — expand then implode, give reward
+  tiki.addEventListener('click', function(){
+    if(tiki.classList.contains('clicked')) return;
+    clearInterval(particleInterval);
+    tiki.classList.add('clicked');
+    // Burst of particles
+    for(let i=0;i<14;i++) spawnTikiParticle(tiki, container, true);
+    // Sound
+    try{
+      const ctx=getAudio();
+      [523,659,784,1046].forEach((f,i)=>{
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type='sine'; o.frequency.value=f;
+        const t=ctx.currentTime+i*0.07;
+        g.gain.setValueAtTime(0.18,t);
+        g.gain.exponentialRampToValueAtTime(0.0001,t+0.3);
+        o.start(t); o.stop(t+0.3);
+      });
+    }catch(e){}
+    // Reward: +15% of current clicks
+    const bonus = Math.floor(state.clicks * 0.15);
+    setTimeout(()=>{
+      state.clicks += bonus;
+      state.totalEarned += bonus;
+      saveCurrentSlot();
+      updateDisplay();
+      showToast('🐱 Lucky Tiki! +'+formatNum(bonus)+' clicks (+15%)!');
+      tiki.remove();
+      activeFlyingTiki = null;
+    }, 280);
+  });
+
+  // Auto-remove after 5.2s (slightly after animation ends)
+  setTimeout(()=>{
+    clearInterval(particleInterval);
+    if(tiki.isConnected) tiki.remove();
+    if(activeFlyingTiki === tiki) activeFlyingTiki = null;
+  }, 5300);
+}
+
+function spawnTikiParticle(tiki, container, burst){
+  const rect = tiki.getBoundingClientRect();
+  const contRect = container.getBoundingClientRect();
+  const p = document.createElement('div');
+  p.className = 'tiki-particle';
+  const emojis = ['✨','💙','⭐','💫','🔵'];
+  p.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+  // Position relative to container
+  const x = (rect.left - contRect.left) + rect.width/2 + (Math.random()-0.5)*20;
+  const y = (rect.top  - contRect.top)  + rect.height/2;
+  p.style.left = x+'px';
+  p.style.top  = y+'px';
+  const angle = burst ? Math.random()*Math.PI*2 : (Math.PI/2 + (Math.random()-0.5)*1.2);
+  const dist  = burst ? 60+Math.random()*80 : 30+Math.random()*40;
+  p.style.setProperty('--px', Math.cos(angle)*dist+'px');
+  p.style.setProperty('--py', Math.sin(angle)*dist+'px');
+  const dur = burst ? 0.5+Math.random()*0.3 : 0.6+Math.random()*0.4;
+  p.style.animationDuration = dur+'s';
+  p.style.animationDelay = (Math.random()*0.05)+'s';
+  container.appendChild(p);
+  setTimeout(()=>p.remove(), (dur+0.1)*1000);
+}
+
+function buyRandomTiki(){
+  if(state.randomTikiOwned) return;
+  const cost = 200000;
+  if(state.clicks < cost){ showToast('Not enough clicks!'); return; }
+  sfxBuy();
+  state.clicks -= cost;
+  state.randomTikiOwned = true;
+  saveCurrentSlot();
+  startRandomTiki();
+  updateDisplay();
+  renderExtrasShop();
+  showToast('🐱 Random Tiki unlocked! Blue tikis will fly across every minute (35% chance)!');
+}
 
 // ═══════════════════════════════════════════
 //  TIKI BANK
@@ -1267,7 +1432,7 @@ function startJailTimer(){
       // keep clicks negative (still in debt) but can click again
       saveCurrentSlot();
       updateDisplay();
-      showToast('🔓 Released from Cat Jail! You\'re still in debt though...');
+      showToast('🔓 Released from Tiki Jail! You\'re still in debt though...');
     }
     saveCurrentSlot();
   }, 1000);
@@ -1324,7 +1489,7 @@ function renderBankShop(){
   el.innerHTML = '';
 
   const lbl = document.createElement('div');
-  lbl.className='shop-section-label'; lbl.textContent='🏦 Cat Bank';
+  lbl.className='shop-section-label'; lbl.textContent='🏦 Tiki Bank';
   el.appendChild(lbl);
 
   // Jail state
@@ -1334,7 +1499,7 @@ function renderBankShop(){
     const card=document.createElement('div');
     card.className='bank-card jail';
     card.innerHTML=`
-      <div class="bank-label red">🚔 In Cat Jail</div>
+      <div class="bank-label red">🚔 In Tiki Jail</div>
       <div class="bank-value red">${m}:${s<10?'0':''}${s}</div>
       <div class="bank-sub">You cannot click until the timer runs out. Timer pauses when you leave the page.</div>
       <div class="bank-sub" style="color:#ff8888;margin-top:6px">Current debt: <strong>${formatNum(Math.abs(state.clicks))}</strong> clicks</div>
@@ -1367,7 +1532,7 @@ function renderBankShop(){
       <div class="bank-label red">⚠️ Active Loan</div>
       <div class="bank-value red">${formatNum(owed)} clicks owed</div>
       <div class="bank-sub">Original: ${formatNum(state.loanOriginal)} — Interest: <strong style="color:${interestPct>=200?'#ff3333':interestPct>=100?'#ff8844':'#ffcc44'}">${interestPct}% added</strong></div>
-      <div class="bank-sub" style="margin-top:4px">Interest compounds 10%/min. At 250% you go to 🚔 Cat Jail!</div>
+      <div class="bank-sub" style="margin-top:4px">Interest compounds 10%/min. At 250% you go to 🚔 Tiki Jail!</div>
       <div class="jail-bar" style="background:rgba(255,50,50,0.15)">
         <div class="jail-bar-fill" style="width:${Math.min(100,(state.loanOwed/state.loanOriginal/2.5)*100)}%;background:linear-gradient(90deg,#ff8800,#ff3300)"></div>
       </div>
@@ -1391,7 +1556,7 @@ function renderBankShop(){
       <div class="bank-sub" style="margin:6px 0 4px">Choose how much to borrow (up to 2× balance)</div>
       <input type="range" id="loanSlider" min="1" max="${maxLoan}" value="${loanSliderValue}"
         style="width:100%;accent-color:#20b050;cursor:pointer;margin:4px 0 10px">
-      <div class="bank-sub">Interest: 10% per minute, up to 250%. Miss the cap → 🚔 Cat Jail!</div>
+      <div class="bank-sub">Interest: 10% per minute, up to 250%. Miss the cap → 🚔 Tiki Jail!</div>
     `;
     el.appendChild(card);
     const slider = card.querySelector('#loanSlider');
@@ -1419,7 +1584,7 @@ function renderBankShop(){
     <div class="bank-sub" style="line-height:1.7">
       • Borrow up to 2× your current clicks<br>
       • Interest: +10% per minute<br>
-      • Hits 250%? → 🚔 Cat Jail<br>
+      • Hits 250%? → 🚔 Tiki Jail<br>
       • Jail: lose all clicks, owe 300% of owed amount, can't click for 6 minutes<br>
       • Jail timer pauses when you leave the page
     </div>
@@ -1443,6 +1608,7 @@ function doReset(){
   if(frenzyActive)endFrenzy();
   if(bankInterestTimer){clearInterval(bankInterestTimer);bankInterestTimer=null;}
   if(jailTimer){clearInterval(jailTimer);jailTimer=null;}
+  if(randomTikiTimer){clearInterval(randomTikiTimer);randomTikiTimer=null;}
   // Completely empty — no rebirth retention
   state=emptyState();
   saveCurrentSlot();
@@ -1478,12 +1644,13 @@ function renderSlotScreen(){
     card.className='slot-card'+(saved?'':' empty-slot');
     if(saved){
       const rc=saved.rebirthCount||0;
+      const clicksHtml = rc>0
+        ? `<div class="slot-clicks" style="color:#ffb347">${rc} Rebirth${rc!==1?'s':''}</div><div class="slot-sub-info" style="color:#ffb347;font-weight:700">x${rc+1} multiplier</div>`
+        : `<div class="slot-clicks">${formatNum(saved.clicks)}</div><div class="slot-sub-info">Clicks</div>`;
       card.innerHTML=`
-        <div class="slot-num">🐱</div>
+        <div class="slot-num">${rc>0?'✨':'🐱'}</div>
         <div class="slot-name">${name}</div>
-        <div class="slot-clicks">${formatNum(saved.clicks)}</div>
-        <div class="slot-sub-info">Tiki Clicks</div>
-        ${rc>0?`<div class="slot-sub-info" style="color:#ffb347;font-weight:700;margin-top:2px">✨ ${rc} Rebirth${rc!==1?'s':''} (x${rc+1} mult)</div>`:''}
+        ${clicksHtml}
         <button class="slot-delete-btn" onclick="confirmDeleteSlot(event,${idx})">🗑 Delete</button>`;
     } else {
       card.innerHTML=`
@@ -1527,6 +1694,7 @@ function enterSlot(idx){
   if(state.frenzyOwned) startFrenzySystem();
   if(state.loanOwed > 0) startBankInterest();
   if(state.inJail && state.jailTimeLeft > 0) startJailTimer();
+  if(state.randomTikiOwned) startRandomTiki();
   updateDisplay();
   if(offlineGained>0) showOfflineModal(offlineGained,awayMs);
 }
@@ -1538,6 +1706,7 @@ function switchSlot(){
   if(frenzyActive) endFrenzy();
   if(bankInterestTimer){clearInterval(bankInterestTimer);bankInterestTimer=null;}
   if(jailTimer){clearInterval(jailTimer);jailTimer=null;}
+  if(randomTikiTimer){clearInterval(randomTikiTimer);randomTikiTimer=null;}
   currentSlot=null;
   document.getElementById('slotScreen').style.display='';
   document.getElementById('app').classList.remove('visible');
