@@ -206,6 +206,20 @@
       75%  { transform: translateY(-6px)  rotate(0.5deg);  }
       100% { transform: translateY(0px)   rotate(-0.5deg); }
     }
+    /* Auto-click paw prints rising from tiki */
+    #tikiWrap { position: relative; }
+    .auto-paw {
+      position: absolute; font-size: 1.1em; pointer-events: none;
+      left: 50%; bottom: 10px;
+      animation: pawRise var(--paw-dur, 1.2s) ease-out forwards;
+      opacity: 0;
+    }
+    @keyframes pawRise {
+      0%   { opacity: 0;   transform: translate(var(--paw-x, 0px), 0px)   scale(0.6); }
+      15%  { opacity: 1;   transform: translate(var(--paw-x, 0px), -20px) scale(1); }
+      80%  { opacity: 0.7; transform: translate(var(--paw-x, 0px), -80px) scale(0.9); }
+      100% { opacity: 0;   transform: translate(var(--paw-x, 0px), -110px) scale(0.7); }
+    }
     #tikiImg { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
     #tikiImgFallback {
       width:100%; height:100%; display:flex; align-items:center; justify-content:center;
@@ -649,36 +663,36 @@ function sfxJail(){
 // Level 1=1/s, 2=2/s, 3=3/s, 4=5/s, 5=7/s, 6=10/s, 7=15/s, 8=20/s, 9=30/s, 10=40/s,
 // then continues scaling up to Lv30=1,000,000/s
 const AUTO_LEVELS = [
-  { level:1 , cps:1      , cost:36                 },
-  { level:2 , cps:2      , cost:86                 },
-  { level:3 , cps:3      , cost:179                },
-  { level:4 , cps:5      , cost:429                },
-  { level:5 , cps:7      , cost:1071               },
-  { level:6 , cps:10     , cost:2857               },
-  { level:7 , cps:15     , cost:7143               },
-  { level:8 , cps:20     , cost:21429              },
-  { level:9 , cps:30     , cost:57143              },
-  { level:10, cps:40     , cost:142857             },
-  { level:11, cps:60     , cost:428571             },
-  { level:12, cps:80     , cost:1071000            },
-  { level:13, cps:120    , cost:2032000            },
-  { level:14, cps:175    , cost:3857000            },
-  { level:15, cps:250    , cost:7318000            },
-  { level:16, cps:400    , cost:13887000           },
-  { level:17, cps:600    , cost:26351000           },
-  { level:18, cps:1000   , cost:50004000           },
-  { level:19, cps:2000   , cost:94886000           },
-  { level:20, cps:3500   , cost:180055000          },
-  { level:21, cps:6000   , cost:341671000          },
-  { level:22, cps:10000  , cost:648351000          },
-  { level:23, cps:20000  , cost:1.23e9             },
-  { level:24, cps:40000  , cost:2.33e9             },
-  { level:25, cps:75000  , cost:4.43e9             },
-  { level:26, cps:150000 , cost:8.41e9             },
-  { level:27, cps:275000 , cost:16e9               },
-  { level:28, cps:500000 , cost:30.3e9             },
-  { level:29, cps:750000 , cost:57.4e9             },
-  { level:30, cps:1000000, cost:109e9              },
+  { level:1 , cps:1      , cost:108                },
+  { level:2 , cps:2      , cost:258                },
+  { level:3 , cps:3      , cost:537                },
+  { level:4 , cps:5      , cost:1287               },
+  { level:5 , cps:7      , cost:3213               },
+  { level:6 , cps:10     , cost:8571               },
+  { level:7 , cps:15     , cost:21429              },
+  { level:8 , cps:20     , cost:64287              },
+  { level:9 , cps:30     , cost:171429             },
+  { level:10, cps:40     , cost:428571             },
+  { level:11, cps:60     , cost:1286000            },
+  { level:12, cps:80     , cost:3213000            },
+  { level:13, cps:120    , cost:6096000            },
+  { level:14, cps:175    , cost:11571000           },
+  { level:15, cps:250    , cost:21954000           },
+  { level:16, cps:400    , cost:41661000           },
+  { level:17, cps:600    , cost:79053000           },
+  { level:18, cps:1000   , cost:150012000          },
+  { level:19, cps:2000   , cost:284658000          },
+  { level:20, cps:3500   , cost:540165000          },
+  { level:21, cps:6000   , cost:1.025e9            },
+  { level:22, cps:10000  , cost:1.945e9            },
+  { level:23, cps:20000  , cost:3.69e9             },
+  { level:24, cps:40000  , cost:6.99e9             },
+  { level:25, cps:75000  , cost:13.29e9            },
+  { level:26, cps:150000 , cost:25.23e9            },
+  { level:27, cps:275000 , cost:48.0e9             },
+  { level:28, cps:500000 , cost:90.9e9             },
+  { level:29, cps:750000 , cost:172.2e9            },
+  { level:30, cps:1000000, cost:327.0e9            },
 ];
 
 // Manual-click multipliers only — does NOT affect auto
@@ -768,8 +782,11 @@ function getEffectiveMultLevel(){
 
 function calcCPS(s, frenzy){
   if(!s||!s.autoLevel) return 0;
-  const baseCps = AUTO_LEVELS[s.autoLevel-1].cps;
-  return frenzy ? baseCps * 2 : baseCps; // frenzy = x2 speed
+  const baseCps  = AUTO_LEVELS[s.autoLevel-1].cps;
+  const multMult = s.multLevel || 1;
+  const rebMult  = (s.rebirthCount || 0) + 1;
+  const combined = baseCps * multMult * rebMult;
+  return frenzy ? combined * 2 : combined;
 }
 
 function formatNum(n){
@@ -797,6 +814,41 @@ function clearAutoSubs(){
   autoSubTimers = [];
 }
 
+// ── ORBITING CURSORS ──────────────────────────────────────────────────────
+function updateAutoCursors(){
+  const wrap = document.getElementById('tikiWrap');
+  if(!wrap) return;
+  // Remove old cursors
+  wrap.querySelectorAll('.auto-cursor').forEach(c => c.remove());
+  if(!state.autoLevel) return;
+
+  const cps = calcCPS(state, frenzyActive);
+  // Show 1 cursor per "tier": 1-3 cps=1, 4-10=2, 11-30=3, 31-100=4, 100+=5
+  const count = cps <= 3 ? 1 : cps <= 10 ? 2 : cps <= 30 ? 3 : cps <= 100 ? 4 : 5;
+  const radius = 145;
+  // Orbit duration: faster as cps grows, min 0.4s max 2s
+  const dur = Math.max(0.4, 2 - Math.log10(Math.max(1,cps)) * 0.35);
+
+  for(let i = 0; i < count; i++){
+    const el = document.createElement('div');
+    el.className = 'auto-cursor';
+    el.textContent = '🖱️';
+    el.style.setProperty('--orbit-r', radius + 'px');
+    el.style.setProperty('--orbit-dur', dur + 's');
+    el.style.setProperty('--start-angle', (360 / count * i) + 'deg');
+    el.style.animationDelay = (-dur / count * i) + 's';
+    wrap.appendChild(el);
+  }
+}
+
+function flashAutoCursors(){
+  document.querySelectorAll('.auto-cursor').forEach(c => {
+    c.classList.remove('clicking');
+    void c.offsetWidth;
+    c.classList.add('clicking');
+  });
+}
+
 function scheduleAutoTicks(){
   clearAutoSubs();
   if(!state.autoLevel) return;
@@ -809,6 +861,7 @@ function scheduleAutoTicks(){
       if(!state.autoLevel) return;
       state.clicks      += 1;
       state.totalEarned += 1;
+      flashAutoCursors();
       updateDisplay();
     }, delay));
   }
@@ -820,6 +873,7 @@ function startAutoClick(){
   if(!state.autoLevel) return;
 
   // Fire first batch immediately, then repeat every second
+  updateAutoCursors();
   scheduleAutoTicks();
   autoWorker = setInterval(function(){
     scheduleAutoTicks();
@@ -924,6 +978,7 @@ function updateDisplay(){
   document.getElementById('cpsDisplay').textContent=
     cps===0?'No auto-clicks yet':(Number.isInteger(cps)?cps:cps.toFixed(2))+' clicks/sec (auto)';
   document.getElementById('statRebirth').textContent   =state.rebirthCount||0;
+  updateAutoCursors();
   document.getElementById('statRM').textContent        =getRebirthMultiplier();
   renderShop();
 }
@@ -1057,7 +1112,7 @@ function renderExtrasShop(){
   const el=document.getElementById('panel-extras');
   el.innerHTML='';
   const lbl=document.createElement('div');
-  lbl.className='shop-section-label'; lbl.textContent='🔥 Special Events';
+  lbl.className='shop-section-label'; lbl.textContent='🌟 Tiki Extras';
   el.appendChild(lbl);
   if(state.frenzyOwned){
     el.appendChild(item(true,true,'🔥 Tiki Frenzy',
@@ -1077,9 +1132,7 @@ function renderExtrasShop(){
     el.appendChild(fb);
   }
   // Random Tiki
-  const lbl2=document.createElement('div');
-  lbl2.className='shop-section-label'; lbl2.textContent='🐱 Lucky Events';
-  el.appendChild(lbl2);
+
   if(state.randomTikiOwned){
     el.appendChild(item(true,true,'💙 Random Tiki',
       '35% chance every minute: a blue tiki flies across the top! Click it for +15% of your clicks!',
