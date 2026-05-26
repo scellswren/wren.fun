@@ -341,6 +341,33 @@
       transform: translateX(5px);
       text-shadow: 0 0 10px rgba(255,255,255,0.5);
     }
+
+    /* Secret armed indicator — subtle golden shimmer on the button */
+    .btn.secret-armed {
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 165, 0, 0.3) !important;
+      border: 2px solid rgba(255, 215, 0, 0.5) !important;
+    }
+
+    #secretArmedHint {
+      position: fixed;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Rubik', sans-serif;
+      font-size: 0.85em;
+      color: rgba(255, 215, 0, 0.85);
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 100;
+    }
+
+    #secretArmedHint.visible {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -368,6 +395,7 @@
 </div>
 
 <div class="footer">LUCKY IS MY CAT :)</div>
+<div id="secretArmedHint">✨ Next click guaranteed ✨</div>
 
 <script>
   const images = [
@@ -455,7 +483,62 @@
     }
   }
 
-  const statusWrap = document.getElementById('statusWrap');
+  // ── SECRET SEQUENCE ──
+  // Highlight (text-select) each of these exactly in order, holding for 10s each:
+  //   Step 1: the "L" at the start of "Lucky Generator"
+  //   Step 2: the "r" at the end of "Generator"
+  //   Step 3: the ":)" smiley in the footer
+  // Then the next Show Lucky click guarantees Cat50.
+
+  let secretStep = 0; // 0=need L, 1=need r, 2=need :), 3=armed
+  let secretHoldTimer = null;
+  let secretGuaranteed = false;
+
+  const SECRET_TARGETS = ['L', 'r', ':)'];
+
+  function resetSecretSequence() {
+    secretStep = 0;
+    secretGuaranteed = false;
+    if (secretHoldTimer) { clearTimeout(secretHoldTimer); secretHoldTimer = null; }
+    const hint = document.getElementById('secretArmedHint');
+    if (hint) hint.classList.remove('visible');
+    const btn = document.querySelector('.btn');
+    if (btn) btn.classList.remove('secret-armed');
+  }
+
+  document.addEventListener('selectionchange', () => {
+    if (secretStep >= 3) return; // already armed
+
+    const sel = window.getSelection();
+    const selected = sel ? sel.toString() : '';
+    const target = SECRET_TARGETS[secretStep];
+
+    if (selected === target) {
+      // Correct text selected — start 10s hold timer if not already running
+      if (!secretHoldTimer) {
+        secretHoldTimer = setTimeout(() => {
+          secretHoldTimer = null;
+          secretStep++;
+          if (secretStep === 3) {
+            secretGuaranteed = true;
+            window.getSelection()?.removeAllRanges();
+            const hint = document.getElementById('secretArmedHint');
+            if (hint) hint.classList.add('visible');
+            const btn = document.querySelector('.btn');
+            if (btn) btn.classList.add('secret-armed');
+            // Auto-reset after 60s if player doesn't click
+            setTimeout(() => { if (secretGuaranteed) resetSecretSequence(); }, 60000);
+          }
+        }, 10000);
+      }
+    } else {
+      // Selection changed away from the target — cancel the timer (don't reset steps)
+      if (secretHoldTimer) {
+        clearTimeout(secretHoldTimer);
+        secretHoldTimer = null;
+      }
+    }
+  });
   const counterEl = document.getElementById('counter');
   const progressFill = document.getElementById('progressFill');
   const messageEl = document.getElementById('message');
@@ -506,10 +589,11 @@
       let selectedCat;
       let isRareCat50 = false;
 
-      // 1 in 100,000 chance of Cat50
-      if (Math.random() < 1 / 100000) {
+      // 1 in 100,000 chance of Cat50, or guaranteed if secret sequence completed
+      if (secretGuaranteed || Math.random() < 1 / 100000) {
         selectedCat = 'Cat50.jpg';
         isRareCat50 = true;
+        if (secretGuaranteed) resetSecretSequence();
       } else {
         let availableIndices = images.map((_, idx) => idx).filter(idx => !lastCats.includes(idx));
         if (availableIndices.length === 0) {
