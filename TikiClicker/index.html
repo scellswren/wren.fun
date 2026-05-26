@@ -76,6 +76,21 @@
     body.frenzy-active #frenzyBanner { display: block; }
     @keyframes frenzySlide { 0% { background-position:0% 0%; } 100% { background-position:200% 0%; } }
     #frenzyTimer { font-size: 0.85em; opacity: 0.85; margin-left: 10px; }
+    #superFrenzyBanner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 2001;
+      background: linear-gradient(90deg, #003d99, #0066ff, #00aaff, #0066ff, #003d99);
+      background-size: 200% 100%;
+      animation: superFrenzySlide 1s linear infinite;
+      color: #fff; font-weight: 900; font-size: 1.1em;
+      text-align: center; padding: 8px;
+      display: none;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(0,180,255,0.9);
+      box-shadow: 0 4px 20px rgba(0,100,255,0.5);
+    }
+    #superFrenzyBanner.show { display: block; }
+    @keyframes superFrenzySlide { 0% { background-position:0% 0%; } 100% { background-position:200% 0%; } }
+    #superFrenzyTimer { font-size: 0.85em; opacity: 0.85; margin-left: 10px; }
 
     /* ── RAINING TIKIS ── */
     #rainContainer {
@@ -206,20 +221,7 @@
       75%  { transform: translateY(-6px)  rotate(0.5deg);  }
       100% { transform: translateY(0px)   rotate(-0.5deg); }
     }
-    /* Auto-click paw prints rising from tiki */
     #tikiWrap { position: relative; }
-    .auto-paw {
-      position: absolute; font-size: 1.1em; pointer-events: none;
-      left: 50%; bottom: 10px;
-      animation: pawRise var(--paw-dur, 1.2s) ease-out forwards;
-      opacity: 0;
-    }
-    @keyframes pawRise {
-      0%   { opacity: 0;   transform: translate(var(--paw-x, 0px), 0px)   scale(0.6); }
-      15%  { opacity: 1;   transform: translate(var(--paw-x, 0px), -20px) scale(1); }
-      80%  { opacity: 0.7; transform: translate(var(--paw-x, 0px), -80px) scale(0.9); }
-      100% { opacity: 0;   transform: translate(var(--paw-x, 0px), -110px) scale(0.7); }
-    }
     #tikiImg { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
     #tikiImgFallback {
       width:100%; height:100%; display:flex; align-items:center; justify-content:center;
@@ -463,7 +465,8 @@
 <body>
 
 <div id="rainContainer"></div>
-<div id="frenzyBanner">🔥 TIKI FRENZY! x3 CLICKS + x2 AUTO SPEED! <span id="frenzyTimer"></span></div>
+<div id="frenzyBanner">🔥 TIKI FRENZY! x3 CLICKS + x3 AUTO! <span id="frenzyTimer"></span></div>
+<div id="superFrenzyBanner">⚡ SUPER TIKI FRENZY! x4 CLICKS + x4 AUTO! <span id="superFrenzyTimer"></span></div>
 
 <div id="homeText" onclick="goHome()">Wren.fun</div>
 <button id="fullscreenBtn" title="Fullscreen">⛶</button>
@@ -786,7 +789,8 @@ function calcCPS(s, frenzy){
   const multMult = s.multLevel || 1;
   const rebMult  = (s.rebirthCount || 0) + 1;
   const combined = baseCps * multMult * rebMult;
-  return frenzy ? combined * 2 : combined;
+  if(superFrenzyActive) return combined * 4;
+  return frenzy ? combined * 3 : combined;
 }
 
 function formatNum(n){
@@ -814,40 +818,7 @@ function clearAutoSubs(){
   autoSubTimers = [];
 }
 
-// ── ORBITING CURSORS ──────────────────────────────────────────────────────
-function updateAutoCursors(){
-  const wrap = document.getElementById('tikiWrap');
-  if(!wrap) return;
-  // Remove old cursors
-  wrap.querySelectorAll('.auto-cursor').forEach(c => c.remove());
-  if(!state.autoLevel) return;
-
-  const cps = calcCPS(state, frenzyActive);
-  // Show 1 cursor per "tier": 1-3 cps=1, 4-10=2, 11-30=3, 31-100=4, 100+=5
-  const count = cps <= 3 ? 1 : cps <= 10 ? 2 : cps <= 30 ? 3 : cps <= 100 ? 4 : 5;
-  const radius = 145;
-  // Orbit duration: faster as cps grows, min 0.4s max 2s
-  const dur = Math.max(0.4, 2 - Math.log10(Math.max(1,cps)) * 0.35);
-
-  for(let i = 0; i < count; i++){
-    const el = document.createElement('div');
-    el.className = 'auto-cursor';
-    el.textContent = '🖱️';
-    el.style.setProperty('--orbit-r', radius + 'px');
-    el.style.setProperty('--orbit-dur', dur + 's');
-    el.style.setProperty('--start-angle', (360 / count * i) + 'deg');
-    el.style.animationDelay = (-dur / count * i) + 's';
-    wrap.appendChild(el);
-  }
-}
-
-function flashAutoCursors(){
-  document.querySelectorAll('.auto-cursor').forEach(c => {
-    c.classList.remove('clicking');
-    void c.offsetWidth;
-    c.classList.add('clicking');
-  });
-}
+// (no auto visual indicator)
 
 function scheduleAutoTicks(){
   clearAutoSubs();
@@ -861,7 +832,6 @@ function scheduleAutoTicks(){
       if(!state.autoLevel) return;
       state.clicks      += 1;
       state.totalEarned += 1;
-      flashAutoCursors();
       updateDisplay();
     }, delay));
   }
@@ -873,7 +843,6 @@ function startAutoClick(){
   if(!state.autoLevel) return;
 
   // Fire first batch immediately, then repeat every second
-  updateAutoCursors();
   scheduleAutoTicks();
   autoWorker = setInterval(function(){
     scheduleAutoTicks();
@@ -903,7 +872,7 @@ function startFrenzySystem(){
   if(frenzyCheckTimer) clearInterval(frenzyCheckTimer);
   if(!state.frenzyOwned) return;
   frenzyCheckTimer=setInterval(()=>{
-    if(frenzyActive) return;
+    if(frenzyActive || state.superFrenzyOwned) return; // superseded by super frenzy
     if(Math.random()<0.25) triggerFrenzy();
   }, 60000);
 }
@@ -939,6 +908,70 @@ function endFrenzy(){
 
 function updateFrenzyTimer(){
   document.getElementById('frenzyTimer').textContent='('+frenzyTimeLeft+'s)';
+}
+
+// ═══════════════════════════════════════════
+//  SUPER TIKI FRENZY  (Tiki Extras — never resets)
+//  50% chance/min, x4 clicks + x4 auto, 30 seconds
+// ═══════════════════════════════════════════
+
+let superFrenzyActive   = false;
+let superFrenzyTimeLeft = 0;
+let superFrenzyCheck    = null;
+let superFrenzyCountdown= null;
+
+function startSuperFrenzySystem(){
+  if(superFrenzyCheck) clearInterval(superFrenzyCheck);
+  if(!state.superFrenzyOwned) return;
+  superFrenzyCheck = setInterval(()=>{
+    if(superFrenzyActive) return;
+    if(Math.random() < 0.50) triggerSuperFrenzy();
+  }, 60000);
+}
+
+function triggerSuperFrenzy(){
+  superFrenzyActive   = true;
+  superFrenzyTimeLeft = 30;
+  document.getElementById('superFrenzyBanner').classList.add('show');
+  startAutoClick();
+  runSuperFrenzyCountdown();
+  showToast('⚡ SUPER TIKI FRENZY! 30 seconds of x4 everything!');
+}
+
+function runSuperFrenzyCountdown(){
+  if(superFrenzyCountdown) clearInterval(superFrenzyCountdown);
+  updateSuperFrenzyTimer();
+  superFrenzyCountdown = setInterval(()=>{
+    superFrenzyTimeLeft--;
+    updateSuperFrenzyTimer();
+    if(superFrenzyTimeLeft <= 0) endSuperFrenzy();
+  }, 1000);
+}
+
+function endSuperFrenzy(){
+  superFrenzyActive = false;
+  clearInterval(superFrenzyCountdown);
+  document.getElementById('superFrenzyBanner').classList.remove('show');
+  startAutoClick();
+  showToast('⚡ Super Frenzy over!');
+}
+
+function updateSuperFrenzyTimer(){
+  document.getElementById('superFrenzyTimer').textContent = '('+superFrenzyTimeLeft+'s)';
+}
+
+function buySuperFrenzy(){
+  if(state.superFrenzyOwned) return;
+  const cost = 1000000000;
+  if(state.clicks < cost){ showToast('Not enough clicks!'); return; }
+  sfxBuy();
+  state.clicks -= cost;
+  state.superFrenzyOwned = true;
+  saveCurrentSlot();
+  startSuperFrenzySystem();
+  updateDisplay();
+  renderExtrasShop();
+  showToast('⚡ Super Tiki Frenzy unlocked! 50% chance/min of x4 everything for 30s!');
 }
 
 // ═══════════════════════════════════════════
@@ -978,7 +1011,6 @@ function updateDisplay(){
   document.getElementById('cpsDisplay').textContent=
     cps===0?'No auto-clicks yet':(Number.isInteger(cps)?cps:cps.toFixed(2))+' clicks/sec (auto)';
   document.getElementById('statRebirth').textContent   =state.rebirthCount||0;
-  updateAutoCursors();
   document.getElementById('statRM').textContent        =getRebirthMultiplier();
   renderShop();
 }
@@ -989,7 +1021,7 @@ function updateDisplay(){
 
 function handleClick(e){
   if(state.inJail){ showToast('🚔 You\'re in Tiki Jail! Wait for the timer.'); return; }
-  const frenzyMult = frenzyActive ? 3 : 1;
+  const frenzyMult = superFrenzyActive ? 4 : frenzyActive ? 3 : 1;
   const base = getEffectiveMultLevel();
   const gain = Math.max(1, Math.ceil(base * frenzyMult));
 
@@ -1116,12 +1148,24 @@ function renderExtrasShop(){
   el.appendChild(lbl);
   if(state.frenzyOwned){
     el.appendChild(item(true,true,'🔥 Tiki Frenzy',
-      '25% chance every minute: x3 clicks, x2 auto speed, blood-red screen & raining Tikis for 20s!',
-      '✅ Owned — frenzy checks running','','Owned'));
+      '25% chance every minute: x3 clicks + x3 auto for 20s!',
+      '✅ Owned','','Owned'));
+    // Super Tiki Frenzy only visible after Tiki Frenzy is owned
+    if(state.superFrenzyOwned){
+      el.appendChild(item(true,true,'⚡ Super Tiki Frenzy',
+        '50% chance every minute: 30 seconds of x4 clicks and x4 auto!',
+        '✅ Owned','','Owned'));
+    } else {
+      const canSF=state.clicks>=1000000000;
+      el.appendChild(item(canSF,false,'⚡ Super Tiki Frenzy',
+        '50% chance every minute: 30 seconds of x4 clicks and x4 auto!',
+        'Cost: 🐱 1,000,000,000 clicks',
+        'buySuperFrenzy','Buy'));
+    }
   } else {
     const can=state.clicks>=50000;
     el.appendChild(item(can,false,'🔥 Tiki Frenzy',
-      '25% chance every minute: x3 clicks, x2 faster auto, animated blood-red background & raining Tikis for 20 seconds!',
+      '25% chance every minute: x3 clicks + x3 auto for 20s!',
       'Cost: 🐱 50,000 clicks',
       'buyFrenzy','Buy'));
   }
@@ -1131,7 +1175,12 @@ function renderExtrasShop(){
     fb.innerHTML='<div class="item-info"><div class="item-name" style="color:#ff4444">🔥 FRENZY ACTIVE!</div><div class="item-desc" style="color:#ff8888">Time remaining: '+frenzyTimeLeft+'s</div></div>';
     el.appendChild(fb);
   }
-  // Random Tiki
+  if(superFrenzyActive){
+    const sfb=document.createElement('div');
+    sfb.className='shop-item owned-item'; sfb.style.marginTop='8px';
+    sfb.innerHTML='<div class="item-info"><div class="item-name" style="color:#00aaff">⚡ SUPER FRENZY ACTIVE!</div><div class="item-desc" style="color:#66ccff">Time remaining: '+superFrenzyTimeLeft+'s</div></div>';
+    el.appendChild(sfb);
+  }
 
   if(state.randomTikiOwned){
     el.appendChild(item(true,true,'💙 Random Tiki',
@@ -1296,11 +1345,13 @@ function doRebirth(){
   const fo  =state.frenzyOwned;
   const afk =state.afkAutoOwned;
   const rto =state.randomTikiOwned;
+  const sfo =state.superFrenzyOwned;
   state=emptyState();
-  state.rebirthCount   =rc;
-  state.frenzyOwned    =fo;
-  state.afkAutoOwned   =afk;
-  state.randomTikiOwned=rto;
+  state.rebirthCount    =rc;
+  state.frenzyOwned     =fo;
+  state.afkAutoOwned    =afk;
+  state.randomTikiOwned =rto;
+  state.superFrenzyOwned=sfo;
   saveCurrentSlot();
   clearAutoSubs();if(autoWorker){clearInterval(autoWorker);autoWorker=null;}
   if(fo) startFrenzySystem();
@@ -1662,6 +1713,12 @@ function doReset(){
   if(bankInterestTimer){clearInterval(bankInterestTimer);bankInterestTimer=null;}
   if(jailTimer){clearInterval(jailTimer);jailTimer=null;}
   if(randomTikiTimer){clearInterval(randomTikiTimer);randomTikiTimer=null;}
+  if(superFrenzyCheck){clearInterval(superFrenzyCheck);superFrenzyCheck=null;}
+  if(superFrenzyCountdown){clearInterval(superFrenzyCountdown);superFrenzyCountdown=null;}
+  if(superFrenzyActive)endSuperFrenzy();
+  if(superFrenzyCheck){clearInterval(superFrenzyCheck);superFrenzyCheck=null;}
+  if(superFrenzyCountdown){clearInterval(superFrenzyCountdown);superFrenzyCountdown=null;}
+  if(superFrenzyActive)endSuperFrenzy();
   // Completely empty — no rebirth retention
   state=emptyState();
   saveCurrentSlot();
@@ -1748,6 +1805,8 @@ function enterSlot(idx){
   if(state.loanOwed > 0) startBankInterest();
   if(state.inJail && state.jailTimeLeft > 0) startJailTimer();
   if(state.randomTikiOwned) startRandomTiki();
+  if(state.superFrenzyOwned) startSuperFrenzySystem();
+  if(state.superFrenzyOwned) startSuperFrenzySystem();
   updateDisplay();
   if(offlineGained>0) showOfflineModal(offlineGained,awayMs);
 }
@@ -1760,6 +1819,12 @@ function switchSlot(){
   if(bankInterestTimer){clearInterval(bankInterestTimer);bankInterestTimer=null;}
   if(jailTimer){clearInterval(jailTimer);jailTimer=null;}
   if(randomTikiTimer){clearInterval(randomTikiTimer);randomTikiTimer=null;}
+  if(superFrenzyCheck){clearInterval(superFrenzyCheck);superFrenzyCheck=null;}
+  if(superFrenzyCountdown){clearInterval(superFrenzyCountdown);superFrenzyCountdown=null;}
+  if(superFrenzyActive)endSuperFrenzy();
+  if(superFrenzyCheck){clearInterval(superFrenzyCheck);superFrenzyCheck=null;}
+  if(superFrenzyCountdown){clearInterval(superFrenzyCountdown);superFrenzyCountdown=null;}
+  if(superFrenzyActive)endSuperFrenzy();
   currentSlot=null;
   document.getElementById('slotScreen').style.display='';
   document.getElementById('app').classList.remove('visible');
