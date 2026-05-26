@@ -380,8 +380,7 @@
   <div id="statsBar">
     <div class="stat-pill">Total: <span id="statTotal">0</span></div>
     <div class="stat-pill">Manual: <span id="statHandClicks">0</span></div>
-    <div class="stat-pill">Rebirths: <span id="statRebirth">0</span>x</div>
-    <div class="stat-pill">Rebirth Pts: <span id="statRP">0</span></div>
+    <div class="stat-pill">Rebirths: <span id="statRebirth">0</span> (<span id="statRM">1</span>x mult)</div>
   </div>
 
   <div id="mainArea">
@@ -419,7 +418,7 @@
 <div class="modal-overlay" id="resetModal">
   <div class="modal-box">
     <h3>⚠️ Full Reset?</h3>
-    <p>This wipes <strong>everything</strong> — clicks, auto-clickers, multiplier, frenzy, rebirths, and all rebirth points. Your slot will be completely empty. <strong>This cannot be undone!</strong></p>
+    <p>This wipes <strong>everything</strong> — clicks, auto-clickers, multiplier, frenzy, rebirths, and your rebirth multiplier. Your slot will be completely empty. <strong>This cannot be undone!</strong></p>
     <div class="modal-actions">
       <button class="modal-btn cancel" onclick="closeResetModal()">Cancel</button>
       <button class="modal-btn confirm" onclick="doReset()">Wipe Everything</button>
@@ -439,35 +438,110 @@
 // ═══════════════════════════════════════════
 
 const AUTO_LEVELS = [
-  { level:1,  interval:2000,  cost:100        },
-  { level:2,  interval:1500,  cost:200        },
-  { level:3,  interval:1000,  cost:300        },
-  { level:4,  interval:500,   cost:500        },
-  { level:5,  interval:250,   cost:750        },
-  { level:6,  interval:125,   cost:2000       },
-  { level:7,  interval:50,    cost:4000       },
-  { level:8,  interval:25,    cost:10000      },
-  { level:9,  interval:10,    cost:50000      },
-  { level:10, interval:5,     cost:200000     },
-  { level:11, interval:2,     cost:1000000    },
-  { level:12, interval:1,     cost:5000000    },
+  { level:1,  interval:2000,  cost:100           },
+  { level:2,  interval:1500,  cost:200           },
+  { level:3,  interval:1000,  cost:300           },
+  { level:4,  interval:500,   cost:500           },
+  { level:5,  interval:250,   cost:750           },
+  { level:6,  interval:125,   cost:2000          },
+  { level:7,  interval:50,    cost:4000          },
+  { level:8,  interval:25,    cost:10000         },
+  { level:9,  interval:10,    cost:50000         },
+  { level:10, interval:5,     cost:200000        },
+  { level:11, interval:2,     cost:1000000       },
+  { level:12, interval:1,     cost:5000000       },
+  { level:13, interval:900,   cost:12000000      },
+  { level:14, interval:800,   cost:30000000      },
+  { level:15, interval:700,   cost:80000000      },
+  { level:16, interval:600,   cost:200000000     },
+  { level:17, interval:500,   cost:500000000     },
+  { level:18, interval:400,   cost:1200000000    },
+  { level:19, interval:300,   cost:3000000000    },
+  { level:20, interval:200,   cost:8000000000    },
+  { level:21, interval:150,   cost:20000000000   },
+  { level:22, interval:100,   cost:50000000000   },
+  { level:23, interval:75,    cost:120000000000  },
+  { level:24, interval:50,    cost:300000000000  },
+  { level:25, interval:40,    cost:700000000000  },
+  { level:26, interval:30,    cost:2000000000000 },
+  { level:27, interval:25,    cost:5e12          },
+  { level:28, interval:20,    cost:12e12         },
+  { level:29, interval:15,    cost:30e12         },
+  { level:30, interval:10,    cost:80e12         },
+  { level:31, interval:9,     cost:200e12        },
+  { level:32, interval:8,     cost:500e12        },
+  { level:33, interval:7,     cost:1e15          },
+  { level:34, interval:6,     cost:3e15          },
+  { level:35, interval:5,     cost:8e15          },
+  { level:36, interval:4,     cost:20e15         },
+  { level:37, interval:3,     cost:60e15         },
+  { level:38, interval:2,     cost:150e15        },
+  { level:39, interval:1,     cost:400e15        },
+  { level:40, interval:900,   cost:1e18          },
+  { level:41, interval:700,   cost:3e18          },
+  { level:42, interval:500,   cost:8e18          },
+  { level:43, interval:350,   cost:20e18         },
+  { level:44, interval:200,   cost:60e18         },
+  { level:45, interval:100,   cost:150e18        },
+  { level:46, interval:50,    cost:400e18        },
+  { level:47, interval:25,    cost:1e21          },
+  { level:48, interval:10,    cost:3e21          },
+  { level:49, interval:5,     cost:8e21          },
+  { level:50, interval:1,     cost:20e21         },
 ];
 
 // Manual-click multipliers only — does NOT affect auto
 const MULT_LEVELS = [
-  { level:2,     cost:1000       },
-  { level:3,     cost:2400       },
-  { level:4,     cost:5000       },
-  { level:5,     cost:10000      },
-  { level:10,    cost:24000      },
-  { level:20,    cost:60000      },
-  { level:50,    cost:200000     },
-  { level:100,   cost:600000     },
-  { level:500,   cost:3000000    },
-  { level:1000,  cost:10000000   },
-  { level:5000,  cost:50000000   },
-  { level:10000, cost:200000000  },
-  { level:50000, cost:1000000000 },
+  { level:2,        cost:1000          },
+  { level:3,        cost:2400          },
+  { level:4,        cost:5000          },
+  { level:5,        cost:10000         },
+  { level:7,        cost:24000         },
+  { level:10,       cost:60000         },
+  { level:15,       cost:200000        },
+  { level:20,       cost:600000        },
+  { level:25,       cost:2000000       },
+  { level:30,       cost:8000000       },
+  { level:35,       cost:30000000      },
+  { level:40,       cost:100000000     },
+  { level:45,       cost:400000000     },
+  { level:50,       cost:1500000000    },
+  { level:60,       cost:6000000000    },
+  { level:75,       cost:25000000000   },
+  { level:100,      cost:100000000000  },
+  { level:150,      cost:500000000000  },
+  { level:200,      cost:2e12          },
+  { level:300,      cost:8e12          },
+  { level:500,      cost:30e12         },
+  { level:750,      cost:120e12        },
+  { level:1000,     cost:500e12        },
+  { level:1500,     cost:2e15          },
+  { level:2000,     cost:8e15          },
+  { level:3000,     cost:30e15         },
+  { level:5000,     cost:150e15        },
+  { level:7500,     cost:600e15        },
+  { level:10000,    cost:2e18          },
+  { level:15000,    cost:8e18          },
+  { level:20000,    cost:30e18         },
+  { level:30000,    cost:120e18        },
+  { level:40000,    cost:500e18        },
+  { level:50000,    cost:2e21          },
+  { level:75000,    cost:8e21          },
+  { level:100000,   cost:30e21         },
+  { level:150000,   cost:120e21        },
+  { level:200000,   cost:500e21        },
+  { level:300000,   cost:2e24          },
+  { level:500000,   cost:8e24          },
+  { level:750000,   cost:30e24         },
+  { level:1000000,  cost:120e24        },
+  { level:2000000,  cost:500e24        },
+  { level:5000000,  cost:2e27          },
+  { level:10000000, cost:8e27          },
+  { level:20000000, cost:30e27         },
+  { level:50000000, cost:120e27        },
+  { level:100000000,cost:500e27        },
+  { level:500000000,cost:2e30          },
+  { level:1000000000,cost:8e30         },
 ];
 
 // ═══════════════════════════════════════════
@@ -484,9 +558,7 @@ function emptyState(){
     autoLevel:0, afkAutoOwned:false, lastSeen:0,
     multLevel:1, multPurchased:0,
     frenzyOwned:false,
-    rebirthCount:0, rebirthPoints:0,
-    // rebirthMultStack: how many times the user has bought the x3 rebirth mult
-    rebirthMultStack:0,
+    rebirthCount:0,
   };
 }
 
@@ -522,10 +594,9 @@ let frenzyCountdown = null;
 //  HELPERS
 // ═══════════════════════════════════════════
 
-// Each rebirth stack purchase multiplies the base mult by 3
+// Rebirth multiplier = rebirthCount + 1 (starts at 1x, goes up by 1 each rebirth)
 function getRebirthMultiplier(){
-  const stacks = state.rebirthMultStack || 0;
-  return stacks === 0 ? 1 : Math.pow(3, stacks);
+  return (state.rebirthCount || 0) + 1;
 }
 
 function getEffectiveMultLevel(){
@@ -686,7 +757,7 @@ function updateDisplay(){
   document.getElementById('statTotal').textContent     =formatNum(state.totalEarned||0);
   document.getElementById('statHandClicks').textContent=formatNum(state.handClicks||0);
   document.getElementById('statRebirth').textContent   =state.rebirthCount||0;
-  document.getElementById('statRP').textContent        =state.rebirthPoints||0;
+  document.getElementById('statRM').textContent        =getRebirthMultiplier();
   renderShop();
 }
 
@@ -758,10 +829,10 @@ function renderAutoShop(){
     const can=state.clicks>=nx.cost;
     el.innerHTML+=item(can,false,'⚙️ Auto Click Lv.'+next,
       'Ticks every '+fmtInterval(nx.interval),
-      'Cost: 🗿 '+nx.cost.toLocaleString()+' clicks',
+      'Cost: 🗿 '+formatNum(nx.cost)+' clicks',
       'buyAuto()','Buy');
   } else {
-    el.innerHTML+=item(true,true,'⚙️ Auto Click Lv.12','Every 1ms — absolute max!','','','MAX');
+    el.innerHTML+=item(true,true,'⚙️ Auto Click Lv.50','Every 1ms — absolute max!','','','MAX');
   }
   // AFK Auto
   el.innerHTML+='<div class="shop-section-label">🌙 AFK Auto</div>';
@@ -799,10 +870,10 @@ function renderMultShop(){
     el.innerHTML+=item(can,false,
       '✖️ x'+formatNum(nx.level)+' Clicks',
       'With your Rebirth x'+formatNum(rm)+' that\'s effectively x'+formatNum(afterEff)+' per click',
-      'Cost: 🗿 '+nx.cost.toLocaleString()+' clicks',
+      'Cost: 🗿 '+formatNum(nx.cost)+' clicks',
       'buyMult()','Buy');
   } else {
-    el.innerHTML+=item(true,true,'✖️ x50,000 — Maximum!','Highest tier reached! 🐱','','','MAX');
+    el.innerHTML+=item(true,true,'✖️ x1,000,000,000 — Maximum!','Highest tier reached! 🐱','','','MAX');
   }
   el.innerHTML+='<div class="shop-section-label" style="opacity:0.5;font-size:0.72em">Multiplier applies to manual clicks only. Auto always gives 1 click per tick.</div>';
 }
@@ -835,35 +906,29 @@ function renderExtrasShop(){
 function renderRebirthShop(){
   const el=document.getElementById('panel-rebirth');
   el.innerHTML='';
-  const req=50000*Math.pow(5,state.rebirthCount||0);
+  const req=5000000*Math.pow(10,state.rebirthCount||0);
   const can=(state.totalEarned||0)>=req;
-  const rp =state.rebirthPoints||0;
-  const stacks=state.rebirthMultStack||0;
-  const currentRM=getRebirthMultiplier();
+  const rc =state.rebirthCount||0;
+  const nextMult=rc+2; // after rebirth it'll be rc+1+1
 
   // Rebirth button
   el.innerHTML+='<div class="shop-section-label">✨ Rebirth</div>';
   el.innerHTML+=`<div class="shop-item${can?' affordable':''}">
     <div class="item-info">
       <div class="item-name">✨ Rebirth!</div>
-      <div class="item-desc">Reset your clicks & upgrades for <strong style="color:var(--gold)">+1 Rebirth Point</strong>.</div>
-      <div class="item-desc">Requires ${formatNum(req)} total earned — you have ${formatNum(state.totalEarned||0)}.</div>
-      <div class="item-desc" style="color:var(--gold);margin-top:4px">You have <strong>${rp}</strong> Rebirth Point${rp!==1?'s':''}.</div>
+      <div class="item-desc">Reset your clicks &amp; upgrades. Your rebirth multiplier increases by 1.</div>
+      <div class="item-desc">Requires <strong style="color:var(--gold)">${formatNum(req)}</strong> total earned — you have ${formatNum(state.totalEarned||0)}.</div>
+      <div class="item-desc" style="color:var(--gold);margin-top:4px">Current multiplier: <strong>x${rc+1}</strong> → After rebirth: <strong>x${nextMult}</strong></div>
     </div>
     <button class="buy-btn" ${can?'':'disabled'} onclick="doRebirth()">Rebirth</button>
   </div>`;
 
-  // Rebirth Multiplier stacking purchase
-  el.innerHTML+='<div class="shop-section-label">💎 Rebirth Shop</div>';
-  const nextStackCost = Math.pow(3, stacks+1) * 2; // rebirth points cost
-  el.innerHTML+=`<div class="shop-item${rp>=nextStackCost?' affordable':''}">
+  // Info box
+  el.innerHTML+=`<div class="shop-item owned-item" style="margin-top:12px">
     <div class="item-info">
-      <div class="item-name">🔺 Rebirth Multiplier ${stacks>0?'(x'+formatNum(currentRM)+' → x'+formatNum(currentRM*3)+')':'(x1 → x3)'}</div>
-      <div class="item-desc">Stacks multiplicatively. Each purchase triples your manual click multiplier.</div>
-      <div class="item-desc">Current: <strong style="color:var(--gold)">x${formatNum(currentRM)}</strong> rebirth mult (${stacks} stack${stacks!==1?'s':''})</div>
-      <div class="item-desc">Cost: <strong>${nextStackCost}</strong> Rebirth Point${nextStackCost!==1?'s':''}</div>
+      <div class="item-name">💎 How Rebirths Work</div>
+      <div class="item-desc">Each rebirth resets your run but permanently increases your rebirth multiplier by 1x. Your multiplier boosts manual clicks. You've rebirthed <strong style="color:var(--gold)">${rc}</strong> time${rc!==1?'s':''}.</div>
     </div>
-    <button class="buy-btn" ${rp>=nextStackCost?'':'disabled'} onclick="buyRebirthMult()">Buy</button>
   </div>`;
 }
 
@@ -921,34 +986,19 @@ function buyFrenzy(){
   showToast('🔥 Tiki Frenzy unlocked! 25% chance per minute.');
 }
 
-function buyRebirthMult(){
-  const stacks=state.rebirthMultStack||0;
-  const cost=Math.pow(3,stacks+1)*2;
-  if((state.rebirthPoints||0)<cost) return;
-  state.rebirthPoints-=cost;
-  state.rebirthMultStack=(state.rebirthMultStack||0)+1;
-  saveCurrentSlot(); updateDisplay();
-  const newMult=getRebirthMultiplier();
-  showToast('🔺 Rebirth Multiplier is now x'+formatNum(newMult)+'!');
-}
-
 function doRebirth(){
-  const req=50000*Math.pow(5,state.rebirthCount||0);
+  const req=5000000*Math.pow(10,state.rebirthCount||0);
   if((state.totalEarned||0)<req) return;
-  const rp     =(state.rebirthPoints||0)+1;
-  const rc     =(state.rebirthCount||0)+1;
-  const stacks =state.rebirthMultStack||0;
-  const fo     =state.frenzyOwned;
+  const rc =(state.rebirthCount||0)+1;
+  const fo  =state.frenzyOwned;
   state=emptyState();
-  state.rebirthPoints  =rp;
-  state.rebirthCount   =rc;
-  state.rebirthMultStack=stacks;
-  state.frenzyOwned    =fo;
+  state.rebirthCount=rc;
+  state.frenzyOwned =fo;
   saveCurrentSlot();
   if(autoTimer){clearInterval(autoTimer);autoTimer=null;}
   if(fo) startFrenzySystem();
   updateDisplay();
-  showToast('✨ Rebirth #'+rc+'! You have '+rp+' Rebirth Point'+(rp!==1?'s':'')+'.');
+  showToast('✨ Rebirth #'+rc+'! Rebirth multiplier is now x'+rc+'!');
 }
 
 // ═══════════════════════════════════════════
