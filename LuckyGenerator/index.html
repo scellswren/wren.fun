@@ -88,6 +88,147 @@
       box-shadow: 0 0 60px rgba(56, 189, 248, 0.3), 0 0 30px rgba(168, 85, 247, 0.3);
     }
 
+    #cat-img.gold-border {
+      border: 4px solid transparent;
+      border-radius: 30px;
+      background-clip: padding-box;
+      box-shadow:
+        0 0 0 4px transparent,
+        0 0 60px rgba(255, 200, 50, 0.5),
+        0 0 30px rgba(255, 170, 20, 0.4);
+      outline: none;
+      position: relative;
+    }
+
+    #cat-img.gold-border.show {
+      box-shadow:
+        0 0 0 4px rgba(255,215,0,0.8),
+        0 0 30px rgba(255,200,50,0.6),
+        0 0 60px rgba(255,170,20,0.4),
+        inset 0 0 20px rgba(255,215,0,0.1);
+      border-color: #ffd700;
+      animation: liquidGoldBorder 3s linear infinite;
+    }
+
+    @keyframes liquidGoldBorder {
+      0%   { border-color: #ffd700; box-shadow: 0 0 0 4px #ffd700, 0 0 30px rgba(255,200,50,0.6), 0 0 60px rgba(255,170,20,0.4); }
+      25%  { border-color: #ffec6e; box-shadow: 0 0 0 4px #ffec6e, 0 0 40px rgba(255,230,80,0.7), 0 0 70px rgba(255,200,40,0.5); }
+      50%  { border-color: #f59e0b; box-shadow: 0 0 0 4px #f59e0b, 0 0 35px rgba(245,158,11,0.65), 0 0 65px rgba(200,140,10,0.45); }
+      75%  { border-color: #fbbf24; box-shadow: 0 0 0 4px #fbbf24, 0 0 42px rgba(251,191,36,0.72), 0 0 72px rgba(220,160,20,0.5); }
+      100% { border-color: #ffd700; box-shadow: 0 0 0 4px #ffd700, 0 0 30px rgba(255,200,50,0.6), 0 0 60px rgba(255,170,20,0.4); }
+    }
+
+    /* Gold background for Lucky Generator */
+    body.gold-bg {
+      background: radial-gradient(circle at 20% 20%, rgba(255,215,0,0.35) 0%, transparent 40%),
+                  radial-gradient(circle at 80% 80%, rgba(255,165,0,0.30) 0%, transparent 40%),
+                  radial-gradient(circle at 50% 50%, rgba(255,200,50,0.15) 0%, transparent 60%),
+                  linear-gradient(135deg, #1a1200 0%, #3d2b00 35%, #6b4a00 65%, #2a1e00 100%) !important;
+    }
+
+    body.gold-bg::before {
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,215,0,0.22) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(255,165,0,0.18) 0%, transparent 40%) !important;
+    }
+
+    #goldToggleBtn {
+      position: fixed;
+      bottom: 64px;
+      right: 16px;
+      z-index: 1000;
+      background: linear-gradient(135deg, #ffd700, #f59e0b);
+      border: none;
+      border-radius: 10px;
+      width: 40px;
+      height: 40px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 14px rgba(255, 215, 0, 0.5);
+      color: #1a1200;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #goldToggleBtn.visible {
+      display: flex;
+    }
+
+    #goldToggleBtn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 22px rgba(255, 215, 0, 0.7);
+    }
+
+    #goldToggleBtn:active {
+      transform: scale(0.95);
+    }
+
+    /* Rare Lucky overlay */
+    #rareLuckyOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      pointer-events: none;
+    }
+
+    #rareLuckyOverlay.show {
+      display: flex;
+      animation: rareFadeOut 5s ease forwards;
+    }
+
+    @keyframes rareFadeOut {
+      0%   { opacity: 0; }
+      10%  { opacity: 1; }
+      70%  { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    #rareLuckyText {
+      font-family: 'Rubik', sans-serif;
+      font-size: 3.5em;
+      font-weight: 700;
+      text-align: center;
+      color: #ffd700;
+      text-shadow:
+        0 0 20px rgba(255, 215, 0, 0.9),
+        0 0 40px rgba(255, 165, 0, 0.7),
+        0 0 80px rgba(255, 200, 50, 0.5),
+        2px 2px 0 rgba(0,0,0,0.5);
+      animation: rareTextPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      padding: 30px 60px;
+      border-radius: 30px;
+      background: rgba(0,0,0,0.55);
+      border: 3px solid rgba(255, 215, 0, 0.6);
+      backdrop-filter: blur(12px);
+      max-width: 80vw;
+    }
+
+    @keyframes rareTextPop {
+      0%   { transform: scale(0.4) rotate(-4deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0deg);    opacity: 1; }
+    }
+
+    .gold-sparkle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10000;
+      font-size: 2em;
+      animation: sparkleFly 2.5s ease forwards;
+    }
+
+    @keyframes sparkleFly {
+      0%   { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(-120px) scale(0.3) rotate(var(--spin)); }
+    }
+
     #statusWrap {
       position: fixed;
       top: 20px;
@@ -220,6 +361,11 @@
 <button class="btn" onclick="generateCat()">Show Lucky!</button>
 
 <button id="fullscreenBtn" onclick="toggleFullscreen()" title="Toggle Fullscreen">⛶</button>
+<button id="goldToggleBtn" onclick="toggleGoldBg()" title="Toggle Gold Background">✨</button>
+
+<div id="rareLuckyOverlay">
+  <div id="rareLuckyText">⭐ YOU GOT THE RARE LUCKY! ⭐<br><span style="font-size:0.55em;display:block;margin-top:12px;color:#ffec6e;">Cat50 — 1 in 100,000 chance!</span></div>
+</div>
 
 <div class="footer">LUCKY IS MY CAT :)</div>
 
@@ -232,12 +378,18 @@
     "Cat21.jpg","Cat22.jpg","Cat23.jpg","Cat24.jpg","Cat25.jpg",
     "Cat26.jpg","Cat27.jpg","Cat28.jpg","Cat29.jpg","Cat30.jpg",
     "Cat31.jpg","Cat32.jpg","Cat33.jpg","Cat34.jpg","Cat35.jpg",
-    "Cat36.jpg","Cat37.jpg","Cat38.jpg","Cat39.jpg","Cat40.jpg"
+    "Cat36.jpg","Cat37.jpg","Cat38.jpg","Cat39.jpg","Cat40.jpg",
+    "Cat41.jpg","Cat42.jpg","Cat43.jpg","Cat44.jpg","Cat45.jpg",
+    "Cat46.jpg","Cat47.jpg","Cat48.jpg","Cat49.jpg","Cat51.jpg",
+    "Cat52.jpg","Cat53.jpg","Cat54.jpg","Cat55.jpg"
   ];
 
   const VISIT_LUCKY_KEY = 'wren_visited_lucky';
   const LUCKY_CLICK_COUNT_KEY = 'wren_lucky_click_count';
   const LUCKY_THEME_UNLOCK_KEY = 'wren_theme_lucky_unlocked';
+  const GOLDFIZZY_THEME_UNLOCK_KEY = 'wren_theme_goldfizzy_unlocked';
+  const GOLD_BG_KEY = 'wren_lucky_gold_bg';
+  const CAT50_SEEN_KEY = 'wren_lucky_cat50_seen';
 
   const preloaded = [];
   images.forEach(src => {
@@ -249,6 +401,59 @@
   let lastCats = [];
   let clickCount = Number(localStorage.getItem(LUCKY_CLICK_COUNT_KEY) || '0');
   let luckyUnlocked = localStorage.getItem(LUCKY_THEME_UNLOCK_KEY) === '1';
+  let goldBgActive = localStorage.getItem(GOLD_BG_KEY) === '1';
+
+  function applyGoldBg() {
+    if (goldBgActive) {
+      document.body.classList.add('gold-bg');
+    } else {
+      document.body.classList.remove('gold-bg');
+    }
+  }
+
+  function toggleGoldBg() {
+    goldBgActive = !goldBgActive;
+    localStorage.setItem(GOLD_BG_KEY, goldBgActive ? '1' : '0');
+    applyGoldBg();
+  }
+
+  function showGoldToggle() {
+    document.getElementById('goldToggleBtn').classList.add('visible');
+  }
+
+  function triggerRareLuckyAnimation() {
+    const overlay = document.getElementById('rareLuckyOverlay');
+    overlay.classList.remove('show');
+    void overlay.offsetWidth;
+    overlay.classList.add('show');
+    setTimeout(() => overlay.classList.remove('show'), 5200);
+
+    // Spawn gold sparkles
+    const emojis = ['✨','⭐','🌟','💛','🏆','👑'];
+    for (let i = 0; i < 28; i++) {
+      setTimeout(() => {
+        const s = document.createElement('span');
+        s.className = 'gold-sparkle';
+        s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        s.style.left = (Math.random() * 95) + 'vw';
+        s.style.top = (Math.random() * 80 + 10) + 'vh';
+        s.style.setProperty('--spin', (Math.random() * 720 - 360) + 'deg');
+        s.style.fontSize = (1.2 + Math.random() * 2) + 'em';
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), 2600);
+      }, Math.random() * 1200);
+    }
+
+    // Unlock gold bg and goldfizzy theme
+    goldBgActive = true;
+    localStorage.setItem(GOLD_BG_KEY, '1');
+    applyGoldBg();
+    showGoldToggle();
+
+    if (localStorage.getItem(GOLDFIZZY_THEME_UNLOCK_KEY) !== '1') {
+      localStorage.setItem(GOLDFIZZY_THEME_UNLOCK_KEY, '1');
+    }
+  }
 
   const statusWrap = document.getElementById('statusWrap');
   const counterEl = document.getElementById('counter');
@@ -297,43 +502,53 @@
     // Start fade out
     img.classList.remove('show');
     
-    // Delay selection and fade in slightly for a smoother transition
     setTimeout(() => {
-      let availableIndices = images.map((_, idx) => idx).filter(idx => !lastCats.includes(idx));
-      
-      if (availableIndices.length === 0) {
-        lastCats = [];
-        availableIndices = images.map((_, idx) => idx);
+      let selectedCat;
+      let isRareCat50 = false;
+
+      // 1 in 100,000 chance of Cat50
+      if (Math.random() < 1 / 100000) {
+        selectedCat = 'Cat50.jpg';
+        isRareCat50 = true;
+      } else {
+        let availableIndices = images.map((_, idx) => idx).filter(idx => !lastCats.includes(idx));
+        if (availableIndices.length === 0) {
+          lastCats = [];
+          availableIndices = images.map((_, idx) => idx);
+        }
+        const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+        selectedCat = images[randomIndex];
+        lastCats.push(randomIndex);
+        if (lastCats.length > 5) lastCats.shift();
       }
 
-      const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
-      const selectedCat = images[randomIndex];
+      // Apply/remove gold border
+      if (isRareCat50) {
+        img.classList.add('gold-border');
+      } else {
+        img.classList.remove('gold-border');
+      }
 
-      lastCats.push(randomIndex);
-      if (lastCats.length > 5) lastCats.shift();
-
-      // Use the preloaded image directly
-      const preloadedImg = preloaded.find(i => i.src.endsWith(selectedCat));
-      if (preloadedImg && preloadedImg.complete) {
+      const preloadedImg = isRareCat50 ? null : preloaded.find(i => i.src.endsWith(selectedCat));
+      if (!isRareCat50 && preloadedImg && preloadedImg.complete) {
         img.src = selectedCat;
         img.style.display = 'block';
-        // Trigger fade in
-        requestAnimationFrame(() => {
-          img.classList.add('show');
-        });
+        requestAnimationFrame(() => { img.classList.add('show'); });
       } else {
         img.src = selectedCat;
         img.onload = () => {
           img.style.display = 'block';
-          requestAnimationFrame(() => {
-            img.classList.add('show');
-          });
+          requestAnimationFrame(() => { img.classList.add('show'); });
         };
+      }
+
+      if (isRareCat50) {
+        triggerRareLuckyAnimation();
       }
       
       updateUI();
       unlockLuckyTheme();
-    }, 200); // Wait for fade out to complete slightly
+    }, 200);
   }
 
   function toggleFullscreen() {
@@ -365,6 +580,10 @@
     if (clickCount >= 50) {
       unlockLuckyTheme();
       statusWrap.classList.add('hidden');
+    }
+    applyGoldBg();
+    if (localStorage.getItem(GOLDFIZZY_THEME_UNLOCK_KEY) === '1') {
+      showGoldToggle();
     }
   });
 </script>
