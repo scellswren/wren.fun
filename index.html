@@ -10043,7 +10043,12 @@ function updateActiveThemePill(mode) {
   const label = THEME_DISPLAY_NAMES[m] || m.charAt(0).toUpperCase() + m.slice(1);
   pill.textContent = label;
 }
-updateActiveThemePill();
+// Run after DOM is ready so the pill always reflects the real current theme (including Light on first visit)
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => updateActiveThemePill());
+} else {
+  updateActiveThemePill();
+}
 
 // ── QoL: THEME COUNT BADGE ──
 function updateThemeCountBadge() {
