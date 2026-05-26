@@ -436,110 +436,78 @@
 // ═══════════════════════════════════════════
 
 const AUTO_LEVELS = [
-  { level:1,  interval:2000,  cost:50            },
-  { level:2,  interval:1500,  cost:100           },
-  { level:3,  interval:1000,  cost:150           },
-  { level:4,  interval:500,   cost:250           },
-  { level:5,  interval:250,   cost:375           },
-  { level:6,  interval:125,   cost:1000          },
-  { level:7,  interval:50,    cost:2000          },
-  { level:8,  interval:25,    cost:5000          },
-  { level:9,  interval:10,    cost:25000         },
-  { level:10, interval:5,     cost:100000        },
-  { level:11, interval:2,     cost:500000        },
-  { level:12, interval:1,     cost:2500000       },
-  { level:13, interval:900,   cost:6000000       },
-  { level:14, interval:800,   cost:15000000      },
-  { level:15, interval:700,   cost:40000000      },
-  { level:16, interval:600,   cost:100000000     },
-  { level:17, interval:500,   cost:250000000     },
-  { level:18, interval:400,   cost:600000000     },
-  { level:19, interval:300,   cost:1500000000    },
-  { level:20, interval:200,   cost:4000000000    },
-  { level:21, interval:150,   cost:10000000000   },
-  { level:22, interval:100,   cost:25000000000   },
-  { level:23, interval:75,    cost:60000000000   },
-  { level:24, interval:50,    cost:150000000000  },
-  { level:25, interval:40,    cost:350000000000  },
-  { level:26, interval:30,    cost:1000000000000 },
-  { level:27, interval:25,    cost:2.5e12        },
-  { level:28, interval:20,    cost:6e12          },
-  { level:29, interval:15,    cost:15e12         },
-  { level:30, interval:10,    cost:40e12         },
-  { level:31, interval:9,     cost:100e12        },
-  { level:32, interval:8,     cost:250e12        },
-  { level:33, interval:7,     cost:0.5e15        },
-  { level:34, interval:6,     cost:1.5e15        },
-  { level:35, interval:5,     cost:4e15          },
-  { level:36, interval:4,     cost:10e15         },
-  { level:37, interval:3,     cost:30e15         },
-  { level:38, interval:2,     cost:75e15         },
-  { level:39, interval:1,     cost:200e15        },
-  { level:40, interval:900,   cost:0.5e18        },
-  { level:41, interval:700,   cost:1.5e18        },
-  { level:42, interval:500,   cost:4e18          },
-  { level:43, interval:350,   cost:10e18         },
-  { level:44, interval:200,   cost:30e18         },
-  { level:45, interval:100,   cost:75e18         },
-  { level:46, interval:50,    cost:200e18        },
-  { level:47, interval:25,    cost:0.5e21        },
-  { level:48, interval:10,    cost:1.5e21        },
-  { level:49, interval:5,     cost:4e21          },
-  { level:50, interval:1,     cost:10e21         },
+  { level:1,  interval:2000, cost:50           },  // 0.5/s
+  { level:2,  interval:1500, cost:120          },  // 0.67/s
+  { level:3,  interval:1000, cost:250          },  // 1/s
+  { level:4,  interval:750,  cost:600          },  // 1.3/s
+  { level:5,  interval:500,  cost:1500         },  // 2/s
+  { level:6,  interval:333,  cost:4000         },  // 3/s
+  { level:7,  interval:250,  cost:10000        },  // 4/s
+  { level:8,  interval:167,  cost:30000        },  // 6/s
+  { level:9,  interval:125,  cost:80000        },  // 8/s
+  { level:10, interval:100,  cost:200000       },  // 10/s
+  { level:11, interval:67,   cost:600000       },  // 15/s
+  { level:12, interval:50,   cost:1500000      },  // 20/s
+  { level:13, interval:40,   cost:4000000      },  // 25/s
+  { level:14, interval:33,   cost:10000000     },  // 30/s
+  { level:15, interval:25,   cost:25000000     },  // 40/s
+  { level:16, interval:20,   cost:60000000     },  // 50/s
+  { level:17, interval:16,   cost:150000000    },  // 62/s
+  { level:18, interval:13,   cost:400000000    },  // 77/s
+  { level:19, interval:10,   cost:1000000000   },  // 100/s
+  { level:20, interval:8,    cost:2500000000   },  // 125/s
+  { level:21, interval:6,    cost:7000000000   },  // 167/s
+  { level:22, interval:5,    cost:18000000000  },  // 200/s
+  { level:23, interval:4,    cost:50000000000  },  // 250/s
+  { level:24, interval:3,    cost:150000000000 },  // 333/s
+  { level:25, interval:2,    cost:400e9        },  // 500/s
+  { level:26, interval:1,    cost:1e12         },  // 1000/s
+  { level:27, interval:1,    cost:3e12         },  // same, much pricier gate
+  { level:28, interval:1,    cost:8e12         },
+  { level:29, interval:1,    cost:20e12        },
+  { level:30, interval:1,    cost:50e12        },
+  { level:31, interval:1,    cost:150e12       },
+  { level:32, interval:1,    cost:400e12       },
+  { level:33, interval:1,    cost:1e15         },
+  { level:34, interval:1,    cost:3e15         },
+  { level:35, interval:1,    cost:8e15         },
+  { level:36, interval:1,    cost:20e15        },
+  { level:37, interval:1,    cost:60e15        },
+  { level:38, interval:1,    cost:150e15       },
+  { level:39, interval:1,    cost:400e15       },
+  { level:40, interval:1,    cost:1e18         },
+  { level:41, interval:1,    cost:3e18         },
+  { level:42, interval:1,    cost:8e18         },
+  { level:43, interval:1,    cost:20e18        },
+  { level:44, interval:1,    cost:60e18        },
+  { level:45, interval:1,    cost:150e18       },
+  { level:46, interval:1,    cost:400e18       },
+  { level:47, interval:1,    cost:1e21         },
+  { level:48, interval:1,    cost:3e21         },
+  { level:49, interval:1,    cost:8e21         },
+  { level:50, interval:1,    cost:20e21        },
 ];
 
 // Manual-click multipliers only — does NOT affect auto
 const MULT_LEVELS = [
-  { level:2,        cost:1000          },
-  { level:3,        cost:2400          },
-  { level:4,        cost:5000          },
-  { level:5,        cost:10000         },
-  { level:7,        cost:24000         },
-  { level:10,       cost:60000         },
-  { level:15,       cost:200000        },
-  { level:20,       cost:600000        },
-  { level:25,       cost:2000000       },
-  { level:30,       cost:8000000       },
-  { level:35,       cost:30000000      },
-  { level:40,       cost:100000000     },
-  { level:45,       cost:400000000     },
-  { level:50,       cost:1500000000    },
-  { level:60,       cost:6000000000    },
-  { level:75,       cost:25000000000   },
-  { level:100,      cost:100000000000  },
-  { level:150,      cost:500000000000  },
-  { level:200,      cost:2e12          },
-  { level:300,      cost:8e12          },
-  { level:500,      cost:30e12         },
-  { level:750,      cost:120e12        },
-  { level:1000,     cost:500e12        },
-  { level:1500,     cost:2e15          },
-  { level:2000,     cost:8e15          },
-  { level:3000,     cost:30e15         },
-  { level:5000,     cost:150e15        },
-  { level:7500,     cost:600e15        },
-  { level:10000,    cost:2e18          },
-  { level:15000,    cost:8e18          },
-  { level:20000,    cost:30e18         },
-  { level:30000,    cost:120e18        },
-  { level:40000,    cost:500e18        },
-  { level:50000,    cost:2e21          },
-  { level:75000,    cost:8e21          },
-  { level:100000,   cost:30e21         },
-  { level:150000,   cost:120e21        },
-  { level:200000,   cost:500e21        },
-  { level:300000,   cost:2e24          },
-  { level:500000,   cost:8e24          },
-  { level:750000,   cost:30e24         },
-  { level:1000000,  cost:120e24        },
-  { level:2000000,  cost:500e24        },
-  { level:5000000,  cost:2e27          },
-  { level:10000000, cost:8e27          },
-  { level:20000000, cost:30e27         },
-  { level:50000000, cost:120e27        },
-  { level:100000000,cost:500e27        },
-  { level:500000000,cost:2e30          },
-  { level:1000000000,cost:8e30         },
+  { level:2,       cost:500          },
+  { level:5,       cost:2000         },
+  { level:10,      cost:8000         },
+  { level:20,      cost:30000        },
+  { level:50,      cost:150000       },
+  { level:100,     cost:600000       },
+  { level:200,     cost:2500000      },
+  { level:500,     cost:10000000     },
+  { level:1000,    cost:50000000     },
+  { level:2000,    cost:200000000    },
+  { level:5000,    cost:1000000000   },
+  { level:10000,   cost:5e9          },
+  { level:20000,   cost:20e9         },
+  { level:50000,   cost:100e9        },
+  { level:100000,  cost:500e9        },
+  { level:200000,  cost:2e12         },
+  { level:500000,  cost:10e12        },
+  { level:1000000, cost:50e12        },
 ];
 
 // ═══════════════════════════════════════════
@@ -869,7 +837,7 @@ function renderAutoShop(){
       'Cost: 🗿 '+formatNum(nx.cost)+' clicks',
       'buyAuto','Buy'));
   } else {
-    el.appendChild(item(true,true,'⚙️ Auto Click Lv.50','Every 1ms — absolute max!','','','MAX'));
+    el.appendChild(item(true,true,'⚙️ Auto Click Lv.50','1ms ticks — absolute max speed!','','','MAX'));
   }
   const afkLabel=document.createElement('div');
   afkLabel.className='shop-section-label'; afkLabel.textContent='🌙 AFK Auto';
@@ -911,7 +879,7 @@ function renderMultShop(){
       'Cost: 🗿 '+formatNum(nx.cost)+' clicks',
       'buyMult','Buy'));
   } else {
-    el.appendChild(item(true,true,'✖️ x1,000,000,000 — Maximum!','Highest tier reached! 🐱','','','MAX'));
+    el.appendChild(item(true,true,'✖️ x1,000,000 — Maximum!','Highest tier reached! 🐱','','','MAX'));
   }
   const note=document.createElement('div');
   note.className='shop-section-label';
@@ -1121,11 +1089,13 @@ function renderSlotScreen(){
     const card =document.createElement('div');
     card.className='slot-card'+(saved?'':' empty-slot');
     if(saved){
+      const rc=saved.rebirthCount||0;
       card.innerHTML=`
         <div class="slot-num">🗿</div>
         <div class="slot-name">${name}</div>
         <div class="slot-clicks">${formatNum(saved.clicks)}</div>
         <div class="slot-sub-info">Tiki Clicks</div>
+        ${rc>0?`<div class="slot-sub-info" style="color:#ffb347;font-weight:700;margin-top:2px">✨ ${rc} Rebirth${rc!==1?'s':''} (x${rc+1} mult)</div>`:''}
         <button class="slot-delete-btn" onclick="confirmDeleteSlot(event,${idx})">🗑 Delete</button>`;
     } else {
       card.innerHTML=`
