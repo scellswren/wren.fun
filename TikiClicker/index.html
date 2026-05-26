@@ -268,8 +268,8 @@
       cursor:pointer; white-space:nowrap; flex-shrink:0; min-width:70px;
       transition:filter 0.15s, transform 0.12s; box-shadow:0 4px 14px rgba(255,80,0,0.3);
     }
-    .buy-btn:hover:not(:disabled) { filter:brightness(1.16); transform:scale(1.06); }
-    .buy-btn:active:not(:disabled) { transform:scale(0.95); }
+    .buy-btn:hover:not(:disabled) { filter:brightness(1.16); }
+    .buy-btn:active:not(:disabled) { filter:brightness(0.9); }
     .buy-btn:disabled { background:rgba(100,50,20,0.35); color:rgba(255,245,238,0.32); cursor:not-allowed; box-shadow:none; }
     .buy-btn.owned-btn { background:linear-gradient(145deg,#ffd060,#e09000); color:#1a0800; cursor:default; }
 
@@ -582,7 +582,7 @@ function deleteSlot(i){ localStorage.removeItem(slotKey(i)); }
 
 let state       = emptyState();
 let currentSlot = null;
-let autoTimer   = null;
+
 let currentTab  = 'auto';
 
 let frenzyActive    = false;
@@ -641,20 +641,61 @@ function formatNum(n){
 function fmtInterval(ms){ return ms>=1000?(ms/1000)+'s':ms+'ms'; }
 
 // ═══════════════════════════════════════════
-//  AUTO-CLICK
+//  AUTO-CLICK  (Web Worker — background-tab safe)
 // ═══════════════════════════════════════════
 
+// Inline worker script — uses Date.now() drift-correction so ticks are accurate
+const WORKER_SRC = `
+let interval = null;
+let ms = 1000;
+self.onmessage = function(e){
+  if(e.data.type === 'start'){
+    ms = e.data.interval;
+    clearInterval(interval);
+    let last = Date.now();
+    interval = setInterval(function(){
+      const now = Date.now();
+      const elapsed = now - last;
+      last = now;
+      self.postMessage({ type:'tick', elapsed: elapsed });
+    }, ms);
+  }
+  if(e.data.type === 'stop'){
+    clearInterval(interval);
+    interval = null;
+  }
+};
+`;
+
+let autoWorker = null;
+let workerAccum = 0; // fractional tick accumulator for fast intervals
+
 function startAutoClick(){
-  if(autoTimer) clearInterval(autoTimer);
-  const interval=getEffectiveInterval();
+  if(autoWorker){ autoWorker.terminate(); autoWorker = null; }
+  workerAccum = 0;
+  const interval = getEffectiveInterval();
   if(!interval) return;
-  autoTimer=setInterval(()=>{
-    const gain=calcAutoClickGain();
-    state.clicks      +=gain;
-    state.totalEarned +=gain;
-    saveCurrentSlot();
-    updateDisplay();
-  }, interval);
+
+  const blob = new Blob([WORKER_SRC], {type:'application/javascript'});
+  autoWorker = new Worker(URL.createObjectURL(blob));
+  autoWorker.onmessage = function(e){
+    if(e.data.type !== 'tick') return;
+    // For very fast intervals the worker fires at its own pace;
+    // accumulate elapsed time and award ticks for every full interval elapsed
+    workerAccum += e.data.elapsed;
+    const effectiveInterval = getEffectiveInterval();
+    if(!effectiveInterval) return;
+    const ticks = Math.floor(workerAccum / effectiveInterval);
+    if(ticks > 0){
+      workerAccum -= ticks * effectiveInterval;
+      const gain = ticks * calcAutoClickGain();
+      state.clicks      += gain;
+      state.totalEarned += gain;
+      saveCurrentSlot();
+      updateDisplay();
+    }
+  };
+  autoWorker.postMessage({ type:'start', interval: Math.max(interval, 100) });
 }
 
 // ═══════════════════════════════════════════
@@ -995,7 +1036,7 @@ function doRebirth(){
   state.rebirthCount=rc;
   state.frenzyOwned =fo;
   saveCurrentSlot();
-  if(autoTimer){clearInterval(autoTimer);autoTimer=null;}
+  if(autoWorker){autoWorker.terminate();autoWorker=null;}
   if(fo) startFrenzySystem();
   updateDisplay();
   showToast('✨ Rebirth #'+rc+'! Rebirth multiplier is now x'+rc+'!');
@@ -1011,7 +1052,7 @@ document.getElementById('resetModal').addEventListener('click',function(e){if(e.
 
 function doReset(){
   closeResetModal();
-  if(autoTimer){clearInterval(autoTimer);autoTimer=null;}
+  if(autoWorker){autoWorker.terminate();autoWorker=null;}
   if(frenzyCheckTimer){clearInterval(frenzyCheckTimer);frenzyCheckTimer=null;}
   if(frenzyActive)endFrenzy();
   // Completely empty — no rebirth retention
@@ -1100,7 +1141,7 @@ function enterSlot(idx){
 
 function switchSlot(){
   saveCurrentSlot();
-  if(autoTimer){clearInterval(autoTimer);autoTimer=null;}
+  if(autoWorker){autoWorker.terminate();autoWorker=null;}
   if(frenzyCheckTimer){clearInterval(frenzyCheckTimer);frenzyCheckTimer=null;}
   if(frenzyActive) endFrenzy();
   currentSlot=null;
@@ -1155,7 +1196,6 @@ function goHome(){window.location.href='../index.html';}
 // ═══════════════════════════════════════════
 
 renderSlotScreen();
-setInterval(()=>{if(currentSlot!==null)renderShop();},500);
 setInterval(()=>{if(currentSlot!==null)saveCurrentSlot();},10000);
 </script>
 </body>
