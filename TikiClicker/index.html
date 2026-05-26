@@ -230,11 +230,13 @@
     #shop { flex:1; min-width:0; max-width:500px; }
     .shop-tabs { display:flex; gap:5px; margin-bottom:14px; flex-wrap:wrap; }
     .shop-tab {
-      flex:1; min-width:80px; padding:10px 6px; border-radius:12px;
-      font-family:'Rubik',sans-serif; font-weight:700; font-size:0.80em;
+      flex:1; min-width:0; padding:8px 4px; border-radius:12px;
+      font-family:'Rubik',sans-serif; font-weight:700; font-size:0.75em;
       cursor:pointer; border:1px solid rgba(255,100,0,0.22);
       background:rgba(255,100,0,0.08); color:var(--muted);
-      transition:background 0.15s, color 0.15s; text-align:center;
+      transition:background 0.15s, color 0.15s;
+      text-align:center; display:flex; align-items:center; justify-content:center;
+      line-height:1.2;
     }
     .shop-tab.active { background:rgba(255,100,0,0.24); color:var(--gold); border-color:rgba(255,100,0,0.5); }
     .shop-tab:hover:not(.active) { background:rgba(255,100,0,0.16); color:var(--text); }
@@ -334,6 +336,73 @@
     }
     #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
+    /* ── REBIRTH ANIMATION ── */
+    #rebirthOverlay {
+      position:fixed; inset:0; z-index:9500; pointer-events:none;
+      display:flex; align-items:center; justify-content:center;
+      opacity:0;
+    }
+    #rebirthOverlay.active { animation: rebirthFlash 1.8s ease-out forwards; }
+    @keyframes rebirthFlash {
+      0%   { opacity:0; background:transparent; }
+      10%  { opacity:1; background:radial-gradient(circle, rgba(255,215,0,0.5) 0%, rgba(255,100,0,0.3) 50%, transparent 75%); }
+      40%  { opacity:1; background:radial-gradient(circle, rgba(255,255,200,0.4) 0%, rgba(255,179,71,0.2) 50%, transparent 75%); }
+      100% { opacity:0; background:transparent; }
+    }
+    #rebirthText {
+      font-size:clamp(2em,8vw,5em); font-weight:900; text-align:center;
+      background:linear-gradient(135deg,#fff7a0,#ffb347,#ff6a00);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      filter:drop-shadow(0 0 30px rgba(255,200,0,0.9));
+      transform:scale(0);
+      animation:none;
+    }
+    #rebirthOverlay.active #rebirthText {
+      animation: rebirthTextPop 1.8s ease-out forwards;
+    }
+    @keyframes rebirthTextPop {
+      0%   { transform:scale(0) rotate(-10deg); opacity:0; }
+      15%  { transform:scale(1.3) rotate(2deg);  opacity:1; }
+      30%  { transform:scale(0.95) rotate(-1deg); opacity:1; }
+      45%  { transform:scale(1.05) rotate(0deg);  opacity:1; }
+      70%  { transform:scale(1) rotate(0deg);     opacity:1; }
+      100% { transform:scale(0.8) rotate(0deg);   opacity:0; }
+    }
+    .rebirth-star {
+      position:absolute; font-size:1.5em; pointer-events:none;
+      animation: rebirthStarFly 1.4s ease-out forwards;
+    }
+    @keyframes rebirthStarFly {
+      0%   { transform:translate(0,0) scale(1); opacity:1; }
+      100% { transform:translate(var(--tx),var(--ty)) scale(0); opacity:0; }
+    }
+
+    /* ── TIKI BANK ── */
+    .bank-card {
+      background: rgba(50,200,100,0.07); border: 1px solid rgba(50,200,100,0.22);
+      border-radius: 14px; padding: 16px; margin-bottom: 10px;
+    }
+    .bank-card.danger { background: rgba(255,50,50,0.08); border-color: rgba(255,50,50,0.3); }
+    .bank-card.jail   { background: rgba(180,0,0,0.15); border-color: rgba(255,0,0,0.5); }
+    .bank-label { font-size:0.78em; font-weight:700; color:rgba(100,220,130,0.7); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
+    .bank-label.red { color:rgba(255,130,130,0.7); }
+    .bank-value { font-size:1.4em; font-weight:900; color:#60e090; }
+    .bank-value.red { color:#ff6060; }
+    .bank-sub { font-size:0.78em; color:var(--muted); margin-top:4px; }
+    .bank-btn {
+      background: linear-gradient(145deg,#20b050,#106030); color:#fff;
+      border:none; border-radius:10px; padding:10px 20px;
+      font-family:'Rubik',sans-serif; font-weight:700; font-size:0.86em;
+      cursor:pointer; margin-top:10px; width:100%;
+      transition:filter 0.15s; box-shadow:0 3px 12px rgba(0,150,50,0.3);
+    }
+    .bank-btn:hover:not(:disabled) { filter:brightness(1.15); }
+    .bank-btn:disabled { background:rgba(50,80,50,0.3); color:rgba(200,255,200,0.3); cursor:not-allowed; box-shadow:none; }
+    .bank-btn.repay { background:linear-gradient(145deg,#e08020,#904000); box-shadow:0 3px 12px rgba(200,100,0,0.3); }
+    .bank-btn.repay:hover:not(:disabled) { filter:brightness(1.15); }
+    .jail-bar { height:8px; background:rgba(255,0,0,0.2); border-radius:999px; margin-top:8px; overflow:hidden; }
+    .jail-bar-fill { height:100%; background:linear-gradient(90deg,#ff3333,#ff6666); border-radius:999px; transition:width 1s linear; }
+
     /* ── RESPONSIVE ── */
     @media (max-width:700px) {
       #mainArea { flex-direction:column; align-items:center; }
@@ -396,13 +465,15 @@
       <div class="shop-tabs">
         <div class="shop-tab active" onclick="switchTab('auto')">⚙️ Auto</div>
         <div class="shop-tab"       onclick="switchTab('mult')">✖️ Multiply</div>
-        <div class="shop-tab"       onclick="switchTab('extras')">🌟 Extras</div>
+        <div class="shop-tab"       onclick="switchTab('extras')">🌟 Tiki Extras</div>
         <div class="shop-tab"       onclick="switchTab('rebirth')">✨ Rebirth</div>
+        <div class="shop-tab"       onclick="switchTab('bank')">🏦 Bank</div>
       </div>
       <div id="panel-auto"    class="shop-panel active"></div>
       <div id="panel-mult"    class="shop-panel"></div>
       <div id="panel-extras"  class="shop-panel"></div>
       <div id="panel-rebirth" class="shop-panel"></div>
+      <div id="panel-bank"    class="shop-panel"></div>
     </div>
   </div>
 
@@ -428,64 +499,151 @@
 <div id="previewOverlay" onclick="closePreview()">
   <img id="previewImage" alt="Tiki the Cat">
 </div>
+<!-- Tiki Jail Modal -->
+<div class="modal-overlay" id="jailModal">
+  <div class="modal-box" style="border-color:rgba(255,50,50,0.6);background:linear-gradient(180deg,#1a0000 0%,#0a0000 100%)">
+    <h3 style="color:#ff3333">🚔 TIKI JAIL!</h3>
+    <p>You failed to repay your loan! You've been thrown in Tiki Jail.<br><br>
+    Your clicks have been wiped and you're now in debt.<br>
+    You cannot click for <strong id="jailTimerDisplay" style="color:#ff4444">6:00</strong>.</p>
+    <p style="font-size:0.8em;color:rgba(255,100,100,0.6);margin-top:-10px">The timer pauses if you leave the page.</p>
+    <div class="modal-actions">
+      <button class="modal-btn" style="background:rgba(255,50,50,0.2);border:1px solid rgba(255,50,50,0.4);color:#ffaaaa" onclick="closeJailModal()">OK</button>
+    </div>
+  </div>
+</div>
+
+<div id="rebirthOverlay">
+  <div id="rebirthText"></div>
+</div>
 <div id="toast"></div>
 
 <script>
+
+// ═══════════════════════════════════════════
+//  SOUND ENGINE  (Web Audio API — no files needed)
+// ═══════════════════════════════════════════
+
+let _audioCtx = null;
+function getAudio(){
+  if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(_audioCtx.state==='suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+
+function playTone(freq, type, duration, vol, decay){
+  try{
+    const ctx = getAudio();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = type||'sine';
+    o.frequency.setValueAtTime(freq, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(freq*decay, ctx.currentTime+duration);
+    g.gain.setValueAtTime(vol||0.18, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+duration);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime+duration);
+  }catch(e){}
+}
+
+function sfxClick(){
+  // Soft drum-like thud
+  playTone(180, 'sine', 0.08, 0.22, 0.3);
+}
+function sfxBuy(){
+  // Ascending two-note chime
+  try{
+    const ctx=getAudio();
+    [440,660].forEach((f,i)=>{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type='triangle'; o.frequency.value=f;
+      const t=ctx.currentTime+i*0.1;
+      g.gain.setValueAtTime(0.15,t);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.25);
+      o.start(t); o.stop(t+0.25);
+    });
+  }catch(e){}
+}
+function sfxButton(){
+  // Short click tick
+  playTone(600, 'square', 0.05, 0.08, 0.5);
+}
+function sfxRebirth(){
+  // Dramatic ascending sweep + burst
+  try{
+    const ctx=getAudio();
+    const freqs=[220,330,440,550,660,880];
+    freqs.forEach((f,i)=>{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type='sine'; o.frequency.value=f;
+      const t=ctx.currentTime+i*0.08;
+      g.gain.setValueAtTime(0.18,t);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.5);
+      o.start(t); o.stop(t+0.5);
+    });
+    // Big final boom
+    setTimeout(()=>{
+      playTone(110,'sine',0.6,0.3,0.5);
+      playTone(220,'triangle',0.6,0.2,0.5);
+    }, 480);
+  }catch(e){}
+}
+function sfxJail(){
+  // Descending wail
+  try{
+    const ctx=getAudio();
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type='sawtooth';
+    o.frequency.setValueAtTime(440,ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(80,ctx.currentTime+0.8);
+    g.gain.setValueAtTime(0.15,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.8);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime+0.8);
+  }catch(e){}
+}
+
 // ═══════════════════════════════════════════
 //  DATA
 // ═══════════════════════════════════════════
 
+// AUTO_LEVELS: cps = clicks awarded every second. Cost scaled 2.5x from original progression.
+// Level 1=1/s, 2=2/s, 3=3/s, 4=5/s, 5=7/s, 6=10/s, 7=15/s, 8=20/s, 9=30/s, 10=40/s,
+// then continues scaling up to Lv30=1,000,000/s
 const AUTO_LEVELS = [
-  { level:1,  interval:2000, cost:50           },  // 0.5/s
-  { level:2,  interval:1500, cost:120          },  // 0.67/s
-  { level:3,  interval:1000, cost:250          },  // 1/s
-  { level:4,  interval:750,  cost:600          },  // 1.3/s
-  { level:5,  interval:500,  cost:1500         },  // 2/s
-  { level:6,  interval:333,  cost:4000         },  // 3/s
-  { level:7,  interval:250,  cost:10000        },  // 4/s
-  { level:8,  interval:167,  cost:30000        },  // 6/s
-  { level:9,  interval:125,  cost:80000        },  // 8/s
-  { level:10, interval:100,  cost:200000       },  // 10/s
-  { level:11, interval:67,   cost:600000       },  // 15/s
-  { level:12, interval:50,   cost:1500000      },  // 20/s
-  { level:13, interval:40,   cost:4000000      },  // 25/s
-  { level:14, interval:33,   cost:10000000     },  // 30/s
-  { level:15, interval:25,   cost:25000000     },  // 40/s
-  { level:16, interval:20,   cost:60000000     },  // 50/s
-  { level:17, interval:16,   cost:150000000    },  // 62/s
-  { level:18, interval:13,   cost:400000000    },  // 77/s
-  { level:19, interval:10,   cost:1000000000   },  // 100/s
-  { level:20, interval:8,    cost:2500000000   },  // 125/s
-  { level:21, interval:6,    cost:7000000000   },  // 167/s
-  { level:22, interval:5,    cost:18000000000  },  // 200/s
-  { level:23, interval:4,    cost:50000000000  },  // 250/s
-  { level:24, interval:3,    cost:150000000000 },  // 333/s
-  { level:25, interval:2,    cost:400e9        },  // 500/s
-  { level:26, interval:1,    cost:1e12         },  // 1000/s
-  { level:27, interval:1,    cost:3e12         },  // same, much pricier gate
-  { level:28, interval:1,    cost:8e12         },
-  { level:29, interval:1,    cost:20e12        },
-  { level:30, interval:1,    cost:50e12        },
-  { level:31, interval:1,    cost:150e12       },
-  { level:32, interval:1,    cost:400e12       },
-  { level:33, interval:1,    cost:1e15         },
-  { level:34, interval:1,    cost:3e15         },
-  { level:35, interval:1,    cost:8e15         },
-  { level:36, interval:1,    cost:20e15        },
-  { level:37, interval:1,    cost:60e15        },
-  { level:38, interval:1,    cost:150e15       },
-  { level:39, interval:1,    cost:400e15       },
-  { level:40, interval:1,    cost:1e18         },
-  { level:41, interval:1,    cost:3e18         },
-  { level:42, interval:1,    cost:8e18         },
-  { level:43, interval:1,    cost:20e18        },
-  { level:44, interval:1,    cost:60e18        },
-  { level:45, interval:1,    cost:150e18       },
-  { level:46, interval:1,    cost:400e18       },
-  { level:47, interval:1,    cost:1e21         },
-  { level:48, interval:1,    cost:3e21         },
-  { level:49, interval:1,    cost:8e21         },
-  { level:50, interval:1,    cost:20e21        },
+  { level:1,  cps:1,       cost:125          },
+  { level:2,  cps:2,       cost:300          },
+  { level:3,  cps:3,       cost:625          },
+  { level:4,  cps:5,       cost:1500         },
+  { level:5,  cps:7,       cost:3750         },
+  { level:6,  cps:10,      cost:10000        },
+  { level:7,  cps:15,      cost:25000        },
+  { level:8,  cps:20,      cost:75000        },
+  { level:9,  cps:30,      cost:200000       },
+  { level:10, cps:40,      cost:500000       },
+  { level:11, cps:60,      cost:1500000      },
+  { level:12, cps:80,      cost:3750000      },
+  { level:13, cps:120,     cost:10000000     },
+  { level:14, cps:175,     cost:25000000     },
+  { level:15, cps:250,     cost:62500000     },
+  { level:16, cps:400,     cost:150000000    },
+  { level:17, cps:600,     cost:375000000    },
+  { level:18, cps:1000,    cost:1000000000   },
+  { level:19, cps:2000,    cost:2500000000   },
+  { level:20, cps:3500,    cost:6250000000   },
+  { level:21, cps:6000,    cost:17500000000  },
+  { level:22, cps:10000,   cost:43750000000  },
+  { level:23, cps:20000,   cost:125000000000 },
+  { level:24, cps:40000,   cost:375000000000 },
+  { level:25, cps:75000,   cost:1e12         },
+  { level:26, cps:150000,  cost:2.5e12       },
+  { level:27, cps:275000,  cost:7e12         },
+  { level:28, cps:500000,  cost:20e12        },
+  { level:29, cps:750000,  cost:62.5e12      },
+  { level:30, cps:1000000, cost:187.5e12     },
 ];
 
 // Manual-click multipliers only — does NOT affect auto
@@ -525,6 +683,9 @@ function emptyState(){
     multLevel:1, multPurchased:0,
     frenzyOwned:false,
     rebirthCount:0,
+    // Tiki Bank
+    loanOriginal:0, loanOwed:0, loanTakenAt:0, loanLastInterest:0,
+    jailTimeLeft:0, inJail:false,
   };
 }
 
@@ -570,98 +731,65 @@ function getEffectiveMultLevel(){
   return state.multLevel * getRebirthMultiplier();
 }
 
-function getAutoIntervalMult(){
-  let m = 1;
-  if(frenzyActive) m *= 0.5; // x2 faster during frenzy
-  return m;
-}
-
-function calcAutoClickGain(){
-  // Auto = 1 click per tick, unaffected by multiplier
-  return 1;
-}
-
-function getEffectiveInterval(){
-  if(!state.autoLevel) return null;
-  const base = AUTO_LEVELS[state.autoLevel-1].interval;
-  return Math.max(1, Math.round(base * getAutoIntervalMult()));
-}
-
 function calcCPS(s, frenzy){
   if(!s||!s.autoLevel) return 0;
-  const base = AUTO_LEVELS[s.autoLevel-1].interval;
-  const im   = frenzy ? 0.5 : 1;
-  const interval = Math.max(1, Math.round(base*im));
-  return 1/(interval/1000);
+  const baseCps = AUTO_LEVELS[s.autoLevel-1].cps;
+  return frenzy ? baseCps * 2 : baseCps; // frenzy = x2 speed
 }
 
 function formatNum(n){
-  n=Math.floor(n);
-  if(n>=1e15) return (n/1e15).toFixed(2)+'Q';
-  if(n>=1e12) return (n/1e12).toFixed(2)+'T';
-  if(n>=1e9)  return (n/1e9).toFixed(2)+'B';
-  if(n>=1e6)  return (n/1e6).toFixed(2)+'M';
-  if(n>=1000) return (n/1000).toFixed(1)+'K';
-  return n.toLocaleString();
+  const neg = n < 0;
+  n = Math.floor(Math.abs(n));
+  let s;
+  if(n>=1e15) s=(n/1e15).toFixed(2)+'Q';
+  else if(n>=1e12) s=(n/1e12).toFixed(2)+'T';
+  else if(n>=1e9)  s=(n/1e9).toFixed(2)+'B';
+  else if(n>=1e6)  s=(n/1e6).toFixed(2)+'M';
+  else if(n>=1000) s=(n/1000).toFixed(1)+'K';
+  else s=n.toLocaleString();
+  return neg ? '-'+s : s;
 }
-function fmtInterval(ms){ return ms>=1000?(ms/1000)+'s':ms+'ms'; }
 
 // ═══════════════════════════════════════════
-//  AUTO-CLICK  (Web Worker — background-tab safe)
+//  AUTO-CLICK  — evenly-spaced sub-second ticks (1 click each)
 // ═══════════════════════════════════════════
 
-// Inline worker script — uses Date.now() drift-correction so ticks are accurate
-const WORKER_SRC = `
-let interval = null;
-let ms = 1000;
-self.onmessage = function(e){
-  if(e.data.type === 'start'){
-    ms = e.data.interval;
-    clearInterval(interval);
-    let last = Date.now();
-    interval = setInterval(function(){
-      const now = Date.now();
-      const elapsed = now - last;
-      last = now;
-      self.postMessage({ type:'tick', elapsed: elapsed });
-    }, ms);
-  }
-  if(e.data.type === 'stop'){
-    clearInterval(interval);
-    interval = null;
-  }
-};
-`;
+let autoWorker = null;       // master 1-second interval id
+let autoSubTimers = [];      // per-click timeout ids within each second
 
-let autoWorker = null;
-let workerAccum = 0; // fractional tick accumulator for fast intervals
+function clearAutoSubs(){
+  autoSubTimers.forEach(t => clearTimeout(t));
+  autoSubTimers = [];
+}
+
+function scheduleAutoTicks(){
+  clearAutoSubs();
+  if(!state.autoLevel) return;
+  const cps = calcCPS(state, frenzyActive);
+  if(cps <= 0) return;
+  // Space N clicks evenly across 1000ms: tick i fires at (i+1)/N * 1000ms
+  for(let i = 0; i < cps; i++){
+    const delay = Math.round(((i + 1) / cps) * 1000);
+    autoSubTimers.push(setTimeout(function(){
+      if(!state.autoLevel) return;
+      state.clicks      += 1;
+      state.totalEarned += 1;
+      updateDisplay();
+    }, delay));
+  }
+}
 
 function startAutoClick(){
-  if(autoWorker){ autoWorker.terminate(); autoWorker = null; }
-  workerAccum = 0;
-  const interval = getEffectiveInterval();
-  if(!interval) return;
+  clearAutoSubs();
+  if(autoWorker){ clearInterval(autoWorker); autoWorker = null; }
+  if(!state.autoLevel) return;
 
-  const blob = new Blob([WORKER_SRC], {type:'application/javascript'});
-  autoWorker = new Worker(URL.createObjectURL(blob));
-  autoWorker.onmessage = function(e){
-    if(e.data.type !== 'tick') return;
-    // For very fast intervals the worker fires at its own pace;
-    // accumulate elapsed time and award ticks for every full interval elapsed
-    workerAccum += e.data.elapsed;
-    const effectiveInterval = getEffectiveInterval();
-    if(!effectiveInterval) return;
-    const ticks = Math.floor(workerAccum / effectiveInterval);
-    if(ticks > 0){
-      workerAccum -= ticks * effectiveInterval;
-      const gain = ticks * calcAutoClickGain();
-      state.clicks      += gain;
-      state.totalEarned += gain;
-      saveCurrentSlot();
-      updateDisplay();
-    }
-  };
-  autoWorker.postMessage({ type:'start', interval: Math.max(interval, 100) });
+  // Fire first batch immediately, then repeat every second
+  scheduleAutoTicks();
+  autoWorker = setInterval(function(){
+    scheduleAutoTicks();
+    saveCurrentSlot();
+  }, 1000);
 }
 
 // ═══════════════════════════════════════════
@@ -673,10 +801,9 @@ function calcOfflineGains(s){
   const away=Date.now()-s.lastSeen;
   if(away<5000) return 0;
   const cappedAway=Math.min(away, 24*60*60*1000);
-  const base=AUTO_LEVELS[s.autoLevel-1].interval;
-  const interval=Math.max(1,Math.round(base));
-  const ticks=Math.floor(cappedAway/interval);
-  return ticks; // 1 gain per tick
+  const cps=AUTO_LEVELS[s.autoLevel-1].cps;
+  const seconds=Math.floor(cappedAway/1000);
+  return seconds*cps;
 }
 
 // ═══════════════════════════════════════════
@@ -771,6 +898,7 @@ function updateDisplay(){
 // ═══════════════════════════════════════════
 
 function handleClick(e){
+  if(state.inJail){ showToast('🚔 You\'re in Tiki Jail! Wait for the timer.'); return; }
   const frenzyMult = frenzyActive ? 3 : 1;
   const base = getEffectiveMultLevel();
   const gain = Math.max(1, Math.ceil(base * frenzyMult));
@@ -800,10 +928,10 @@ function spawnParticle(e,text){
 //  SHOP TABS
 // ═══════════════════════════════════════════
 
-function switchTab(tab){
+function switchTab(tab){ sfxButton();
   currentTab=tab;
   document.querySelectorAll('.shop-tab').forEach((t,i)=>{
-    t.classList.toggle('active',['auto','mult','extras','rebirth'][i]===tab);
+    t.classList.toggle('active',['auto','mult','extras','rebirth','bank'][i]===tab);
   });
   document.querySelectorAll('.shop-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+tab).classList.add('active');
@@ -815,6 +943,7 @@ function renderShop(){
   if(currentTab==='mult')    renderMultShop();
   if(currentTab==='extras')  renderExtrasShop();
   if(currentTab==='rebirth') renderRebirthShop();
+  if(currentTab==='bank')    renderBankShop();
 }
 
 // ── AUTO ──
@@ -824,20 +953,20 @@ function renderAutoShop(){
   const next=state.autoLevel+1;
   if(state.autoLevel>0){
     const owned=AUTO_LEVELS[state.autoLevel-1];
-    const eff  =Math.max(1,Math.round(owned.interval*getAutoIntervalMult()));
+    const activeCps=calcCPS(state,frenzyActive);
     el.appendChild(item(true,true,'⚙️ Auto Click Lv.'+state.autoLevel,
-      'Ticks every '+fmtInterval(eff)+(frenzyActive?' (frenzy boosted!)':''),
+      formatNum(activeCps)+' clicks/sec'+(frenzyActive?' (frenzy x2!)':''),
       '✅ Owned','','Owned'));
   }
   if(next<=AUTO_LEVELS.length){
     const nx=AUTO_LEVELS[next-1];
     const can=state.clicks>=nx.cost;
     el.appendChild(item(can,false,'⚙️ Auto Click Lv.'+next,
-      'Ticks every '+fmtInterval(nx.interval),
+      formatNum(nx.cps)+' clicks/sec',
       'Cost: 🗿 '+formatNum(nx.cost)+' clicks',
       'buyAuto','Buy'));
   } else {
-    el.appendChild(item(true,true,'⚙️ Auto Click Lv.50','1ms ticks — absolute max speed!','','','MAX'));
+    el.appendChild(item(true,true,'⚙️ Auto Click Lv.30','1,000,000 clicks/sec — absolute max!','','','MAX'));
   }
   const afkLabel=document.createElement('div');
   afkLabel.className='shop-section-label'; afkLabel.textContent='🌙 AFK Auto';
@@ -997,6 +1126,7 @@ function buyAuto(){
   if(next>AUTO_LEVELS.length) return;
   const cost=AUTO_LEVELS[next-1].cost;
   if(state.clicks<cost) return;
+  sfxBuy();
   state.clicks-=cost; state.autoLevel=next;
   saveCurrentSlot(); startAutoClick(); updateDisplay();
   showToast('⚙️ Auto Click Lv.'+next+' unlocked!');
@@ -1004,6 +1134,7 @@ function buyAuto(){
 
 function buyAfkAuto(){
   if(state.afkAutoOwned||state.clicks<2500000) return;
+  sfxBuy();
   state.clicks-=2500000; state.afkAutoOwned=true;
   saveCurrentSlot(); updateDisplay();
   showToast('🌙 AFK Auto unlocked! Earns while you\'re away.');
@@ -1014,6 +1145,7 @@ function buyMult(){
   if(idx>=MULT_LEVELS.length) return;
   const nx=MULT_LEVELS[idx];
   if(state.clicks<nx.cost) return;
+  sfxBuy();
   state.clicks-=nx.cost; state.multLevel=nx.level; state.multPurchased=idx+1;
   saveCurrentSlot(); updateDisplay();
   showToast('✖️ x'+formatNum(nx.level)+' Clicks! (x'+formatNum(getEffectiveMultLevel())+' effective)');
@@ -1021,25 +1153,275 @@ function buyMult(){
 
 function buyFrenzy(){
   if(state.frenzyOwned||state.clicks<50000) return;
+  sfxBuy();
   state.clicks-=50000; state.frenzyOwned=true;
   saveCurrentSlot(); updateDisplay(); startFrenzySystem();
   showToast('🔥 Tiki Frenzy unlocked! 25% chance per minute.');
 }
 
+function triggerRebirthAnimation(rc){
+  sfxRebirth();
+  const ov = document.getElementById('rebirthOverlay');
+  const txt = document.getElementById('rebirthText');
+  txt.textContent = '✨ REBIRTH #'+rc+'! ✨';
+  ov.classList.remove('active');
+  void ov.offsetWidth; // force reflow
+  ov.classList.add('active');
+  // Spawn star particles from center
+  const stars = ['✨','⭐','🌟','💫','🔥'];
+  for(let i=0;i<18;i++){
+    const s=document.createElement('div');
+    s.className='rebirth-star';
+    s.textContent=stars[i%stars.length];
+    const angle=Math.random()*Math.PI*2;
+    const dist=120+Math.random()*200;
+    s.style.setProperty('--tx', Math.cos(angle)*dist+'px');
+    s.style.setProperty('--ty', Math.sin(angle)*dist+'px');
+    s.style.left='50%'; s.style.top='50%';
+    s.style.marginLeft='-0.75em'; s.style.marginTop='-0.75em';
+    s.style.animationDelay=(Math.random()*0.2)+'s';
+    ov.appendChild(s);
+    setTimeout(()=>s.remove(), 1600);
+  }
+  setTimeout(()=>ov.classList.remove('active'), 1900);
+}
+
 function doRebirth(){
   const req=5000000*Math.pow(10,state.rebirthCount||0);
   if((state.clicks||0)<req) return;
-  const rc =(state.rebirthCount||0)+1;
+  const rc  =(state.rebirthCount||0)+1;
   const fo  =state.frenzyOwned;
+  const afk =state.afkAutoOwned;
   state=emptyState();
-  state.rebirthCount=rc;
-  state.frenzyOwned =fo;
-  // clicks were spent — state already reset to 0
+  state.rebirthCount =rc;
+  state.frenzyOwned  =fo;
+  state.afkAutoOwned =afk;
   saveCurrentSlot();
-  if(autoWorker){autoWorker.terminate();autoWorker=null;}
+  clearAutoSubs();if(autoWorker){clearInterval(autoWorker);autoWorker=null;}
   if(fo) startFrenzySystem();
   updateDisplay();
-  showToast('✨ Rebirth #'+rc+'! Rebirth multiplier is now x'+rc+'!');
+  triggerRebirthAnimation(rc);
+  showToast('✨ Rebirth #'+rc+'! Rebirth multiplier is now x'+rc+'! Extras kept!');
+}
+
+
+// ═══════════════════════════════════════════
+//  TIKI BANK
+// ═══════════════════════════════════════════
+
+let bankInterestTimer = null;
+let jailTimer = null;
+let loanSliderValue = null; // persists across re-renders
+
+function bankMaxLoan(){
+  // Can borrow 2x current clicks
+  return Math.floor(Math.max(0, state.clicks) * 2);
+}
+
+function startBankInterest(){
+  if(bankInterestTimer) clearInterval(bankInterestTimer);
+  if(!state.loanOwed) return;
+  bankInterestTimer = setInterval(()=>{
+    if(!state.loanOwed) { clearInterval(bankInterestTimer); bankInterestTimer=null; return; }
+    // 10% per minute — check every second = 10%/60 per second
+    const pct = (state.loanOwed * 0.10) / 60;
+    const maxOwed = state.loanOriginal * 2.5;
+    state.loanOwed = Math.min(state.loanOwed + pct, maxOwed);
+    if(state.loanOwed >= maxOwed && !state.inJail){
+      sendToJail();
+    }
+    if(currentTab==='bank') renderBankShop();
+    saveCurrentSlot();
+  }, 1000);
+}
+
+function sendToJail(){
+  state.inJail = true;
+  // Debt = 300% of what was owed at cap
+  const debt = Math.floor(state.loanOwed * 3);
+  state.clicks = -debt;
+  state.loanOwed = 0;
+  state.loanOriginal = 0;
+  state.jailTimeLeft = 360; // 6 minutes
+  if(bankInterestTimer){ clearInterval(bankInterestTimer); bankInterestTimer=null; }
+  startJailTimer();
+  sfxJail(); document.getElementById('jailModal').classList.add('open');
+  updateDisplay();
+  showToast('🚔 TIKI JAIL! You lost everything and are in debt!');
+}
+
+function startJailTimer(){
+  if(jailTimer) clearInterval(jailTimer);
+  if(!state.inJail || state.jailTimeLeft<=0) return;
+  jailTimer = setInterval(()=>{
+    if(document.hidden) return; // pauses when tab is hidden
+    state.jailTimeLeft = Math.max(0, state.jailTimeLeft - 1);
+    updateJailTimerDisplay();
+    if(currentTab==='bank') renderBankShop();
+    if(state.jailTimeLeft <= 0){
+      clearInterval(jailTimer); jailTimer=null;
+      state.inJail = false;
+      // keep clicks negative (still in debt) but can click again
+      saveCurrentSlot();
+      updateDisplay();
+      showToast('🔓 Released from Tiki Jail! You\'re still in debt though...');
+    }
+    saveCurrentSlot();
+  }, 1000);
+}
+
+function updateJailTimerDisplay(){
+  const el = document.getElementById('jailTimerDisplay');
+  if(!el) return;
+  const m = Math.floor(state.jailTimeLeft/60);
+  const s = state.jailTimeLeft % 60;
+  el.textContent = m+':'+(s<10?'0':'')+s;
+}
+
+function closeJailModal(){
+  document.getElementById('jailModal').classList.remove('open');
+}
+
+function takeLoan(amount){
+  if(state.inJail || state.loanOwed > 0) return;
+  const max = bankMaxLoan();
+  if(max <= 0){ showToast('You need clicks to take a loan!'); return; }
+  const amt = Math.min(Math.max(1, Math.floor(amount||max)), max);
+  state.loanOriginal = amt;
+  state.loanOwed = amt;
+  state.loanTakenAt = Date.now();
+  state.loanLastInterest = Date.now();
+  state.clicks += amt;
+  state.totalEarned += amt;
+  loanSliderValue = null;
+  saveCurrentSlot();
+  startBankInterest();
+  updateDisplay();
+  if(currentTab==='bank') renderBankShop();
+  showToast('🏦 Loan of '+formatNum(amt)+' taken! Repay before interest hits 250%!');
+}
+
+function repayLoan(){
+  if(!state.loanOwed) return;
+  const owed = Math.ceil(state.loanOwed);
+  if(state.clicks < owed){ showToast('Not enough clicks to repay!'); return; }
+  state.clicks -= owed;
+  state.loanOwed = 0;
+  state.loanOriginal = 0;
+  if(bankInterestTimer){ clearInterval(bankInterestTimer); bankInterestTimer=null; }
+  saveCurrentSlot();
+  updateDisplay();
+  if(currentTab==='bank') renderBankShop();
+  showToast('✅ Loan repaid! You\'re debt-free!');
+}
+
+function renderBankShop(){
+  const el = document.getElementById('panel-bank');
+  if(!el) return;
+  el.innerHTML = '';
+
+  const lbl = document.createElement('div');
+  lbl.className='shop-section-label'; lbl.textContent='🏦 Tiki Bank';
+  el.appendChild(lbl);
+
+  // Jail state
+  if(state.inJail){
+    const m=Math.floor(state.jailTimeLeft/60), s=state.jailTimeLeft%60;
+    const pct = state.jailTimeLeft>0 ? (state.jailTimeLeft/360)*100 : 0;
+    const card=document.createElement('div');
+    card.className='bank-card jail';
+    card.innerHTML=`
+      <div class="bank-label red">🚔 In Tiki Jail</div>
+      <div class="bank-value red">${m}:${s<10?'0':''}${s}</div>
+      <div class="bank-sub">You cannot click until the timer runs out. Timer pauses when you leave the page.</div>
+      <div class="bank-sub" style="color:#ff8888;margin-top:6px">Current debt: <strong>${formatNum(Math.abs(state.clicks))}</strong> clicks</div>
+      <div class="jail-bar"><div class="jail-bar-fill" style="width:${pct}%"></div></div>
+    `;
+    el.appendChild(card);
+    return;
+  }
+
+  // Info card
+  const info = document.createElement('div');
+  info.className='bank-card';
+  const maxLoan = bankMaxLoan();
+  info.innerHTML=`
+    <div class="bank-label">Your Balance</div>
+    <div class="bank-value">${formatNum(Math.max(0,state.clicks))} clicks</div>
+    <div class="bank-sub">You can borrow up to <strong style="color:#60e090">${formatNum(maxLoan)} clicks</strong> (2× your balance)</div>
+  `;
+  el.appendChild(info);
+
+  // Active loan
+  if(state.loanOwed > 0){
+    const pct = (state.loanOwed / state.loanOriginal) * 100;
+    const interestPct = Math.round(((state.loanOwed / state.loanOriginal) - 1) * 100);
+    const owed = Math.ceil(state.loanOwed);
+    const canRepay = state.clicks >= owed;
+    const card=document.createElement('div');
+    card.className='bank-card danger';
+    card.innerHTML=`
+      <div class="bank-label red">⚠️ Active Loan</div>
+      <div class="bank-value red">${formatNum(owed)} clicks owed</div>
+      <div class="bank-sub">Original: ${formatNum(state.loanOriginal)} — Interest: <strong style="color:${interestPct>=200?'#ff3333':interestPct>=100?'#ff8844':'#ffcc44'}">${interestPct}% added</strong></div>
+      <div class="bank-sub" style="margin-top:4px">Interest compounds 10%/min. At 250% you go to 🚔 Tiki Jail!</div>
+      <div class="jail-bar" style="background:rgba(255,50,50,0.15)">
+        <div class="jail-bar-fill" style="width:${Math.min(100,(state.loanOwed/state.loanOriginal/2.5)*100)}%;background:linear-gradient(90deg,#ff8800,#ff3300)"></div>
+      </div>
+    `;
+    const btn=document.createElement('button');
+    btn.className='bank-btn repay'; btn.textContent='💸 Repay '+formatNum(owed)+' Clicks';
+    btn.disabled=!canRepay;
+    btn.addEventListener('pointerdown',function(e){e.preventDefault();repayLoan();});
+    card.appendChild(btn);
+    el.appendChild(card);
+  } else {
+    // Take loan card with slider — value persists across re-renders
+    if(loanSliderValue === null || loanSliderValue > maxLoan){
+      loanSliderValue = Math.max(1, Math.floor(maxLoan/2));
+    }
+    const card=document.createElement('div');
+    card.className='bank-card';
+    card.innerHTML=`
+      <div class="bank-label">💰 Take a Loan</div>
+      <div class="bank-value" id="loanDisp">${formatNum(loanSliderValue)} clicks</div>
+      <div class="bank-sub" style="margin:6px 0 4px">Choose how much to borrow (up to 2× balance)</div>
+      <input type="range" id="loanSlider" min="1" max="${maxLoan}" value="${loanSliderValue}"
+        style="width:100%;accent-color:#20b050;cursor:pointer;margin:4px 0 10px">
+      <div class="bank-sub">Interest: 10% per minute, up to 250%. Miss the cap → 🚔 Tiki Jail!</div>
+    `;
+    el.appendChild(card);
+    const slider = card.querySelector('#loanSlider');
+    const disp   = card.querySelector('#loanDisp');
+    slider.addEventListener('input', function(){
+      loanSliderValue = parseInt(this.value);
+      disp.textContent = formatNum(loanSliderValue)+' clicks';
+    });
+    const btn=document.createElement('button');
+    btn.className='bank-btn'; btn.textContent='🏦 Take Loan';
+    btn.disabled = maxLoan<=0;
+    btn.addEventListener('pointerdown',function(e){
+      e.preventDefault();
+      takeLoan(parseInt(slider.value));
+    });
+    card.appendChild(btn);
+    // Reset slider value after loan taken (handled in takeLoan)
+  }
+
+  // How it works
+  const hw=document.createElement('div');
+  hw.className='bank-card'; hw.style.cssText='opacity:0.65;margin-top:4px';
+  hw.innerHTML=`
+    <div class="bank-label">📖 How It Works</div>
+    <div class="bank-sub" style="line-height:1.7">
+      • Borrow up to 2× your current clicks<br>
+      • Interest: +10% per minute<br>
+      • Hits 250%? → 🚔 Tiki Jail<br>
+      • Jail: lose all clicks, owe 300% of owed amount, can't click for 6 minutes<br>
+      • Jail timer pauses when you leave the page
+    </div>
+  `;
+  el.appendChild(hw);
 }
 
 // ═══════════════════════════════════════════
@@ -1047,14 +1429,17 @@ function doRebirth(){
 // ═══════════════════════════════════════════
 
 function openResetModal() { document.getElementById('resetModal').classList.add('open'); }
+document.getElementById('jailModal').addEventListener('click',function(e){if(e.target===this)closeJailModal();});
 function closeResetModal(){ document.getElementById('resetModal').classList.remove('open'); }
 document.getElementById('resetModal').addEventListener('click',function(e){if(e.target===this)closeResetModal();});
 
 function doReset(){
   closeResetModal();
-  if(autoWorker){autoWorker.terminate();autoWorker=null;}
+  clearAutoSubs();if(autoWorker){clearInterval(autoWorker);autoWorker=null;}
   if(frenzyCheckTimer){clearInterval(frenzyCheckTimer);frenzyCheckTimer=null;}
   if(frenzyActive)endFrenzy();
+  if(bankInterestTimer){clearInterval(bankInterestTimer);bankInterestTimer=null;}
+  if(jailTimer){clearInterval(jailTimer);jailTimer=null;}
   // Completely empty — no rebirth retention
   state=emptyState();
   saveCurrentSlot();
@@ -1137,15 +1522,19 @@ function enterSlot(idx){
   saveCurrentSlot();
   startAutoClick();
   if(state.frenzyOwned) startFrenzySystem();
+  if(state.loanOwed > 0) startBankInterest();
+  if(state.inJail && state.jailTimeLeft > 0) startJailTimer();
   updateDisplay();
   if(offlineGained>0) showOfflineModal(offlineGained,awayMs);
 }
 
 function switchSlot(){
   saveCurrentSlot();
-  if(autoWorker){autoWorker.terminate();autoWorker=null;}
+  clearAutoSubs();if(autoWorker){clearInterval(autoWorker);autoWorker=null;}
   if(frenzyCheckTimer){clearInterval(frenzyCheckTimer);frenzyCheckTimer=null;}
   if(frenzyActive) endFrenzy();
+  if(bankInterestTimer){clearInterval(bankInterestTimer);bankInterestTimer=null;}
+  if(jailTimer){clearInterval(jailTimer);jailTimer=null;}
   currentSlot=null;
   document.getElementById('slotScreen').style.display='';
   document.getElementById('app').classList.remove('visible');
