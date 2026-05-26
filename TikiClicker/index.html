@@ -13,6 +13,25 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow-x: hidden; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track {
+      background: #1a0600;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #ff8c00, #ff4500, #cc2200);
+      border-radius: 999px;
+      border: 2px solid #1a0600;
+      box-shadow: 0 0 6px rgba(255,100,0,0.6);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #ffaa00, #ff6600, #ee3300);
+      box-shadow: 0 0 10px rgba(255,130,0,0.9);
+    }
+    * { scrollbar-width: thin; scrollbar-color: #ff6600 #1a0600; }
+
     body {
       font-family: 'Rubik', sans-serif; color: var(--text);
       background:
@@ -23,7 +42,61 @@
       min-height: 100vh;
     }
 
-    /* HOME + FULLSCREEN */
+    /* ── FRENZY STATE ── */
+    body.frenzy-active {
+      animation: frenzyBg 0.8s ease-in-out infinite alternate;
+    }
+    @keyframes frenzyBg {
+      0%   { background-color: #2a0000; }
+      100% { background-color: #500000; }
+    }
+    body.frenzy-active::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,0,0,0.35), transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(180,0,0,0.3), transparent 40%);
+      animation: frenzyPulse 1s ease-in-out infinite alternate;
+    }
+    @keyframes frenzyPulse { 0% { opacity:0.7; } 100% { opacity:1; } }
+
+    /* ── FRENZY BANNER ── */
+    #frenzyBanner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 2000;
+      background: linear-gradient(90deg, #8b0000, #cc0000, #ff2200, #cc0000, #8b0000);
+      background-size: 200% 100%;
+      animation: frenzySlide 1s linear infinite;
+      color: #fff; font-weight: 900; font-size: 1.1em;
+      text-align: center; padding: 8px;
+      display: none;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(255,100,0,0.9);
+      box-shadow: 0 4px 20px rgba(255,0,0,0.5);
+    }
+    body.frenzy-active #frenzyBanner { display: block; }
+    @keyframes frenzySlide { 0% { background-position:0% 0%; } 100% { background-position:200% 0%; } }
+    #frenzyTimer { font-size: 0.85em; opacity: 0.85; margin-left: 10px; }
+
+    /* ── RAINING TIKIS ── */
+    #rainContainer {
+      position: fixed; inset: 0; pointer-events: none;
+      z-index: 1; overflow: hidden; display: none;
+    }
+    body.frenzy-active #rainContainer { display: block; }
+    .rain-tiki {
+      position: absolute; top: -80px;
+      border-radius: 50%; object-fit: cover;
+      animation: tikiFall linear forwards;
+      opacity: 0.82;
+      box-shadow: 0 0 12px rgba(255,0,0,0.5);
+    }
+    @keyframes tikiFall {
+      0%   { transform: translateY(0) rotate(0deg); opacity:0.82; }
+      90%  { opacity: 0.82; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity:0; }
+    }
+
+    /* ── HOME + FULLSCREEN ── */
     #homeText {
       position: fixed; top: 12px; left: 14px;
       font-family: 'Rubik', sans-serif; font-size: 1.6em; font-weight: 900;
@@ -42,7 +115,7 @@
     }
     #fullscreenBtn:hover { background: rgba(255,100,0,0.28); transform: scale(1.08); }
 
-    /* SLOT SCREEN */
+    /* ── SLOT SCREEN ── */
     #slotScreen {
       position: fixed; inset: 0; z-index: 800;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -63,25 +136,30 @@
     .slot-card {
       background: rgba(255,100,0,0.08); border: 2px solid rgba(255,100,0,0.22);
       border-radius: 20px; padding: 22px 20px; width: 220px; cursor: pointer;
-      transition: background 0.18s, border-color 0.18s, transform 0.15s; text-align: center; position: relative;
+      transition: background 0.18s, border-color 0.18s, transform 0.15s;
+      text-align: center; position: relative;
     }
     .slot-card:hover { background: rgba(255,100,0,0.18); border-color: rgba(255,100,0,0.5); transform: translateY(-4px); }
-    .slot-card .slot-num { font-size: 2.2em; font-weight: 900; color: var(--gold); filter: drop-shadow(0 0 8px rgba(255,179,71,0.5)); }
+    .slot-card .slot-num  { font-size: 2.4em; }
     .slot-card .slot-name { font-size: 0.82em; color: var(--muted); margin: 4px 0 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-    .slot-card .slot-info { font-size: 0.88em; color: var(--text); margin-bottom: 4px; font-weight: 700; }
-    .slot-card .slot-detail { font-size: 0.76em; color: var(--muted); line-height: 1.5; }
+    .slot-card .slot-clicks { font-size: 1.3em; font-weight: 900; color: var(--gold); }
+    .slot-card .slot-sub-info { font-size: 0.76em; color: var(--muted); margin-top: 4px; }
     .slot-card.empty-slot { border-style: dashed; opacity: 0.75; }
     .slot-card.empty-slot:hover { opacity: 1; }
     .slot-delete-btn {
-      display: inline-block; margin-top: 12px; background: rgba(255,50,50,0.12);
-      border: 1px solid rgba(255,50,50,0.28); color: rgba(255,180,180,0.75);
-      font-family: 'Rubik', sans-serif; font-size: 0.74em; padding: 5px 14px;
-      border-radius: 999px; cursor: pointer; transition: background 0.15s;
+      display: inline-block; margin-top: 14px;
+      background: rgba(255,50,50,0.12); border: 1px solid rgba(255,50,50,0.28);
+      color: rgba(255,180,180,0.75); font-family: 'Rubik', sans-serif;
+      font-size: 0.74em; padding: 5px 14px; border-radius: 999px;
+      cursor: pointer; transition: background 0.15s;
     }
     .slot-delete-btn:hover { background: rgba(255,50,50,0.25); color: #ffb0b0; }
 
-    /* GAME SCREEN */
-    #app { display: none; flex-direction: column; align-items: center; padding: 70px 16px 40px; min-height: 100vh; }
+    /* ── GAME SCREEN ── */
+    #app {
+      display: none; flex-direction: column; align-items: center;
+      padding: 76px 16px 40px; min-height: 100vh; position: relative; z-index: 2;
+    }
     #app.visible { display: flex; }
     h1 {
       font-size: clamp(2em, 7vw, 4em); font-weight: 900;
@@ -89,28 +167,26 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       margin-bottom: 2px; filter: drop-shadow(0 0 18px rgba(255,100,0,0.45));
     }
-    #slotLabel { font-size: 0.85em; color: rgba(255,179,71,0.65); margin-bottom: 10px; font-weight: 700; letter-spacing: 1px; }
-
-    /* STATS BAR */
-    #statsBar {
-      display: flex; gap: 18px; margin-bottom: 14px; flex-wrap: wrap; justify-content: center;
+    #slotLabel { font-size: 0.85em; color: rgba(255,179,71,0.65); margin-bottom: 8px; font-weight: 700; letter-spacing: 1px; }
+    #clickCount {
+      font-size: clamp(2.4em, 6vw, 4em); font-weight: 900; color: var(--gold);
+      display: block; filter: drop-shadow(0 0 12px rgba(255,179,71,0.5)); text-align: center;
     }
+    body.frenzy-active #clickCount { color: #ff4444; filter: drop-shadow(0 0 16px rgba(255,0,0,0.8)); }
+    #cpsDisplay { font-size: 0.95em; color: var(--muted); margin: 2px 0 10px; text-align: center; }
+
+    /* ── STATS ── */
+    #statsBar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; justify-content: center; }
     .stat-pill {
       background: rgba(255,100,0,0.10); border: 1px solid rgba(255,100,0,0.18);
-      border-radius: 999px; padding: 5px 16px; font-size: 0.82em; color: var(--muted);
+      border-radius: 999px; padding: 5px 14px; font-size: 0.80em; color: var(--muted);
     }
     .stat-pill span { color: var(--gold); font-weight: 700; }
 
-    #clickCount {
-      font-size: clamp(2.2em, 6vw, 3.8em); font-weight: 900; color: var(--gold);
-      display: block; filter: drop-shadow(0 0 12px rgba(255,179,71,0.5)); text-align: center;
-    }
-    #cpsDisplay { font-size: 0.95em; color: var(--muted); margin: 2px 0 14px; text-align: center; }
+    /* ── MAIN AREA ── */
+    #mainArea { display: flex; gap: 28px; align-items: flex-start; justify-content: center; width: 100%; max-width: 1140px; }
 
-    /* MAIN AREA */
-    #mainArea { display: flex; gap: 28px; align-items: flex-start; justify-content: center; width: 100%; max-width: 1100px; }
-
-    /* TIKI */
+    /* ── TIKI ── */
     #tikiWrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
     #tikiCircle {
       width: min(260px, 44vw); height: min(260px, 44vw); border-radius: 50%; overflow: hidden;
@@ -119,172 +195,179 @@
       animation: tikiBob 2.4s ease-in-out infinite; user-select: none; -webkit-user-select: none;
     }
     #tikiCircle:active { transform: scale(0.93) !important; animation: none !important; }
+    body.frenzy-active #tikiCircle {
+      box-shadow: 0 0 0 5px rgba(255,0,0,0.7), 0 0 60px rgba(255,0,0,0.6), 0 12px 40px rgba(0,0,0,0.5) !important;
+      animation: tikiBob 1.2s ease-in-out infinite !important;
+    }
     @keyframes tikiBob {
-      0%   { transform: translateY(0px) rotate(-0.5deg); }
-      25%  { transform: translateY(-6px) rotate(0.5deg); }
+      0%   { transform: translateY(0px)   rotate(-0.5deg); }
+      25%  { transform: translateY(-6px)  rotate(0.5deg);  }
       50%  { transform: translateY(-10px) rotate(-0.5deg); }
-      75%  { transform: translateY(-6px) rotate(0.5deg); }
-      100% { transform: translateY(0px) rotate(-0.5deg); }
+      75%  { transform: translateY(-6px)  rotate(0.5deg);  }
+      100% { transform: translateY(0px)   rotate(-0.5deg); }
     }
-    /* Rainbow glow upgrade */
-    #tikiCircle.rainbow-glow { animation: tikiBob 2.4s ease-in-out infinite, rainbowRing 3s linear infinite; }
-    @keyframes rainbowRing {
-      0%   { box-shadow: 0 0 0 5px rgba(255,0,0,0.6),   0 0 50px rgba(255,0,0,0.3),   0 12px 40px rgba(0,0,0,0.5); }
-      16%  { box-shadow: 0 0 0 5px rgba(255,165,0,0.6), 0 0 50px rgba(255,165,0,0.3), 0 12px 40px rgba(0,0,0,0.5); }
-      33%  { box-shadow: 0 0 0 5px rgba(255,255,0,0.6), 0 0 50px rgba(255,255,0,0.3), 0 12px 40px rgba(0,0,0,0.5); }
-      50%  { box-shadow: 0 0 0 5px rgba(0,255,100,0.6), 0 0 50px rgba(0,255,100,0.3), 0 12px 40px rgba(0,0,0,0.5); }
-      66%  { box-shadow: 0 0 0 5px rgba(0,100,255,0.6), 0 0 50px rgba(0,100,255,0.3), 0 12px 40px rgba(0,0,0,0.5); }
-      83%  { box-shadow: 0 0 0 5px rgba(180,0,255,0.6), 0 0 50px rgba(180,0,255,0.3), 0 12px 40px rgba(0,0,0,0.5); }
-      100% { box-shadow: 0 0 0 5px rgba(255,0,0,0.6),   0 0 50px rgba(255,0,0,0.3),   0 12px 40px rgba(0,0,0,0.5); }
-    }
-    /* Golden glow upgrade */
-    #tikiCircle.golden-glow { box-shadow: 0 0 0 5px rgba(255,200,50,0.7), 0 0 60px rgba(255,180,0,0.5), 0 12px 40px rgba(0,0,0,0.5); }
-    #tikiImg { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    #tikiImg { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
     #tikiImgFallback {
-      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-      font-size: 5em; background: radial-gradient(circle, #3a1200, #1a0500);
+      width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+      font-size:5em; background:radial-gradient(circle,#3a1200,#1a0500);
     }
-    #clickHint { margin-top: 14px; font-size: 0.9em; color: var(--muted); text-align: center; }
+    #clickHint { margin-top:10px; font-size:0.9em; color:var(--muted); text-align:center; }
+    #comboText  { height:24px; font-size:0.95em; font-weight:900; color:#ff6a00; text-align:center; margin-top:4px; }
 
-    /* CRITICAL CLICK COUNTER (big combo text) */
-    #comboText {
-      height: 28px; font-size: 1em; font-weight: 900; color: #ff6a00;
-      text-align: center; margin-top: 6px;
-      filter: drop-shadow(0 0 6px rgba(255,100,0,0.6));
-      transition: opacity 0.3s;
-    }
-
-    /* CLICK PARTICLES */
+    /* ── PARTICLES ── */
     .click-particle {
-      position: fixed; font-size: 1.1em; font-weight: 900; color: var(--gold);
-      pointer-events: none; z-index: 9999; animation: floatUp 0.85s ease-out forwards;
-      text-shadow: 0 0 8px rgba(255,179,71,0.8);
+      position:fixed; font-size:1.1em; font-weight:900; color:var(--gold);
+      pointer-events:none; z-index:9999; animation:floatUp 0.85s ease-out forwards;
+      text-shadow:0 0 8px rgba(255,179,71,0.8);
     }
+    body.frenzy-active .click-particle { color:#ff4444; text-shadow:0 0 10px rgba(255,0,0,0.9); }
     @keyframes floatUp {
-      0%   { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-60px) scale(0.7); }
+      0%   { opacity:1; transform:translateY(0) scale(1); }
+      100% { opacity:0; transform:translateY(-60px) scale(0.7); }
     }
 
-    /* SHOP */
-    #shop { flex: 1; min-width: 0; max-width: 480px; }
-    .shop-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+    /* ── SHOP ── */
+    #shop { flex:1; min-width:0; max-width:500px; }
+    .shop-tabs { display:flex; gap:5px; margin-bottom:14px; flex-wrap:wrap; }
     .shop-tab {
-      flex: 1; padding: 8px 6px; border-radius: 10px; font-family: 'Rubik', sans-serif;
-      font-weight: 700; font-size: 0.82em; cursor: pointer; border: 1px solid rgba(255,100,0,0.22);
-      background: rgba(255,100,0,0.08); color: var(--muted); transition: background 0.15s, color 0.15s;
-      text-align: center;
+      flex:1; min-width:80px; padding:10px 6px; border-radius:12px;
+      font-family:'Rubik',sans-serif; font-weight:700; font-size:0.80em;
+      cursor:pointer; border:1px solid rgba(255,100,0,0.22);
+      background:rgba(255,100,0,0.08); color:var(--muted);
+      transition:background 0.15s, color 0.15s; text-align:center;
     }
-    .shop-tab.active { background: rgba(255,100,0,0.22); color: var(--gold); border-color: rgba(255,100,0,0.45); }
-    .shop-tab:hover:not(.active) { background: rgba(255,100,0,0.14); }
-    .shop-panel { display: none; }
-    .shop-panel.active { display: block; }
+    .shop-tab.active { background:rgba(255,100,0,0.24); color:var(--gold); border-color:rgba(255,100,0,0.5); }
+    .shop-tab:hover:not(.active) { background:rgba(255,100,0,0.16); color:var(--text); }
+    .shop-panel { display:none; }
+    .shop-panel.active { display:block; }
     .shop-section-label {
-      font-size: 0.78em; font-weight: 700; color: rgba(255,179,71,0.6);
-      letter-spacing: 2px; text-transform: uppercase; margin: 12px 0 6px; padding-left: 4px;
+      font-size:0.78em; font-weight:700; color:rgba(255,179,71,0.6);
+      letter-spacing:2px; text-transform:uppercase; margin:12px 0 6px; padding-left:4px;
     }
+
+    /* ── SHOP ITEMS ── */
     .shop-item {
-      background: var(--card); border: 1px solid rgba(255,100,0,0.18);
-      border-radius: 14px; padding: 12px 16px; margin-bottom: 8px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 10px; transition: background 0.18s, border-color 0.18s;
+      background:var(--card); border:1px solid rgba(255,100,0,0.18);
+      border-radius:14px; padding:14px 16px; margin-bottom:8px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:14px; transition:background 0.18s, border-color 0.18s;
     }
-    .shop-item.affordable { border-color: rgba(255,100,0,0.42); }
-    .shop-item.affordable:hover { background: var(--card-hover); }
-    .shop-item.maxed { border-color: rgba(255,179,71,0.35); background: rgba(255,179,71,0.06); }
-    .item-info { flex: 1; min-width: 0; }
-    .item-name { font-weight: 700; font-size: 0.95em; color: var(--text); }
-    .item-desc { font-size: 0.78em; color: var(--muted); margin-top: 2px; }
-    .item-owned { font-size: 0.74em; color: var(--gold); margin-top: 2px; }
+    .shop-item.affordable { border-color:rgba(255,100,0,0.42); }
+    .shop-item.affordable:hover { background:var(--card-hover); }
+    .shop-item.owned-item { border-color:rgba(255,179,71,0.35); background:rgba(255,179,71,0.06); }
+    .item-info { flex:1; min-width:0; }
+    .item-name { font-weight:700; font-size:0.95em; color:var(--text); }
+    .item-desc { font-size:0.78em; color:var(--muted); margin-top:3px; }
+    .item-owned-label { font-size:0.74em; color:var(--gold); margin-top:3px; }
+
+    /* ── BUY BUTTON — bigger, easier to tap ── */
     .buy-btn {
-      background: linear-gradient(145deg, #ff6a00, #cc3000); color: #fff5ee;
-      border: none; border-radius: 10px; padding: 8px 14px;
-      font-family: 'Rubik', sans-serif; font-weight: 700; font-size: 0.82em;
-      cursor: pointer; white-space: nowrap; flex-shrink: 0;
-      transition: filter 0.15s, transform 0.12s; box-shadow: 0 4px 14px rgba(255,80,0,0.3);
+      background:linear-gradient(145deg,#ff6a00,#cc3000); color:#fff5ee;
+      border:none; border-radius:12px; padding:11px 20px;
+      font-family:'Rubik',sans-serif; font-weight:700; font-size:0.88em;
+      cursor:pointer; white-space:nowrap; flex-shrink:0; min-width:70px;
+      transition:filter 0.15s, transform 0.12s; box-shadow:0 4px 14px rgba(255,80,0,0.3);
     }
-    .buy-btn:hover:not(:disabled) { filter: brightness(1.14); transform: scale(1.04); }
-    .buy-btn:active:not(:disabled) { transform: scale(0.96); }
-    .buy-btn:disabled { background: rgba(100,50,20,0.35); color: rgba(255,245,238,0.32); cursor: not-allowed; box-shadow: none; }
-    .buy-btn.maxed-btn { background: linear-gradient(145deg, #ffd060, #e09000); color: #1a0800; cursor: default; }
+    .buy-btn:hover:not(:disabled) { filter:brightness(1.16); transform:scale(1.06); }
+    .buy-btn:active:not(:disabled) { transform:scale(0.95); }
+    .buy-btn:disabled { background:rgba(100,50,20,0.35); color:rgba(255,245,238,0.32); cursor:not-allowed; box-shadow:none; }
+    .buy-btn.owned-btn { background:linear-gradient(145deg,#ffd060,#e09000); color:#1a0800; cursor:default; }
 
-    /* BOTTOM BUTTONS */
-    .bottom-btns { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; justify-content: center; }
+    /* ── BOTTOM BUTTONS ── */
+    .bottom-btns { display:flex; gap:12px; margin-top:28px; flex-wrap:wrap; justify-content:center; }
     .bottom-btn {
-      background: rgba(255,100,0,0.10); border: 1px solid rgba(255,100,0,0.22);
-      color: rgba(255,245,238,0.7); font-family: 'Rubik', sans-serif;
-      font-size: 0.82em; padding: 8px 20px; border-radius: 999px;
-      cursor: pointer; transition: background 0.18s, color 0.18s;
+      background:rgba(255,100,0,0.10); border:1px solid rgba(255,100,0,0.22);
+      color:rgba(255,245,238,0.7); font-family:'Rubik',sans-serif;
+      font-size:0.85em; padding:10px 22px; border-radius:999px;
+      cursor:pointer; transition:background 0.18s, color 0.18s;
     }
-    .bottom-btn:hover { background: rgba(255,100,0,0.22); color: var(--text); }
-    .bottom-btn.danger { background: rgba(255,40,40,0.10); border-color: rgba(255,40,40,0.22); color: rgba(255,180,180,0.7); }
-    .bottom-btn.danger:hover { background: rgba(255,40,40,0.22); color: #ffb0b0; }
+    .bottom-btn:hover { background:rgba(255,100,0,0.22); color:var(--text); }
+    .bottom-btn.danger { background:rgba(255,40,40,0.10); border-color:rgba(255,40,40,0.22); color:rgba(255,180,180,0.7); }
+    .bottom-btn.danger:hover { background:rgba(255,40,40,0.22); color:#ffb0b0; }
 
-    /* MODAL */
+    /* ── MODALS ── */
     .modal-overlay {
-      position: fixed; inset: 0; z-index: 900; background: rgba(0,0,0,0.72);
-      display: flex; align-items: center; justify-content: center; padding: 20px;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+      position:fixed; inset:0; z-index:3000; background:rgba(0,0,0,0.78);
+      display:flex; align-items:center; justify-content:center; padding:20px;
+      opacity:0; pointer-events:none; transition:opacity 0.2s;
     }
-    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal-overlay.open { opacity:1; pointer-events:auto; }
     .modal-box {
-      background: linear-gradient(180deg, #2a0e00 0%, #160700 100%);
-      border: 1px solid rgba(255,100,0,0.35); border-radius: 20px; padding: 30px 28px;
-      max-width: 380px; width: 100%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(255,80,0,0.1);
-      text-align: center;
+      background:linear-gradient(180deg,#2a0e00 0%,#160700 100%);
+      border:1px solid rgba(255,100,0,0.35); border-radius:20px; padding:28px;
+      max-width:400px; width:100%;
+      box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 40px rgba(255,80,0,0.1);
+      text-align:center;
     }
-    .modal-box h3 { font-size: 1.4em; font-weight: 900; color: var(--gold); margin-bottom: 10px; }
-    .modal-box p { font-size: 0.9em; color: var(--muted); line-height: 1.5; margin-bottom: 22px; }
-    .modal-actions { display: flex; gap: 12px; justify-content: center; }
+    .modal-box h3 { font-size:1.4em; font-weight:900; color:var(--gold); margin-bottom:10px; }
+    .modal-box p  { font-size:0.9em; color:var(--muted); line-height:1.6; margin-bottom:22px; }
+    .modal-box .modal-highlight { color:var(--gold); font-weight:900; font-size:1.4em; display:block; margin:8px 0 14px; }
+    .modal-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
     .modal-btn {
-      font-family: 'Rubik', sans-serif; font-weight: 700; font-size: 0.9em;
-      padding: 10px 24px; border-radius: 12px; cursor: pointer; border: none;
-      transition: filter 0.15s, transform 0.12s;
+      font-family:'Rubik',sans-serif; font-weight:700; font-size:0.9em;
+      padding:11px 26px; border-radius:12px; cursor:pointer; border:none;
+      transition:filter 0.15s, transform 0.12s;
     }
-    .modal-btn:hover { filter: brightness(1.12); transform: scale(1.04); }
-    .modal-btn.confirm { background: linear-gradient(145deg, #ff4040, #aa1010); color: #fff; }
-    .modal-btn.cancel { background: rgba(255,100,0,0.15); border: 1px solid rgba(255,100,0,0.3); color: var(--text); }
+    .modal-btn:hover { filter:brightness(1.12); transform:scale(1.04); }
+    .modal-btn.confirm { background:linear-gradient(145deg,#ff4040,#aa1010); color:#fff; }
+    .modal-btn.cancel  { background:rgba(255,100,0,0.15); border:1px solid rgba(255,100,0,0.3); color:var(--text); }
+    .modal-btn.ok      { background:linear-gradient(145deg,#ff6a00,#cc3000); color:#fff; }
 
-    /* PREVIEW OVERLAY */
+    /* ── PREVIEW ── */
     #previewOverlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.92);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 5000;
+      position:fixed; inset:0; background:rgba(0,0,0,0.92);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none; transition:opacity 0.2s; z-index:5000;
     }
-    #previewOverlay.show { opacity: 1; pointer-events: auto; }
-    #previewImage { max-width: 96vw; max-height: 96vh; object-fit: contain; border-radius: 50%; box-shadow: 0 18px 60px rgba(0,0,0,0.6); }
+    #previewOverlay.show { opacity:1; pointer-events:auto; }
+    #previewImage { max-width:92vw; max-height:92vh; object-fit:contain; border-radius:50%; box-shadow:0 18px 60px rgba(0,0,0,0.6); }
 
-    /* TOAST */
+    /* ── TOAST ── */
     #toast {
-      position: fixed; bottom: 28px; left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: rgba(30,10,0,0.95); border: 1px solid rgba(255,100,0,0.35);
-      color: var(--gold); font-weight: 700; padding: 10px 22px;
-      border-radius: 999px; font-size: 0.92em;
-      opacity: 0; transition: opacity 0.25s, transform 0.25s;
-      z-index: 9000; pointer-events: none; backdrop-filter: blur(8px);
+      position:fixed; bottom:28px; left:50%;
+      transform:translateX(-50%) translateY(20px);
+      background:rgba(30,10,0,0.95); border:1px solid rgba(255,100,0,0.35);
+      color:var(--gold); font-weight:700; padding:10px 22px;
+      border-radius:999px; font-size:0.92em;
+      opacity:0; transition:opacity 0.25s, transform 0.25s;
+      z-index:9000; pointer-events:none; backdrop-filter:blur(8px);
     }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-    /* RESPONSIVE */
-    @media (max-width: 700px) {
-      #mainArea { flex-direction: column; align-items: center; }
-      #shop { max-width: 100%; width: 100%; }
-      #tikiCircle { width: min(220px, 72vw); height: min(220px, 72vw); }
-      .slot-card { width: 100%; max-width: 320px; }
+    /* ── RESPONSIVE ── */
+    @media (max-width:700px) {
+      #mainArea { flex-direction:column; align-items:center; }
+      #shop { max-width:100%; width:100%; }
+      #tikiCircle { width:min(220px,72vw); height:min(220px,72vw); }
+      .slot-card { width:100%; max-width:320px; }
     }
   </style>
 </head>
 <body>
 
+<div id="rainContainer"></div>
+<div id="frenzyBanner">🔥 TIKI FRENZY! x3 CLICKS + x2 AUTO SPEED! <span id="frenzyTimer"></span></div>
+
 <div id="homeText" onclick="goHome()">Wren.fun</div>
-<button id="fullscreenBtn" title="Toggle Fullscreen">⛶</button>
+<button id="fullscreenBtn" title="Fullscreen">⛶</button>
 
 <!-- SLOT SCREEN -->
 <div id="slotScreen">
   <h2>🗿 Tiki Clicker</h2>
-  <div class="slot-sub">Choose a save slot to play in</div>
+  <div class="slot-sub">Pick a save slot</div>
   <div class="slot-cards" id="slotCards"></div>
+</div>
+
+<!-- OFFLINE MODAL -->
+<div class="modal-overlay" id="offlineModal">
+  <div class="modal-box">
+    <h3>😴 Welcome Back!</h3>
+    <p id="offlineMsg"></p>
+    <span class="modal-highlight" id="offlineGain"></span>
+    <div class="modal-actions">
+      <button class="modal-btn ok" onclick="closeOfflineModal()">Collect!</button>
+    </div>
+  </div>
 </div>
 
 <!-- GAME SCREEN -->
@@ -295,13 +378,13 @@
   <div id="cpsDisplay">No auto-clicks yet</div>
 
   <div id="statsBar">
-    <div class="stat-pill">Total Earned: <span id="statTotal">0</span></div>
-    <div class="stat-pill">All-Time Clicks: <span id="statHandClicks">0</span></div>
-    <div class="stat-pill">Prestige: <span id="statPrestige">0</span>x</div>
+    <div class="stat-pill">Total: <span id="statTotal">0</span></div>
+    <div class="stat-pill">Manual: <span id="statHandClicks">0</span></div>
+    <div class="stat-pill">Rebirths: <span id="statRebirth">0</span>x</div>
+    <div class="stat-pill">Rebirth Pts: <span id="statRP">0</span></div>
   </div>
 
   <div id="mainArea">
-    <!-- TIKI -->
     <div id="tikiWrap">
       <div id="tikiCircle" onclick="handleClick(event)">
         <img id="tikiImg" src="TikiTheG.jpg" alt="Tiki the Cat"
@@ -312,18 +395,17 @@
       <div id="clickHint">Click Tiki the Cat!</div>
     </div>
 
-    <!-- SHOP -->
     <div id="shop">
       <div class="shop-tabs">
         <div class="shop-tab active" onclick="switchTab('auto')">⚙️ Auto</div>
-        <div class="shop-tab" onclick="switchTab('mult')">✖️ Multiply</div>
-        <div class="shop-tab" onclick="switchTab('upgrades')">⬆️ Upgrades</div>
-        <div class="shop-tab" onclick="switchTab('prestige')">✨ Prestige</div>
+        <div class="shop-tab"       onclick="switchTab('mult')">✖️ Multiply</div>
+        <div class="shop-tab"       onclick="switchTab('extras')">🌟 Extras</div>
+        <div class="shop-tab"       onclick="switchTab('rebirth')">✨ Rebirth</div>
       </div>
-      <div id="panel-auto"     class="shop-panel active"></div>
-      <div id="panel-mult"     class="shop-panel"></div>
-      <div id="panel-upgrades" class="shop-panel"></div>
-      <div id="panel-prestige" class="shop-panel"></div>
+      <div id="panel-auto"    class="shop-panel active"></div>
+      <div id="panel-mult"    class="shop-panel"></div>
+      <div id="panel-extras"  class="shop-panel"></div>
+      <div id="panel-rebirth" class="shop-panel"></div>
     </div>
   </div>
 
@@ -336,11 +418,11 @@
 <!-- Reset Modal -->
 <div class="modal-overlay" id="resetModal">
   <div class="modal-box">
-    <h3>⚠️ Reset Progress?</h3>
-    <p>This will wipe ALL your Tiki Clicks, upgrades, and auto-clickers for this slot. This <strong>cannot be undone!</strong></p>
+    <h3>⚠️ Full Reset?</h3>
+    <p>This wipes <strong>everything</strong> — clicks, auto-clickers, multiplier, frenzy, rebirths, and all rebirth points. Your slot will be completely empty. <strong>This cannot be undone!</strong></p>
     <div class="modal-actions">
       <button class="modal-btn cancel" onclick="closeResetModal()">Cancel</button>
-      <button class="modal-btn confirm" onclick="doReset()">Yes, Reset!</button>
+      <button class="modal-btn confirm" onclick="doReset()">Wipe Everything</button>
     </div>
   </div>
 </div>
@@ -349,732 +431,682 @@
 <div id="previewOverlay" onclick="closePreview()">
   <img id="previewImage" alt="Tiki the Cat">
 </div>
-
 <div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════
-//  DATA DEFINITIONS
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════
 
-// Auto-click: intervals halved from v1
 const AUTO_LEVELS = [
-  { level:1, label:'Auto Click Lv.1', interval:2000,  cost:100   },
-  { level:2, label:'Auto Click Lv.2', interval:1500,  cost:200   },
-  { level:3, label:'Auto Click Lv.3', interval:1000,  cost:300   },
-  { level:4, label:'Auto Click Lv.4', interval:500,   cost:500   },
-  { level:5, label:'Auto Click Lv.5', interval:250,   cost:750   },
-  { level:6, label:'Auto Click Lv.6', interval:125,   cost:2000  },
-  { level:7, label:'Auto Click Lv.7', interval:50,    cost:4000  },
-  { level:8, label:'Auto Click Lv.8', interval:25,    cost:10000 },
+  { level:1,  interval:2000,  cost:100        },
+  { level:2,  interval:1500,  cost:200        },
+  { level:3,  interval:1000,  cost:300        },
+  { level:4,  interval:500,   cost:500        },
+  { level:5,  interval:250,   cost:750        },
+  { level:6,  interval:125,   cost:2000       },
+  { level:7,  interval:50,    cost:4000       },
+  { level:8,  interval:25,    cost:10000      },
+  { level:9,  interval:10,    cost:50000      },
+  { level:10, interval:5,     cost:200000     },
+  { level:11, interval:2,     cost:1000000    },
+  { level:12, interval:1,     cost:5000000    },
 ];
 
-// Multiplier: prices doubled from v1
+// Manual-click multipliers only — does NOT affect auto
 const MULT_LEVELS = [
-  { level:2,  label:'x2 Clicks',  cost:1000   },
-  { level:3,  label:'x3 Clicks',  cost:2400   },
-  { level:4,  label:'x4 Clicks',  cost:5000   },
-  { level:5,  label:'x5 Clicks',  cost:10000  },
-  { level:10, label:'x10 Clicks', cost:24000  },
-  { level:20, label:'x20 Clicks', cost:60000  },
-  { level:50, label:'x50 Clicks', cost:200000 },
+  { level:2,     cost:1000       },
+  { level:3,     cost:2400       },
+  { level:4,     cost:5000       },
+  { level:5,     cost:10000      },
+  { level:10,    cost:24000      },
+  { level:20,    cost:60000      },
+  { level:50,    cost:200000     },
+  { level:100,   cost:600000     },
+  { level:500,   cost:3000000    },
+  { level:1000,  cost:10000000   },
+  { level:5000,  cost:50000000   },
+  { level:10000, cost:200000000  },
+  { level:50000, cost:1000000000 },
 ];
 
-// One-time upgrades (key = unique ID, bought stored as array)
-const UPGRADES = [
-  // Visual / cosmetic
-  { id:'golden_glow',    tab:'cosmetic', name:'✨ Golden Glow',      desc:'Tiki gets a glowing golden halo.', cost:3000,   effect:'Purely cosmetic — Tiki radiates power.' },
-  { id:'rainbow_ring',   tab:'cosmetic', name:'🌈 Rainbow Ring',     desc:'Tiki cycles through rainbow colours.', cost:8000, effect:'Purely cosmetic — maximum Tiki drip.' },
-  { id:'bigger_tiki',    tab:'cosmetic', name:'🗿 Bigger Tiki',      desc:'Tiki grows 30% larger.', cost:5000,             effect:'More Tiki to click!' },
-  { id:'fast_bob',       tab:'cosmetic', name:'💨 Fast Bob',         desc:'Tiki bobs twice as fast.', cost:2000,           effect:'Energetic kitty.' },
-  // Click-power upgrades
-  { id:'sharp_claws',    tab:'power',    name:'🐾 Sharp Claws',      desc:'+5 bonus clicks per manual click.', cost:1500,  effect:'+5 clicks/click' },
-  { id:'tiki_fury',      tab:'power',    name:'🔥 Tiki Fury',        desc:'+20 bonus clicks per manual click.', cost:12000, effect:'+20 clicks/click' },
-  { id:'mega_paw',       tab:'power',    name:'🦶 Mega Paw',         desc:'+100 bonus clicks per manual click.', cost:50000, effect:'+100 clicks/click' },
-  // Auto-click bonuses
-  { id:'turbo_timer',    tab:'power',    name:'⚡ Turbo Timer',       desc:'All auto-click intervals reduced by 20%.', cost:4000, effect:'-20% auto interval' },
-  { id:'hyper_timer',    tab:'power',    name:'⚡⚡ Hyper Timer',    desc:'All auto-click intervals reduced by a further 20%.', cost:15000, effect:'-20% auto interval (stacks)' },
-  { id:'ultra_timer',    tab:'power',    name:'⚡⚡⚡ Ultra Timer', desc:'All auto-click intervals reduced by a further 20%.', cost:60000, effect:'-20% auto interval (stacks)' },
-  // Combo
-  { id:'combo_starter',  tab:'power',    name:'💥 Combo Starter',    desc:'Clicking rapidly builds a combo that boosts clicks.', cost:2500, effect:'Combo multiplier unlocked' },
-  // Economy
-  { id:'lucky_tiki',     tab:'economy',  name:'🍀 Lucky Tiki',       desc:'Every 50th click gives 10x the clicks.', cost:3500, effect:'Lucky clicks every 50 clicks' },
-  { id:'tiki_tax',       tab:'economy',  name:'💰 Tiki Treasury',    desc:'Auto-clicks give 50% more clicks.', cost:8000,    effect:'Auto-click yield x1.5' },
-  { id:'tiki_bank',      tab:'economy',  name:'🏦 Tiki Bank',        desc:'Auto-clicks give 100% more clicks (stacks with Treasury).', cost:30000, effect:'Auto-click yield x2' },
-  { id:'cat_nap',        tab:'economy',  name:'😴 Cat Nap Bonus',    desc:'Earn 10% of CPS for every 10 seconds you don\'t click.', cost:6000, effect:'Idle bonus unlocked' },
-];
+// ═══════════════════════════════════════════
+//  SAVE / LOAD
+// ═══════════════════════════════════════════
 
-// Prestige shop (costs in prestige points, not clicks)
-const PRESTIGE_UPGRADES = [
-  { id:'p_double_start',  name:'💎 Head Start',     desc:'Start each run with 500 clicks.',          ppCost:1 },
-  { id:'p_auto_boost',    name:'🚀 Auto Boost',      desc:'All auto-clickers are 25% faster permanently.', ppCost:2 },
-  { id:'p_click_bonus',   name:'👆 Click Legend',   desc:'+500 bonus clicks per manual click permanently.', ppCost:3 },
-  { id:'p_gold_start',    name:'🌟 Golden Start',    desc:'Start each run with Golden Glow for free.',ppCost:1 },
-  { id:'p_mega_treasury', name:'🏛 Mega Treasury',   desc:'All click income doubled permanently.', ppCost:4 },
-];
+const SLOT_NAMES  = ['Slot 1','Slot 2','Slot 3'];
+const SAVE_PREFIX = 'tikiClicker_slot_';
+function slotKey(i){ return SAVE_PREFIX+i; }
 
-// ═══════════════════════════════════════════════════
-//  SAVE SLOTS
-// ═══════════════════════════════════════════════════
-
-const SLOT_NAMES   = ['Slot 1', 'Slot 2', 'Slot 3'];
-const SAVE_PREFIX  = 'tikiClicker_slot_';
-
-function slotKey(idx) { return SAVE_PREFIX + idx; }
-
-function emptyState() {
+function emptyState(){
   return {
-    clicks: 0, totalEarned: 0, handClicks: 0,
-    autoLevel: 0, multLevel: 1, multPurchased: 0,
-    upgrades: [],           // array of bought upgrade IDs
-    prestigePoints: 0,      // prestige currency
-    prestigeCount: 0,       // how many times prestiged
-    prestigeUpgrades: [],   // bought prestige upgrade IDs
-    comboCount: 0,          // current combo streak
-    comboTimer: 0,          // ms since last click
-    luckyClickCount: 0,     // counts toward lucky click
-    idleMs: 0,              // ms idle (for cat nap bonus)
+    clicks:0, totalEarned:0, handClicks:0,
+    autoLevel:0, afkAutoOwned:false, lastSeen:0,
+    multLevel:1, multPurchased:0,
+    frenzyOwned:false,
+    rebirthCount:0, rebirthPoints:0,
+    // rebirthMultStack: how many times the user has bought the x3 rebirth mult
+    rebirthMultStack:0,
   };
 }
 
-function loadSlot(idx) {
-  try {
-    const raw = localStorage.getItem(slotKey(idx));
-    if (raw) {
-      const s = JSON.parse(raw);
-      const def = emptyState();
-      // Merge so new fields get defaults
-      return Object.assign(def, s);
-    }
-  } catch(e) {}
+function loadSlot(i){
+  try{
+    const raw=localStorage.getItem(slotKey(i));
+    if(raw) return Object.assign(emptyState(),JSON.parse(raw));
+  }catch(e){}
   return null;
 }
-
-function saveCurrentSlot() {
-  if (currentSlot === null) return;
-  localStorage.setItem(slotKey(currentSlot), JSON.stringify(state));
+function saveCurrentSlot(){
+  if(currentSlot===null) return;
+  state.lastSeen=Date.now();
+  localStorage.setItem(slotKey(currentSlot),JSON.stringify(state));
 }
+function deleteSlot(i){ localStorage.removeItem(slotKey(i)); }
 
-function deleteSlot(idx) { localStorage.removeItem(slotKey(idx)); }
+// ═══════════════════════════════════════════
+//  RUNTIME
+// ═══════════════════════════════════════════
 
-// ═══════════════════════════════════════════════════
-//  RUNTIME STATE
-// ═══════════════════════════════════════════════════
-
-let state = emptyState();
+let state       = emptyState();
 let currentSlot = null;
 let autoTimer   = null;
-let comboTimer  = null;
-let idleTimer   = null;
 let currentTab  = 'auto';
 
-// ═══════════════════════════════════════════════════
-//  HELPERS — UPGRADES & PRESTIGE
-// ═══════════════════════════════════════════════════
+let frenzyActive    = false;
+let frenzyTimeLeft  = 0;
+let frenzyCheckTimer= null;
+let frenzyCountdown = null;
 
-function hasUpgrade(id) { return state.upgrades.includes(id); }
-function hasPrestige(id){ return state.prestigeUpgrades.includes(id); }
+// ═══════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════
 
-function getClickBonus() {
-  let bonus = 0;
-  if (hasUpgrade('sharp_claws')) bonus += 5;
-  if (hasUpgrade('tiki_fury'))   bonus += 20;
-  if (hasUpgrade('mega_paw'))    bonus += 100;
-  if (hasPrestige('p_click_bonus')) bonus += 500;
-  return bonus;
+// Each rebirth stack purchase multiplies the base mult by 3
+function getRebirthMultiplier(){
+  const stacks = state.rebirthMultStack || 0;
+  return stacks === 0 ? 1 : Math.pow(3, stacks);
 }
 
-function getAutoIntervalMultiplier() {
-  let mult = 1.0;
-  if (hasUpgrade('turbo_timer')) mult *= 0.80;
-  if (hasUpgrade('hyper_timer')) mult *= 0.80;
-  if (hasUpgrade('ultra_timer')) mult *= 0.80;
-  if (hasPrestige('p_auto_boost')) mult *= 0.75;
-  return mult;
+function getEffectiveMultLevel(){
+  // Manual click value = multLevel × rebirthMultiplier
+  return state.multLevel * getRebirthMultiplier();
 }
 
-function getAutoClickYieldMult() {
+function getAutoIntervalMult(){
   let m = 1;
-  if (hasUpgrade('tiki_tax'))  m *= 1.5;
-  if (hasUpgrade('tiki_bank')) m *= 2.0;
-  if (hasPrestige('p_mega_treasury')) m *= 2.0;
+  if(frenzyActive) m *= 0.5; // x2 faster during frenzy
   return m;
 }
 
-function getGlobalClickMult() {
-  let m = state.multLevel;
-  if (hasPrestige('p_mega_treasury')) m *= 2;
-  return m;
+function calcAutoClickGain(){
+  // Auto = 1 click per tick, unaffected by multiplier
+  return 1;
 }
 
-// ═══════════════════════════════════════════════════
+function getEffectiveInterval(){
+  if(!state.autoLevel) return null;
+  const base = AUTO_LEVELS[state.autoLevel-1].interval;
+  return Math.max(1, Math.round(base * getAutoIntervalMult()));
+}
+
+function calcCPS(s, frenzy){
+  if(!s||!s.autoLevel) return 0;
+  const base = AUTO_LEVELS[s.autoLevel-1].interval;
+  const im   = frenzy ? 0.5 : 1;
+  const interval = Math.max(1, Math.round(base*im));
+  return 1/(interval/1000);
+}
+
+function formatNum(n){
+  n=Math.floor(n);
+  if(n>=1e15) return (n/1e15).toFixed(2)+'Q';
+  if(n>=1e12) return (n/1e12).toFixed(2)+'T';
+  if(n>=1e9)  return (n/1e9).toFixed(2)+'B';
+  if(n>=1e6)  return (n/1e6).toFixed(2)+'M';
+  if(n>=1000) return (n/1000).toFixed(1)+'K';
+  return n.toLocaleString();
+}
+function fmtInterval(ms){ return ms>=1000?(ms/1000)+'s':ms+'ms'; }
+
+// ═══════════════════════════════════════════
 //  AUTO-CLICK
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 
-function getAutoInterval() {
-  if (!state.autoLevel) return null;
-  const base = AUTO_LEVELS[state.autoLevel - 1].interval;
-  return Math.max(20, Math.round(base * getAutoIntervalMultiplier()));
-}
-
-function calcCPS(s) {
-  if (!s || !s.autoLevel) return 0;
-  const base = AUTO_LEVELS[s.autoLevel - 1].interval;
-  const im   = 1.0; // simplified for slot preview
-  const interval = Math.max(20, Math.round(base * im));
-  return (s.multLevel || 1) / (interval / 1000);
-}
-
-function startAutoClick() {
-  if (autoTimer) clearInterval(autoTimer);
-  const interval = getAutoInterval();
-  if (!interval) return;
-  autoTimer = setInterval(() => {
-    let gain = Math.round(state.multLevel * getAutoClickYieldMult());
-    gain = Math.max(1, gain);
-    state.clicks      += gain;
-    state.totalEarned += gain;
+function startAutoClick(){
+  if(autoTimer) clearInterval(autoTimer);
+  const interval=getEffectiveInterval();
+  if(!interval) return;
+  autoTimer=setInterval(()=>{
+    const gain=calcAutoClickGain();
+    state.clicks      +=gain;
+    state.totalEarned +=gain;
     saveCurrentSlot();
     updateDisplay();
   }, interval);
 }
 
-// ═══════════════════════════════════════════════════
-//  IDLE BONUS (Cat Nap)
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  AFK / OFFLINE GAINS
+// ═══════════════════════════════════════════
 
-function startIdleTimer() {
-  if (idleTimer) clearInterval(idleTimer);
-  idleTimer = setInterval(() => {
-    if (!hasUpgrade('cat_nap')) return;
-    state.idleMs += 1000;
-    if (state.idleMs >= 10000) {
-      const cps = calcCPS(state);
-      if (cps > 0) {
-        const bonus = Math.ceil(cps * 0.1);
-        state.clicks      += bonus;
-        state.totalEarned += bonus;
-        state.idleMs       = 0;
-        saveCurrentSlot();
-        updateDisplay();
-        spawnTextCenter('+' + formatNum(bonus) + ' (Cat Nap!)');
-      } else { state.idleMs = 0; }
-    }
-  }, 1000);
+function calcOfflineGains(s){
+  if(!s.afkAutoOwned||!s.autoLevel||!s.lastSeen) return 0;
+  const away=Date.now()-s.lastSeen;
+  if(away<5000) return 0;
+  const cappedAway=Math.min(away, 24*60*60*1000);
+  const base=AUTO_LEVELS[s.autoLevel-1].interval;
+  const interval=Math.max(1,Math.round(base));
+  const ticks=Math.floor(cappedAway/interval);
+  return ticks; // 1 gain per tick
 }
 
-// ═══════════════════════════════════════════════════
-//  FORMAT
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  FRENZY
+// ═══════════════════════════════════════════
 
-function formatNum(n) {
-  n = Math.floor(n);
-  if (n >= 1e12) return (n/1e12).toFixed(2) + 'T';
-  if (n >= 1e9)  return (n/1e9).toFixed(2)  + 'B';
-  if (n >= 1e6)  return (n/1e6).toFixed(2)  + 'M';
-  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
-  return n.toLocaleString();
+function startFrenzySystem(){
+  if(frenzyCheckTimer) clearInterval(frenzyCheckTimer);
+  if(!state.frenzyOwned) return;
+  frenzyCheckTimer=setInterval(()=>{
+    if(frenzyActive) return;
+    if(Math.random()<0.25) triggerFrenzy();
+  }, 60000);
 }
-function fmtInterval(ms) { return ms >= 1000 ? (ms/1000) + 's' : ms + 'ms'; }
 
-// ═══════════════════════════════════════════════════
-//  DISPLAY UPDATE
-// ═══════════════════════════════════════════════════
+function triggerFrenzy(){
+  frenzyActive  =true;
+  frenzyTimeLeft=20;
+  document.body.classList.add('frenzy-active');
+  startRain();
+  startAutoClick(); // restart with frenzy interval
+  runFrenzyCountdown();
+  showToast('🔥 TIKI FRENZY! 20 seconds of x3 clicks!');
+}
 
-function updateDisplay() {
-  document.getElementById('clickCount').textContent = formatNum(state.clicks);
-  const cps = calcCPS(state);
-  document.getElementById('cpsDisplay').textContent =
-    cps === 0 ? 'No auto-clicks yet' :
-    (Number.isInteger(cps) ? cps : cps.toFixed(2)) + ' clicks per second';
+function runFrenzyCountdown(){
+  if(frenzyCountdown) clearInterval(frenzyCountdown);
+  updateFrenzyTimer();
+  frenzyCountdown=setInterval(()=>{
+    frenzyTimeLeft--;
+    updateFrenzyTimer();
+    if(frenzyTimeLeft<=0) endFrenzy();
+  },1000);
+}
 
-  document.getElementById('statTotal').textContent      = formatNum(state.totalEarned || 0);
-  document.getElementById('statHandClicks').textContent = formatNum(state.handClicks  || 0);
-  document.getElementById('statPrestige').textContent   = state.prestigeCount || 0;
+function endFrenzy(){
+  frenzyActive=false;
+  clearInterval(frenzyCountdown);
+  document.body.classList.remove('frenzy-active');
+  stopRain();
+  startAutoClick(); // restore normal speed
+  showToast('Frenzy over — back to normal!');
+}
 
-  // Tiki size upgrade
-  const circle = document.getElementById('tikiCircle');
-  if (hasUpgrade('bigger_tiki')) {
-    circle.style.width  = 'min(338px, 57vw)';
-    circle.style.height = 'min(338px, 57vw)';
-  }
-  // Bob speed
-  if (hasUpgrade('fast_bob') && !circle.classList.contains('fast-bob-applied')) {
-    circle.style.animationDuration = '1.2s';
-    circle.classList.add('fast-bob-applied');
-  }
-  // Glow classes
-  if (hasPrestige('p_gold_start') || hasUpgrade('golden_glow')) {
-    circle.classList.remove('rainbow-glow');
-    circle.classList.add('golden-glow');
-  }
-  if (hasUpgrade('rainbow_ring')) {
-    circle.classList.remove('golden-glow');
-    circle.classList.add('rainbow-glow');
-  }
+function updateFrenzyTimer(){
+  document.getElementById('frenzyTimer').textContent='('+frenzyTimeLeft+'s)';
+}
 
+// ═══════════════════════════════════════════
+//  RAIN
+// ═══════════════════════════════════════════
+
+let rainInterval=null, rainTikis=[];
+function startRain(){
+  const rc=document.getElementById('rainContainer');
+  if(rainInterval) clearInterval(rainInterval);
+  rainInterval=setInterval(()=>spawnRainTiki(rc),300);
+}
+function spawnRainTiki(rc){
+  const img=document.createElement('img');
+  img.src='TikiTheG.jpg'; img.className='rain-tiki';
+  const size=40+Math.random()*60;
+  img.style.width=size+'px'; img.style.height=size+'px';
+  img.style.left=(Math.random()*100)+'vw';
+  const dur=2.5+Math.random()*2.5;
+  img.style.animationDuration=dur+'s';
+  img.onerror=()=>{img.style.display='none';};
+  rc.appendChild(img); rainTikis.push(img);
+  setTimeout(()=>{img.remove();rainTikis=rainTikis.filter(x=>x!==img);},dur*1000+100);
+}
+function stopRain(){
+  if(rainInterval){clearInterval(rainInterval);rainInterval=null;}
+  rainTikis.forEach(img=>img.remove()); rainTikis=[];
+}
+
+// ═══════════════════════════════════════════
+//  DISPLAY
+// ═══════════════════════════════════════════
+
+function updateDisplay(){
+  document.getElementById('clickCount').textContent=formatNum(state.clicks);
+  const cps=calcCPS(state,frenzyActive);
+  document.getElementById('cpsDisplay').textContent=
+    cps===0?'No auto-clicks yet':(Number.isInteger(cps)?cps:cps.toFixed(2))+' clicks/sec (auto)';
+  document.getElementById('statTotal').textContent     =formatNum(state.totalEarned||0);
+  document.getElementById('statHandClicks').textContent=formatNum(state.handClicks||0);
+  document.getElementById('statRebirth').textContent   =state.rebirthCount||0;
+  document.getElementById('statRP').textContent        =state.rebirthPoints||0;
   renderShop();
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  CLICKING
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 
-let lastClickTime = 0;
-let comboCount = 0;
-let comboTimeout = null;
+function handleClick(e){
+  const frenzyMult = frenzyActive ? 3 : 1;
+  const base = getEffectiveMultLevel();
+  const gain = Math.max(1, Math.ceil(base * frenzyMult));
 
-function handleClick(e) {
-  const now = Date.now();
-  state.idleMs = 0; // reset idle
-
-  // Combo system (requires upgrade)
-  let comboMult = 1;
-  if (hasUpgrade('combo_starter')) {
-    if (now - lastClickTime < 600) {
-      comboCount = Math.min(comboCount + 1, 50);
-    } else {
-      comboCount = 1;
-    }
-    if (comboCount >= 5)  comboMult = 1 + Math.floor(comboCount / 5) * 0.5;
-    comboMult = Math.min(comboMult, 6);
-    updateComboText(comboCount, comboMult);
-    clearTimeout(comboTimeout);
-    comboTimeout = setTimeout(() => {
-      comboCount = 0;
-      clearComboText();
-    }, 1500);
-  }
-  lastClickTime = now;
-
-  // Lucky click (every 50th click = 10x)
-  let luckyMult = 1;
-  if (hasUpgrade('lucky_tiki')) {
-    state.luckyClickCount = (state.luckyClickCount || 0) + 1;
-    if (state.luckyClickCount >= 50) {
-      state.luckyClickCount = 0;
-      luckyMult = 10;
-      spawnTextCenter('🍀 Lucky Click! x10!');
-    }
-  }
-
-  const base  = getGlobalClickMult() + getClickBonus();
-  const gain  = Math.ceil(base * comboMult * luckyMult);
-
-  state.clicks      += gain;
-  state.totalEarned += gain;
-  state.handClicks  = (state.handClicks || 0) + 1;
-
+  state.clicks      +=gain;
+  state.totalEarned +=gain;
+  state.handClicks   =(state.handClicks||0)+1;
   saveCurrentSlot();
   updateDisplay();
-  spawnParticle(e, '+' + formatNum(gain));
+  spawnParticle(e,'+'+formatNum(gain));
 
-  // Bounce
-  const circle = document.getElementById('tikiCircle');
-  const dur = circle.style.animationDuration || '2.4s';
-  circle.style.animation = 'none';
-  void circle.offsetWidth;
-  setTimeout(() => { circle.style.animation = ''; circle.style.animationDuration = dur; }, 80);
+  const c=document.getElementById('tikiCircle');
+  c.style.animation='none'; void c.offsetWidth;
+  setTimeout(()=>c.style.animation='',80);
 }
 
-function updateComboText(count, mult) {
-  const el = document.getElementById('comboText');
-  if (count >= 5) {
-    el.textContent = '🔥 Combo x' + count + ' → ' + mult + 'x bonus!';
-    el.style.opacity = '1';
-  } else if (count > 1) {
-    el.textContent = '💥 Combo: ' + count;
-    el.style.opacity = '0.7';
-  } else {
-    clearComboText();
-  }
-}
-function clearComboText() {
-  const el = document.getElementById('comboText');
-  el.textContent = '';
-  el.style.opacity = '0';
-}
-
-function spawnParticle(e, text) {
-  const p = document.createElement('div');
-  p.className = 'click-particle';
-  p.textContent = text;
-  p.style.left = (e.clientX + (Math.random() - 0.5) * 30 - 10) + 'px';
-  p.style.top  = (e.clientY - 10) + 'px';
+function spawnParticle(e,text){
+  const p=document.createElement('div');
+  p.className='click-particle'; p.textContent=text;
+  p.style.left=(e.clientX+(Math.random()-.5)*30-10)+'px';
+  p.style.top =(e.clientY-10)+'px';
   document.body.appendChild(p);
-  setTimeout(() => p.remove(), 900);
+  setTimeout(()=>p.remove(),900);
 }
 
-function spawnTextCenter(text) {
-  const p = document.createElement('div');
-  p.className = 'click-particle';
-  p.textContent = text;
-  p.style.left = '50%';
-  p.style.top  = '40%';
-  p.style.transform = 'translateX(-50%)';
-  p.style.fontSize  = '1.3em';
-  document.body.appendChild(p);
-  setTimeout(() => p.remove(), 1200);
-}
-
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  SHOP TABS
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 
-function switchTab(tab) {
-  currentTab = tab;
-  document.querySelectorAll('.shop-tab').forEach((t, i) => {
-    t.classList.toggle('active', ['auto','mult','upgrades','prestige'][i] === tab);
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.shop-tab').forEach((t,i)=>{
+    t.classList.toggle('active',['auto','mult','extras','rebirth'][i]===tab);
   });
-  document.querySelectorAll('.shop-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + tab).classList.add('active');
+  document.querySelectorAll('.shop-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
   renderShop();
 }
 
-function renderShop() {
-  if (currentTab === 'auto')     renderAutoShop();
-  if (currentTab === 'mult')     renderMultShop();
-  if (currentTab === 'upgrades') renderUpgradesShop();
-  if (currentTab === 'prestige') renderPrestigeShop();
+function renderShop(){
+  if(currentTab==='auto')    renderAutoShop();
+  if(currentTab==='mult')    renderMultShop();
+  if(currentTab==='extras')  renderExtrasShop();
+  if(currentTab==='rebirth') renderRebirthShop();
 }
 
-// ── AUTO SHOP ──
-function renderAutoShop() {
-  const el = document.getElementById('panel-auto');
-  el.innerHTML = '';
-  const nextLevel = state.autoLevel + 1;
-  if (state.autoLevel > 0) {
-    const owned = AUTO_LEVELS[state.autoLevel - 1];
-    const effectiveInterval = Math.max(20, Math.round(owned.interval * getAutoIntervalMultiplier()));
-    el.innerHTML += makeItem(true,
-      `⚙️ ${owned.label}`,
-      `Auto-clicks every ${fmtInterval(effectiveInterval)} (effective)`,
-      '✅ Owned', '', true, 'Owned');
+// ── AUTO ──
+function renderAutoShop(){
+  const el=document.getElementById('panel-auto');
+  el.innerHTML='';
+  const next=state.autoLevel+1;
+  if(state.autoLevel>0){
+    const owned=AUTO_LEVELS[state.autoLevel-1];
+    const eff  =Math.max(1,Math.round(owned.interval*getAutoIntervalMult()));
+    el.innerHTML+=item(true,true,'⚙️ Auto Click Lv.'+state.autoLevel,
+      'Ticks every '+fmtInterval(eff)+(frenzyActive?' (frenzy boosted!)':''),
+      '✅ Owned','','Owned');
   }
-  if (nextLevel <= AUTO_LEVELS.length) {
-    const next = AUTO_LEVELS[nextLevel - 1];
-    const can  = state.clicks >= next.cost;
-    el.innerHTML += makeItem(can,
-      `⚙️ ${next.label}`,
-      `Auto-clicks every ${fmtInterval(next.interval)}`,
-      `Cost: 🗿 ${next.cost.toLocaleString()} clicks`,
-      '', false, 'Buy', `buyAuto()`);
+  if(next<=AUTO_LEVELS.length){
+    const nx=AUTO_LEVELS[next-1];
+    const can=state.clicks>=nx.cost;
+    el.innerHTML+=item(can,false,'⚙️ Auto Click Lv.'+next,
+      'Ticks every '+fmtInterval(nx.interval),
+      'Cost: 🗿 '+nx.cost.toLocaleString()+' clicks',
+      'buyAuto()','Buy');
   } else {
-    el.innerHTML += makeItem(true, '⚙️ Max Auto-Click!', 'Every 25ms — maximum speed!', '', '', true, 'MAX');
+    el.innerHTML+=item(true,true,'⚙️ Auto Click Lv.12','Every 1ms — absolute max!','','','MAX');
   }
-}
-
-// ── MULTIPLIER SHOP ──
-function renderMultShop() {
-  const el = document.getElementById('panel-mult');
-  el.innerHTML = '';
-  const nextIdx = state.multPurchased;
-  if (state.multLevel > 1) {
-    el.innerHTML += makeItem(true,
-      `✖️ x${state.multLevel} Multiplier`,
-      `Each click gives ${state.multLevel} Tiki Clicks`,
-      '✅ Active', '', true, 'Active');
-  }
-  if (nextIdx < MULT_LEVELS.length) {
-    const next = MULT_LEVELS[nextIdx];
-    const can  = state.clicks >= next.cost;
-    el.innerHTML += makeItem(can,
-      `✖️ ${next.label}`,
-      `Each click gives ${next.level} Tiki Clicks`,
-      `Cost: 🗿 ${next.cost.toLocaleString()} clicks`,
-      '', false, 'Buy', `buyMult()`);
+  // AFK Auto
+  el.innerHTML+='<div class="shop-section-label">🌙 AFK Auto</div>';
+  if(state.afkAutoOwned){
+    el.innerHTML+=item(true,true,'🌙 AFK Auto',
+      'Earns clicks while the tab is closed — accurately!',
+      '✅ Owned','','Owned');
   } else {
-    el.innerHTML += makeItem(true, '✖️ x50 Max Multiplier!', 'Maximum power! 🐱', '', '', true, 'MAX');
+    const can=state.clicks>=5000000;
+    el.innerHTML+=item(can,false,'🌙 AFK Auto',
+      'Keeps auto-clicking accurately even when the tab is closed.',
+      'Cost: 🗿 5,000,000 clicks',
+      'buyAfkAuto()','Buy');
   }
 }
 
-// ── UPGRADES SHOP ──
-function renderUpgradesShop() {
-  const el = document.getElementById('panel-upgrades');
-  el.innerHTML = '';
+// ── MULTIPLY ──
+function renderMultShop(){
+  const el=document.getElementById('panel-mult');
+  el.innerHTML='';
+  const idx=state.multPurchased;
+  const rm=getRebirthMultiplier();
+  const effective=getEffectiveMultLevel();
 
-  ['power','economy','cosmetic'].forEach(tab => {
-    const label = { power:'⚡ Power', economy:'💰 Economy', cosmetic:'🎨 Cosmetic' }[tab];
-    el.innerHTML += `<div class="shop-section-label">${label}</div>`;
-    UPGRADES.filter(u => u.tab === tab).forEach(u => {
-      const bought = hasUpgrade(u.id);
-      const can    = !bought && state.clicks >= u.cost;
-      el.innerHTML += makeItem(can || bought,
-        u.name, u.desc,
-        bought ? `✅ ${u.effect}` : `Cost: 🗿 ${u.cost.toLocaleString()} clicks`,
-        '', bought, bought ? 'Owned' : 'Buy',
-        bought ? '' : `buyUpgrade('${u.id}')`);
-    });
-  });
+  if(state.multLevel>1||rm>1){
+    el.innerHTML+=item(true,true,
+      '✖️ x'+formatNum(effective)+' Multiplier',
+      'Base x'+formatNum(state.multLevel)+(rm>1?' × Rebirth x'+formatNum(rm):'')+'  =  x'+formatNum(effective),
+      '✅ Active (manual clicks only)','','Active');
+  }
+  if(idx<MULT_LEVELS.length){
+    const nx=MULT_LEVELS[idx];
+    const can=state.clicks>=nx.cost;
+    const afterEff=nx.level*rm;
+    el.innerHTML+=item(can,false,
+      '✖️ x'+formatNum(nx.level)+' Clicks',
+      'With your Rebirth x'+formatNum(rm)+' that\'s effectively x'+formatNum(afterEff)+' per click',
+      'Cost: 🗿 '+nx.cost.toLocaleString()+' clicks',
+      'buyMult()','Buy');
+  } else {
+    el.innerHTML+=item(true,true,'✖️ x50,000 — Maximum!','Highest tier reached! 🐱','','','MAX');
+  }
+  el.innerHTML+='<div class="shop-section-label" style="opacity:0.5;font-size:0.72em">Multiplier applies to manual clicks only. Auto always gives 1 click per tick.</div>';
 }
 
-// ── PRESTIGE SHOP ──
-function renderPrestigeShop() {
-  const el = document.getElementById('panel-prestige');
-  el.innerHTML = '';
-
-  const prestigeReq = 50000 * Math.pow(5, state.prestigeCount || 0);
-  const canPrestige  = state.totalEarned >= prestigeReq;
-  const pp           = state.prestigePoints || 0;
-
-  el.innerHTML += `
-    <div class="shop-section-label">✨ Prestige</div>
-    <div class="shop-item${canPrestige ? ' affordable' : ''}">
+// ── TIKI EXTRAS ──
+function renderExtrasShop(){
+  const el=document.getElementById('panel-extras');
+  el.innerHTML='<div class="shop-section-label">🔥 Special Events</div>';
+  if(state.frenzyOwned){
+    el.innerHTML+=item(true,true,'🔥 Tiki Frenzy',
+      '25% chance every minute: x3 clicks, x2 auto speed, blood-red screen & raining Tikis for 20s!',
+      '✅ Owned — frenzy checks running','','Owned');
+  } else {
+    const can=state.clicks>=50000;
+    el.innerHTML+=item(can,false,'🔥 Tiki Frenzy',
+      '25% chance every minute: x3 clicks, x2 faster auto, animated blood-red background & raining Tikis for 20 seconds!',
+      'Cost: 🗿 50,000 clicks',
+      'buyFrenzy()','Buy');
+  }
+  if(frenzyActive){
+    el.innerHTML+=`<div class="shop-item owned-item" style="margin-top:8px">
       <div class="item-info">
-        <div class="item-name">✨ Prestige!</div>
-        <div class="item-desc">Reset progress for <strong style="color:var(--gold)">+1 Prestige Point</strong>.</div>
-        <div class="item-desc">Requires ${formatNum(prestigeReq)} total earned clicks. You have ${formatNum(state.totalEarned || 0)}.</div>
-        <div class="item-desc" style="color:var(--gold);margin-top:4px">You have ${pp} Prestige Point${pp!==1?'s':''}.</div>
-      </div>
-      <button class="buy-btn" ${canPrestige?'':'disabled'} onclick="doPrestige()">Prestige</button>
-    </div>
-    <div class="shop-section-label">💎 Prestige Upgrades</div>`;
-
-  PRESTIGE_UPGRADES.forEach(u => {
-    const bought = hasPrestige(u.id);
-    const can    = !bought && pp >= u.ppCost;
-    el.innerHTML += makeItem(can || bought,
-      u.name, u.desc,
-      bought ? '✅ Active' : `Cost: ${u.ppCost} Prestige Point${u.ppCost!==1?'s':''}`,
-      '', bought, bought ? 'Active' : 'Buy',
-      bought ? '' : `buyPrestigeUpgrade('${u.id}',${u.ppCost})`);
-  });
+        <div class="item-name" style="color:#ff4444">🔥 FRENZY ACTIVE!</div>
+        <div class="item-desc" style="color:#ff8888">Time remaining: ${frenzyTimeLeft}s</div>
+      </div></div>`;
+  }
 }
 
-// ── ITEM HTML BUILDER ──
-function makeItem(affordable, name, desc, sub, extra, maxed, btnLabel, btnCall) {
-  const cls = maxed ? 'maxed' : (affordable ? 'affordable' : '');
-  const disabled = maxed || !affordable ? 'disabled' : '';
-  const btnCls   = maxed ? 'maxed-btn' : '';
-  const onclick  = btnCall ? `onclick="${btnCall}"` : '';
-  return `<div class="shop-item ${cls}">
+// ── REBIRTH ──
+function renderRebirthShop(){
+  const el=document.getElementById('panel-rebirth');
+  el.innerHTML='';
+  const req=50000*Math.pow(5,state.rebirthCount||0);
+  const can=(state.totalEarned||0)>=req;
+  const rp =state.rebirthPoints||0;
+  const stacks=state.rebirthMultStack||0;
+  const currentRM=getRebirthMultiplier();
+
+  // Rebirth button
+  el.innerHTML+='<div class="shop-section-label">✨ Rebirth</div>';
+  el.innerHTML+=`<div class="shop-item${can?' affordable':''}">
     <div class="item-info">
-      <div class="item-name">${name}</div>
-      ${desc ? `<div class="item-desc">${desc}</div>` : ''}
-      ${sub  ? `<div class="item-${maxed?'owned':'desc'}">${sub}</div>` : ''}
+      <div class="item-name">✨ Rebirth!</div>
+      <div class="item-desc">Reset your clicks & upgrades for <strong style="color:var(--gold)">+1 Rebirth Point</strong>.</div>
+      <div class="item-desc">Requires ${formatNum(req)} total earned — you have ${formatNum(state.totalEarned||0)}.</div>
+      <div class="item-desc" style="color:var(--gold);margin-top:4px">You have <strong>${rp}</strong> Rebirth Point${rp!==1?'s':''}.</div>
     </div>
-    <button class="buy-btn ${btnCls}" ${disabled} ${onclick}>${btnLabel}</button>
+    <button class="buy-btn" ${can?'':'disabled'} onclick="doRebirth()">Rebirth</button>
+  </div>`;
+
+  // Rebirth Multiplier stacking purchase
+  el.innerHTML+='<div class="shop-section-label">💎 Rebirth Shop</div>';
+  const nextStackCost = Math.pow(3, stacks+1) * 2; // rebirth points cost
+  el.innerHTML+=`<div class="shop-item${rp>=nextStackCost?' affordable':''}">
+    <div class="item-info">
+      <div class="item-name">🔺 Rebirth Multiplier ${stacks>0?'(x'+formatNum(currentRM)+' → x'+formatNum(currentRM*3)+')':'(x1 → x3)'}</div>
+      <div class="item-desc">Stacks multiplicatively. Each purchase triples your manual click multiplier.</div>
+      <div class="item-desc">Current: <strong style="color:var(--gold)">x${formatNum(currentRM)}</strong> rebirth mult (${stacks} stack${stacks!==1?'s':''})</div>
+      <div class="item-desc">Cost: <strong>${nextStackCost}</strong> Rebirth Point${nextStackCost!==1?'s':''}</div>
+    </div>
+    <button class="buy-btn" ${rp>=nextStackCost?'':'disabled'} onclick="buyRebirthMult()">Buy</button>
   </div>`;
 }
 
-// ═══════════════════════════════════════════════════
+// ── ITEM BUILDER ──
+function item(affordable,owned,name,desc,sub,fn,btnLabel){
+  const cls   =owned?'owned-item':(affordable?'affordable':'');
+  const dis   =(owned||!affordable)?'disabled':'';
+  const btnCls=owned?'owned-btn':'';
+  const oc    =fn?`onclick="${fn}"`:'';
+  return `<div class="shop-item ${cls}">
+    <div class="item-info">
+      <div class="item-name">${name}</div>
+      ${desc?`<div class="item-desc">${desc}</div>`:''}
+      ${sub ?`<div class="${owned?'item-owned-label':'item-desc'}">${sub}</div>`:''}
+    </div>
+    <button class="buy-btn ${btnCls}" ${dis} ${oc}>${btnLabel}</button>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
 //  PURCHASES
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 
-function buyAuto() {
-  const nextLevel = state.autoLevel + 1;
-  if (nextLevel > AUTO_LEVELS.length) return;
-  const cost = AUTO_LEVELS[nextLevel - 1].cost;
-  if (state.clicks < cost) return;
-  state.clicks -= cost;
-  state.autoLevel = nextLevel;
-  saveCurrentSlot();
-  startAutoClick();
-  updateDisplay();
-  showToast('⚙️ Auto Click Lv.' + nextLevel + ' unlocked!');
+function buyAuto(){
+  const next=state.autoLevel+1;
+  if(next>AUTO_LEVELS.length) return;
+  const cost=AUTO_LEVELS[next-1].cost;
+  if(state.clicks<cost) return;
+  state.clicks-=cost; state.autoLevel=next;
+  saveCurrentSlot(); startAutoClick(); updateDisplay();
+  showToast('⚙️ Auto Click Lv.'+next+' unlocked!');
 }
 
-function buyMult() {
-  const nextIdx = state.multPurchased;
-  if (nextIdx >= MULT_LEVELS.length) return;
-  const next = MULT_LEVELS[nextIdx];
-  if (state.clicks < next.cost) return;
-  state.clicks       -= next.cost;
-  state.multLevel     = next.level;
-  state.multPurchased = nextIdx + 1;
-  saveCurrentSlot();
-  startAutoClick();
-  updateDisplay();
-  showToast('✖️ ' + next.label + ' activated!');
+function buyAfkAuto(){
+  if(state.afkAutoOwned||state.clicks<5000000) return;
+  state.clicks-=5000000; state.afkAutoOwned=true;
+  saveCurrentSlot(); updateDisplay();
+  showToast('🌙 AFK Auto unlocked! Earns while you\'re away.');
 }
 
-function buyUpgrade(id) {
-  const u = UPGRADES.find(x => x.id === id);
-  if (!u || hasUpgrade(id) || state.clicks < u.cost) return;
-  state.clicks -= u.cost;
-  state.upgrades.push(id);
-  saveCurrentSlot();
-  // Restart auto if timer-related
-  if (['turbo_timer','hyper_timer','ultra_timer'].includes(id)) startAutoClick();
-  updateDisplay();
-  showToast(u.name + ' purchased!');
+function buyMult(){
+  const idx=state.multPurchased;
+  if(idx>=MULT_LEVELS.length) return;
+  const nx=MULT_LEVELS[idx];
+  if(state.clicks<nx.cost) return;
+  state.clicks-=nx.cost; state.multLevel=nx.level; state.multPurchased=idx+1;
+  saveCurrentSlot(); updateDisplay();
+  showToast('✖️ x'+formatNum(nx.level)+' Clicks! (x'+formatNum(getEffectiveMultLevel())+' effective)');
 }
 
-function buyPrestigeUpgrade(id, cost) {
-  if (hasPrestige(id) || (state.prestigePoints || 0) < cost) return;
-  state.prestigePoints -= cost;
-  state.prestigeUpgrades.push(id);
-  saveCurrentSlot();
-  startAutoClick();
-  updateDisplay();
-  const u = PRESTIGE_UPGRADES.find(x => x.id === id);
-  showToast((u ? u.name : 'Prestige upgrade') + ' purchased!');
+function buyFrenzy(){
+  if(state.frenzyOwned||state.clicks<50000) return;
+  state.clicks-=50000; state.frenzyOwned=true;
+  saveCurrentSlot(); updateDisplay(); startFrenzySystem();
+  showToast('🔥 Tiki Frenzy unlocked! 25% chance per minute.');
 }
 
-function doPrestige() {
-  const prestigeReq = 50000 * Math.pow(5, state.prestigeCount || 0);
-  if ((state.totalEarned || 0) < prestigeReq) return;
-  const pp = (state.prestigePoints || 0) + 1;
-  const pc = (state.prestigeCount  || 0) + 1;
-  const pu = state.prestigeUpgrades || [];
-  // Reset but keep prestige data
-  state = emptyState();
-  state.prestigePoints   = pp;
-  state.prestigeCount    = pc;
-  state.prestigeUpgrades = pu;
-  // Head start
-  if (hasPrestige('p_double_start')) { state.clicks = 500; state.totalEarned = 500; }
-  saveCurrentSlot();
-  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
-  updateDisplay();
-  showToast('✨ Prestige! You now have ' + pp + ' Prestige Point' + (pp!==1?'s':'') + '!');
+function buyRebirthMult(){
+  const stacks=state.rebirthMultStack||0;
+  const cost=Math.pow(3,stacks+1)*2;
+  if((state.rebirthPoints||0)<cost) return;
+  state.rebirthPoints-=cost;
+  state.rebirthMultStack=(state.rebirthMultStack||0)+1;
+  saveCurrentSlot(); updateDisplay();
+  const newMult=getRebirthMultiplier();
+  showToast('🔺 Rebirth Multiplier is now x'+formatNum(newMult)+'!');
 }
 
-// ═══════════════════════════════════════════════════
-//  RESET
-// ═══════════════════════════════════════════════════
+function doRebirth(){
+  const req=50000*Math.pow(5,state.rebirthCount||0);
+  if((state.totalEarned||0)<req) return;
+  const rp     =(state.rebirthPoints||0)+1;
+  const rc     =(state.rebirthCount||0)+1;
+  const stacks =state.rebirthMultStack||0;
+  const fo     =state.frenzyOwned;
+  state=emptyState();
+  state.rebirthPoints  =rp;
+  state.rebirthCount   =rc;
+  state.rebirthMultStack=stacks;
+  state.frenzyOwned    =fo;
+  saveCurrentSlot();
+  if(autoTimer){clearInterval(autoTimer);autoTimer=null;}
+  if(fo) startFrenzySystem();
+  updateDisplay();
+  showToast('✨ Rebirth #'+rc+'! You have '+rp+' Rebirth Point'+(rp!==1?'s':'')+'.');
+}
 
-function openResetModal()  { document.getElementById('resetModal').classList.add('open'); }
-function closeResetModal() { document.getElementById('resetModal').classList.remove('open'); }
-function doReset() {
+// ═══════════════════════════════════════════
+//  RESET — wipes absolutely everything
+// ═══════════════════════════════════════════
+
+function openResetModal() { document.getElementById('resetModal').classList.add('open'); }
+function closeResetModal(){ document.getElementById('resetModal').classList.remove('open'); }
+document.getElementById('resetModal').addEventListener('click',function(e){if(e.target===this)closeResetModal();});
+
+function doReset(){
   closeResetModal();
-  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
-  state = emptyState();
+  if(autoTimer){clearInterval(autoTimer);autoTimer=null;}
+  if(frenzyCheckTimer){clearInterval(frenzyCheckTimer);frenzyCheckTimer=null;}
+  if(frenzyActive)endFrenzy();
+  // Completely empty — no rebirth retention
+  state=emptyState();
   saveCurrentSlot();
   updateDisplay();
-  showToast('🔄 Progress reset!');
+  showToast('🔄 Everything wiped — fresh start!');
 }
-document.getElementById('resetModal').addEventListener('click', function(e) {
-  if (e.target === this) closeResetModal();
-});
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  OFFLINE MODAL
+// ═══════════════════════════════════════════
+
+function showOfflineModal(gained,awayMs){
+  const mins=Math.floor(awayMs/60000);
+  const hrs =Math.floor(awayMs/3600000);
+  const ts  =hrs>0?hrs+'h '+Math.floor((awayMs%3600000)/60000)+'m':mins+'m';
+  document.getElementById('offlineMsg').textContent ='You were gone for '+ts+'. Your auto-clicker kept ticking!';
+  document.getElementById('offlineGain').textContent='+'+formatNum(gained)+' Tiki Clicks';
+  document.getElementById('offlineModal').classList.add('open');
+}
+function closeOfflineModal(){ document.getElementById('offlineModal').classList.remove('open'); }
+document.getElementById('offlineModal').addEventListener('click',function(e){if(e.target===this)closeOfflineModal();});
+
+// ═══════════════════════════════════════════
 //  SLOT SCREEN
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 
-function renderSlotScreen() {
-  const container = document.getElementById('slotCards');
-  container.innerHTML = '';
-  SLOT_NAMES.forEach((name, idx) => {
-    const saved = loadSlot(idx);
-    const card  = document.createElement('div');
-    card.className = 'slot-card' + (saved ? '' : ' empty-slot');
-    if (saved) {
-      const cps = calcCPS(saved);
-      card.innerHTML = `
+function renderSlotScreen(){
+  const container=document.getElementById('slotCards');
+  container.innerHTML='';
+  SLOT_NAMES.forEach((name,idx)=>{
+    const saved=loadSlot(idx);
+    const card =document.createElement('div');
+    card.className='slot-card'+(saved?'':' empty-slot');
+    if(saved){
+      card.innerHTML=`
         <div class="slot-num">🗿</div>
         <div class="slot-name">${name}</div>
-        <div class="slot-info">${formatNum(saved.clicks)} Clicks</div>
-        <div class="slot-detail">
-          Auto Lv.${saved.autoLevel||0} &nbsp;·&nbsp; x${saved.multLevel||1} Mult<br>
-          ${cps>0?cps.toFixed(cps<1?2:1)+' CPS':'No auto-clicks'}<br>
-          Prestige ${saved.prestigeCount||0}x
-        </div>
+        <div class="slot-clicks">${formatNum(saved.clicks)}</div>
+        <div class="slot-sub-info">Tiki Clicks</div>
         <button class="slot-delete-btn" onclick="confirmDeleteSlot(event,${idx})">🗑 Delete</button>`;
     } else {
-      card.innerHTML = `
+      card.innerHTML=`
         <div class="slot-num">➕</div>
         <div class="slot-name">${name}</div>
-        <div class="slot-detail">Empty — start fresh!</div>`;
+        <div class="slot-sub-info">Empty — start fresh!</div>`;
     }
-    card.addEventListener('click', e => {
-      if (e.target.classList.contains('slot-delete-btn')) return;
+    card.addEventListener('click',e=>{
+      if(e.target.classList.contains('slot-delete-btn')) return;
       enterSlot(idx);
     });
     container.appendChild(card);
   });
 }
 
-function confirmDeleteSlot(e, idx) {
+function confirmDeleteSlot(e,idx){
   e.stopPropagation();
-  if (confirm(`Delete ${SLOT_NAMES[idx]}? All progress will be lost!`)) {
-    deleteSlot(idx);
-    renderSlotScreen();
-    showToast('🗑 ' + SLOT_NAMES[idx] + ' deleted.');
+  if(confirm('Delete '+SLOT_NAMES[idx]+'? All progress lost!')){
+    deleteSlot(idx); renderSlotScreen();
+    showToast('🗑 '+SLOT_NAMES[idx]+' deleted.');
   }
 }
 
-function enterSlot(idx) {
-  const saved = loadSlot(idx);
-  currentSlot = idx;
-  state       = saved ? saved : emptyState();
-  document.getElementById('slotLabel').textContent = SLOT_NAMES[idx].toUpperCase();
-  document.getElementById('slotScreen').style.display = 'none';
+function enterSlot(idx){
+  const saved=loadSlot(idx);
+  currentSlot=idx;
+  let offlineGained=0,awayMs=0;
+  if(saved){
+    offlineGained=calcOfflineGains(saved);
+    awayMs=saved.lastSeen?Date.now()-saved.lastSeen:0;
+    state=saved;
+    if(offlineGained>0){ state.clicks+=offlineGained; state.totalEarned+=offlineGained; }
+  } else {
+    state=emptyState();
+  }
+  document.getElementById('slotLabel').textContent=SLOT_NAMES[idx].toUpperCase();
+  document.getElementById('slotScreen').style.display='none';
   document.getElementById('app').classList.add('visible');
+  saveCurrentSlot();
   startAutoClick();
-  startIdleTimer();
+  if(state.frenzyOwned) startFrenzySystem();
   updateDisplay();
+  if(offlineGained>0) showOfflineModal(offlineGained,awayMs);
 }
 
-function switchSlot() {
+function switchSlot(){
   saveCurrentSlot();
-  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
-  if (idleTimer) { clearInterval(idleTimer); idleTimer = null; }
-  currentSlot = null;
-  document.getElementById('slotScreen').style.display = '';
+  if(autoTimer){clearInterval(autoTimer);autoTimer=null;}
+  if(frenzyCheckTimer){clearInterval(frenzyCheckTimer);frenzyCheckTimer=null;}
+  if(frenzyActive) endFrenzy();
+  currentSlot=null;
+  document.getElementById('slotScreen').style.display='';
   document.getElementById('app').classList.remove('visible');
   renderSlotScreen();
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  TOAST
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 
-let toastTimer = null;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3200);
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  FULLSCREEN
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 
-const fsBtn = document.getElementById('fullscreenBtn');
-function isFullscreen() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
-function updateFsBtn() { fsBtn.title = isFullscreen() ? 'Exit Fullscreen' : 'Fullscreen'; }
-function toggleFullscreen() {
-  if (isFullscreen()) {
-    (document.exitFullscreen || document.webkitExitFullscreen || (()=>{})).call(document);
-  } else {
-    const el = document.documentElement;
-    (el.requestFullscreen || el.webkitRequestFullscreen || (()=>{})).call(el);
-  }
+const fsBtn=document.getElementById('fullscreenBtn');
+function isFS(){return!!(document.fullscreenElement||document.webkitFullscreenElement);}
+function updFS(){fsBtn.title=isFS()?'Exit Fullscreen':'Fullscreen';}
+function toggleFS(){
+  if(isFS()){(document.exitFullscreen||document.webkitExitFullscreen||(()=>{})).call(document);}
+  else{const el=document.documentElement;(el.requestFullscreen||el.webkitRequestFullscreen||(()=>{})).call(el);}
 }
-fsBtn.addEventListener('click', toggleFullscreen);
-document.addEventListener('fullscreenchange', updateFsBtn);
-document.addEventListener('webkitfullscreenchange', updateFsBtn);
-updateFsBtn();
+fsBtn.addEventListener('click',toggleFS);
+document.addEventListener('fullscreenchange',updFS);
+document.addEventListener('webkitfullscreenchange',updFS);
+updFS();
 
-// ═══════════════════════════════════════════════════
-//  PREVIEW
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  PREVIEW (right-click / long-press)
+// ═══════════════════════════════════════════
 
-let longPressTimer = null;
-document.getElementById('tikiCircle').addEventListener('contextmenu', e => { e.preventDefault(); openPreview(); });
-document.getElementById('tikiCircle').addEventListener('touchstart', () => {
-  longPressTimer = setTimeout(openPreview, 600);
-}, { passive: true });
-document.getElementById('tikiCircle').addEventListener('touchend', () => clearTimeout(longPressTimer));
-function openPreview()  { document.getElementById('previewImage').src = 'TikiTheG.jpg'; document.getElementById('previewOverlay').classList.add('show'); }
-function closePreview() { document.getElementById('previewOverlay').classList.remove('show'); document.getElementById('previewImage').src = ''; }
+let longPressTimer=null;
+document.getElementById('tikiCircle').addEventListener('contextmenu',e=>{e.preventDefault();openPreview();});
+document.getElementById('tikiCircle').addEventListener('touchstart',()=>{longPressTimer=setTimeout(openPreview,600);},{passive:true});
+document.getElementById('tikiCircle').addEventListener('touchend',()=>clearTimeout(longPressTimer));
+function openPreview() {document.getElementById('previewImage').src='TikiTheG.jpg';document.getElementById('previewOverlay').classList.add('show');}
+function closePreview(){document.getElementById('previewOverlay').classList.remove('show');document.getElementById('previewImage').src='';}
 
-// ═══════════════════════════════════════════════════
-//  NAVIGATION
-// ═══════════════════════════════════════════════════
+function goHome(){window.location.href='../index.html';}
 
-function goHome() { window.location.href = '../index.html'; }
-
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  INIT
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 
 renderSlotScreen();
-// Poll shop affordability every 500ms
-setInterval(() => { if (currentSlot !== null) renderShop(); }, 500);
+setInterval(()=>{if(currentSlot!==null)renderShop();},500);
+setInterval(()=>{if(currentSlot!==null)saveCurrentSlot();},10000);
 </script>
 </body>
 </html>
