@@ -378,8 +378,6 @@
   <div id="cpsDisplay">No auto-clicks yet</div>
 
   <div id="statsBar">
-    <div class="stat-pill">Total: <span id="statTotal">0</span></div>
-    <div class="stat-pill">Manual: <span id="statHandClicks">0</span></div>
     <div class="stat-pill">Rebirths: <span id="statRebirth">0</span> (<span id="statRM">1</span>x mult)</div>
   </div>
 
@@ -438,56 +436,56 @@
 // ═══════════════════════════════════════════
 
 const AUTO_LEVELS = [
-  { level:1,  interval:2000,  cost:100           },
-  { level:2,  interval:1500,  cost:200           },
-  { level:3,  interval:1000,  cost:300           },
-  { level:4,  interval:500,   cost:500           },
-  { level:5,  interval:250,   cost:750           },
-  { level:6,  interval:125,   cost:2000          },
-  { level:7,  interval:50,    cost:4000          },
-  { level:8,  interval:25,    cost:10000         },
-  { level:9,  interval:10,    cost:50000         },
-  { level:10, interval:5,     cost:200000        },
-  { level:11, interval:2,     cost:1000000       },
-  { level:12, interval:1,     cost:5000000       },
-  { level:13, interval:900,   cost:12000000      },
-  { level:14, interval:800,   cost:30000000      },
-  { level:15, interval:700,   cost:80000000      },
-  { level:16, interval:600,   cost:200000000     },
-  { level:17, interval:500,   cost:500000000     },
-  { level:18, interval:400,   cost:1200000000    },
-  { level:19, interval:300,   cost:3000000000    },
-  { level:20, interval:200,   cost:8000000000    },
-  { level:21, interval:150,   cost:20000000000   },
-  { level:22, interval:100,   cost:50000000000   },
-  { level:23, interval:75,    cost:120000000000  },
-  { level:24, interval:50,    cost:300000000000  },
-  { level:25, interval:40,    cost:700000000000  },
-  { level:26, interval:30,    cost:2000000000000 },
-  { level:27, interval:25,    cost:5e12          },
-  { level:28, interval:20,    cost:12e12         },
-  { level:29, interval:15,    cost:30e12         },
-  { level:30, interval:10,    cost:80e12         },
-  { level:31, interval:9,     cost:200e12        },
-  { level:32, interval:8,     cost:500e12        },
-  { level:33, interval:7,     cost:1e15          },
-  { level:34, interval:6,     cost:3e15          },
-  { level:35, interval:5,     cost:8e15          },
-  { level:36, interval:4,     cost:20e15         },
-  { level:37, interval:3,     cost:60e15         },
-  { level:38, interval:2,     cost:150e15        },
-  { level:39, interval:1,     cost:400e15        },
-  { level:40, interval:900,   cost:1e18          },
-  { level:41, interval:700,   cost:3e18          },
-  { level:42, interval:500,   cost:8e18          },
-  { level:43, interval:350,   cost:20e18         },
-  { level:44, interval:200,   cost:60e18         },
-  { level:45, interval:100,   cost:150e18        },
-  { level:46, interval:50,    cost:400e18        },
-  { level:47, interval:25,    cost:1e21          },
-  { level:48, interval:10,    cost:3e21          },
-  { level:49, interval:5,     cost:8e21          },
-  { level:50, interval:1,     cost:20e21         },
+  { level:1,  interval:2000,  cost:50            },
+  { level:2,  interval:1500,  cost:100           },
+  { level:3,  interval:1000,  cost:150           },
+  { level:4,  interval:500,   cost:250           },
+  { level:5,  interval:250,   cost:375           },
+  { level:6,  interval:125,   cost:1000          },
+  { level:7,  interval:50,    cost:2000          },
+  { level:8,  interval:25,    cost:5000          },
+  { level:9,  interval:10,    cost:25000         },
+  { level:10, interval:5,     cost:100000        },
+  { level:11, interval:2,     cost:500000        },
+  { level:12, interval:1,     cost:2500000       },
+  { level:13, interval:900,   cost:6000000       },
+  { level:14, interval:800,   cost:15000000      },
+  { level:15, interval:700,   cost:40000000      },
+  { level:16, interval:600,   cost:100000000     },
+  { level:17, interval:500,   cost:250000000     },
+  { level:18, interval:400,   cost:600000000     },
+  { level:19, interval:300,   cost:1500000000    },
+  { level:20, interval:200,   cost:4000000000    },
+  { level:21, interval:150,   cost:10000000000   },
+  { level:22, interval:100,   cost:25000000000   },
+  { level:23, interval:75,    cost:60000000000   },
+  { level:24, interval:50,    cost:150000000000  },
+  { level:25, interval:40,    cost:350000000000  },
+  { level:26, interval:30,    cost:1000000000000 },
+  { level:27, interval:25,    cost:2.5e12        },
+  { level:28, interval:20,    cost:6e12          },
+  { level:29, interval:15,    cost:15e12         },
+  { level:30, interval:10,    cost:40e12         },
+  { level:31, interval:9,     cost:100e12        },
+  { level:32, interval:8,     cost:250e12        },
+  { level:33, interval:7,     cost:0.5e15        },
+  { level:34, interval:6,     cost:1.5e15        },
+  { level:35, interval:5,     cost:4e15          },
+  { level:36, interval:4,     cost:10e15         },
+  { level:37, interval:3,     cost:30e15         },
+  { level:38, interval:2,     cost:75e15         },
+  { level:39, interval:1,     cost:200e15        },
+  { level:40, interval:900,   cost:0.5e18        },
+  { level:41, interval:700,   cost:1.5e18        },
+  { level:42, interval:500,   cost:4e18          },
+  { level:43, interval:350,   cost:10e18         },
+  { level:44, interval:200,   cost:30e18         },
+  { level:45, interval:100,   cost:75e18         },
+  { level:46, interval:50,    cost:200e18        },
+  { level:47, interval:25,    cost:0.5e21        },
+  { level:48, interval:10,    cost:1.5e21        },
+  { level:49, interval:5,     cost:4e21          },
+  { level:50, interval:1,     cost:10e21         },
 ];
 
 // Manual-click multipliers only — does NOT affect auto
@@ -795,8 +793,6 @@ function updateDisplay(){
   const cps=calcCPS(state,frenzyActive);
   document.getElementById('cpsDisplay').textContent=
     cps===0?'No auto-clicks yet':(Number.isInteger(cps)?cps:cps.toFixed(2))+' clicks/sec (auto)';
-  document.getElementById('statTotal').textContent     =formatNum(state.totalEarned||0);
-  document.getElementById('statHandClicks').textContent=formatNum(state.handClicks||0);
   document.getElementById('statRebirth').textContent   =state.rebirthCount||0;
   document.getElementById('statRM').textContent        =getRebirthMultiplier();
   renderShop();
@@ -861,32 +857,33 @@ function renderAutoShop(){
   if(state.autoLevel>0){
     const owned=AUTO_LEVELS[state.autoLevel-1];
     const eff  =Math.max(1,Math.round(owned.interval*getAutoIntervalMult()));
-    el.innerHTML+=item(true,true,'⚙️ Auto Click Lv.'+state.autoLevel,
+    el.appendChild(item(true,true,'⚙️ Auto Click Lv.'+state.autoLevel,
       'Ticks every '+fmtInterval(eff)+(frenzyActive?' (frenzy boosted!)':''),
-      '✅ Owned','','Owned');
+      '✅ Owned','','Owned'));
   }
   if(next<=AUTO_LEVELS.length){
     const nx=AUTO_LEVELS[next-1];
     const can=state.clicks>=nx.cost;
-    el.innerHTML+=item(can,false,'⚙️ Auto Click Lv.'+next,
+    el.appendChild(item(can,false,'⚙️ Auto Click Lv.'+next,
       'Ticks every '+fmtInterval(nx.interval),
       'Cost: 🗿 '+formatNum(nx.cost)+' clicks',
-      'buyAuto()','Buy');
+      'buyAuto','Buy'));
   } else {
-    el.innerHTML+=item(true,true,'⚙️ Auto Click Lv.50','Every 1ms — absolute max!','','','MAX');
+    el.appendChild(item(true,true,'⚙️ Auto Click Lv.50','Every 1ms — absolute max!','','','MAX'));
   }
-  // AFK Auto
-  el.innerHTML+='<div class="shop-section-label">🌙 AFK Auto</div>';
+  const afkLabel=document.createElement('div');
+  afkLabel.className='shop-section-label'; afkLabel.textContent='🌙 AFK Auto';
+  el.appendChild(afkLabel);
   if(state.afkAutoOwned){
-    el.innerHTML+=item(true,true,'🌙 AFK Auto',
+    el.appendChild(item(true,true,'🌙 AFK Auto',
       'Earns clicks while the tab is closed — accurately!',
-      '✅ Owned','','Owned');
+      '✅ Owned','','Owned'));
   } else {
-    const can=state.clicks>=5000000;
-    el.innerHTML+=item(can,false,'🌙 AFK Auto',
+    const can=state.clicks>=2500000;
+    el.appendChild(item(can,false,'🌙 AFK Auto',
       'Keeps auto-clicking accurately even when the tab is closed.',
-      'Cost: 🗿 5,000,000 clicks',
-      'buyAfkAuto()','Buy');
+      'Cost: 🗿 2,500,000 clicks',
+      'buyAfkAuto','Buy'));
   }
 }
 
@@ -899,47 +896,53 @@ function renderMultShop(){
   const effective=getEffectiveMultLevel();
 
   if(state.multLevel>1||rm>1){
-    el.innerHTML+=item(true,true,
+    el.appendChild(item(true,true,
       '✖️ x'+formatNum(effective)+' Multiplier',
       'Base x'+formatNum(state.multLevel)+(rm>1?' × Rebirth x'+formatNum(rm):'')+'  =  x'+formatNum(effective),
-      '✅ Active (manual clicks only)','','Active');
+      '✅ Active (manual clicks only)','','Active'));
   }
   if(idx<MULT_LEVELS.length){
     const nx=MULT_LEVELS[idx];
     const can=state.clicks>=nx.cost;
     const afterEff=nx.level*rm;
-    el.innerHTML+=item(can,false,
+    el.appendChild(item(can,false,
       '✖️ x'+formatNum(nx.level)+' Clicks',
       'With your Rebirth x'+formatNum(rm)+' that\'s effectively x'+formatNum(afterEff)+' per click',
       'Cost: 🗿 '+formatNum(nx.cost)+' clicks',
-      'buyMult()','Buy');
+      'buyMult','Buy'));
   } else {
-    el.innerHTML+=item(true,true,'✖️ x1,000,000,000 — Maximum!','Highest tier reached! 🐱','','','MAX');
+    el.appendChild(item(true,true,'✖️ x1,000,000,000 — Maximum!','Highest tier reached! 🐱','','','MAX'));
   }
-  el.innerHTML+='<div class="shop-section-label" style="opacity:0.5;font-size:0.72em">Multiplier applies to manual clicks only. Auto always gives 1 click per tick.</div>';
+  const note=document.createElement('div');
+  note.className='shop-section-label';
+  note.style.cssText='opacity:0.5;font-size:0.72em';
+  note.textContent='Multiplier applies to manual clicks only. Auto always gives 1 click per tick.';
+  el.appendChild(note);
 }
 
 // ── TIKI EXTRAS ──
 function renderExtrasShop(){
   const el=document.getElementById('panel-extras');
-  el.innerHTML='<div class="shop-section-label">🔥 Special Events</div>';
+  el.innerHTML='';
+  const lbl=document.createElement('div');
+  lbl.className='shop-section-label'; lbl.textContent='🔥 Special Events';
+  el.appendChild(lbl);
   if(state.frenzyOwned){
-    el.innerHTML+=item(true,true,'🔥 Tiki Frenzy',
+    el.appendChild(item(true,true,'🔥 Tiki Frenzy',
       '25% chance every minute: x3 clicks, x2 auto speed, blood-red screen & raining Tikis for 20s!',
-      '✅ Owned — frenzy checks running','','Owned');
+      '✅ Owned — frenzy checks running','','Owned'));
   } else {
     const can=state.clicks>=50000;
-    el.innerHTML+=item(can,false,'🔥 Tiki Frenzy',
+    el.appendChild(item(can,false,'🔥 Tiki Frenzy',
       '25% chance every minute: x3 clicks, x2 faster auto, animated blood-red background & raining Tikis for 20 seconds!',
       'Cost: 🗿 50,000 clicks',
-      'buyFrenzy()','Buy');
+      'buyFrenzy','Buy'));
   }
   if(frenzyActive){
-    el.innerHTML+=`<div class="shop-item owned-item" style="margin-top:8px">
-      <div class="item-info">
-        <div class="item-name" style="color:#ff4444">🔥 FRENZY ACTIVE!</div>
-        <div class="item-desc" style="color:#ff8888">Time remaining: ${frenzyTimeLeft}s</div>
-      </div></div>`;
+    const fb=document.createElement('div');
+    fb.className='shop-item owned-item'; fb.style.marginTop='8px';
+    fb.innerHTML='<div class="item-info"><div class="item-name" style="color:#ff4444">🔥 FRENZY ACTIVE!</div><div class="item-desc" style="color:#ff8888">Time remaining: '+frenzyTimeLeft+'s</div></div>';
+    el.appendChild(fb);
   }
 }
 
@@ -948,45 +951,73 @@ function renderRebirthShop(){
   const el=document.getElementById('panel-rebirth');
   el.innerHTML='';
   const req=5000000*Math.pow(10,state.rebirthCount||0);
-  const can=(state.totalEarned||0)>=req;
+  const can=(state.clicks||0)>=req;
   const rc =state.rebirthCount||0;
-  const nextMult=rc+2; // after rebirth it'll be rc+1+1
+  const nextMult=rc+2;
 
-  // Rebirth button
-  el.innerHTML+='<div class="shop-section-label">✨ Rebirth</div>';
-  el.innerHTML+=`<div class="shop-item${can?' affordable':''}">
-    <div class="item-info">
-      <div class="item-name">✨ Rebirth!</div>
-      <div class="item-desc">Reset your clicks &amp; upgrades. Your rebirth multiplier increases by 1.</div>
-      <div class="item-desc">Requires <strong style="color:var(--gold)">${formatNum(req)}</strong> total earned — you have ${formatNum(state.totalEarned||0)}.</div>
-      <div class="item-desc" style="color:var(--gold);margin-top:4px">Current multiplier: <strong>x${rc+1}</strong> → After rebirth: <strong>x${nextMult}</strong></div>
-    </div>
-    <button class="buy-btn" ${can?'':'disabled'} onclick="doRebirth()">Rebirth</button>
-  </div>`;
+  const lbl=document.createElement('div');
+  lbl.className='shop-section-label'; lbl.textContent='✨ Rebirth';
+  el.appendChild(lbl);
 
-  // Info box
-  el.innerHTML+=`<div class="shop-item owned-item" style="margin-top:12px">
-    <div class="item-info">
-      <div class="item-name">💎 How Rebirths Work</div>
-      <div class="item-desc">Each rebirth resets your run but permanently increases your rebirth multiplier by 1x. Your multiplier boosts manual clicks. You've rebirthed <strong style="color:var(--gold)">${rc}</strong> time${rc!==1?'s':''}.</div>
-    </div>
-  </div>`;
+  // Rebirth card with real button
+  const card=document.createElement('div');
+  card.className='shop-item'+(can?' affordable':'');
+  const info=document.createElement('div'); info.className='item-info';
+  info.innerHTML='<div class="item-name">✨ Rebirth!</div>'
+    +'<div class="item-desc">Spend your clicks to rebirth. Resets everything except your rebirth multiplier.</div>'
+    +'<div class="item-desc">Cost: <strong style="color:var(--gold)">'+formatNum(req)+'</strong> clicks — you have '+formatNum(state.clicks||0)+'.</div>'
+    +'<div class="item-desc" style="color:var(--gold);margin-top:4px">Current multiplier: <strong>x'+(rc+1)+'</strong> → After: <strong>x'+nextMult+'</strong></div>';
+  const btn=document.createElement('button');
+  btn.className='buy-btn'; btn.textContent='Rebirth'; btn.disabled=!can;
+  if(can){ btn.addEventListener('pointerdown',function(e){ e.preventDefault(); doRebirth(); }); }
+  card.appendChild(info); card.appendChild(btn);
+  el.appendChild(card);
+
+  const ib=document.createElement('div');
+  ib.className='shop-item owned-item'; ib.style.marginTop='12px';
+  ib.innerHTML='<div class="item-info"><div class="item-name">💎 How Rebirths Work</div>'
+    +'<div class="item-desc">Spend clicks to rebirth — resets your run but permanently adds +1 to your rebirth multiplier, boosting manual clicks forever. You\'ve rebirthed <strong style="color:var(--gold)">'+rc+'</strong> time'+(rc!==1?'s':'')+'.</div></div>';
+  el.appendChild(ib);
 }
 
 // ── ITEM BUILDER ──
+// Returns a real DOM node — buttons survive re-renders and fire reliably
 function item(affordable,owned,name,desc,sub,fn,btnLabel){
-  const cls   =owned?'owned-item':(affordable?'affordable':'');
-  const dis   =(owned||!affordable)?'disabled':'';
-  const btnCls=owned?'owned-btn':'';
-  const oc    =fn?`onclick="${fn}"`:'';
-  return `<div class="shop-item ${cls}">
-    <div class="item-info">
-      <div class="item-name">${name}</div>
-      ${desc?`<div class="item-desc">${desc}</div>`:''}
-      ${sub ?`<div class="${owned?'item-owned-label':'item-desc'}">${sub}</div>`:''}
-    </div>
-    <button class="buy-btn ${btnCls}" ${dis} ${oc}>${btnLabel}</button>
-  </div>`;
+  const wrap=document.createElement('div');
+  wrap.className='shop-item'+(owned?' owned-item':(affordable?' affordable':''));
+
+  const info=document.createElement('div');
+  info.className='item-info';
+  info.innerHTML='<div class="item-name">'+name+'</div>'
+    +(desc?'<div class="item-desc">'+desc+'</div>':'')
+    +(sub?'<div class="'+(owned?'item-owned-label':'item-desc')+'">'+sub+'</div>':'');
+
+  const btn=document.createElement('button');
+  btn.className='buy-btn'+(owned?' owned-btn':'');
+  btn.textContent=btnLabel;
+  btn.disabled=(owned||!affordable);
+  if(fn && !btn.disabled){
+    const fnName=fn.replace('()','');
+    btn.addEventListener('pointerdown',function(e){
+      e.preventDefault(); e.stopPropagation();
+      if(window[fnName]) window[fnName]();
+    });
+  }
+
+  wrap.appendChild(info);
+  wrap.appendChild(btn);
+  return wrap;
+}
+
+// Append a DOM node or HTML string into el
+function appendItem(el, node){
+  if(typeof node==='string'){
+    const tmp=document.createElement('div');
+    tmp.innerHTML=node;
+    while(tmp.firstChild) el.appendChild(tmp.firstChild);
+  } else {
+    el.appendChild(node);
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -1004,8 +1035,8 @@ function buyAuto(){
 }
 
 function buyAfkAuto(){
-  if(state.afkAutoOwned||state.clicks<5000000) return;
-  state.clicks-=5000000; state.afkAutoOwned=true;
+  if(state.afkAutoOwned||state.clicks<2500000) return;
+  state.clicks-=2500000; state.afkAutoOwned=true;
   saveCurrentSlot(); updateDisplay();
   showToast('🌙 AFK Auto unlocked! Earns while you\'re away.');
 }
@@ -1029,12 +1060,13 @@ function buyFrenzy(){
 
 function doRebirth(){
   const req=5000000*Math.pow(10,state.rebirthCount||0);
-  if((state.totalEarned||0)<req) return;
+  if((state.clicks||0)<req) return;
   const rc =(state.rebirthCount||0)+1;
   const fo  =state.frenzyOwned;
   state=emptyState();
   state.rebirthCount=rc;
   state.frenzyOwned =fo;
+  // clicks were spent — state already reset to 0
   saveCurrentSlot();
   if(autoWorker){autoWorker.terminate();autoWorker=null;}
   if(fo) startFrenzySystem();
