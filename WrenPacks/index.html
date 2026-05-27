@@ -243,6 +243,7 @@
     .dropdown-item.active[data-value="normal"] { --active-bg: #ffffff; --active-text: #000; }
     .dropdown-item.active[data-value="orin"] { --active-bg: #ff8c00; --active-text: #fff; }
     .dropdown-item.active[data-value="baldcena"] { --active-bg: #1565c0; --active-text: #fff; }
+    .dropdown-item.active[data-value="flags"]    { --active-bg: #f5d020; --active-text: #111; }
     .dropdown-item.active[data-value="all"] { --active-bg: #7c3aed; --active-text: #fff; }
     
     body.light-mode .dropdown-btn { background: #fff !important; color: #111 !important; border-color: #7c3aed; }
@@ -1013,6 +1014,11 @@
     body.pack-baldcena {
       --pack-gradient: linear-gradient(135deg, #0d3b6e, #1565c0);
       --pack-text: #ffffff;
+    }
+
+    body.pack-flags {
+      --pack-gradient: linear-gradient(135deg, #b8a000, #f5d020);
+      --pack-text: #111111;
     }
 
     .pack:hover { transform: scale(1.04) translateY(-5px); }
@@ -2350,6 +2356,7 @@
               <div class="dropdown-item active" data-value="normal" onclick="selectPackOption('normal', 'Normal Pack')">Normal Pack</div>
               <div class="dropdown-item" data-value="orin" onclick="selectPackOption('orin', 'The Mind Of Orin Pack *Goofy*')">The Mind Of Orin Pack *Goofy*</div>
               <div class="dropdown-item" data-value="baldcena" onclick="selectPackOption('baldcena', 'Bald Cena Pack')">Bald Cena Pack</div>
+              <div class="dropdown-item" data-value="flags" onclick="selectPackOption('flags', 'Flags Pack')">Flags Pack</div>
             </div>
           </div>
         </div>
@@ -2646,6 +2653,7 @@
           <div class="dropdown-item" data-value="normal" onclick="selectIndexPackOption('normal', 'Normal Pack')">Normal Pack</div>
           <div class="dropdown-item" data-value="orin" onclick="selectIndexPackOption('orin', 'The Mind Of Orin Pack *Goofy*')">The Mind Of Orin Pack *Goofy*</div>
           <div class="dropdown-item" data-value="baldcena" onclick="selectIndexPackOption('baldcena', 'Bald Cena Pack')">Bald Cena Pack</div>
+          <div class="dropdown-item" data-value="flags" onclick="selectIndexPackOption('flags', 'Flags Pack')">Flags Pack</div>
         </div>
       </div>
     </div>
@@ -2686,7 +2694,8 @@
     const packs = [
       { id: "normal",   name: "Normal Pack",                       color: "linear-gradient(135deg, #333, #000)" },
       { id: "orin",     name: "The Mind Of Orin Pack *Goofy*",     color: "linear-gradient(135deg, #ff8c00, #ff4500)" },
-      { id: "baldcena", name: "Bald Cena Pack",                    color: "linear-gradient(135deg, #0d3b6e, #1565c0)" }
+      { id: "baldcena", name: "Bald Cena Pack",                    color: "linear-gradient(135deg, #0d3b6e, #1565c0)" },
+      { id: "flags",    name: "Flags Pack",                        color: "linear-gradient(135deg, #b8a000, #f5d020)" }
     ];
 
     const items = [
@@ -2730,7 +2739,7 @@
       { name: "OGOrin",            display: "OG Orin",                 rarity: "Legendary", pack: "orin" },
       { name: "Windows0989.9",     display: "Windows 0989.9",          rarity: "Omega",     pack: "orin" },
       { name: "SantaBlake",        display: "Blake's Sleigh",           rarity: "Omega",     pack: "orin" },
-      { name: "ehfrkjeilopfijbuhrf", display: "ehfrkjeilopfijbuhrf",    rarity: "Null",      pack: "orin" },
+      { name: "ehfrkjeilopfijbuhrf", display: "ehfrkjeilopfijbuhrf",    rarity: "Null",      pack: "orin", isGif: true },
 
       // ── Bald Cena Pack ────────────────────────────────────────────────────────
       { name: "TheRealBaldCena72", display: "Bald Cena",               rarity: "Common",    pack: "baldcena" },
@@ -2753,6 +2762,30 @@
       { name: "LucasHalfTable",    display: "LucasHalfTable",          rarity: "Legendary", pack: "baldcena" },
       { name: "BaldOrin",          display: "Bald Orin",               rarity: "Omega",     pack: "baldcena" },
       { name: "TheApexWarden",     display: "The Apex Warden",         rarity: "Omega",     pack: "baldcena" },
+
+      // ── Flags Pack ───────────────────────────────────────────────────────────
+      { name: "Russia",        display: "Russia",        rarity: "Common",    pack: "flags" },
+      { name: "Canada",        display: "Canada",        rarity: "Common",    pack: "flags" },
+      { name: "Usa",           display: "Usa",           rarity: "Common",    pack: "flags" },
+      { name: "China",         display: "China",         rarity: "Common",    pack: "flags" },
+      { name: "Japan",         display: "Japan",         rarity: "Uncommon",  pack: "flags" },
+      { name: "Germany",       display: "Germany",       rarity: "Uncommon",  pack: "flags" },
+      { name: "Italy",         display: "Italy",         rarity: "Uncommon",  pack: "flags" },
+      { name: "France",        display: "France",        rarity: "Uncommon",  pack: "flags" },
+      { name: "Brazil",        display: "Brazil",        rarity: "Uncommon",  pack: "flags" },
+      { name: "UK",            display: "UK",            rarity: "Rare",      pack: "flags" },
+      { name: "Egypt",         display: "Egypt",         rarity: "Rare",      pack: "flags" },
+      { name: "Spain",         display: "Spain",         rarity: "Rare",      pack: "flags" },
+      { name: "India",         display: "India",         rarity: "Rare",      pack: "flags" },
+      { name: "Australia",     display: "Australia",     rarity: "Epic",      pack: "flags" },
+      { name: "Mexico",        display: "Mexico",        rarity: "Epic",      pack: "flags" },
+      { name: "Poland",        display: "Poland",        rarity: "Epic",      pack: "flags" },
+      { name: "Finland",       display: "Finland",       rarity: "Legendary", pack: "flags" },
+      { name: "Ukraine",       display: "Ukraine",       rarity: "Legendary", pack: "flags" },
+      { name: "Greenland",     display: "Greenland",     rarity: "Legendary", pack: "flags" },
+      { name: "Mongol Empire", display: "Mongol Empire", rarity: "Omega",     pack: "flags" },
+      { name: "USSR",          display: "USSR",          rarity: "Omega",     pack: "flags" },
+      { name: "Roman Empire",  display: "Roman Empire",  rarity: "Null",      pack: "flags", isGif: true },
 
       // ── Void / Global ─────────────────────────────────────────────────────────
       { name: "OrinFlower",        display: "Orin Flower",              rarity: "Void",      pack: "global" },
@@ -3341,7 +3374,7 @@
     }
 
     function hasCompletedAnyPack(inv) {
-      const packKeys = ["normal", "orin", "baldcena"];
+      const packKeys = ["normal", "orin", "baldcena", "flags"];
       for (const pk of packKeys) {
         const packItems = items.filter(i => i.pack === pk);
         if (packItems.length === 0) continue;
@@ -3452,16 +3485,23 @@
       const btn = document.getElementById('packDropdownBtn');
       btn.textContent = label;
       
-      // Update glow color
-      if (value === 'normal' || value === 'orin' || value === 'baldcena') {
-        btn.style.setProperty('--glow-color', '#ffffff');
-        btn.style.setProperty('--glow-rgba', 'rgba(255, 255, 255, 0.5)');
+      // Update glow color per pack
+      if (value === 'orin') {
+        btn.style.setProperty('--glow-color', '#ff8c00');
+        btn.style.setProperty('--glow-rgba', 'rgba(255, 140, 0, 0.5)');
+        btn.classList.add('selected-glow');
+      } else if (value === 'baldcena') {
+        btn.style.setProperty('--glow-color', '#1565c0');
+        btn.style.setProperty('--glow-rgba', 'rgba(21, 101, 192, 0.5)');
+        btn.classList.add('selected-glow');
+      } else if (value === 'flags') {
+        btn.style.setProperty('--glow-color', '#f5d020');
+        btn.style.setProperty('--glow-rgba', 'rgba(245, 208, 32, 0.5)');
+        btn.classList.add('selected-glow');
       } else {
-        btn.style.setProperty('--glow-color', '#00ff88');
-        btn.style.setProperty('--glow-rgba', 'rgba(0, 255, 136, 0.5)');
-      }
-      
-      btn.classList.add('selected-glow'); 
+        // Normal pack — no glow
+        btn.classList.remove('selected-glow');
+      } 
       document.getElementById('packDropdown').classList.remove('open');
       const row = document.getElementById('packDropdown').closest('.settings-row');
       if (row) row.classList.remove('has-open-dropdown');
@@ -3572,11 +3612,13 @@
 
     function updatePackSelection() {
       // Update pack visual style
-      document.body.classList.remove("pack-orin", "pack-baldcena");
+      document.body.classList.remove("pack-orin", "pack-baldcena", "pack-flags");
       if (selectedPackId === "orin") {
         document.body.classList.add("pack-orin");
       } else if (selectedPackId === "baldcena") {
         document.body.classList.add("pack-baldcena");
+      } else if (selectedPackId === "flags") {
+        document.body.classList.add("pack-flags");
       }
     }
 
@@ -4005,7 +4047,7 @@
       }
 
       if (groupInventoryByPack) {
-        const packOrder = ["normal", "orin", "baldcena", "global"];
+        const packOrder = ["normal", "orin", "baldcena", "flags", "global"];
         packOrder.forEach(pId => {
           const packItems = displayItems.filter(i => {
             const pArr = (typeof i.pack === 'string') ? i.pack.split(',') : [i.pack];
@@ -4046,7 +4088,7 @@
       
       const glowColor = rarityGlow[i.rarity] || 'transparent';
       
-      let displayImg = i.name + ".jpg";
+      let displayImg = i.isGif ? i.name + ".gif" : i.name + ".jpg";
       let displayName = i.display;
       if (isLocked && i.rarity === "Null") {
         displayImg = "questionmark.png";
@@ -4072,7 +4114,8 @@
       `;
       
       if (!applyLockedStyle) {
-        card.onclick = () => openCharacterViewer(i.name, displayName, i.rarity, (isLocked && i.rarity === "Null") ? "questionmark.png" : null);
+        const imgPath = (isLocked && i.rarity === "Null") ? "questionmark.png" : (i.isGif ? i.name + ".gif" : null);
+        card.onclick = () => openCharacterViewer(i.name, displayName, i.rarity, imgPath);
       }
       return card;
     }
@@ -4253,6 +4296,23 @@
         localStorage.setItem(MONEY_UNLOCK_KEY, "1");
         localStorage.setItem(SNOW_UNLOCK_KEY, "1");
         alert("💰 Cheat applied! Money set to $1,000,000,000.");
+        return;
+      }
+
+      if (code === "Banana-What_Johnthe444NNN") {
+        if (usedCodes["Banana-What_Johnthe444NNN"]) { alert("Already redeemed!"); closeCode(); return; }
+        usedCodes["Banana-What_Johnthe444NNN"] = true;
+        localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
+        let inv = JSON.parse(localStorage.getItem("inventory")) || {};
+        const unlockedItems = items.filter(i => i.rarity !== "Void" && !inv[i.name]);
+        unlockedItems.forEach(i => { inv[i.name] = 1; });
+        localStorage.setItem("inventory", JSON.stringify(inv));
+        newItems += unlockedItems.length;
+        updateNotif();
+        syncRadioactiveUnlockFromInventory();
+        syncWrenPacksThemeUnlocks();
+        closeCode();
+        alert(`🍌 Code redeemed! You received 1× of every character you didn't already have (${unlockedItems.length} new character${unlockedItems.length !== 1 ? 's' : ''})!`);
         return;
       }
 
@@ -4525,7 +4585,7 @@
       const reveal = document.getElementById("nullReveal");
       const imgEl  = document.getElementById("nullImg");
       const nameEl = document.getElementById("nullName");
-      imgEl.src = item.name + ".jpg";
+      imgEl.src = item.isGif ? item.name + ".gif" : item.name + ".jpg";
       nameEl.textContent = "★ " + item.display.toUpperCase() + (isNew ? " ★  ✦ NEW" : " ★");
       reveal.style.display = "flex";
       reveal.classList.add("active-reveal");
