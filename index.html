@@ -10093,148 +10093,245 @@ document.addEventListener('keydown', function(e) {
 /* ── VERSION BADGE ── */
 #versionBadge {
   position: fixed;
-  bottom: 14px;
-  left: 14px;
+  bottom: 16px;
+  left: 16px;
   z-index: 9000;
   font-family: 'Rubik', sans-serif;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  padding: 5px 10px;
+  letter-spacing: 0.06em;
+  padding: 5px 12px;
   border-radius: 999px;
   cursor: pointer;
   user-select: none;
-  background: rgba(124,58,237,0.18);
-  color: var(--accent, #7c3aed);
-  border: 1px solid rgba(124,58,237,0.28);
-  backdrop-filter: blur(6px);
-  transition: background 0.18s, transform 0.14s, box-shadow 0.18s;
-  box-shadow: 0 2px 10px rgba(124,58,237,0.10);
+  background: rgba(124,58,237,0.15);
+  color: #c4b5fd;
+  border: 1px solid rgba(124,58,237,0.30);
+  backdrop-filter: blur(8px);
+  transition: background 0.18s, transform 0.14s, box-shadow 0.18s, color 0.18s;
+  box-shadow: 0 2px 12px rgba(124,58,237,0.12);
 }
 #versionBadge:hover {
   background: rgba(124,58,237,0.28);
-  transform: translateY(-1px) scale(1.04);
-  box-shadow: 0 4px 16px rgba(124,58,237,0.22);
+  color: #fff;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(124,58,237,0.28);
 }
-#versionBadge:active { transform: scale(0.97); }
+#versionBadge:active { transform: scale(0.96); }
 
-/* ── VERSION MODAL OVERLAY ── */
+/* ── OVERLAY ── */
 #versionOverlay {
   display: none;
   position: fixed;
   inset: 0;
   z-index: 9500;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(4px);
+  background: rgba(0,0,0,0.60);
+  backdrop-filter: blur(6px);
   align-items: center;
   justify-content: center;
+  padding: 20px;
 }
 #versionOverlay.open { display: flex; }
+
+/* ── MODAL ── */
 #versionModal {
-  background: #18102e;
-  border: 1px solid rgba(124,58,237,0.32);
-  border-radius: 18px;
-  padding: 32px 30px 26px;
-  max-width: 440px;
-  width: calc(100vw - 40px);
-  box-shadow: 0 24px 60px rgba(0,0,0,0.5), inset 0 0 32px rgba(124,58,237,0.05);
+  background: linear-gradient(160deg, #1a1030 0%, #130d26 100%);
+  border: 1px solid rgba(139,92,246,0.25);
+  border-radius: 20px;
+  width: min(680px, calc(100vw - 40px));
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04) inset;
   position: relative;
   color: #f0f0f0;
   font-family: 'Rubik', sans-serif;
-  animation: vModalIn 0.28s cubic-bezier(0.22,1.2,0.36,1);
+  animation: vModalIn 0.30s cubic-bezier(0.22,1.2,0.36,1);
 }
 @keyframes vModalIn {
-  from { opacity:0; transform:scale(0.88) translateY(12px); }
+  from { opacity:0; transform:scale(0.90) translateY(16px); }
   to   { opacity:1; transform:scale(1) translateY(0); }
 }
-#versionModal .v-badge-pill {
-  display: inline-block;
-  background: rgba(124,58,237,0.22);
-  color: #a78bfa;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  padding: 3px 10px;
+
+/* ── HEADER ── */
+#versionModal .v-header {
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid rgba(139,92,246,0.14);
+  background: rgba(139,92,246,0.06);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+#versionModal .v-header-left { flex: 1; min-width: 0; }
+#versionModal .v-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(139,92,246,0.20);
+  color: #c4b5fd;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 3px 9px;
   border-radius: 999px;
-  border: 1px solid rgba(124,58,237,0.30);
-  margin-bottom: 12px;
+  border: 1px solid rgba(139,92,246,0.28);
+  margin-bottom: 5px;
 }
 #versionModal h2 {
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 900;
-  margin-bottom: 6px;
+  margin: 0;
   line-height: 1.25;
   color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 #versionModal .v-subtitle {
-  font-size: 13px;
-  color: rgba(240,240,240,0.60);
-  margin-bottom: 20px;
-  line-height: 1.5;
+  font-size: 12px;
+  color: rgba(240,240,240,0.50);
+  margin: 3px 0 0;
+  line-height: 1.4;
 }
-#versionModal .v-section-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.09em;
+
+/* ── VERSION NAV ARROWS ── */
+#versionModal .v-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+#versionModal .v-arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(139,92,246,0.22);
+  background: rgba(139,92,246,0.10);
+  color: rgba(196,181,253,0.45);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: not-allowed;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  user-select: none;
+  line-height: 1;
+}
+#versionModal .v-arrow.active {
+  color: #c4b5fd;
+  cursor: pointer;
+  border-color: rgba(139,92,246,0.40);
+}
+#versionModal .v-arrow.active:hover {
+  background: rgba(139,92,246,0.25);
+  color: #fff;
+  border-color: rgba(139,92,246,0.60);
+}
+#versionModal .v-arrow.active:active { transform: scale(0.93); }
+
+/* ── CLOSE BTN ── */
+#versionModal .v-close-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255,255,255,0.06);
+  color: rgba(240,240,240,0.40);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.14s, background 0.14s;
+  flex-shrink: 0;
+}
+#versionModal .v-close-btn:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.12);
+}
+
+/* ── BODY (SCROLLABLE) ── */
+#versionModal .v-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 16px 24px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139,92,246,0.25) transparent;
+}
+#versionModal .v-body::-webkit-scrollbar { width: 5px; }
+#versionModal .v-body::-webkit-scrollbar-track { background: transparent; }
+#versionModal .v-body::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.25); border-radius: 99px; }
+
+/* ── GRID LAYOUT ── */
+#versionModal .v-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+#versionModal .v-card {
+  background: rgba(139,92,246,0.07);
+  border: 1px solid rgba(139,92,246,0.14);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+#versionModal .v-card.v-full { grid-column: 1 / -1; }
+#versionModal .v-card-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   color: #a78bfa;
-  margin: 16px 0 7px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
+#versionModal .v-card-title span { font-size: 13px; }
 #versionModal ul.v-list {
   list-style: none;
   padding: 0;
   margin: 0;
+  columns: 1;
 }
+#versionModal .v-card.v-full ul.v-list { columns: 2; column-gap: 12px; }
 #versionModal ul.v-list li {
-  font-size: 13px;
-  color: rgba(240,240,240,0.82);
-  padding: 4px 0 4px 18px;
+  font-size: 12px;
+  color: rgba(240,240,240,0.78);
+  padding: 2px 0 2px 14px;
   position: relative;
-  line-height: 1.45;
+  line-height: 1.5;
+  break-inside: avoid;
 }
 #versionModal ul.v-list li::before {
-  content: '•';
+  content: '›';
   position: absolute;
-  left: 4px;
+  left: 2px;
   color: #7c3aed;
   font-size: 14px;
+  line-height: 1.3;
 }
-#versionModal .v-divider {
-  height: 1px;
-  background: rgba(124,58,237,0.16);
-  margin: 18px 0 0;
+
+/* ── FOOTER ── */
+#versionModal .v-footer {
+  padding: 10px 24px 14px;
+  border-top: 1px solid rgba(139,92,246,0.10);
+  flex-shrink: 0;
 }
-#versionModal .v-close-btn {
-  position: absolute;
-  top: 14px;
-  right: 16px;
-  background: none;
-  border: none;
-  color: rgba(240,240,240,0.45);
-  font-size: 20px;
-  cursor: pointer;
-  line-height: 1;
-  padding: 4px;
-  border-radius: 6px;
-  transition: color 0.14s, background 0.14s;
-}
-#versionModal .v-close-btn:hover {
-  color: #fff;
-  background: rgba(255,255,255,0.08);
-}
-/* History section */
 #versionModal .v-history-toggle {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: none;
   border: none;
-  color: rgba(167,139,250,0.70);
+  color: rgba(167,139,250,0.55);
   font-family: 'Rubik', sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
-  padding: 10px 0 0;
+  padding: 0;
   letter-spacing: 0.03em;
   transition: color 0.14s;
 }
@@ -10242,12 +10339,11 @@ document.addEventListener('keydown', function(e) {
 #versionModal .v-history-list { display: none; margin-top: 8px; }
 #versionModal .v-history-list.open { display: block; }
 #versionModal .v-history-entry {
-  font-size: 12px;
-  color: rgba(240,240,240,0.45);
-  padding: 3px 0 3px 4px;
-  border-left: 2px solid rgba(124,58,237,0.20);
-  margin-left: 2px;
-  margin-bottom: 4px;
+  font-size: 11px;
+  color: rgba(240,240,240,0.38);
+  padding: 3px 0 3px 8px;
+  border-left: 2px solid rgba(124,58,237,0.18);
+  margin-bottom: 3px;
 }
 </style>
 
@@ -10257,45 +10353,74 @@ document.addEventListener('keydown', function(e) {
 <!-- VERSION MODAL -->
 <div id="versionOverlay" onclick="if(event.target===this)this.classList.remove('open')">
   <div id="versionModal">
-    <button class="v-close-btn" onclick="document.getElementById('versionOverlay').classList.remove('open')" aria-label="Close">✕</button>
-    <div class="v-badge-pill">V 1.0</div>
-    <h2>Welcome to Wren.fun!</h2>
-    <p class="v-subtitle">We're now doing a version format, so here's everything we've made so far!</p>
 
-    <div class="v-section-title">15 Pages</div>
-    <ul class="v-list">
-      <li>🍀 Lucky Generator</li>
-      <li>📦 Wren Packs</li>
-      <li>👥 Small Creators</li>
-      <li>🎡 The Wren Wheel of Doom</li>
-      <li>🧀 Cheese's Art</li>
-      <li>🎣 Catch Anything</li>
-      <li>🏆 The Hall of Fame</li>
-      <li>⚔️ Object Attack</li>
-      <li>🏓 The Pong World Cup</li>
-      <li>✨ UnOh Infinity</li>
-      <li>🎮 Flappy Wren</li>
-      <li>⏳ Life Countdown</li>
-      <li>🖼️ Easy Image Download</li>
-      <li>🐈 Tiki Clicker</li>
-      <li>📝 Credits</li>
-    </ul>
-
-    <div class="v-section-title">Themes</div>
-    <ul class="v-list">
-      <li>94 Main Menu Themes available to unlock and collect</li>
-    </ul>
-
-    <div class="v-section-title">Other</div>
-    <ul class="v-list">
-      <li>Bug Fixes</li>
-    </ul>
-
-    <div class="v-divider"></div>
-    <button class="v-history-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'▾ Hide Version History':'▸ Version History'">▸ Version History</button>
-    <div class="v-history-list">
-      <div class="v-history-entry"><strong>V 1.0</strong> — Initial release. 15 pages, 94 themes, bug fixes.</div>
+    <!-- HEADER -->
+    <div class="v-header">
+      <div class="v-header-left">
+        <div class="v-pill">✦ Release Notes</div>
+        <h2>Welcome to Wren.fun!</h2>
+        <p class="v-subtitle">We're now doing a version format — here's everything we've made so far!</p>
+      </div>
+      <div class="v-nav">
+        <div class="v-arrow" title="Previous version (nothing before V 1.0)">&#8592;</div>
+        <div class="v-arrow" title="Next version (coming soon!)">&#8594;</div>
+        <button class="v-close-btn" onclick="document.getElementById('versionOverlay').classList.remove('open')" aria-label="Close">✕</button>
+      </div>
     </div>
+
+    <!-- BODY -->
+    <div class="v-body">
+      <div class="v-grid">
+
+        <!-- Pages — full width, 2-col list -->
+        <div class="v-card v-full">
+          <div class="v-card-title"><span>📄</span> 15 Pages</div>
+          <ul class="v-list">
+            <li>🍀 Lucky Generator</li>
+            <li>📦 Wren Packs</li>
+            <li>👥 Small Creators</li>
+            <li>🎡 Wren Wheel of Doom</li>
+            <li>🧀 Cheese's Art</li>
+            <li>🎣 Catch Anything</li>
+            <li>🏆 Hall of Fame</li>
+            <li>⚔️ Object Attack</li>
+            <li>🏓 Pong World Cup</li>
+            <li>✨ UnOh Infinity</li>
+            <li>🎮 Flappy Wren</li>
+            <li>⏳ Life Countdown</li>
+            <li>🖼️ Easy Image Download</li>
+            <li>🐈 Tiki Clicker</li>
+            <li>📝 Credits</li>
+          </ul>
+        </div>
+
+        <!-- Themes -->
+        <div class="v-card">
+          <div class="v-card-title"><span>🎨</span> Themes</div>
+          <ul class="v-list">
+            <li>94 Main Menu Themes to unlock &amp; collect</li>
+          </ul>
+        </div>
+
+        <!-- Other -->
+        <div class="v-card">
+          <div class="v-card-title"><span>🔧</span> Other</div>
+          <ul class="v-list">
+            <li>Bug Fixes</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="v-footer">
+      <button class="v-history-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'▾ Hide Version History':'▸ Version History'">▸ Version History</button>
+      <div class="v-history-list">
+        <div class="v-history-entry"><strong>V 1.0</strong> — Initial release. 15 pages, 94 themes, bug fixes.</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
