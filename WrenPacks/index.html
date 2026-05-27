@@ -2785,7 +2785,7 @@
       { name: "Greenland",     display: "Greenland",     rarity: "Legendary", pack: "flags" },
       { name: "Mongol Empire", display: "Mongol Empire", rarity: "Omega",     pack: "flags" },
       { name: "USSR",          display: "USSR",          rarity: "Omega",     pack: "flags" },
-      { name: "Roman Empire",  display: "Roman Empire",  rarity: "Null",      pack: "flags", isMp4: true },
+      { name: "Roman Empire",  display: "Roman Empire",  rarity: "Null",      pack: "flags", isGif: true },
 
       // ── Void / Global ─────────────────────────────────────────────────────────
       { name: "OrinFlower",        display: "Orin Flower",              rarity: "Void",      pack: "global" },
@@ -3274,17 +3274,10 @@
 
     function openCharacterViewer(name, display, rarity, customImg = null) {
       const item = items.find(i => i.name === name);
-      const isMp4 = item && item.isMp4;
       const viewer = document.getElementById("characterViewer");
-      // Swap between img and video elements as needed
+      // Ensure we always have a plain img element (clean up any leftover video from mp4 era)
       let mediaEl = viewer.querySelector('#characterViewerImg, #characterViewerVideo');
-      if (isMp4 && mediaEl && mediaEl.tagName === 'IMG') {
-        const vid = document.createElement('video');
-        vid.id = 'characterViewerVideo'; vid.autoplay = true; vid.loop = true; vid.muted = true; vid.setAttribute('playsinline', '');
-        vid.style.cssText = mediaEl.style.cssText || '';
-        mediaEl.replaceWith(vid);
-        mediaEl = vid;
-      } else if (!isMp4 && mediaEl && mediaEl.tagName === 'VIDEO') {
+      if (mediaEl && mediaEl.tagName === 'VIDEO') {
         const img = document.createElement('img');
         img.id = 'characterViewerImg'; img.alt = '';
         img.style.cssText = mediaEl.style.cssText || '';
@@ -3292,7 +3285,7 @@
         mediaEl = img;
       }
       if (item && item.admin) {
-        mediaEl.src = `${name}.jpg`;
+        document.getElementById("characterViewerImg").src = `${name}.jpg`;
         document.getElementById("characterViewerName").textContent = display;
         document.getElementById("characterViewerName").className = display;
         document.getElementById("characterViewerRarity").textContent = rarity;
@@ -3302,7 +3295,7 @@
         return;
       }
       playSound();
-      mediaEl.src = customImg ? customImg : name + ".jpg";
+      document.getElementById("characterViewerImg").src = customImg ? customImg : name + ".jpg";
       const nameEl = document.getElementById("characterViewerName");
       nameEl.textContent = display;
       nameEl.className   = rarity;
@@ -4105,16 +4098,14 @@
       
       const glowColor = rarityGlow[i.rarity] || 'transparent';
       
-      let displayImg = i.isMp4 ? i.name + ".mp4" : i.isGif ? i.name + ".gif" : i.name + ".jpg";
+      let displayImg = i.isGif ? i.name + ".gif" : i.name + ".jpg";
       let displayName = i.display;
       if (isLocked && i.rarity === "Null") {
         displayImg = "questionmark.png";
         displayName = "???";
       }
 
-      const mediaEl = (!isLocked && i.isMp4)
-        ? `<video src="${displayImg}" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;border-radius:inherit;"></video>`
-        : `<img src="${displayImg}" alt="${displayName}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\'><text x=\\'50%\\' y=\\'50%\\' font-size=\\'40\\' text-anchor=\\'middle\\' dy=\\'.3em\\' fill=\\'white\\'>?</text></svg>'">`;
+      const mediaEl = `<img src="${displayImg}" alt="${displayName}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\'><text x=\\'50%\\' y=\\'50%\\' font-size=\\'40\\' text-anchor=\\'middle\\' dy=\\'.3em\\' fill=\\'white\\'>?</text></svg>'">`;
 
       card.innerHTML = `
         <div class="characterRarityGlow" style="color: ${glowColor};"></div>
@@ -4135,7 +4126,7 @@
       `;
       
       if (!applyLockedStyle) {
-        const imgPath = (isLocked && i.rarity === "Null") ? "questionmark.png" : (i.isMp4 ? i.name + ".mp4" : i.isGif ? i.name + ".gif" : null);
+        const imgPath = (isLocked && i.rarity === "Null") ? "questionmark.png" : (i.isGif ? i.name + ".gif" : null);
         card.onclick = () => openCharacterViewer(i.name, displayName, i.rarity, imgPath);
       }
       return card;
@@ -4321,11 +4312,9 @@
       }
 
       if (code === "Banana-What_Johnthe444NNN") {
-        if (usedCodes["Banana-What_Johnthe444NNN"]) { alert("Already redeemed!"); closeCode(); return; }
-        usedCodes["Banana-What_Johnthe444NNN"] = true;
-        localStorage.setItem("usedCodes", JSON.stringify(usedCodes));
         let inv = JSON.parse(localStorage.getItem("inventory")) || {};
         const unlockedItems = items.filter(i => !inv[i.name]);
+        if (unlockedItems.length === 0) { alert("You already have every character!"); closeCode(); return; }
         unlockedItems.forEach(i => { inv[i.name] = 1; });
         localStorage.setItem("inventory", JSON.stringify(inv));
         newItems += unlockedItems.length;
@@ -4606,21 +4595,7 @@
       const reveal = document.getElementById("nullReveal");
       const imgEl  = document.getElementById("nullImg");
       const nameEl = document.getElementById("nullName");
-      imgEl.src = item.isMp4 ? item.name + ".mp4" : item.isGif ? item.name + ".gif" : item.name + ".jpg";
-      // If mp4, swap the img for a video element
-      if (item.isMp4 && imgEl.tagName === 'IMG') {
-        const vid = document.createElement('video');
-        vid.id = 'nullImg'; vid.autoplay = true; vid.loop = true; vid.muted = true; vid.setAttribute('playsinline', '');
-        vid.src = item.name + ".mp4";
-        vid.className = imgEl.className;
-        imgEl.replaceWith(vid);
-      } else if (!item.isMp4 && imgEl.tagName === 'VIDEO') {
-        const img = document.createElement('img');
-        img.id = 'nullImg'; img.alt = '';
-        img.className = imgEl.className;
-        img.src = item.isGif ? item.name + ".gif" : item.name + ".jpg";
-        imgEl.replaceWith(img);
-      }
+      imgEl.src = item.isGif ? item.name + ".gif" : item.name + ".jpg";
       nameEl.textContent = "★ " + item.display.toUpperCase() + (isNew ? " ★  ✦ NEW" : " ★");
       reveal.style.display = "flex";
       reveal.classList.add("active-reveal");
