@@ -16,18 +16,15 @@
 
     /* ── SCROLLBAR ── */
     ::-webkit-scrollbar { width: 10px; }
-    ::-webkit-scrollbar-track {
-      background: #1a0600;
-      border-radius: 999px;
-    }
+    ::-webkit-scrollbar-track { background: var(--scroll-track,#1a0600); border-radius: 999px; }
     ::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, #ff8c00, #ff4500, #cc2200);
+      background: var(--scroll-thumb,linear-gradient(180deg,#ff8c00,#ff4500,#cc2200));
       border-radius: 999px;
-      border: 2px solid #1a0600;
-      box-shadow: 0 0 6px rgba(255,100,0,0.6);
+      border: 2px solid var(--scroll-track,#1a0600);
+      box-shadow: 0 0 6px var(--scroll-glow,rgba(255,100,0,0.6));
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: linear-gradient(180deg, #ffaa00, #ff6600, #ee3300);
+      background: var(--scroll-thumb-hover,linear-gradient(180deg,#ffaa00,#ff6600,#ee3300));
       box-shadow: 0 0 10px rgba(255,130,0,0.9);
     }
     * { scrollbar-width: thin; scrollbar-color: #ff6600 #1a0600; }
@@ -91,6 +88,21 @@
     #superFrenzyBanner.show { display: block; }
     @keyframes superFrenzySlide { 0% { background-position:0% 0%; } 100% { background-position:200% 0%; } }
     #superFrenzyTimer { font-size: 0.85em; opacity: 0.85; margin-left: 10px; }
+    #omegaFrenzyBanner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 2002;
+      background: linear-gradient(90deg, #4b0082, #8b00ff, #ff00ff, #8b00ff, #4b0082);
+      background-size: 200% 100%;
+      animation: omegaFrenzySlide 0.8s linear infinite;
+      color: #fff; font-weight: 900; font-size: 1.1em;
+      text-align: center; padding: 8px;
+      display: none;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(255,0,255,0.9);
+      box-shadow: 0 4px 20px rgba(180,0,255,0.6);
+    }
+    #omegaFrenzyBanner.show { display: block; }
+    @keyframes omegaFrenzySlide { 0% { background-position:0% 0%; } 100% { background-position:200% 0%; } }
+    #omegaFrenzyTimer { font-size: 0.85em; opacity: 0.85; margin-left: 10px; }
 
     /* ── RAINING TIKIS ── */
     #rainContainer {
@@ -506,6 +518,26 @@
       position:relative; z-index:1;
     }
 
+    /* ── DELETE CONFIRM MODAL ── */
+    #deleteModal {
+      position:fixed; inset:0; z-index:5000; background:rgba(0,0,0,0.75);
+      backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none; transition:opacity 0.2s;
+    }
+    #deleteModal.open { opacity:1; pointer-events:all; }
+    #deleteModal .del-box {
+      background:linear-gradient(180deg,#1a0800,#0d0400); border:1px solid rgba(255,60,60,0.4);
+      border-radius:20px; padding:28px 32px; max-width:340px; width:90%; text-align:center;
+      box-shadow:0 8px 40px rgba(255,0,0,0.2);
+    }
+    #deleteModal .del-box h3 { color:#ff6666; font-size:1.3em; margin-bottom:10px; }
+    #deleteModal .del-box p  { color:rgba(255,220,200,0.8); font-size:0.9em; margin-bottom:20px; line-height:1.5; }
+    #deleteModal .del-actions { display:flex; gap:10px; justify-content:center; }
+    #deleteModal .del-yes { background:rgba(255,50,50,0.25); border:1px solid rgba(255,50,50,0.5); color:#ffaaaa; border-radius:10px; padding:10px 24px; font-weight:700; cursor:pointer; font-family:inherit; }
+    #deleteModal .del-yes:hover { background:rgba(255,50,50,0.4); }
+    #deleteModal .del-no  { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#ccc; border-radius:10px; padding:10px 24px; font-weight:700; cursor:pointer; font-family:inherit; }
+    #deleteModal .del-no:hover { background:rgba(255,255,255,0.15); }
+
     /* ── RESPONSIVE ── */
     @media (max-width:700px) {
       #mainArea { flex-direction:column; align-items:center; }
@@ -520,6 +552,7 @@
 <div id="rainContainer"></div>
 <div id="frenzyBanner">🔥 TIKI FRENZY! x3 CLICKS + x3 AUTO! <span id="frenzyTimer"></span></div>
 <div id="superFrenzyBanner">⚡ SUPER TIKI FRENZY! x4 CLICKS + x4 AUTO! <span id="superFrenzyTimer"></span></div>
+<div id="omegaFrenzyBanner">🌀 OMEGA TIKI FRENZY! x6 CLICKS + x6 AUTO! <span id="omegaFrenzyTimer"></span></div>
 
 <div id="homeText" onclick="goHome()">Wren.fun</div>
 <button id="bgBtn" onclick="openBgMenu()">🎨 Background</button>
@@ -629,6 +662,16 @@
 <div id="randomTikiContainer"></div>
 <div id="rebirthOverlay">
   <div id="rebirthText"></div>
+</div>
+<div id="deleteModal">
+  <div class="del-box">
+    <h3 id="delTitle">🗑 Delete Slot?</h3>
+    <p id="delMsg">Are you sure? All progress will be lost!</p>
+    <div class="del-actions">
+      <button class="del-no" onclick="closeDeleteModal()">No, keep it</button>
+      <button class="del-yes" id="delYesBtn">Yes, delete</button>
+    </div>
+  </div>
 </div>
 <div id="toast"></div>
 
@@ -1782,6 +1825,7 @@ function emptyState(){
     // Tiki Extras — ALL fields here MUST be preserved on rebirth (see doRebirth)
     randomTikiOwned:false,
     superFrenzyOwned:false,
+    omegaFrenzyOwned:false,
     criticalTikiLevel:0,   // 0=not bought, 1-5
     activeBackground:'default',
   };
@@ -2462,6 +2506,7 @@ function doRebirth(){
   const afk =state.afkAutoOwned;
   const rto =state.randomTikiOwned;
   const sfo =state.superFrenzyOwned;
+  const ofo =state.omegaFrenzyOwned;
   const ctl =state.criticalTikiLevel;
   const bg  =state.activeBackground;
   state=emptyState();
@@ -2470,6 +2515,7 @@ function doRebirth(){
   state.afkAutoOwned     =afk;
   state.randomTikiOwned  =rto;
   state.superFrenzyOwned =sfo;
+  state.omegaFrenzyOwned =ofo;
   state.criticalTikiLevel=ctl;
   state.activeBackground =bg;
   saveCurrentSlot();
@@ -2647,9 +2693,14 @@ const BACKGROUNDS = [
   { id:'turquoise', name:'Turquoise',  rebirths:18,  color:'#22ddbb', style:'background:radial-gradient(ellipse at top,#00403a 0%,#00201c 60%,#000f0d 100%);' },
   { id:'cream',     name:'Cream',      rebirths:19,  color:'#f5deb3', style:'background:radial-gradient(ellipse at top,#2a2010 0%,#1a1408 60%,#0a0a04 100%);' },
   { id:'olive',     name:'Olive',      rebirths:20,  color:'#88aa22', style:'background:radial-gradient(ellipse at top,#1e2000 0%,#101100 60%,#060700 100%);' },
+  { id:'rose',      name:'Rose',       rebirths:21,  color:'#ff6688', style:'background:radial-gradient(ellipse at top,#3d0015 0%,#20000c 60%,#0a0005 100%);' },
+  { id:'indigo',    name:'Indigo',     rebirths:22,  color:'#6655dd', style:'background:radial-gradient(ellipse at top,#0d0040 0%,#060020 60%,#02000f 100%);' },
+  { id:'slate',     name:'Slate',      rebirths:23,  color:'#8899aa', style:'background:radial-gradient(ellipse at top,#0e1520 0%,#070c14 60%,#030508 100%);' },
+  { id:'cranberry', name:'Cranberry',  rebirths:24,  color:'#cc2244', style:'background:radial-gradient(ellipse at top,#2d0010 0%,#180008 60%,#080003 100%);' },
   { id:'bronze',    name:'Bronze',     rebirths:25,  color:'#cd7f32', style:'background:radial-gradient(ellipse at top,#2a1500 0%,#1a0d00 60%,#0d0600 100%);background-image:repeating-linear-gradient(45deg,rgba(180,100,20,0.08) 0,rgba(180,100,20,0.08) 1px,transparent 0,transparent 50%);background-size:10px 10px;' },
   { id:'silver',    name:'Silver',     rebirths:50,  color:'#c0c0c0', style:'background:radial-gradient(ellipse at top,#222 0%,#111 60%,#060606 100%);background-image:repeating-linear-gradient(45deg,rgba(200,200,220,0.08) 0,rgba(200,200,220,0.08) 1px,transparent 0,transparent 50%);background-size:10px 10px;' },
   { id:'gold',      name:'Gold',       rebirths:100, color:'#ffd700', style:'background:radial-gradient(ellipse at top,#3a2800 0%,#1e1500 60%,#0a0900 100%);background-image:repeating-linear-gradient(45deg,rgba(255,215,0,0.10) 0,rgba(255,215,0,0.10) 1px,transparent 0,transparent 50%);background-size:10px 10px;' },
+  { id:'rainbow',   name:'Rainbow',    rebirths:250, color:'#ff0080', style:'background:linear-gradient(180deg,#1a0010 0%,#00001a 20%,#001a00 40%,#1a1a00 60%,#1a0000 80%,#0a0010 100%);' },
 ];
 
 // Each background has an accent colour (used for --gold CSS var) and card tint
@@ -2678,6 +2729,11 @@ const BG_THEME = {
   bronze:     { gold:'#cd7f32', card:'rgba(180,100,20,0.10)',  cardHover:'rgba(180,100,20,0.18)',  tab:'rgba(180,100,20,0.24)',  tabBorder:'rgba(180,100,20,0.5)'  },
   silver:     { gold:'#c0c0c0', card:'rgba(180,180,200,0.10)', cardHover:'rgba(180,180,200,0.18)', tab:'rgba(180,180,200,0.24)', tabBorder:'rgba(180,180,200,0.5)' },
   gold:       { gold:'#ffd700', card:'rgba(255,215,0,0.10)',   cardHover:'rgba(255,215,0,0.18)',   tab:'rgba(255,215,0,0.24)',   tabBorder:'rgba(255,215,0,0.5)'   },
+  rose:       { gold:'#ff6688', card:'rgba(255,80,120,0.10)',  cardHover:'rgba(255,80,120,0.18)',  tab:'rgba(255,80,120,0.24)',  tabBorder:'rgba(255,80,120,0.5)'  },
+  indigo:     { gold:'#8877ff', card:'rgba(100,80,255,0.10)',  cardHover:'rgba(100,80,255,0.18)',  tab:'rgba(100,80,255,0.24)',  tabBorder:'rgba(100,80,255,0.5)'  },
+  slate:      { gold:'#aabbcc', card:'rgba(130,150,180,0.10)', cardHover:'rgba(130,150,180,0.18)', tab:'rgba(130,150,180,0.24)', tabBorder:'rgba(130,150,180,0.5)' },
+  cranberry:  { gold:'#ff4466', card:'rgba(200,30,60,0.10)',   cardHover:'rgba(200,30,60,0.18)',   tab:'rgba(200,30,60,0.24)',   tabBorder:'rgba(200,30,60,0.5)'   },
+  rainbow:    { gold:'#ff80ff', card:'rgba(200,0,200,0.10)',   cardHover:'rgba(200,0,200,0.18)',   tab:'rgba(200,0,200,0.24)',   tabBorder:'rgba(200,0,200,0.5)'   },
 };
 
 function applyBackground(id){
@@ -2687,6 +2743,13 @@ function applyBackground(id){
   root.style.setProperty('--gold',      th.gold);
   root.style.setProperty('--card',      th.card);
   root.style.setProperty('--card-hover',th.cardHover);
+  // Scrollbar colours derived from theme
+  const sc = th.tabBorder; // e.g. rgba(255,100,0,0.5)
+  const rawColor = th.gold;
+  root.style.setProperty('--scroll-track',       'color-mix(in srgb,'+rawColor+' 8%, #050505)');
+  root.style.setProperty('--scroll-thumb',       'linear-gradient(180deg,'+rawColor+','+rawColor+'88)');
+  root.style.setProperty('--scroll-thumb-hover', 'linear-gradient(180deg,'+rawColor+'ee,'+rawColor+')');
+  root.style.setProperty('--scroll-glow',        rawColor+'66');
   document.body.setAttribute('style', bg.style);
   // Update shop tab active colours dynamically
   let styleTag = document.getElementById('_bgThemeStyle');
@@ -3041,13 +3104,42 @@ function renderSlotScreen(){
   });
 }
 
+let _deleteStep = 0;
+let _deleteIdx  = -1;
+
 function confirmDeleteSlot(e,idx){
   e.stopPropagation();
-  if(confirm('Delete '+SLOT_NAMES[idx]+'? All progress lost!')){
+  _deleteStep = 1;
+  _deleteIdx  = idx;
+  document.getElementById('delTitle').textContent = '🗑 Delete '+SLOT_NAMES[idx]+'?';
+  document.getElementById('delMsg').textContent   = 'Are you sure? All progress in '+SLOT_NAMES[idx]+' will be lost forever!';
+  document.getElementById('delYesBtn').textContent = 'Yes, delete it';
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+function closeDeleteModal(){
+  document.getElementById('deleteModal').classList.remove('open');
+  _deleteStep=0; _deleteIdx=-1;
+}
+
+document.getElementById('delYesBtn').addEventListener('click', function(){
+  if(_deleteStep===1){
+    _deleteStep=2;
+    document.getElementById('delTitle').textContent = '⚠️ Are you SUPER sure?';
+    document.getElementById('delMsg').textContent   = 'This CANNOT be undone. '+SLOT_NAMES[_deleteIdx]+' will be gone forever!';
+    document.getElementById('delYesBtn').textContent = 'YES, DELETE FOREVER';
+    document.getElementById('delYesBtn').style.background='rgba(255,0,0,0.4)';
+  } else if(_deleteStep===2){
+    const idx=_deleteIdx;
+    closeDeleteModal();
     deleteSlot(idx); renderSlotScreen();
     showToast('🗑 '+SLOT_NAMES[idx]+' deleted.');
   }
-}
+});
+
+document.getElementById('deleteModal').addEventListener('click',function(e){
+  if(e.target===this) closeDeleteModal();
+});
 
 function enterSlot(idx){
   const saved=loadSlot(idx);
