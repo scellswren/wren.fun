@@ -453,6 +453,59 @@
     .jail-bar { height:8px; background:rgba(255,0,0,0.2); border-radius:999px; margin-top:8px; overflow:hidden; }
     .jail-bar-fill { height:100%; background:linear-gradient(90deg,#ff3333,#ff6666); border-radius:999px; transition:width 1s linear; }
 
+    /* ── BACKGROUND MENU ── */
+    #bgBtn {
+      position:fixed; top:12px; left:50%; transform:translateX(-50%);
+      background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25);
+      color:#fff; font-size:0.78em; font-weight:700; padding:5px 14px;
+      border-radius:999px; cursor:pointer; z-index:600;
+      transition:background 0.2s; backdrop-filter:blur(6px);
+      letter-spacing:0.5px;
+    }
+    #bgBtn:hover { background:rgba(255,255,255,0.22); }
+    #bgMenu {
+      position:fixed; inset:0; z-index:3000;
+      background:rgba(0,0,0,0.82); backdrop-filter:blur(8px);
+      display:flex; flex-direction:column; align-items:center;
+      justify-content:flex-start; padding:24px 16px 40px;
+      overflow-y:auto;
+      opacity:0; pointer-events:none;
+      transition:opacity 0.25s;
+    }
+    #bgMenu.open { opacity:1; pointer-events:all; }
+    #bgMenu h2 { color:#fff; margin:0 0 6px; font-size:1.4em; }
+    #bgMenu .bg-close {
+      position:absolute; top:16px; right:20px;
+      background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+      color:#fff; border-radius:999px; padding:6px 14px;
+      cursor:pointer; font-weight:700; font-size:0.9em;
+    }
+    #bgMenu .bg-close:hover { background:rgba(255,255,255,0.2); }
+    #bgMenu .bg-subtitle { color:rgba(255,255,255,0.5); font-size:0.82em; margin-bottom:20px; }
+    .bg-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+      gap:12px; width:100%; max-width:700px;
+    }
+    .bg-tile {
+      border-radius:14px; padding:14px 10px 12px; text-align:center;
+      cursor:pointer; border:2px solid transparent;
+      transition:transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+      position:relative; overflow:hidden;
+    }
+    .bg-tile .bg-name, .bg-tile .bg-req, .bg-tile .bg-check { position:relative; z-index:1; }
+    .bg-tile:hover { transform:scale(1.04); }
+    .bg-tile.active { border-color:#fff; box-shadow:0 0 16px rgba(255,255,255,0.4); }
+    .bg-tile.locked { opacity:0.45; cursor:not-allowed; filter:grayscale(0.5); }
+    .bg-tile .bg-name { font-weight:900; font-size:0.92em; color:#fff; text-shadow:0 0 8px rgba(0,0,0,1),0 1px 6px rgba(0,0,0,1),0 2px 12px rgba(0,0,0,0.9); letter-spacing:0.3px; }
+    .bg-tile .bg-req  { font-size:0.74em; color:#fff; margin-top:4px; text-shadow:0 0 6px rgba(0,0,0,1),0 1px 4px rgba(0,0,0,1); font-weight:600; }
+    .bg-tile .bg-check { position:absolute; top:6px; right:8px; font-size:1.1em; filter:drop-shadow(0 0 4px rgba(0,0,0,0.9)); }
+    .bg-circle {
+      width:44px; height:44px; border-radius:50%;
+      margin:0 auto 8px;
+      border:3px solid rgba(255,255,255,0.25);
+      position:relative; z-index:1;
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width:700px) {
       #mainArea { flex-direction:column; align-items:center; }
@@ -469,6 +522,14 @@
 <div id="superFrenzyBanner">⚡ SUPER TIKI FRENZY! x4 CLICKS + x4 AUTO! <span id="superFrenzyTimer"></span></div>
 
 <div id="homeText" onclick="goHome()">Wren.fun</div>
+<button id="bgBtn" onclick="openBgMenu()">🎨 Background</button>
+
+<div id="bgMenu">
+  <button class="bg-close" onclick="closeBgMenu()">✕ Close</button>
+  <h2>🎨 Backgrounds</h2>
+  <p class="bg-subtitle">Unlock by reaching rebirth milestones</p>
+  <div class="bg-grid" id="bgGrid"></div>
+</div>
 <button id="fullscreenBtn" title="Fullscreen">⛶</button>
 
 <!-- SLOT SCREEN -->
@@ -530,6 +591,7 @@
 
   <div class="bottom-btns">
     <button class="bottom-btn" onclick="switchSlot()">🔀 Switch Slot</button>
+    <button class="bottom-btn" id="soundToggleBtn" onclick="toggleSound()">🔊 Sound</button>
     <button class="bottom-btn danger" onclick="openResetModal()">🔄 Reset Progress</button>
   </div>
 </div>
@@ -578,6 +640,7 @@
 
 let _audioCtx = null;
 function getAudio(){
+  if(!soundEnabled) throw new Error('sound off');
   if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
   if(_audioCtx.state==='suspended') _audioCtx.resume();
   return _audioCtx;
@@ -643,6 +706,32 @@ function sfxRebirth(){
     }, 480);
   }catch(e){}
 }
+function sfxCritical(){
+  // Sharp ascending crack — bright and punchy
+  try{
+    const ctx=getAudio();
+    // Initial crack
+    const o1=ctx.createOscillator(), g1=ctx.createGain();
+    o1.connect(g1); g1.connect(ctx.destination);
+    o1.type='square';
+    o1.frequency.setValueAtTime(300, ctx.currentTime);
+    o1.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime+0.06);
+    g1.gain.setValueAtTime(0.25, ctx.currentTime);
+    g1.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.12);
+    o1.start(ctx.currentTime); o1.stop(ctx.currentTime+0.12);
+    // Follow-up shimmer
+    [880,1100,1320].forEach((f,i)=>{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type='sine'; o.frequency.value=f;
+      const t=ctx.currentTime+0.08+i*0.055;
+      g.gain.setValueAtTime(0.14,t);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);
+      o.start(t); o.stop(t+0.18);
+    });
+  }catch(e){}
+}
+
 function sfxJail(){
   // Descending wail
   try{
@@ -738,6 +827,11 @@ function emptyState(){
     // Tiki Bank
     loanOriginal:0, loanOwed:0, loanTakenAt:0, loanLastInterest:0,
     jailTimeLeft:0, inJail:false,
+    // Tiki Extras — ALL fields here MUST be preserved on rebirth (see doRebirth)
+    randomTikiOwned:false,
+    superFrenzyOwned:false,
+    criticalTikiLevel:0,   // 0=not bought, 1-5
+    activeBackground:'default',
   };
 }
 
@@ -760,6 +854,7 @@ function deleteSlot(i){ localStorage.removeItem(slotKey(i)); }
 // ═══════════════════════════════════════════
 
 let state       = emptyState();
+let soundEnabled = true; // global sound toggle
 let currentSlot = null;
 
 let currentTab  = 'auto';
@@ -1023,14 +1118,28 @@ function handleClick(e){
   if(state.inJail){ showToast('🚔 You\'re in Tiki Jail! Wait for the timer.'); return; }
   const frenzyMult = superFrenzyActive ? 4 : frenzyActive ? 3 : 1;
   const base = getEffectiveMultLevel();
-  const gain = Math.max(1, Math.ceil(base * frenzyMult));
+  let gain = Math.max(1, Math.ceil(base * frenzyMult));
+
+  // Critical Tiki check
+  const critChances = [0, 15, 12, 8, 5, 2]; // index = level, value = 1-in-X
+  const critLv = state.criticalTikiLevel || 0;
+  let isCrit = false;
+  if(critLv > 0 && Math.random() < 1 / critChances[critLv]){
+    gain *= 10;
+    isCrit = true;
+  }
 
   state.clicks      +=gain;
   state.totalEarned +=gain;
   state.handClicks   =(state.handClicks||0)+1;
   saveCurrentSlot();
   updateDisplay();
-  spawnParticle(e,'+'+formatNum(gain));
+  if(isCrit){
+    spawnParticle(e,'💥 +'+formatNum(gain)+'!');
+    sfxCritical();
+  } else {
+    spawnParticle(e,'+'+formatNum(gain));
+  }
 
   const c=document.getElementById('tikiCircle');
   c.style.animation='none'; void c.offsetWidth;
@@ -1116,8 +1225,8 @@ function renderMultShop(){
 
   if(state.multLevel>1||rm>1){
     el.appendChild(item(true,true,
-      '✖️ x'+formatNum(effective)+' Multiplier',
-      'Base x'+formatNum(state.multLevel)+(rm>1?' × Rebirth x'+formatNum(rm):'')+'  =  x'+formatNum(effective),
+      '✖️ x'+formatNum(state.multLevel)+' Multiplier',
+      rm>1?'With Rebirth x'+formatNum(rm)+' → effectively x'+formatNum(effective)+' per click':'Active',
       '✅ Active (manual clicks only)','','Active'));
   }
   if(idx<MULT_LEVELS.length){
@@ -1146,6 +1255,24 @@ function renderExtrasShop(){
   const lbl=document.createElement('div');
   lbl.className='shop-section-label'; lbl.textContent='🌟 Tiki Extras';
   el.appendChild(lbl);
+
+  // ── Critical Tiki (top of extras) — shows current level + next upgrade only ──
+  const critLv = state.criticalTikiLevel || 0;
+  if(critLv > 0){
+    // Show current level as owned
+    const owned = CRIT_LEVELS[critLv-1];
+    el.appendChild(item(true,true,'💥 Critical Tiki Lv'+critLv,
+      owned.desc, '✅ Owned', '', 'Owned'));
+  }
+  if(critLv < CRIT_LEVELS.length){
+    // Show next level as buyable
+    const next = CRIT_LEVELS[critLv];
+    const can = state.clicks >= next.cost;
+    el.appendChild(item(can,false,'💥 Critical Tiki Lv'+(critLv+1),
+      next.desc,
+      'Cost: 🐱 '+formatNum(next.cost)+' clicks',
+      'buyCriticalTiki('+(critLv+1)+')', 'Buy'));
+  }
   if(state.frenzyOwned){
     el.appendChild(item(true,true,'🔥 Tiki Frenzy',
       '25% chance every minute: x3 clicks + x3 auto for 20s!',
@@ -1193,6 +1320,7 @@ function renderExtrasShop(){
       'Cost: 🐱 200,000 clicks',
       'buyRandomTiki','Buy'));
   }
+
 }
 
 // ── REBIRTH ──
@@ -1246,10 +1374,10 @@ function item(affordable,owned,name,desc,sub,fn,btnLabel){
   btn.textContent=btnLabel;
   btn.disabled=(owned||!affordable);
   if(fn && !btn.disabled){
-    const fnName=fn.replace('()','');
     btn.addEventListener('pointerdown',function(e){
       e.preventDefault(); e.stopPropagation();
-      if(window[fnName]) window[fnName]();
+      // supports both 'funcName' and 'funcName(arg)' style
+      try{ eval(fn.includes('(')?fn:fn+'()'); }catch(err){ console.error(err); }
     });
   }
 
@@ -1346,12 +1474,16 @@ function doRebirth(){
   const afk =state.afkAutoOwned;
   const rto =state.randomTikiOwned;
   const sfo =state.superFrenzyOwned;
+  const ctl =state.criticalTikiLevel;
+  const bg  =state.activeBackground;
   state=emptyState();
-  state.rebirthCount    =rc;
-  state.frenzyOwned     =fo;
-  state.afkAutoOwned    =afk;
-  state.randomTikiOwned =rto;
-  state.superFrenzyOwned=sfo;
+  state.rebirthCount     =rc;
+  state.frenzyOwned      =fo;
+  state.afkAutoOwned     =afk;
+  state.randomTikiOwned  =rto;
+  state.superFrenzyOwned =sfo;
+  state.criticalTikiLevel=ctl;
+  state.activeBackground =bg;
   saveCurrentSlot();
   clearAutoSubs();if(autoWorker){clearInterval(autoWorker);autoWorker=null;}
   if(fo) startFrenzySystem();
@@ -1475,6 +1607,107 @@ function buyRandomTiki(){
   updateDisplay();
   renderExtrasShop();
   showToast('🐱 Random Tiki unlocked! Blue tikis will fly across every minute (35% chance)!');
+}
+
+// ═══════════════════════════════════════════
+//  CRITICAL TIKI  (Tiki Extras — never resets on rebirth)
+// ═══════════════════════════════════════════
+const CRIT_LEVELS = [
+  { level:1, chance:'1 in 15', cost:5000,       desc:'1 in 15 chance of 10x click!' },
+  { level:2, chance:'1 in 12', cost:600000,     desc:'1 in 12 chance of 10x click!' },
+  { level:3, chance:'1 in 8',  cost:13000000,   desc:'1 in 8 chance of 10x click!'  },
+  { level:4, chance:'1 in 5',  cost:99000000,   desc:'1 in 5 chance of 10x click!'  },
+  { level:5, chance:'1 in 2',  cost:4000000000, desc:'1 in 2 chance of 10x click!'  },
+];
+
+function buyCriticalTiki(level){
+  const lv = CRIT_LEVELS[level-1];
+  if(!lv || state.criticalTikiLevel >= level) return;
+  if(state.criticalTikiLevel !== level-1){ showToast('Buy the previous level first!'); return; }
+  if(state.clicks < lv.cost){ showToast('Not enough clicks!'); return; }
+  sfxBuy();
+  state.clicks -= lv.cost;
+  state.criticalTikiLevel = level;
+  saveCurrentSlot();
+  updateDisplay();
+  renderExtrasShop();
+  showToast('💥 Critical Tiki Lv'+level+' unlocked! '+lv.desc);
+}
+
+// ═══════════════════════════════════════════
+//  BACKGROUNDS  (Tiki Extras — never resets on rebirth)
+// ═══════════════════════════════════════════
+const BACKGROUNDS = [
+  { id:'default',   name:'Default',    rebirths:0,   color:'#c87a2f', style:'background: radial-gradient(ellipse at top,#1a0a00 0%,#0d0500 60%,#050200 100%);' },
+  { id:'pink',      name:'Pink',       rebirths:1,   color:'#ff80c0', style:'background:radial-gradient(ellipse at top,#3d0020 0%,#1a0010 60%,#0a0008 100%);' },
+  { id:'red',       name:'Red',        rebirths:2,   color:'#ff4444', style:'background:radial-gradient(ellipse at top,#3d0000 0%,#1a0000 60%,#0a0000 100%);' },
+  { id:'yellow',    name:'Yellow',     rebirths:3,   color:'#ffe033', style:'background:radial-gradient(ellipse at top,#3d3000 0%,#1a1500 60%,#0a0a00 100%);' },
+  { id:'gray',      name:'Gray',       rebirths:4,   color:'#aaaaaa', style:'background:radial-gradient(ellipse at top,#1e1e1e 0%,#111 60%,#060606 100%);' },
+  { id:'blue',      name:'Blue',       rebirths:5,   color:'#4488ff', style:'background:radial-gradient(ellipse at top,#001a3d 0%,#000e1a 60%,#00060a 100%);' },
+  { id:'white',     name:'White',      rebirths:6,   color:'#ffffff', style:'background:radial-gradient(ellipse at top,#e0e0e0 0%,#c0c0c0 60%,#a0a0a0 100%);' },
+  { id:'green',     name:'Green',      rebirths:7,   color:'#44cc44', style:'background:radial-gradient(ellipse at top,#003d00 0%,#001a00 60%,#000a00 100%);' },
+  { id:'brown',     name:'Brown',      rebirths:8,   color:'#b06020', style:'background:radial-gradient(ellipse at top,#2a1500 0%,#160a00 60%,#080400 100%);' },
+  { id:'cyan',      name:'Cyan',       rebirths:9,   color:'#00dddd', style:'background:radial-gradient(ellipse at top,#003d3d 0%,#001a1a 60%,#000a0a 100%);' },
+  { id:'black',     name:'Black',      rebirths:10,  color:'#555555', style:'background:#000;' },
+  { id:'maroon',    name:'Maroon',     rebirths:11,  color:'#cc2244', style:'background:radial-gradient(ellipse at top,#2d0010 0%,#150008 60%,#080003 100%);' },
+  { id:'teal',      name:'Teal',       rebirths:12,  color:'#009988', style:'background:radial-gradient(ellipse at top,#003330 0%,#001a18 60%,#000a08 100%);' },
+  { id:'magenta',   name:'Magenta',    rebirths:13,  color:'#ee44ee', style:'background:radial-gradient(ellipse at top,#3d003d 0%,#1a001a 60%,#0a000a 100%);' },
+  { id:'lavender',  name:'Lavender',   rebirths:14,  color:'#bb99ff', style:'background:radial-gradient(ellipse at top,#1e1040 0%,#100820 60%,#060410 100%);' },
+  { id:'purple',    name:'Purple',     rebirths:15,  color:'#9933ff', style:'background:radial-gradient(ellipse at top,#1a003d 0%,#0d001a 60%,#06000a 100%);' },
+  { id:'peach',     name:'Peach',      rebirths:16,  color:'#ffaa77', style:'background:radial-gradient(ellipse at top,#3d1500 0%,#2a0d00 60%,#150600 100%);' },
+  { id:'violet',    name:'Violet',     rebirths:17,  color:'#cc44ff', style:'background:radial-gradient(ellipse at top,#2d0040 0%,#160020 60%,#08000f 100%);' },
+  { id:'turquoise', name:'Turquoise',  rebirths:18,  color:'#22ddbb', style:'background:radial-gradient(ellipse at top,#00403a 0%,#00201c 60%,#000f0d 100%);' },
+  { id:'cream',     name:'Cream',      rebirths:19,  color:'#f5deb3', style:'background:radial-gradient(ellipse at top,#2a2010 0%,#1a1408 60%,#0a0a04 100%);' },
+  { id:'olive',     name:'Olive',      rebirths:20,  color:'#88aa22', style:'background:radial-gradient(ellipse at top,#1e2000 0%,#101100 60%,#060700 100%);' },
+  { id:'bronze',    name:'Bronze',     rebirths:25,  color:'#cd7f32', style:'background:radial-gradient(ellipse at top,#2a1500 0%,#1a0d00 60%,#0d0600 100%);background-image:repeating-linear-gradient(45deg,rgba(180,100,20,0.08) 0,rgba(180,100,20,0.08) 1px,transparent 0,transparent 50%);background-size:10px 10px;' },
+  { id:'silver',    name:'Silver',     rebirths:50,  color:'#c0c0c0', style:'background:radial-gradient(ellipse at top,#222 0%,#111 60%,#060606 100%);background-image:repeating-linear-gradient(45deg,rgba(200,200,220,0.08) 0,rgba(200,200,220,0.08) 1px,transparent 0,transparent 50%);background-size:10px 10px;' },
+  { id:'gold',      name:'Gold',       rebirths:100, color:'#ffd700', style:'background:radial-gradient(ellipse at top,#3a2800 0%,#1e1500 60%,#0a0900 100%);background-image:repeating-linear-gradient(45deg,rgba(255,215,0,0.10) 0,rgba(255,215,0,0.10) 1px,transparent 0,transparent 50%);background-size:10px 10px;' },
+];
+
+function applyBackground(id){
+  const bg = BACKGROUNDS.find(b=>b.id===id) || BACKGROUNDS[0];
+  document.body.setAttribute('style', bg.style);
+}
+
+function openBgMenu(){
+  sfxButton();
+  renderBgGrid();
+  document.getElementById('bgMenu').classList.add('open');
+}
+function closeBgMenu(){
+  sfxButton();
+  document.getElementById('bgMenu').classList.remove('open');
+}
+
+function renderBgGrid(){
+  const grid = document.getElementById('bgGrid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  const rc = state.rebirthCount || 0;
+  const active = state.activeBackground || 'default';
+  BACKGROUNDS.forEach(bg => {
+    const unlocked = rc >= bg.rebirths;
+    const isActive = active === bg.id;
+    const tile = document.createElement('div');
+    tile.className = 'bg-tile' + (isActive?' active':'') + (!unlocked?' locked':'');
+    // Tile background is a dark neutral so color circle pops
+    tile.style.cssText = 'background:#1a1a2a;min-height:80px;';
+    tile.innerHTML =
+      '<div class="bg-check">'+(isActive?'✅':'')+'</div>'
+      + '<div class="bg-circle" style="background:'+bg.color+';box-shadow:0 0 14px '+bg.color+'88;"></div>'
+      + '<div class="bg-name">'+bg.name+'</div>'
+      + '<div class="bg-req">'+(bg.rebirths===0?'Default':(unlocked?'✓ Unlocked':'🔒 '+bg.rebirths+' rebirths'))+'</div>';
+    if(unlocked){
+      tile.addEventListener('click', ()=>{
+        sfxButton();
+        state.activeBackground = bg.id;
+        applyBackground(bg.id);
+        saveCurrentSlot();
+        renderBgGrid();
+      });
+    }
+    grid.appendChild(tile);
+  });
 }
 
 // ═══════════════════════════════════════════
@@ -1805,10 +2038,17 @@ function enterSlot(idx){
   if(state.loanOwed > 0) startBankInterest();
   if(state.inJail && state.jailTimeLeft > 0) startJailTimer();
   if(state.randomTikiOwned) startRandomTiki();
+  applyBackground(state.activeBackground||'default');
   if(state.superFrenzyOwned) startSuperFrenzySystem();
   if(state.superFrenzyOwned) startSuperFrenzySystem();
   updateDisplay();
   if(offlineGained>0) showOfflineModal(offlineGained,awayMs);
+}
+
+function toggleSound(){
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('soundToggleBtn');
+  if(btn){ btn.textContent = soundEnabled ? '🔊 Sound' : '🔇 Sound'; btn.style.opacity = soundEnabled?'1':'0.5'; }
 }
 
 function switchSlot(){
