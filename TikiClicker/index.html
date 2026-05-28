@@ -153,7 +153,7 @@
       border-radius: 50%; object-fit: cover;
       animation: tikiFall linear forwards;
       opacity: 0.82;
-      box-shadow: 0 0 12px rgba(255,0,0,0.5);
+      box-shadow: var(--rain-shadow,0 0 12px rgba(255,0,0,0.5));
     }
     .rain-tiki.blue {
       box-shadow: 0 0 14px rgba(0,150,255,0.9);
@@ -180,13 +180,13 @@
     #homeText:hover { transform: scale(1.13); }
     #fullscreenBtn {
       position: fixed; top: 12px; right: 14px;
-      background: rgba(255,100,0,0.15); border: 1px solid rgba(255,100,0,0.28);
+      background: var(--card); border: 1px solid var(--item-border,rgba(255,100,0,0.28));
       color: var(--text); font-size: 1.4em; width: 42px; height: 42px;
       border-radius: 10px; cursor: pointer; z-index: 1000;
       display: flex; align-items: center; justify-content: center;
       transition: background 0.18s, transform 0.18s; backdrop-filter: blur(8px);
     }
-    #fullscreenBtn:hover { background: rgba(255,100,0,0.28); transform: scale(1.08); }
+    #fullscreenBtn:hover { background: var(--card-hover); transform: scale(1.08); }
 
     /* ── SLOT SCREEN ── */
     #slotScreen {
@@ -200,9 +200,9 @@
     }
     #slotScreen h2 {
       font-size: clamp(1.8em, 6vw, 3em); font-weight: 900;
-      background: linear-gradient(135deg, #ffb347, #ff6a00, #ff3a00);
+      background: linear-gradient(135deg, #ffb347, #ff8c00, #ff6a00);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 0 18px rgba(255,100,0,0.45)); margin-bottom: 6px;
+      filter: drop-shadow(0 0 18px rgba(255,140,0,0.5)); margin-bottom: 6px;
     }
     .slot-sub { font-size: 0.95em; color: var(--muted); margin-bottom: 32px; text-align: center; }
     .slot-cards { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 820px; }
@@ -212,7 +212,7 @@
       transition: background 0.18s, border-color 0.18s, transform 0.15s;
       text-align: center; position: relative;
     }
-    .slot-card:hover { background: rgba(255,100,0,0.18); border-color: rgba(255,100,0,0.5); transform: translateY(-4px); }
+    .slot-card:hover { background: var(--card-hover); border-color: var(--gold)88; transform: translateY(-4px); }
     .slot-card .slot-num  { font-size: 2.4em; }
     .slot-card .slot-name { font-size: 0.82em; color: var(--muted); margin: 4px 0 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
     .slot-card .slot-clicks { font-size: 1.3em; font-weight: 900; color: var(--gold); }
@@ -236,14 +236,14 @@
     #app.visible { display: flex; }
     h1 {
       font-size: clamp(2em, 7vw, 4em); font-weight: 900;
-      background: linear-gradient(135deg, #ffb347, #ff6a00, #ff3a00);
+      background: linear-gradient(135deg, #ffb347, #ff8c00, #ff6a00);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 2px; filter: drop-shadow(0 0 18px rgba(255,100,0,0.45));
+      margin-bottom: 2px; filter: drop-shadow(0 0 18px rgba(255,140,0,0.55));
     }
     #slotLabel { font-size: 0.85em; color: rgba(255,179,71,0.65); margin-bottom: 8px; font-weight: 700; letter-spacing: 1px; }
     #clickCount {
       font-size: clamp(2.4em, 6vw, 4em); font-weight: 900; color: var(--gold);
-      display: block; filter: drop-shadow(0 0 12px rgba(255,179,71,0.5)); text-align: center;
+      display: block; filter: drop-shadow(0 0 12px rgba(255,179,71,0.7)); text-align: center;
     }
     body.frenzy-active #clickCount { color: #ff4444; filter: drop-shadow(0 0 16px rgba(255,0,0,0.8)); }
     #cpsDisplay { font-size: 0.95em; color: var(--muted); margin: 2px 0 10px; text-align: center; }
@@ -264,7 +264,7 @@
     #tikiCircle {
       width: min(260px, 44vw); height: min(260px, 44vw); border-radius: 50%; overflow: hidden;
       cursor: pointer; position: relative;
-      box-shadow: 0 0 0 4px rgba(255,100,0,0.35), 0 0 40px rgba(255,80,0,0.35), 0 12px 40px rgba(0,0,0,0.5);
+      box-shadow: 0 0 0 4px rgba(255,179,71,0.35), 0 0 40px rgba(255,140,0,0.25), 0 12px 40px rgba(0,0,0,0.5);
       animation: tikiBob 2.4s ease-in-out infinite; user-select: none; -webkit-user-select: none;
     }
     #tikiCircle:active { transform: scale(0.93) !important; animation: none !important; }
@@ -286,13 +286,13 @@
       font-size:5em; background:radial-gradient(circle,#3a1200,#1a0500);
     }
     #clickHint { margin-top:10px; font-size:0.9em; color:var(--muted); text-align:center; }
-    #comboText  { height:24px; font-size:0.95em; font-weight:900; color:#ff6a00; text-align:center; margin-top:4px; }
+    #comboText  { height:24px; font-size:0.95em; font-weight:900; color:var(--gold); text-align:center; margin-top:4px; }
 
     /* ── PARTICLES ── */
     .click-particle {
       position:fixed; font-size:1.1em; font-weight:900; color:var(--gold);
       pointer-events:none; z-index:9999; animation:floatUp 0.85s ease-out forwards;
-      text-shadow:0 0 8px rgba(255,179,71,0.8);
+      text-shadow:0 0 8px var(--gold)cc;
     }
     body.frenzy-active .click-particle { color:#ff4444; text-shadow:0 0 10px rgba(255,0,0,0.9); }
     @keyframes floatUp {
@@ -306,31 +306,31 @@
     .shop-tab {
       flex:1; min-width:0; padding:8px 4px; border-radius:12px;
       font-family:'Rubik',sans-serif; font-weight:700; font-size:0.75em;
-      cursor:pointer; border:1px solid rgba(255,100,0,0.22);
-      background:rgba(255,100,0,0.08); color:var(--muted);
+      cursor:pointer; border:1px solid var(--item-border,rgba(255,100,0,0.22));
+      background:var(--card); color:var(--muted);
       transition:background 0.15s, color 0.15s;
       text-align:center; display:flex; align-items:center; justify-content:center;
       line-height:1.2;
     }
-    .shop-tab.active { background:rgba(255,100,0,0.24); color:var(--gold); border-color:rgba(255,100,0,0.5); }
-    .shop-tab:hover:not(.active) { background:rgba(255,100,0,0.16); color:var(--text); }
+    .shop-tab.active { background:var(--card-hover); color:var(--gold); border-color:var(--gold)88; }
+    .shop-tab:hover:not(.active) { background:var(--card); color:var(--text); }
     .shop-panel { display:none; }
     .shop-panel.active { display:block; }
     .shop-section-label {
-      font-size:0.78em; font-weight:700; color:rgba(255,179,71,0.6);
+      font-size:0.78em; font-weight:700; color:var(--gold); opacity:0.75;
       letter-spacing:2px; text-transform:uppercase; margin:12px 0 6px; padding-left:4px;
     }
 
     /* ── SHOP ITEMS ── */
     .shop-item {
-      background:var(--card); border:1px solid rgba(255,100,0,0.18);
+      background:var(--card); border:1px solid var(--item-border,rgba(255,100,0,0.18));
       border-radius:14px; padding:14px 16px; margin-bottom:8px;
       display:flex; align-items:center; justify-content:space-between;
       gap:14px; transition:background 0.18s, border-color 0.18s;
     }
-    .shop-item.affordable { border-color:rgba(255,100,0,0.42); }
+    .shop-item.affordable { border-color:var(--item-border-hi,rgba(255,100,0,0.42)); }
     .shop-item.affordable:hover { background:var(--card-hover); }
-    .shop-item.owned-item { border-color:rgba(255,179,71,0.35); background:rgba(255,179,71,0.06); }
+    .shop-item.owned-item { border-color:var(--item-owned-border,rgba(255,179,71,0.35)); background:var(--item-owned-bg,rgba(255,179,71,0.06)); }
     .item-info { flex:1; min-width:0; }
     .item-name { font-weight:700; font-size:0.95em; color:var(--text); }
     .item-desc { font-size:0.78em; color:var(--muted); margin-top:3px; }
@@ -338,21 +338,21 @@
 
     /* ── BUY BUTTON — bigger, easier to tap ── */
     .buy-btn {
-      background:linear-gradient(145deg,#ff6a00,#cc3000); color:#fff5ee;
+      background:var(--btn-bg,linear-gradient(145deg,#ff6a00,#e03000)); color:#fff5ee;
       border:none; border-radius:12px; padding:11px 20px;
       font-family:'Rubik',sans-serif; font-weight:700; font-size:0.88em;
       cursor:pointer; white-space:nowrap; flex-shrink:0; min-width:70px;
-      transition:filter 0.15s, transform 0.12s; box-shadow:0 4px 14px rgba(255,80,0,0.3);
+      transition:filter 0.15s, transform 0.12s; box-shadow:var(--btn-shadow,0 4px 14px rgba(255,80,0,0.3));
     }
     .buy-btn:hover:not(:disabled) { filter:brightness(1.16); }
     .buy-btn:active:not(:disabled) { filter:brightness(0.9); }
-    .buy-btn:disabled { background:rgba(100,50,20,0.35); color:rgba(255,245,238,0.32); cursor:not-allowed; box-shadow:none; }
-    .buy-btn.owned-btn { background:linear-gradient(145deg,#ffd060,#e09000); color:#1a0800; cursor:default; }
+    .buy-btn:disabled { background:rgba(80,80,80,0.35); color:rgba(255,245,238,0.32); cursor:not-allowed; box-shadow:none; }
+    .buy-btn.owned-btn { background:var(--btn-owned,linear-gradient(145deg,#ffd060,#e09000)); color:#1a0800; cursor:default; }
 
     /* ── BOTTOM BUTTONS ── */
     .bottom-btns { display:flex; gap:12px; margin-top:28px; flex-wrap:wrap; justify-content:center; }
     .bottom-btn {
-      background:rgba(255,100,0,0.10); border:1px solid rgba(255,100,0,0.22);
+      background:var(--card); border:1px solid var(--item-border,rgba(255,100,0,0.22));
       color:rgba(255,245,238,0.7); font-family:'Rubik',sans-serif;
       font-size:0.85em; padding:10px 22px; border-radius:999px;
       cursor:pointer; transition:background 0.18s, color 0.18s;
@@ -2503,7 +2503,10 @@ function renderExtrasShop(){
 function renderRebirthShop(){
   const el=document.getElementById('panel-rebirth');
   el.innerHTML='';
-  const req=5000000*Math.pow(10,state.rebirthCount||0);
+  const rc0=state.rebirthCount||0;
+  const req=(rc0>=3)
+    ? 5000000*Math.pow(10,rc0)*Math.pow(100,rc0-2)
+    : 5000000*Math.pow(10,rc0);
   const can=(state.clicks||0)>=req;
   const rc =state.rebirthCount||0;
   const nextMult=rc+2;
@@ -2643,7 +2646,10 @@ function triggerRebirthAnimation(rc){
 }
 
 function doRebirth(){
-  const req=5000000*Math.pow(10,state.rebirthCount||0);
+  const rc0=state.rebirthCount||0;
+  const req=(rc0>=3)
+    ? 5000000*Math.pow(10,rc0)*Math.pow(100,rc0-2)
+    : 5000000*Math.pow(10,rc0);
   if((state.clicks||0)<req) return;
   const rc  =(state.rebirthCount||0)+1;
   const fo  =state.frenzyOwned;
@@ -2882,31 +2888,56 @@ const BG_THEME = {
 
 function applyBackground(id){
   const bg = BACKGROUNDS.find(b=>b.id===id) || BACKGROUNDS[0];
-  const th = BG_THEME[id] || BG_THEME.default;
   const root = document.documentElement;
-  root.style.setProperty('--gold',      th.gold);
-  root.style.setProperty('--card',      th.card);
-  root.style.setProperty('--card-hover',th.cardHover);
-  // Scrollbar colours derived from theme
-  const sc = th.tabBorder; // e.g. rgba(255,100,0,0.5)
-  const rawColor = th.gold;
-  // (CSS vars don't work for webkit scrollbars — injected via style tag below)
-  document.body.setAttribute('style', bg.style);
-  // Update shop tab active colours dynamically
   let styleTag = document.getElementById('_bgThemeStyle');
   if(!styleTag){ styleTag=document.createElement('style'); styleTag.id='_bgThemeStyle'; document.head.appendChild(styleTag); }
-  const track = th.scrollTrack || '#1a0600';
-  styleTag.textContent = '.shop-tab.active{background:'+th.tab+';color:var(--gold);border-color:'+th.tabBorder+'}'
+
+  // Default: clear all overrides so the original CSS shines through untouched
+  if(!id || id==='default'){
+    // Only clear inline style overrides, keep :root intact
+    root.style.removeProperty('--gold');
+    root.style.removeProperty('--card');
+    root.style.removeProperty('--card-hover');
+    styleTag.textContent = '';
+    document.body.removeAttribute('style');
+    return;
+  }
+
+  const th = BG_THEME[id] || BG_THEME.default;
+  root.style.setProperty('--gold',       th.gold);
+  root.style.setProperty('--card',       th.card);
+  root.style.setProperty('--card-hover', th.cardHover);
+  document.body.setAttribute('style', bg.style);
+
+  const g = th.gold;
+  const track = th.scrollTrack || '#050505';
+  const btnBg = 'linear-gradient(145deg,'+g+','+g+'88)';
+  styleTag.textContent =
+    '.shop-tab.active{background:'+th.tab+';color:'+g+';border-color:'+th.tabBorder+'}'
     + '.shop-tab{border-color:'+th.tabBorder.replace('0.5','0.22')+'}'
-    + '.stat-pill span{color:'+th.gold+'}'
-    + '.click-particle{color:'+th.gold+'}'
-    + '#clickCount{color:'+th.gold+'}'
-    + 'h1{background:linear-gradient(135deg,'+th.gold+','+th.gold+'bb,'+th.gold+'88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 18px '+th.gold+'77)}'
+    + '.stat-pill span{color:'+g+'}'
+    + '.click-particle{color:'+g+'}'
+    + '#clickCount{color:'+g+'}'
+    + 'h1{background:linear-gradient(135deg,'+g+','+g+'bb,'+g+'88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 18px '+g+'aa)}'
     + '#tikiCircle{box-shadow:0 0 0 4px '+th.tabBorder.replace('0.5','0.35')+',0 0 40px '+th.tabBorder.replace('0.5','0.25')+',0 12px 40px rgba(0,0,0,0.5)}'
-    + '#slotLabel{color:'+th.gold+'aa}'
+    + '#slotLabel{color:'+g+'aa}'
+    + '.shop-item{border-color:'+g+'30}'
+    + '.shop-item.affordable{border-color:'+g+'70}'
+    + '.shop-item.owned-item{border-color:'+g+'55;background:'+g+'0d}'
+    + '.buy-btn{background:'+btnBg+';box-shadow:0 4px 14px '+g+'44}'
+    + '.buy-btn.owned-btn{background:linear-gradient(145deg,'+g+','+g+'99);color:#111}'
+    + '.rain-tiki{box-shadow:0 0 12px '+g+'88}'
     + '::-webkit-scrollbar-track{background:'+track+';border-radius:999px}'
-    + '::-webkit-scrollbar-thumb{background:linear-gradient(180deg,'+th.gold+','+th.gold+'88);border-radius:999px;border:2px solid '+track+';box-shadow:0 0 6px '+th.gold+'88}'
-    + '::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,'+th.gold+','+th.gold+'cc)}';
+    + '::-webkit-scrollbar-thumb{background:linear-gradient(180deg,'+g+','+g+'88);border-radius:999px;border:2px solid '+track+';box-shadow:0 0 6px '+g+'88}'
+    + '::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,'+g+'ee,'+g+')}'
+    + '*{scrollbar-color:'+g+' '+track+'}'
+    + '.bottom-btn{background:'+g+'18;border-color:'+g+'38;color:'+g+'}'
+    + '.bottom-btn:hover{background:'+g+'30;border-color:'+g+'66}'
+    + '.bottom-btn.danger{background:rgba(255,50,50,0.12);border-color:rgba(255,50,50,0.3);color:#ff8888}'
+    + '.bank-card{border-color:'+g+'35}'
+    + '.bank-btn{background:linear-gradient(145deg,'+g+','+g+'88);box-shadow:0 3px 12px '+g+'44}'
+    + '.shop-section-label{color:'+g+';opacity:0.75}'
+    + '#tikiCircle{border-color:'+g+'88}';
 }
 
 function openBgMenu(){
