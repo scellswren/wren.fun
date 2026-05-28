@@ -152,16 +152,16 @@
       position: absolute; top: -80px;
       border-radius: 50%; object-fit: cover;
       animation: tikiFall linear forwards;
-      opacity: 0.82;
-      box-shadow: var(--rain-shadow,0 0 12px rgba(255,0,0,0.5));
+      opacity: 0.85;
+      box-shadow: 0 0 14px rgba(255,0,0,0.7), 0 0 28px rgba(255,0,0,0.3);
     }
     .rain-tiki.blue {
-      box-shadow: 0 0 14px rgba(0,150,255,0.9);
-      filter: hue-rotate(180deg) saturate(1.5) brightness(1.1);
+      box-shadow: 0 0 14px rgba(0,160,255,0.9), 0 0 28px rgba(0,100,255,0.4);
+      filter: hue-rotate(180deg) saturate(1.5) brightness(1.15);
     }
     .rain-tiki.omega {
-      box-shadow: 0 0 16px rgba(160,0,255,0.9);
-      filter: hue-rotate(270deg) saturate(2) brightness(0.7);
+      box-shadow: 0 0 16px rgba(160,0,255,0.9), 0 0 30px rgba(100,0,200,0.5);
+      filter: hue-rotate(270deg) saturate(2) brightness(0.8);
     }
     @keyframes tikiFall {
       0%   { transform: translateY(0) rotate(0deg); opacity:0.82; }
@@ -251,7 +251,7 @@
     /* ── STATS ── */
     #statsBar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; justify-content: center; }
     .stat-pill {
-      background: rgba(255,100,0,0.10); border: 1px solid rgba(255,100,0,0.18);
+      background: var(--card); border: 1px solid var(--item-border, rgba(255,100,0,0.18));
       border-radius: 999px; padding: 5px 14px; font-size: 0.80em; color: var(--muted);
     }
     .stat-pill span { color: var(--gold); font-weight: 700; }
@@ -268,6 +268,8 @@
       animation: tikiBob 2.4s ease-in-out infinite; user-select: none; -webkit-user-select: none;
     }
     #tikiCircle:active { transform: scale(0.93) !important; animation: none !important; }
+    #tikiCircle.tiki-pop { animation: tikiBob 2.4s ease-in-out infinite, tikiBounce 0.08s ease-out !important; }
+    @keyframes tikiBounce { 0%{transform:scale(0.93)} 100%{transform:scale(1)} }
     body.frenzy-active #tikiCircle {
       box-shadow: 0 0 0 5px rgba(255,0,0,0.7), 0 0 60px rgba(255,0,0,0.6), 0 12px 40px rgba(0,0,0,0.5) !important;
       animation: tikiBob 1.2s ease-in-out infinite !important;
@@ -1907,6 +1909,46 @@ let frenzyCheckTimer= null;
 let frenzyCountdown = null;
 let frenzyOnCooldown= false;  // 30s cooldown after any frenzy ends
 
+// Master wall-clock ticker — uses Date.now() so it never drifts even under load
+let _masterTickLast = Date.now();
+let _masterTickTimer = null;
+function startMasterTicker(){
+  if(_masterTickTimer) return;
+  _masterTickTimer = setInterval(function(){
+    const now = Date.now();
+    const elapsed = now - _masterTickLast;
+    _masterTickLast = now;
+    const secs = elapsed / 1000;
+    // Tick down any active frenzy timers using real wall time
+    if(frenzyActive && frenzyTimeLeft > 0){
+      frenzyTimeLeft = Math.max(0, frenzyTimeLeft - secs);
+      document.getElementById('frenzyTimer').textContent = '('+Math.ceil(frenzyTimeLeft)+'s)';
+      if(frenzyTimeLeft <= 0) endFrenzy();
+    }
+    if(superFrenzyActive && superFrenzyTimeLeft > 0){
+      superFrenzyTimeLeft = Math.max(0, superFrenzyTimeLeft - secs);
+      updateSuperFrenzyTimer();
+      if(superFrenzyTimeLeft <= 0) endSuperFrenzy();
+    }
+    if(omegaFrenzyActive && omegaFrenzyTimeLeft > 0){
+      omegaFrenzyTimeLeft = Math.max(0, omegaFrenzyTimeLeft - secs);
+      updateOmegaTimer();
+      if(omegaFrenzyTimeLeft <= 0) endOmegaFrenzy();
+    }
+    if(state.inJail && state.jailTimeLeft > 0 && !document.hidden){
+      state.jailTimeLeft = Math.max(0, state.jailTimeLeft - secs);
+      updateJailTimerDisplay();
+      if(state.jailTimeLeft <= 0){
+        state.inJail = false;
+        saveCurrentSlot();
+        updateDisplay();
+        showToast('🔓 Released from Tiki Jail!');
+        if(currentTab==='bank') renderBankShop();
+      }
+    }
+  }, 100); // runs every 100ms — smooth timer display, no drift
+}
+
 // ═══════════════════════════════════════════
 //  HELPERS
 // ═══════════════════════════════════════════
@@ -2049,21 +2091,15 @@ function triggerFrenzy(){
   frenzyActive  =true;
   frenzyTimeLeft=20;
   document.body.classList.add('frenzy-active');
+  document.getElementById('frenzyBanner').classList.add('show');
+  document.getElementById('frenzyTimer').textContent='(20s)';
   startRain();
-  startAutoClick(); // restart with frenzy interval
-  runFrenzyCountdown();
+  startAutoClick();
+  startMasterTicker();
   showToast('🔥 TIKI FRENZY! 20 seconds of x3 clicks!');
 }
 
-function runFrenzyCountdown(){
-  if(frenzyCountdown) clearInterval(frenzyCountdown);
-  updateFrenzyTimer();
-  frenzyCountdown=setInterval(()=>{
-    frenzyTimeLeft--;
-    updateFrenzyTimer();
-    if(frenzyTimeLeft<=0) endFrenzy();
-  },1000);
-}
+// runFrenzyCountdown removed — handled by master ticker
 
 function endFrenzy(){
   frenzyActive=false;
@@ -2104,21 +2140,14 @@ function triggerSuperFrenzy(){
   superFrenzyTimeLeft = 30;
   document.getElementById('superFrenzyBanner').classList.add('show');
   document.body.classList.add('super-frenzy-active');
+  updateSuperFrenzyTimer();
   startRain('blue');
   startAutoClick();
-  runSuperFrenzyCountdown();
+  startMasterTicker();
   showToast('⚡ SUPER TIKI FRENZY! 30 seconds of x4 everything!');
 }
 
-function runSuperFrenzyCountdown(){
-  if(superFrenzyCountdown) clearInterval(superFrenzyCountdown);
-  updateSuperFrenzyTimer();
-  superFrenzyCountdown = setInterval(()=>{
-    superFrenzyTimeLeft--;
-    updateSuperFrenzyTimer();
-    if(superFrenzyTimeLeft <= 0) endSuperFrenzy();
-  }, 1000);
-}
+// runSuperFrenzyCountdown removed — handled by master ticker
 
 function endSuperFrenzy(){
   superFrenzyActive = false;
@@ -2177,15 +2206,10 @@ function triggerOmegaFrenzy(){
   omegaFrenzyTimeLeft = 30;
   document.getElementById('omegaFrenzyBanner').classList.add('show');
   document.body.classList.add('omega-frenzy-active');
+  updateOmegaTimer();
   startRain('omega');
   startAutoClick();
-  updateOmegaTimer();
-  if(omegaFrenzyCountdown) clearInterval(omegaFrenzyCountdown);
-  omegaFrenzyCountdown = setInterval(()=>{
-    omegaFrenzyTimeLeft--;
-    updateOmegaTimer();
-    if(omegaFrenzyTimeLeft<=0) endOmegaFrenzy();
-  },1000);
+  startMasterTicker();
   showToast('🌀 OMEGA TIKI FRENZY! 30 seconds of x6 everything!');
 }
 
@@ -2300,12 +2324,15 @@ function handleClick(e){
     spawnParticle(e,'+'+formatNum(gain));
   }
 
+  // Tiki bounce: use CSS class toggle instead of reflow-triggering offsetWidth
   const c=document.getElementById('tikiCircle');
-  c.style.animation='none'; void c.offsetWidth;
-  setTimeout(()=>c.style.animation='',80);
+  c.classList.add('tiki-pop');
+  setTimeout(()=>c.classList.remove('tiki-pop'),80);
 }
 
 function spawnParticle(e,text){
+  // Cap particles to prevent DOM bloat with fast autoclickers
+  if(document.querySelectorAll('.click-particle').length > 12) return;
   const p=document.createElement('div');
   p.className='click-particle'; p.textContent=text;
   p.style.left=(e.clientX+(Math.random()-.5)*30-10)+'px';
@@ -2937,6 +2964,8 @@ function applyBackground(id){
     + '.bank-card{border-color:'+g+'35}'
     + '.bank-btn{background:linear-gradient(145deg,'+g+','+g+'88);box-shadow:0 3px 12px '+g+'44}'
     + '.shop-section-label{color:'+g+';opacity:0.75}'
+    + '.stat-pill{background:'+th.card+';border-color:'+g+'28}'
+    + '.stat-pill span{color:'+g+'}'
     + '#tikiCircle{border-color:'+g+'88}';
 }
 
@@ -3027,23 +3056,8 @@ function sendToJail(){
 }
 
 function startJailTimer(){
-  if(jailTimer) clearInterval(jailTimer);
-  if(!state.inJail || state.jailTimeLeft<=0) return;
-  jailTimer = setInterval(()=>{
-    if(document.hidden) return; // pauses when tab is hidden
-    state.jailTimeLeft = Math.max(0, state.jailTimeLeft - 1);
-    updateJailTimerDisplay();
-    if(currentTab==='bank') renderBankShop();
-    if(state.jailTimeLeft <= 0){
-      clearInterval(jailTimer); jailTimer=null;
-      state.inJail = false;
-      // keep clicks negative (still in debt) but can click again
-      saveCurrentSlot();
-      updateDisplay();
-      showToast('🔓 Released from Tiki Jail! You\'re still in debt though...');
-    }
-    saveCurrentSlot();
-  }, 1000);
+  // Jail countdown now handled by master ticker (startMasterTicker)
+  startMasterTicker();
 }
 
 function updateJailTimerDisplay(){
@@ -3315,6 +3329,7 @@ document.getElementById('delYesBtn').addEventListener('click', function(){
     const idx=_deleteIdx;
     closeDeleteModal();
     deleteSlot(idx); renderSlotScreen();
+startMasterTicker();
     showToast('🗑 '+SLOT_NAMES[idx]+' deleted.');
   }
 });
