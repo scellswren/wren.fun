@@ -16,15 +16,15 @@
 
     /* ── SCROLLBAR ── */
     ::-webkit-scrollbar { width: 10px; }
-    ::-webkit-scrollbar-track { background: var(--scroll-track,#1a0600); border-radius: 999px; }
+    ::-webkit-scrollbar-track { background: #1a0600; border-radius: 999px; }
     ::-webkit-scrollbar-thumb {
-      background: var(--scroll-thumb,linear-gradient(180deg,#ff8c00,#ff4500,#cc2200));
+      background: linear-gradient(180deg,#ff8c00,#ff4500,#cc2200);
       border-radius: 999px;
-      border: 2px solid var(--scroll-track,#1a0600);
-      box-shadow: 0 0 6px var(--scroll-glow,rgba(255,100,0,0.6));
+      border: 2px solid #1a0600;
+      box-shadow: 0 0 6px rgba(255,140,0,0.6);
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: var(--scroll-thumb-hover,linear-gradient(180deg,#ffaa00,#ff6600,#ee3300));
+      background: linear-gradient(180deg,#ffaa00,#ff6600,#ee3300);
       box-shadow: 0 0 10px rgba(255,130,0,0.9);
     }
     * { scrollbar-width: thin; scrollbar-color: #ff6600 #1a0600; }
@@ -2890,14 +2890,12 @@ function applyBackground(id){
   // Scrollbar colours derived from theme
   const sc = th.tabBorder; // e.g. rgba(255,100,0,0.5)
   const rawColor = th.gold;
-  root.style.setProperty('--scroll-track',       th.scrollTrack || '#050505');
-  root.style.setProperty('--scroll-thumb',       'linear-gradient(180deg,'+rawColor+','+rawColor+'88)');
-  root.style.setProperty('--scroll-thumb-hover', 'linear-gradient(180deg,'+rawColor+','+rawColor+'cc)');
-  root.style.setProperty('--scroll-glow',        rawColor+'88');
+  // (CSS vars don't work for webkit scrollbars — injected via style tag below)
   document.body.setAttribute('style', bg.style);
   // Update shop tab active colours dynamically
   let styleTag = document.getElementById('_bgThemeStyle');
   if(!styleTag){ styleTag=document.createElement('style'); styleTag.id='_bgThemeStyle'; document.head.appendChild(styleTag); }
+  const track = th.scrollTrack || '#1a0600';
   styleTag.textContent = '.shop-tab.active{background:'+th.tab+';color:var(--gold);border-color:'+th.tabBorder+'}'
     + '.shop-tab{border-color:'+th.tabBorder.replace('0.5','0.22')+'}'
     + '.stat-pill span{color:'+th.gold+'}'
@@ -2905,7 +2903,10 @@ function applyBackground(id){
     + '#clickCount{color:'+th.gold+'}'
     + 'h1{background:linear-gradient(135deg,'+th.gold+','+th.gold+'bb,'+th.gold+'88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 18px '+th.gold+'77)}'
     + '#tikiCircle{box-shadow:0 0 0 4px '+th.tabBorder.replace('0.5','0.35')+',0 0 40px '+th.tabBorder.replace('0.5','0.25')+',0 12px 40px rgba(0,0,0,0.5)}'
-    + '#slotLabel{color:'+th.gold+'aa}';
+    + '#slotLabel{color:'+th.gold+'aa}'
+    + '::-webkit-scrollbar-track{background:'+track+';border-radius:999px}'
+    + '::-webkit-scrollbar-thumb{background:linear-gradient(180deg,'+th.gold+','+th.gold+'88);border-radius:999px;border:2px solid '+track+';box-shadow:0 0 6px '+th.gold+'88}'
+    + '::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,'+th.gold+','+th.gold+'cc)}';
 }
 
 function openBgMenu(){
