@@ -2019,7 +2019,7 @@ function slotKey(i){ return SAVE_PREFIX+i; }
 function emptyState(){
   return {
     clicks:0, totalEarned:0, handClicks:0,
-    autoLevel:0, afkAutoOwned:false, lastSeen:0,
+    autoLevel:0, afkAutoLevel:0, lastSeen:0,
     multLevel:1, multPurchased:0,
     frenzyOwned:false,
     rebirthCount:0,
@@ -2030,6 +2030,7 @@ function emptyState(){
     jailTimeLeft:0, inJail:false,
     // Tiki Extras — ALL fields here MUST be preserved on rebirth (see doRebirth)
     randomTikiOwned:false,
+    randomTikiLevel:0,
     superFrenzyOwned:false,
     omegaFrenzyOwned:false,
     criticalTikiLevel:0,   // 0=not bought, 1-5
@@ -2291,14 +2292,15 @@ function startAutoClick(){
 // ═══════════════════════════════════════════
 
 function calcOfflineGains(s){
-  if(!s.afkAutoOwned||!s.autoLevel||!s.lastSeen) return 0;
-  const away=Date.now()-s.lastSeen;
-  if(away<5000) return 0;
-  const cappedAway=Math.min(away, 24*60*60*1000);
-  // Use full CPS including mult and rebirth multipliers
-  const cps=calcCPS(s, false);
-  const seconds=Math.floor(cappedAway/1000);
-  return seconds*cps;
+  const lv = s.afkAutoLevel || 0;
+  if(!lv || !s.autoLevel || !s.lastSeen) return 0;
+  const away = Date.now() - s.lastSeen;
+  if(away < 5000) return 0;
+  const cappedAway = Math.min(away, 24*60*60*1000);
+  const cps = calcCPS(s, false);
+  const seconds = Math.floor(cappedAway / 1000);
+  const pct = lv === 1 ? 0.10 : lv === 2 ? 0.25 : 0.50;
+  return seconds * cps * pct;
 }
 
 // ═══════════════════════════════════════════
@@ -2396,7 +2398,7 @@ function updateSuperFrenzyTimer(){
 
 function buySuperFrenzy(){
   if(state.superFrenzyOwned) return;
-  const cost = 1000000000;
+  const cost = 500e9;
   if(state.clicks < cost){ showToast('Not enough clicks!'); return; }
   sfxBuy();
   state.clicks -= cost;
@@ -2461,7 +2463,7 @@ function updateOmegaTimer(){
 
 function buyOmegaFrenzy(){
   if(state.omegaFrenzyOwned) return;
-  const cost = 100e12;
+  const cost = 50e15;
   if(state.clicks < cost){ showToast('Not enough clicks!'); return; }
   sfxBuy();
   state.clicks -= cost;
@@ -2632,17 +2634,24 @@ function renderAutoShop(){
   const afkLabel=document.createElement('div');
   afkLabel.className='shop-section-label'; afkLabel.textContent='🌙 AFK Auto';
   el.appendChild(afkLabel);
-  if(state.afkAutoOwned){
-    el.appendChild(item(true,true,'🌙 AFK Auto',
-      'Earns clicks while the tab is closed — accurately!',
-      '✅ Owned','','Owned'));
-  } else {
-    const can=state.clicks>=2500000;
-    el.appendChild(item(can,false,'🌙 AFK Auto',
-      'Keeps auto-clicking accurately even when the tab is closed.',
-      'Cost: 🐱 2,500,000 clicks',
-      'buyAfkAuto','Buy'));
-  }
+  const afkLv = state.afkAutoLevel || 0;
+  const rc = Math.max(state.rebirthCount||0, state.totalRebirthsEver||0);
+  AFK_TIERS.forEach(t => {
+    if(afkLv >= t.level){
+      el.appendChild(item(true,true,'🌙 AFK Auto Lv'+t.level,
+        'Earns '+t.pct+'% of your online CPS while the tab is closed.',
+        '✅ Owned','','Owned'));
+    } else if(afkLv === t.level-1){
+      const rcOk = rc >= t.rebirths;
+      const canAfford = state.clicks >= t.cost;
+      const can = rcOk && canAfford;
+      const reqNote = rcOk ? '' : ' (Requires '+t.rebirths+' rebirths — you have '+rc+')';
+      el.appendChild(item(can,false,'🌙 AFK Auto Lv'+t.level,
+        'Earns '+t.pct+'% of your online CPS while away.'+reqNote,
+        'Cost: 🐱 '+t.label+' clicks',
+        'buyAfkAuto('+t.level+')','Buy'));
+    }
+  });
 }
 
 // ── MULTIPLY ──
@@ -2675,11 +2684,7 @@ function renderMultShop(){
       'Cost: 🐱 '+formatNum(nxCost)+' clicks',
       'buyMult','Buy'));
   }
-  const note=document.createElement('div');
-  note.className='shop-section-label';
-  note.style.cssText='opacity:0.5;font-size:0.72em';
-  note.textContent='Multiplier applies to manual clicks only. Auto always gives 1 click per tick.';
-  el.appendChild(note);
+
 }
 
 // ── TIKI EXTRAS ──
@@ -2725,14 +2730,14 @@ function renderExtrasShop(){
         const canOF=state.clicks>=100e12;
         el.appendChild(item(canOF,false,'🌀 Omega Tiki Frenzy',
           '80% chance every 30 seconds: 30 seconds of x6 clicks and x6 auto! Replaces other frenzies.',
-          'Cost: 🐱 100T clicks',
+          'Cost: 🐱 50 Quadrillion clicks',
           'buyOmegaFrenzy','Buy'));
       }
     } else {
       const canSF=state.clicks>=1000000000;
       el.appendChild(item(canSF,false,'⚡ Super Tiki Frenzy',
         '50% chance every minute: 30 seconds of x4 clicks and x4 auto!',
-        'Cost: 🐱 1,000,000,000 clicks',
+        'Cost: 🐱 500 Billion clicks',
         'buySuperFrenzy','Buy'));
     }
   } else {
@@ -2760,17 +2765,16 @@ function renderExtrasShop(){
     el.appendChild(sfb);
   }
 
-  if(state.randomTikiOwned){
-    el.appendChild(item(true,true,'💙 Random Tiki',
-      '35% chance every minute: a blue tiki flies across the top! Click it for +15% of your clicks!',
-      '✅ Owned — tikis may appear!','','Owned'));
-  } else {
-    const canRt=state.clicks>=200000;
-    el.appendChild(item(canRt,false,'💙 Random Tiki',
-      '35% chance every minute: a blue tiki flies across the screen! Click it before it escapes for +15% of your clicks!',
-      'Cost: 🐱 200,000 clicks',
-      'buyRandomTiki','Buy'));
-  }
+  const rtLv = state.randomTikiLevel || 0;
+  RANDOM_TIKI_LEVELS.forEach(t => {
+    if(rtLv >= t.level){
+      el.appendChild(item(true,true,'💙 Random Tiki Lv'+t.level, t.desc, '✅ Owned','','Owned'));
+    } else if(rtLv === t.level-1){
+      const can = state.clicks >= t.cost;
+      el.appendChild(item(can,false,'💙 Random Tiki Lv'+t.level, t.desc,
+        'Cost: 🐱 '+t.label+' clicks', 'buyRandomTiki('+t.level+')','Buy'));
+    }
+  });
 
 }
 
@@ -2867,12 +2871,26 @@ function buyAuto(){
   showToast('⚙️ Auto Click Lv.'+next+' unlocked!');
 }
 
-function buyAfkAuto(){
-  if(state.afkAutoOwned||state.clicks<2500000) return;
+// AFK Auto tier costs & rebirth requirements
+const AFK_TIERS = [
+  { level:1, cost:7e15,    rebirths:5,  pct:10, label:'7 Quadrillion' },
+  { level:2, cost:500e18,  rebirths:10, pct:25, label:'500 Quintillion' },
+  { level:3, cost:50e24,   rebirths:15, pct:50, label:'50 Septillion' },
+];
+function buyAfkAuto(tier){
+  const t = AFK_TIERS[tier-1];
+  if(!t) return;
+  if((state.afkAutoLevel||0) >= tier) return;
+  if((state.afkAutoLevel||0) < tier-1){ showToast('Buy the previous AFK level first!'); return; }
+  const rc = Math.max(state.rebirthCount||0, state.totalRebirthsEver||0);
+  if(rc < t.rebirths){ showToast('Need '+t.rebirths+' rebirths for AFK Auto Lv'+tier+'!'); return; }
+  if(state.clicks < t.cost){ showToast('Not enough clicks!'); return; }
   sfxBuy();
-  state.clicks-=2500000; state.afkAutoOwned=true;
+  state.clicks -= t.cost;
+  state.afkAutoLevel = tier;
+  state.afkAutoOwned = tier >= 1; // keep legacy compat
   saveCurrentSlot(); updateDisplay();
-  showToast('🌙 AFK Auto unlocked! Earns while you\'re away.');
+  showToast('🌙 AFK Auto Lv'+tier+' unlocked! Earns '+t.pct+'% offline CPS while away.');
 }
 
 function buyMult(){
@@ -3006,8 +3024,9 @@ function executePrimordialRebirth(){
   const bg    = state.activeBackground;
   const totalR = (state.totalRebirthsEver || 0) + (state.rebirthCount || 0);
   const fo    = state.frenzyOwned;
-  const afk   = state.afkAutoOwned;
+  const afk   = state.afkAutoLevel||0;
   const rto   = state.randomTikiOwned;
+  const rtl   = state.randomTikiLevel||0;
   const sfo   = state.superFrenzyOwned;
   const ofo   = state.omegaFrenzyOwned;
   const ctl   = state.criticalTikiLevel;
@@ -3017,8 +3036,10 @@ function executePrimordialRebirth(){
   state.totalRebirthsEver  = totalR;
   state.activeBackground   = bg;
   state.frenzyOwned        = fo;
-  state.afkAutoOwned       = afk;
+  state.afkAutoLevel       = afk;
+  state.afkAutoOwned       = afk>=1;
   state.randomTikiOwned    = rto;
+  state.randomTikiLevel    = rtl;
   state.superFrenzyOwned   = sfo;
   state.omegaFrenzyOwned   = ofo;
   state.criticalTikiLevel  = ctl;
@@ -3040,8 +3061,9 @@ function doRebirth(){
   if((state.clicks||0)<req) return;
   const rc  =(state.rebirthCount||0)+1;
   const fo  =state.frenzyOwned;
-  const afk =state.afkAutoOwned;
+  const afk =state.afkAutoLevel||0;
   const rto =state.randomTikiOwned;
+  const rtl =state.randomTikiLevel||0;
   const sfo =state.superFrenzyOwned;
   const ofo =state.omegaFrenzyOwned;
   const ctl =state.criticalTikiLevel;
@@ -3049,8 +3071,10 @@ function doRebirth(){
   state=emptyState();
   state.rebirthCount     =rc;
   state.frenzyOwned      =fo;
-  state.afkAutoOwned     =afk;
+  state.afkAutoLevel     =afk;
+  state.afkAutoOwned     =afk>=1;
   state.randomTikiOwned  =rto;
+  state.randomTikiLevel  =rtl;
   state.superFrenzyOwned =sfo;
   state.omegaFrenzyOwned =ofo;
   state.criticalTikiLevel=ctl;
@@ -3074,6 +3098,10 @@ function doRebirth(){
 let randomTikiTimer = null;
 let activeFlyingTiki = null;
 
+function getRandomTikiData(){
+  const lv = Math.max(1, state.randomTikiLevel||1);
+  return RANDOM_TIKI_LEVELS[Math.min(lv,5)-1];
+}
 function startRandomTiki(){
   if(randomTikiTimer) clearInterval(randomTikiTimer);
   if(!state.randomTikiOwned) return;
@@ -3129,7 +3157,7 @@ function spawnFlyingTiki(){
       state.totalEarned += bonus;
       saveCurrentSlot();
       updateDisplay();
-      showToast('🐱 Lucky Tiki! +'+formatNum(bonus)+' clicks (+15%)!');
+      showToast('🐱 Lucky Tiki! +'+formatNum(bonus)+' clicks (+'+Math.round(getRandomTikiData().bonus*100)+'%)!');
       tiki.remove();
       activeFlyingTiki = null;
     }, 280);
@@ -3166,18 +3194,31 @@ function spawnTikiParticle(tiki, container, burst){
   setTimeout(()=>p.remove(), (dur+0.1)*1000);
 }
 
-function buyRandomTiki(){
-  if(state.randomTikiOwned) return;
-  const cost = 200000;
-  if(state.clicks < cost){ showToast('Not enough clicks!'); return; }
+// Random Tiki upgrade levels
+const RANDOM_TIKI_LEVELS = [
+  { level:1, cost:200000,    chance:0.35, bonus:0.15, label:'200,000',        desc:'35% chance/min — blue tiki gives +15% clicks' },
+  { level:2, cost:50e9,      chance:0.50, bonus:0.20, label:'50 Billion',     desc:'50% chance/min — blue tiki gives +20% clicks' },
+  { level:3, cost:25e15,     chance:0.65, bonus:0.25, label:'25 Quadrillion', desc:'65% chance/min — blue tiki gives +25% clicks' },
+  { level:4, cost:8e21,      chance:0.80, bonus:0.30, label:'8 Sextillion',   desc:'80% chance/min — blue tiki gives +30% clicks' },
+  { level:5, cost:5e30,      chance:1.00, bonus:0.40, label:'5 Nonillion',    desc:'100% chance/min — blue tiki gives +40% clicks' },
+];
+function buyRandomTiki(level){
+  level = level || 1;
+  const t = RANDOM_TIKI_LEVELS[level-1];
+  if(!t) return;
+  const curLv = state.randomTikiLevel || 0;
+  if(curLv >= level) return;
+  if(curLv < level-1){ showToast('Buy the previous Random Tiki level first!'); return; }
+  if(state.clicks < t.cost){ showToast('Not enough clicks!'); return; }
   sfxBuy();
-  state.clicks -= cost;
+  state.clicks -= t.cost;
+  state.randomTikiLevel = level;
   state.randomTikiOwned = true;
   saveCurrentSlot();
   startRandomTiki();
   updateDisplay();
   renderExtrasShop();
-  showToast('🐱 Random Tiki unlocked! Blue tikis will fly across every minute (35% chance)!');
+  showToast('💙 Random Tiki Lv'+level+' unlocked! '+t.desc);
 }
 
 // ═══════════════════════════════════════════
