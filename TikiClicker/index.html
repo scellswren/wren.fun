@@ -234,11 +234,16 @@
       padding: 76px 16px 40px; min-height: 100vh; position: relative; z-index: 2;
     }
     #app.visible { display: flex; }
+    @keyframes titleGlow {
+      0%, 100% { filter: drop-shadow(0 0 14px var(--title-glow, rgba(255,140,0,0.55))); }
+      50%       { filter: drop-shadow(0 0 28px var(--title-glow, rgba(255,140,0,0.85))); }
+    }
     h1 {
       font-size: clamp(2em, 7vw, 4em); font-weight: 900;
       background: linear-gradient(135deg, #ffb347, #ff8c00, #ff6a00);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 2px; filter: drop-shadow(0 0 18px rgba(255,140,0,0.55));
+      margin-bottom: 2px;
+      animation: titleGlow 3s ease-in-out infinite;
     }
     #slotLabel { font-size: 0.85em; color: rgba(255,179,71,0.65); margin-bottom: 8px; font-weight: 700; letter-spacing: 1px; }
     #clickCount {
@@ -593,6 +598,123 @@
       #tikiCircle { width:min(220px,72vw); height:min(220px,72vw); }
       .slot-card { width:100%; max-width:320px; }
     }
+  
+    /* ── PRIMORDIAL REBIRTH TAB ── */
+    @keyframes primordialPulse {
+      0%,100% { box-shadow: 0 0 8px 2px #6600cc88, 0 0 24px 4px #3300aa44; border-color:#6600ccaa; }
+      50%      { box-shadow: 0 0 18px 5px #cc00ff99, 0 0 40px 10px #6600cc55; border-color:#cc00ffcc; }
+    }
+    @keyframes primordialText {
+      0%,100% { color:#9933ff; text-shadow:0 0 8px #6600cc; }
+      50%      { color:#dd88ff; text-shadow:0 0 18px #cc00ff, 0 0 40px #6600cc; }
+    }
+    @keyframes voidShimmer {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .shop-tab.primordial-tab {
+      background: #000 !important;
+      border: 1px solid #6600ccaa !important;
+      animation: primordialPulse 2.5s ease-in-out infinite !important;
+      color: #9933ff !important;
+      animation: primordialPulse 2.5s ease-in-out infinite, primordialText 2.5s ease-in-out infinite !important;
+      position: relative;
+      overflow: hidden;
+    }
+    .shop-tab.primordial-tab::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 0%, #6600cc22 40%, #cc00ff22 60%, transparent 100%);
+      background-size: 200% 100%;
+      animation: voidShimmer 3s linear infinite;
+      pointer-events: none;
+    }
+    .shop-tab.primordial-tab.active {
+      background: #0a0014 !important;
+    }
+
+    /* ── PRIMORDIAL PANEL ── */
+    #panel-primordial {
+      background: #000;
+    }
+    .primordial-panel-inner {
+      text-align: center;
+      padding: 20px 10px;
+    }
+    @keyframes voidTextPulse {
+      0%,100% { color:#aa44ff; text-shadow:0 0 12px #6600cc; }
+      50%      { color:#ee88ff; text-shadow:0 0 28px #cc00ff, 0 0 60px #440088; }
+    }
+    .primordial-title {
+      font-size: 1.5em; font-weight: 900; letter-spacing: 2px;
+      animation: voidTextPulse 2s ease-in-out infinite;
+      margin-bottom: 14px;
+    }
+    .primordial-desc {
+      color: #9966cc; font-size: 0.88em; line-height: 1.6;
+      margin-bottom: 20px; opacity: 0.85;
+    }
+    @keyframes primordialBtnPulse {
+      0%,100% { box-shadow: 0 0 12px #6600cc88, 0 4px 20px #3300aa44; }
+      50%      { box-shadow: 0 0 28px #cc00ffaa, 0 4px 30px #6600cc66; }
+    }
+    .primordial-btn {
+      background: linear-gradient(145deg, #220044, #440088) !important;
+      border: 1px solid #9933ff !important;
+      color: #ee88ff !important;
+      font-weight: 900 !important;
+      font-size: 1em !important;
+      padding: 12px 28px !important;
+      border-radius: 10px !important;
+      cursor: pointer !important;
+      animation: primordialBtnPulse 2s ease-in-out infinite !important;
+      letter-spacing: 1px;
+    }
+    .primordial-btn:hover { opacity: 0.85; }
+
+    /* ── PRIMORDIAL CUTSCENE ── */
+    #primordialCutscene {
+      display: none;
+      position: fixed; inset: 0; z-index: 9999;
+      background: #000;
+      align-items: center; justify-content: center;
+      flex-direction: column;
+    }
+    #primordialCutscene.active { display: flex; }
+    #primordialLines {
+      max-width: 600px; text-align: center;
+      padding: 40px 20px;
+    }
+    @keyframes fadeInLine {
+      from { opacity:0; transform: translateY(12px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .primordial-line {
+      font-size: clamp(1.1em, 3vw, 1.6em);
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin: 10px 0;
+      opacity: 0;
+      color: #cc88ff;
+      text-shadow: 0 0 18px #6600cc;
+      animation: fadeInLine 0.8s ease forwards;
+    }
+
+    /* ── PRIMORDIAL PILL ── */
+    @keyframes primordialPillPulse {
+      0%,100% { border-color:#6600cc88; box-shadow: 0 0 8px #6600cc44; color:#aa44ff; }
+      50%      { border-color:#cc00ffcc; box-shadow: 0 0 18px #cc00ff88; color:#ee88ff; }
+    }
+    .primordial-pill {
+      background: #000 !important;
+      border: 1px solid #6600cc88 !important;
+      animation: primordialPillPulse 2.5s ease-in-out infinite !important;
+    }
+    .primordial-pill span {
+      animation: primordialPillPulse 2.5s ease-in-out infinite !important;
+    }
+
   </style>
 </head>
 <body>
@@ -641,6 +763,7 @@
 
   <div id="statsBar">
     <div class="stat-pill">Rebirths: <span id="statRebirth">0</span> (<span id="statRM">1</span>x mult)</div>
+    <div class="stat-pill primordial-pill" id="primordialPill" style="display:none">🌑 Primordial: <span id="statPrimordial">0</span></div>
   </div>
 
   <div id="mainArea">
@@ -661,12 +784,14 @@
         <div class="shop-tab"       onclick="switchTab('extras')">🌟 Tiki Extras</div>
         <div class="shop-tab"       onclick="switchTab('rebirth')">✨ Rebirth</div>
         <div class="shop-tab"       onclick="switchTab('bank')">🏦 Bank</div>
+        <div class="shop-tab primordial-tab" id="primordialTab" onclick="switchTab('primordial')" style="display:none">🌑 Primordial</div>
       </div>
-      <div id="panel-auto"    class="shop-panel active"></div>
-      <div id="panel-mult"    class="shop-panel"></div>
-      <div id="panel-extras"  class="shop-panel"></div>
-      <div id="panel-rebirth" class="shop-panel"></div>
-      <div id="panel-bank"    class="shop-panel"></div>
+      <div id="panel-auto"       class="shop-panel active"></div>
+      <div id="panel-mult"       class="shop-panel"></div>
+      <div id="panel-extras"     class="shop-panel"></div>
+      <div id="panel-rebirth"    class="shop-panel"></div>
+      <div id="panel-bank"       class="shop-panel"></div>
+      <div id="panel-primordial" class="shop-panel"></div>
     </div>
   </div>
 
@@ -675,6 +800,12 @@
     <button class="bottom-btn" id="soundToggleBtn" onclick="toggleSound()">🔊 Sound</button>
     <button class="bottom-btn danger" onclick="openResetModal()">🔄 Reset Progress</button>
   </div>
+</div>
+
+
+<!-- Primordial Cutscene -->
+<div id="primordialCutscene">
+  <div id="primordialLines"></div>
 </div>
 
 <!-- Reset Modal -->
@@ -1852,6 +1983,31 @@ const MULT_LEVELS = [
   { level:2.000e26      , cost:1.406e187 }
 ];
 
+// ── INFINITE UPGRADE HELPERS (beyond level 500 / entry 499) ──
+// Step multiplier escalates every 50 steps: 4x, 4.5x, 5x, 5.5x, 6x (capped)
+function _infiniteStepMult(stepsAboveMax){
+  return Math.min(6, 4 + Math.floor((stepsAboveMax - 1) / 50) * 0.5);
+}
+// Cost for a given number of steps above the max array entry
+function getAutoInfiniteCost(stepsAbove500){
+  let cost = AUTO_LEVELS[AUTO_LEVELS.length - 1].cost;
+  for(let i = 1; i <= stepsAbove500; i++) cost *= _infiniteStepMult(i);
+  return cost;
+}
+function getMultInfiniteCost(stepsAbove499){
+  let cost = MULT_LEVELS[MULT_LEVELS.length - 1].cost;
+  for(let i = 1; i <= stepsAbove499; i++) cost *= _infiniteStepMult(i);
+  return cost;
+}
+// CPS for auto beyond level 500: doubles each level
+function getAutoInfiniteCps(stepsAbove500){
+  return AUTO_LEVELS[AUTO_LEVELS.length - 1].cps * Math.pow(2, stepsAbove500);
+}
+// Multiplier level beyond entry 499: doubles each entry
+function getMultInfiniteLevel(stepsAbove499){
+  return MULT_LEVELS[MULT_LEVELS.length - 1].level * Math.pow(2, stepsAbove499);
+}
+
 // ═══════════════════════════════════════════
 //  SAVE / LOAD
 // ═══════════════════════════════════════════
@@ -1867,6 +2023,8 @@ function emptyState(){
     multLevel:1, multPurchased:0,
     frenzyOwned:false,
     rebirthCount:0,
+    primordialCount:0,
+    totalRebirthsEver:0,
     // Tiki Bank
     loanOriginal:0, loanOwed:0, loanTakenAt:0, loanLastInterest:0,
     jailTimeLeft:0, inJail:false,
@@ -1965,7 +2123,9 @@ function getEffectiveMultLevel(){
 
 function calcCPS(s, frenzy){
   if(!s||!s.autoLevel) return 0;
-  const baseCps  = AUTO_LEVELS[s.autoLevel-1].cps;
+  const baseCps  = s.autoLevel <= AUTO_LEVELS.length
+    ? AUTO_LEVELS[s.autoLevel-1].cps
+    : getAutoInfiniteCps(s.autoLevel - AUTO_LEVELS.length);
   const multMult = s.multLevel || 1;
   const rebMult  = (s.rebirthCount || 0) + 1;
   const combined = baseCps * multMult * rebMult;
@@ -1985,6 +2145,73 @@ const NUM_SUFFIXES = [
   [1e78, 'Qivg'],[1e81, 'Sxvg'],[1e84, 'Spvg'],[1e87, 'Ocvg'],
   [1e90, 'Novg'],[1e93, 'Tg'],
   [1e96, 'Utg'], [1e99, 'Dtg'],
+  [1e102, 'Ttg'],
+  [1e105, 'Qatg'],
+  [1e108, 'Qitg'],
+  [1e111, 'Sxtg'],
+  [1e114, 'Sptg'],
+  [1e117, 'Octg'],
+  [1e120, 'Notg'],
+  [1e123, 'aa'],
+  [1e126, 'ab'],
+  [1e129, 'ac'],
+  [1e132, 'ad'],
+  [1e135, 'ae'],
+  [1e138, 'af'],
+  [1e141, 'ag'],
+  [1e144, 'ah'],
+  [1e147, 'ai'],
+  [1e150, 'aj'],
+  [1e153, 'ak'],
+  [1e156, 'al'],
+  [1e159, 'am'],
+  [1e162, 'an'],
+  [1e165, 'ao'],
+  [1e168, 'ap'],
+  [1e171, 'aq'],
+  [1e174, 'ar'],
+  [1e177, 'as'],
+  [1e180, 'at'],
+  [1e183, 'au'],
+  [1e186, 'av'],
+  [1e189, 'aw'],
+  [1e192, 'ax'],
+  [1e195, 'ay'],
+  [1e198, 'az'],
+  [1e201, 'ba'],
+  [1e204, 'bb'],
+  [1e207, 'bc'],
+  [1e210, 'bd'],
+  [1e213, 'be'],
+  [1e216, 'bf'],
+  [1e219, 'bg'],
+  [1e222, 'bh'],
+  [1e225, 'bi'],
+  [1e228, 'bj'],
+  [1e231, 'bk'],
+  [1e234, 'bl'],
+  [1e237, 'bm'],
+  [1e240, 'bn'],
+  [1e243, 'bo'],
+  [1e246, 'bp'],
+  [1e249, 'bq'],
+  [1e252, 'br'],
+  [1e255, 'bs'],
+  [1e258, 'bt'],
+  [1e261, 'bu'],
+  [1e264, 'bv'],
+  [1e267, 'bw'],
+  [1e270, 'bx'],
+  [1e273, 'by'],
+  [1e276, 'bz'],
+  [1e279, 'ca'],
+  [1e282, 'cb'],
+  [1e285, 'cc'],
+  [1e288, 'cd'],
+  [1e291, 'ce'],
+  [1e294, 'cf'],
+  [1e297, 'cg'],
+  [1e300, 'ch'],
 ];
 
 function formatNum(n){
@@ -2287,12 +2514,20 @@ function updateDisplay(){
 }
 function _doUpdateDisplay(){
   _displayPending = false;
-  document.getElementById('clickCount').textContent=formatNum(state.clicks);
+  const isInfinite = !isFinite(state.clicks) || state.clicks >= Number.MAX_VALUE * 0.999;
+  document.getElementById('clickCount').textContent = isInfinite ? '∞' : formatNum(state.clicks);
+  // Show/hide primordial tab
+  const primTab = document.getElementById('primordialTab');
+  if(primTab) primTab.style.display = isInfinite ? '' : 'none';
   const cps=calcCPS(state,frenzyActive);
   document.getElementById('cpsDisplay').textContent=
     cps===0?'No auto-clicks yet':(Number.isInteger(cps)?cps:cps.toFixed(2))+' clicks/sec (auto)';
   document.getElementById('statRebirth').textContent   =state.rebirthCount||0;
   document.getElementById('statRM').textContent        =getRebirthMultiplier();
+  if(state.primordialCount > 0){
+    const pp = document.getElementById('primordialPill');
+    if(pp){ pp.style.display=''; document.getElementById('statPrimordial').textContent=state.primordialCount; }
+  }
   renderShop();
 }
 
@@ -2350,8 +2585,9 @@ function spawnParticle(e,text){
 
 function switchTab(tab){ sfxButton();
   currentTab=tab;
+  const tabIds=['auto','mult','extras','rebirth','bank','primordial'];
   document.querySelectorAll('.shop-tab').forEach((t,i)=>{
-    t.classList.toggle('active',['auto','mult','extras','rebirth','bank'][i]===tab);
+    t.classList.toggle('active', tabIds[i]===tab);
   });
   document.querySelectorAll('.shop-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+tab).classList.add('active');
@@ -2359,11 +2595,12 @@ function switchTab(tab){ sfxButton();
 }
 
 function renderShop(){
-  if(currentTab==='auto')    renderAutoShop();
-  if(currentTab==='mult')    renderMultShop();
-  if(currentTab==='extras')  renderExtrasShop();
-  if(currentTab==='rebirth') renderRebirthShop();
-  if(currentTab==='bank')    renderBankShop();
+  if(currentTab==='auto')       renderAutoShop();
+  if(currentTab==='mult')       renderMultShop();
+  if(currentTab==='extras')     renderExtrasShop();
+  if(currentTab==='rebirth')    renderRebirthShop();
+  if(currentTab==='bank')       renderBankShop();
+  if(currentTab==='primordial') renderPrimordialShop();
 }
 
 // ── AUTO ──
@@ -2378,15 +2615,19 @@ function renderAutoShop(){
       formatNum(activeCps)+' clicks/sec'+(frenzyActive?' (frenzy x2!)':''),
       '✅ Owned','','Owned'));
   }
-  if(next<=AUTO_LEVELS.length){
-    const nx=AUTO_LEVELS[next-1];
-    const can=state.clicks>=nx.cost;
+  {
+    const stepsAbove = Math.max(0, next - AUTO_LEVELS.length);
+    const nxCost = next <= AUTO_LEVELS.length
+      ? AUTO_LEVELS[next-1].cost
+      : getAutoInfiniteCost(stepsAbove);
+    const nxCps = next <= AUTO_LEVELS.length
+      ? AUTO_LEVELS[next-1].cps
+      : getAutoInfiniteCps(stepsAbove);
+    const can = state.clicks >= nxCost;
     el.appendChild(item(can,false,'⚙️ Auto Click Lv.'+next,
-      formatNum(nx.cps)+' clicks/sec',
-      'Cost: 🐱 '+formatNum(nx.cost)+' clicks',
+      formatNum(nxCps)+' clicks/sec',
+      'Cost: 🐱 '+formatNum(nxCost)+' clicks',
       'buyAuto','Buy'));
-  } else {
-    el.appendChild(item(true,true,'⚙️ Auto Click Lv.500','Max level reached!','','','MAX'));
   }
   const afkLabel=document.createElement('div');
   afkLabel.className='shop-section-label'; afkLabel.textContent='🌙 AFK Auto';
@@ -2418,17 +2659,21 @@ function renderMultShop(){
       rm>1?'With Rebirth x'+formatNum(rm)+' → effectively x'+formatNum(effective)+' per click':'Active',
       '✅ Active (manual clicks only)','','Active'));
   }
-  if(idx<MULT_LEVELS.length){
-    const nx=MULT_LEVELS[idx];
-    const can=state.clicks>=nx.cost;
-    const afterEff=nx.level*rm;
+  {
+    const stepsAbove = Math.max(0, idx - MULT_LEVELS.length + 1);
+    const nxCost = idx < MULT_LEVELS.length
+      ? MULT_LEVELS[idx].cost
+      : getMultInfiniteCost(stepsAbove);
+    const nxLevel = idx < MULT_LEVELS.length
+      ? MULT_LEVELS[idx].level
+      : getMultInfiniteLevel(stepsAbove);
+    const can = state.clicks >= nxCost;
+    const afterEff = nxLevel * rm;
     el.appendChild(item(can,false,
-      '✖️ x'+formatNum(nx.level)+' Clicks',
+      '✖️ x'+formatNum(nxLevel)+' Clicks',
       'With your Rebirth x'+formatNum(rm)+' that\'s effectively x'+formatNum(afterEff)+' per click',
-      'Cost: 🐱 '+formatNum(nx.cost)+' clicks',
+      'Cost: 🐱 '+formatNum(nxCost)+' clicks',
       'buyMult','Buy'));
-  } else {
-    el.appendChild(item(true,true,'✖️ Maximum Multiplier!','Highest tier reached! 🐱','','','MAX'));
   }
   const note=document.createElement('div');
   note.className='shop-section-label';
@@ -2612,8 +2857,9 @@ function appendItem(el, node){
 
 function buyAuto(){
   const next=state.autoLevel+1;
-  if(next>AUTO_LEVELS.length) return;
-  const cost=AUTO_LEVELS[next-1].cost;
+  const cost = next <= AUTO_LEVELS.length
+    ? AUTO_LEVELS[next-1].cost
+    : getAutoInfiniteCost(next - AUTO_LEVELS.length);
   if(state.clicks<cost) return;
   sfxBuy();
   state.clicks-=cost; state.autoLevel=next;
@@ -2631,13 +2877,17 @@ function buyAfkAuto(){
 
 function buyMult(){
   const idx=state.multPurchased;
-  if(idx>=MULT_LEVELS.length) return;
-  const nx=MULT_LEVELS[idx];
-  if(state.clicks<nx.cost) return;
+  const cost = idx < MULT_LEVELS.length
+    ? MULT_LEVELS[idx].cost
+    : getMultInfiniteCost(idx - MULT_LEVELS.length + 1);
+  const level = idx < MULT_LEVELS.length
+    ? MULT_LEVELS[idx].level
+    : getMultInfiniteLevel(idx - MULT_LEVELS.length + 1);
+  if(state.clicks<cost) return;
   sfxBuy();
-  state.clicks-=nx.cost; state.multLevel=nx.level; state.multPurchased=idx+1;
+  state.clicks-=cost; state.multLevel=level; state.multPurchased=idx+1;
   saveCurrentSlot(); updateDisplay();
-  showToast('✖️ x'+formatNum(nx.level)+' Clicks! (x'+formatNum(getEffectiveMultLevel())+' effective)');
+  showToast('✖️ x'+formatNum(level)+' Clicks! (x'+formatNum(getEffectiveMultLevel())+' effective)');
 }
 
 function buyFrenzy(){
@@ -2673,6 +2923,113 @@ function triggerRebirthAnimation(rc){
     setTimeout(()=>s.remove(), 1600);
   }
   setTimeout(()=>ov.classList.remove('active'), 1900);
+}
+
+
+// ═══════════════════════════════════════════
+//  PRIMORDIAL REBIRTH
+// ═══════════════════════════════════════════
+
+function renderPrimordialShop(){
+  const el = document.getElementById('panel-primordial');
+  el.innerHTML = '';
+  const div = document.createElement('div');
+  div.className = 'primordial-panel-inner';
+  div.innerHTML = `
+    <div class="primordial-title">🌑 PRIMORDIAL REBIRTH 🌑</div>
+    <div class="primordial-desc">
+      You have reached the infinite.<br>
+      Beyond this lies something greater.<br><br>
+      <strong style="color:#cc88ff">All progress will be lost.</strong><br>
+      Your rebirths will reset to 0.<br>
+      Your backgrounds will be kept.<br>
+      Your rebirth milestones will carry over across all time.<br><br>
+      <span style="color:#6633aa;font-size:0.9em">Only those who have touched infinity may proceed.</span>
+    </div>
+    <button class="primordial-btn" onclick="doPrimordialRebirth()">
+      ✦ ENTER THE VOID ✦
+    </button>
+  `;
+  el.appendChild(div);
+}
+
+const PRIMORDIAL_LINES = [
+  'Hello there.',
+  'You have made it to the Primordial Rebirth.',
+  'You must be proud.',
+  'But you still have so much more to do.',
+  'Then again... I am just the herald of this message.',
+  'True power waits.',
+  'Good luck.'
+];
+
+function doPrimordialRebirth(){
+  const cs = document.getElementById('primordialCutscene');
+  const linesDiv = document.getElementById('primordialLines');
+  cs.classList.add('active');
+  linesDiv.innerHTML = '';
+
+  let i = 0;
+  function showNext(){
+    if(i >= PRIMORDIAL_LINES.length){
+      // Final line shown — wait then execute rebirth and fade out
+      setTimeout(()=>{
+        cs.style.transition = 'opacity 1.5s';
+        cs.style.opacity = '0';
+        setTimeout(()=>{
+          cs.classList.remove('active');
+          cs.style.opacity = '';
+          cs.style.transition = '';
+          executePrimordialRebirth();
+        }, 1500);
+      }, 2200);
+      return;
+    }
+    const line = document.createElement('div');
+    line.className = 'primordial-line';
+    line.textContent = PRIMORDIAL_LINES[i];
+    line.style.animationDelay = '0s';
+    linesDiv.appendChild(line);
+    // Clear all lines before showing next (round-by-round)
+    i++;
+    const delay = i === PRIMORDIAL_LINES.length ? 2800 : 2200;
+    setTimeout(()=>{
+      linesDiv.innerHTML = '';
+      showNext();
+    }, delay);
+  }
+  showNext();
+}
+
+function executePrimordialRebirth(){
+  const pc    = (state.primordialCount || 0) + 1;
+  const bg    = state.activeBackground;
+  const totalR = (state.totalRebirthsEver || 0) + (state.rebirthCount || 0);
+  const fo    = state.frenzyOwned;
+  const afk   = state.afkAutoOwned;
+  const rto   = state.randomTikiOwned;
+  const sfo   = state.superFrenzyOwned;
+  const ofo   = state.omegaFrenzyOwned;
+  const ctl   = state.criticalTikiLevel;
+
+  state = emptyState();
+  state.primordialCount    = pc;
+  state.totalRebirthsEver  = totalR;
+  state.activeBackground   = bg;
+  state.frenzyOwned        = fo;
+  state.afkAutoOwned       = afk;
+  state.randomTikiOwned    = rto;
+  state.superFrenzyOwned   = sfo;
+  state.omegaFrenzyOwned   = ofo;
+  state.criticalTikiLevel  = ctl;
+
+  saveCurrentSlot();
+  clearAutoSubs();
+  if(autoWorker){ clearInterval(autoWorker); autoWorker=null; }
+  if(fo) startFrenzySystem();
+  applyBackground(bg);
+  updateDisplay();
+  showToast('🌑 Primordial Rebirth #'+pc+'! The void remembers.');
 }
 
 function doRebirth(){
@@ -2948,7 +3305,8 @@ function applyBackground(id){
     + '.stat-pill span{color:'+g+'}'
     + '.click-particle{color:'+g+'}'
     + '#clickCount{color:'+g+'}'
-    + 'h1{background:linear-gradient(135deg,'+g+','+g+'bb,'+g+'88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 18px '+g+'aa)}'
+    + 'h1{background:linear-gradient(135deg,'+g+','+g+'bb,'+g+'88);-webkit-background-clip:text;-webkit-text-fill-color:transparent}'
+    + ':root{--title-glow:'+g+'99}'
     + '#tikiCircle{box-shadow:0 0 0 4px '+th.tabBorder.replace('0.5','0.35')+',0 0 40px '+th.tabBorder.replace('0.5','0.25')+',0 12px 40px rgba(0,0,0,0.5)}'
     + '#slotLabel{color:'+g+'aa}'
     + '.shop-item{border-color:'+g+'30}'
@@ -2986,7 +3344,7 @@ function renderBgGrid(){
   const grid = document.getElementById('bgGrid');
   if(!grid) return;
   grid.innerHTML = '';
-  const rc = state.rebirthCount || 0;
+  const rc = Math.max(state.rebirthCount || 0, state.totalRebirthsEver || 0);
   const active = state.activeBackground || 'default';
   BACKGROUNDS.forEach(bg => {
     const unlocked = rc >= bg.rebirths;
