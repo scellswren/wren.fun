@@ -1728,7 +1728,7 @@ function calcCPS(s, frenzy){
     ? AUTO_LEVELS[s.autoLevel-1].cps
     : getAutoInfiniteCps(s.autoLevel - AUTO_LEVELS.length);
   const rebMult  = (s.rebirthCount || 0) + 1;
-  const combined = baseCps * rebMult;
+  const combined = baseCps * rebMult; // rebirth mult applies, click mult does NOT
   if(omegaFrenzyActive)  return combined * 6;
   if(superFrenzyActive) return combined * 4;
   return frenzy ? combined * 3 : combined;
@@ -2947,8 +2947,7 @@ function applyBackground(id){
     + '.stat-pill span{color:'+g+'}'
     + '.click-particle{color:'+g+'}'
     + '#clickCount{color:'+g+'}'
-    + 'h1{background:linear-gradient(135deg,'+g+','+g+'bb,'+g+'88);-webkit-background-clip:text;-webkit-text-fill-color:transparent}'
-    + ':root{--title-glow:'+g+'99}'
+    + 'h1{background:linear-gradient(135deg,'+g+','+g+'bb,'+g+'88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 18px '+g+'bb)!important}'
     + '#tikiCircle{box-shadow:0 0 0 4px '+th.tabBorder.replace('0.5','0.35')+',0 0 40px '+th.tabBorder.replace('0.5','0.25')+',0 12px 40px rgba(0,0,0,0.5)}'
     + '#slotLabel{color:'+g+'aa}'
     + '.shop-item{border-color:'+g+'30}'
