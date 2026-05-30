@@ -713,6 +713,42 @@
       animation: primordialPillPulse 2.5s ease-in-out infinite !important;
     }
 
+  
+    /* ── CODES MODAL ── */
+    #codesModal {
+      display:none; position:fixed; inset:0; z-index:8000;
+      align-items:center; justify-content:center;
+      background:rgba(0,0,0,0.7); backdrop-filter:blur(6px);
+    }
+    #codesModal.active { display:flex; }
+    #codesBox {
+      background:var(--card,rgba(30,15,5,0.97));
+      border:1px solid var(--gold,#ffb347)44;
+      border-radius:18px; padding:30px 28px 24px;
+      min-width:320px; max-width:420px; width:90%;
+      box-shadow:0 20px 60px rgba(0,0,0,0.7);
+      text-align:center;
+    }
+    #codesBox h3 { margin:0 0 6px; font-size:1.3em; color:var(--gold,#ffb347); }
+    #codesBox p  { margin:0 0 18px; font-size:0.85em; color:var(--muted,#aaa); }
+    #codeInput {
+      width:100%; box-sizing:border-box;
+      background:rgba(255,255,255,0.07); border:1px solid var(--gold,#ffb347)44;
+      color:var(--text,#fff); font-family:'Rubik',sans-serif; font-size:1em;
+      padding:10px 14px; border-radius:10px; outline:none; margin-bottom:12px;
+    }
+    #codeInput:focus { border-color:var(--gold,#ffb347)99; }
+    #codeMsg { font-size:0.85em; min-height:1.2em; margin-bottom:14px; font-weight:700; }
+    #codeMsg.ok  { color:#66dd66; }
+    #codeMsg.err { color:#ff6666; }
+    .codes-btns { display:flex; gap:10px; justify-content:center; }
+    .codes-btns button {
+      padding:9px 22px; border-radius:10px; font-family:'Rubik',sans-serif;
+      font-size:0.9em; font-weight:700; cursor:pointer; border:none;
+    }
+    .codes-submit { background:var(--gold,#ffb347); color:#111; }
+    .codes-close  { background:rgba(255,255,255,0.1); color:var(--text,#fff); border:1px solid rgba(255,255,255,0.15) !important; }
+
   </style>
 </head>
 <body>
@@ -797,6 +833,7 @@
     <button class="bottom-btn" onclick="switchSlot()">🔀 Switch Slot</button>
     <button class="bottom-btn" id="soundToggleBtn" onclick="toggleSound()">🔊 Sound</button>
     <button class="bottom-btn danger" onclick="openResetModal()">🔄 Reset Progress</button>
+    <button class="bottom-btn" onclick="openCodesModal()" style="position:fixed;bottom:18px;right:18px;z-index:500;margin:0">🎟️ Codes</button>
   </div>
 </div>
 
@@ -804,6 +841,20 @@
 <!-- Primordial Cutscene -->
 <div id="primordialCutscene">
   <div id="primordialLines"></div>
+</div>
+
+<!-- Codes Modal -->
+<div id="codesModal">
+  <div id="codesBox">
+    <h3>🎟️ Enter Code</h3>
+    <p>Got a code? Enter it below.</p>
+    <input id="codeInput" type="text" placeholder="Enter code..." autocomplete="off" />
+    <div id="codeMsg"></div>
+    <div class="codes-btns">
+      <button class="codes-submit" onclick="submitCode()">Redeem</button>
+      <button class="codes-close" onclick="closeCodesModal()">Close</button>
+    </div>
+  </div>
 </div>
 
 <!-- Reset Modal -->
@@ -1274,7 +1325,207 @@ const AUTO_LEVELS = [
   { level:297, cps:1.742e20    , cost:1.167e92 },
   { level:298, cps:1.824e20    , cost:2.917e92 },
   { level:299, cps:1.910e20    , cost:7.293e92 },
-  { level:300, cps:2.000e20    , cost:1.823e93 }
+  { level:300, cps:2.000e20    , cost:1.823e93 },
+  { level:301, cps:2.094e20    , cost:4.557e93 },
+  { level:302, cps:2.192e20    , cost:1.139e94 },
+  { level:303, cps:2.296e20    , cost:2.848e94 },
+  { level:304, cps:2.404e20    , cost:7.121e94 },
+  { level:305, cps:2.518e20    , cost:1.780e95 },
+  { level:306, cps:2.636e20    , cost:4.451e95 },
+  { level:307, cps:2.760e20    , cost:1.113e96 },
+  { level:308, cps:2.890e20    , cost:2.782e96 },
+  { level:309, cps:3.028e20    , cost:6.954e96 },
+  { level:310, cps:3.170e20    , cost:1.739e97 },
+  { level:311, cps:3.320e20    , cost:4.346e97 },
+  { level:312, cps:3.476e20    , cost:1.087e98 },
+  { level:313, cps:3.640e20    , cost:2.716e98 },
+  { level:314, cps:3.810e20    , cost:6.791e98 },
+  { level:315, cps:3.990e20    , cost:1.698e99 },
+  { level:316, cps:4.178e20    , cost:4.245e99 },
+  { level:317, cps:4.376e20    , cost:1.061e100 },
+  { level:318, cps:4.582e20    , cost:2.653e100 },
+  { level:319, cps:4.798e20    , cost:6.632e100 },
+  { level:320, cps:5.024e20    , cost:1.658e101 },
+  { level:321, cps:5.260e20    , cost:4.145e101 },
+  { level:322, cps:5.508e20    , cost:1.036e102 },
+  { level:323, cps:5.768e20    , cost:2.591e102 },
+  { level:324, cps:6.040e20    , cost:6.477e102 },
+  { level:325, cps:6.324e20    , cost:1.619e103 },
+  { level:326, cps:6.622e20    , cost:4.048e103 },
+  { level:327, cps:6.934e20    , cost:1.012e104 },
+  { level:328, cps:7.262e20    , cost:2.530e104 },
+  { level:329, cps:7.604e20    , cost:6.325e104 },
+  { level:330, cps:7.962e20    , cost:1.581e105 },
+  { level:331, cps:8.338e20    , cost:3.953e105 },
+  { level:332, cps:8.730e20    , cost:9.883e105 },
+  { level:333, cps:9.142e20    , cost:2.471e106 },
+  { level:334, cps:9.572e20    , cost:6.177e106 },
+  { level:335, cps:1.002e21    , cost:1.544e107 },
+  { level:336, cps:1.050e21    , cost:3.860e107 },
+  { level:337, cps:1.099e21    , cost:9.651e107 },
+  { level:338, cps:1.151e21    , cost:2.413e108 },
+  { level:339, cps:1.205e21    , cost:6.032e108 },
+  { level:340, cps:1.262e21    , cost:1.508e109 },
+  { level:341, cps:1.321e21    , cost:3.770e109 },
+  { level:342, cps:1.384e21    , cost:9.425e109 },
+  { level:343, cps:1.449e21    , cost:2.356e110 },
+  { level:344, cps:1.517e21    , cost:5.890e110 },
+  { level:345, cps:1.589e21    , cost:1.473e111 },
+  { level:346, cps:1.664e21    , cost:3.682e111 },
+  { level:347, cps:1.742e21    , cost:9.204e111 },
+  { level:348, cps:1.824e21    , cost:2.301e112 },
+  { level:349, cps:1.910e21    , cost:5.752e112 },
+  { level:350, cps:2.000e21    , cost:1.438e113 },
+  { level:351, cps:2.094e21    , cost:4.314e113 },
+  { level:352, cps:2.192e21    , cost:1.294e114 },
+  { level:353, cps:2.296e21    , cost:3.883e114 },
+  { level:354, cps:2.404e21    , cost:1.165e115 },
+  { level:355, cps:2.518e21    , cost:3.495e115 },
+  { level:356, cps:2.636e21    , cost:1.048e116 },
+  { level:357, cps:2.760e21    , cost:3.145e116 },
+  { level:358, cps:2.890e21    , cost:9.435e116 },
+  { level:359, cps:3.028e21    , cost:2.831e117 },
+  { level:360, cps:3.170e21    , cost:8.492e117 },
+  { level:361, cps:3.320e21    , cost:2.548e118 },
+  { level:362, cps:3.476e21    , cost:7.643e118 },
+  { level:363, cps:3.640e21    , cost:2.293e119 },
+  { level:364, cps:3.810e21    , cost:6.878e119 },
+  { level:365, cps:3.990e21    , cost:2.064e120 },
+  { level:366, cps:4.178e21    , cost:6.191e120 },
+  { level:367, cps:4.376e21    , cost:1.857e121 },
+  { level:368, cps:4.582e21    , cost:5.571e121 },
+  { level:369, cps:4.798e21    , cost:1.671e122 },
+  { level:370, cps:5.024e21    , cost:5.014e122 },
+  { level:371, cps:5.260e21    , cost:1.504e123 },
+  { level:372, cps:5.508e21    , cost:4.513e123 },
+  { level:373, cps:5.768e21    , cost:1.354e124 },
+  { level:374, cps:6.040e21    , cost:4.062e124 },
+  { level:375, cps:6.324e21    , cost:1.218e125 },
+  { level:376, cps:6.622e21    , cost:3.655e125 },
+  { level:377, cps:6.934e21    , cost:1.097e126 },
+  { level:378, cps:7.262e21    , cost:3.290e126 },
+  { level:379, cps:7.604e21    , cost:9.870e126 },
+  { level:380, cps:7.962e21    , cost:2.961e127 },
+  { level:381, cps:8.338e21    , cost:8.883e127 },
+  { level:382, cps:8.730e21    , cost:2.665e128 },
+  { level:383, cps:9.142e21    , cost:7.994e128 },
+  { level:384, cps:9.572e21    , cost:2.398e129 },
+  { level:385, cps:1.002e22    , cost:7.195e129 },
+  { level:386, cps:1.050e22    , cost:2.159e130 },
+  { level:387, cps:1.099e22    , cost:6.476e130 },
+  { level:388, cps:1.151e22    , cost:1.943e131 },
+  { level:389, cps:1.205e22    , cost:5.828e131 },
+  { level:390, cps:1.262e22    , cost:1.748e132 },
+  { level:391, cps:1.321e22    , cost:5.245e132 },
+  { level:392, cps:1.384e22    , cost:1.574e133 },
+  { level:393, cps:1.449e22    , cost:4.721e133 },
+  { level:394, cps:1.517e22    , cost:1.416e134 },
+  { level:395, cps:1.589e22    , cost:4.249e134 },
+  { level:396, cps:1.664e22    , cost:1.275e135 },
+  { level:397, cps:1.742e22    , cost:3.824e135 },
+  { level:398, cps:1.824e22    , cost:1.147e136 },
+  { level:399, cps:1.910e22    , cost:3.441e136 },
+  { level:400, cps:2.000e22    , cost:1.032e137 },
+  { level:401, cps:2.094e22    , cost:3.097e137 },
+  { level:402, cps:2.192e22    , cost:9.292e137 },
+  { level:403, cps:2.296e22    , cost:2.787e138 },
+  { level:404, cps:2.404e22    , cost:8.362e138 },
+  { level:405, cps:2.518e22    , cost:2.509e139 },
+  { level:406, cps:2.636e22    , cost:7.526e139 },
+  { level:407, cps:2.760e22    , cost:2.258e140 },
+  { level:408, cps:2.890e22    , cost:6.774e140 },
+  { level:409, cps:3.028e22    , cost:2.032e141 },
+  { level:410, cps:3.170e22    , cost:6.096e141 },
+  { level:411, cps:3.320e22    , cost:1.829e142 },
+  { level:412, cps:3.476e22    , cost:5.487e142 },
+  { level:413, cps:3.640e22    , cost:1.646e143 },
+  { level:414, cps:3.810e22    , cost:4.938e143 },
+  { level:415, cps:3.990e22    , cost:1.481e144 },
+  { level:416, cps:4.178e22    , cost:4.444e144 },
+  { level:417, cps:4.376e22    , cost:1.333e145 },
+  { level:418, cps:4.582e22    , cost:4.000e145 },
+  { level:419, cps:4.798e22    , cost:1.200e146 },
+  { level:420, cps:5.024e22    , cost:3.600e146 },
+  { level:421, cps:5.260e22    , cost:1.080e147 },
+  { level:422, cps:5.508e22    , cost:3.240e147 },
+  { level:423, cps:5.768e22    , cost:9.719e147 },
+  { level:424, cps:6.040e22    , cost:2.916e148 },
+  { level:425, cps:6.324e22    , cost:8.747e148 },
+  { level:426, cps:6.622e22    , cost:2.624e149 },
+  { level:427, cps:6.934e22    , cost:7.873e149 },
+  { level:428, cps:7.262e22    , cost:2.362e150 },
+  { level:429, cps:7.604e22    , cost:7.085e150 },
+  { level:430, cps:7.962e22    , cost:2.126e151 },
+  { level:431, cps:8.338e22    , cost:6.377e151 },
+  { level:432, cps:8.730e22    , cost:1.913e152 },
+  { level:433, cps:9.142e22    , cost:5.739e152 },
+  { level:434, cps:9.572e22    , cost:1.722e153 },
+  { level:435, cps:1.002e23    , cost:5.165e153 },
+  { level:436, cps:1.050e23    , cost:1.550e154 },
+  { level:437, cps:1.099e23    , cost:4.649e154 },
+  { level:438, cps:1.151e23    , cost:1.395e155 },
+  { level:439, cps:1.205e23    , cost:4.184e155 },
+  { level:440, cps:1.262e23    , cost:1.255e156 },
+  { level:441, cps:1.321e23    , cost:3.765e156 },
+  { level:442, cps:1.384e23    , cost:1.130e157 },
+  { level:443, cps:1.449e23    , cost:3.389e157 },
+  { level:444, cps:1.517e23    , cost:1.017e158 },
+  { level:445, cps:1.589e23    , cost:3.050e158 },
+  { level:446, cps:1.664e23    , cost:9.150e158 },
+  { level:447, cps:1.742e23    , cost:2.745e159 },
+  { level:448, cps:1.824e23    , cost:8.235e159 },
+  { level:449, cps:1.910e23    , cost:2.471e160 },
+  { level:450, cps:2.000e23    , cost:7.412e160 },
+  { level:451, cps:2.094e23    , cost:2.223e161 },
+  { level:452, cps:2.192e23    , cost:6.670e161 },
+  { level:453, cps:2.296e23    , cost:2.001e162 },
+  { level:454, cps:2.404e23    , cost:6.003e162 },
+  { level:455, cps:2.518e23    , cost:1.801e163 },
+  { level:456, cps:2.636e23    , cost:5.403e163 },
+  { level:457, cps:2.760e23    , cost:1.621e164 },
+  { level:458, cps:2.890e23    , cost:4.863e164 },
+  { level:459, cps:3.028e23    , cost:1.459e165 },
+  { level:460, cps:3.170e23    , cost:4.376e165 },
+  { level:461, cps:3.320e23    , cost:1.313e166 },
+  { level:462, cps:3.476e23    , cost:3.939e166 },
+  { level:463, cps:3.640e23    , cost:1.182e167 },
+  { level:464, cps:3.810e23    , cost:3.545e167 },
+  { level:465, cps:3.990e23    , cost:1.063e168 },
+  { level:466, cps:4.178e23    , cost:3.190e168 },
+  { level:467, cps:4.376e23    , cost:9.571e168 },
+  { level:468, cps:4.582e23    , cost:2.871e169 },
+  { level:469, cps:4.798e23    , cost:8.614e169 },
+  { level:470, cps:5.024e23    , cost:2.584e170 },
+  { level:471, cps:5.260e23    , cost:7.753e170 },
+  { level:472, cps:5.508e23    , cost:2.326e171 },
+  { level:473, cps:5.768e23    , cost:6.978e171 },
+  { level:474, cps:6.040e23    , cost:2.093e172 },
+  { level:475, cps:6.324e23    , cost:6.280e172 },
+  { level:476, cps:6.622e23    , cost:1.884e173 },
+  { level:477, cps:6.934e23    , cost:5.652e173 },
+  { level:478, cps:7.262e23    , cost:1.696e174 },
+  { level:479, cps:7.604e23    , cost:5.087e174 },
+  { level:480, cps:7.962e23    , cost:1.526e175 },
+  { level:481, cps:8.338e23    , cost:4.578e175 },
+  { level:482, cps:8.730e23    , cost:1.373e176 },
+  { level:483, cps:9.142e23    , cost:4.120e176 },
+  { level:484, cps:9.572e23    , cost:1.236e177 },
+  { level:485, cps:1.002e24    , cost:3.708e177 },
+  { level:486, cps:1.050e24    , cost:1.112e178 },
+  { level:487, cps:1.099e24    , cost:3.337e178 },
+  { level:488, cps:1.151e24    , cost:1.001e179 },
+  { level:489, cps:1.205e24    , cost:3.004e179 },
+  { level:490, cps:1.262e24    , cost:9.011e179 },
+  { level:491, cps:1.321e24    , cost:2.703e180 },
+  { level:492, cps:1.384e24    , cost:8.110e180 },
+  { level:493, cps:1.449e24    , cost:2.433e181 },
+  { level:494, cps:1.517e24    , cost:7.299e181 },
+  { level:495, cps:1.589e24    , cost:2.190e182 },
+  { level:496, cps:1.664e24    , cost:6.569e182 },
+  { level:497, cps:1.742e24    , cost:1.971e183 },
+  { level:498, cps:1.824e24    , cost:5.912e183 },
+  { level:499, cps:1.910e24    , cost:1.774e184 },
+  { level:500, cps:2.000e24    , cost:5.321e184 }
 ];
 
 // Manual-click multipliers only — does NOT affect auto
@@ -1578,7 +1829,207 @@ const MULT_LEVELS = [
   { level:1.742e22      , cost:3.700e94 },
   { level:1.824e22      , cost:9.250e94 },
   { level:1.910e22      , cost:2.312e95 },
-  { level:2.000e22      , cost:5.781e95 }
+  { level:2.000e22      , cost:5.781e95 },
+  { level:2.094e22      , cost:1.445e96 },
+  { level:2.193e22      , cost:3.613e96 },
+  { level:2.296e22      , cost:9.033e96 },
+  { level:2.405e22      , cost:2.258e97 },
+  { level:2.518e22      , cost:5.646e97 },
+  { level:2.637e22      , cost:1.411e98 },
+  { level:2.761e22      , cost:3.528e98 },
+  { level:2.891e22      , cost:8.821e98 },
+  { level:3.027e22      , cost:2.205e99 },
+  { level:3.170e22      , cost:5.513e99 },
+  { level:3.319e22      , cost:1.378e100 },
+  { level:3.476e22      , cost:3.446e100 },
+  { level:3.639e22      , cost:8.614e100 },
+  { level:3.811e22      , cost:2.154e101 },
+  { level:3.991e22      , cost:5.384e101 },
+  { level:4.179e22      , cost:1.346e102 },
+  { level:4.376e22      , cost:3.365e102 },
+  { level:4.582e22      , cost:8.412e102 },
+  { level:4.798e22      , cost:2.103e103 },
+  { level:5.024e22      , cost:5.258e103 },
+  { level:5.261e22      , cost:1.314e104 },
+  { level:5.508e22      , cost:3.286e104 },
+  { level:5.768e22      , cost:8.215e104 },
+  { level:6.040e22      , cost:2.054e105 },
+  { level:6.325e22      , cost:5.135e105 },
+  { level:6.623e22      , cost:1.284e106 },
+  { level:6.935e22      , cost:3.209e106 },
+  { level:7.262e22      , cost:8.023e106 },
+  { level:7.604e22      , cost:2.006e107 },
+  { level:7.962e22      , cost:5.014e107 },
+  { level:8.337e22      , cost:1.254e108 },
+  { level:8.730e22      , cost:3.134e108 },
+  { level:9.142e22      , cost:7.835e108 },
+  { level:9.573e22      , cost:1.959e109 },
+  { level:1.002e23      , cost:4.897e109 },
+  { level:1.050e23      , cost:1.224e110 },
+  { level:1.099e23      , cost:3.060e110 },
+  { level:1.151e23      , cost:7.651e110 },
+  { level:1.205e23      , cost:1.913e111 },
+  { level:1.262e23      , cost:4.782e111 },
+  { level:1.321e23      , cost:1.195e112 },
+  { level:1.384e23      , cost:2.989e112 },
+  { level:1.449e23      , cost:7.472e112 },
+  { level:1.517e23      , cost:1.868e113 },
+  { level:1.589e23      , cost:4.670e113 },
+  { level:1.664e23      , cost:1.167e114 },
+  { level:1.742e23      , cost:2.919e114 },
+  { level:1.824e23      , cost:7.297e114 },
+  { level:1.910e23      , cost:1.824e115 },
+  { level:2.000e23      , cost:4.560e115 },
+  { level:2.094e23      , cost:1.140e116 },
+  { level:2.193e23      , cost:3.420e116 },
+  { level:2.296e23      , cost:1.026e117 },
+  { level:2.405e23      , cost:3.078e117 },
+  { level:2.518e23      , cost:9.235e117 },
+  { level:2.637e23      , cost:2.770e118 },
+  { level:2.761e23      , cost:8.311e118 },
+  { level:2.891e23      , cost:2.493e119 },
+  { level:3.027e23      , cost:7.480e119 },
+  { level:3.170e23      , cost:2.244e120 },
+  { level:3.319e23      , cost:6.732e120 },
+  { level:3.476e23      , cost:2.020e121 },
+  { level:3.639e23      , cost:6.059e121 },
+  { level:3.811e23      , cost:1.818e122 },
+  { level:3.991e23      , cost:5.453e122 },
+  { level:4.179e23      , cost:1.636e123 },
+  { level:4.376e23      , cost:4.908e123 },
+  { level:4.582e23      , cost:1.472e124 },
+  { level:4.798e23      , cost:4.417e124 },
+  { level:5.024e23      , cost:1.325e125 },
+  { level:5.261e23      , cost:3.975e125 },
+  { level:5.508e23      , cost:1.193e126 },
+  { level:5.768e23      , cost:3.578e126 },
+  { level:6.040e23      , cost:1.073e127 },
+  { level:6.325e23      , cost:3.220e127 },
+  { level:6.623e23      , cost:9.660e127 },
+  { level:6.935e23      , cost:2.898e128 },
+  { level:7.262e23      , cost:8.694e128 },
+  { level:7.604e23      , cost:2.608e129 },
+  { level:7.962e23      , cost:7.825e129 },
+  { level:8.337e23      , cost:2.347e130 },
+  { level:8.730e23      , cost:7.042e130 },
+  { level:9.142e23      , cost:2.113e131 },
+  { level:9.573e23      , cost:6.338e131 },
+  { level:1.002e24      , cost:1.901e132 },
+  { level:1.050e24      , cost:5.704e132 },
+  { level:1.099e24      , cost:1.711e133 },
+  { level:1.151e24      , cost:5.134e133 },
+  { level:1.205e24      , cost:1.540e134 },
+  { level:1.262e24      , cost:4.620e134 },
+  { level:1.321e24      , cost:1.386e135 },
+  { level:1.384e24      , cost:4.158e135 },
+  { level:1.449e24      , cost:1.247e136 },
+  { level:1.517e24      , cost:3.742e136 },
+  { level:1.589e24      , cost:1.123e137 },
+  { level:1.664e24      , cost:3.368e137 },
+  { level:1.742e24      , cost:1.010e138 },
+  { level:1.824e24      , cost:3.031e138 },
+  { level:1.910e24      , cost:9.094e138 },
+  { level:2.000e24      , cost:2.728e139 },
+  { level:2.094e24      , cost:8.185e139 },
+  { level:2.193e24      , cost:2.455e140 },
+  { level:2.296e24      , cost:7.366e140 },
+  { level:2.405e24      , cost:2.210e141 },
+  { level:2.518e24      , cost:6.630e141 },
+  { level:2.637e24      , cost:1.989e142 },
+  { level:2.761e24      , cost:5.967e142 },
+  { level:2.891e24      , cost:1.790e143 },
+  { level:3.027e24      , cost:5.370e143 },
+  { level:3.170e24      , cost:1.611e144 },
+  { level:3.319e24      , cost:4.833e144 },
+  { level:3.476e24      , cost:1.450e145 },
+  { level:3.639e24      , cost:4.350e145 },
+  { level:3.811e24      , cost:1.305e146 },
+  { level:3.991e24      , cost:3.915e146 },
+  { level:4.179e24      , cost:1.174e147 },
+  { level:4.376e24      , cost:3.523e147 },
+  { level:4.582e24      , cost:1.057e148 },
+  { level:4.798e24      , cost:3.171e148 },
+  { level:5.024e24      , cost:9.513e148 },
+  { level:5.261e24      , cost:2.854e149 },
+  { level:5.508e24      , cost:8.562e149 },
+  { level:5.768e24      , cost:2.568e150 },
+  { level:6.040e24      , cost:7.705e150 },
+  { level:6.325e24      , cost:2.312e151 },
+  { level:6.623e24      , cost:6.935e151 },
+  { level:6.935e24      , cost:2.080e152 },
+  { level:7.262e24      , cost:6.241e152 },
+  { level:7.604e24      , cost:1.872e153 },
+  { level:7.962e24      , cost:5.617e153 },
+  { level:8.337e24      , cost:1.685e154 },
+  { level:8.730e24      , cost:5.056e154 },
+  { level:9.142e24      , cost:1.517e155 },
+  { level:9.573e24      , cost:4.550e155 },
+  { level:1.002e25      , cost:1.365e156 },
+  { level:1.050e25      , cost:4.095e156 },
+  { level:1.099e25      , cost:1.228e157 },
+  { level:1.151e25      , cost:3.685e157 },
+  { level:1.205e25      , cost:1.106e158 },
+  { level:1.262e25      , cost:3.317e158 },
+  { level:1.321e25      , cost:9.951e158 },
+  { level:1.384e25      , cost:2.985e159 },
+  { level:1.449e25      , cost:8.956e159 },
+  { level:1.517e25      , cost:2.687e160 },
+  { level:1.589e25      , cost:8.060e160 },
+  { level:1.664e25      , cost:2.418e161 },
+  { level:1.742e25      , cost:7.254e161 },
+  { level:1.824e25      , cost:2.176e162 },
+  { level:1.910e25      , cost:6.529e162 },
+  { level:2.000e25      , cost:1.959e163 },
+  { level:2.094e25      , cost:5.876e163 },
+  { level:2.193e25      , cost:1.763e164 },
+  { level:2.296e25      , cost:5.288e164 },
+  { level:2.405e25      , cost:1.586e165 },
+  { level:2.518e25      , cost:4.759e165 },
+  { level:2.637e25      , cost:1.428e166 },
+  { level:2.761e25      , cost:4.283e166 },
+  { level:2.891e25      , cost:1.285e167 },
+  { level:3.027e25      , cost:3.855e167 },
+  { level:3.170e25      , cost:1.157e168 },
+  { level:3.319e25      , cost:3.470e168 },
+  { level:3.476e25      , cost:1.041e169 },
+  { level:3.639e25      , cost:3.123e169 },
+  { level:3.811e25      , cost:9.368e169 },
+  { level:3.991e25      , cost:2.810e170 },
+  { level:4.179e25      , cost:8.431e170 },
+  { level:4.376e25      , cost:2.529e171 },
+  { level:4.582e25      , cost:7.588e171 },
+  { level:4.798e25      , cost:2.276e172 },
+  { level:5.024e25      , cost:6.829e172 },
+  { level:5.261e25      , cost:2.049e173 },
+  { level:5.508e25      , cost:6.146e173 },
+  { level:5.768e25      , cost:1.844e174 },
+  { level:6.040e25      , cost:5.532e174 },
+  { level:6.325e25      , cost:1.660e175 },
+  { level:6.623e25      , cost:4.979e175 },
+  { level:6.935e25      , cost:1.494e176 },
+  { level:7.262e25      , cost:4.481e176 },
+  { level:7.604e25      , cost:1.344e177 },
+  { level:7.962e25      , cost:4.033e177 },
+  { level:8.337e25      , cost:1.210e178 },
+  { level:8.730e25      , cost:3.629e178 },
+  { level:9.142e25      , cost:1.089e179 },
+  { level:9.573e25      , cost:3.266e179 },
+  { level:1.002e26      , cost:9.799e179 },
+  { level:1.050e26      , cost:2.940e180 },
+  { level:1.099e26      , cost:8.819e180 },
+  { level:1.151e26      , cost:2.646e181 },
+  { level:1.205e26      , cost:7.937e181 },
+  { level:1.262e26      , cost:2.381e182 },
+  { level:1.321e26      , cost:7.144e182 },
+  { level:1.384e26      , cost:2.143e183 },
+  { level:1.449e26      , cost:6.429e183 },
+  { level:1.517e26      , cost:1.929e184 },
+  { level:1.589e26      , cost:5.786e184 },
+  { level:1.664e26      , cost:1.736e185 },
+  { level:1.742e26      , cost:5.208e185 },
+  { level:1.824e26      , cost:1.562e186 },
+  { level:1.910e26      , cost:4.687e186 },
+  { level:2.000e26      , cost:1.406e187 }
 ];
 
 // ── INFINITE UPGRADE HELPERS (beyond level 500 / entry 499) ──
@@ -2382,9 +2833,9 @@ function renderRebirthShop(){
   const el=document.getElementById('panel-rebirth');
   el.innerHTML='';
   const rc0=state.rebirthCount||0;
-  const req=(rc0>=3)
+  const req=Math.min(rc0>=3
     ? 5000000*Math.pow(10,rc0)*Math.pow(100,rc0-2)
-    : 5000000*Math.pow(10,rc0);
+    : 5000000*Math.pow(10,rc0), 5e149);
   const can=(state.clicks||0)>=req;
   const rc =state.rebirthCount||0;
   const nextMult=rc+2;
@@ -2543,6 +2994,49 @@ function triggerRebirthAnimation(rc){
 }
 
 
+
+// ═══════════════════════════════════════════
+//  CODES
+// ═══════════════════════════════════════════
+const CODES = {
+  'CheaterCheaterPumpkinEater578': function(){
+    state.clicks = Infinity;
+    updateDisplay();
+    saveCurrentSlot();
+    return { ok:true, msg:'💰 Money set to ∞!' };
+  }
+};
+const redeemedCodes = new Set();
+
+function openCodesModal(){
+  sfxButton();
+  document.getElementById('codeInput').value = '';
+  document.getElementById('codeMsg').textContent = '';
+  document.getElementById('codeMsg').className = 'codeMsg';
+  document.getElementById('codesModal').classList.add('active');
+  document.getElementById('codeInput').focus();
+}
+function closeCodesModal(){
+  document.getElementById('codesModal').classList.remove('active');
+}
+function submitCode(){
+  const code = document.getElementById('codeInput').value.trim();
+  const msgEl = document.getElementById('codeMsg');
+  if(!code){ msgEl.textContent = 'Enter a code first.'; msgEl.className = 'codeMsg err'; return; }
+  if(redeemedCodes.has(code)){ msgEl.textContent = 'Already redeemed!'; msgEl.className = 'codeMsg err'; return; }
+  if(CODES[code]){
+    const result = CODES[code]();
+    redeemedCodes.add(code);
+    msgEl.textContent = result.msg;
+    msgEl.className = 'codeMsg ok';
+  } else {
+    msgEl.textContent = 'Invalid code.';
+    msgEl.className = 'codeMsg err';
+  }
+}
+// Allow Enter key to submit
+document.getElementById('codeInput').addEventListener('keydown', e => { if(e.key==='Enter') submitCode(); });
+
 // ═══════════════════════════════════════════
 //  PRIMORDIAL REBIRTH
 // ═══════════════════════════════════════════
@@ -2654,9 +3148,9 @@ function executePrimordialRebirth(){
 
 function doRebirth(){
   const rc0=state.rebirthCount||0;
-  const req=(rc0>=3)
+  const req=Math.min(rc0>=3
     ? 5000000*Math.pow(10,rc0)*Math.pow(100,rc0-2)
-    : 5000000*Math.pow(10,rc0);
+    : 5000000*Math.pow(10,rc0), 5e149);
   if((state.clicks||0)<req) return;
   const rc  =(state.rebirthCount||0)+1;
   const fo  =state.frenzyOwned;
