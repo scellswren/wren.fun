@@ -175,12 +175,11 @@
       font-family: 'Rubik', sans-serif; font-size: 1.6em; font-weight: 900;
       cursor: pointer; transition: transform 0.18s; z-index: 1000;
       user-select: none; color: var(--text); opacity: 0.92;
-      text-shadow: 0 0 18px rgba(255,100,0,0.5);
     }
     #homeText:hover { transform: scale(1.13); }
     #fullscreenBtn {
       position: fixed; top: 12px; right: 14px;
-      background: var(--card); border: 1px solid var(--item-border,rgba(255,100,0,0.28));
+      background: var(--card); border: 1px solid var(--item-border,rgba(255,140,0,0.3));
       color: var(--text); font-size: 1.4em; width: 42px; height: 42px;
       border-radius: 10px; cursor: pointer; z-index: 1000;
       display: flex; align-items: center; justify-content: center;
@@ -243,7 +242,6 @@
       background: linear-gradient(135deg, #ffb347, #ff8c00, #ff6a00);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       margin-bottom: 2px;
-      animation: titleGlow 3s ease-in-out infinite;
     }
     #slotLabel { font-size: 0.85em; color: rgba(255,179,71,0.65); margin-bottom: 8px; font-weight: 700; letter-spacing: 1px; }
     #clickCount {
@@ -1942,7 +1940,7 @@ function endFrenzy(){
 }
 
 function updateFrenzyTimer(){
-  document.getElementById('frenzyTimer').textContent='('+frenzyTimeLeft+'s)';
+  document.getElementById('frenzyTimer').textContent='('+Math.ceil(frenzyTimeLeft)+'s)';
 }
 
 // ═══════════════════════════════════════════
@@ -2857,7 +2855,7 @@ const BACKGROUNDS = [
   { id:'yellow',    name:'Yellow',     rebirths:3,   color:'#ffe033', style:'background:radial-gradient(ellipse at top,#3d3000 0%,#1a1500 60%,#0a0a00 100%);' },
   { id:'gray',      name:'Gray',       rebirths:4,   color:'#aaaaaa', style:'background:radial-gradient(ellipse at top,#1e1e1e 0%,#111 60%,#060606 100%);' },
   { id:'blue',      name:'Blue',       rebirths:5,   color:'#4488ff', style:'background:radial-gradient(ellipse at top,#001a3d 0%,#000e1a 60%,#00060a 100%);' },
-  { id:'white',     name:'White',      rebirths:6,   color:'#ffffff', style:'background:radial-gradient(ellipse at top,#e0e0e0 0%,#c0c0c0 60%,#a0a0a0 100%);' },
+  { id:'white',     name:'White',      rebirths:6,   color:'#4488ff', style:'background:radial-gradient(ellipse at 30% 20%,#e8f0ff 0%,#c8d8f8 40%,#b0c4f0 100%);' },
   { id:'green',     name:'Green',      rebirths:7,   color:'#44cc44', style:'background:radial-gradient(ellipse at top,#003d00 0%,#001a00 60%,#000a00 100%);' },
   { id:'brown',     name:'Brown',      rebirths:8,   color:'#b06020', style:'background:radial-gradient(ellipse at top,#2a1500 0%,#160a00 60%,#080400 100%);' },
   { id:'cyan',      name:'Cyan',       rebirths:9,   color:'#00dddd', style:'background:radial-gradient(ellipse at top,#003d3d 0%,#001a1a 60%,#000a0a 100%);' },
@@ -2938,6 +2936,14 @@ function applyBackground(id){
   root.style.setProperty('--card-hover', th.cardHover);
   document.body.setAttribute('style', bg.style);
 
+  // For light themes, override text to dark so it's readable
+  if(id === 'white'){
+    root.style.setProperty('--text','#1a2244');
+    root.style.setProperty('--muted','#4466aa');
+  } else {
+    root.style.removeProperty('--text');
+    root.style.removeProperty('--muted');
+  }
   const g = th.gold;
   const track = th.scrollTrack || '#050505';
   const btnBg = 'linear-gradient(145deg,'+g+','+g+'88)';
@@ -2968,7 +2974,10 @@ function applyBackground(id){
     + '.shop-section-label{color:'+g+';opacity:0.75}'
     + '.stat-pill{background:'+th.card+';border-color:'+g+'28}'
     + '.stat-pill span{color:'+g+'}'
-    + '#tikiCircle{border-color:'+g+'88}';
+    + '#tikiCircle{border-color:'+g+'88}'
+    + '#homeText{text-shadow:0 0 18px '+g+'99}'
+    + '#fullscreenBtn{border-color:'+g+'55;box-shadow:0 0 10px '+g+'33}'
+    + 'h1{animation:none}';
 }
 
 function openBgMenu(){
