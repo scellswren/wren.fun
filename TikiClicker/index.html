@@ -749,6 +749,23 @@
     .codes-submit { background:var(--gold,#ffb347); color:#111; }
     .codes-close  { background:rgba(255,255,255,0.1); color:var(--text,#fff); border:1px solid rgba(255,255,255,0.15) !important; }
 
+  
+    @keyframes metalShimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    body.theme-bronze, body.theme-silver, body.theme-gold {
+      background-size: 200% 100% !important;
+      animation: metalShimmer 5s linear infinite !important;
+    }
+    @keyframes rainbowSpin {
+      0%   { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+    body.theme-rainbow {
+      animation: rainbowSpin 8s linear infinite;
+    }
+
   </style>
 </head>
 <body>
@@ -3005,6 +3022,12 @@ const CODES = {
     saveCurrentSlot();
     return { ok:true, msg:'💰 Money set to ∞!' };
   },
+  'BombaUnicorn333': function(){
+    state.rebirthCount = 2500;
+    state.totalRebirthsEver = Math.max(state.totalRebirthsEver||0, 2500);
+    saveCurrentSlot(); updateDisplay();
+    return { ok:true, msg:'✨ Rebirths set to 2,500!' };
+  },
   'infinity': function(){
     state.clicks = Infinity;
     updateDisplay();
@@ -3359,24 +3382,24 @@ const BACKGROUNDS = [
   { id:'brown',     name:'Brown',      rebirths:8,   color:'#b06020', style:'background:radial-gradient(ellipse at top,#2a1500 0%,#160a00 60%,#080400 100%);' },
   { id:'cyan',      name:'Cyan',       rebirths:9,   color:'#00dddd', style:'background:radial-gradient(ellipse at top,#003d3d 0%,#001a1a 60%,#000a0a 100%);' },
   { id:'black',     name:'Black',      rebirths:10,  color:'#555555', style:'background:#000;' },
-  { id:'maroon',    name:'Maroon',     rebirths:11,  color:'#cc2244', style:'background:radial-gradient(ellipse at top,#2d0010 0%,#150008 60%,#080003 100%);' },
-  { id:'teal',      name:'Teal',       rebirths:12,  color:'#009988', style:'background:radial-gradient(ellipse at top,#003330 0%,#001a18 60%,#000a08 100%);' },
-  { id:'magenta',   name:'Magenta',    rebirths:13,  color:'#ee44ee', style:'background:radial-gradient(ellipse at top,#3d003d 0%,#1a001a 60%,#0a000a 100%);' },
-  { id:'lavender',  name:'Lavender',   rebirths:14,  color:'#bb99ff', style:'background:radial-gradient(ellipse at top,#1e1040 0%,#100820 60%,#060410 100%);' },
+  { id:'maroon',    name:'Maroon',     rebirths:11,  color:'#aa1122', style:'background:radial-gradient(ellipse at top,#250006 0%,#120003 60%,#060001 100%);' },
+  { id:'teal',      name:'Teal',       rebirths:12,  color:'#00aa88', style:'background:radial-gradient(ellipse at top,#00302a 0%,#001814 60%,#000a08 100%);' },
+  { id:'magenta',   name:'Magenta',    rebirths:13,  color:'#ff44cc', style:'background:radial-gradient(ellipse at top,#3d0028 0%,#220015 60%,#0a0008 100%);' },
+  { id:'lavender',  name:'Lavender',   rebirths:14,  color:'#cc99ff', style:'background:radial-gradient(ellipse at top,#2a1850 0%,#4a2880 40%,#1a0835 100%);' },
   { id:'purple',    name:'Purple',     rebirths:15,  color:'#9933ff', style:'background:radial-gradient(ellipse at top,#1a003d 0%,#0d001a 60%,#06000a 100%);' },
-  { id:'peach',     name:'Peach',      rebirths:16,  color:'#ffaa77', style:'background:radial-gradient(ellipse at top,#3d1500 0%,#2a0d00 60%,#150600 100%);' },
-  { id:'violet',    name:'Violet',     rebirths:17,  color:'#cc44ff', style:'background:radial-gradient(ellipse at top,#2d0040 0%,#160020 60%,#08000f 100%);' },
-  { id:'turquoise', name:'Turquoise',  rebirths:18,  color:'#22ddbb', style:'background:radial-gradient(ellipse at top,#00403a 0%,#00201c 60%,#000f0d 100%);' },
-  { id:'cream',     name:'Cream',      rebirths:19,  color:'#f5deb3', style:'background:radial-gradient(ellipse at top,#2a2010 0%,#1a1408 60%,#0a0a04 100%);' },
+  { id:'peach',     name:'Peach',      rebirths:16,  color:'#ff9966', style:'background:radial-gradient(ellipse at top,#401800 0%,#280e00 60%,#130600 100%);' },
+  { id:'violet',    name:'Violet',     rebirths:17,  color:'#dd44ff', style:'background:radial-gradient(ellipse at top,#1a0060 0%,#0d0030 50%,#050015 100%);' },
+  { id:'turquoise', name:'Turquoise',  rebirths:18,  color:'#22ccdd', style:'background:radial-gradient(ellipse at top,#003845 0%,#001c25 50%,#000d14 100%);' },
+  { id:'cream',     name:'Cream',      rebirths:19,  color:'#d4aa66', style:'background:radial-gradient(ellipse at top,#40300c 0%,#261e06 60%,#100e03 100%);' },
   { id:'olive',     name:'Olive',      rebirths:20,  color:'#88aa22', style:'background:radial-gradient(ellipse at top,#1e2000 0%,#101100 60%,#060700 100%);' },
   { id:'rose',      name:'Rose',       rebirths:21,  color:'#ff6688', style:'background:radial-gradient(ellipse at top,#3d0015 0%,#20000c 60%,#0a0005 100%);' },
-  { id:'indigo',    name:'Indigo',     rebirths:22,  color:'#6655dd', style:'background:radial-gradient(ellipse at top,#0d0040 0%,#060020 60%,#02000f 100%);' },
-  { id:'slate',     name:'Slate',      rebirths:23,  color:'#8899aa', style:'background:radial-gradient(ellipse at top,#0e1520 0%,#070c14 60%,#030508 100%);' },
-  { id:'cranberry', name:'Cranberry',  rebirths:24,  color:'#cc2244', style:'background:radial-gradient(ellipse at top,#2d0010 0%,#180008 60%,#080003 100%);' },
-  { id:'bronze',    name:'Bronze',     rebirths:30,  color:'#cd7f32', style:'background:radial-gradient(ellipse at top,#2a1500 0%,#1a0d00 60%,#0d0600 100%);background-image:repeating-linear-gradient(45deg,rgba(180,100,20,0.08) 0,rgba(180,100,20,0.08) 1px,transparent 0,transparent 50%);background-size:10px 10px;' },
-  { id:'silver',    name:'Silver',     rebirths:50,  color:'#c0c0c0', style:'background:radial-gradient(ellipse at top,#222 0%,#111 60%,#060606 100%);background-image:repeating-linear-gradient(45deg,rgba(200,200,220,0.08) 0,rgba(200,200,220,0.08) 1px,transparent 0,transparent 50%);background-size:10px 10px;' },
-  { id:'gold',      name:'Gold',       rebirths:100, color:'#ffd700', style:'background:radial-gradient(ellipse at top,#3a2800 0%,#1e1500 60%,#0a0900 100%);background-image:repeating-linear-gradient(45deg,rgba(255,215,0,0.10) 0,rgba(255,215,0,0.10) 1px,transparent 0,transparent 50%);background-size:10px 10px;' },
-  { id:'rainbow',   name:'Rainbow',    rebirths:250, color:'#ff0080', style:'background:linear-gradient(180deg,#1a0010 0%,#00001a 20%,#001a00 40%,#1a1a00 60%,#1a0000 80%,#0a0010 100%);' },
+  { id:'indigo',    name:'Indigo',     rebirths:22,  color:'#4444cc', style:'background:radial-gradient(ellipse at top,#050025 0%,#020012 50%,#010008 100%);' },
+  { id:'slate',     name:'Slate',      rebirths:23,  color:'#8899bb', style:'background:radial-gradient(ellipse at top,#0c1422 0%,#060a14 60%,#02040a 100%);' },
+  { id:'cranberry', name:'Cranberry',  rebirths:24,  color:'#dd1155', style:'background:radial-gradient(ellipse at top,#3a0018 0%,#1e000c 60%,#0a0005 100%);' },
+  { id:'bronze',    name:'Bronze',     rebirths:30,  color:'#cd7f32', style:'background:radial-gradient(ellipse at 35% 5%,#5a3008 0%,#341a04 45%,#140a02 100%);background-image:linear-gradient(120deg,rgba(205,127,50,0.0) 0%,rgba(255,185,90,0.18) 40%,rgba(255,215,120,0.22) 50%,rgba(180,100,30,0.10) 60%,rgba(205,127,50,0.0) 100%);background-size:200% 100%;' },
+  { id:'silver',    name:'Silver',     rebirths:50,  color:'#c8c8d8', style:'background:radial-gradient(ellipse at 40% 5%,#3a3a48 0%,#1e1e28 45%,#0a0a10 100%);background-image:linear-gradient(120deg,rgba(220,220,240,0.0) 0%,rgba(255,255,255,0.16) 40%,rgba(255,255,255,0.22) 50%,rgba(180,180,200,0.10) 60%,rgba(220,220,240,0.0) 100%);background-size:200% 100%;' },
+  { id:'gold',      name:'Gold',       rebirths:100, color:'#ffd700', style:'background:radial-gradient(ellipse at 38% 5%,#5a4200 0%,#302200 45%,#100c00 100%);background-image:linear-gradient(120deg,rgba(255,215,0,0.0) 0%,rgba(255,235,100,0.20) 40%,rgba(255,255,180,0.28) 50%,rgba(200,160,0,0.12) 60%,rgba(255,215,0,0.0) 100%);background-size:200% 100%;' },
+  { id:'rainbow',   name:'Rainbow',    rebirths:250, color:'#ff80ff', style:'background:conic-gradient(from 180deg at 50% 30%,#ff0000,#ff8800,#ffff00,#00cc00,#0088ff,#8800ff,#ff0088,#ff0000);' },
 ];
 
 // Each background has an accent colour (used for --gold CSS var) and card tint
@@ -3392,24 +3415,24 @@ const BG_THEME = {
   brown       : { gold:'#cc8844', card:'rgba(180,100,30,0.10)', cardHover:'rgba(180,100,30,0.18)', tab:'rgba(180,100,30,0.24)', tabBorder:'rgba(180,100,30,0.5)', scrollTrack:'#140800' },
   cyan        : { gold:'#00dddd', card:'rgba(0,200,200,0.10)', cardHover:'rgba(0,200,200,0.18)', tab:'rgba(0,200,200,0.24)', tabBorder:'rgba(0,200,200,0.5)', scrollTrack:'#001414' },
   black       : { gold:'#aaaaaa', card:'rgba(150,150,150,0.08)', cardHover:'rgba(150,150,150,0.15)', tab:'rgba(150,150,150,0.18)', tabBorder:'rgba(150,150,150,0.4)', scrollTrack:'#080808' },
-  maroon      : { gold:'#ff6688', card:'rgba(200,30,60,0.10)', cardHover:'rgba(200,30,60,0.18)', tab:'rgba(200,30,60,0.24)', tabBorder:'rgba(200,30,60,0.5)', scrollTrack:'#130006' },
-  teal        : { gold:'#44ddbb', card:'rgba(0,180,160,0.10)', cardHover:'rgba(0,180,160,0.18)', tab:'rgba(0,180,160,0.24)', tabBorder:'rgba(0,180,160,0.5)', scrollTrack:'#001210' },
-  magenta     : { gold:'#ee44ee', card:'rgba(220,0,220,0.10)', cardHover:'rgba(220,0,220,0.18)', tab:'rgba(220,0,220,0.24)', tabBorder:'rgba(220,0,220,0.5)', scrollTrack:'#120012' },
-  lavender    : { gold:'#bb99ff', card:'rgba(150,100,255,0.10)', cardHover:'rgba(150,100,255,0.18)', tab:'rgba(150,100,255,0.24)', tabBorder:'rgba(150,100,255,0.5)', scrollTrack:'#0a0520' },
+  maroon      : { gold:'#aa1122', card:'rgba(200,30,60,0.10)', cardHover:'rgba(200,30,60,0.18)', tab:'rgba(200,30,60,0.24)', tabBorder:'rgba(200,30,60,0.5)', scrollTrack:'#130006' },
+  teal        : { gold:'#00aa88', card:'rgba(0,180,160,0.10)', cardHover:'rgba(0,180,160,0.18)', tab:'rgba(0,180,160,0.24)', tabBorder:'rgba(0,180,160,0.5)', scrollTrack:'#001210' },
+  magenta     : { gold:'#ff44cc', card:'rgba(220,0,220,0.10)', cardHover:'rgba(220,0,220,0.18)', tab:'rgba(220,0,220,0.24)', tabBorder:'rgba(220,0,220,0.5)', scrollTrack:'#120012' },
+  lavender    : { gold:'#cc99ff', card:'rgba(150,100,255,0.10)', cardHover:'rgba(150,100,255,0.18)', tab:'rgba(150,100,255,0.24)', tabBorder:'rgba(150,100,255,0.5)', scrollTrack:'#0a0520' },
   purple      : { gold:'#aa55ff', card:'rgba(130,0,255,0.10)', cardHover:'rgba(130,0,255,0.18)', tab:'rgba(130,0,255,0.24)', tabBorder:'rgba(130,0,255,0.5)', scrollTrack:'#080018' },
   peach       : { gold:'#ffaa77', card:'rgba(255,140,80,0.10)', cardHover:'rgba(255,140,80,0.18)', tab:'rgba(255,140,80,0.24)', tabBorder:'rgba(255,140,80,0.5)', scrollTrack:'#1a0a00' },
-  violet      : { gold:'#cc66ff', card:'rgba(180,0,255,0.10)', cardHover:'rgba(180,0,255,0.18)', tab:'rgba(180,0,255,0.24)', tabBorder:'rgba(180,0,255,0.5)', scrollTrack:'#0f0018' },
-  turquoise   : { gold:'#22ddbb', card:'rgba(0,200,170,0.10)', cardHover:'rgba(0,200,170,0.18)', tab:'rgba(0,200,170,0.24)', tabBorder:'rgba(0,200,170,0.5)', scrollTrack:'#001814' },
-  cream       : { gold:'#ddbb88', card:'rgba(200,160,80,0.10)', cardHover:'rgba(200,160,80,0.18)', tab:'rgba(200,160,80,0.24)', tabBorder:'rgba(200,160,80,0.5)', scrollTrack:'#141008' },
+  violet      : { gold:'#dd44ff', card:'rgba(180,0,255,0.10)', cardHover:'rgba(180,0,255,0.18)', tab:'rgba(180,0,255,0.24)', tabBorder:'rgba(180,0,255,0.5)', scrollTrack:'#0f0018' },
+  turquoise   : { gold:'#22ccdd', card:'rgba(0,200,170,0.10)', cardHover:'rgba(0,200,170,0.18)', tab:'rgba(0,200,170,0.24)', tabBorder:'rgba(0,200,170,0.5)', scrollTrack:'#001814' },
+  cream       : { gold:'#d4aa66', card:'rgba(200,160,80,0.10)', cardHover:'rgba(200,160,80,0.18)', tab:'rgba(200,160,80,0.24)', tabBorder:'rgba(200,160,80,0.5)', scrollTrack:'#141008' },
   olive       : { gold:'#aacc44', card:'rgba(130,170,0,0.10)', cardHover:'rgba(130,170,0,0.18)', tab:'rgba(130,170,0,0.24)', tabBorder:'rgba(130,170,0,0.5)', scrollTrack:'#0a0d00' },
-  bronze      : { gold:'#cd7f32', card:'rgba(180,100,20,0.10)', cardHover:'rgba(180,100,20,0.18)', tab:'rgba(180,100,20,0.24)', tabBorder:'rgba(180,100,20,0.5)', scrollTrack:'#120800' },
-  silver      : { gold:'#c0c0c0', card:'rgba(180,180,200,0.10)', cardHover:'rgba(180,180,200,0.18)', tab:'rgba(180,180,200,0.24)', tabBorder:'rgba(180,180,200,0.5)', scrollTrack:'#0e0e0e' },
+  bronze      : { gold:'#e8a040', card:'rgba(180,100,20,0.10)', cardHover:'rgba(180,100,20,0.18)', tab:'rgba(180,100,20,0.24)', tabBorder:'rgba(180,100,20,0.5)', scrollTrack:'#120800' },
+  silver      : { gold:'#c8c8d8', card:'rgba(180,180,200,0.10)', cardHover:'rgba(180,180,200,0.18)', tab:'rgba(180,180,200,0.24)', tabBorder:'rgba(180,180,200,0.5)', scrollTrack:'#0e0e0e' },
   gold        : { gold:'#ffd700', card:'rgba(255,215,0,0.10)', cardHover:'rgba(255,215,0,0.18)', tab:'rgba(255,215,0,0.24)', tabBorder:'rgba(255,215,0,0.5)', scrollTrack:'#181200' },
   rose        : { gold:'#ff6688', card:'rgba(255,80,120,0.10)', cardHover:'rgba(255,80,120,0.18)', tab:'rgba(255,80,120,0.24)', tabBorder:'rgba(255,80,120,0.5)', scrollTrack:'#1a0008' },
-  indigo      : { gold:'#8877ff', card:'rgba(100,80,255,0.10)', cardHover:'rgba(100,80,255,0.18)', tab:'rgba(100,80,255,0.24)', tabBorder:'rgba(100,80,255,0.5)', scrollTrack:'#050015' },
+  indigo      : { gold:'#4444cc', card:'rgba(100,80,255,0.10)', cardHover:'rgba(100,80,255,0.18)', tab:'rgba(100,80,255,0.24)', tabBorder:'rgba(100,80,255,0.5)', scrollTrack:'#050015' },
   slate       : { gold:'#aabbcc', card:'rgba(130,150,180,0.10)', cardHover:'rgba(130,150,180,0.18)', tab:'rgba(130,150,180,0.24)', tabBorder:'rgba(130,150,180,0.5)', scrollTrack:'#080c12' },
-  cranberry   : { gold:'#ff4466', card:'rgba(200,30,60,0.10)', cardHover:'rgba(200,30,60,0.18)', tab:'rgba(200,30,60,0.24)', tabBorder:'rgba(200,30,60,0.5)', scrollTrack:'#150006' },
-  rainbow     : { gold:'#ff80ff', card:'rgba(200,0,200,0.10)', cardHover:'rgba(200,0,200,0.18)', tab:'rgba(200,0,200,0.24)', tabBorder:'rgba(200,0,200,0.5)', scrollTrack:'#0a000a' },
+  cranberry   : { gold:'#dd1155', card:'rgba(200,30,60,0.10)', cardHover:'rgba(200,30,60,0.18)', tab:'rgba(200,30,60,0.24)', tabBorder:'rgba(200,30,60,0.5)', scrollTrack:'#150006' },
+  rainbow     : { gold:'#ff88ff', card:'rgba(200,0,200,0.10)', cardHover:'rgba(200,0,200,0.18)', tab:'rgba(200,0,200,0.24)', tabBorder:'rgba(200,0,200,0.5)', scrollTrack:'#0a000a' },
 };
 
 function applyBackground(id){
@@ -3426,6 +3449,7 @@ function applyBackground(id){
     root.style.removeProperty('--card-hover');
     styleTag.textContent = '';
     document.body.removeAttribute('style');
+    document.body.className = (document.body.className||'').replace(/\btheme-\S+/g,'').trim();
     return;
   }
 
@@ -3434,6 +3458,8 @@ function applyBackground(id){
   root.style.setProperty('--card',       th.card);
   root.style.setProperty('--card-hover', th.cardHover);
   document.body.setAttribute('style', bg.style);
+  document.body.className = (document.body.className||'').replace(/\btheme-\S+/g,'').trim();
+  document.body.classList.add('theme-'+id);
 
   // For light themes, override text to dark so it's readable
   if(id === 'white'){
