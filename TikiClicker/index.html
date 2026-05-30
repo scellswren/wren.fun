@@ -3004,6 +3004,12 @@ const CODES = {
     updateDisplay();
     saveCurrentSlot();
     return { ok:true, msg:'💰 Money set to ∞!' };
+  },
+  'infinity': function(){
+    state.clicks = Infinity;
+    updateDisplay();
+    saveCurrentSlot();
+    return { ok:true, msg:'💰 Money set to ∞!' };
   }
 };
 const redeemedCodes = new Set();
@@ -3023,10 +3029,9 @@ function submitCode(){
   const code = document.getElementById('codeInput').value.trim();
   const msgEl = document.getElementById('codeMsg');
   if(!code){ msgEl.textContent = 'Enter a code first.'; msgEl.className = 'codeMsg err'; return; }
-  if(redeemedCodes.has(code)){ msgEl.textContent = 'Already redeemed!'; msgEl.className = 'codeMsg err'; return; }
+
   if(CODES[code]){
     const result = CODES[code]();
-    redeemedCodes.add(code);
     msgEl.textContent = result.msg;
     msgEl.className = 'codeMsg ok';
   } else {
