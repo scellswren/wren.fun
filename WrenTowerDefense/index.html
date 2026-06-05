@@ -82,13 +82,14 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
   padding:0;border-radius:6px;transition:all .22s;overflow:hidden;display:flex;flex-direction:column}
 .ccard:hover{border-color:#c8960a88;box-shadow:0 0 20px #f0c04028,0 4px 18px #0009;transform:translateY(-3px)}
 .ccard-banner{height:4px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.5}
-.cpic{width:100%;height:110px;overflow:hidden;background:#0c0a06;position:relative;flex-shrink:0}
-.cpic img{width:100%;height:100%;object-fit:cover;object-position:center top;transition:transform .3s}
+.cpic{width:112px;height:112px;overflow:hidden;background:#0c0a06;position:relative;flex-shrink:0;
+  align-self:center;margin:14px auto 6px;border:1px solid #c8964044;border-radius:4px}
+.cpic img{width:100%;height:100%;object-fit:cover;object-position:center center;transition:transform .3s;display:block}
 .ccard:hover .cpic img{transform:scale(1.06)}
 .cpic-init{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-family:'Cinzel',serif;font-size:2rem;color:var(--gold);background:#0d0a05;
+  font-family:'Cinzel',serif;font-size:1.45rem;color:var(--gold);background:#0d0a05;
   text-shadow:0 0 20px #f0c04066}
-.ccard-body{padding:.85rem 1rem 1rem;flex:1;display:flex;flex-direction:column}
+.ccard-body{padding:.7rem 1rem 1rem;flex:1;display:flex;flex-direction:column}
 .cname{font-family:'Cinzel',serif;color:var(--gold);font-size:.98rem;margin-bottom:.55rem;
   letter-spacing:.04em;text-shadow:0 0 12px #f0c04033}
 .cstats{display:flex;flex-direction:column;gap:.2rem;flex:1}
@@ -166,20 +167,20 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .sitem:hover{background:#f0c04012;border-color:#c8964066}
 .sitem.sel{background:#f0c04020;border-color:var(--gold);box-shadow:0 0 7px #f0c04033}
 .sitem.broke{opacity:.4;cursor:not-allowed}
-.spic{width:40px;height:40px;border:1px solid #c8964044;border-radius:2px;flex-shrink:0;
+.spic{width:44px;height:44px;border:1px solid #c8964044;border-radius:4px;flex-shrink:0;
   overflow:hidden;background:#111;display:flex;align-items:center;justify-content:center;
   font-family:'Cinzel',serif;font-size:.7rem;color:var(--gold)}
-.spic img{width:100%;height:100%;object-fit:cover}
+.spic img{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
 .sname{font-family:'Cinzel',serif;font-size:.7rem;color:var(--text);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .scost{color:var(--gold);font-size:.76rem;font-weight:700}
 
 /* SELECTED PANEL */
-.selpic{width:60px;height:60px;border:2px solid #c8964066;border-radius:3px;
+.selpic{width:72px;height:72px;border:2px solid #c8964066;border-radius:4px;
   overflow:hidden;background:#111;display:flex;align-items:center;justify-content:center;
   font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);
   float:left;margin-right:.55rem;margin-bottom:.35rem;flex-shrink:0}
-.selpic img{width:100%;height:100%;object-fit:cover}
+.selpic img{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
 .selname{font-family:'Cinzel',serif;font-size:.88rem;color:var(--gold);margin-bottom:.18rem}
 .selstats{clear:both}
 .srow{display:flex;justify-content:space-between;font-size:.78rem;
@@ -586,7 +587,7 @@ function showSub(type){
         const setIt=()=>{
           if(!im._bad&&im.naturalWidth>0&&initEl&&picEl){
             const img=makeFallbackImage(t.img,()=>{});
-            img.style.cssText='width:100%;height:100%;object-fit:cover;object-position:center top';
+            img.style.cssText='width:100%;height:100%;object-fit:cover;object-position:center center;display:block';
             initEl.remove();picEl.appendChild(img);
           }
         };
@@ -633,7 +634,7 @@ function showSub(type){
           if(!im._bad&&im.naturalWidth>0&&initEl&&picEl){
             const img=makeFallbackImage(imgSrc,()=>{});
             const f=tintFilter(e.tint);
-            img.style.cssText=`width:100%;height:100%;object-fit:cover;object-position:center top;${f?'filter:'+f:''}`;
+            img.style.cssText=`width:100%;height:100%;object-fit:cover;object-position:center center;display:block;${f?'filter:'+f:''}`;
             initEl.remove();picEl.appendChild(img);
           }
         };
@@ -1342,9 +1343,21 @@ function spawnEnemy(id, opts){
 
 // ─── TOWER PLACEMENT (free placement) ───
 const PATH_RADIUS = CELL * 0.72;
+const TOWER_BASE_SIZE = CELL * 0.88;
+const TOWER_IMAGE_SIZE = CELL * 0.82;
+const TOWER_HALF = TOWER_BASE_SIZE / 2;
+const TOWER_HALF_DIAGONAL = Math.SQRT2 * TOWER_HALF;
+function circleHitsTowerSquare(px,py,cx,cy,half,radius){
+  const dx=Math.max(Math.abs(px-cx)-half,0);
+  const dy=Math.max(Math.abs(py-cy)-half,0);
+  return dx*dx+dy*dy<radius*radius;
+}
+function towerBoxContainsPoint(cx,cy,px,py,pad=0){
+  return Math.abs(px-cx)<=TOWER_HALF+pad&&Math.abs(py-cy)<=TOWER_HALF+pad;
+}
 function canPlaceAt(wx,wy){
   const W=COLS*CELL,H=ROWS*CELL;
-  if(wx<CELL*.5||wy<CELL*.5||wx>W-CELL*.5||wy>H-CELL*.5) return false;
+  if(wx<TOWER_HALF||wy<TOWER_HALF||wx>W-TOWER_HALF||wy>H-TOWER_HALF) return false;
 
   if(S&&S.mapId==='autumn'){
     // For autumn: check distance to each path point, BUT allow points inside the island
@@ -1352,26 +1365,23 @@ function canPlaceAt(wx,wy){
     const icx=mc.cx*CELL+CELL/2, icy=mc.cy*CELL+CELL/2;
     const innerR=(mc.r*CELL)-(CELL*0.88/2)-4; // island radius (matches drawPathAutumn)
     const distToCenter=Math.sqrt((wx-icx)**2+(wy-icy)**2);
-    const inIsland = distToCenter < innerR-CELL*0.3;
+    const inIsland = distToCenter < innerR-TOWER_HALF_DIAGONAL-CELL*0.06;
     if(!inIsland){
       // Outside island: must not be on the road ring
       const clearance=CELL*0.58;
       for(const pt of PPTS){
-        const dx=wx-pt.x,dy=wy-pt.y;
-        if(dx*dx+dy*dy<clearance*clearance) return false;
+        if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,TOWER_HALF,clearance)) return false;
       }
     }
   } else {
     const clearance=PATH_RADIUS;
     for(const pt of PPTS){
-      const dx=wx-pt.x,dy=wy-pt.y;
-      if(dx*dx+dy*dy<clearance*clearance) return false;
+      if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,TOWER_HALF,clearance)) return false;
     }
   }
 
   // Must not overlap an existing tower
-  const TRAD=CELL*.55;
-  if(S.towers.some(t=>{const dx=wx-t.x,dy=wy-t.y;return dx*dx+dy*dy<TRAD*TRAD*4;})) return false;
+  if(S.towers.some(t=>Math.abs(wx-t.x)<TOWER_BASE_SIZE&&Math.abs(wy-t.y)<TOWER_BASE_SIZE)) return false;
   return true;
 }
 
@@ -1589,16 +1599,15 @@ function s2w(sx,sy){return{x:(sx-canvas.width/2)/S.cam.z+S.cam.x,y:(sy-canvas.he
 function initInput(){
   canvas.addEventListener('wheel',e=>{
     e.preventDefault();
-    S.cam.z=Math.max(.3,Math.min(3.5,S.cam.z*(e.deltaY>0?.88:1.14)));
+    S.cam.z=Math.max(.3,Math.min(3.5,S.cam.z*(e.deltaY>0?.95:1.06)));
   },{passive:false});
 
   canvas.addEventListener('mousedown',e=>{
     if(e.button===2) return;
     const rect=canvas.getBoundingClientRect();
     const wld=s2w(e.clientX-rect.left,e.clientY-rect.top);
-    // Hit-test towers by world-space distance
-    const TRAD=CELL*.55;
-    const hit=S.towers.find(t=>{const dx=wld.x-t.x,dy=wld.y-t.y;return dx*dx+dy*dy<TRAD*TRAD;});
+    // Hit-test towers using their square body
+    const hit=S.towers.find(t=>towerBoxContainsPoint(t.x,t.y,wld.x,wld.y));
     if(hit){selectTower(hit.id);return;}
     if(S.shopSel){placeTower(wld.x,wld.y);return;}
     S.drag=true;S.dragS={x:e.clientX,y:e.clientY};S.camS={x:S.cam.x,y:S.cam.y};
@@ -1613,8 +1622,7 @@ function initInput(){
     const wld=s2w(e.clientX-rect.left,e.clientY-rect.top);
     S.ghost={wx:wld.x,wy:wld.y};
     // Track hovered tower for range preview
-    const TRAD=CELL*.55;
-    S.hoveredTower=S.towers.find(t=>{const dx=wld.x-t.x,dy=wld.y-t.y;return dx*dx+dy*dy<TRAD*TRAD;})||null;
+    S.hoveredTower=S.towers.find(t=>towerBoxContainsPoint(t.x,t.y,wld.x,wld.y))||null;
   });
 
   canvas.addEventListener('mouseup',()=>S.drag=false);
