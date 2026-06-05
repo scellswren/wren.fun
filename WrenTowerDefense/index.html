@@ -813,7 +813,7 @@ function showSub(type){
 
 function tintFilter(tint){
   if(!tint) return '';
-  if(tint==='zebra')  return 'saturate(0.05) contrast(1.2) brightness(1.05)';
+  if(tint==='zebra')  return 'grayscale(1) contrast(1.12) brightness(1.04)';
   if(tint==='iron')   return 'grayscale(0.35) brightness(1.02) contrast(1.28) sepia(0.18) hue-rotate(185deg) saturate(0.7)';
   if(tint==='devoted') return 'hue-rotate(320deg) saturate(3) brightness(1.1)';
   const hue={blue:200,green:95,yellow:35,red:0,pink:320,rainbow:0}[tint]||0;
@@ -2584,7 +2584,7 @@ function drawEnemies(){
     ctx.scale(squishX,squishY);
     if(!im._bad&&im.complete&&im.naturalWidth>0){
       ctx.save();
-      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='zebra'&&e.tint!=='iron'&&e.tint!=='devoted'){
+      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'&&e.tint!=='devoted'){
         ctx.filter=tintFilter(e.tint);
       }
       ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.clip();
@@ -2592,7 +2592,7 @@ function drawEnemies(){
       ctx.restore();
 
       // Tint overlays
-      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='zebra'&&e.tint!=='iron'&&e.tint!=='devoted'){
+      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'&&e.tint!=='devoted'){
         const tc={blue:'rgba(70,130,255,0.45)',green:'rgba(50,200,80,0.4)',yellow:'rgba(255,210,40,0.45)',red:'rgba(220,30,30,0.5)',pink:'rgba(255,80,180,0.45)'};
         if(tc[e.tint]){
           ctx.save();ctx.globalCompositeOperation='multiply';
@@ -2600,37 +2600,6 @@ function drawEnemies(){
           ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.fill();
           ctx.restore();
         }
-      }
-
-      // Zebra: black & white stripes drawn over the image
-      if(e.tint==='zebra'){
-        ctx.save();
-        ctx.filter=tintFilter('zebra');
-        ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.clip();
-        ctx.drawImage(im,-sz/2,-sz/2,sz,sz);
-        ctx.restore();
-        // Alternate white and black stripes so the enemy reads like an actual zebra.
-        ctx.save();ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.clip();
-        const stripePitch=sz*.15;
-        const stripeWidth=sz*.12;
-        for(let si=-6;si<=6;si++){
-          const sx=si*stripePitch;
-          ctx.fillStyle=si%2===0?'rgba(255,255,255,0.82)':'rgba(0,0,0,0.82)';
-          ctx.beginPath();
-          ctx.moveTo(sx-stripeWidth,-sz*.7);ctx.lineTo(sx+stripeWidth,-sz*.7);
-          ctx.lineTo(sx+stripeWidth+sz*.34,sz*.7);ctx.lineTo(sx-stripeWidth+sz*.34,sz*.7);
-          ctx.closePath();ctx.fill();
-        }
-        ctx.strokeStyle='rgba(25,25,25,0.22)';
-        ctx.lineWidth=Math.max(1,sz*.018);
-        for(let si=-6;si<=6;si++){
-          const sx=si*stripePitch;
-          ctx.beginPath();
-          ctx.moveTo(sx,-sz*.68);
-          ctx.lineTo(sx+sz*.34,sz*.68);
-          ctx.stroke();
-        }
-        ctx.restore();
       }
 
       // Iron: steel-plate overlay with rivets
