@@ -1757,7 +1757,7 @@ function selectTower(id){
         <div class="upgname" style="margin-top:${ownedUps.length?'.45rem':'0'}">${getTowerUpgradeLevel(t)+1}. ${nextUp.name} - $${nextUp.cost}</div>
         <div class="upgdesc">${nextUp.desc}</div>
         <button class="upgbtn" id="selbtn-upg" ${canBuyNext?'':'disabled'}>Upgrade${canBuyNext?'':' - Need $'+nextUp.cost}</button>
-      `:``<div class="upgname" style="margin-top:${ownedUps.length?'.45rem':'0'}">Maxed Out</div><div class="upgdesc">All upgrades purchased.</div>`}
+      `:`<div class="upgname" style="margin-top:${ownedUps.length?'.45rem':'0'}">Maxed Out</div><div class="upgdesc">All upgrades purchased.</div>`}
     </div>`:'';
 
   body.innerHTML=`
@@ -1878,7 +1878,7 @@ function s2w(sx,sy){return{x:(sx-canvas.width/2)/S.cam.z+S.cam.x,y:(sy-canvas.he
 function initInput(){
   canvas.addEventListener('wheel',e=>{
     e.preventDefault();
-    S.cam.z=Math.max(.3,Math.min(3.5,S.cam.z*(e.deltaY>0?.95:1.06)));
+    S.cam.z=Math.max(.3,Math.min(3.5,S.cam.z*(e.deltaY>0 ? .95 : 1.06)));
   },{passive:false});
 
   canvas.addEventListener('mousedown',e=>{
@@ -3003,7 +3003,7 @@ function drawEnemies(){
 
 function drawProjs(){
   for(const p of S.projs){
-    const maxLife=p.maxLife||((p.type==='laser')?.1:.22);
+    const maxLife=p.maxLife||(p.type==='laser' ? .1 : .22);
     const alpha=Math.max(0,p.life/maxLife);
     const prog=1-alpha;
     const cx=p.sx+(p.ex-p.sx)*prog;
