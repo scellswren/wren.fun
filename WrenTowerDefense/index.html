@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wren Tower Defense</title>
+<link rel="icon" type="image/png" href="../Favicon.png">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Rubik:wght@700&display=swap');
 :root{
   --gold:#f0c040;--gold-dk:#c8960a;--crimson:#c0392b;--panel:#131009ee;
   --border:rgba(200,150,50,0.45);--text:#f5e8c0;--muted:#b0956a;
@@ -15,6 +16,54 @@
 body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text);overflow:hidden;width:100vw;height:100vh;user-select:none}
 .screen{position:fixed;inset:0;display:none}
 .screen.active{display:flex}
+
+#homeText{
+  position:fixed;
+  top:14px;
+  left:16px;
+  font-family:'Rubik',sans-serif;
+  font-size:2em;
+  font-weight:700;
+  color:#ffffff;
+  cursor:pointer;
+  z-index:1200;
+  transition:transform 0.2s ease;
+  user-select:none;
+  text-shadow:0 0 14px rgba(0,0,0,0.45);
+}
+#homeText:hover{transform:scale(1.15)}
+
+#fullscreenBtn{
+  position:fixed;
+  bottom:16px;
+  right:16px;
+  background:#1f1b3b;
+  color:rgba(255,255,255,0.78);
+  border:1px solid rgba(255,255,255,0.12);
+  padding:9px 16px;
+  border-radius:20px;
+  cursor:pointer;
+  font-family:'Rubik',sans-serif;
+  font-size:0.85em;
+  font-weight:700;
+  transition:background 0.2s,color 0.2s;
+  z-index:1200;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  appearance:none;
+  outline:none;
+}
+#fullscreenBtn:hover{
+  background:#2a264f;
+  color:#ffffff;
+}
+#fullscreenBtn:active{
+  background:#1f1b3b;
+  color:rgba(255,255,255,0.78);
+  transform:none;
+  box-shadow:none;
+  filter:none;
+}
 
 /* MENU */
 #menuScreen{flex-direction:column;align-items:center;justify-content:center;
@@ -228,6 +277,9 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 </style>
 </head>
 <body>
+
+<div id="homeText" onclick="G.goHome()">Wren.fun</div>
+<button id="fullscreenBtn" onclick="G.toggleFullscreen()">⛶</button>
 
 <!-- MAIN MENU -->
 <div id="menuScreen" class="screen active">
@@ -581,6 +633,33 @@ function mkState(mapId){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+}
+
+function goHome(){
+  if(window.location.protocol==='file:'){
+    window.location.href='Main%20Menu';
+    return;
+  }
+  window.location.href='https://scellswren.github.io/wren.fun/';
+}
+
+function updateFullscreenButton(){
+  const btn=document.getElementById('fullscreenBtn');
+  if(!btn) return;
+  btn.textContent=document.fullscreenElement?'🗗':'⛶';
+}
+
+async function toggleFullscreen(){
+  try{
+    if(!document.fullscreenElement){
+      const req=document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||document.documentElement.msRequestFullscreen;
+      if(req) await req.call(document.documentElement);
+    }else{
+      const exit=document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen;
+      if(exit) await exit.call(document);
+    }
+  }catch(e){}
+  updateFullscreenButton();
 }
 
 function showSub(type){
@@ -2803,8 +2882,14 @@ function loop(ts){
   if(!S.paused&&!S.over) raf=requestAnimationFrame(loop);
 }
 
+document.addEventListener('fullscreenchange',updateFullscreenButton);
+document.addEventListener('webkitfullscreenchange',updateFullscreenButton);
+document.addEventListener('msfullscreenchange',updateFullscreenButton);
+updateFullscreenButton();
+
 return {startGame,showMapSelect,showSub,showScreen,togglePause,toggleShop,exitToMenu,
-        startWave,sellTower,removeTower,desel,toggleSpeed,toggleAuto,setTowerPriority};
+        startWave,sellTower,removeTower,desel,toggleSpeed,toggleAuto,setTowerPriority,
+        toggleFullscreen,goHome};
 })();
 </script>
 </body>
