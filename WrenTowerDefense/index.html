@@ -239,6 +239,16 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
   padding:.42em;border:1px solid #c0392b77;background:#c0392b0e;color:#e57368;
   cursor:pointer;transition:all .14s;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%)}
 .sellbtn:hover{background:#c0392b2a;border-color:#e57368}
+.upgbtn{width:100%;margin-top:.4rem;font-family:'Cinzel',serif;font-size:.74rem;
+  padding:.42em;border:1px solid #2f7d3277;background:#2f7d3212;color:#8fe28f;
+  cursor:pointer;transition:all .14s;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%)}
+.upgbtn:hover{background:#2f7d3228;border-color:#7fd97f}
+.upgbtn:disabled{cursor:not-allowed;opacity:.45}
+.upgbox{margin-top:.55rem;padding:.45rem;border:1px solid #c8964030;background:#00000020}
+.upgname{font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold)}
+.upgdesc{font-size:.73rem;line-height:1.35;color:var(--muted);margin-top:.16rem}
+.upgowned{margin-top:.35rem;display:grid;gap:.24rem}
+.upgowned-item{font-size:.72rem;color:var(--text)}
 
 /* TARGET PRIORITY */
 .pri-label{font-family:'Cinzel',serif;font-size:.68rem;color:var(--muted);
@@ -470,9 +480,27 @@ setMap('grassy'); // default
 
 // ─── TOWER DEFS ───
 const TD = {
-  wren:    {id:'wren',    name:'Wren',              img:'Wren.jpg',          cost:300, dmg:1,  rate:.5,  range:130, income:0,   irate:0,  init:'W',  col:'#29b6f6'},
-  tiki:    {id:'tiki',    name:'Tikitheg',           img:'TikiTheG.jpg',      cost:600, dmg:10, rate:3,   range:9999,income:0,   irate:0,  init:'TG', col:'#ff7043'},
+  wren:    {id:'wren',    name:'Wren',              img:'Wren.jpg',          cost:300, dmg:1,  rate:1,   range:130, income:0,   irate:0,  init:'W',  col:'#29b6f6'},
+  tiki:    {id:'tiki',    name:'Tikitheg',           img:'TikiTheG.jpg',      cost:600, dmg:5,  rate:2,   range:9999,income:0,   irate:0,  init:'TG', col:'#ff7043'},
   orin:    {id:'orin',    name:'The Mind of Orin',   img:'TheMindOfOrin.jpg', cost:1100,dmg:0,  rate:0,   range:0,   income:50,  irate:12, init:'O',  col:'#ab47bc'}
+};
+
+const TIKI_POWER_PRICE = 12500;
+const TOWER_UPGRADES = {
+  wren: [
+    {name:'Fast Shot', cost:100, desc:'Attack speed improves from 1.00s to 0.75s.', apply:s=>{s.rate=0.75;}},
+    {name:'Greater Piercing', cost:240, desc:'Each shot now deals 3 damage.', apply:s=>{s.dmg=3;}},
+    {name:'Triple Shot', cost:600, desc:'Fires 3 shots every attack instead of 1.', apply:s=>{s.shots=3;}},
+    {name:'Explosion Shot', cost:2200, desc:'Shots deal 8 damage, explode on impact, and can pop leads.', apply:s=>{s.dmg=8;s.explosive=true;s.explosionRadius=58;s.projectile='explosionShot';}},
+    {name:'The Bomber', cost:25100, desc:'Launches 3 bombs for 12 damage each every 0.40s with stronger explosions.', apply:s=>{s.dmg=12;s.rate=0.4;s.shots=3;s.explosive=true;s.explosionRadius=84;s.projectile='bomb';}}
+  ],
+  tiki: [
+    {name:'Sharper', cost:300, desc:'Damage increases to 7.', apply:s=>{s.dmg=7;}},
+    {name:'Nocturnal', cost:400, desc:'Can target camo enemies.', apply:s=>{s.canSeeCamo=true;}},
+    {name:'Shrapnel', cost:1100, desc:'Damage increases to 8 and each shot has a 50% chance to burst for 4 nearby damage.', apply:s=>{s.dmg=8;s.shrapnelChance=0.5;s.shrapnelDamage=4;s.shrapnelRadius=62;}},
+    {name:'Tiki Time', cost:6550, desc:'Attack speed improves to 0.20s.', apply:s=>{s.rate=0.2;}},
+    {name:'Tiki Power', cost:TIKI_POWER_PRICE, desc:'Attack speed improves to 0.10s and damage rises to 10.', apply:s=>{s.rate=0.1;s.dmg=10;}}
+  ]
 };
 
 // ─── ENEMY DEFS ───
@@ -504,6 +532,13 @@ const ED = {
   // hp:80 / hp:80
   queenIron:        {id:'queenIron',        name:'Iron Queen Elizabeth',               hp:80,   spd:60,  sr:26, tint:'iron',    init:'IQE',  col:'#90a4ae', onDeath:'splitRainbow'},
   queenIronRegen:   {id:'queenIronRegen',   name:'Regenerating Iron Queen Elizabeth',  hp:80,   spd:60,  sr:35, tint:'iron',    init:'RIQE', col:'#90a4ae', regen:4, onDeath:'splitRainbow'},
+  // ── Leads ──
+  leadQueen:        {id:'leadQueen',        name:'Lead Queen Elizabeth',               hp:22,   spd:55,  sr:38, tint:'lead',    init:'LQ',   col:'#9ea7b2', lead:true},
+  leadBlue:         {id:'leadBlue',         name:'Lead Blue Queen Elizabeth',          hp:36,   spd:58,  sr:42, tint:'lead',    init:'LB',   col:'#9ea7b2', lead:true},
+  leadGreen:        {id:'leadGreen',        name:'Lead Green Queen Elizabeth',         hp:54,   spd:60,  sr:46, tint:'lead',    init:'LG',   col:'#9ea7b2', lead:true},
+  leadPink:         {id:'leadPink',         name:'Lead Pink Queen Elizabeth',          hp:80,   spd:68,  sr:50, tint:'lead',    init:'LP',   col:'#9ea7b2', lead:true},
+  leadZebra:        {id:'leadZebra',        name:'Lead Black and White Queen Elizabeth', hp:110, spd:72,  sr:54, tint:'lead',    init:'LZ',   col:'#a6afb8', lead:true},
+  leadIron:         {id:'leadIron',         name:'Lead Iron Queen Elizabeth',          hp:170,  spd:52,  sr:58, tint:'lead',    init:'LI',   col:'#b3bcc5', lead:true},
   // ── Bosses ──
   gigaLizzy:        {id:'gigaLizzy',        name:'Giga Lizzy',                         hp:300,  spd:50,  sr:40, tint:null,      init:'GL',   col:'#ef9a9a', scale:4, boss:true},
   queenVictoria:    {id:'queenVictoria',    name:'Queen Victoria',                     hp:1000, spd:40,  sr:60, tint:null,      init:'QV',   col:'#c9a227', scale:4, boss:true, img:'QueenV.jpg', nameScale:1.35},
@@ -525,9 +560,11 @@ const ENEMY_GALLERY_ORDER = [
   'queenYellow','queenYellowRegen',
   'queenRed','queenRedRegen',
   'queenPink','queenPinkRegen',
+  'leadQueen','leadBlue','leadGreen','leadPink',
   'queenZebra','queenZebraRegen',
+  'leadZebra',
   'queenRainbow','queenRainbowRegen',
-  'queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart',
+  'queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart','leadIron',
   'gigaLizzy','reinforcedGiga',
   'queenVictoria','reinforcedVictoria',
   'kingCharles','reinforcedCharles',
@@ -548,9 +585,85 @@ function getEnemyGalleryEntries(){
     }
   });
   Object.values(ED).forEach(enemy=>{
+    if(enemy.camo) return;
     if(!seen.has(enemy.id)) ordered.push(enemy);
   });
   return ordered;
+}
+
+const BASE_ENEMY_IDS = Object.keys(ED);
+function registerEnemyVariants(){
+  BASE_ENEMY_IDS.forEach(id=>{
+    const e=ED[id];
+    if(!e || e.boss || e.lead || e.camo) return;
+    ED[id+'Camo']={
+      ...e,
+      id:id+'Camo',
+      name:'Camo '+e.name,
+      camo:true,
+      col:'#8d9f68'
+    };
+  });
+}
+registerEnemyVariants();
+
+function getTowerUpgradeLevel(t){
+  return Number(t && t.upg) || 0;
+}
+function getTowerSpent(t){
+  return Number(t && t.spent) || TD[t.defId].cost;
+}
+function getTowerUpgradeList(tOrId){
+  const id=typeof tOrId==='string' ? tOrId : tOrId && tOrId.defId;
+  return TOWER_UPGRADES[id] || [];
+}
+function getTowerStats(t){
+  const d=TD[t.defId];
+  const stats={
+    ...d,
+    shots:1,
+    explosive:false,
+    explosionRadius:0,
+    projectile:d.id==='tiki'?'tiki':'laser',
+    canSeeCamo:false,
+    shrapnelChance:0,
+    shrapnelDamage:0,
+    shrapnelRadius:62
+  };
+  getTowerUpgradeList(t).slice(0,getTowerUpgradeLevel(t)).forEach(upg=>upg.apply(stats,t));
+  return stats;
+}
+function formatRate(sec){
+  return sec ? (sec < 1 ? sec.toFixed(2) : sec.toFixed(1))+'s' : '—';
+}
+function describeTowerSpecials(stats){
+  const bits=[];
+  if(stats.shots>1) bits.push(stats.shots+' shots');
+  if(stats.explosive) bits.push('explosive');
+  if(stats.canSeeCamo) bits.push('camo sight');
+  if(stats.shrapnelChance) bits.push(Math.round(stats.shrapnelChance*100)+'% shrapnel');
+  return bits.length ? bits.join(', ') : '—';
+}
+function camoUnlockRoundFor(id){
+  const e=ED[id];
+  if(!e || e.boss || e.lead) return Infinity;
+  return Math.max(24, Math.min(56, 24 + Math.floor(Math.max(0,(e.sr||1)-1)/4)*4));
+}
+function maybeCamoEnemyId(id,rnd){
+  const e=ED[id];
+  if(!e || e.boss || e.lead) return id;
+  const camoId=id+'Camo';
+  if(!ED[camoId] || rnd<camoUnlockRoundFor(id)) return id;
+  const chance=Math.min(0.58, 0.16 + Math.max(0,rnd-camoUnlockRoundFor(id))*0.018);
+  return Math.random()<chance ? camoId : id;
+}
+function getEnemyBaseId(id){
+  return id.endsWith('Camo') ? id.slice(0,-4) : id;
+}
+function canTowerAffectEnemy(stats, enemy){
+  if(enemy.camo && !stats.canSeeCamo) return false;
+  if(enemy.lead && !stats.explosive) return false;
+  return true;
 }
 
 // ─── IMAGE CACHE ───
@@ -630,6 +743,8 @@ function mkState(mapId){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  const home=document.getElementById('homeText');
+  if(home) home.style.display=id==='gameScreen'?'none':'block';
 }
 
 function goHome(){
@@ -812,6 +927,7 @@ function tintFilter(tint){
   if(!tint) return '';
   if(tint==='zebra')  return 'grayscale(1) contrast(1.12) brightness(1.04)';
   if(tint==='iron')   return 'grayscale(0.35) brightness(1.02) contrast(1.28) sepia(0.18) hue-rotate(185deg) saturate(0.7)';
+  if(tint==='lead')   return 'grayscale(0.9) brightness(0.84) contrast(1.2)';
   const hue={blue:200,green:95,yellow:35,red:0,pink:320,rainbow:0}[tint]||0;
   const sat={red:3,pink:2.8,rainbow:1}[tint]||2.2;
   const bri={yellow:1.35,red:1.1,pink:1.15,rainbow:1}[tint]||1;
@@ -1241,6 +1357,9 @@ function normalPoolForRound(rnd){
   } else {
     ids=['queen','queenBlue'];
   }
+  if(rnd>=38){
+    ids=ids.concat(['leadQueen','leadBlue','leadGreen','leadPink','leadZebra','leadIron'].filter(id=>ED[id]&&ED[id].sr<=rnd));
+  }
   return ids.map(id=>ED[id]).filter(e=>e&&e.sr<=rnd&&!e.boss);
 }
 
@@ -1276,7 +1395,7 @@ function addWaveEntries(q,id,count,gap,start=0){
   for(let i=0;i<count;i++) q.push({id,t:start+i*gap});
 }
 
-function addMixedWave(q,pool,count,gap,start=0){
+function addMixedWave(q,pool,count,gap,start=0,rnd=1){
   if(!pool.length) return;
   const weights=pool.map((e,i)=>{
     let late=e.id==='queenIron'||e.id==='queenIronRegen'||e.id==='queenRainbow'||e.id==='queenRainbowRegen'||e.id==='rishiSunak'?1.6:1;
@@ -1291,7 +1410,7 @@ function addMixedWave(q,pool,count,gap,start=0){
       roll-=weights[j];
       if(roll<=0){pick=pool[j];break;}
     }
-    q.push({id:pick.id,t:start+i*gap});
+    q.push({id:maybeCamoEnemyId(pick.id,rnd),t:start+i*gap});
   }
 }
 
@@ -1358,7 +1477,7 @@ function buildWave(rnd){
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  addMixedWave(q,normalPoolForRound(rnd),normalWaveCount(rnd),gap);
+  addMixedWave(q,normalPoolForRound(rnd),normalWaveCount(rnd),gap,0,rnd);
   const bossStart=q.length?Math.max(...q.map(e=>e.t))+2:0;
   let offset=0;
   scheduledBosses(rnd).forEach(b=>{
@@ -1456,6 +1575,7 @@ function spawnEnemy(id, opts){
     tint:d.tint,init:d.init,col:d.col,
     scale:d.scale||1,boss:d.boss||false,
     reinforced:d.reinforced||false,heart:Boolean(d.heart||regen),
+    camo:!!d.camo,lead:!!d.lead,
     x:opts&&opts.x!=null?opts.x:PPTS[0].x,
     y:opts&&opts.y!=null?opts.y:PPTS[0].y,
     pi:opts&&opts.pi!=null?opts.pi:0,
@@ -1521,7 +1641,9 @@ function placeTower(wx,wy){
     x:wx,y:wy,
     at:0,it:0,
     priority:'first',
-    kills:0
+    kills:0,
+    upg:0,
+    spent:d.cost
   });
   S.shopSel=null;   // deselect shop item
   updateHUD();
@@ -1533,7 +1655,7 @@ function removeTower(id, refundPct){
   const i=S.towers.findIndex(t=>t.id===id);
   if(i<0) return;
   const t=S.towers[i];
-  const refund=Math.floor(TD[t.defId].cost*refundPct);
+  const refund=Math.floor(getTowerSpent(t)*refundPct);
   S.gold+=refund;
   const label=refundPct>=0.65?'SOLD':'DELETED';
   S.particles.push({x:t.x,y:t.y-CELL*.2,text:label,alpha:1,vy:-28,life:.7,col:'#f0c040'});
@@ -1546,6 +1668,19 @@ function removeTower(id, refundPct){
 
 function sellTower(id){
   removeTower(id, 0.65);
+}
+
+function buyTowerUpgrade(id){
+  const t=S.towers.find(t=>t.id===id);
+  if(!t) return;
+  const next=getTowerUpgradeList(t)[getTowerUpgradeLevel(t)];
+  if(!next || S.gold<next.cost) return;
+  S.gold-=next.cost;
+  t.upg=getTowerUpgradeLevel(t)+1;
+  t.spent=getTowerSpent(t)+next.cost;
+  updateHUD();
+  buildShop();
+  selectTower(id);
 }
 
 // ─── SHOP ───
@@ -1593,6 +1728,10 @@ function selectTower(id){
   S.towerSel=id; S.shopSel=null; buildShop();
   const t=S.towers.find(t=>t.id===id); if(!t) return;
   const d=TD[t.defId];
+  const stats=getTowerStats(t);
+  const ownedUps=getTowerUpgradeList(t).slice(0,getTowerUpgradeLevel(t));
+  const nextUp=getTowerUpgradeList(t)[getTowerUpgradeLevel(t)]||null;
+  const canBuyNext=!!nextUp&&S.gold>=nextUp.cost;
   const panel=document.getElementById('selPanel');
   panel.style.display='flex';
   const body=document.getElementById('selBody');
@@ -1609,21 +1748,33 @@ function selectTower(id){
   ];
 
   // Only show priority section for attacking towers
-  const showPri=d.rate>0&&!d.income;
+  const showPri=stats.rate>0&&!stats.income;
+  const upgradeHtml=getTowerUpgradeList(t).length?`
+    <div class="pri-label">UPGRADES</div>
+    <div class="upgbox">
+      ${ownedUps.length?`<div class="upgowned">${ownedUps.map((upg,i)=>`<div class="upgowned-item">${i+1}. ${upg.name}</div>`).join('')}</div>`:`<div class="upgdesc">No upgrades bought yet.</div>`}
+      ${nextUp?`
+        <div class="upgname" style="margin-top:${ownedUps.length?'.45rem':'0'}">${getTowerUpgradeLevel(t)+1}. ${nextUp.name} - $${nextUp.cost}</div>
+        <div class="upgdesc">${nextUp.desc}</div>
+        <button class="upgbtn" id="selbtn-upg" ${canBuyNext?'':'disabled'}>Upgrade${canBuyNext?'':' - Need $'+nextUp.cost}</button>
+      `:``<div class="upgname" style="margin-top:${ownedUps.length?'.45rem':'0'}">Maxed Out</div><div class="upgdesc">All upgrades purchased.</div>`}
+    </div>`:'';
 
   body.innerHTML=`
     <div class="selpic" id="selPicEl">${picInner}</div>
     <div class="selname">${d.name}</div>
     <div class="selstats">
-      <div class="srow"><span class="sl">Damage</span><span class="sv">${d.dmg||'—'}</span></div>
-      <div class="srow"><span class="sl">Atk Rate</span><span class="sv">${d.rate?d.rate+'s':'—'}</span></div>
-      <div class="srow"><span class="sl">Range</span><span class="sv">${d.range>=9999?'Global':d.range+'px'}</span></div>
-      ${d.income?`<div class="srow"><span class="sl">Income</span><span class="sv">$${d.income}/${d.irate}s</span></div>`:''}
+      <div class="srow"><span class="sl">Damage</span><span class="sv">${stats.dmg||'—'}</span></div>
+      <div class="srow"><span class="sl">Atk Rate</span><span class="sv">${formatRate(stats.rate)}</span></div>
+      <div class="srow"><span class="sl">Range</span><span class="sv">${stats.range>=9999?'Global':stats.range+'px'}</span></div>
+      ${stats.income?`<div class="srow"><span class="sl">Income</span><span class="sv">$${stats.income}/${stats.irate}s</span></div>`:''}
+      <div class="srow"><span class="sl">Special</span><span class="sv">${describeTowerSpecials(stats)}</span></div>
       <div class="srow"><span class="sl">Kills</span><span class="sv" style="color:#f0c040">${t.kills||0}</span></div>
     </div>
+    ${upgradeHtml}
     ${showPri?`<div class="pri-label">TARGET PRIORITY</div><div class="pri-btns" id="pribtns"></div>`:''}
     <div style="margin-top:.55rem">
-      <button class="sellbtn" id="selbtn-sell" style="width:100%">💰 Sell — $${Math.floor(d.cost*.65)}</button>
+      <button class="sellbtn" id="selbtn-sell" style="width:100%">💰 Sell — $${Math.floor(getTowerSpent(t)*.65)}</button>
     </div>
   `;
 
@@ -1641,6 +1792,8 @@ function selectTower(id){
 
   // Wire up sell button
   document.getElementById('selbtn-sell').addEventListener('click',()=>removeTower(id,0.65));
+  const upgBtn=document.getElementById('selbtn-upg');
+  if(upgBtn) upgBtn.addEventListener('click',()=>buyTowerUpgrade(id));
 
   if(!im._bad&&(!im.complete||im.naturalWidth===0)){
     im.onload=()=>{
@@ -1804,6 +1957,88 @@ function initPanelResize(pid,rid){
   document.addEventListener('mouseup',()=>on=false);
 }
 
+function getTargetsInRange(t, stats){
+  const pri=t.priority||'first';
+  const inRange=S.enemies.filter(e=>{
+    if(e.dead||e.reached) return false;
+    if(!canTowerAffectEnemy(stats,e)) return false;
+    const dx=e.x-t.x,dy=e.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
+    return dist<=stats.range||stats.range>=9999;
+  });
+  inRange.sort((a,b)=>{
+    if(pri==='last') return a.pi-b.pi || a.hp-b.hp;
+    if(pri==='strongest') return b.hp-a.hp || b.pi-a.pi;
+    if(pri==='weakest') return a.hp-b.hp || b.pi-a.pi;
+    return b.pi-a.pi || b.hp-a.hp;
+  });
+  return inRange;
+}
+function handleEnemyDefeat(tgt, tower){
+  tgt.dead=true;
+  const baseId=getEnemyBaseId(tgt.defId);
+  const tgtDef=ED[tgt.defId];
+  const baseDef=ED[baseId]||tgtDef;
+  if(baseDef&&baseDef.onDeath==='splitRainbow'){
+    const splitBase=baseId==='queenIronRegen'?'queenRainbowRegen':'queenRainbow';
+    const splitId=tgt.camo&&ED[splitBase+'Camo']?splitBase+'Camo':splitBase;
+    for(let si=0;si<2;si++){
+      spawnEnemy(splitId,{x:tgt.x,y:tgt.y,pi:tgt.pi});
+    }
+    S.particles.push({x:tgt.x,y:tgt.y,text:'x2 R',alpha:1,vy:-40,life:1.1,col:'#ffffff'});
+  }
+  tower.kills=(tower.kills||0)+1;
+  if(tower.kills===10||tower.kills===50||tower.kills===100||tower.kills%100===0){
+    S.particles.push({x:tower.x,y:tower.y-CELL*.6,text:tower.kills+' KO',alpha:1,vy:-45,life:1.3,col:'#f0c040'});
+  }
+  const gold=Math.round(tgt.maxHp*rewardMultiplier(S.round));
+  S.gold+=gold;updateHUD();buildShop();
+  S.particles.push({x:tgt.x,y:tgt.y,text:'$'+gold,alpha:1,vy:-30,life:.7,col:'#f0c040'});
+  if(S.towerSel===tower.id) selectTower(tower.id);
+}
+function damageEnemy(tgt, amount, tower, stats){
+  if(!tgt||tgt.dead||!canTowerAffectEnemy(stats,tgt)) return false;
+  tgt.hp-=amount;
+  tgt.flashT=0.12;
+  if(tgt.hp<=0) handleEnemyDefeat(tgt,tower);
+  return true;
+}
+function explodeAt(x,y,radius,damage,tower,stats,color){
+  S.particles.push({x,y,type:'ring',r:0,maxR:radius,alpha:1,life:0.28,col:color||'#ff7043'});
+  for(const e of S.enemies){
+    if(e.dead||e.reached) continue;
+    const dx=e.x-x,dy=e.y-y;
+    if(dx*dx+dy*dy<=radius*radius) damageEnemy(e,damage,tower,stats);
+  }
+}
+function fireTowerAttack(t, stats){
+  const shots=Math.max(1,stats.shots||1);
+  for(let si=0;si<shots;si++){
+    const targets=getTargetsInRange(t,stats);
+    if(!targets.length) break;
+    const tgt=targets[Math.min(si,targets.length-1)];
+    if(!tgt) break;
+    if(stats.explosive){
+      explodeAt(tgt.x,tgt.y,stats.explosionRadius,stats.dmg,t,stats,stats.projectile==='bomb'?'#ffb74d':'#ff8a65');
+      S.projs.push({type:stats.projectile,sx:t.x,sy:t.y,ex:tgt.x,ey:tgt.y,life:stats.projectile==='bomb'?0.3:0.16,maxLife:stats.projectile==='bomb'?0.3:0.16});
+      continue;
+    }
+    if(!damageEnemy(tgt,stats.dmg,t,stats)) continue;
+    if(stats.projectile==='tiki'){
+      S.projs.push({type:'tiki',sx:t.x,sy:t.y,ex:tgt.x,ey:tgt.y,life:0.14,maxLife:0.14});
+    } else {
+      S.projs.push({type:'laser',sx:t.x,sy:t.y,ex:tgt.x,ey:tgt.y,life:0.1,maxLife:0.1});
+    }
+    if(stats.shrapnelChance&&Math.random()<stats.shrapnelChance){
+      S.particles.push({x:tgt.x,y:tgt.y,type:'ring',r:0,maxR:stats.shrapnelRadius,alpha:.8,life:.18,col:'#ffcc80'});
+      for(const e of S.enemies){
+        if(e===tgt||e.dead||e.reached) continue;
+        const dx=e.x-tgt.x,dy=e.y-tgt.y;
+        if(dx*dx+dy*dy<=stats.shrapnelRadius*stats.shrapnelRadius) damageEnemy(e,stats.shrapnelDamage,t,stats);
+      }
+    }
+  }
+}
+
 // ─── UPDATE ───
 function update(dt){
   if(S.paused||S.over) return;
@@ -1894,64 +2129,20 @@ function update(dt){
 
   // Towers
   for(const t of S.towers){
-    const d=TD[t.defId];
-    if(d.income){
+    const stats=getTowerStats(t);
+    if(stats.income){
       t.it=(t.it||0)+dt;
-      if(t.it>=d.irate){t.it-=d.irate;S.gold+=d.income;updateHUD();buildShop();
-        S.particles.push({x:t.x,y:t.y-CELL*.3,text:'$'+d.income,alpha:1,vy:-38,life:.9});
+      if(t.it>=stats.irate){t.it-=stats.irate;S.gold+=stats.income;updateHUD();buildShop();
+        S.particles.push({x:t.x,y:t.y-CELL*.3,text:'$'+stats.income,alpha:1,vy:-38,life:.9});
       }
       continue;
     }
-    if(!d.rate) continue;
+    if(!stats.rate) continue;
     t.at=(t.at||0)+dt;
-    if(t.at>=d.rate){
-      t.at-=d.rate;
-      // Pick target based on tower priority
-      const pri=t.priority||'first';
-      let tgt=null;
-      const inRange=S.enemies.filter(e=>{
-        if(e.dead) return false;
-        const dx=e.x-t.x,dy=e.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
-        return dist<=d.range||d.range>=9999;
-      });
-      if(inRange.length){
-        if(pri==='first')  tgt=inRange.reduce((a,b)=>b.pi>a.pi?b:a);
-        else if(pri==='last')  tgt=inRange.reduce((a,b)=>b.pi<a.pi?b:a);
-        else if(pri==='strongest') tgt=inRange.reduce((a,b)=>b.hp>a.hp?b:a);
-        else if(pri==='weakest')   tgt=inRange.reduce((a,b)=>b.hp<a.hp?b:a);
-      }
-      if(tgt){
-        tgt.hp-=d.dmg;
-        tgt.flashT=0.12; // hit flash
-        if(tgt.hp<=0){
-          tgt.dead=true;
-          // On-death split: Iron Queen Elizabeth splits into 2 Rainbow Queens
-          const tgtDef=ED[tgt.defId];
-          if(tgtDef&&tgtDef.onDeath==='splitRainbow'){
-            const splitId=tgtDef.id==='queenIronRegen'?'queenRainbowRegen':'queenRainbow';
-            for(let si=0;si<2;si++){
-              spawnEnemy(splitId,{x:tgt.x,y:tgt.y,pi:tgt.pi});
-            }
-            S.particles.push({x:tgt.x,y:tgt.y,text:'×2 🌈',alpha:1,vy:-40,life:1.1,col:'#ffffff'});
-          }
-          t.kills=(t.kills||0)+1;
-          // Kill milestone celebration
-          if(t.kills===10||t.kills===50||t.kills===100||t.kills%100===0){
-            S.particles.push({x:t.x,y:t.y-CELL*.6,text:t.kills+'💀',alpha:1,vy:-45,life:1.3,col:'#f0c040'});
-          }
-          const gold=Math.round(tgt.maxHp*rewardMultiplier(S.round));
-          S.gold+=gold;updateHUD();buildShop();
-          S.particles.push({x:tgt.x,y:tgt.y,text:'$'+gold,alpha:1,vy:-30,life:.7,col:'#f0c040'});
-          // refresh selected panel if this tower is selected
-          if(S.towerSel===t.id) selectTower(t.id);
-        }
-        if(d.id==='wren'){
-          S.projs.push({type:'laser',sx:t.x,sy:t.y,ex:tgt.x,ey:tgt.y,life:.1});
-        } else if(d.id==='tiki'){
-          S.projs.push({type:'tiki',sx:t.x,sy:t.y,ex:tgt.x,ey:tgt.y,life:.22});
-          S.particles.push({x:tgt.x,y:tgt.y,type:'ring',r:0,maxR:CELL*.7,alpha:.9,life:.22});
-        }
-      }
+    while(t.at>=stats.rate){
+      t.at-=stats.rate;
+      fireTowerAttack(t,stats);
+      if(!S.enemies.length) break;
     }
   }
 
@@ -2510,6 +2701,7 @@ function towerRectPath(cx,cy,size,radius){
 function drawTowers(){
   for(const t of S.towers){
     const d=TD[t.defId];
+    const stats=getTowerStats(t);
     const px=t.x-CELL/2,py=t.y-CELL/2;
     const isSel=S.towerSel===t.id;
     const baseSize=CELL*.88;
@@ -2523,17 +2715,17 @@ function drawTowers(){
       ctx.shadowColor='#f0c040';ctx.shadowBlur=14;
       towerRectPath(t.x,t.y,CELL*.96,CELL*.18);ctx.stroke();
       ctx.restore();
-      if(d.range<9999){
+      if(stats.range<9999){
         ctx.save();
         ctx.strokeStyle='rgba(240,192,64,0.2)';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
-        ctx.beginPath();ctx.arc(t.x,t.y,d.range,0,Math.PI*2);ctx.stroke();
+        ctx.beginPath();ctx.arc(t.x,t.y,stats.range,0,Math.PI*2);ctx.stroke();
         ctx.restore();
       }
-    } else if(S.hoveredTower&&S.hoveredTower.id===t.id&&d.range<9999){
+    } else if(S.hoveredTower&&S.hoveredTower.id===t.id&&stats.range<9999){
       // Hover range preview
       ctx.save();
       ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=1.5;ctx.setLineDash([4,5]);
-      ctx.beginPath();ctx.arc(t.x,t.y,d.range,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.arc(t.x,t.y,stats.range,0,Math.PI*2);ctx.stroke();
       ctx.restore();
     }
     // Base shadow
@@ -2557,11 +2749,24 @@ function drawTowers(){
     }
 
     // Orin income ring
-    if(d.income){
-      const prog=(t.it||0)/d.irate;
+    if(stats.income){
+      const prog=(t.it||0)/stats.irate;
       ctx.save();
       ctx.strokeStyle=d.col;ctx.lineWidth=2.5;ctx.globalAlpha=.7;
       ctx.beginPath();ctx.arc(t.x,t.y,CELL*.49,-Math.PI/2,-Math.PI/2+Math.PI*2*prog);ctx.stroke();
+      ctx.restore();
+    }
+
+    if(getTowerUpgradeLevel(t)){
+      ctx.save();
+      ctx.fillStyle='rgba(240,192,64,0.95)';
+      ctx.strokeStyle='rgba(70,50,14,0.9)';
+      ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.arc(t.x+CELL*.26,t.y-CELL*.26,CELL*.11,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.fillStyle='rgba(60,40,8,0.95)';
+      ctx.font=`bold ${Math.max(9,Math.floor(CELL*.18))}px Cinzel,serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(String(getTowerUpgradeLevel(t)),t.x+CELL*.26,t.y-CELL*.26);
       ctx.restore();
     }
   }
@@ -2592,7 +2797,7 @@ function drawEnemies(){
     ctx.scale(squishX,squishY);
     if(!im._bad&&im.complete&&im.naturalWidth>0){
       ctx.save();
-      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'){
+      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'&&e.tint!=='lead'){
         ctx.filter=tintFilter(e.tint);
       }
       traceEnemyBodyPath(sz,isHeart);ctx.clip();
@@ -2600,7 +2805,7 @@ function drawEnemies(){
       ctx.restore();
 
       // Tint overlays
-      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'){
+      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'&&e.tint!=='lead'){
         const tc={blue:'rgba(70,130,255,0.45)',green:'rgba(50,200,80,0.4)',yellow:'rgba(255,210,40,0.45)',red:'rgba(220,30,30,0.5)',pink:'rgba(255,80,180,0.45)'};
         if(tc[e.tint]){
           ctx.save();ctx.globalCompositeOperation='multiply';
@@ -2648,6 +2853,27 @@ function drawEnemies(){
         ctx.restore();
       }
 
+      if(e.tint==='lead'){
+        ctx.save();
+        ctx.filter=tintFilter('lead');
+        traceEnemyBodyPath(sz,isHeart);ctx.clip();
+        ctx.drawImage(im,-sz/2,-sz/2,sz,sz);
+        ctx.restore();
+        ctx.save();traceEnemyBodyPath(sz,isHeart);ctx.clip();
+        ctx.fillStyle='rgba(90,102,114,0.34)';
+        ctx.fillRect(-sz/2,-sz*.08,sz,sz*.18);
+        ctx.strokeStyle='rgba(232,238,244,0.45)';
+        ctx.lineWidth=Math.max(1.3,sz*.02);
+        ctx.beginPath();ctx.moveTo(-sz*.42,-sz*.05);ctx.lineTo(sz*.42,-sz*.05);ctx.stroke();
+        ctx.restore();
+        ctx.save();
+        ctx.fillStyle='rgba(220,228,236,0.88)';
+        [[-.32,-.02],[.32,-.02],[-.18,.24],[.18,.24]].forEach(([rx,ry])=>{
+          ctx.beginPath();ctx.arc(rx*sz,ry*sz,sz*.04,0,Math.PI*2);ctx.fill();
+        });
+        ctx.restore();
+      }
+
       // Rainbow: animated hue-rotate shimmer overlay
       if(e.tint==='rainbow'){
         const t2=e.t||0;
@@ -2660,6 +2886,16 @@ function drawEnemies(){
           ctx.beginPath();ctx.arc(Math.cos(angle)*sz*.18,Math.sin(angle)*sz*.18,sz*.22,0,Math.PI*2);ctx.fill();
           ctx.restore();
         }
+      }
+
+      if(e.camo){
+        ctx.save();
+        traceEnemyBodyPath(sz,isHeart);ctx.clip();
+        [['rgba(70,96,54,0.58)',-.24,-.16,.2],['rgba(132,114,76,0.48)',.2,-.1,.18],['rgba(92,120,74,0.56)',-.08,.14,.22],['rgba(54,74,42,0.42)',.22,.18,.16],['rgba(160,144,98,0.36)',-.3,.22,.13]].forEach(([col,ox,oy,rr])=>{
+          ctx.fillStyle=col;
+          ctx.beginPath();ctx.arc(ox*sz,oy*sz,rr*sz,0,Math.PI*2);ctx.fill();
+        });
+        ctx.restore();
       }
 
       if(e.reinforced){
@@ -2715,7 +2951,7 @@ function drawEnemies(){
       }
 
       // Border
-      ctx.strokeStyle=e.reinforced?'#f0c040':(e.col||'#fff');ctx.lineWidth=e.reinforced?3.2:1.5;
+      ctx.strokeStyle=e.reinforced?'#f0c040':e.lead?'#d2dbe3':e.camo?'#a5ba74':(e.col||'#fff');ctx.lineWidth=e.reinforced?3.2:1.5;
       traceEnemyBodyPath(sz,isHeart);ctx.stroke();
       // Hit flash white overlay
       if(e.flashT>0){
@@ -2730,6 +2966,21 @@ function drawEnemies(){
       ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e.init,0,0);
     }
     ctx.restore();
+
+    if(e.camo||e.lead){
+      ctx.save();
+      ctx.font=`bold ${Math.max(9,Math.floor(sz*.18))}px Cinzel,serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      if(e.camo){
+        ctx.fillStyle='#d7e2b2';
+        ctx.fillText('C',drawX+sz*.26,drawY-sz*.26);
+      }
+      if(e.lead){
+        ctx.fillStyle='#e0e6eb';
+        ctx.fillText('L',drawX-sz*.26,drawY-sz*.26);
+      }
+      ctx.restore();
+    }
 
     // HP bar (above the enemy, no transform)
     const bh=e.boss?10:5;
@@ -2752,7 +3003,14 @@ function drawEnemies(){
 
 function drawProjs(){
   for(const p of S.projs){
-    const alpha=Math.max(0,p.life/(p.type==='laser'?.1:.22));
+    const maxLife=p.maxLife||((p.type==='laser')?.1:.22);
+    const alpha=Math.max(0,p.life/maxLife);
+    const prog=1-alpha;
+    const cx=p.sx+(p.ex-p.sx)*prog;
+    const cy=p.sy+(p.ey-p.sy)*prog-(p.type==='bomb'?Math.sin(prog*Math.PI)*18:0);
+    const dx=p.ex-p.sx,dy=p.ey-p.sy;
+    const len=Math.sqrt(dx*dx+dy*dy)||1;
+    const nx=dx/len,ny=dy/len;
     ctx.save();ctx.globalAlpha=alpha;
     if(p.type==='laser'){
       ctx.strokeStyle='#29b6f6';ctx.lineWidth=2.5;
@@ -2760,9 +3018,30 @@ function drawProjs(){
       ctx.beginPath();ctx.moveTo(p.sx,p.sy);ctx.lineTo(p.ex,p.ey);ctx.stroke();
       ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.ex,p.ey,2.5,0,Math.PI*2);ctx.fill();
     } else if(p.type==='tiki'){
-      ctx.strokeStyle='#ff7043';ctx.lineWidth=3;
-      ctx.shadowColor='#ff7043';ctx.shadowBlur=16;
-      ctx.beginPath();ctx.moveTo(p.sx,p.sy);ctx.lineTo(p.ex,p.ey);ctx.stroke();
+      const half=8;
+      ctx.strokeStyle='#ffd180';ctx.lineWidth=2.2;
+      ctx.shadowColor='#ffb74d';ctx.shadowBlur=10;
+      ctx.beginPath();
+      ctx.moveTo(cx-nx*half,cy-ny*half);
+      ctx.lineTo(cx+nx*half,cy+ny*half);
+      ctx.stroke();
+      ctx.fillStyle='#fff3e0';
+      ctx.beginPath();ctx.arc(cx+nx*half,cy+ny*half,2.2,0,Math.PI*2);ctx.fill();
+    } else if(p.type==='explosionShot'){
+      ctx.fillStyle='#ff8a65';
+      ctx.shadowColor='#ff7043';ctx.shadowBlur=12;
+      ctx.beginPath();ctx.arc(cx,cy,4.2,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(255,210,180,0.9)';
+      ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.moveTo(cx-nx*7,cy-ny*7);ctx.lineTo(cx+nx*7,cy+ny*7);ctx.stroke();
+    } else if(p.type==='bomb'){
+      ctx.fillStyle='#5f5f5f';
+      ctx.strokeStyle='#ffb74d';
+      ctx.lineWidth=1.6;
+      ctx.shadowColor='#ffb74d';ctx.shadowBlur=10;
+      ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.strokeStyle='#f6d27a';
+      ctx.beginPath();ctx.moveTo(cx,cy-4);ctx.lineTo(cx+3,cy-8);ctx.stroke();
     }
     ctx.restore();
   }
@@ -2772,7 +3051,7 @@ function drawParticles(){
   for(const p of S.particles){
     if(p.type==='ring'){
       ctx.save();ctx.globalAlpha=p.alpha*.7;
-      ctx.strokeStyle='#ff7043';ctx.lineWidth=2;
+      ctx.strokeStyle=p.col||'#ff7043';ctx.lineWidth=2;
       ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.stroke();
       ctx.restore();
     } else {
