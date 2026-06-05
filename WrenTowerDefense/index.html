@@ -453,19 +453,56 @@ const ED = {
   queenRainbowRegen:{id:'queenRainbowRegen',name:'Regenerating Rainbow Queen Elizabeth',hp:55,  spd:120, sr:30, tint:'rainbow', init:'🌈R',  col:'#ffffff', regen:4},
   // hp:80 / hp:80
   queenIron:        {id:'queenIron',        name:'Iron Queen Elizabeth',               hp:80,   spd:60,  sr:26, tint:'iron',    init:'IQE',  col:'#90a4ae', onDeath:'splitRainbow'},
-  queenIronRegen:   {id:'queenIronRegen',   name:'Regenerating Iron Queen Elizabeth',  hp:80,   spd:60,  sr:35, tint:'iron',    init:'RIQE', col:'#90a4ae', regen:5, onDeath:'splitRainbow'},
+  queenIronRegen:   {id:'queenIronRegen',   name:'Regenerating Iron Queen Elizabeth',  hp:80,   spd:60,  sr:35, tint:'iron',    init:'RIQE', col:'#90a4ae', regen:4, onDeath:'splitRainbow'},
   // ── Bosses ──
   gigaLizzy:        {id:'gigaLizzy',        name:'Giga Lizzy',                         hp:300,  spd:50,  sr:40, tint:null,      init:'GL',   col:'#ef9a9a', scale:4, boss:true},
   queenVictoria:    {id:'queenVictoria',    name:'Queen Victoria',                     hp:1000, spd:40,  sr:60, tint:null,      init:'QV',   col:'#c9a227', scale:4, boss:true, img:'QueenV.jpg', nameScale:1.35},
   kingCharles:      {id:'kingCharles',      name:'King Charles',                       hp:6000, spd:40,  sr:80, tint:null,      init:'KC',   col:'#d7b65a', scale:4.5, boss:true, img:'KingCh.jpg', nameScale:1.25},
   rishiSunak:       {id:'rishiSunak',       name:'Rishi Sunak',                        hp:900,  spd:520, sr:90, tint:'iron',    init:'RS',   col:'#b0bec5', scale:1.35, img:'Rishi.jpg'},
-  reinforcedIron:   {id:'reinforcedIron',   name:'Reinforced Iron Queen Elizabeth',     hp:180,  spd:55,  sr:95, tint:'iron',    init:'RI',   col:'#d7b65a', scale:1.18, reinforced:true, onDeath:'splitRainbow'},
-  reinforcedIronHeart:{id:'reinforcedIronHeart',name:'Reinforced Iron Heart',           hp:260,  spd:65,  sr:105,tint:'iron',    init:'RIH',  col:'#ff4d8a', scale:1.28, reinforced:true, heart:true, regen:10, onDeath:'splitRainbow'},
-  reinforcedRishi:  {id:'reinforcedRishi',  name:'Reinforced Rishi Sunak',              hp:1800, spd:650, sr:110,tint:'iron',    init:'RRS',  col:'#e0e0e0', scale:1.55, reinforced:true, img:'Rishi.jpg'},
-  reinforcedGiga:   {id:'reinforcedGiga',   name:'Reinforced Giga Lizzy',               hp:850,  spd:45,  sr:100,tint:null,      init:'RGL',  col:'#d7b65a', scale:4.3, boss:true, reinforced:true},
-  reinforcedVictoria:{id:'reinforcedVictoria',name:'Reinforced Queen Victoria',         hp:2500, spd:38,  sr:115,tint:null,      init:'RQV',  col:'#d7b65a', scale:4.3, boss:true, img:'QueenV.jpg', nameScale:1.2, reinforced:true},
-  reinforcedCharles:{id:'reinforcedCharles',name:'Reinforced King Charles',             hp:14000,spd:36,  sr:140,tint:null,      init:'RKC',  col:'#f0c040', scale:4.9, boss:true, img:'KingCh.jpg', nameScale:1.15, reinforced:true}
+  reinforcedIron:   {id:'reinforcedIron',   name:'Reinforced Iron Queen Elizabeth',     hp:180,  spd:55,  sr:38, tint:'iron',    init:'RI',   col:'#d7b65a', scale:1.18, reinforced:true, onDeath:'splitRainbow'},
+  reinforcedIronHeart:{id:'reinforcedIronHeart',name:'Reinforced Iron Heart',           hp:260,  spd:65,  sr:49, tint:'iron',    init:'RIH',  col:'#ff4d8a', scale:1.28, reinforced:true, heart:true, regen:4, onDeath:'splitRainbow'},
+  reinforcedRishi:  {id:'reinforcedRishi',  name:'Reinforced Rishi Sunak',              hp:1800, spd:650, sr:102,tint:'iron',    init:'RRS',  col:'#e0e0e0', scale:1.55, reinforced:true, img:'Rishi.jpg'},
+  reinforcedGiga:   {id:'reinforcedGiga',   name:'Reinforced Giga Lizzy',               hp:850,  spd:45,  sr:52, tint:null,      init:'RGL',  col:'#d7b65a', scale:4.3, boss:true, reinforced:true},
+  reinforcedVictoria:{id:'reinforcedVictoria',name:'Reinforced Queen Victoria',         hp:2500, spd:38,  sr:72, tint:null,      init:'RQV',  col:'#d7b65a', scale:4.3, boss:true, img:'QueenV.jpg', nameScale:1.2, reinforced:true},
+  reinforcedCharles:{id:'reinforcedCharles',name:'Reinforced King Charles',             hp:14000,spd:36,  sr:92, tint:null,      init:'RKC',  col:'#f0c040', scale:4.9, boss:true, img:'KingCh.jpg', nameScale:1.15, reinforced:true}
 };
+
+const MAX_REGEN_PER_SECOND = 4;
+const ENEMY_GALLERY_ORDER = [
+  'queen','queenRegen',
+  'queenBlue','queenBlueRegen',
+  'queenGreen','queenGreenRegen',
+  'queenYellow','queenYellowRegen',
+  'queenRed','queenRedRegen',
+  'queenPink','queenPinkRegen',
+  'queenDevoted',
+  'queenZebra','queenZebraRegen',
+  'queenRainbow','queenRainbowRegen',
+  'queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart',
+  'gigaLizzy','reinforcedGiga',
+  'queenVictoria','reinforcedVictoria',
+  'kingCharles','reinforcedCharles',
+  'rishiSunak','reinforcedRishi'
+];
+
+function getRegenRate(entity){
+  return Math.min(MAX_REGEN_PER_SECOND, Math.max(0, Number(entity && entity.regen) || 0));
+}
+
+function getEnemyGalleryEntries(){
+  const seen=new Set();
+  const ordered=[];
+  ENEMY_GALLERY_ORDER.forEach(id=>{
+    if(ED[id] && !seen.has(id)){
+      ordered.push(ED[id]);
+      seen.add(id);
+    }
+  });
+  Object.values(ED).forEach(enemy=>{
+    if(!seen.has(enemy.id)) ordered.push(enemy);
+  });
+  return ordered;
+}
 
 // ─── IMAGE CACHE ───
 const imgs = {};
@@ -596,13 +633,15 @@ function showSub(type){
     });
   } else if(type==='enemies'){
     const g=document.createElement('div'); g.className='cgrid';
-    Object.values(ED).forEach(e=>{
+    getEnemyGalleryEntries().forEach(e=>{
       const hpCol=e.boss?'#e57368':e.hp>=80?'#c9a227':e.hp>=40?'#ff7043':e.hp>=20?'#f48fb1':e.hp>=10?'#e53935':e.hp>=5?'#81c784':e.hp>=2?'#64b5f6':'#aaa';
-      const regenNote=e.regen?`<div class="cstat"><span class="sl">Regen</span><span class="sv" style="color:#4caf50">+${e.regen} HP/s</span></div>`:'';
+      const regenRate=getRegenRate(e);
+      const regenNote=regenRate?`<div class="cstat"><span class="sl">Regen</span><span class="sv" style="color:#4caf50">+${Number.isInteger(regenRate)?regenRate:regenRate.toFixed(1)} HP/s</span></div>`:'';
       const splitNote=e.onDeath==='splitRainbow'?`<div class="cdesc">On death: splits into 2 Rainbow Queen Elizabeths.</div>`:'';
-      const devotedNote=e.tint==='devoted'?`<div class="cdesc">Regenerates health and trails floating hearts.</div>`:'';
+      const regenTrailNote=regenRate?`<div class="cdesc">Regenerates health at a capped rate and trails floating hearts.</div>`:'';
       const rainbowNote=e.tint==='rainbow'&&!e.regen?`<div class="cdesc">Shimmers with rainbow energy — heavy threat.</div>`:'';
-      const zebraNote=e.tint==='zebra'?`<div class="cdesc">Sturdy and relentless with a striking striped coat.</div>`:'';
+      const zebraNote=e.tint==='zebra'?`<div class="cdesc">Sturdy and relentless with bold black-and-white striping.</div>`:'';
+      const ironNote=e.tint==='iron'?`<div class="cdesc">Steel plating flashes with a brighter metallic shine.</div>`:'';
       const reinforcedNote=e.reinforced?`<div class="cdesc">Reinforced armor: much higher health with gold-plated defenses.</div>`:'';
       g.innerHTML+=`<div class="ccard">
         <div class="ccard-banner" style="background:linear-gradient(90deg,transparent,${e.col}88,transparent)"></div>
@@ -618,7 +657,7 @@ function showSub(type){
             <div class="cstat"><span class="sl">Kill Reward</span><span class="sv" style="color:#f0c040">$${e.hp}</span></div>
             ${regenNote}
           </div>
-          ${splitNote}${devotedNote}${rainbowNote}${zebraNote}${reinforcedNote}
+          ${splitNote}${regenTrailNote}${rainbowNote}${zebraNote}${ironNote}${reinforcedNote}
         </div>
       </div>`;
     });
@@ -677,7 +716,7 @@ function showSub(type){
           <li>Enemies deal damage equal to their <b>remaining health</b> when they reach the exit.</li>
           <li>Later rounds introduce tougher, faster, and more exotic variants.</li>
           <li><b>Boss rounds</b> begin at Round 40, with King Charles at Round 80 and Rishi Sunak at Round 90.</li>
-          <li><b>Reinforced</b> enemies begin in the 90s and bring much higher health with plated armor.</li>
+          <li><b>Reinforced</b> enemies start showing up roughly 10 to 15 rounds after their normal counterparts and bring much higher health with plated armor.</li>
         </ul>
       </div>
       <div class="htp-s">
@@ -698,8 +737,8 @@ function showSub(type){
 
 function tintFilter(tint){
   if(!tint) return '';
-  if(tint==='zebra')  return 'grayscale(1) contrast(1.6) brightness(1.1)';
-  if(tint==='iron')   return 'grayscale(1) brightness(0.75) sepia(0.3) hue-rotate(180deg) saturate(0.8)';
+  if(tint==='zebra')  return 'saturate(0.05) contrast(1.2) brightness(1.05)';
+  if(tint==='iron')   return 'grayscale(0.35) brightness(1.02) contrast(1.28) sepia(0.18) hue-rotate(185deg) saturate(0.7)';
   if(tint==='devoted') return 'hue-rotate(320deg) saturate(3) brightness(1.1)';
   const hue={blue:200,green:95,yellow:35,red:0,pink:320,rainbow:0}[tint]||0;
   const sat={red:3,pink:2.8,rainbow:1}[tint]||2.2;
@@ -1093,19 +1132,22 @@ function rewardPenaltyLabel(rnd){
 
 function normalPoolForRound(rnd){
   let ids;
-  if(rnd>=100){
-    ids=['queenRainbow','queenRainbowRegen','queenIron','queenIronRegen'];
-    if(rnd>=105) ids.push('reinforcedIron','reinforcedIronHeart');
-    if(rnd>=112) ids.push('reinforcedRishi');
+  if(rnd>=102){
+    ids=['queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart','rishiSunak','reinforcedRishi'];
+  } else if(rnd>=92){
+    ids=['queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen','rishiSunak'];
   } else if(rnd>=90){
-    ids=['queenRainbow','queenRainbowRegen','queenIron','queenIronRegen','rishiSunak'];
-    if(rnd>=95) ids.push('reinforcedIron');
+    ids=['queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen','rishiSunak'];
   } else if(rnd>=75){
-    ids=['queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron','queenIronRegen'];
+    ids=['queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen'];
   } else if(rnd>=60){
-    ids=['queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron'];
+    ids=['queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron','reinforcedIron'];
+  } else if(rnd>=49){
+    ids=['queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart'];
   } else if(rnd>=45){
-    ids=['queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow'];
+    ids=['queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenIron','reinforcedIron'];
+  } else if(rnd>=38){
+    ids=['queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenIron','reinforcedIron'];
   } else if(rnd>=30){
     ids=['queenGreenRegen','queenYellow','queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra'];
   } else if(rnd>=20){
@@ -1138,13 +1180,13 @@ function normalSpawnGap(rnd){
 function scheduledBosses(rnd){
   const q=[];
   if(rnd>=45&&rnd<60&&rnd%5===0) q.push({id:'gigaLizzy',count:1});
+  if(rnd>=52&&rnd%10===2) q.push({id:'reinforcedGiga',count:Math.max(1,Math.floor(1+(rnd-52)/28))});
   if(rnd>=65&&rnd<80&&rnd%4===1) q.push({id:'queenVictoria',count:1});
+  if(rnd>=72&&rnd%12===0) q.push({id:'reinforcedVictoria',count:Math.max(1,Math.floor(1+(rnd-72)/36))});
   if(rnd>=95&&rnd%5===0) q.push({id:'gigaLizzy',count:Math.floor(1+(rnd-95)/10)});
-  if(rnd>=100&&rnd%10===0) q.push({id:'reinforcedGiga',count:Math.floor(1+(rnd-100)/25)});
   if(rnd>=100&&rnd%10===0) q.push({id:'queenVictoria',count:Math.floor(1+(rnd-100)/20)});
-  if(rnd>=115&&rnd%15===10) q.push({id:'reinforcedVictoria',count:Math.floor(1+(rnd-115)/30)});
   if(rnd>=120&&rnd%20===0) q.push({id:'kingCharles',count:Math.floor(1+(rnd-120)/30)});
-  if(rnd>=140&&rnd%20===0) q.push({id:'reinforcedCharles',count:Math.floor(1+(rnd-140)/40)});
+  if(rnd>=92&&rnd%12===8) q.push({id:'reinforcedCharles',count:Math.max(1,Math.floor(1+(rnd-92)/32))});
   return q;
 }
 
@@ -1299,9 +1341,10 @@ function startWave(){
   else if(S.round===60) showToast('Round 60: Queen Victoria reigns.','#c9a227');
   else if(S.round===80) showToast('Round 80: King Charles enters the track.','#d7b65a');
   else if(S.round===90) showToast('Round 90: Rishi Sunak is incoming.','#b0bec5');
-  else if(S.round===100) showToast('Round 100: reinforced bosses begin.','#f0c040');
-  else if(S.round===115) showToast('Round 115: Reinforced Queen Victoria arrives.','#f0c040');
-  else if(S.round===140) showToast('Round 140: Reinforced King Charles arrives.','#f0c040');
+  else if(S.round===52) showToast('Round 52: Reinforced Giga Lizzy appears.','#f0c040');
+  else if(S.round===72) showToast('Round 72: Reinforced Queen Victoria arrives.','#f0c040');
+  else if(S.round===92) showToast('Round 92: Reinforced King Charles arrives.','#f0c040');
+  else if(S.round===102) showToast('Round 102: Reinforced Rishi joins the track.','#f0c040');
   else if(S.round===50||S.round===75||S.round===130) showToast('Gold rewards now pay '+rewardPenaltyLabel(S.round)+'.','#ff9800');
 }
 
@@ -1335,7 +1378,7 @@ function spawnEnemy(id, opts){
     pi:opts&&opts.pi!=null?opts.pi:0,
     maxPi:opts&&opts.pi!=null?opts.pi:0,
     dead:false,reached:false,
-    regen:d.regen||0,
+    regen:getRegenRate(d),
     regenT:0
   };
   S.enemies.push(e);
@@ -1709,11 +1752,23 @@ function update(dt){
     // Regen tick
     if(e.regen&&e.hp<e.maxHp){
       e.regenT=(e.regenT||0)+dt;
-      if(e.regenT>=1){e.regenT=0;e.hp=Math.min(e.maxHp,e.hp+e.regen);}
+      while(e.regenT>=1){
+        e.regenT-=1;
+        e.hp=Math.min(e.maxHp,e.hp+e.regen);
+      }
     }
-    // Heart particles for devoted and iron-heart enemies
-    if((e.tint==='devoted'||e.heart)&&Math.random()<dt*(e.heart?3.2:2)){
-      S.particles.push({x:e.x+(Math.random()-.5)*20,y:e.y,text:'♥',alpha:1,vy:-35-Math.random()*15,life:0.9,col:'#ff4d8a'});
+    // Every regenerating enemy sheds hearts so the effect is easy to read in play.
+    if(e.regen&&Math.random()<dt*(1.4+e.regen*0.55)){
+      S.particles.push({
+        x:e.x+(Math.random()-.5)*20,
+        y:e.y-4+Math.random()*8,
+        text:'♥',
+        alpha:1,
+        vx:(Math.random()-.5)*12,
+        vy:-28-Math.random()*18,
+        life:0.85+Math.random()*0.3,
+        col:Math.random()<0.25?'#ffffff':'#ff4d8a'
+      });
     }
     let rem=e.spd*dt;
     while(rem>0&&e.pi<PPTS.length-1){
@@ -1827,6 +1882,7 @@ function update(dt){
   // Particles
   for(const p of S.particles){
     p.alpha-=dt/(p.life||.8);
+    if(p.vx) p.x+=p.vx*dt;
     if(p.vy) p.y+=p.vy*dt;
     if(p.type==='ring') p.r=(1-p.alpha)*p.maxR;
   }
@@ -2477,17 +2533,26 @@ function drawEnemies(){
         ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.clip();
         ctx.drawImage(im,-sz/2,-sz/2,sz,sz);
         ctx.restore();
-        // Diagonal stripe overlay
+        // Alternate white and black stripes so the enemy reads like an actual zebra.
         ctx.save();ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.clip();
-        ctx.globalAlpha=0.35;
-        const strW=sz*.11;
-        for(let si=-4;si<=4;si++){
-          const sx=si*strW*2;
-          ctx.fillStyle='#000';
+        const stripePitch=sz*.15;
+        const stripeWidth=sz*.12;
+        for(let si=-6;si<=6;si++){
+          const sx=si*stripePitch;
+          ctx.fillStyle=si%2===0?'rgba(255,255,255,0.82)':'rgba(0,0,0,0.82)';
           ctx.beginPath();
-          ctx.moveTo(sx-strW,-sz*.6);ctx.lineTo(sx+strW,-sz*.6);
-          ctx.lineTo(sx+strW+sz*.3,sz*.6);ctx.lineTo(sx-strW+sz*.3,sz*.6);
+          ctx.moveTo(sx-stripeWidth,-sz*.7);ctx.lineTo(sx+stripeWidth,-sz*.7);
+          ctx.lineTo(sx+stripeWidth+sz*.34,sz*.7);ctx.lineTo(sx-stripeWidth+sz*.34,sz*.7);
           ctx.closePath();ctx.fill();
+        }
+        ctx.strokeStyle='rgba(25,25,25,0.22)';
+        ctx.lineWidth=Math.max(1,sz*.018);
+        for(let si=-6;si<=6;si++){
+          const sx=si*stripePitch;
+          ctx.beginPath();
+          ctx.moveTo(sx,-sz*.68);
+          ctx.lineTo(sx+sz*.34,sz*.68);
+          ctx.stroke();
         }
         ctx.restore();
       }
@@ -2501,14 +2566,29 @@ function drawEnemies(){
         ctx.restore();
         // Metallic sheen
         ctx.save();ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.clip();
-        const sheen=ctx.createLinearGradient(-sz/2,-sz/2,sz/2,sz/2);
-        sheen.addColorStop(0,'rgba(200,220,230,0.35)');
-        sheen.addColorStop(0.5,'rgba(100,130,150,0.1)');
-        sheen.addColorStop(1,'rgba(50,70,90,0.3)');
+        const sheen=ctx.createLinearGradient(-sz*.6,-sz*.6,sz*.6,sz*.45);
+        sheen.addColorStop(0,'rgba(255,255,255,0.62)');
+        sheen.addColorStop(0.24,'rgba(215,230,240,0.36)');
+        sheen.addColorStop(0.5,'rgba(120,145,165,0.12)');
+        sheen.addColorStop(0.74,'rgba(245,250,255,0.22)');
+        sheen.addColorStop(1,'rgba(45,62,78,0.42)');
         ctx.fillStyle=sheen;ctx.fillRect(-sz/2,-sz/2,sz,sz);
+        ctx.globalCompositeOperation='screen';
+        const glint=ctx.createRadialGradient(-sz*.18,-sz*.22,0,-sz*.18,-sz*.22,sz*.52);
+        glint.addColorStop(0,'rgba(255,255,255,0.42)');
+        glint.addColorStop(0.35,'rgba(220,235,245,0.22)');
+        glint.addColorStop(1,'rgba(255,255,255,0)');
+        ctx.fillStyle=glint;
+        ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='rgba(255,255,255,0.58)';
+        ctx.lineWidth=Math.max(1.5,sz*.026);
+        ctx.beginPath();ctx.moveTo(-sz*.42,-sz*.18);ctx.lineTo(sz*.12,-sz*.34);ctx.stroke();
+        ctx.strokeStyle='rgba(210,230,245,0.42)';
+        ctx.lineWidth=Math.max(1,sz*.018);
+        ctx.beginPath();ctx.moveTo(-sz*.3,sz*.05);ctx.lineTo(sz*.28,-sz*.08);ctx.stroke();
         ctx.restore();
         // Rivets
-        ctx.save();ctx.fillStyle='rgba(180,200,210,0.85)';
+        ctx.save();ctx.fillStyle='rgba(210,225,235,0.92)';
         [[-.35,-.35],[.35,-.35],[-.35,.35],[.35,.35],[0,-.46],[0,.46]].forEach(([rx,ry])=>{
           ctx.beginPath();ctx.arc(rx*sz,ry*sz,sz*.045,0,Math.PI*2);ctx.fill();
         });
