@@ -495,8 +495,6 @@ const ED = {
   // hp:12 / hp:24
   queenPink:        {id:'queenPink',        name:'Pink Queen Elizabeth',               hp:12,   spd:320, sr:12, tint:'pink',    init:'PQE',  col:'#f48fb1'},
   queenPinkRegen:   {id:'queenPinkRegen',   name:'Regenerating Pink Queen Elizabeth',  hp:24,   spd:320, sr:24, tint:'pink',    init:'RPQE', col:'#f48fb1', regen:2},
-  // hp:20 (devoted — its own regen variant)
-  queenDevoted:     {id:'queenDevoted',     name:'Devoted Queen Elizabeth',            hp:20,   spd:80,  sr:20, tint:'devoted', init:'♥QE',  col:'#ff4d8a', regen:2},
   // hp:45 / hp:45
   queenZebra:       {id:'queenZebra',       name:'Black and White Queen Elizabeth',              hp:45,   spd:100, sr:19, tint:'zebra',   init:'B&W',  col:'#d0d0d0'},
   queenZebraRegen:  {id:'queenZebraRegen',  name:'Regenerating Black and White Queen Elizabeth', hp:45,   spd:100, sr:28, tint:'zebra',   init:'RBW', col:'#d0d0d0', regen:3},
@@ -527,7 +525,6 @@ const ENEMY_GALLERY_ORDER = [
   'queenYellow','queenYellowRegen',
   'queenRed','queenRedRegen',
   'queenPink','queenPinkRegen',
-  'queenDevoted',
   'queenZebra','queenZebraRegen',
   'queenRainbow','queenRainbowRegen',
   'queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart',
@@ -815,11 +812,20 @@ function tintFilter(tint){
   if(!tint) return '';
   if(tint==='zebra')  return 'grayscale(1) contrast(1.12) brightness(1.04)';
   if(tint==='iron')   return 'grayscale(0.35) brightness(1.02) contrast(1.28) sepia(0.18) hue-rotate(185deg) saturate(0.7)';
-  if(tint==='devoted') return 'hue-rotate(320deg) saturate(3) brightness(1.1)';
   const hue={blue:200,green:95,yellow:35,red:0,pink:320,rainbow:0}[tint]||0;
   const sat={red:3,pink:2.8,rainbow:1}[tint]||2.2;
   const bri={yellow:1.35,red:1.1,pink:1.15,rainbow:1}[tint]||1;
   return `hue-rotate(${hue}deg) saturate(${sat}) brightness(${bri})`;
+}
+function traceEnemyBodyPath(sz, heart){
+  ctx.beginPath();
+  if(heart){
+    ctx.moveTo(0,-sz*.5);
+    ctx.bezierCurveTo(sz*.55,-sz*.45,sz*.5,sz*.3,0,sz*.45);
+    ctx.bezierCurveTo(-sz*.55,sz*.3,-sz*.5,-sz*.35,0,-sz*.5);
+    return;
+  }
+  ctx.arc(0,0,sz/2,0,Math.PI*2);
 }
 function picHTML(src,init,sz,tint){
   const f=tintFilter(tint);
@@ -1443,18 +1449,19 @@ function spawnEnemy(id, opts){
   const d=ED[id];
   if(!d) return;
   const spdMult=roundSpeedMultiplier(S.round||1);
+  const regen=getRegenRate(d);
   const e={
     id:Math.random(),defId:id,
     hp:d.hp,maxHp:d.hp,spd:d.spd*spdMult,
     tint:d.tint,init:d.init,col:d.col,
     scale:d.scale||1,boss:d.boss||false,
-    reinforced:d.reinforced||false,heart:d.heart||false,
+    reinforced:d.reinforced||false,heart:Boolean(d.heart||regen),
     x:opts&&opts.x!=null?opts.x:PPTS[0].x,
     y:opts&&opts.y!=null?opts.y:PPTS[0].y,
     pi:opts&&opts.pi!=null?opts.pi:0,
     maxPi:opts&&opts.pi!=null?opts.pi:0,
     dead:false,reached:false,
-    regen:getRegenRate(d),
+    regen:regen,
     regenT:0
   };
   S.enemies.push(e);
@@ -2564,6 +2571,7 @@ function drawEnemies(){
   for(const e of S.enemies){
     if(e.dead||e.reached) continue;
     const d=ED[e.defId];
+    const isHeart=!!e.heart;
     const sz=CELL*.7*(e.scale||1);
     // Smooth bobbing using enemy lifetime
     const bob=Math.sin((e.t||0)*6)*2.5;
@@ -2584,20 +2592,20 @@ function drawEnemies(){
     ctx.scale(squishX,squishY);
     if(!im._bad&&im.complete&&im.naturalWidth>0){
       ctx.save();
-      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'&&e.tint!=='devoted'){
+      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'){
         ctx.filter=tintFilter(e.tint);
       }
-      ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.clip();
+      traceEnemyBodyPath(sz,isHeart);ctx.clip();
       ctx.drawImage(im,-sz/2,-sz/2,sz,sz);
       ctx.restore();
 
       // Tint overlays
-      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'&&e.tint!=='devoted'){
+      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'){
         const tc={blue:'rgba(70,130,255,0.45)',green:'rgba(50,200,80,0.4)',yellow:'rgba(255,210,40,0.45)',red:'rgba(220,30,30,0.5)',pink:'rgba(255,80,180,0.45)'};
         if(tc[e.tint]){
           ctx.save();ctx.globalCompositeOperation='multiply';
           ctx.fillStyle=tc[e.tint];
-          ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.fill();
+          traceEnemyBodyPath(sz,isHeart);ctx.fill();
           ctx.restore();
         }
       }
@@ -2606,11 +2614,11 @@ function drawEnemies(){
       if(e.tint==='iron'){
         ctx.save();
         ctx.filter=tintFilter('iron');
-        ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.clip();
+        traceEnemyBodyPath(sz,isHeart);ctx.clip();
         ctx.drawImage(im,-sz/2,-sz/2,sz,sz);
         ctx.restore();
         // Metallic sheen
-        ctx.save();ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.clip();
+        ctx.save();traceEnemyBodyPath(sz,isHeart);ctx.clip();
         const sheen=ctx.createLinearGradient(-sz*.6,-sz*.6,sz*.6,sz*.45);
         sheen.addColorStop(0,'rgba(255,255,255,0.62)');
         sheen.addColorStop(0.24,'rgba(215,230,240,0.36)');
@@ -2624,7 +2632,7 @@ function drawEnemies(){
         glint.addColorStop(0.35,'rgba(220,235,245,0.22)');
         glint.addColorStop(1,'rgba(255,255,255,0)');
         ctx.fillStyle=glint;
-        ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.fill();
+        traceEnemyBodyPath(sz,isHeart);ctx.fill();
         ctx.strokeStyle='rgba(255,255,255,0.58)';
         ctx.lineWidth=Math.max(1.5,sz*.026);
         ctx.beginPath();ctx.moveTo(-sz*.42,-sz*.18);ctx.lineTo(sz*.12,-sz*.34);ctx.stroke();
@@ -2637,20 +2645,6 @@ function drawEnemies(){
         [[-.35,-.35],[.35,-.35],[-.35,.35],[.35,.35],[0,-.46],[0,.46]].forEach(([rx,ry])=>{
           ctx.beginPath();ctx.arc(rx*sz,ry*sz,sz*.045,0,Math.PI*2);ctx.fill();
         });
-        ctx.restore();
-      }
-
-      // Devoted: soft heart glow
-      if(e.tint==='devoted'){
-        ctx.save();
-        ctx.filter=tintFilter('devoted');
-        ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.clip();
-        ctx.drawImage(im,-sz/2,-sz/2,sz,sz);
-        ctx.restore();
-        ctx.save();ctx.globalCompositeOperation='screen';ctx.globalAlpha=0.25;
-        const hglow=ctx.createRadialGradient(0,0,0,0,0,sz*.5);
-        hglow.addColorStop(0,'#ff4d8a');hglow.addColorStop(1,'transparent');
-        ctx.fillStyle=hglow;ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.fill();
         ctx.restore();
       }
 
@@ -2682,7 +2676,7 @@ function drawEnemies(){
         ctx.restore();
 
         ctx.save();
-        ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.clip();
+        traceEnemyBodyPath(sz,isHeart);ctx.clip();
         ctx.globalAlpha=0.72;
         ctx.strokeStyle='rgba(255,224,128,0.95)';
         ctx.lineWidth=Math.max(3,sz*.055);
@@ -2722,16 +2716,16 @@ function drawEnemies(){
 
       // Border
       ctx.strokeStyle=e.reinforced?'#f0c040':(e.col||'#fff');ctx.lineWidth=e.reinforced?3.2:1.5;
-      ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.stroke();
+      traceEnemyBodyPath(sz,isHeart);ctx.stroke();
       // Hit flash white overlay
       if(e.flashT>0){
         ctx.save();ctx.globalAlpha=e.flashT/0.12*0.55;
         ctx.fillStyle='#ffffff';
-        ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.fill();
+        traceEnemyBodyPath(sz,isHeart);ctx.fill();
         ctx.restore();
       }
     } else {
-      ctx.fillStyle='#1a0a0a';ctx.beginPath();ctx.arc(0,0,sz/2,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#1a0a0a';traceEnemyBodyPath(sz,isHeart);ctx.fill();
       ctx.fillStyle=e.col;ctx.font=`bold ${Math.floor(sz*.28)}px Cinzel,serif`;
       ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e.init,0,0);
     }
