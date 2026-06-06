@@ -772,6 +772,9 @@ function getTowerImageSrc(tOrId){
   if(getTowerUpgradeLevel(ref)>=5&&TOWER_TIER5_IMGS[id]) return TOWER_TIER5_IMGS[id];
   return TD[id]&&TD[id].img || '';
 }
+function getTowerTier5Count(defId, excludeId){
+  return S ? S.towers.filter(t=>t.defId===defId&&t.id!==excludeId&&getTowerUpgradeLevel(t)>=5).length : 0;
+}
 function getTowerUpgradeList(tOrId){
   const id=typeof tOrId==='string' ? tOrId : tOrId && tOrId.defId;
   return TOWER_UPGRADES[id] || [];
@@ -2228,9 +2231,14 @@ function buyTowerUpgrade(id){
   if(!t) return;
   const next=getTowerUpgradeList(t)[getTowerUpgradeLevel(t)];
   if(!next || S.gold<next.cost) return;
+  if(getTowerUpgradeLevel(t)===4&&getTowerTier5Count(t.defId,t.id)>=3){
+    showToast('Only 3 tier 5 '+TD[t.defId].name+' towers are allowed.','#e57368');
+    return;
+  }
   S.gold-=next.cost;
   t.upg=getTowerUpgradeLevel(t)+1;
   t.spent=getTowerSpent(t)+next.cost;
+  if(getTowerUpgradeLevel(t)>=5) t.sparkleT=3;
   updateHUD();
   buildShop();
   selectTower(id);
@@ -2304,7 +2312,8 @@ function selectTower(id){
   const stats=getTowerStats(t);
   const ownedUps=getTowerUpgradeList(t).slice(0,getTowerUpgradeLevel(t));
   const nextUp=getTowerUpgradeList(t)[getTowerUpgradeLevel(t)]||null;
-  const canBuyNext=!!nextUp&&S.gold>=nextUp.cost;
+  const tier5Locked=getTowerUpgradeLevel(t)===4&&getTowerTier5Count(t.defId,t.id)>=3;
+  const canBuyNext=!!nextUp&&S.gold>=nextUp.cost&&!tier5Locked;
   const panel=document.getElementById('selPanel');
   panel.style.display='flex';
   const body=document.getElementById('selBody');
@@ -2335,7 +2344,7 @@ function selectTower(id){
       ${nextUp?`
         <div class="upgname" style="margin-top:${ownedUps.length?'.45rem':'0'}">${getTowerUpgradeLevel(t)+1}. ${nextUp.name} - $${nextUp.cost}</div>
         <div class="upgdesc">${nextUp.desc}</div>
-        <button class="upgbtn" id="selbtn-upg" ${canBuyNext?'':'disabled'}>Upgrade${canBuyNext?'':' - Need $'+nextUp.cost}</button>
+        <button class="upgbtn" id="selbtn-upg" ${canBuyNext?'':'disabled'}>${tier5Locked?'Tier 5 Cap Reached':canBuyNext?'Upgrade':'Upgrade - Need $'+nextUp.cost}</button>
       `:`<div class="upgname" style="margin-top:${ownedUps.length?'.45rem':'0'}">Maxed Out</div><div class="upgdesc">All upgrades purchased.</div>`}
     </div>`:'';
 
@@ -2723,6 +2732,7 @@ function update(dt){
   for(const t of S.towers){
     const stats=getTowerStats(t);
     if(stats.income){
+      if(isOrinTower(t)&&!S.waveActive) continue;
       t.it=(t.it||0)+dt;
       while(t.it>=stats.irate){
         t.it-=stats.irate;
@@ -2751,6 +2761,10 @@ function update(dt){
       fireTowerAttack(t,stats);
       if(!S.enemies.length) break;
     }
+  }
+
+  for(const t of S.towers){
+    if(t.sparkleT>0) t.sparkleT=Math.max(0,t.sparkleT-dt);
   }
 
   // Projectiles
@@ -3643,7 +3657,7 @@ function drawTowers(){
       strokeTowerRectProgress(t.x,t.y,sz+CELL*.05*scale,imgRadius+CELL*.02*scale,prog);
       ctx.restore();
     }
-    if(getTowerUpgradeLevel(t)>=5){
+    if(t.sparkleT>0){
       const time=performance.now()*0.003+(typeof t.id==='number'?t.id*10:0);
       [[-0.28,-0.42,0.16],[0.34,-0.34,0.12],[0.02,-0.58,0.14]].forEach(([ox,oy,szMul],i)=>{
         const pulse=0.72+Math.sin(time*2+i*1.7)*0.28;
