@@ -703,6 +703,10 @@ function canTowerAffectEnemy(stats, enemy){
   if(enemy.lead && !stats.explosive) return false;
   return true;
 }
+function isBlackAndWhiteEnemy(enemy){
+  const baseId=getEnemyBaseId(enemy&&enemy.defId||enemy&&enemy.id||'');
+  return baseId==='queenZebra'||baseId==='queenZebraRegen';
+}
 
 // ─── IMAGE CACHE ───
 const imgs = {};
@@ -1428,13 +1432,43 @@ function normalSpawnGap(rnd){
 function scheduledBosses(rnd){
   const q=[];
   if(rnd>=45&&rnd<60&&rnd%5===0) q.push({id:'gigaLizzy',count:1});
-  if(rnd>=52&&rnd%10===2) q.push({id:'reinforcedGiga',count:Math.max(1,Math.floor(1+(rnd-52)/28))});
+  if(rnd>=52&&rnd<90&&rnd%10===2) q.push({id:'reinforcedGiga',count:Math.max(1,Math.floor(1+(rnd-52)/28))});
   if(rnd>=65&&rnd<80&&rnd%4===1) q.push({id:'queenVictoria',count:1});
-  if(rnd>=72&&rnd%12===0) q.push({id:'reinforcedVictoria',count:Math.max(1,Math.floor(1+(rnd-72)/36))});
-  if(rnd>=95&&rnd%5===0) q.push({id:'gigaLizzy',count:Math.floor(1+(rnd-95)/10)});
-  if(rnd>=100&&rnd%10===0) q.push({id:'queenVictoria',count:Math.floor(1+(rnd-100)/20)});
-  if(rnd>=120&&rnd%20===0) q.push({id:'kingCharles',count:Math.floor(1+(rnd-120)/30)});
-  if(rnd>=92&&rnd%12===8) q.push({id:'reinforcedCharles',count:Math.max(1,Math.floor(1+(rnd-92)/32))});
+  if(rnd>=72&&rnd<100&&rnd%12===0) q.push({id:'reinforcedVictoria',count:Math.max(1,Math.floor(1+(rnd-72)/36))});
+  if(rnd>=92&&rnd<120&&rnd%12===8) q.push({id:'reinforcedCharles',count:Math.max(1,Math.floor(1+(rnd-92)/32))});
+
+  if(rnd>=95){
+    const gigaInterval=rnd>=145?2:rnd>=120?3:4;
+    if(rnd%gigaInterval===0) q.push({id:'gigaLizzy',count:Math.max(2,Math.floor(2+(rnd-95)/18))});
+  }
+  if(rnd>=102){
+    const reinforcedGigaInterval=rnd>=150?4:6;
+    if(rnd%reinforcedGigaInterval===2) q.push({id:'reinforcedGiga',count:Math.max(1,Math.floor(1+(rnd-102)/24))});
+  }
+  if(rnd>=100){
+    const victoriaInterval=rnd>=150?5:rnd>=125?7:8;
+    if(rnd%victoriaInterval===0) q.push({id:'queenVictoria',count:Math.max(1,Math.floor(1+(rnd-100)/28))});
+  }
+  if(rnd>=112){
+    const reinforcedVictoriaInterval=rnd>=152?6:8;
+    if(rnd%reinforcedVictoriaInterval===4) q.push({id:'reinforcedVictoria',count:Math.max(1,Math.floor(1+(rnd-112)/30))});
+  }
+  if(rnd>=120){
+    const charlesInterval=rnd>=170?8:12;
+    if(rnd%charlesInterval===0) q.push({id:'kingCharles',count:Math.max(1,Math.floor(1+(rnd-120)/36))});
+  }
+  if(rnd>=128){
+    const reinforcedCharlesInterval=rnd>=176?9:12;
+    if(rnd%reinforcedCharlesInterval===8) q.push({id:'reinforcedCharles',count:Math.max(1,Math.floor(1+(rnd-128)/34))});
+  }
+  if(rnd>=110){
+    const rishiInterval=rnd>=155?7:10;
+    if(rnd%rishiInterval===5) q.push({id:'rishiSunak',count:Math.max(1,Math.floor(1+(rnd-110)/32))});
+  }
+  if(rnd>=126){
+    const reinforcedRishiInterval=rnd>=166?8:10;
+    if(rnd%reinforcedRishiInterval===6) q.push({id:'reinforcedRishi',count:Math.max(1,Math.floor(1+(rnd-126)/30))});
+  }
   return q;
 }
 
@@ -2070,6 +2104,7 @@ function handleEnemyDefeat(tgt, tower){
 }
 function damageEnemy(tgt, amount, tower, stats){
   if(!tgt||tgt.dead||!canTowerAffectEnemy(stats,tgt)) return false;
+  if(stats&&stats.explosive&&isBlackAndWhiteEnemy(tgt)) return false;
   tgt.hp-=amount;
   tgt.flashT=0.12;
   if(tgt.hp<=0) handleEnemyDefeat(tgt,tower);
