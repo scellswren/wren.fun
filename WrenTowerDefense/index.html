@@ -517,7 +517,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
       <span style="font-size:1rem">❤️</span>
       <div><div class="hudv" id="hhealth">100</div><div class="hudl">Lives</div></div>
     </div>
-    <div class="rndinfo">Round <span id="hrnd">0</span> <span id="hpenalty" style="display:none;color:#e57368;font-size:.68rem;margin-left:.3rem" title="Enemy kill rewards are reduced at rounds 50, 75, and 130.">rewards</span></div>
+    <div class="rndinfo">Round <span id="hrnd">0</span></div>
     <button class="tbtn" style="margin-left:.4rem;border-color:#c0392b55;color:#e57368" onclick="G.exitToMenu()">✕ Exit</button>
   </div>
   <div id="vp">
@@ -2200,9 +2200,11 @@ function rewardPenaltyLabel(rnd){
 }
 
 function lateEnemyStrengthMultiplier(rnd){
+  // Rounds 1–100: full strength (1×)
+  // Rounds 100–200: linearly scales from 1× to 2× (doubles over 100 rounds)
   if(rnd<=100) return 1;
   const capped=Math.min(rnd,200);
-  return 1 + (capped-100)/100;
+  return 1 + (capped-100)/100; // 1.0 at r100 → 2.0 at r200
 }
 
 function pushBossMix(q, total, weights, rnd, start=0, gap=4){
@@ -2304,104 +2306,123 @@ function normalSpawnGap(rnd){
 }
 
 
-function scheduledBosses(rnd){
-  const q=[];
-  if(rnd<50) return q;
-
-  if(rnd<=55){
-    q.push({id:'gigaLizzy',count:3});
-    return q;
-  }
-
-  if(rnd<=59){
-    q.push({id:'gigaLizzy',count:4});
-    return q;
-  }
-
-  if(rnd<=64){
-    pushBossMix(q,5,{gigaLizzy:3,queenVictoria:2},rnd,0,1.2);
-    return q;
-  }
-
-  if(rnd<=70){
-    pushBossMix(q,5,{gigaLizzy:2,queenVictoria:3},rnd,0,1.2);
-    return q;
-  }
-
-  if(rnd<=75){
-    pushBossMix(q,6,{gigaLizzy:2,queenVictoria:2,kingCharles:2},rnd,0,1.0);
-    return q;
-  }
-
-  if(rnd<=79){
-    pushBossMix(q,7,{gigaLizzy:2,queenVictoria:3,kingCharles:2},rnd,0,0.95);
-    return q;
-  }
-
-  if(rnd<=84){
-    pushBossMix(q,8,{gigaLizzy:2,queenVictoria:3,kingCharles:3},rnd,0,0.9);
-    return q;
-  }
-
-  if(rnd<=89){
-    pushBossMix(q,8,{gigaLizzy:1,queenVictoria:3,kingCharles:2,reinforcedVictoria:1,reinforcedGiga:1},rnd,0,0.9);
-    return q;
-  }
-
-  if(rnd===90){
-    q.push({id:'rishiSunak',count:18});
-    return q;
-  }
-
-  if(rnd<=95){
-    pushBossMix(q,18,{rishiSunak:10,queenVictoria:4,kingCharles:4},rnd,0,0.78);
-    return q;
-  }
-
-  if(rnd<=99){
-    pushBossMix(q,25,{queenVictoria:10,kingCharles:8,rishiSunak:5,reinforcedVictoria:1,reinforcedCharles:1},rnd,0,0.62);
-    return q;
-  }
-
-  if(rnd===100){
-    q.push({id:'winstonChurchill',count:1});
-    return q;
-  }
-
-  if(rnd<140){
-    const prog=(rnd-101)/38; // 0 at 101, ~1 at 139
-    const total=Math.round(28 + prog*92); // 28 -> 120-ish by 139
-    pushBossMix(q,total,{
-      winstonChurchill:0.28 + prog*0.12,
-      reinforcedWinston:0.10 + prog*0.06,
-      rishiSunak:0.22 - prog*0.04,
-      reinforcedRishi:0.08 + prog*0.04,
-      kingCharles:0.14 - prog*0.04,
-      reinforcedCharles:0.08 + prog*0.02,
-      queenVictoria:0.06 - prog*0.02,
-      reinforcedVictoria:0.03 + prog*0.02,
-      gigaLizzy:0.01 + prog*0.01,
-      reinforcedGiga:0.00 + prog*0.01
-    },rnd,0,0.55);
-    return q;
-  }
-
-  const prog=Math.min(1,(rnd-140)/60); // 0 at 140, 1 at 200
-  const total=Math.round(120 + prog*280); // 120 -> 400 by 200
-  pushBossMix(q,total,{
-    winstonChurchill:0.30 + prog*0.10,
-    reinforcedWinston:0.12 + prog*0.06,
-    rishiSunak:0.18 + prog*0.04,
-    reinforcedRishi:0.10 + prog*0.04,
-    kingCharles:0.12 - prog*0.03,
-    reinforcedCharles:0.08 + prog*0.02,
-    queenVictoria:0.05 - prog*0.02,
-    reinforcedVictoria:0.03 + prog*0.01,
-    gigaLizzy:0.01 + prog*0.01,
-    reinforcedGiga:0.01 + prog*0.01
-  },rnd,0,0.42);
-  return q;
+// ── LATE-SUPPORT POOL: non-boss heavy hitters for rounds 85+ ──
+function lateSupportPoolForRound(rnd){
+  // Returns the pool of non-boss enemies suitable as support fodder in late rounds
+  const pool=[];
+  const candidates=[
+    'reinforcedIronHeart','reinforcedIron','queenIronRegen','queenIron',
+    'queenRainbowRegen','queenRainbow','queenZebraRegen','queenZebra',
+    'queenPinkRegen','queenPink'
+  ];
+  candidates.forEach(id=>{
+    if(ED[id]&&ED[id].sr<=rnd) pool.push(ED[id]);
+  });
+  return pool.length ? pool : normalPoolForRound(rnd);
 }
+
+// ── BOSS AVAILABILITY: which bosses are allowed at a given round ──
+// Grace periods: boss debut = solo intro only; eligible for mix N rounds later
+//   gigaLizzy:     debut r40  → mix from r41
+//   queenVictoria: debut r60  → mix from r65  (5-round grace)
+//   kingCharles:   debut r80  → mix from r85  (5-round grace)
+//   rishiSunak:    debut r90  → mix from r91  (immediate — he's already fast/camo)
+//   winstonChurchill: debut r100 → mix from r110 (10-round grace)
+//   reinforced variants: each 5 rounds after their base
+function bossWeightsForRound(rnd){
+  const w={};
+  if(rnd>=41)  w.gigaLizzy=1;
+  if(rnd>=46)  w.reinforcedGiga=0.5;
+  if(rnd>=65)  w.queenVictoria=1;        // 5-round grace after r60 debut
+  if(rnd>=70)  w.reinforcedVictoria=0.5;
+  if(rnd>=85)  w.kingCharles=1;          // 5-round grace after r80 debut
+  if(rnd>=90)  w.reinforcedCharles=0.5;
+  if(rnd>=91)  w.rishiSunak=1.2;         // fast & camo → high weight
+  if(rnd>=96)  w.reinforcedRishi=0.6;
+  if(rnd>=110){
+    // Winston starts tiny (weight ~0.15 at r110) and grows to dominate (weight ~3.0) by r200.
+    // At r200 he should be ~60% of all bosses.
+    const wp = Math.min(1,(rnd-110)/90); // 0 at r110, 1 at r200
+    w.winstonChurchill = 0.15 + wp*2.85; // 0.15 → 3.0
+  }
+  if(rnd>=115){
+    const wp = Math.min(1,(rnd-115)/85);
+    w.reinforcedWinston = 0.05 + wp*0.55; // 0.05 → 0.6 (reinforced stays minority)
+  }
+  return w;
+}
+
+// Build a mixed boss wave directly into queue q, using available bosses for the round
+function pushMixedBosses(q, total, rnd, gap){
+  const weights=bossWeightsForRound(rnd);
+  const entries=Object.entries(weights).filter(([,w])=>w>0);
+  if(!entries.length || total<=0) return;
+
+  const sum=entries.reduce((a,[,w])=>a+w,0);
+  const counts=entries.map(([id,w])=>({id, count:Math.floor(total*w/sum)}));
+  let used=counts.reduce((a,b)=>a+b.count,0);
+  const sorted=entries.slice().sort((a,b)=>b[1]-a[1]).map(([id])=>id);
+  let oi=0;
+  while(used<total){ const slot=counts.find(c=>c.id===sorted[oi%sorted.length]); if(slot) slot.count++; used++; oi++; }
+
+  // Build shuffled flat list of boss ids
+  const flat=[];
+  counts.forEach(({id,count})=>{ for(let i=0;i<count;i++) flat.push(id); });
+  for(let i=flat.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [flat[i],flat[j]]=[flat[j],flat[i]]; }
+
+  // Scatter bosses randomly throughout the existing wave's time window
+  if(q.length===0){
+    flat.forEach((id,i)=>q.push({id, t:i*gap}));
+    return;
+  }
+  const tMax=Math.max(...q.map(e=>e.t));
+  const tMin=Math.min(...q.map(e=>e.t));
+  // Pick random spawn times spread across the wave, keeping a minimum gap between bosses
+  const minBossGap=gap*0.6;
+  const times=[];
+  let attempts=0;
+  while(times.length<flat.length && attempts<flat.length*20){
+    attempts++;
+    const t=tMin+Math.random()*(tMax-tMin);
+    if(times.every(existing=>Math.abs(existing-t)>=minBossGap)) times.push(t);
+  }
+  // If we couldn't fit them all randomly, fill remaining with evenly-spaced slots
+  while(times.length<flat.length){
+    times.push(tMin+(times.length/flat.length)*(tMax-tMin));
+  }
+  times.sort((a,b)=>a-b);
+  flat.forEach((id,i)=>q.push({id, t:times[i]}));
+}
+
+
+function scheduledBosses(rnd){
+  // Returns array of {id, count} — used only by estimateWaveSize and the general-rounds tail.
+  // For special-case rounds built in _buildWaveInner, bosses are injected directly.
+  if(rnd<50) return [];
+
+  // Count-only table for the general-rounds estimator
+  const w=bossWeightsForRound(rnd);
+  const entries=Object.entries(w);
+  if(!entries.length) return [];
+
+  let total;
+  if(rnd<=55)       total=3;
+  else if(rnd<=59)  total=4;
+  else if(rnd<=70)  total=5;
+  else if(rnd<=75)  total=6;
+  else if(rnd<=79)  total=7;
+  else if(rnd<=89)  total=8;
+  else if(rnd===90) total=18;
+  else if(rnd<=95)  total=18;
+  else if(rnd<=99)  total=25;
+  else if(rnd===100) total=1;
+  else if(rnd<140){ const p=(rnd-101)/38; total=Math.round(28+p*32); }
+  else { const p=Math.min(1,(rnd-140)/60); total=Math.round(60+p*60); }
+
+  // Return flat list for the estimator — actual spawning uses pushMixedBosses
+  return [{id:'gigaLizzy', count:total}]; // count-only estimate, actual mix handled in _buildWaveInner
+}
+
 
 function addWaveEntries(q,id,count,gap,start=0,rnd=0){
   for(let i=0;i<count;i++){
@@ -2412,25 +2433,11 @@ function addWaveEntries(q,id,count,gap,start=0,rnd=0){
 
 function addMixedWave(q,pool,count,gap,start=0,rnd=1){
   if(!pool.length) return;
-  // Weight by sr (later-debut enemies are rarer/harder so appear less in mixed pools),
-  // with a small positional bias. For boss-tier enemies, reinforce their presence late-game.
   const weights=pool.map((e,i)=>{
-    // Base weight: inverse of index so earlier-listed (weaker) enemies don't dominate
     let w=Math.pow(i+1,1.2)*Math.max(1,e.sr/6);
-    // Late-game adjustments: keep bosses dominant, but leave room for fortified support.
-    if(rnd>=90){
-      if(e.boss) w*=2.3;
-      else if(e.reinforced) w*=1.15;
-      else w*=0.7;
-    } else if(rnd>=85){
-      if(e.boss) w*=1.7;
-      else if(e.reinforced) w*=1.35;
-      if(e.id==='reinforcedIron'||e.id==='reinforcedIronHeart') w*=1.8;
-      if(e.id==='rishiSunak') w*=1.45;
-    } else if(rnd>=75){
-      if(e.id==='reinforcedIron') w*=1.8;
-    }
-    // Reinforced enemies are rarer in mid-game (r38-74)
+    if(rnd>=90){ if(e.boss) w*=2.3; else if(e.reinforced) w*=1.15; else w*=0.7; }
+    else if(rnd>=85){ if(e.boss) w*=1.7; else if(e.reinforced) w*=1.35; if(e.id==='reinforcedIron'||e.id==='reinforcedIronHeart') w*=1.8; if(e.id==='rishiSunak') w*=1.45; }
+    else if(rnd>=75){ if(e.id==='reinforcedIron') w*=1.8; }
     if(e.reinforced && rnd<75) w*=0.35;
     if(e.id==='reinforcedRishi') w*=0.18;
     return w;
@@ -2438,27 +2445,14 @@ function addMixedWave(q,pool,count,gap,start=0,rnd=1){
   const total=weights.reduce((a,b)=>a+b,0);
   for(let i=0;i<count;i++){
     let roll=Math.random()*total,pick=pool[pool.length-1];
-    for(let j=0;j<pool.length;j++){
-      roll-=weights[j];
-      if(roll<=0){pick=pool[j];break;}
-    }
+    for(let j=0;j<pool.length;j++){ roll-=weights[j]; if(roll<=0){pick=pool[j];break;} }
     q.push({id:maybeCamoEnemyId(pick.id,rnd),t:start+i*gap});
   }
 }
 
 function estimateWaveSize(rnd){
-  if(rnd===40) return 1;
-  if(rnd===60) return 1;
-  if(rnd===80) return 1;
+  if(rnd===40||rnd===60||rnd===80||rnd===100) return 1;
   if(rnd===81) return 210;
-  if(rnd===85) return 52;
-  if(rnd===90) return 18;
-  if(rnd===95) return 46;
-  if(rnd===98) return 49;
-  if(rnd===100) return 1;
-  if(rnd===105) return 62;
-  if(rnd===110) return 74;
-  if(rnd===140) return 148;
   return normalWaveCount(rnd)+scheduledBosses(rnd).reduce((n,b)=>n+b.count,0);
 }
 
@@ -2467,167 +2461,121 @@ function buildWave(rnd){
   applyCamoToWave(q, rnd);
   return q;
 }
+
 function _buildWaveInner(rnd){
   const q=[];
   const gap=normalSpawnGap(rnd);
 
   // ── SPECIAL / MILESTONE ROUNDS ──────────────────────────────────────────
 
-  // Round 3: first blue queen debut — small mixed wave
   if(rnd===3){
     addWaveEntries(q,'queen',5,gap,0,rnd);
     addWaveEntries(q,'queenBlue',3,gap,5*gap,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 5: green queen debut
   if(rnd===5){
     addMixedWave(q,[ED.queen,ED.queenBlue].filter(Boolean),normalWaveCount(rnd),gap,0,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 18: special pink regen debut wave — but pink queen sr is 12, so round 18 is valid
   if(rnd===18){
-    // Pink regen debut (sr:24) is NOT here — pink queens (sr:12) and pink regen (sr:24) not yet
-    // Use a harder version of the normal round 18 pool
     addMixedWave(q,normalPoolForRound(rnd),normalWaveCount(rnd),gap,0,rnd);
     return q;
   }
 
-  // Round 24: ONLY normal queen and blue queen (+ their camo variants at their debut)
   if(rnd===24){
-    // Force the pool to ONLY normal queen + blue queen; camo variants CAN appear this round (their sr=24)
     const r24Pool=[ED.queen,ED.queenBlue].filter(Boolean);
     addMixedWave(q,r24Pool,normalWaveCount(rnd),gap,0,rnd);
     return q;
   }
 
-  // Round 38: Lead debut — guaranteed a few leads in the wave
   if(rnd===38){
     addMixedWave(q,normalPoolForRound(rnd),Math.floor(normalWaveCount(rnd)*0.7),gap,0,rnd);
-    // Guarantee lead enemies appear
     addWaveEntries(q,'lead',8,Math.max(0.5,gap*2),normalWaveCount(rnd)*gap*0.7,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 40: Giga Lizzy debut
+  // Round 40: Giga Lizzy solo debut
   if(rnd===40){
     addWaveEntries(q,'gigaLizzy',1,1);
     return q;
   }
 
-  // Round 60: Queen Victoria debut
+  // Round 60: Queen Victoria solo debut (she enters the mix from r65 onward)
   if(rnd===60){
     addWaveEntries(q,'queenVictoria',1,1);
     return q;
   }
 
-  // Round 80: King Charles debut
+  // Round 80: King Charles solo debut (enters the mix from r85 onward)
   if(rnd===80){
     addWaveEntries(q,'kingCharles',1,1);
     return q;
   }
 
-  // Round 81: Pure iron flood — harder follow-up after Charles
+  // Round 81: Iron flood — brutal follow-up, no bosses yet
   if(rnd===81){
     addWaveEntries(q,'queenIron',160,0.055,0,rnd);
     addWaveEntries(q,'queenIronRegen',50,0.09,2.5,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 85: Transitional milestone — bosses begin mixing in with fortified support
-  if(rnd===85){
-    const support=lateSupportPoolForRound(rnd);
-    addMixedWave(q,support,28,gap*.58,0,rnd);
-    pushBossMix(q,8,{gigaLizzy:2,queenVictoria:3,kingCharles:3},rnd,8,gap*.68);
-    addWaveEntries(q,'reinforcedIron',10,0.18,4,rnd);
-    addWaveEntries(q,'queenRainbowRegen',6,0.26,10,rnd);
-    return q.sort((a,b)=>a.t-b.t);
-  }
-
-  // Round 90: Rishi-only milestone — no other enemies.
-  if(rnd===90){
-    addWaveEntries(q,'rishiSunak',18,0.22,0,rnd);
-    return q.sort((a,b)=>a.t-b.t);
-  }
-
-  // Round 95: balanced late-game pressure — bosses are present, but support still matters.
-  if(rnd===95){
-    const support=lateSupportPoolForRound(rnd);
-    addMixedWave(q,support,28,gap*.50,0,rnd);
-    pushBossMix(q,18,{rishiSunak:10,queenVictoria:4,kingCharles:4},rnd,0,0.8);
-    return q.sort((a,b)=>a.t-b.t);
-  }
-
-  // Round 98: balanced late-game pressure — bosses spread through the wave, with fortified support
-  if(rnd===98){
-    // 25 total bosses: Victoria-heavy, some Charles, some Rishi.
-    // Rishi stays standard; the fortified versions are on Victoria/Charles.
-    addWaveEntries(q,'queenVictoria',10,1.35,0,rnd);
-    addWaveEntries(q,'reinforcedVictoria',7,1.35,3.5,rnd);
-
-    addWaveEntries(q,'kingCharles',4,2.6,8,rnd);
-    addWaveEntries(q,'reinforcedCharles',2,2.6,12,rnd);
-
-    addWaveEntries(q,'rishiSunak',2,3.8,16,rnd);
-
-    // Fortified non-boss support — present, but not the main feature of the round
-    addWaveEntries(q,'reinforcedIron',10,1.8,1,rnd);
-    addWaveEntries(q,'queenIronRegen',8,2.0,6,rnd);
-    addWaveEntries(q,'queenRainbowRegen',6,2.25,10,rnd);
-
-    return q.sort((a,b)=>a.t-b.t);
-  }
-
-  // Round 100: Winston Churchill debut — only Winston.
+  // Round 100: Winston Churchill solo debut (enters the mix from r110 onward)
   if(rnd===100){
     addWaveEntries(q,'winstonChurchill',1,1,0,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 105: Reinforced iron heart (regen) debut — tougher, but still balanced.
-  if(rnd===105){
-    const support=lateSupportPoolForRound(rnd);
-    addMixedWave(q,support,24,gap*.48,0,rnd);
-    pushBossMix(q,38,{winstonChurchill:10,rishiSunak:9,kingCharles:7,queenVictoria:5,reinforcedWinston:3,reinforcedRishi:2,reinforcedCharles:1,reinforcedVictoria:1},rnd,0,0.26);
-    return q.sort((a,b)=>a.t-b.t);
-  }
-
-  // Round 110: Reinforced Rishi debut — this is the first really nasty boss wave.
-  if(rnd===110){
-    const support=lateSupportPoolForRound(rnd);
-    addMixedWave(q,support,24,gap*.46,0,rnd);
-    pushBossMix(q,50,{winstonChurchill:14,rishiSunak:13,kingCharles:8,queenVictoria:5,reinforcedWinston:4,reinforcedRishi:3,reinforcedCharles:2,reinforcedVictoria:1},rnd,0,0.22);
-    return q.sort((a,b)=>a.t-b.t);
-  }
-
-  // Round 140: Reinforced Winston Churchill debut — the real boss flood starts here.
-  if(rnd===140){
-    const support=lateSupportPoolForRound(rnd);
-    addMixedWave(q,support,28,gap*.42,0,rnd);
-    pushBossMix(q,120,{
-      winstonChurchill:28,
-      reinforcedWinston:20,
-      rishiSunak:24,
-      reinforcedRishi:12,
-      kingCharles:14,
-      reinforcedCharles:8,
-      queenVictoria:6,
-      reinforcedVictoria:4,
-      gigaLizzy:2,
-      reinforcedGiga:2
-    },rnd,0,0.35);
-    return q.sort((a,b)=>a.t-b.t);
-  }
-
   // ── GENERAL ROUNDS ──────────────────────────────────────────────────────
-  addMixedWave(q,normalPoolForRound(rnd),normalWaveCount(rnd),gap,0,rnd);
-  const bossStart=q.length?Math.max(...q.map(e=>e.t))+2:0;
-  let offset=0;
-  scheduledBosses(rnd).forEach(b=>{
-    addWaveEntries(q,b.id,b.count,4,bossStart+offset,rnd);
-    offset+=b.count*4;
-  });
+  // Normal enemies fill the wave first, then bosses are appended as a mixed set
+
+  // Determine normal-enemy count (reduced slightly in heavy-boss rounds)
+  let normalCount=normalWaveCount(rnd);
+  let bossCount=0;
+  let bossGap=0.9;
+
+  if(rnd>=50 && rnd<=55){   bossCount=3;  bossGap=2.0; }
+  else if(rnd<=59){          bossCount=4;  bossGap=1.8; }
+  else if(rnd<=70){          bossCount=5;  bossGap=1.5; }
+  else if(rnd<=75){          bossCount=6;  bossGap=1.3; }
+  else if(rnd<=79){          bossCount=7;  bossGap=1.1; }
+  else if(rnd<=89){          bossCount=8;  bossGap=1.0; }
+  else if(rnd===90){
+    // r90: 18 Rishis only, no normal enemies
+    addWaveEntries(q,'rishiSunak',18,0.22,0,rnd);
+    return q.sort((a,b)=>a.t-b.t);
+  }
+  else if(rnd<=95){
+    normalCount=Math.floor(normalCount*0.5);
+    bossCount=18; bossGap=0.8;
+  }
+  else if(rnd<=99){
+    normalCount=Math.floor(normalCount*0.4);
+    bossCount=25; bossGap=0.65;
+  }
+  else if(rnd<140){
+    const p=(rnd-101)/38;   // 0 at r101, ~1 at r139
+    normalCount=Math.floor(normalCount*0.35);
+    bossCount=Math.round(28+p*32); // 28 → ~60 by r139
+    bossGap=Math.max(0.4,0.65-p*0.15);
+  }
+  else {
+    const p=Math.min(1,(rnd-140)/60); // 0 at r140, 1 at r200
+    normalCount=Math.floor(normalCount*0.25);
+    bossCount=Math.round(60+p*60); // 60 → 120 by r200
+    bossGap=Math.max(0.3,0.50-p*0.12);
+  }
+
+  // Add normal support enemies (use late support pool for r85+)
+  if(normalCount>0){
+    const pool = rnd>=85 ? lateSupportPoolForRound(rnd) : normalPoolForRound(rnd);
+    if(pool.length) addMixedWave(q,pool,normalCount,gap,0,rnd);
+  }
+
+  // Add mixed bosses (respects grace periods via bossWeightsForRound)
+  if(bossCount>0) pushMixedBosses(q, bossCount, rnd, bossGap);
+
   return q.sort((a,b)=>a.t-b.t);
 }
 
@@ -2652,8 +2600,7 @@ function setWaveBtn(disabled,text){
   if(!disabled&&S.round>=0){
     const next=S.round+1;
     const count=estimateWaveSize(next);
-    const penaltyNote=rewardPenaltyLabel(next)?' ['+rewardPenaltyLabel(next)+']':'';
-    b.title='~'+count+' enemies'+penaltyNote;
+    b.title='~'+count+' enemies';
   } else {
     b.title='';
   }
@@ -2990,14 +2937,7 @@ function updateHUD(){
   hpEl.textContent=S.hp;
   hpEl.style.color=S.hp<=20?'#e57368':S.hp<=50?'#ff9800':'var(--gold)';
   document.getElementById('hrnd').textContent=S.round;
-  // Show/hide the late-round reward badge
-  const badge=document.getElementById('hpenalty');
-  if(badge){
-    const label=rewardPenaltyLabel(S.round);
-    badge.style.display=label?'inline':'none';
-    badge.textContent=label;
-    badge.title='Enemy kill rewards are reduced at rounds 50, 75, and 130.';
-  }
+
   updateOrinFrenzyUI();
 }
 
@@ -3298,10 +3238,14 @@ function update(dt){
       // Only lose lives if enemy has actually completed the route (past minProgress)
       const minProg=MAPS[S.mapId]&&MAPS[S.mapId].minProgress||0;
       if(e.maxPi>=minProg){
-        S.hp=Math.max(0,S.hp-e.hp);
-        updateHUD();
-        S.dmgFlash=(S.dmgFlash||0)+0.35;
-        if(S.hp<=0) triggerOver(false);
+        if(S.mode!=='sandbox'){
+          S.hp=Math.max(0,S.hp-e.hp);
+          updateHUD();
+          S.dmgFlash=(S.dmgFlash||0)+0.35;
+          if(S.hp<=0) triggerOver(false);
+        } else {
+          S.dmgFlash=(S.dmgFlash||0)+0.35;
+        }
       }
     }
   }
