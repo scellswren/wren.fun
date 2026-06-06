@@ -703,8 +703,8 @@ const ED = {
   queenPink:        {id:'queenPink',        name:'Pink Queen Elizabeth',               hp:12,   spd:320, sr:12, tint:'pink',    init:'PQE',  col:'#f48fb1'},
   queenPinkRegen:   {id:'queenPinkRegen',   name:'Regenerating Pink Queen Elizabeth',  hp:24,   spd:320, sr:24, tint:'pink',    init:'RPQE', col:'#f48fb1', regen:2},
   // hp:45 / hp:45
-  queenZebra:       {id:'queenZebra',       name:'Black and White Queen Elizabeth',              hp:45,   spd:100, sr:19, tint:'zebra',   init:'B&W',  col:'#d0d0d0'},
-  queenZebraRegen:  {id:'queenZebraRegen',  name:'Regenerating Black and White Queen Elizabeth', hp:45,   spd:100, sr:28, tint:'zebra',   init:'RBW', col:'#d0d0d0', regen:3},
+  queenZebra:       {id:'queenZebra',       name:'Black and White Queen Elizabeth',              hp:45,   spd:100, sr:30, tint:'zebra',   init:'B&W',  col:'#d0d0d0'},
+  queenZebraRegen:  {id:'queenZebraRegen',  name:'Regenerating Black and White Queen Elizabeth', hp:45,   spd:100, sr:35, tint:'zebra',   init:'RBW', col:'#d0d0d0', regen:3},
   // hp:55 / hp:55
   queenRainbow:     {id:'queenRainbow',     name:'Rainbow Queen Elizabeth',            hp:55,   spd:120, sr:22, tint:'rainbow', init:'🌈',   col:'#ffffff'},
   queenRainbowRegen:{id:'queenRainbowRegen',name:'Regenerating Rainbow Queen Elizabeth',hp:55,  spd:120, sr:30, tint:'rainbow', init:'🌈R',  col:'#ffffff', regen:4},
@@ -1985,61 +1985,6 @@ function gigaLizzyCount(rnd){
   return QUEEN_SCHEDULE[rnd]||0;
 }
 
-function buildWave(rnd){
-  const q=[];
-  const spawnGap=Math.max(0.28,1.3-rnd*0.05);
-
-  // Round 40: Giga Lizzy ONLY (boss wave)
-  if(rnd===40){
-    for(let i=0;i<2;i++) q.push({id:'gigaLizzy',t:i*4});
-    showToast('☠ ROUND 40 — GIGA LIZZY APPROACHES! Gold rewards -25%','#e57368');
-    return q;
-  }
-
-  // Round 60: Queen Victoria ONLY (boss wave)
-  if(rnd===60){
-    q.push({id:'queenVictoria',t:0});
-    showToast('👑 ROUND 60 — QUEEN VICTORIA REIGNS SUPREME!','#c9a227');
-    return q;
-  }
-
-  // Round 18: wall of pinks
-  if(rnd===18){
-    for(let i=0;i<30;i++) q.push({id:'queenPink',t:i*spawnGap});
-    return q;
-  }
-
-  // Giga Lizzy additions for scheduled rounds (mixed with normal enemies)
-  const lizzyCount=gigaLizzyCount(rnd);
-
-  // Normal enemies — difficulty ramps harder post-20
-  const avail=Object.values(ED).filter(e=>e.sr<=rnd&&!e.boss);
-  if(!avail.length){
-    for(let i=0;i<lizzyCount;i++) q.push({id:'gigaLizzy',t:i*3.5});
-    return q;
-  }
-
-  // Count ramps faster after round 20
-  const base=rnd<=20?5+rnd*3:65+Math.floor((rnd-20)*5.5);
-  const count=Math.min(base,350); // cap at 350
-
-  for(let i=0;i<count;i++){
-    // Weight toward harder enemies as rounds progress
-    const w=avail.map((_,j)=>Math.pow(j+1,Math.min(rnd/2.5,3)));
-    const tot=w.reduce((a,b)=>a+b,0);
-    let r=Math.random()*tot,pick=avail[avail.length-1];
-    for(let j=0;j<avail.length;j++){if((r-=w[j])<=0){pick=avail[j];break;}}
-    q.push({id:pick.id,t:i*spawnGap});
-  }
-
-  // Add Giga Lizzy at the end of the wave (not boss-only, mixed in)
-  for(let i=0;i<lizzyCount;i++){
-    q.push({id:'gigaLizzy',t:count*spawnGap+i*3.5});
-  }
-
-  return q;
-}
-
 function roundSpeedMultiplier(rnd){
   // 1x at round 1, 1.5x at round 100, 3x at round 200
   // Two-segment linear: rounds 1-100 go from 1x to 1.5x, rounds 100-200 go from 1.5x to 3x
@@ -2083,7 +2028,7 @@ function normalPoolForRound(rnd){
   } else if(rnd>=30){
     ids=['queenGreenRegen','queenYellow','queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra'];
   } else if(rnd>=20){
-    ids=['queenGreen','queenGreenRegen','queenYellow','queenYellowRegen','queenRed','queenRedRegen','queenPink','queenZebra'];
+    ids=['queenGreen','queenGreenRegen','queenYellow','queenYellowRegen','queenRed','queenRedRegen','queenPink'];
   } else if(rnd>=12){
     ids=['queenBlue','queenGreen','queenYellow','queenRed','queenPink','queenBlueRegen','queenGreenRegen'];
   } else if(rnd>=6){
