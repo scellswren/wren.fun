@@ -318,7 +318,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 #wavetip{position:absolute;bottom:3.6rem;left:50%;transform:translateX(-50%);
   font-family:'Cinzel',serif;font-size:.65rem;color:var(--muted);opacity:.55;
   letter-spacing:.08em;pointer-events:none;white-space:nowrap}
-#orinFrenzyBtn{position:absolute;bottom:1rem;right:1rem;
+#orinFrenzyBtn{position:absolute;bottom:1rem;left:1rem;right:auto;
   font-family:'Cinzel',serif;font-size:.82rem;padding:.52em 1.3em;
   border:2px solid #ab47bc;background:linear-gradient(135deg,#ab47bc22,#6a1b9a16);
   color:#e6b6ff;cursor:pointer;display:none;z-index:150;
@@ -327,7 +327,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 #orinFrenzyBtn:hover{background:linear-gradient(135deg,#ab47bc38,#6a1b9a28);
   box-shadow:0 0 22px #ab47bc55;transform:translateY(-2px)}
 #orinFrenzyBtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-#orinFrenzyTip{position:absolute;bottom:3.5rem;right:1rem;
+#orinFrenzyTip{position:absolute;bottom:3.5rem;left:1rem;right:auto;
   font-family:'Cinzel',serif;font-size:.63rem;color:#cfa3ea;opacity:.8;
   letter-spacing:.06em;display:none;text-align:right;pointer-events:none}
 
@@ -852,10 +852,10 @@ const ED = {
   gigaLizzy:        {id:'gigaLizzy',        name:'Giga Lizzy',                         hp:300,  spd:50,  sr:40, tint:null,      init:'GL',   col:'#ef9a9a', scale:4, boss:true},
   queenVictoria:    {id:'queenVictoria',    name:'Queen Victoria',                     hp:1000, spd:40,  sr:60, tint:null,      init:'QV',   col:'#c9a227', scale:4, boss:true, img:'QueenV.jpg', nameScale:1.35},
   kingCharles:      {id:'kingCharles',      name:'King Charles',                       hp:6000, spd:40,  sr:80, tint:null,      init:'KC',   col:'#d7b65a', scale:4.5, boss:true, img:'KingCH.jpg', nameScale:1.25},
-  rishiSunak:       {id:'rishiSunak',       name:'Rishi Sunak',                        hp:900,  spd:320, sr:90, tint:'iron',    init:'RS',   col:'#b0bec5', scale:1.35, boss:true, camo:true, img:'Rishi.jpg'},
+  rishiSunak:       {id:'rishiSunak',       name:'Rishi Sunak',                        hp:900,  spd:320, sr:90, tint:'iron',    init:'RS',   col:'#b0bec5', scale:4.7, boss:true, camo:true, img:'Rishi.jpg'},
   reinforcedIron:   {id:'reinforcedIron',   name:'Reinforced Iron Queen Elizabeth',     hp:120,  spd:60,  sr:38, tint:'iron',    init:'RI',   col:'#d7b65a', scale:1.18, reinforced:true, onDeath:'splitRainbow'},
   reinforcedIronHeart:{id:'reinforcedIronHeart',name:'Reinforced Regenerating Iron Queen Elizabeth', hp:120, spd:60, sr:49, tint:'iron', init:'RRI', col:'#d7b65a', scale:1.24, reinforced:true, regen:4, onDeath:'splitRainbow'},
-  reinforcedRishi:  {id:'reinforcedRishi',  name:'Reinforced Rishi Sunak',              hp:1350, spd:320, sr:102,tint:'iron',    init:'RRS',  col:'#e0e0e0', scale:1.55, boss:true, reinforced:true, camo:true, img:'Rishi.jpg'},
+  reinforcedRishi:  {id:'reinforcedRishi',  name:'Reinforced Rishi Sunak',              hp:1350, spd:320, sr:102,tint:'iron',    init:'RRS',  col:'#e0e0e0', scale:4.7, boss:true, reinforced:true, camo:true, img:'Rishi.jpg'},
   reinforcedGiga:   {id:'reinforcedGiga',   name:'Reinforced Giga Lizzy',               hp:450,  spd:50,  sr:52, tint:null,      init:'RGL',  col:'#d7b65a', scale:4.3, boss:true, reinforced:true},
   reinforcedVictoria:{id:'reinforcedVictoria',name:'Reinforced Queen Victoria',         hp:1500, spd:40,  sr:72, tint:null,      init:'RQV',  col:'#d7b65a', scale:4.3, boss:true, img:'QueenV.jpg', nameScale:1.2, reinforced:true},
   reinforcedCharles:{id:'reinforcedCharles',name:'Reinforced King Charles',             hp:9000, spd:40,  sr:92, tint:null,      init:'RKC',  col:'#f0c040', scale:4.9, boss:true, img:'KingCH.jpg', nameScale:1.15, reinforced:true},
@@ -1055,6 +1055,9 @@ function getTowerStats(t){
 }
 function formatRate(sec){
   return sec ? (sec < 1 ? sec.toFixed(2) : sec.toFixed(1))+'s' : '—';
+}
+function formatRangePx(n){
+  return Math.round(n);
 }
 function describeTowerSpecials(stats){
   const bits=[];
@@ -1443,7 +1446,7 @@ function showSub(type){
           <div class="tower-stats-row">
             ${t.dmg?`<div class="tstat"><span>⚔</span><span>${t.dmg} dmg</span></div>`:''}
             ${t.rate?`<div class="tstat"><span>⏱</span><span>${t.rate}s</span></div>`:''}
-            ${t.range<9999?`<div class="tstat"><span>📡</span><span>${t.range}px</span></div>`:''}
+            ${t.range<9999?`<div class="tstat"><span>📡</span><span>${formatRangePx(t.range)}px</span></div>`:''}
             ${t.income?`<div class="tstat"><span>💎</span><span>$${t.income}/${t.irate}s</span></div>`:''}
           </div>
           <div class="tower-upgrades-toggle"><span class="upg-toggle-label">📈 ${upgs.length} Upgrade${upgs.length===1?'':'s'} · Click to view</span></div>
@@ -2196,21 +2199,49 @@ function rewardPenaltyLabel(rnd){
   return pct<100?pct+'% rewards':'';
 }
 
+function lateEnemyStrengthMultiplier(rnd){
+  if(rnd<=100) return 1;
+  const capped=Math.min(rnd,200);
+  return 1 + (capped-100)/100;
+}
+
+function pushBossMix(q, total, weights, rnd, start=0, gap=4){
+  const entries=Object.entries(weights).filter(([,w])=>w>0);
+  if(!entries.length || total<=0) return;
+
+  const sum=entries.reduce((a,[,w])=>a+w,0);
+  const counts=entries.map(([id,w])=>({id, count:Math.floor(total*w/sum)}));
+  let used=counts.reduce((a,b)=>a+b.count,0);
+
+  const order=entries.slice().sort((a,b)=>b[1]-a[1]).map(([id])=>id);
+  let oi=0;
+  while(used<total){
+    const id=order[oi%order.length];
+    const slot=counts.find(c=>c.id===id);
+    if(slot) slot.count++;
+    used++;
+    oi++;
+  }
+
+  let cursor=start;
+  counts.forEach(({id,count})=>{
+    if(count>0){
+      addWaveEntries(q,id,count,gap,cursor,rnd);
+      cursor += count*gap;
+    }
+  });
+}
+
 function normalPoolForRound(rnd){
   // Each enemy only enters the pool at or after its sr (spawn round from enemy gallery).
   // The pools below are the ELIGIBLE set; the sr<=rnd filter enforces exact debut rounds.
   let ids;
-  if(rnd>=102){
-    // r102+: almost all reinforced iron + the boss-class regulars
-    ids=['reinforcedIron','reinforcedIronHeart','queenIron','queenIronRegen','rishiSunak','reinforcedRishi'];
-  } else if(rnd>=95){
-    ids=['reinforcedIron','reinforcedIronHeart','queenIron','queenIronRegen','queenRainbow','queenRainbowRegen','rishiSunak'];
-  } else if(rnd>=90){
-    // r90: reinforced iron is common filler, rainbow + rishi as boss-tier regulars
-    ids=['reinforcedIron','reinforcedIronHeart','queenIron','queenIronRegen','queenRainbow','queenRainbowRegen','rishiSunak'];
+  if(rnd>=90){
+    // Late game support only — bosses are scheduled separately so the wave stays mixed.
+    ids=['queenIron','queenIronRegen','queenRainbow','queenRainbowRegen','queenZebra','queenZebraRegen','reinforcedIron','reinforcedIronHeart'];
   } else if(rnd>=85){
-    // r85-89: transitioning — iron/rainbow/zebra still present but reinforced iron growing
-    ids=['reinforcedIron','queenIron','queenIronRegen','queenRainbow','queenRainbowRegen','queenZebraRegen','rishiSunak'];
+    // r85-89: transitional support, no boss flood yet.
+    ids=['queenIron','queenIronRegen','queenRainbow','queenRainbowRegen','queenZebra','queenZebraRegen','reinforcedIron','reinforcedIronHeart'];
   } else if(rnd>=78){
     // r78-84: iron + rainbow dominant; reinforced iron starts appearing (sr:38, eligible)
     ids=['queenIron','queenIronRegen','reinforcedIron','queenRainbow','queenRainbowRegen','queenZebra','queenZebraRegen'];
@@ -2237,9 +2268,12 @@ function normalPoolForRound(rnd){
   } else if(rnd>=14){
     // r14-23: blue + green queens and their regen variants
     ids=['queen','queenBlue','queenGreen','queenRegen','queenBlueRegen','queenGreenRegen'];
-  } else if(rnd>=8){
-    // r8-13: normal + blue + a little green
-    ids=['queen','queenBlue','queenGreen','queenRegen','queenBlueRegen'];
+  } else if(rnd>=10){
+    // r10-13: normal + blue + green + yellow
+    ids=['queen','queenBlue','queenGreen','queenYellow','queenRegen','queenBlueRegen'];
+  } else if(rnd>=6){
+    // r6-9: normal + blue + green
+    ids=['queen','queenBlue','queenGreen','queenRegen'];
   } else if(rnd>=3){
     ids=['queen','queenBlue'];
   } else {
@@ -2254,6 +2288,7 @@ function normalPoolForRound(rnd){
 }
 
 function normalWaveCount(rnd){
+
   const early=10+rnd*3;
   const mid=50+Math.floor((rnd-20)*4.2);
   const late=120+Math.floor((rnd-50)*4.3);
@@ -2268,32 +2303,103 @@ function normalSpawnGap(rnd){
   return Math.max(0.07,0.78-rnd*0.006);
 }
 
+
 function scheduledBosses(rnd){
   const q=[];
+  if(rnd<50) return q;
 
-  // Early boss introduction
-  if(rnd>=45&&rnd<60&&rnd%5===0) q.push({id:'gigaLizzy',count:1});
-  if(rnd===52||rnd===58) q.push({id:'reinforcedGiga',count:1});
+  if(rnd<=55){
+    q.push({id:'gigaLizzy',count:3});
+    return q;
+  }
 
-  // Build-up to round 90: more bosses, fewer regulars
-  if(rnd>=65&&rnd<80&&rnd%4===1) q.push({id:'queenVictoria',count:1});
-  if(rnd>=72&&rnd<90&&rnd%6===0) q.push({id:'reinforcedVictoria',count:1});
-  if(rnd>=75&&rnd<90&&rnd%5===0) q.push({id:'gigaLizzy',count:1});
-  if(rnd>=82&&rnd<90&&rnd%6===2) q.push({id:'kingCharles',count:1});
+  if(rnd<=59){
+    q.push({id:'gigaLizzy',count:4});
+    return q;
+  }
 
-  // After the hard stop rounds, bosses dominate the late game
-  if(rnd>=91&&rnd<110&&rnd%8===1) q.push({id:'rishiSunak',count:Math.max(2,Math.floor(2+(rnd-91)/10))});
-  if(rnd>=92&&rnd<120&&rnd%12===8) q.push({id:'reinforcedCharles',count:Math.max(1,Math.floor(1+(rnd-92)/32))});
-  if(rnd>=95&&rnd%4===0) q.push({id:'gigaLizzy',count:Math.max(2,Math.floor(2+(rnd-95)/18))});
-  if(rnd>=100&&rnd%7===0) q.push({id:'queenVictoria',count:Math.max(1,Math.floor(1+(rnd-100)/28))});
-  if(rnd>=102&&rnd%6===2) q.push({id:'reinforcedGiga',count:Math.max(1,Math.floor(1+(rnd-102)/24))});
-  if(rnd>=112&&rnd%8===4) q.push({id:'reinforcedVictoria',count:Math.max(1,Math.floor(1+(rnd-112)/30))});
-  if(rnd>=120&&rnd%12===0) q.push({id:'kingCharles',count:Math.max(1,Math.floor(1+(rnd-120)/36))});
-  if(rnd>=126&&rnd%10===6) q.push({id:'reinforcedRishi',count:Math.max(1,Math.floor(1+(rnd-126)/30))});
-  if(rnd>=110&&rnd%10===5) q.push({id:'rishiSunak',count:Math.max(1,Math.floor(1+(rnd-110)/32))});
-  if(rnd>=101&&rnd<119&&rnd%6===1) q.push({id:'winstonChurchill',count:1});
-  if(rnd>=119) q.push({id:'winstonChurchill',count:Math.max(1,Math.floor(1+(rnd-119)/6))});
-  if(rnd>=140) q.push({id:'reinforcedWinston',count:Math.max(1,Math.floor(1+(rnd-140)/8))});
+  if(rnd<=64){
+    pushBossMix(q,5,{gigaLizzy:3,queenVictoria:2},rnd,0,1.2);
+    return q;
+  }
+
+  if(rnd<=70){
+    pushBossMix(q,5,{gigaLizzy:2,queenVictoria:3},rnd,0,1.2);
+    return q;
+  }
+
+  if(rnd<=75){
+    pushBossMix(q,6,{gigaLizzy:2,queenVictoria:2,kingCharles:2},rnd,0,1.0);
+    return q;
+  }
+
+  if(rnd<=79){
+    pushBossMix(q,7,{gigaLizzy:2,queenVictoria:3,kingCharles:2},rnd,0,0.95);
+    return q;
+  }
+
+  if(rnd<=84){
+    pushBossMix(q,8,{gigaLizzy:2,queenVictoria:3,kingCharles:3},rnd,0,0.9);
+    return q;
+  }
+
+  if(rnd<=89){
+    pushBossMix(q,8,{gigaLizzy:1,queenVictoria:3,kingCharles:2,reinforcedVictoria:1,reinforcedGiga:1},rnd,0,0.9);
+    return q;
+  }
+
+  if(rnd===90){
+    q.push({id:'rishiSunak',count:18});
+    return q;
+  }
+
+  if(rnd<=95){
+    pushBossMix(q,18,{rishiSunak:10,queenVictoria:4,kingCharles:4},rnd,0,0.78);
+    return q;
+  }
+
+  if(rnd<=99){
+    pushBossMix(q,25,{queenVictoria:10,kingCharles:8,rishiSunak:5,reinforcedVictoria:1,reinforcedCharles:1},rnd,0,0.62);
+    return q;
+  }
+
+  if(rnd===100){
+    q.push({id:'winstonChurchill',count:1});
+    return q;
+  }
+
+  if(rnd<140){
+    const prog=(rnd-101)/38; // 0 at 101, ~1 at 139
+    const total=Math.round(28 + prog*92); // 28 -> 120-ish by 139
+    pushBossMix(q,total,{
+      winstonChurchill:0.28 + prog*0.12,
+      reinforcedWinston:0.10 + prog*0.06,
+      rishiSunak:0.22 - prog*0.04,
+      reinforcedRishi:0.08 + prog*0.04,
+      kingCharles:0.14 - prog*0.04,
+      reinforcedCharles:0.08 + prog*0.02,
+      queenVictoria:0.06 - prog*0.02,
+      reinforcedVictoria:0.03 + prog*0.02,
+      gigaLizzy:0.01 + prog*0.01,
+      reinforcedGiga:0.00 + prog*0.01
+    },rnd,0,0.55);
+    return q;
+  }
+
+  const prog=Math.min(1,(rnd-140)/60); // 0 at 140, 1 at 200
+  const total=Math.round(120 + prog*280); // 120 -> 400 by 200
+  pushBossMix(q,total,{
+    winstonChurchill:0.30 + prog*0.10,
+    reinforcedWinston:0.12 + prog*0.06,
+    rishiSunak:0.18 + prog*0.04,
+    reinforcedRishi:0.10 + prog*0.04,
+    kingCharles:0.12 - prog*0.03,
+    reinforcedCharles:0.08 + prog*0.02,
+    queenVictoria:0.05 - prog*0.02,
+    reinforcedVictoria:0.03 + prog*0.01,
+    gigaLizzy:0.01 + prog*0.01,
+    reinforcedGiga:0.01 + prog*0.01
+  },rnd,0,0.42);
   return q;
 }
 
@@ -2311,10 +2417,16 @@ function addMixedWave(q,pool,count,gap,start=0,rnd=1){
   const weights=pool.map((e,i)=>{
     // Base weight: inverse of index so earlier-listed (weaker) enemies don't dominate
     let w=Math.pow(i+1,1.2)*Math.max(1,e.sr/6);
-    // Late-game adjustments: iron/rainbow/rishi should be common at r85+
-    if(rnd>=85){
-      if(e.id==='reinforcedIron'||e.id==='reinforcedIronHeart') w*=3.0;
-      if(e.id==='rishiSunak') w*=1.8;
+    // Late-game adjustments: keep bosses dominant, but leave room for fortified support.
+    if(rnd>=90){
+      if(e.boss) w*=2.3;
+      else if(e.reinforced) w*=1.15;
+      else w*=0.7;
+    } else if(rnd>=85){
+      if(e.boss) w*=1.7;
+      else if(e.reinforced) w*=1.35;
+      if(e.id==='reinforcedIron'||e.id==='reinforcedIronHeart') w*=1.8;
+      if(e.id==='rishiSunak') w*=1.45;
     } else if(rnd>=75){
       if(e.id==='reinforcedIron') w*=1.8;
     }
@@ -2339,12 +2451,14 @@ function estimateWaveSize(rnd){
   if(rnd===60) return 1;
   if(rnd===80) return 1;
   if(rnd===81) return 210;
-  if(rnd===85) return 82;
-  if(rnd===90) return 4;
-  if(rnd===95) return 116;
+  if(rnd===85) return 52;
+  if(rnd===90) return 18;
+  if(rnd===95) return 46;
+  if(rnd===98) return 49;
   if(rnd===100) return 1;
-  if(rnd===105) return 96;
-  if(rnd===110) return 67;
+  if(rnd===105) return 62;
+  if(rnd===110) return 74;
+  if(rnd===140) return 148;
   return normalWaveCount(rnd)+scheduledBosses(rnd).reduce((n,b)=>n+b.count,0);
 }
 
@@ -2421,54 +2535,88 @@ function _buildWaveInner(rnd){
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 85: Transitional milestone — reinforced iron begins in earnest + rainbow
+  // Round 85: Transitional milestone — bosses begin mixing in with fortified support
   if(rnd===85){
-    addWaveEntries(q,'reinforcedIron',30,0.16,0,rnd);
-    addWaveEntries(q,'queenIronRegen',40,0.10,2,rnd);
-    addWaveEntries(q,'queenRainbowRegen',12,0.30,6,rnd);
+    const support=lateSupportPoolForRound(rnd);
+    addMixedWave(q,support,28,gap*.58,0,rnd);
+    pushBossMix(q,8,{gigaLizzy:2,queenVictoria:3,kingCharles:3},rnd,8,gap*.68);
+    addWaveEntries(q,'reinforcedIron',10,0.18,4,rnd);
+    addWaveEntries(q,'queenRainbowRegen',6,0.26,10,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 90: Rishi Sunak debut — all Rishi Sunaks
+  // Round 90: Rishi-only milestone — no other enemies.
   if(rnd===90){
-    addWaveEntries(q,'rishiSunak',4,0.45,0,rnd);
-    return q;
+    addWaveEntries(q,'rishiSunak',18,0.22,0,rnd);
+    return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 95: Reinforced iron dominates + iron regulars
+  // Round 95: balanced late-game pressure — bosses are present, but support still matters.
   if(rnd===95){
-    addWaveEntries(q,'reinforcedIron',50,0.12,0,rnd);
-    addWaveEntries(q,'queenIronRegen',60,0.09,1.5,rnd);
-    addWaveEntries(q,'rishiSunak',6,0.60,8,rnd);
+    const support=lateSupportPoolForRound(rnd);
+    addMixedWave(q,support,28,gap*.50,0,rnd);
+    pushBossMix(q,18,{rishiSunak:10,queenVictoria:4,kingCharles:4},rnd,0,0.8);
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 100: Winston Churchill debut
+  // Round 98: balanced late-game pressure — bosses spread through the wave, with fortified support
+  if(rnd===98){
+    // 25 total bosses: Victoria-heavy, some Charles, some Rishi.
+    // Rishi stays standard; the fortified versions are on Victoria/Charles.
+    addWaveEntries(q,'queenVictoria',10,1.35,0,rnd);
+    addWaveEntries(q,'reinforcedVictoria',7,1.35,3.5,rnd);
+
+    addWaveEntries(q,'kingCharles',4,2.6,8,rnd);
+    addWaveEntries(q,'reinforcedCharles',2,2.6,12,rnd);
+
+    addWaveEntries(q,'rishiSunak',2,3.8,16,rnd);
+
+    // Fortified non-boss support — present, but not the main feature of the round
+    addWaveEntries(q,'reinforcedIron',10,1.8,1,rnd);
+    addWaveEntries(q,'queenIronRegen',8,2.0,6,rnd);
+    addWaveEntries(q,'queenRainbowRegen',6,2.25,10,rnd);
+
+    return q.sort((a,b)=>a.t-b.t);
+  }
+
+  // Round 100: Winston Churchill debut — only Winston.
   if(rnd===100){
-    addWaveEntries(q,'winstonChurchill',1,1);
-    return q;
+    addWaveEntries(q,'winstonChurchill',1,1,0,rnd);
+    return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 105: Reinforced iron heart (regen) debut
+  // Round 105: Reinforced iron heart (regen) debut — tougher, but still balanced.
   if(rnd===105){
-    addWaveEntries(q,'reinforcedIronHeart',36,0.16,0,rnd);
-    addWaveEntries(q,'reinforcedIron',60,0.11,2,rnd);
+    const support=lateSupportPoolForRound(rnd);
+    addMixedWave(q,support,24,gap*.48,0,rnd);
+    pushBossMix(q,38,{winstonChurchill:10,rishiSunak:9,kingCharles:7,queenVictoria:5,reinforcedWinston:3,reinforcedRishi:2,reinforcedCharles:1,reinforcedVictoria:1},rnd,0,0.26);
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 110: Reinforced Rishi debut
+  // Round 110: Reinforced Rishi debut — this is the first really nasty boss wave.
   if(rnd===110){
-    addWaveEntries(q,'reinforcedRishi',14,0.35,0,rnd);
-    addWaveEntries(q,'rishiSunak',35,0.16,1,rnd);
-    addWaveEntries(q,'reinforcedIronHeart',18,0.24,4,rnd);
+    const support=lateSupportPoolForRound(rnd);
+    addMixedWave(q,support,24,gap*.46,0,rnd);
+    pushBossMix(q,50,{winstonChurchill:14,rishiSunak:13,kingCharles:8,queenVictoria:5,reinforcedWinston:4,reinforcedRishi:3,reinforcedCharles:2,reinforcedVictoria:1},rnd,0,0.22);
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 140: Reinforced Winston Churchill debut
+  // Round 140: Reinforced Winston Churchill debut — the real boss flood starts here.
   if(rnd===140){
-    addWaveEntries(q,'reinforcedWinston',1,1);
-    addWaveEntries(q,'winstonChurchill',3,5,6);
-    addWaveEntries(q,'reinforcedIron',30,0.14,22,rnd);
+    const support=lateSupportPoolForRound(rnd);
+    addMixedWave(q,support,28,gap*.42,0,rnd);
+    pushBossMix(q,120,{
+      winstonChurchill:28,
+      reinforcedWinston:20,
+      rishiSunak:24,
+      reinforcedRishi:12,
+      kingCharles:14,
+      reinforcedCharles:8,
+      queenVictoria:6,
+      reinforcedVictoria:4,
+      gigaLizzy:2,
+      reinforcedGiga:2
+    },rnd,0,0.35);
     return q.sort((a,b)=>a.t-b.t);
   }
 
@@ -2516,9 +2664,11 @@ function spawnEnemy(id, opts){
   if(!d) return;
   const spdMult=roundSpeedMultiplier(S.round||1);
   const regen=getRegenRate(d);
+  const strengthMult=lateEnemyStrengthMultiplier(S.round||1);
+  const hp=Math.max(1,Math.round(d.hp*strengthMult));
   const e={
     id:Math.random(),defId:id,
-    hp:d.hp,maxHp:d.hp,spd:d.spd*spdMult,
+    hp:hp,maxHp:hp,spd:d.spd*spdMult,
     tint:d.tint,init:d.init,col:d.col,
     scale:d.scale||1,boss:d.boss||false,
     reinforced:d.reinforced||false,heart:Boolean(d.heart||regen),
@@ -2670,6 +2820,7 @@ function buildShop(){
   Object.values(TD).forEach(d=>{
     const canAfford=S.gold>=d.cost;
     const isSel=S.shopSel===d.id||S.shopInfoSel===d.id;
+    const showInfo=S.shopInfoSel===d.id;
     const upgs=getTowerUpgradeList(d.id);
     const div=document.createElement('div');
     div.className='sitem'+(isSel?' sel':'')+(canAfford?'':' broke');
@@ -2691,34 +2842,25 @@ function buildShop(){
     info.innerHTML=`<div class="sname">${d.name}</div><div class="scost">$${d.cost}</div>`;
     const upgPanel=document.createElement('div');
     upgPanel.className='shop-upgs';
+    upgPanel.style.display=showInfo?'block':'none';
     upgPanel.innerHTML=upgs.length
-      ? `<div class="shop-upgtitle">Upgrades</div>${upgs.map((upg,i)=>`<div class="shop-upgitem"><strong>${i+1}. ${upg.name} - $${upg.cost}</strong><br>${upg.desc}</div>`).join('')}<div class="shop-upghint">Double-click tower in shop to view upgrades.</div>`
+      ? `<div class="shop-upgtitle">Upgrades</div>${upgs.map((upg,i)=>`<div class="shop-upgitem"><strong>${i+1}. ${upg.name} - $${upg.cost}</strong><br>${upg.desc}</div>`).join('')}<div class="shop-upghint">Click again on the highlighted tower to view upgrades.</div>`
       : `<div class="shop-upgtitle">Upgrades</div><div class="shop-upgitem">No upgrades yet.</div>`;
     div.appendChild(pic); div.appendChild(info);
     div.addEventListener('click',()=>{
       const canAffordNow=S.gold>=d.cost;
-      // Single click: just select/deselect for placement (no upgrade panel)
-      const alreadySel=S.shopSel===d.id||S.shopInfoSel===d.id;
-      if(alreadySel){
-        S.shopSel=null; S.shopInfoSel=null;
+      const alreadySel=S.shopSel===d.id;
+      const showingInfo=S.shopInfoSel===d.id;
+      if(showingInfo){
+        S.shopSel=null;
+        S.shopInfoSel=null;
+      } else if(alreadySel){
+        S.shopInfoSel=d.id;
       } else {
-        S.shopInfoSel=null; // close upgrade panel
+        S.shopInfoSel=null; // keep upgrades hidden on first click
         S.shopSel=canAffordNow?d.id:null;
       }
       if(S.shopSel||S.shopInfoSel){S.towerSel=null;document.getElementById('selPanel').style.display='none';}
-      buildShop();
-    });
-    div.addEventListener('dblclick',()=>{
-      // Double-click: toggle upgrade info panel
-      const closing=S.shopInfoSel===d.id;
-      S.shopInfoSel=closing?null:d.id;
-      if(S.shopInfoSel){
-        S.towerSel=null;
-        document.getElementById('selPanel').style.display='none';
-        // Also select for placement if affordable
-        const canAffordNow=S.gold>=d.cost;
-        S.shopSel=canAffordNow?d.id:null;
-      }
       buildShop();
     });
     div.appendChild(upgPanel);
@@ -2727,6 +2869,7 @@ function buildShop(){
 }
 
 function refreshShopAffordability(){
+
   const body=document.getElementById('shopBody');
   if(!body) return;
   body.querySelectorAll('.sitem[data-tower-id]').forEach(el=>{
@@ -2791,7 +2934,7 @@ function selectTower(id){
     <div class="selstats">
       <div class="srow"><span class="sl">Damage</span><span class="sv">${stats.dmg||'—'}</span></div>
       <div class="srow"><span class="sl">Atk Rate</span><span class="sv">${formatRate(stats.rate)}</span></div>
-      <div class="srow"><span class="sl">Range</span><span class="sv">${stats.range>=9999?'Global':stats.range+'px'}</span></div>
+      <div class="srow"><span class="sl">Range</span><span class="sv">${stats.range>=9999?'Global':formatRangePx(stats.range)+'px'}</span></div>
       ${stats.income?`<div class="srow"><span class="sl">Income</span><span class="sv">$${stats.income}/${stats.irate}s</span></div>`:''}
       ${orinExtraRows}
       <div class="srow"><span class="sl">Special</span><span class="sv">${describeTowerSpecials(stats)}</span></div>
@@ -3079,8 +3222,10 @@ function fireTowerAttack(t, stats){
 function update(dt){
   if(S.paused||S.over) return;
 
-  if(S.orinFrenzyCd>0) S.orinFrenzyCd=Math.max(0,S.orinFrenzyCd-dt);
-  if(S.orinFrenzyT>0) S.orinFrenzyT=Math.max(0,S.orinFrenzyT-dt);
+  if(S.waveActive){
+    if(S.orinFrenzyCd>0) S.orinFrenzyCd=Math.max(0,S.orinFrenzyCd-dt);
+    if(S.orinFrenzyT>0) S.orinFrenzyT=Math.max(0,S.orinFrenzyT-dt);
+  }
   updateOrinFrenzyUI();
 
   // Spawn
