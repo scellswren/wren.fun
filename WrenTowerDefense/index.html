@@ -1354,6 +1354,7 @@ async function toggleFullscreen(){
   updateFullscreenButton();
 }
 
+
 function showSub(type){
   const titles={characters:'Towers',enemies:'Enemies',howtoplay:'How to Play',stats:'Career Stats'};
   document.getElementById('subTitle').textContent=titles[type]||type;
@@ -1400,14 +1401,13 @@ function showSub(type){
           <div class="stat-card">
             <div class="stat-icon">⭐</div>
             <div class="stat-number">${formatNum(CAREER.tier5Count||0)}</div>
-            <div class="stat-desc">Tier 5 Towers Unlocked</div>
+            <div class="stat-desc">Tier 5 Upgrades</div>
           </div>
         </div>
         <div class="stats-top3">
-          <div class="stats-top3-title">🏅 Most Used Towers</div>
+          <div class="stats-top3-title">Top 3 Towers</div>
           ${top3Html}
         </div>
-        <button class="mbtn" style="font-size:.75rem;min-width:160px;margin-top:1.8rem;border-color:#c0392b77;color:#e57368" onclick="if(confirm('Reset all career stats? This cannot be undone.')){CAREER={bestRound:0,totalMoney:0,towersPlaced:0,totalKills:0,tier5Count:0,towerUsage:{}};saveCareer(CAREER);G.showSub('stats');}">🗑 Reset Stats</button>
       </div>`;
 
   } else if(type==='characters'){
@@ -1424,14 +1424,13 @@ function showSub(type){
       if(t.range>=9999) specials.push('🌐 Global Range');
       if(t.income) specials.push('💰 Generates Income');
       if(!t.income&&t.dmg) specials.push('⚔ Attacks Enemies');
+      const imgSrc=getTowerImageSrc(t.id);
       return `
-        <div class="ccard tower-card">
+        <div class="ccard tower-card" data-tower-id="${t.id}">
           <div class="ccard-banner" style="background:linear-gradient(90deg,transparent,${t.col}88,transparent)"></div>
           <div class="tower-card-inner">
             <div class="tower-img-wrap">
-              <div class="cpic" style="margin:0;width:90px;height:90px">
-                <div class="cpic-init">${t.init}</div>
-              </div>
+              <div class="cpic" style="margin:0;width:90px;height:90px" data-img-src="${imgSrc||''}" data-init="${t.init}"></div>
               <div class="tower-cost" style="color:${roleCol}">$${t.cost}</div>
             </div>
             <div class="tower-main">
@@ -1447,40 +1446,135 @@ function showSub(type){
             ${t.range<9999?`<div class="tstat"><span>📡</span><span>${t.range}px</span></div>`:''}
             ${t.income?`<div class="tstat"><span>💎</span><span>$${t.income}/${t.irate}s</span></div>`:''}
           </div>
-          <div class="tower-upgrades-toggle"><span class="upg-toggle-label">📈 ${upgs.length} Upgrade${upgs.length===1?'':'s'}</span></div>
+          <div class="tower-upgrades-toggle"><span class="upg-toggle-label">📈 ${upgs.length} Upgrade${upgs.length===1?'':'s'} · Click to view</span></div>
+          <div class="cupgpanel">
+            <div class="cupgtitle">Upgrades</div>
+            ${upgs.length
+              ? upgs.map((upg,i)=>`<div class="cupgitem"><span class="upg-tier">T${i+1}</span><strong>${upg.name}</strong> — $${upg.cost}<br>${upg.desc}</div>`).join('')
+              : `<div class="cupgitem">No upgrades yet.</div>`}
+          </div>
         </div>`;
     }).join('');
 
     el.innerHTML=`<div class="cgrid">${cards}</div>`;
+    el.querySelectorAll('.tower-card[data-tower-id]').forEach(card=>{
+      card.addEventListener('click',()=>{
+        card.classList.toggle('open');
+      });
+    });
+    el.querySelectorAll('.cpic[data-img-src]').forEach(pic=>{
+      const src=pic.dataset.imgSrc;
+      const init=pic.dataset.init||'';
+      if(src){
+        const img=makeFallbackImage(src,()=>{ pic.textContent=init; });
+        pic.innerHTML='';
+        pic.appendChild(img);
+      } else {
+        pic.textContent=init;
+      }
+    });
 
   } else if(type==='enemies'){
-    const entries=Object.values(ED).map(e=>{
-      const regen=getRegenRate(e);
+    const entries=getEnemyGalleryEntries();
+
+    const baseKey=id=>{
+      if(id.endsWith('Camo')) return id.slice(0,-4);
+      if(id==='reinforcedGiga') return 'gigaLizzy';
+      if(id==='reinforcedVictoria') return 'queenVictoria';
+      if(id==='reinforcedCharles') return 'kingCharles';
+      if(id==='reinforcedRishi') return 'rishiSunak';
+      if(id==='reinforcedWinston') return 'winstonChurchill';
+      if(id==='reinforcedIron') return 'queenIron';
+      if(id==='reinforcedIronHeart') return 'queenIronRegen';
+      return id;
+    };
+
+    const groupMap=new Map();
+    entries.forEach(e=>{
+      const key=baseKey(e.id);
+      if(!groupMap.has(key)) groupMap.set(key,{key,items:[]});
+      groupMap.get(key).items.push(e);
+    });
+
+    const groupHTML=[...groupMap.values()].map(group=>{
+      const main=group.items.find(e=>!e.camo && !e.id.startsWith('reinforced')) || group.items.find(e=>!e.camo) || group.items[0];
+      const variants=group.items.filter(e=>e!==main);
+      const regen=getRegenRate(main);
       const tags=[];
-      if(e.boss) tags.push('Boss');
-      if(e.reinforced) tags.push('Reinforced');
+      if(main.boss) tags.push('Boss');
+      if(main.reinforced) tags.push('Reinforced');
       if(regen) tags.push(`Regen +${regen}/s`);
-      if(e.camo) tags.push('Camo');
-      if(e.lead) tags.push('Lead');
+      if(main.camo) tags.push('Camo');
+      if(main.lead) tags.push('Lead');
+      const imgSrc=main.img||'';
       return `
-        <div class="ccard ${e.camo?'camo-card':''}">
-          <div class="ccard-banner"></div>
-          <div class="tower-card-inner">
-            <div class="tower-img-wrap">
-              <div class="cpic" style="margin:0;width:90px;height:90px">
-                <div class="cpic-init">${e.init}</div>
+        <div class="enemy-group${variants.length?'':' expanded'}" data-group="${group.key}">
+          <div class="enemy-group-header">
+            <div class="enemy-card-row">
+              <div class="cpic" style="margin:0;width:92px;height:92px" data-img-src="${imgSrc}" data-init="${main.init}"></div>
+              <div class="enemy-info">
+                <div class="cname" style="margin-bottom:.28rem">${main.name}</div>
+                <div class="enemy-stats-inline">
+                  <span><span class="es-label">HP</span><span class="es-val">${formatNum(main.hp)}</span></span>
+                  <span><span class="es-label">Speed</span><span class="es-val">${main.spd}</span></span>
+                  <span><span class="es-label">Round</span><span class="es-val">${main.sr}</span></span>
+                </div>
+                <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.35rem">${tags.map(s=>`<span class="tower-tag">${s}</span>`).join('')}</div>
               </div>
-              <div class="tower-cost" style="color:${e.col||'#f0c040'}">$${e.hp}</div>
             </div>
-            <div class="tower-main">
-              <div class="cname" style="margin-bottom:.28rem">${e.name}</div>
-              <div class="cdesc" style="margin-top:0;padding-top:0;border-top:none;margin-bottom:.4rem">Spd ${e.spd} · Round ${e.sr}</div>
-              <div style="display:flex;gap:.3rem;flex-wrap:wrap">${tags.map(s=>`<span class="tower-tag">${s}</span>`).join('')}</div>
-            </div>
+            ${variants.length?`<button class="variant-toggle${variants.length?'':' open'}" type="button"><span>Variants (${variants.length})</span><span class="vt-arrow">⌄</span></button>`:''}
           </div>
+          ${variants.length?`
+            <div class="enemy-variants" style="display:none">
+              ${variants.map(v=>{
+                const vtags=[];
+                if(v.boss) vtags.push('Boss');
+                if(v.reinforced) vtags.push('Reinforced');
+                const vregen=getRegenRate(v);
+                if(vregen) vtags.push(`Regen +${vregen}/s`);
+                if(v.camo) vtags.push('Camo');
+                if(v.lead) vtags.push('Lead');
+                return `
+                  <div class="variant-row">
+                    <div class="enemy-card-row">
+                      <div class="cpic" style="margin:0;width:72px;height:72px" data-img-src="${v.img||''}" data-init="${v.init}"></div>
+                      <div class="enemy-info">
+                        <div class="cname" style="margin-bottom:.18rem">${v.name}</div>
+                        <div class="enemy-stats-inline">
+                          <span><span class="es-label">HP</span><span class="es-val">${formatNum(v.hp)}</span></span>
+                          <span><span class="es-label">Speed</span><span class="es-val">${v.spd}</span></span>
+                          <span><span class="es-label">Round</span><span class="es-val">${v.sr}</span></span>
+                        </div>
+                        <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.25rem">${vtags.map(s=>`<span class="tower-tag">${s}</span>`).join('')}</div>
+                      </div>
+                    </div>
+                  </div>`;
+              }).join('')}
+            </div>`:''}
         </div>`;
     }).join('');
-    el.innerHTML=`<div class="cgrid">${entries}</div>`;
+
+    el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;width:100%;max-width:980px">${groupHTML}</div>`;
+    el.querySelectorAll('.variant-toggle').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const group=btn.closest('.enemy-group');
+        const panel=group&&group.querySelector('.enemy-variants');
+        const open=group.classList.toggle('expanded');
+        btn.classList.toggle('open',open);
+        if(panel) panel.style.display=open?'flex':'none';
+      });
+    });
+    el.querySelectorAll('.cpic[data-img-src]').forEach(pic=>{
+      const src=pic.dataset.imgSrc;
+      const init=pic.dataset.init||'';
+      if(src){
+        const img=makeFallbackImage(src,()=>{ pic.textContent=init; });
+        pic.innerHTML='';
+        pic.appendChild(img);
+      } else {
+        pic.textContent=init;
+      }
+    });
 
   } else {
     el.innerHTML=`
@@ -1512,6 +1606,7 @@ function showSub(type){
 
   showScreen('subScreen');
 }
+
 
 function tintFilter(tint){
   if(!tint) return '';
@@ -2083,12 +2178,12 @@ function normalPoolForRound(rnd){
 function normalWaveCount(rnd){
   const early=10+rnd*3;
   const mid=50+Math.floor((rnd-20)*4.2);
-  const late=135+Math.floor((rnd-50)*5.4);
-  const ultra=290+Math.floor((rnd-85)*4);
+  const late=120+Math.floor((rnd-50)*4.3);
+  const ultra=210+Math.floor((rnd-85)*2.4);
   if(rnd<20) return early;
   if(rnd<50) return Math.min(mid,170);
-  if(rnd<85) return Math.min(late,320);
-  return Math.min(ultra,460);
+  if(rnd<85) return Math.min(late,260);
+  return Math.min(ultra,320);
 }
 
 function normalSpawnGap(rnd){
@@ -2098,90 +2193,29 @@ function normalSpawnGap(rnd){
 function scheduledBosses(rnd){
   const q=[];
 
-  // ── EARLY BOSS INTRODUCTIONS (r40-r64) ──
-  // Giga Lizzy every 5 rounds from r45
+  // Early boss introduction
   if(rnd>=45&&rnd<60&&rnd%5===0) q.push({id:'gigaLizzy',count:1});
-  // Extra Giga Lizzy at r50/55 — tease of escalation
-  if(rnd===50||rnd===55) q.push({id:'gigaLizzy',count:1});
+  if(rnd===52||rnd===58) q.push({id:'reinforcedGiga',count:1});
 
-  // Reinforced Giga from r52
-  if(rnd>=52&&rnd<90&&rnd%10===2) q.push({id:'reinforcedGiga',count:Math.max(1,Math.floor(1+(rnd-52)/28))});
-
-  // ── ESCALATION PHASE (r65-r89): gradually more bosses every wave ──
-  // Queen Victoria starts cycling more frequently from r65
+  // Build-up to round 90: more bosses, fewer regulars
   if(rnd>=65&&rnd<80&&rnd%4===1) q.push({id:'queenVictoria',count:1});
-  // Extra Victoria at r70 and r75
-  if(rnd===70||rnd===75) q.push({id:'queenVictoria',count:1});
+  if(rnd>=72&&rnd<90&&rnd%6===0) q.push({id:'reinforcedVictoria',count:1});
+  if(rnd>=75&&rnd<90&&rnd%5===0) q.push({id:'gigaLizzy',count:1});
+  if(rnd>=82&&rnd<90&&rnd%6===2) q.push({id:'kingCharles',count:1});
 
-  // Reinforced Victoria from r72
-  if(rnd>=72&&rnd<100&&rnd%12===0) q.push({id:'reinforcedVictoria',count:Math.max(1,Math.floor(1+(rnd-72)/36))});
-
-  // Giga Lizzy returns from r75, growing in count as we approach r90
-  if(rnd>=75&&rnd<95){
-    const gigaEvery=rnd>=85?3:5;
-    if(rnd%gigaEvery===0) q.push({id:'gigaLizzy',count:Math.max(1,Math.floor(1+(rnd-75)/10))});
-  }
-
-  // King Charles appears in support from r82 onwards (before his r80 debut round)
-  if(rnd>=82&&rnd<92&&rnd%6===2) q.push({id:'kingCharles',count:1});
-
-  // Rishi Sunak in the boss rotation from r91+ (after his debut at r90)
-  if(rnd>=91&&rnd<110){
-    const rishiEvery=rnd>=100?5:8;
-    if(rnd%rishiEvery===1) q.push({id:'rishiSunak',count:Math.max(2,Math.floor(2+(rnd-91)/9))});
-  }
-
-  // Reinforced Charles from r92
+  // After the hard stop rounds, bosses dominate the late game
+  if(rnd>=91&&rnd<110&&rnd%8===1) q.push({id:'rishiSunak',count:Math.max(2,Math.floor(2+(rnd-91)/10))});
   if(rnd>=92&&rnd<120&&rnd%12===8) q.push({id:'reinforcedCharles',count:Math.max(1,Math.floor(1+(rnd-92)/32))});
-
-  // ── LATE GAME (r95+): bosses dominate ──
-  if(rnd>=95){
-    const gigaInterval=rnd>=145?2:rnd>=120?3:4;
-    if(rnd%gigaInterval===0) q.push({id:'gigaLizzy',count:Math.max(2,Math.floor(2+(rnd-95)/18))});
-  }
-  if(rnd>=102){
-    const reinforcedGigaInterval=rnd>=150?4:6;
-    if(rnd%reinforcedGigaInterval===2) q.push({id:'reinforcedGiga',count:Math.max(1,Math.floor(1+(rnd-102)/24))});
-  }
-  if(rnd>=100){
-    const victoriaInterval=rnd>=150?5:rnd>=125?7:8;
-    if(rnd%victoriaInterval===0) q.push({id:'queenVictoria',count:Math.max(1,Math.floor(1+(rnd-100)/28))});
-  }
-  if(rnd>=112){
-    const reinforcedVictoriaInterval=rnd>=152?6:8;
-    if(rnd%reinforcedVictoriaInterval===4) q.push({id:'reinforcedVictoria',count:Math.max(1,Math.floor(1+(rnd-112)/30))});
-  }
-  if(rnd>=120){
-    const charlesInterval=rnd>=170?8:12;
-    if(rnd%charlesInterval===0) q.push({id:'kingCharles',count:Math.max(1,Math.floor(1+(rnd-120)/36))});
-  }
-  if(rnd>=128){
-    const reinforcedCharlesInterval=rnd>=176?9:12;
-    if(rnd%reinforcedCharlesInterval===8) q.push({id:'reinforcedCharles',count:Math.max(1,Math.floor(1+(rnd-128)/34))});
-  }
-  if(rnd>=110){
-    const rishiInterval=rnd>=155?7:10;
-    if(rnd%rishiInterval===5) q.push({id:'rishiSunak',count:Math.max(1,Math.floor(1+(rnd-110)/32))});
-  }
-  if(rnd>=126){
-    const reinforcedRishiInterval=rnd>=166?8:10;
-    if(rnd%reinforcedRishiInterval===6) q.push({id:'reinforcedRishi',count:Math.max(1,Math.floor(1+(rnd-126)/30))});
-  }
-  // ── Winston Churchill — appears every round from r119+, growing steadily ──
-  // r101-118: sporadic appearances to warn players
+  if(rnd>=95&&rnd%4===0) q.push({id:'gigaLizzy',count:Math.max(2,Math.floor(2+(rnd-95)/18))});
+  if(rnd>=100&&rnd%7===0) q.push({id:'queenVictoria',count:Math.max(1,Math.floor(1+(rnd-100)/28))});
+  if(rnd>=102&&rnd%6===2) q.push({id:'reinforcedGiga',count:Math.max(1,Math.floor(1+(rnd-102)/24))});
+  if(rnd>=112&&rnd%8===4) q.push({id:'reinforcedVictoria',count:Math.max(1,Math.floor(1+(rnd-112)/30))});
+  if(rnd>=120&&rnd%12===0) q.push({id:'kingCharles',count:Math.max(1,Math.floor(1+(rnd-120)/36))});
+  if(rnd>=126&&rnd%10===6) q.push({id:'reinforcedRishi',count:Math.max(1,Math.floor(1+(rnd-126)/30))});
+  if(rnd>=110&&rnd%10===5) q.push({id:'rishiSunak',count:Math.max(1,Math.floor(1+(rnd-110)/32))});
   if(rnd>=101&&rnd<119&&rnd%6===1) q.push({id:'winstonChurchill',count:1});
-  // r119+: guaranteed every round, count grows progressively
-  if(rnd>=119){
-    // r119: 1 Winston, r125: 2, r130: 3, r140: 4+ (before reinforced join)
-    const winstonCount=Math.max(1,Math.floor(1+(rnd-119)/6));
-    q.push({id:'winstonChurchill',count:winstonCount});
-  }
-  // Reinforced Winston from r140 — joins regular Winston rotation
-  if(rnd>=140){
-    // r140: 1 reinforced, grows every 8 rounds; by r160 there are 3+
-    const rWinstonCount=Math.max(1,Math.floor(1+(rnd-140)/8));
-    q.push({id:'reinforcedWinston',count:rWinstonCount});
-  }
+  if(rnd>=119) q.push({id:'winstonChurchill',count:Math.max(1,Math.floor(1+(rnd-119)/6))});
+  if(rnd>=140) q.push({id:'reinforcedWinston',count:Math.max(1,Math.floor(1+(rnd-140)/8))});
   return q;
 }
 
@@ -2223,12 +2257,12 @@ function addMixedWave(q,pool,count,gap,start=0,rnd=1){
 }
 
 function estimateWaveSize(rnd){
-  if(rnd===40) return 2;
+  if(rnd===40) return 1;
   if(rnd===60) return 1;
-  if(rnd===80) return 26;
+  if(rnd===80) return 1;
   if(rnd===81) return 210;
   if(rnd===85) return 82;
-  if(rnd===90) return 72;
+  if(rnd===90) return 4;
   if(rnd===95) return 116;
   if(rnd===100) return 1;
   if(rnd===105) return 96;
@@ -2286,7 +2320,7 @@ function _buildWaveInner(rnd){
 
   // Round 40: Giga Lizzy debut
   if(rnd===40){
-    addWaveEntries(q,'gigaLizzy',2,4);
+    addWaveEntries(q,'gigaLizzy',1,1);
     return q;
   }
 
@@ -2296,12 +2330,10 @@ function _buildWaveInner(rnd){
     return q;
   }
 
-  // Round 80: King Charles debut — with a supporting iron wave
+  // Round 80: King Charles debut
   if(rnd===80){
     addWaveEntries(q,'kingCharles',1,1);
-    addWaveEntries(q,'queenIron',20,0.18,4,rnd);
-    addWaveEntries(q,'queenRainbowRegen',5,0.35,7,rnd);
-    return q.sort((a,b)=>a.t-b.t);
+    return q;
   }
 
   // Round 81: Pure iron flood — harder follow-up after Charles
@@ -2319,13 +2351,10 @@ function _buildWaveInner(rnd){
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 90: Rishi Sunak debut — boss-heavy with reinforced iron support
+  // Round 90: Rishi Sunak debut — all Rishi Sunaks
   if(rnd===90){
-    addWaveEntries(q,'rishiSunak',24,0.22,0,rnd);
-    addWaveEntries(q,'reinforcedIron',25,0.14,2,rnd);
-    addWaveEntries(q,'queenIronRegen',15,0.18,5,rnd);
-    addWaveEntries(q,'queenRainbowRegen',8,0.38,7,rnd);
-    return q.sort((a,b)=>a.t-b.t);
+    addWaveEntries(q,'rishiSunak',4,0.45,0,rnd);
+    return q;
   }
 
   // Round 95: Reinforced iron dominates + iron regulars
@@ -2336,7 +2365,7 @@ function _buildWaveInner(rnd){
     return q.sort((a,b)=>a.t-b.t);
   }
 
-  // Round 100: Winston Churchill debut — alone, so players can see him clearly
+  // Round 100: Winston Churchill debut
   if(rnd===100){
     addWaveEntries(q,'winstonChurchill',1,1);
     return q;
@@ -2376,6 +2405,7 @@ function _buildWaveInner(rnd){
   return q.sort((a,b)=>a.t-b.t);
 }
 
+
 function startWave(){
   if(S.waveActive||S.over) return;
   S.round++;
@@ -2385,23 +2415,8 @@ function startWave(){
   S.waveActive=true;
   setWaveBtn(true,'Wave '+S.round+' in progress...');
   updateHUD();
-
-  if(S.round===24) showToast('Round 24: Camo enemies appear — invisible to most towers!','#39ff14');
-  else if(S.round===38) showToast('Round 38: Lead enemies arrive — explosion damage only!','#aeb8c2');
-  else if(S.round===40) showToast('Round 40: Giga Lizzy approaches.','#e57368');
-  else if(S.round===52) showToast('Round 52: Reinforced Giga Lizzy appears.','#f0c040');
-  else if(S.round===60) showToast('Round 60: Queen Victoria reigns.','#c9a227');
-  else if(S.round===72) showToast('Round 72: Reinforced Queen Victoria arrives.','#f0c040');
-  else if(S.round===80) showToast('Round 80: King Charles enters the track.','#d7b65a');
-  else if(S.round===85) showToast('Round 85: Reinforced Iron is flooding the path.','#f0c040');
-  else if(S.round===90) showToast('Round 90: Rishi Sunak is incoming — camo, fast, dangerous.','#b0bec5');
-  else if(S.round===92) showToast('Round 92: Reinforced King Charles arrives.','#f0c040');
-  else if(S.round===100) showToast('Round 100: Winston Churchill marches in.','#8db4d9');
-  else if(S.round===102) showToast('Round 102: Reinforced Rishi joins the track.','#f0c040');
-  else if(S.round===119) showToast('Round 119: Winston Churchill arrives every round now.','#8db4d9');
-  else if(S.round===140) showToast('Round 140: Reinforced Winston Churchill — 45,000 HP.','#5a8ec0');
-  else if(S.round===50||S.round===75||S.round===130) showToast('Gold rewards now pay '+rewardPenaltyLabel(S.round)+'.','#ff9800');
 }
+
 
 function setWaveBtn(disabled,text){
   const b=document.getElementById('wavebtn');
