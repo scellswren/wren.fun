@@ -154,6 +154,10 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .cbadge{display:inline-block;font-size:.65rem;padding:.15em .55em;border-radius:20px;
   background:#f0c04018;border:1px solid #f0c04044;color:var(--gold);
   font-family:'Cinzel',serif;letter-spacing:.05em;margin-bottom:.45rem}
+.ccard.camo-card{border:1px solid #39ff1455;background:linear-gradient(160deg,#0e1a0cee,#0c120aee);}
+.ccard.camo-card:hover{border-color:#39ff1488;box-shadow:0 0 22px #39ff1440,0 4px 18px #0009;transform:translateY(-3px)}
+.ccard.camo-card .ccard-banner{background:linear-gradient(90deg,transparent,#39ff1466,transparent);opacity:0.8}
+.cbadge.camo-badge{color:#39ff14;background:#39ff1418;border-color:#39ff1466;text-shadow:0 0 8px #39ff1499}
 .ccard.tower-card{cursor:pointer}
 .cupgpanel{display:none;margin-top:.65rem;padding-top:.5rem;border-top:1px solid #c8964022}
 .ccard.open .cupgpanel{display:block}
@@ -311,6 +315,45 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 #orinFrenzyTip{position:absolute;bottom:3.5rem;right:1rem;
   font-family:'Cinzel',serif;font-size:.63rem;color:#cfa3ea;opacity:.8;
   letter-spacing:.06em;display:none;text-align:right;pointer-events:none}
+
+/* ── TOWER CARD REDESIGN ── */
+.tower-card-inner{display:flex;gap:.75rem;align-items:flex-start;padding:.7rem .9rem .5rem}
+.tower-img-wrap{display:flex;flex-direction:column;align-items:center;gap:.35rem;flex-shrink:0}
+.tower-cost{font-family:'Cinzel',serif;font-size:.8rem;color:var(--gold);font-weight:700;text-shadow:0 0 8px #f0c04044}
+.tower-main{flex:1;min-width:0}
+.tower-stats-row{display:flex;flex-wrap:wrap;gap:.3rem;padding:.4rem .9rem .6rem;border-top:1px solid #c8964018}
+.tstat{display:flex;align-items:center;gap:.22rem;font-size:.7rem;color:var(--muted);background:#ffffff08;padding:.15em .4em;border-radius:3px;border:1px solid #c8964022}
+.tstat span:first-child{font-size:.72rem}
+.tower-tag{font-size:.62rem;padding:.12em .45em;border-radius:3px;background:#f0c04012;border:1px solid #f0c04030;color:var(--muted);font-family:'Cinzel',serif}
+.tower-upgrades-toggle{padding:.38rem .9rem;border-top:1px solid #c8964018;cursor:pointer;transition:background .15s}
+.tower-upgrades-toggle:hover{background:#f0c04010}
+.upg-toggle-label{font-size:.68rem;color:var(--muted);font-family:'Cinzel',serif;letter-spacing:.04em}
+.ccard.open .upg-toggle-label{color:var(--gold)}
+.ccard.open .cupgpanel{display:block}
+.cupgitem{font-size:.74rem;color:var(--text);line-height:1.45;padding:.2rem 0;border-bottom:1px solid #c8964014}
+.cupgitem:last-child{border-bottom:none}
+.upg-tier{display:inline-block;font-family:'Cinzel',serif;font-size:.6rem;color:var(--muted);background:#f0c04010;border:1px solid #f0c04030;padding:.08em .35em;border-radius:2px;margin-right:.3rem}
+
+/* ── ENEMY GALLERY REDESIGN ── */
+.enemy-group{border:1px solid #c8964028;border-radius:6px;overflow:hidden;transition:border-color .2s}
+.enemy-group:hover{border-color:#c8964055}
+.enemy-group.expanded{border-color:#c8964066}
+.enemy-group-header{padding:.6rem .8rem;background:linear-gradient(135deg,#181208ee,#10100aee);position:relative}
+.enemy-group-main{}
+.enemy-card-row{display:flex;align-items:center;gap:.65rem}
+.enemy-info{flex:1;min-width:0}
+.enemy-stats-inline{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.2rem}
+.enemy-stats-inline span{display:flex;align-items:baseline;gap:.2rem;font-size:.71rem;background:#ffffff06;padding:.1em .35em;border-radius:3px;border:1px solid #c8964018}
+.es-label{color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.03em}
+.es-val{color:var(--text);font-weight:600;font-size:.73rem}
+.ebadge{font-size:.6rem;padding:.1em .4em;border-radius:3px;border:1px solid transparent;font-family:'Cinzel',serif;letter-spacing:.04em;margin-right:.18rem}
+.variant-toggle{display:flex;align-items:center;gap:.4rem;margin-top:.5rem;padding:.3em .7em;font-family:'Cinzel',serif;font-size:.68rem;color:var(--muted);background:#f0c04010;border:1px solid #c8964033;border-radius:3px;cursor:pointer;transition:all .15s;width:auto}
+.variant-toggle:hover{color:var(--gold);border-color:#f0c04055;background:#f0c04018}
+.variant-toggle.open .vt-arrow{transform:rotate(180deg)}
+.vt-arrow{transition:transform .2s;display:inline-block}
+.enemy-variants{display:flex;flex-direction:column;gap:.4rem;padding:.5rem .8rem .6rem;background:#0c0a06;border-top:1px solid #c8964022}
+.variant-row{padding:.4rem .5rem;border:1px solid #c8964020;border-radius:4px;background:#101008;transition:border-color .15s}
+.variant-row:hover{border-color:#c8964044}
 </style>
 </head>
 <body>
@@ -635,7 +678,7 @@ const TOWER_UPGRADES = {
     {name:'Helping Hand', cost:1005, desc:'If at least 2 upgraded Orins exist, payouts have a 25% chance to give every Helping Hand Orin an extra $7.', apply:s=>{s.helpingHand=true;}},
     {name:'Auto Pick Up', cost:1350, desc:'DVD cash drops are collected automatically instead of needing a click.', apply:s=>{s.autoPickup=true;}},
     {name:'Frenzy', cost:3200, desc:'Unlocks a bottom-screen ability with a 60 second cooldown that boosts Orin income to x2 for 10 seconds.', apply:s=>{s.frenzy=true;}},
-    {name:'Tech Master', cost:89000, desc:'Income becomes $100 every 5 seconds, Frenzy becomes x3 for 15 seconds, other Orins gain +25% income, and the tower grows by 1.25x.', apply:s=>{s.income=100;s.irate=5;s.techMaster=true;s.frenzy=true;s.autoPickup=true;}}
+    {name:'Tech Master', cost:89000, desc:'Income becomes $100 every 5 seconds, Frenzy becomes x3 for 15 seconds, other Orins gain +25% income (capped at 25% total), and the tower grows by 1.25x.', apply:s=>{s.income=100;s.irate=5;s.techMaster=true;s.frenzy=true;s.autoPickup=true;}}
   ]
 };
 
@@ -674,10 +717,10 @@ const ED = {
   gigaLizzy:        {id:'gigaLizzy',        name:'Giga Lizzy',                         hp:300,  spd:50,  sr:40, tint:null,      init:'GL',   col:'#ef9a9a', scale:4, boss:true},
   queenVictoria:    {id:'queenVictoria',    name:'Queen Victoria',                     hp:1000, spd:40,  sr:60, tint:null,      init:'QV',   col:'#c9a227', scale:4, boss:true, img:'QueenV.jpg', nameScale:1.35},
   kingCharles:      {id:'kingCharles',      name:'King Charles',                       hp:6000, spd:40,  sr:80, tint:null,      init:'KC',   col:'#d7b65a', scale:4.5, boss:true, img:'KingCH.jpg', nameScale:1.25},
-  rishiSunak:       {id:'rishiSunak',       name:'Rishi Sunak',                        hp:900,  spd:520, sr:90, tint:'iron',    init:'RS',   col:'#b0bec5', scale:1.35, boss:true, img:'Rishi.jpg'},
+  rishiSunak:       {id:'rishiSunak',       name:'Rishi Sunak',                        hp:900,  spd:320, sr:90, tint:'iron',    init:'RS',   col:'#b0bec5', scale:1.35, boss:true, camo:true, img:'Rishi.jpg'},
   reinforcedIron:   {id:'reinforcedIron',   name:'Reinforced Iron Queen Elizabeth',     hp:120,  spd:60,  sr:38, tint:'iron',    init:'RI',   col:'#d7b65a', scale:1.18, reinforced:true, onDeath:'splitRainbow'},
   reinforcedIronHeart:{id:'reinforcedIronHeart',name:'Reinforced Regenerating Iron Queen Elizabeth', hp:120, spd:60, sr:49, tint:'iron', init:'RRI', col:'#d7b65a', scale:1.24, reinforced:true, regen:4, onDeath:'splitRainbow'},
-  reinforcedRishi:  {id:'reinforcedRishi',  name:'Reinforced Rishi Sunak',              hp:1350, spd:520, sr:102,tint:'iron',    init:'RRS',  col:'#e0e0e0', scale:1.55, boss:true, reinforced:true, img:'Rishi.jpg'},
+  reinforcedRishi:  {id:'reinforcedRishi',  name:'Reinforced Rishi Sunak',              hp:1350, spd:320, sr:102,tint:'iron',    init:'RRS',  col:'#e0e0e0', scale:1.55, boss:true, reinforced:true, camo:true, img:'Rishi.jpg'},
   reinforcedGiga:   {id:'reinforcedGiga',   name:'Reinforced Giga Lizzy',               hp:450,  spd:50,  sr:52, tint:null,      init:'RGL',  col:'#d7b65a', scale:4.3, boss:true, reinforced:true},
   reinforcedVictoria:{id:'reinforcedVictoria',name:'Reinforced Queen Victoria',         hp:1500, spd:40,  sr:72, tint:null,      init:'RQV',  col:'#d7b65a', scale:4.3, boss:true, img:'QueenV.jpg', nameScale:1.2, reinforced:true},
   reinforcedCharles:{id:'reinforcedCharles',name:'Reinforced King Charles',             hp:9000, spd:40,  sr:92, tint:null,      init:'RKC',  col:'#f0c040', scale:4.9, boss:true, img:'KingCH.jpg', nameScale:1.15, reinforced:true}
@@ -685,20 +728,21 @@ const ED = {
 
 const MAX_REGEN_PER_SECOND = 4;
 const ENEMY_GALLERY_ORDER = [
-  'queen','queenRegen',
-  'queenBlue','queenBlueRegen',
-  'queenGreen','queenGreenRegen',
-  'queenYellow','queenYellowRegen',
-  'queenRed','queenRedRegen',
-  'queenPink','queenPinkRegen',
+  'queen','queenCamo','queenRegen','queenRegenCamo',
+  'queenBlue','queenBlueCamo','queenBlueRegen','queenBlueRegenCamo',
+  'queenGreen','queenGreenCamo','queenGreenRegen','queenGreenRegenCamo',
+  'queenYellow','queenYellowCamo','queenYellowRegen','queenYellowRegenCamo',
+  'queenRed','queenRedCamo','queenRedRegen','queenRedRegenCamo',
+  'queenPink','queenPinkCamo','queenPinkRegen','queenPinkRegenCamo',
   'lead',
-  'queenZebra','queenZebraRegen',
-  'queenRainbow','queenRainbowRegen',
-  'queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart',
+  'queenZebra','queenZebraCamo','queenZebraRegen','queenZebraRegenCamo',
+  'queenRainbow','queenRainbowCamo','queenRainbowRegen','queenRainbowRegenCamo',
+  'queenIron','queenIronCamo','reinforcedIron','reinforcedIronCamo',
+  'queenIronRegen','queenIronRegenCamo','reinforcedIronHeart','reinforcedIronHeartCamo',
   'gigaLizzy','reinforcedGiga',
   'queenVictoria','reinforcedVictoria',
   'kingCharles','reinforcedCharles',
-  'rishiSunak','reinforcedRishi'
+  'rishiSunak','rishiSunakCamo','reinforcedRishi','reinforcedRishiCamo'
 ];
 
 function getRegenRate(entity){
@@ -714,52 +758,93 @@ function getEnemyGalleryEntries(){
       seen.add(id);
     }
   });
+  // Append any remaining enemies not already listed (non-camo first, then their camo)
   Object.values(ED).forEach(enemy=>{
-    if(enemy.camo) return;
-    if(!seen.has(enemy.id)) ordered.push(enemy);
+    if(seen.has(enemy.id)) return;
+    ordered.push(enemy);
+    seen.add(enemy.id);
+    // If this enemy has a camo variant not yet listed, append it immediately after
+    const camoId=enemy.id+'Camo';
+    if(ED[camoId] && !seen.has(camoId)){
+      ordered.push(ED[camoId]);
+      seen.add(camoId);
+    }
   });
   return ordered;
 }
+
+// Bosses that do NOT get a camo variant (too large / story bosses, or already IS a camo)
+const NO_CAMO_BOSS_IDS = new Set(['gigaLizzy','queenVictoria','kingCharles','reinforcedGiga','reinforcedVictoria','reinforcedCharles','rishiSunak','reinforcedRishi']);
+
+// The round each camo variant first appears (sr field on the camo enemy)
+// Starts at round 24 for weakest, all unlocked by round 50 (except Rishi who is already camo)
+const CAMO_SPAWN_ROUNDS = {
+  queen:24,       queenRegen:24,
+  queenBlue:24,   queenBlueRegen:24,
+  queenGreen:28,  queenGreenRegen:28,
+  queenYellow:30, queenYellowRegen:30,
+  queenRed:32,    queenRedRegen:32,
+  queenPink:34,   queenPinkRegen:34,
+  queenZebra:38,  queenZebraRegen:40,
+  queenRainbow:42,queenRainbowRegen:44,
+  queenIron:46,   queenIronRegen:48,
+  reinforcedIron:48, reinforcedIronHeart:50,
+  lead:42
+};
 
 const BASE_ENEMY_IDS = Object.keys(ED);
 function registerEnemyVariants(){
   BASE_ENEMY_IDS.forEach(id=>{
     const e=ED[id];
-    if(!e || e.boss || e.lead || e.camo) return;
+    if(!e || e.lead || e.camo) return;
+    if(NO_CAMO_BOSS_IDS.has(id)) return;
+    const camoSr = CAMO_SPAWN_ROUNDS[id] ?? Math.min(50, e.sr + 10);
     ED[id+'Camo']={
       ...e,
       id:id+'Camo',
       name:'Camo '+e.name,
       camo:true,
-      col:'#8d9f68'
+      col:'#8d9f68',
+      sr: camoSr
     };
   });
 }
 registerEnemyVariants();
 
-const CAMO_REVEAL_ROUNDS = {
-  queen:22,
-  queenBlue:22,
-  queenRegen:24,
-  queenBlueRegen:24,
-  queenGreen:26,
-  queenGreenRegen:26,
-  queenYellow:29,
-  queenRed:29,
-  queenPink:29,
-  queenYellowRegen:33,
-  queenRedRegen:33,
-  queenPinkRegen:33,
-  queenZebra:36,
-  queenZebraRegen:40,
-  queenRainbow:44,
-  queenRainbowRegen:44,
-  queenIron:50,
-  queenIronRegen:50,
-  reinforcedIron:50,
-  reinforcedIronHeart:50
+// Rounds after which a camo type starts fading out (weaker ones replaced by stronger ones)
+const CAMO_FADEOUT_ROUNDS = {
+  queen:55,       queenRegen:58,
+  queenBlue:58,   queenBlueRegen:60,
+  queenGreen:65,  queenGreenRegen:65,
+  queenYellow:72, queenYellowRegen:72,
+  queenRed:72,    queenRedRegen:75,
+  queenPink:75,   queenPinkRegen:78,
+  queenZebra:90,  queenZebraRegen:95,
+  lead:70
 };
 
+function camoUnlockRoundFor(id){
+  const e=ED[id];
+  if(!e || e.lead) return Infinity;
+  if(NO_CAMO_BOSS_IDS.has(id)) return Infinity;
+  // Use the camo variant's own sr field (set in registerEnemyVariants)
+  const camoId=id+'Camo';
+  return ED[camoId] ? ED[camoId].sr : Infinity;
+}
+function maybeCamoEnemyId(id,rnd){
+  const e=ED[id];
+  if(!e || e.lead) return id;
+  if(NO_CAMO_BOSS_IDS.has(id)) return id;
+  const camoId=id+'Camo';
+  if(!ED[camoId] || rnd<camoUnlockRoundFor(id)) return id;
+  // Weaker camos fade out in later rounds
+  const fadeOut=CAMO_FADEOUT_ROUNDS[id];
+  if(fadeOut && rnd>=fadeOut) return id;
+  // Chance ramps up steeply — very common post-round 60
+  const sinceUnlock=rnd-camoUnlockRoundFor(id);
+  const chance=Math.min(0.82, 0.22 + sinceUnlock*0.032 + (rnd>=60?0.15:0) + (rnd>=80?0.1:0));
+  return Math.random()<chance ? camoId : id;
+}
 function getTowerUpgradeLevel(t){
   return Number(t && t.upg) || 0;
 }
@@ -840,7 +925,9 @@ function getOrinIncomeMultiplier(t){
   let mult=1;
   if(S&&S.orinFrenzyT>0) mult*=getOrinFrenzySpec().mult;
   const techMasters=S?S.towers.filter(o=>isOrinTower(o)&&o.id!==t.id&&getTowerUpgradeLevel(o)>=5).length:0;
-  mult*=1+techMasters*0.25;
+  // Tech Master bonus capped at 25% total (regardless of how many Tech Masters)
+  const techBonus=Math.min(0.25,techMasters*0.25);
+  mult*=1+techBonus;
   return mult;
 }
 function getOrinAuraSources(targetTower){
@@ -886,7 +973,7 @@ function collectIncomeDrop(drop, auto){
   if(idx<0) return false;
   const d=S.incomeDrops[idx];
   S.incomeDrops.splice(idx,1);
-  S.gold+=d.amount;
+  S.gold+=d.amount;S.totalMoneyEarned=(S.totalMoneyEarned||0)+d.amount;
   updateHUD();
   refreshShopAffordability();
   S.particles.push({
@@ -916,7 +1003,7 @@ function awardOrinIncome(t, baseAmount){
   if(!amount) return;
   const stats=getTowerStats(t);
   if(stats.autoPickup){
-    S.gold+=amount;
+    S.gold+=amount;S.totalMoneyEarned=(S.totalMoneyEarned||0)+amount;
     updateHUD();
     refreshShopAffordability();
     S.particles.push({
@@ -962,19 +1049,6 @@ function triggerOrinFrenzy(){
   S.orinFrenzyCd=spec.cooldown;
   updateOrinFrenzyUI();
   showToast('DVD Frenzy active: x'+spec.mult+' income for '+spec.duration+'s.','#d7a6ff');
-}
-function camoUnlockRoundFor(id){
-  const e=ED[id];
-  if(!e || e.boss || e.lead) return Infinity;
-  return CAMO_REVEAL_ROUNDS[id] ?? 50;
-}
-function maybeCamoEnemyId(id,rnd){
-  const e=ED[id];
-  if(!e || e.boss || e.lead) return id;
-  const camoId=id+'Camo';
-  if(!ED[camoId] || rnd<camoUnlockRoundFor(id)) return id;
-  const chance=Math.min(0.62, 0.18 + Math.max(0,rnd-camoUnlockRoundFor(id))*0.024);
-  return Math.random()<chance ? camoId : id;
 }
 function getEnemyBaseId(id){
   return id.endsWith('Camo') ? id.slice(0,-4) : id;
@@ -1070,7 +1144,8 @@ function mkState(mapId, mode){
     incomeParticles:[],
     incomeDrops:[],
     orinFrenzyCd:0,
-    orinFrenzyT:0
+    orinFrenzyT:0,
+    totalMoneyEarned:0
   };
 }
 
@@ -1122,31 +1197,49 @@ function showSub(type){
       const roleCol=t.income?'#ab47bc':'#29b6f6';
       const upgs=getTowerUpgradeList(t.id);
       const desc={
-        wren:'Use to shoot your enemies with great success.',
-        tiki:'Snipe your enemies from far away.',
-        orin:'Make money $$$$$'
+        wren:'Reliable combat tower. Shoots enemies along the path with quick accurate fire.',
+        tiki:'Long-range sniper. Fires slow but hits incredibly hard from anywhere on the map.',
+        orin:'Passive income generator. Drops DVD cash every few seconds — collect it to earn gold.'
       }[t.id]||'';
+      const specials=[];
+      if(t.range>=9999) specials.push({icon:'🌐',label:'Global Range'});
+      if(t.income) specials.push({icon:'💰',label:'Generates Income'});
+      if(!t.income&&t.dmg) specials.push({icon:'⚔',label:'Attacks Enemies'});
+      const specialHtml=specials.map(s=>`<span class="tower-tag">${s.icon} ${s.label}</span>`).join('');
+      const upgCount=upgs.length;
       g.innerHTML+=`<div class="ccard tower-card" data-tower="${t.id}">
         <div class="ccard-banner" style="background:linear-gradient(90deg,transparent,${t.col}88,transparent)"></div>
-        <div class="cpic" id="cpic-${t.id}">
-          <div class="cpic-init" id="cpic-init-${t.id}">${t.init}</div>
+        <div class="tower-card-inner">
+          <div class="tower-img-wrap">
+            <div class="cpic" id="cpic-${t.id}" style="margin:0;width:90px;height:90px">
+              <div class="cpic-init" id="cpic-init-${t.id}">${t.init}</div>
+            </div>
+            <div class="tower-cost" style="color:${roleCol}">$${t.cost}</div>
+          </div>
+          <div class="tower-main">
+            <div class="cbadge" style="color:${roleCol};background:${roleCol}18;border-color:${roleCol}44;margin-bottom:.35rem">${roleTag}</div>
+            <div class="cname" style="margin-bottom:.28rem">${t.name}</div>
+            <div class="cdesc" style="margin-top:0;padding-top:0;border-top:none;margin-bottom:.4rem">${desc}</div>
+            <div style="display:flex;gap:.3rem;flex-wrap:wrap">${specialHtml}</div>
+          </div>
         </div>
-        <div class="ccard-body">
-          <div class="cbadge" style="color:${roleCol};background:${roleCol}18;border-color:${roleCol}44">${roleTag}</div>
-          <div class="cname">${t.name}</div>
-          <div class="cstats">
-            <div class="cstat"><span class="sl">Cost</span><span class="sv" style="color:#f0c040">$${t.cost}</span></div>
-            <div class="cstat"><span class="sl">Damage</span><span class="sv">${t.dmg||'—'}</span></div>
-            <div class="cstat"><span class="sl">Attack Rate</span><span class="sv">${t.rate?t.rate+'s':'—'}</span></div>
-            <div class="cstat"><span class="sl">Range</span><span class="sv">${t.range>=9999?'🌐 Global':t.range+'px'}</span></div>
-            ${t.income?`<div class="cstat"><span class="sl">Income</span><span class="sv" style="color:#ab47bc">$${t.income}/${t.irate}s</span></div>`:''}
-          </div>
-          <div class="cdesc">${desc}</div>
-          <div class="cupgpanel">
-            <div class="cupgtitle">Upgrades</div>
-            ${upgs.length?upgs.map((upg,i)=>`<div class="cupgitem">${i+1}. ${upg.name} - $${upg.cost}<br>${upg.desc}</div>`).join(''):`<div class="cupgitem">No upgrades yet.</div>`}
-            <div class="cupghint">Click card to ${upgs.length?'hide':'show'} upgrades.</div>
-          </div>
+        <div class="tower-stats-row">
+          ${t.dmg?`<div class="tstat"><span>⚔</span><span>${t.dmg} dmg</span></div>`:''}
+          ${t.rate?`<div class="tstat"><span>⏱</span><span>${t.rate}s</span></div>`:''}
+          ${t.range<9999?`<div class="tstat"><span>📡</span><span>${t.range}px</span></div>`:''}
+          ${t.income?`<div class="tstat"><span>💎</span><span>$${t.income}/${t.irate}s</span></div>`:''}
+        </div>
+        <div class="tower-upgrades-toggle">
+          <span class="upg-toggle-label">📈 ${upgCount} Upgrade${upgCount!==1?'s':''} — click to expand</span>
+        </div>
+        <div class="cupgpanel">
+          <div class="cupgtitle">Upgrade Path</div>
+          ${upgs.length?upgs.map((upg,i)=>`
+            <div class="cupgitem">
+              <span class="upg-tier">Tier ${i+1}</span>
+              <strong>${upg.name}</strong> — <span style="color:var(--gold)">$${upg.cost}</span>
+              <div style="color:var(--muted);font-size:.72rem;margin-top:.15rem">${upg.desc}</div>
+            </div>`).join(''):`<div class="cupgitem" style="color:var(--muted)">No upgrades yet.</div>`}
         </div>
       </div>`;
     });
@@ -1154,7 +1247,6 @@ function showSub(type){
     g.querySelectorAll('.tower-card').forEach(card=>{
       card.addEventListener('click',()=>card.classList.toggle('open'));
     });
-    // Load images after DOM is ready
     requestAnimationFrame(()=>{
       Object.values(TD).forEach(t=>{
         const im=gimg(t.img);
@@ -1170,41 +1262,179 @@ function showSub(type){
         if(im.complete) setIt(); else { im.onload=setIt; }
       });
     });
+
   } else if(type==='enemies'){
-    const g=document.createElement('div'); g.className='cgrid';
-    getEnemyGalleryEntries().forEach(e=>{
-      const hpCol=e.boss?'#e57368':e.hp>=80?'#c9a227':e.hp>=40?'#ff7043':e.hp>=20?'#f48fb1':e.hp>=10?'#e53935':e.hp>=5?'#81c784':e.hp>=2?'#64b5f6':'#aaa';
-      const regenRate=getRegenRate(e);
-      const regenNote=regenRate?`<div class="cstat"><span class="sl">Regen</span><span class="sv" style="color:#4caf50">+${Number.isInteger(regenRate)?regenRate:regenRate.toFixed(1)} HP/s</span></div>`:'';
-      g.innerHTML+=`<div class="ccard">
-        <div class="ccard-banner" style="background:linear-gradient(90deg,transparent,${e.col}88,transparent)"></div>
-        <div class="cpic" id="epic-${e.id}" style="background:#0d0a05">
-          <div class="cpic-init" id="epic-init-${e.id}">${e.init}</div>
-        </div>
-        <div class="ccard-body">
-          <div class="cbadge" style="color:${hpCol};background:${hpCol}18;border-color:${hpCol}44">Round ${e.sr}</div>
-          <div class="cname">${e.name}</div>
-          <div class="cstats">
-            <div class="cstat"><span class="sl">Health</span><span class="sv" style="color:#4caf50">${e.hp}</span></div>
-            <div class="cstat"><span class="sl">Speed</span><span class="sv">${e.spd}px/s</span></div>
-            <div class="cstat"><span class="sl">Kill Reward</span><span class="sv" style="color:#f0c040">$${e.hp}</span></div>
-            ${regenNote}
-          </div>
-        </div>
-      </div>`;
+    // Group enemies: base enemy is visible, variants hidden until toggle clicked
+    const groups=[];
+    const seen=new Set();
+
+    // Define the ordered list of base enemies and their variant groupings
+    // Each base gets: regen, camo, regenCamo, and specific reinforced relatives
+    const groupDefs=[
+      {id:'queen',         reinforced:[]},
+      {id:'queenBlue',     reinforced:[]},
+      {id:'queenGreen',    reinforced:[]},
+      {id:'queenYellow',   reinforced:[]},
+      {id:'queenRed',      reinforced:[]},
+      {id:'queenPink',     reinforced:[]},
+      {id:'lead',          reinforced:[],skipRegen:true,skipCamo:true},
+      {id:'queenZebra',    reinforced:[]},
+      {id:'queenRainbow',  reinforced:[]},
+      {id:'queenIron',     reinforced:['reinforcedIron','reinforcedIronHeart']},
+      {id:'gigaLizzy',     reinforced:['reinforcedGiga'],skipRegen:true,skipCamo:true},
+      {id:'queenVictoria', reinforced:['reinforcedVictoria'],skipRegen:true,skipCamo:true},
+      {id:'kingCharles',   reinforced:['reinforcedCharles'],skipRegen:true,skipCamo:true},
+      {id:'rishiSunak',    reinforced:['reinforcedRishi'],skipRegen:true,skipCamo:true},
+    ];
+
+    groupDefs.forEach(def=>{
+      const baseId=def.id;
+      if(!ED[baseId]||seen.has(baseId)) return;
+      seen.add(baseId);
+      const variants=[];
+
+      // Regen variant (e.g. queenRegen)
+      if(!def.skipRegen){
+        const regenId=baseId+'Regen';
+        if(ED[regenId]&&!seen.has(regenId)){variants.push(ED[regenId]);seen.add(regenId);
+          // Regen's camo
+          const regenCamoId=regenId+'Camo';
+          if(ED[regenCamoId]&&!seen.has(regenCamoId)){variants.push(ED[regenCamoId]);seen.add(regenCamoId);}
+        }
+      }
+      // Camo variant (e.g. queenCamo)
+      if(!def.skipCamo){
+        const camoId=baseId+'Camo';
+        if(ED[camoId]&&!seen.has(camoId)){variants.push(ED[camoId]);seen.add(camoId);}
+      }
+      // Reinforced relatives (and their camo variants)
+      (def.reinforced||[]).forEach(rid=>{
+        if(ED[rid]&&!seen.has(rid)){variants.push(ED[rid]);seen.add(rid);}
+        // Also add the camo version of this reinforced enemy if it exists
+        const rCamoId=rid+'Camo';
+        if(ED[rCamoId]&&!seen.has(rCamoId)){variants.push(ED[rCamoId]);seen.add(rCamoId);}
+      });
+      groups.push({base:ED[baseId],variants});
     });
-    el.appendChild(g);
-    // Load enemy images
+
+    // Catch any remaining enemies not yet grouped (safety net)
+    Object.values(ED).forEach(e=>{
+      if(seen.has(e.id)) return;
+      seen.add(e.id);
+      groups.push({base:e,variants:[]});
+    });
+
+    const container=document.createElement('div');
+    container.className='enemy-groups';
+    container.style.cssText='width:100%;max-width:980px;display:flex;flex-direction:column;gap:.9rem';
+
+    groups.forEach(({base,variants})=>{
+      const hasVariants=variants.length>0;
+      const hpCol=base.boss?'#e57368':base.hp>=80?'#c9a227':base.hp>=40?'#ff7043':base.hp>=20?'#f48fb1':base.hp>=10?'#e53935':base.hp>=5?'#81c784':base.hp>=2?'#64b5f6':'#aaa';
+      const isRishi=base.id==='rishiSunak'||base.id==='reinforcedRishi';
+      const accentCol=base.camo&&!isRishi?'#39ff14':(base.reinforced?'#f0c040':(base.boss?'#e57368':hpCol));
+
+      function enemyCardHtml(e,isVariant){
+        const eHpCol=e.boss?'#e57368':e.hp>=80?'#c9a227':e.hp>=40?'#ff7043':e.hp>=20?'#f48fb1':e.hp>=10?'#e53935':e.hp>=5?'#81c784':e.hp>=2?'#64b5f6':'#aaa';
+        const eRegen=getRegenRate(e);
+        const eIsCamo=e.camo;
+        const eIsRishi=e.id==='rishiSunak'||e.id==='reinforcedRishi';
+        // Badges — check all relevant properties
+        const badges=[];
+        if(e.boss&&!e.reinforced) badges.push(`<span class="ebadge" style="color:#e57368;background:#e5736818;border-color:#e5736844">Boss</span>`);
+        if(e.reinforced) badges.push(`<span class="ebadge" style="color:#f0c040;background:#f0c04018;border-color:#f0c04044">⚔ Reinforced</span>`);
+        if(eRegen) badges.push(`<span class="ebadge" style="color:#4caf50;background:#4caf5018;border-color:#4caf5044">♥ Regenerating</span>`);
+        if(eIsCamo) badges.push(eIsRishi
+          ?`<span class="ebadge" style="color:#b0bec5;background:#b0bec518;border-color:#b0bec544">Camo</span>`
+          :`<span class="ebadge" style="color:#39ff14;background:#39ff1418;border-color:#39ff1466">🌿 Camo</span>`);
+        if(e.lead) badges.push(`<span class="ebadge" style="color:#aeb8c2;background:#aeb8c218;border-color:#aeb8c244">Lead</span>`);
+        // Border styling — no glow in gallery, just clean colour border
+        const borderCol=e.reinforced?'#f0c04088':(e.lead?'#aeb8c266':(eIsCamo&&!eIsRishi?'#39ff1466':'#c8964044'));
+        return `<div class="enemy-card-row${isVariant?' variant-row':''}">
+          <div class="cpic" id="epic-${e.id}" style="width:64px;height:64px;flex-shrink:0;margin:0;border-radius:6px;border:2px solid ${borderCol}">
+            <div class="cpic-init" id="epic-init-${e.id}" style="font-size:1rem">${e.init}</div>
+          </div>
+          <div class="enemy-info">
+            <div style="display:flex;gap:.28rem;flex-wrap:wrap;margin-bottom:.22rem">${badges.join('')}</div>
+            <div class="cname" style="font-size:.88rem;margin-bottom:.18rem">${e.name}</div>
+            <div class="enemy-stats-inline">
+              <span><span class="es-label">HP</span><span class="es-val" style="color:#4caf50">${e.hp}</span></span>
+              <span><span class="es-label">Spd</span><span class="es-val">${e.spd}</span></span>
+              <span><span class="es-label">Round</span><span class="es-val" style="color:${eHpCol}">${e.sr}</span></span>
+              <span><span class="es-label">Reward</span><span class="es-val" style="color:#f0c040">$${e.hp}</span></span>
+              ${eRegen?`<span><span class="es-label">Regen</span><span class="es-val" style="color:#4caf50">+${eRegen}/s</span></span>`:''}
+              ${eIsCamo&&!eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#39ff14">Invisible to towers</span></span>`:''}
+              ${eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#b0bec5">Camo · Fast</span></span>`:''}
+              ${e.lead?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#aeb8c2">Explosion only</span></span>`:''}
+            </div>
+          </div>
+        </div>`;
+      }
+
+      const groupEl=document.createElement('div');
+      groupEl.className='enemy-group'+(hasVariants?' has-variants':'');
+      groupEl.innerHTML=`
+        <div class="enemy-group-header" style="border-color:${accentCol}33">
+          <div class="enemy-group-main">
+            ${enemyCardHtml(base,false)}
+          </div>
+          ${hasVariants?`<button class="variant-toggle" aria-label="Show variants">
+            <span class="vt-text">+${variants.length} variant${variants.length!==1?'s':''}</span>
+            <span class="vt-arrow">▼</span>
+          </button>`:''}
+        </div>
+        ${hasVariants?`<div class="enemy-variants" style="display:none">
+          ${variants.map(v=>enemyCardHtml(v,true)).join('')}
+        </div>`:''}
+      `;
+      container.appendChild(groupEl);
+
+      if(hasVariants){
+        const toggle=groupEl.querySelector('.variant-toggle');
+        const variantsEl=groupEl.querySelector('.enemy-variants');
+        toggle.addEventListener('click',()=>{
+          const open=variantsEl.style.display!=='none';
+          variantsEl.style.display=open?'none':'flex';
+          toggle.classList.toggle('open',!open);
+          groupEl.classList.toggle('expanded',!open);
+          if(!open){
+            requestAnimationFrame(()=>{
+              variants.forEach(v=>{
+                const imgSrc=v.img||'QueenElizabeth.jpg';
+                const im=gimg(imgSrc);
+                const initEl=document.getElementById('epic-init-'+v.id);
+                const picEl=document.getElementById('epic-'+v.id);
+                if(!initEl||!picEl) return;
+                const setIt=()=>{
+                  if(!im._bad&&im.naturalWidth>0&&initEl&&picEl){
+                    const img=makeFallbackImage(imgSrc,()=>{});
+                    const f=tintFilter(v.tint);
+                    img.style.cssText=`width:100%;height:100%;object-fit:cover;object-position:center center;display:block;${f?'filter:'+f:''}`;
+                    initEl.remove();picEl.appendChild(img);
+                  }
+                };
+                if(im.complete) setIt(); else { im.onload=setIt; }
+              });
+            });
+          }
+        });
+      }
+    });
+
+    el.appendChild(container);
+
+    // Load base enemy images immediately
     requestAnimationFrame(()=>{
-      Object.values(ED).forEach(e=>{
-        const imgSrc=e.img||'QueenElizabeth.jpg';
+      groups.forEach(({base})=>{
+        const imgSrc=base.img||'QueenElizabeth.jpg';
         const im=gimg(imgSrc);
-        const initEl=document.getElementById('epic-init-'+e.id);
-        const picEl=document.getElementById('epic-'+e.id);
+        const initEl=document.getElementById('epic-init-'+base.id);
+        const picEl=document.getElementById('epic-'+base.id);
+        if(!initEl||!picEl) return;
         const setIt=()=>{
           if(!im._bad&&im.naturalWidth>0&&initEl&&picEl){
             const img=makeFallbackImage(imgSrc,()=>{});
-            const f=tintFilter(e.tint);
+            const f=tintFilter(base.tint);
             img.style.cssText=`width:100%;height:100%;object-fit:cover;object-position:center center;display:block;${f?'filter:'+f:''}`;
             initEl.remove();picEl.appendChild(img);
           }
@@ -1811,7 +2041,11 @@ function buildWave(rnd){
 }
 
 function roundSpeedMultiplier(rnd){
-  return Math.min(3,1+Math.max(0,rnd-1)/99);
+  // 1x at round 1, 1.5x at round 100, 3x at round 200
+  // Two-segment linear: rounds 1-100 go from 1x to 1.5x, rounds 100-200 go from 1.5x to 3x
+  if(rnd<=1) return 1;
+  if(rnd<=100) return 1 + (rnd-1)/99*0.5;
+  return 1.5 + (rnd-100)/100*1.5;
 }
 
 function rewardMultiplier(rnd){
@@ -1830,19 +2064,20 @@ function rewardPenaltyLabel(rnd){
 function normalPoolForRound(rnd){
   let ids;
   if(rnd>=102){
-    ids=['queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart','rishiSunak','reinforcedRishi'];
-  } else if(rnd>=92){
-    ids=['queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen','rishiSunak'];
+    ids=['queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart','rishiSunak','reinforcedRishi'];
+  } else if(rnd>=95){
+    ids=['queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart','rishiSunak'];
   } else if(rnd>=90){
+    // By round 90: bosses and reinforced iron dominate, a little rainbow
     ids=['queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen','rishiSunak'];
+  } else if(rnd>=85){
+    ids=['queenIron','queenIronRegen','reinforcedIron','queenRainbow','queenRainbowRegen','queenZebraRegen'];
   } else if(rnd>=75){
-    ids=['queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen'];
+    ids=['queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen'];
   } else if(rnd>=60){
-    ids=['queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron','reinforcedIron'];
+    ids=['queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron','reinforcedIron'];
   } else if(rnd>=49){
-    ids=['queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart'];
-  } else if(rnd>=45){
-    ids=['queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenIron','reinforcedIron'];
+    ids=['queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart'];
   } else if(rnd>=38){
     ids=['queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenIron','reinforcedIron'];
   } else if(rnd>=30){
@@ -1856,7 +2091,7 @@ function normalPoolForRound(rnd){
   } else {
     ids=['queen','queenBlue'];
   }
-  if(rnd>=38){
+  if(rnd>=38 && rnd<70){
     ids.push('lead');
   }
   return ids.map(id=>ED[id]).filter(e=>e&&e.sr<=rnd&&!e.boss);
@@ -1920,8 +2155,11 @@ function scheduledBosses(rnd){
   return q;
 }
 
-function addWaveEntries(q,id,count,gap,start=0){
-  for(let i=0;i<count;i++) q.push({id,t:start+i*gap});
+function addWaveEntries(q,id,count,gap,start=0,rnd=0){
+  for(let i=0;i<count;i++){
+    const spawnId=rnd>0?maybeCamoEnemyId(id,rnd):id;
+    q.push({id:spawnId,t:start+i*gap});
+  }
 }
 
 function addMixedWave(q,pool,count,gap,start=0,rnd=1){
@@ -1961,7 +2199,7 @@ function buildWave(rnd){
   const gap=normalSpawnGap(rnd);
 
   if(rnd===18){
-    addWaveEntries(q,'queenPink',30,Math.max(0.12,gap));
+    addWaveEntries(q,'queenPink',30,Math.max(0.12,gap),0,rnd);
     return q;
   }
   if(rnd===40){
@@ -1974,35 +2212,35 @@ function buildWave(rnd){
   }
   if(rnd===80){
     addWaveEntries(q,'kingCharles',1,1);
-    addWaveEntries(q,'queenIron',20,0.18,4);
-    addWaveEntries(q,'queenRainbowRegen',5,0.35,7);
+    addWaveEntries(q,'queenIron',20,0.18,4,rnd);
+    addWaveEntries(q,'queenRainbowRegen',5,0.35,7,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
   if(rnd===81){
-    addWaveEntries(q,'queenIron',160,0.055);
-    addWaveEntries(q,'queenIronRegen',50,0.09,2.5);
+    addWaveEntries(q,'queenIron',160,0.055,0,rnd);
+    addWaveEntries(q,'queenIronRegen',50,0.09,2.5,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
   if(rnd===90){
-    addWaveEntries(q,'rishiSunak',24,0.22);
-    addWaveEntries(q,'queenIronRegen',20,0.18,2);
-    addWaveEntries(q,'queenRainbowRegen',8,0.38,6);
+    addWaveEntries(q,'rishiSunak',24,0.22,0,rnd);
+    addWaveEntries(q,'queenIronRegen',20,0.18,2,rnd);
+    addWaveEntries(q,'queenRainbowRegen',8,0.38,6,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
   if(rnd===95){
-    addWaveEntries(q,'reinforcedIron',45,0.13);
-    addWaveEntries(q,'queenIronRegen',70,0.08,1.5);
+    addWaveEntries(q,'reinforcedIron',45,0.13,0,rnd);
+    addWaveEntries(q,'queenIronRegen',70,0.08,1.5,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
   if(rnd===105){
-    addWaveEntries(q,'reinforcedIronHeart',36,0.16);
-    addWaveEntries(q,'reinforcedIron',60,0.11,2);
+    addWaveEntries(q,'reinforcedIronHeart',36,0.16,0,rnd);
+    addWaveEntries(q,'reinforcedIron',60,0.11,2,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
   if(rnd===110){
-    addWaveEntries(q,'reinforcedRishi',14,0.35);
-    addWaveEntries(q,'rishiSunak',35,0.16,1);
-    addWaveEntries(q,'reinforcedIronHeart',18,0.24,4);
+    addWaveEntries(q,'reinforcedRishi',14,0.35,0,rnd);
+    addWaveEntries(q,'rishiSunak',35,0.16,1,rnd);
+    addWaveEntries(q,'reinforcedIronHeart',18,0.24,4,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
 
@@ -2010,53 +2248,12 @@ function buildWave(rnd){
   const bossStart=q.length?Math.max(...q.map(e=>e.t))+2:0;
   let offset=0;
   scheduledBosses(rnd).forEach(b=>{
-    addWaveEntries(q,b.id,b.count,4,bossStart+offset);
+    addWaveEntries(q,b.id,b.count,4,bossStart+offset,rnd);
     offset+=b.count*4;
   });
   return q.sort((a,b)=>a.t-b.t);
 }
 
-function startWave(){
-  if(S.waveActive||S.over) return;
-  S.round++;
-  S.waveQ=buildWave(S.round);
-  S.spawnIdx=0;
-  S.spawnT=0;
-  S.waveActive=true;
-  setWaveBtn(true,'Wave '+S.round+' in progress…');
-  updateHUD();
-  // Show notifications for special rounds
-  const lc=gigaLizzyCount(S.round);
-  if(S.round===18){
-    showToast('🌸 Round 18 — The Pink Horde arrives!','#f48fb1');
-  } else if(S.round===60){
-    showToast('👑 ROUND 60 — QUEEN VICTORIA REIGNS SUPREME!','#c9a227');
-  } else if(S.round>40&&lc>0&&S.round<65){
-    showToast(`☠ Giga Lizzy returns! ×${lc} incoming…`,'#e57368');
-  } else if(S.round>=65){
-    showToast(`☠ Giga Lizzy ×${lc} — she never stops!`,'#e57368');
-  } else if(S.round>=41&&S.round%5===0){
-    showToast('⚠ Round 40+ — enemy gold rewards -25%','#ff9800');
-  }
-}
-
-function setWaveBtn(disabled,text){
-  const b=document.getElementById('wavebtn');
-  b.disabled=disabled;
-  b.textContent=text;
-  b.classList.toggle('wave-active',disabled);
-  // When not active, show upcoming enemy count hint
-  if(!disabled&&S.round>=0){
-    const next=S.round+1;
-    const count=5+next*3;
-    const penaltyNote=next>=40?' [½💰]':'';
-    b.title=`~${count} enemies${penaltyNote}`;
-  } else {
-    b.title='';
-  }
-}
-
-// ─── SPAWNING ───
 function startWave(){
   if(S.waveActive||S.over) return;
   S.round++;
@@ -2273,15 +2470,33 @@ function buildShop(){
     const upgPanel=document.createElement('div');
     upgPanel.className='shop-upgs';
     upgPanel.innerHTML=upgs.length
-      ? `<div class="shop-upgtitle">Upgrades</div>${upgs.map((upg,i)=>`<div class="shop-upgitem"><strong>${i+1}. ${upg.name} - $${upg.cost}</strong><br>${upg.desc}</div>`).join('')}<div class="shop-upghint">Click again to hide upgrades.</div>`
+      ? `<div class="shop-upgtitle">Upgrades</div>${upgs.map((upg,i)=>`<div class="shop-upgitem"><strong>${i+1}. ${upg.name} - $${upg.cost}</strong><br>${upg.desc}</div>`).join('')}<div class="shop-upghint">Double-click tower in shop to view upgrades.</div>`
       : `<div class="shop-upgtitle">Upgrades</div><div class="shop-upgitem">No upgrades yet.</div>`;
     div.appendChild(pic); div.appendChild(info);
     div.addEventListener('click',()=>{
       const canAffordNow=S.gold>=d.cost;
-      const closing=S.shopInfoSel===d.id||S.shopSel===d.id;
+      // Single click: just select/deselect for placement (no upgrade panel)
+      const alreadySel=S.shopSel===d.id||S.shopInfoSel===d.id;
+      if(alreadySel){
+        S.shopSel=null; S.shopInfoSel=null;
+      } else {
+        S.shopInfoSel=null; // close upgrade panel
+        S.shopSel=canAffordNow?d.id:null;
+      }
+      if(S.shopSel||S.shopInfoSel){S.towerSel=null;document.getElementById('selPanel').style.display='none';}
+      buildShop();
+    });
+    div.addEventListener('dblclick',()=>{
+      // Double-click: toggle upgrade info panel
+      const closing=S.shopInfoSel===d.id;
       S.shopInfoSel=closing?null:d.id;
-      S.shopSel=!closing&&canAffordNow?d.id:null;
-      if(S.shopInfoSel){S.towerSel=null;document.getElementById('selPanel').style.display='none';}
+      if(S.shopInfoSel){
+        S.towerSel=null;
+        document.getElementById('selPanel').style.display='none';
+        // Also select for placement if affordable
+        const canAffordNow=S.gold>=d.cost;
+        S.shopSel=canAffordNow?d.id:null;
+      }
       buildShop();
     });
     div.appendChild(upgPanel);
@@ -2453,10 +2668,11 @@ function togglePause(){
 function triggerOver(won){
   S.over=true;
   const totalKills=S.towers.reduce((a,t)=>a+(t.kills||0),0);
+  const totalMoney=S.totalMoneyEarned||0;
   document.getElementById('goTitle').textContent=won?'VICTORY!':'GAME OVER';
   document.getElementById('goSub').textContent=won
-    ?`The meadow stands! Reached round ${S.round} with ${totalKills} kills.`
-    :`The enemies broke through on round ${S.round}. Kills: ${totalKills}.`;
+    ?`The meadow stands! Reached round ${S.round} with ${totalKills} kills. Total money earned: $${totalMoney}.`
+    :`The enemies broke through on round ${S.round}. Kills: ${totalKills}. Total money earned: $${totalMoney}.`;
   document.getElementById('gameOverOv').classList.add('on');
 }
 
@@ -2584,7 +2800,7 @@ function handleEnemyDefeat(tgt, tower){
   const gold=Math.round(tgt.maxHp*rewardMultiplier(S.round));
   const orinBonus=getOrinKillGoldBonus(gold,tower);
   const totalGold=gold+orinBonus;
-  S.gold+=totalGold;updateHUD();refreshShopAffordability();
+  S.gold+=totalGold;S.totalMoneyEarned=(S.totalMoneyEarned||0)+totalGold;updateHUD();refreshShopAffordability();
   S.particles.push({x:tgt.x,y:tgt.y,text:'$'+totalGold,alpha:1,vy:-30,life:.7,col:'#f0c040'});
   if(orinBonus>0){
     S.particles.push({x:tower.x,y:tower.y-CELL*.45,text:'Orin +$'+orinBonus,alpha:1,vy:-26,life:.9,col:'#d6a4ff'});
@@ -2656,7 +2872,7 @@ function update(dt){
       setWaveBtn(false,'▶ Start Round '+(S.round+1));
       // Round completion gold bonus
       const bonus=Math.round(100*rewardMultiplier(S.round));
-      S.gold+=bonus;
+      S.gold+=bonus;S.totalMoneyEarned=(S.totalMoneyEarned||0)+bonus;
       updateHUD();
       refreshShopAffordability();
       showToast('Round '+S.round+' complete! +$'+bonus,'#4caf50');
@@ -2746,7 +2962,7 @@ function update(dt){
             }
           }
         } else {
-          S.gold+=stats.income;
+          S.gold+=stats.income;S.totalMoneyEarned=(S.totalMoneyEarned||0)+stats.income;
           updateHUD();
           refreshShopAffordability();
           S.particles.push({x:t.x,y:t.y-CELL*.3,text:'$'+stats.income,alpha:1,vy:-38,life:.9});
@@ -3920,8 +4136,27 @@ function drawEnemies(){
       }
 
       // Border
-      ctx.strokeStyle=e.reinforced?'#f0c040':e.lead?'#d2dbe3':e.camo?'#a5ba74':(e.col||'#fff');ctx.lineWidth=e.reinforced?3.2:1.5;
-      traceEnemyBodyPath(sz,isHeart);ctx.stroke();
+      const isRishiCamo=e.camo&&(e.defId==='rishiSunakCamo'||e.defId==='reinforcedRishiCamo');
+      if(e.camo&&!isRishiCamo){
+        // Neon glowing green outline for camo enemies
+        ctx.save();
+        const neonGlow=0.55+Math.sin((e.t||0)*4)*0.2;
+        ctx.shadowColor='#39ff14';
+        ctx.shadowBlur=18+neonGlow*10;
+        ctx.strokeStyle='#39ff14';
+        ctx.lineWidth=2.8;
+        traceEnemyBodyPath(sz,isHeart);ctx.stroke();
+        // Second pass for extra glow intensity
+        ctx.shadowBlur=8;
+        ctx.globalAlpha=0.7;
+        ctx.strokeStyle='#a0ffaa';
+        ctx.lineWidth=1.2;
+        traceEnemyBodyPath(sz,isHeart);ctx.stroke();
+        ctx.restore();
+      } else {
+        ctx.strokeStyle=e.reinforced?'#f0c040':e.lead?'#d2dbe3':e.camo?'#a5ba74':(e.col||'#fff');ctx.lineWidth=e.reinforced?3.2:1.5;
+        traceEnemyBodyPath(sz,isHeart);ctx.stroke();
+      }
       ctx.strokeStyle='rgba(255,255,255,0.16)';
       ctx.lineWidth=Math.max(0.8,sz*.02);
       ctx.beginPath();
