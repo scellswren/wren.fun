@@ -297,6 +297,18 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 #wavetip{position:absolute;bottom:3.6rem;left:50%;transform:translateX(-50%);
   font-family:'Cinzel',serif;font-size:.65rem;color:var(--muted);opacity:.55;
   letter-spacing:.08em;pointer-events:none;white-space:nowrap}
+#orinFrenzyBtn{position:absolute;bottom:1rem;right:1rem;
+  font-family:'Cinzel',serif;font-size:.82rem;padding:.52em 1.3em;
+  border:2px solid #ab47bc;background:linear-gradient(135deg,#ab47bc22,#6a1b9a16);
+  color:#e6b6ff;cursor:pointer;display:none;z-index:150;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+  transition:all .2s;box-shadow:0 0 14px #ab47bc30}
+#orinFrenzyBtn:hover{background:linear-gradient(135deg,#ab47bc38,#6a1b9a28);
+  box-shadow:0 0 22px #ab47bc55;transform:translateY(-2px)}
+#orinFrenzyBtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+#orinFrenzyTip{position:absolute;bottom:3.5rem;right:1rem;
+  font-family:'Cinzel',serif;font-size:.63rem;color:#cfa3ea;opacity:.8;
+  letter-spacing:.06em;display:none;text-align:right;pointer-events:none}
 </style>
 </head>
 <body>
@@ -392,6 +404,8 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
     </div>
     <button id="wavebtn" onclick="G.startWave()">▶ Start Round 1</button>
     <div id="wavetip">SPACE to start · ESC deselect · S speed · P pause</div>
+    <button id="orinFrenzyBtn" onclick="G.triggerOrinFrenzy()">DVD Frenzy</button>
+    <div id="orinFrenzyTip"></div>
     <!-- Pause overlay -->
     <div class="ov" id="pauseOv">
       <div class="ovttl">PAUSED</div>
@@ -574,17 +588,17 @@ setMap('grassy'); // default
 const TD = {
   wren:    {id:'wren',    name:'Wren',              img:'Wren.jpg',          cost:300, dmg:1,  rate:1,   range:130, income:0,   irate:0,  init:'W',  col:'#29b6f6'},
   tiki:    {id:'tiki',    name:'Tikitheg',           img:'TikiTheG.jpg',      cost:600, dmg:5,  rate:2,   range:9999,income:0,   irate:0,  init:'TG', col:'#ff7043'},
-  orin:    {id:'orin',    name:'The Mind of Orin',   img:'TheMindOfOrin.jpg', cost:1100,dmg:0,  rate:0,   range:0,   income:50,  irate:12, init:'O',  col:'#ab47bc'}
+  orin:    {id:'orin',    name:'The Mind of Orin',   img:'TheMindOfOrin.jpg', cost:1100,dmg:0,  rate:0,   range:0,   income:10,  irate:12, init:'O',  col:'#ab47bc'}
 };
 
-const TIKI_POWER_PRICE = 12500;
+const TIKI_POWER_PRICE = 31000;
 const TOWER_UPGRADES = {
   wren: [
     {name:'Fast Shot', cost:100, desc:'Attack speed improves from 1.00s to 0.75s.', apply:s=>{s.rate=0.75;}},
     {name:'Greater Piercing', cost:240, desc:'Each shot now deals 3 damage.', apply:s=>{s.dmg=3;}},
     {name:'Triple Shot', cost:600, desc:'Fires 3 shots every attack instead of 1.', apply:s=>{s.shots=3;}},
-    {name:'Explosion Shot', cost:2200, desc:'Shots deal 8 damage, explode on impact, and can pop leads.', apply:s=>{s.dmg=8;s.explosive=true;s.explosionRadius=58;s.projectile='explosionShot';}},
-    {name:'The Bomber', cost:25100, desc:'Launches 3 bombs for 12 damage each every 0.40s with stronger explosions.', apply:s=>{s.dmg=12;s.rate=0.4;s.shots=3;s.explosive=true;s.explosionRadius=84;s.projectile='bomb';}}
+    {name:'Explosion Shot', cost:2200, desc:'Shots deal 8 damage, explode on impact, can pop leads, and gain 1.3x range.', apply:s=>{s.dmg=8;s.range*=1.3;s.explosive=true;s.explosionRadius=58;s.projectile='explosionShot';}},
+    {name:'The Bomber', cost:25100, desc:'Launches 3 bombs for 12 damage each every 0.40s with stronger explosions and another 1.3x range.', apply:s=>{s.dmg=12;s.range*=1.3;s.rate=0.4;s.shots=3;s.explosive=true;s.explosionRadius=84;s.projectile='bomb';}}
   ],
   tiki: [
     {name:'Sharper', cost:300, desc:'Damage increases to 7.', apply:s=>{s.dmg=7;}},
@@ -592,6 +606,13 @@ const TOWER_UPGRADES = {
     {name:'Shrapnel', cost:1100, desc:'Damage increases to 8 and each shot has a 50% chance to burst for 4 nearby damage.', apply:s=>{s.dmg=8;s.shrapnelChance=0.5;s.shrapnelDamage=4;s.shrapnelRadius=62;}},
     {name:'Tiki Time', cost:6550, desc:'Attack speed improves to 0.20s.', apply:s=>{s.rate=0.2;}},
     {name:'Tiki Power', cost:TIKI_POWER_PRICE, desc:'Attack speed improves to 0.10s and damage rises to 10.', apply:s=>{s.rate=0.1;s.dmg=10;}}
+  ],
+  orin: [
+    {name:'Money Grab', cost:900, desc:'Income rises from $10 to $25 every 12 seconds.', apply:s=>{s.income=25;}},
+    {name:'Helping Hand', cost:1005, desc:'If at least 2 upgraded Orins exist, payouts have a 25% chance to give every Helping Hand Orin an extra $7.', apply:s=>{s.helpingHand=true;}},
+    {name:'Auto Pick Up', cost:1350, desc:'DVD cash drops are collected automatically instead of needing a click.', apply:s=>{s.autoPickup=true;}},
+    {name:'Frenzy', cost:6200, desc:'Unlocks a bottom-screen ability with a 60 second cooldown that boosts Orin income to x2 for 10 seconds.', apply:s=>{s.frenzy=true;}},
+    {name:'Tech Master', cost:89000, desc:'Income becomes $100 every 5 seconds, Frenzy becomes x3 for 15 seconds, other Orins gain +25% income, and the tower grows by 1.25x.', apply:s=>{s.income=100;s.irate=5;s.techMaster=true;s.frenzy=true;s.autoPickup=true;}}
   ]
 };
 
@@ -737,7 +758,11 @@ function getTowerStats(t){
     canSeeCamo:false,
     shrapnelChance:0,
     shrapnelDamage:0,
-    shrapnelRadius:62
+    shrapnelRadius:62,
+    helpingHand:false,
+    autoPickup:false,
+    frenzy:false,
+    techMaster:false
   };
   getTowerUpgradeList(t).slice(0,getTowerUpgradeLevel(t)).forEach(upg=>upg.apply(stats,t));
   return stats;
@@ -751,6 +776,11 @@ function describeTowerSpecials(stats){
   if(stats.explosive) bits.push('explosive');
   if(stats.canSeeCamo) bits.push('camo sight');
   if(stats.shrapnelChance) bits.push(Math.round(stats.shrapnelChance*100)+'% shrapnel');
+  if(stats.helpingHand) bits.push('25% +$7 chain');
+  if(stats.autoPickup) bits.push('auto pickup');
+  if(stats.income&&!stats.autoPickup) bits.push('DVD drops');
+  if(stats.frenzy) bits.push('frenzy');
+  if(stats.techMaster) bits.push('+25% Orin aura');
   return bits.length ? bits.join(', ') : '—';
 }
 function getTowerBorderStyle(level){
@@ -760,6 +790,127 @@ function getTowerBorderStyle(level){
   if(level===3) return {stroke:'#42a5f5', lineWidth:2.2, glow:null};
   if(level===4) return {stroke:'#f0c040', lineWidth:2.6, glow:'#f0c040'};
   return {stroke:'#b388ff', lineWidth:2.8, glow:'#b388ff'};
+}
+function isOrinTower(t){
+  return !!t&&t.defId==='orin';
+}
+function getOrinHelpingHandTowers(){
+  return S?S.towers.filter(t=>isOrinTower(t)&&getTowerUpgradeLevel(t)>=2):[];
+}
+function hasOrinFrenzyUnlock(){
+  return !!(S&&S.towers.some(t=>isOrinTower(t)&&getTowerUpgradeLevel(t)>=4));
+}
+function getOrinFrenzySpec(){
+  const techMaster=!!(S&&S.towers.some(t=>isOrinTower(t)&&getTowerUpgradeLevel(t)>=5));
+  return {mult:techMaster?3:2,duration:techMaster?15:10,cooldown:60};
+}
+function getOrinIncomeMultiplier(t){
+  let mult=1;
+  if(S&&S.orinFrenzyT>0) mult*=getOrinFrenzySpec().mult;
+  const techMasters=S?S.towers.filter(o=>isOrinTower(o)&&o.id!==t.id&&getTowerUpgradeLevel(o)>=5).length:0;
+  mult*=1+techMasters*0.25;
+  return mult;
+}
+function createIncomeDrop(t, amount){
+  const dropSize=Math.max(14,Math.round(getTowerImageSize(t)*0.25));
+  const maxX=COLS*CELL-dropSize*.8;
+  const maxY=ROWS*CELL-dropSize*.8;
+  const minX=dropSize*.8;
+  const minY=dropSize*.8;
+  const baseHalf=getTowerBaseHalf(t);
+  const x=Math.max(minX,Math.min(maxX,t.x+(Math.random()-.5)*baseHalf*.8));
+  const y=Math.max(minY,Math.min(maxY,t.y+baseHalf*.95+(Math.random()-.5)*10));
+  S.incomeDrops.push({
+    id:Math.random(),
+    ownerId:t.id,
+    x,y,
+    amount,
+    life:15,
+    maxLife:15,
+    size:dropSize
+  });
+}
+function collectIncomeDrop(drop, auto){
+  const idx=S.incomeDrops.findIndex(d=>d.id===drop.id);
+  if(idx<0) return false;
+  const d=S.incomeDrops[idx];
+  S.incomeDrops.splice(idx,1);
+  S.gold+=d.amount;
+  updateHUD();
+  refreshShopAffordability();
+  S.particles.push({
+    x:d.x,
+    y:d.y-CELL*.12,
+    text:'$'+d.amount,
+    alpha:1,
+    vy:-34,
+    life:0.85,
+    col:auto?'#d6a4ff':'#f0c040'
+  });
+  return true;
+}
+function tryCollectIncomeDropAt(wx,wy){
+  for(let i=S.incomeDrops.length-1;i>=0;i--){
+    const drop=S.incomeDrops[i];
+    const half=(drop.size||16)*0.6;
+    if(Math.abs(wx-drop.x)<=half&&Math.abs(wy-drop.y)<=half){
+      collectIncomeDrop(drop,false);
+      return true;
+    }
+  }
+  return false;
+}
+function awardOrinIncome(t, baseAmount){
+  const amount=Math.max(0,Math.round(baseAmount*getOrinIncomeMultiplier(t)));
+  if(!amount) return;
+  const stats=getTowerStats(t);
+  if(stats.autoPickup){
+    S.gold+=amount;
+    updateHUD();
+    refreshShopAffordability();
+    S.particles.push({
+      x:t.x,
+      y:t.y-CELL*.32,
+      text:'$'+amount,
+      alpha:1,
+      vy:-34,
+      life:0.85,
+      col:'#d6a4ff'
+    });
+  } else {
+    createIncomeDrop(t,amount);
+  }
+}
+function updateOrinFrenzyUI(){
+  const btn=document.getElementById('orinFrenzyBtn');
+  const tip=document.getElementById('orinFrenzyTip');
+  if(!btn||!tip||!S) return;
+  const unlocked=hasOrinFrenzyUnlock()&&!S.over;
+  btn.style.display=unlocked?'block':'none';
+  tip.style.display=unlocked?'block':'none';
+  if(!unlocked) return;
+  const spec=getOrinFrenzySpec();
+  if(S.orinFrenzyT>0){
+    btn.disabled=true;
+    btn.textContent='DVD Frenzy x'+spec.mult+' - '+S.orinFrenzyT.toFixed(1)+'s';
+    tip.textContent='Cooling down: '+Math.ceil(Math.max(0,S.orinFrenzyCd))+'s';
+  } else if(S.orinFrenzyCd>0){
+    btn.disabled=true;
+    btn.textContent='DVD Frenzy Recharging';
+    tip.textContent='Ready in '+Math.ceil(S.orinFrenzyCd)+'s';
+  } else {
+    btn.disabled=false;
+    btn.textContent='DVD Frenzy x'+spec.mult;
+    tip.textContent=spec.duration+'s burst every '+spec.cooldown+'s';
+  }
+}
+function triggerOrinFrenzy(){
+  if(!S||S.over||!hasOrinFrenzyUnlock()||S.orinFrenzyCd>0||S.orinFrenzyT>0) return;
+  const spec=getOrinFrenzySpec();
+  S.orinFrenzyT=spec.duration;
+  S.orinFrenzyCd=spec.cooldown;
+  updateOrinFrenzyUI();
+  showToast('DVD Frenzy active: x'+spec.mult+' income for '+spec.duration+'s.','#d7a6ff');
 }
 function camoUnlockRoundFor(id){
   const e=ED[id];
@@ -840,6 +991,7 @@ gimg('QueenElizabeth.jpg');
 gimg('QueenV.jpg');
 gimg('KingCH.jpg');
 gimg('Rishi.jpg');
+gimg('DVD.jpg');
 
 // ─── STATE ───
 let S, canvas, ctx, vp, raf=null, lastT=0;
@@ -856,7 +1008,10 @@ function mkState(mapId){
     cam:{x:COLS*CELL/2,y:ROWS*CELL/2,z:0.88},
     drag:false,dragS:{x:0,y:0},camS:{x:0,y:0},
     ghost:{wx:-9999,wy:-9999},
-    incomeParticles:[]
+    incomeParticles:[],
+    incomeDrops:[],
+    orinFrenzyCd:0,
+    orinFrenzyT:0
   };
 }
 
@@ -1903,8 +2058,11 @@ const TOWER_IMAGE_SIZE = CELL * 0.82;
 const TOWER_HALF = TOWER_BASE_SIZE / 2;
 const TOWER_HALF_DIAGONAL = Math.SQRT2 * TOWER_HALF;
 function getTowerScale(tOrId){
-  const id=typeof tOrId==='string' ? tOrId : tOrId && (tOrId.defId || tOrId.id);
-  return id==='orin' ? 1.4 : 1;
+  const ref=typeof tOrId==='string' ? {defId:tOrId} : (tOrId||{});
+  const id=ref.defId||ref.id;
+  let scale=id==='orin' ? 1.4 : 1;
+  if(id==='orin'&&getTowerUpgradeLevel(ref)>=5) scale*=1.25;
+  return scale;
 }
 function getTowerBaseSize(tOrId){
   return TOWER_BASE_SIZE*getTowerScale(tOrId);
@@ -2093,6 +2251,11 @@ function selectTower(id){
   if(!im._bad&&im.complete&&im.naturalWidth>0) picInner=`<img src="${resolvedImgSrc(d.img)}" onerror="this.parentNode.textContent='${d.init}'">`;
 
   const pri=t.priority||'first';
+  const orinExtraRows=isOrinTower(t)?`
+      <div class="srow"><span class="sl">Collect</span><span class="sv">${stats.autoPickup?'Auto':'DVD Clicks'}</span></div>
+      <div class="srow"><span class="sl">Boost</span><span class="sv">${Math.round((getOrinIncomeMultiplier(t)-1)*100)}%</span></div>
+      <div class="srow"><span class="sl">Frenzy</span><span class="sv">${getTowerUpgradeLevel(t)>=4?'x'+getOrinFrenzySpec().mult+' / '+getOrinFrenzySpec().duration+'s':'Locked'}</span></div>
+  `:'';
   const priorities=[
     {k:'first',    label:'⬆ First'},
     {k:'last',     label:'⬇ Last'},
@@ -2121,6 +2284,7 @@ function selectTower(id){
       <div class="srow"><span class="sl">Atk Rate</span><span class="sv">${formatRate(stats.rate)}</span></div>
       <div class="srow"><span class="sl">Range</span><span class="sv">${stats.range>=9999?'Global':stats.range+'px'}</span></div>
       ${stats.income?`<div class="srow"><span class="sl">Income</span><span class="sv">$${stats.income}/${stats.irate}s</span></div>`:''}
+      ${orinExtraRows}
       <div class="srow"><span class="sl">Special</span><span class="sv">${describeTowerSpecials(stats)}</span></div>
       <div class="srow"><span class="sl">Kills</span><span class="sv" style="color:#f0c040">${t.kills||0}</span></div>
     </div>
@@ -2182,6 +2346,7 @@ function updateHUD(){
     badge.textContent=label;
     badge.title='Enemy kill rewards are reduced at rounds 50, 75, and 130.';
   }
+  updateOrinFrenzyUI();
 }
 
 // ─── TOAST NOTIFICATIONS ───
@@ -2238,6 +2403,7 @@ function initInput(){
     if(e.button===2) return;
     const rect=canvas.getBoundingClientRect();
     const wld=s2w(e.clientX-rect.left,e.clientY-rect.top);
+    if(tryCollectIncomeDropAt(wld.x,wld.y)) return;
     // Hit-test towers using their square body
     const hit=S.towers.find(t=>towerBoxContainsPoint(t,wld.x,wld.y));
     if(hit){selectTower(hit.id);return;}
@@ -2397,6 +2563,10 @@ function fireTowerAttack(t, stats){
 function update(dt){
   if(S.paused||S.over) return;
 
+  if(S.orinFrenzyCd>0) S.orinFrenzyCd=Math.max(0,S.orinFrenzyCd-dt);
+  if(S.orinFrenzyT>0) S.orinFrenzyT=Math.max(0,S.orinFrenzyT-dt);
+  updateOrinFrenzyUI();
+
   // Spawn
   if(S.waveActive){
     S.spawnT+=dt;
@@ -2486,8 +2656,23 @@ function update(dt){
     const stats=getTowerStats(t);
     if(stats.income){
       t.it=(t.it||0)+dt;
-      if(t.it>=stats.irate){t.it-=stats.irate;S.gold+=stats.income;updateHUD();refreshShopAffordability();
-        S.particles.push({x:t.x,y:t.y-CELL*.3,text:'$'+stats.income,alpha:1,vy:-38,life:.9});
+      while(t.it>=stats.irate){
+        t.it-=stats.irate;
+        if(isOrinTower(t)){
+          awardOrinIncome(t,stats.income);
+          if(stats.helpingHand){
+            const helpers=getOrinHelpingHandTowers();
+            if(helpers.length>=2&&Math.random()<0.25){
+              helpers.forEach(helper=>awardOrinIncome(helper,7));
+              S.particles.push({x:t.x,y:t.y-CELL*.45,text:'Helping Hand',alpha:1,vy:-26,life:0.95,col:'#d6a4ff'});
+            }
+          }
+        } else {
+          S.gold+=stats.income;
+          updateHUD();
+          refreshShopAffordability();
+          S.particles.push({x:t.x,y:t.y-CELL*.3,text:'$'+stats.income,alpha:1,vy:-38,life:.9});
+        }
       }
       continue;
     }
@@ -2503,6 +2688,18 @@ function update(dt){
   // Projectiles
   for(const p of S.projs) p.life-=dt;
   S.projs=S.projs.filter(p=>p.life>0);
+
+  // Income drops
+  for(let i=S.incomeDrops.length-1;i>=0;i--){
+    const drop=S.incomeDrops[i];
+    drop.life-=dt;
+    const owner=S.towers.find(t=>t.id===drop.ownerId);
+    if(owner&&getTowerUpgradeLevel(owner)>=3){
+      collectIncomeDrop(drop,true);
+      continue;
+    }
+    if(drop.life<=0) S.incomeDrops.splice(i,1);
+  }
 
   // Damage flash decay
   if(S.dmgFlash>0) S.dmgFlash=Math.max(0,S.dmgFlash-dt*1.8);
@@ -2527,6 +2724,7 @@ function render(){
   ctx.translate(-S.cam.x,-S.cam.y);
   drawMap();
   drawTowers();
+  drawIncomeDrops();
   drawProjs();
   drawEnemies();
   drawParticles();
@@ -3297,7 +3495,7 @@ function drawTowers(){
     ctx.fillStyle='rgba(0,0,0,0.35)';
     ctx.beginPath();ctx.ellipse(t.x,t.y+CELL*.38*scale,CELL*.36*scale,CELL*.1*scale,0,0,Math.PI*2);ctx.fill();
     // Base square
-    ctx.fillStyle=`${d.col}22`;
+    ctx.fillStyle='rgba(18,14,10,0.72)';
     towerRectPath(t.x,t.y,baseSize,baseRadius);ctx.fill();
 
     const borderStyle=getTowerBorderStyle(getTowerUpgradeLevel(t));
@@ -3638,6 +3836,36 @@ function drawEnemies(){
   }
 }
 
+function drawIncomeDrops(){
+  const dvd=gimg('DVD.jpg');
+  for(const drop of S.incomeDrops){
+    const size=drop.size||16;
+    const alpha=drop.life<3 ? Math.max(0.2,drop.life/3) : 1;
+    ctx.save();
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle='rgba(0,0,0,0.28)';
+    ctx.beginPath();ctx.ellipse(drop.x,drop.y+size*.3,size*.34,size*.16,0,0,Math.PI*2);ctx.fill();
+    if(!dvd._bad&&dvd.complete&&dvd.naturalWidth>0){
+      ctx.drawImage(dvd,drop.x-size/2,drop.y-size/2,size,size);
+    } else {
+      ctx.fillStyle='#f5e8c0';
+      ctx.fillRect(drop.x-size/2,drop.y-size/2,size,size*.72);
+      ctx.fillStyle='#1a1209';
+      ctx.font=`bold ${Math.max(6,Math.floor(size*.26))}px Cinzel,serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('DVD',drop.x,drop.y);
+    }
+    ctx.fillStyle='#f0c040';
+    ctx.font=`bold ${Math.max(9,Math.floor(size*.58))}px Cinzel,serif`;
+    ctx.textAlign='center';ctx.textBaseline='top';
+    ctx.strokeStyle='rgba(0,0,0,0.72)';
+    ctx.lineWidth=2;
+    ctx.strokeText('$'+drop.amount,drop.x,drop.y+size*.56);
+    ctx.fillText('$'+drop.amount,drop.x,drop.y+size*.56);
+    ctx.restore();
+  }
+}
+
 function drawProjs(){
   for(const p of S.projs){
     const maxLife=p.maxLife||(p.type==='laser' ? .1 : .22);
@@ -3771,7 +3999,7 @@ updateFullscreenButton();
 
 return {startGame,showMapSelect,showSub,showScreen,togglePause,toggleShop,exitToMenu,
         startWave,sellTower,removeTower,desel,toggleSpeed,toggleAuto,setTowerPriority,
-        toggleFullscreen,goHome};
+        toggleFullscreen,goHome,triggerOrinFrenzy};
 })();
 </script>
 </body>
