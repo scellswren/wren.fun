@@ -1475,107 +1475,185 @@ function showSub(type){
     });
 
   } else if(type==='enemies'){
-    const entries=getEnemyGalleryEntries();
+    // Group enemies: base enemy is visible, variants hidden until toggle clicked
+    const groups=[];
+    const seen=new Set();
 
-    const baseKey=id=>{
-      if(id.endsWith('Camo')) return id.slice(0,-4);
-      if(id==='reinforcedGiga') return 'gigaLizzy';
-      if(id==='reinforcedVictoria') return 'queenVictoria';
-      if(id==='reinforcedCharles') return 'kingCharles';
-      if(id==='reinforcedRishi') return 'rishiSunak';
-      if(id==='reinforcedWinston') return 'winstonChurchill';
-      if(id==='reinforcedIron') return 'queenIron';
-      if(id==='reinforcedIronHeart') return 'queenIronRegen';
-      return id;
-    };
+    // Define the ordered list of base enemies and their variant groupings
+    // Each base gets: regen, camo, regenCamo, and specific reinforced relatives
+    const groupDefs=[
+      {id:'queen',         reinforced:[]},
+      {id:'queenBlue',     reinforced:[]},
+      {id:'queenGreen',    reinforced:[]},
+      {id:'queenYellow',   reinforced:[]},
+      {id:'queenRed',      reinforced:[]},
+      {id:'queenPink',     reinforced:[]},
+      {id:'lead',          reinforced:[],skipRegen:true,skipCamo:true},
+      {id:'queenZebra',    reinforced:[]},
+      {id:'queenRainbow',  reinforced:[]},
+      {id:'queenIron',     reinforced:['reinforcedIron','reinforcedIronHeart']},
+      {id:'gigaLizzy',     reinforced:['reinforcedGiga'],skipRegen:true,skipCamo:true},
+      {id:'queenVictoria', reinforced:['reinforcedVictoria'],skipRegen:true,skipCamo:true},
+      {id:'kingCharles',   reinforced:['reinforcedCharles'],skipRegen:true,skipCamo:true},
+      {id:'rishiSunak',    reinforced:['reinforcedRishi'],skipRegen:true,skipCamo:true},
+      {id:'winstonChurchill', reinforced:['reinforcedWinston'],skipRegen:true,skipCamo:true},
+    ];
 
-    const groupMap=new Map();
-    entries.forEach(e=>{
-      const key=baseKey(e.id);
-      if(!groupMap.has(key)) groupMap.set(key,{key,items:[]});
-      groupMap.get(key).items.push(e);
-    });
+    groupDefs.forEach(def=>{
+      const baseId=def.id;
+      if(!ED[baseId]||seen.has(baseId)) return;
+      seen.add(baseId);
+      const variants=[];
 
-    const groupHTML=[...groupMap.values()].map(group=>{
-      const main=group.items.find(e=>!e.camo && !e.id.startsWith('reinforced')) || group.items.find(e=>!e.camo) || group.items[0];
-      const variants=group.items.filter(e=>e!==main);
-      const regen=getRegenRate(main);
-      const tags=[];
-      if(main.boss) tags.push('Boss');
-      if(main.reinforced) tags.push('Reinforced');
-      if(regen) tags.push(`Regen +${regen}/s`);
-      if(main.camo) tags.push('Camo');
-      if(main.lead) tags.push('Lead');
-      const imgSrc=main.img||'';
-      return `
-        <div class="enemy-group${variants.length?'':' expanded'}" data-group="${group.key}">
-          <div class="enemy-group-header">
-            <div class="enemy-card-row">
-              <div class="cpic" style="margin:0;width:92px;height:92px" data-img-src="${imgSrc}" data-init="${main.init}"></div>
-              <div class="enemy-info">
-                <div class="cname" style="margin-bottom:.28rem">${main.name}</div>
-                <div class="enemy-stats-inline">
-                  <span><span class="es-label">HP</span><span class="es-val">${formatNum(main.hp)}</span></span>
-                  <span><span class="es-label">Speed</span><span class="es-val">${main.spd}</span></span>
-                  <span><span class="es-label">Round</span><span class="es-val">${main.sr}</span></span>
-                </div>
-                <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.35rem">${tags.map(s=>`<span class="tower-tag">${s}</span>`).join('')}</div>
-              </div>
-            </div>
-            ${variants.length?`<button class="variant-toggle${variants.length?'':' open'}" type="button"><span>Variants (${variants.length})</span><span class="vt-arrow">⌄</span></button>`:''}
-          </div>
-          ${variants.length?`
-            <div class="enemy-variants" style="display:none">
-              ${variants.map(v=>{
-                const vtags=[];
-                if(v.boss) vtags.push('Boss');
-                if(v.reinforced) vtags.push('Reinforced');
-                const vregen=getRegenRate(v);
-                if(vregen) vtags.push(`Regen +${vregen}/s`);
-                if(v.camo) vtags.push('Camo');
-                if(v.lead) vtags.push('Lead');
-                return `
-                  <div class="variant-row">
-                    <div class="enemy-card-row">
-                      <div class="cpic" style="margin:0;width:72px;height:72px" data-img-src="${v.img||''}" data-init="${v.init}"></div>
-                      <div class="enemy-info">
-                        <div class="cname" style="margin-bottom:.18rem">${v.name}</div>
-                        <div class="enemy-stats-inline">
-                          <span><span class="es-label">HP</span><span class="es-val">${formatNum(v.hp)}</span></span>
-                          <span><span class="es-label">Speed</span><span class="es-val">${v.spd}</span></span>
-                          <span><span class="es-label">Round</span><span class="es-val">${v.sr}</span></span>
-                        </div>
-                        <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.25rem">${vtags.map(s=>`<span class="tower-tag">${s}</span>`).join('')}</div>
-                      </div>
-                    </div>
-                  </div>`;
-              }).join('')}
-            </div>`:''}
-        </div>`;
-    }).join('');
-
-    el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;width:100%;max-width:980px">${groupHTML}</div>`;
-    el.querySelectorAll('.variant-toggle').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const group=btn.closest('.enemy-group');
-        const panel=group&&group.querySelector('.enemy-variants');
-        const open=group.classList.toggle('expanded');
-        btn.classList.toggle('open',open);
-        if(panel) panel.style.display=open?'flex':'none';
+      // Regen variant (e.g. queenRegen)
+      if(!def.skipRegen){
+        const regenId=baseId+'Regen';
+        if(ED[regenId]&&!seen.has(regenId)){variants.push(ED[regenId]);seen.add(regenId);
+          // Regen's camo
+          const regenCamoId=regenId+'Camo';
+          if(ED[regenCamoId]&&!seen.has(regenCamoId)){variants.push(ED[regenCamoId]);seen.add(regenCamoId);}
+        }
+      }
+      // Camo variant (e.g. queenCamo)
+      if(!def.skipCamo){
+        const camoId=baseId+'Camo';
+        if(ED[camoId]&&!seen.has(camoId)){variants.push(ED[camoId]);seen.add(camoId);}
+      }
+      // Reinforced relatives (and their camo variants)
+      (def.reinforced||[]).forEach(rid=>{
+        if(ED[rid]&&!seen.has(rid)){variants.push(ED[rid]);seen.add(rid);}
+        // Also add the camo version of this reinforced enemy if it exists
+        const rCamoId=rid+'Camo';
+        if(ED[rCamoId]&&!seen.has(rCamoId)){variants.push(ED[rCamoId]);seen.add(rCamoId);}
       });
+      groups.push({base:ED[baseId],variants});
     });
-    el.querySelectorAll('.cpic[data-img-src]').forEach(pic=>{
-      const src=pic.dataset.imgSrc;
-      const init=pic.dataset.init||'';
-      if(src){
-        const img=makeFallbackImage(src,()=>{ pic.textContent=init; });
-        pic.innerHTML='';
-        pic.appendChild(img);
-      } else {
-        pic.textContent=init;
+
+    // Catch any remaining enemies not yet grouped (safety net)
+    Object.values(ED).forEach(e=>{
+      if(seen.has(e.id)) return;
+      seen.add(e.id);
+      groups.push({base:e,variants:[]});
+    });
+
+    const container=document.createElement('div');
+    container.className='enemy-groups';
+    container.style.cssText='width:100%;max-width:980px;display:flex;flex-direction:column;gap:.9rem';
+
+    groups.forEach(({base,variants})=>{
+      const hasVariants=variants.length>0;
+      const hpCol=base.boss?'#e57368':base.hp>=80?'#c9a227':base.hp>=40?'#ff7043':base.hp>=20?'#f48fb1':base.hp>=10?'#e53935':base.hp>=5?'#81c784':base.hp>=2?'#64b5f6':'#aaa';
+      const isRishi=base.id==='rishiSunak'||base.id==='reinforcedRishi';
+      const accentCol=base.camo&&!isRishi?'#39ff14':(base.reinforced?'#f0c040':(base.boss?'#e57368':hpCol));
+
+      function enemyCardHtml(e,isVariant){
+        const eHpCol=e.boss?'#e57368':e.hp>=80?'#c9a227':e.hp>=40?'#ff7043':e.hp>=20?'#f48fb1':e.hp>=10?'#e53935':e.hp>=5?'#81c784':e.hp>=2?'#64b5f6':'#aaa';
+        const eRegen=getRegenRate(e);
+        const eIsCamo=e.camo;
+        const eIsRishi=e.id==='rishiSunak'||e.id==='reinforcedRishi';
+        // Badges — check all relevant properties
+        const badges=[];
+        if(e.boss&&!e.reinforced) badges.push(`<span class="ebadge" style="color:#e57368;background:#e5736818;border-color:#e5736844">Boss</span>`);
+        if(e.reinforced) badges.push(`<span class="ebadge" style="color:#f0c040;background:#f0c04018;border-color:#f0c04044">⚔ Reinforced</span>`);
+        if(eRegen) badges.push(`<span class="ebadge" style="color:#4caf50;background:#4caf5018;border-color:#4caf5044">♥ Regenerating</span>`);
+        if(eIsCamo) badges.push(eIsRishi
+          ?`<span class="ebadge" style="color:#b0bec5;background:#b0bec518;border-color:#b0bec544">Camo</span>`
+          :`<span class="ebadge" style="color:#39ff14;background:#39ff1418;border-color:#39ff1466">🌿 Camo</span>`);
+        if(e.lead) badges.push(`<span class="ebadge" style="color:#aeb8c2;background:#aeb8c218;border-color:#aeb8c244">Lead</span>`);
+        // Border styling — no glow in gallery, just clean colour border
+        const borderCol=e.reinforced?'#f0c04088':(e.lead?'#aeb8c266':(eIsCamo&&!eIsRishi?'#39ff1466':'#c8964044'));
+        return `<div class="enemy-card-row${isVariant?' variant-row':''}">
+          <div class="cpic" id="epic-${e.id}" style="width:64px;height:64px;flex-shrink:0;margin:0;border-radius:6px;border:2px solid ${borderCol}">
+            <div class="cpic-init" id="epic-init-${e.id}" style="font-size:1rem">${e.init}</div>
+          </div>
+          <div class="enemy-info">
+            <div style="display:flex;gap:.28rem;flex-wrap:wrap;margin-bottom:.22rem">${badges.join('')}</div>
+            <div class="cname" style="font-size:.88rem;margin-bottom:.18rem">${e.name}</div>
+            <div class="enemy-stats-inline">
+              <span><span class="es-label">HP</span><span class="es-val" style="color:#4caf50">${e.hp}</span></span>
+              <span><span class="es-label">Spd</span><span class="es-val">${e.spd}</span></span>
+              <span><span class="es-label">Round</span><span class="es-val" style="color:${eHpCol}">${e.sr}</span></span>
+              <span><span class="es-label">Reward</span><span class="es-val" style="color:#f0c040">$${e.hp}</span></span>
+              ${eRegen?`<span><span class="es-label">Regen</span><span class="es-val" style="color:#4caf50">+${eRegen}/s</span></span>`:''}
+              ${eIsCamo&&!eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#39ff14">Invisible to towers</span></span>`:''}
+              ${eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#b0bec5">Camo · Fast</span></span>`:''}
+              ${e.lead?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#aeb8c2">Explosion only</span></span>`:''}
+            </div>
+          </div>
+        </div>`;
+      }
+
+      const groupEl=document.createElement('div');
+      groupEl.className='enemy-group'+(hasVariants?' has-variants':'');
+      groupEl.innerHTML=`
+        <div class="enemy-group-header" style="border-color:${accentCol}33">
+          <div class="enemy-group-main">
+            ${enemyCardHtml(base,false)}
+          </div>
+          ${hasVariants?`<button class="variant-toggle" aria-label="Show variants">
+            <span class="vt-text">+${variants.length} variant${variants.length!==1?'s':''}</span>
+            <span class="vt-arrow">▼</span>
+          </button>`:''}
+        </div>
+        ${hasVariants?`<div class="enemy-variants" style="display:none">
+          ${variants.map(v=>enemyCardHtml(v,true)).join('')}
+        </div>`:''}
+      `;
+      container.appendChild(groupEl);
+
+      if(hasVariants){
+        const toggle=groupEl.querySelector('.variant-toggle');
+        const variantsEl=groupEl.querySelector('.enemy-variants');
+        toggle.addEventListener('click',()=>{
+          const open=variantsEl.style.display!=='none';
+          variantsEl.style.display=open?'none':'flex';
+          toggle.classList.toggle('open',!open);
+          groupEl.classList.toggle('expanded',!open);
+          if(!open){
+            requestAnimationFrame(()=>{
+              variants.forEach(v=>{
+                const imgSrc=v.img||'QueenElizabeth.jpg';
+                const im=gimg(imgSrc);
+                const initEl=document.getElementById('epic-init-'+v.id);
+                const picEl=document.getElementById('epic-'+v.id);
+                if(!initEl||!picEl) return;
+                const setIt=()=>{
+                  if(!im._bad&&im.naturalWidth>0&&initEl&&picEl){
+                    const img=makeFallbackImage(imgSrc,()=>{});
+                    const f=tintFilter(v.tint);
+                    img.style.cssText=`width:100%;height:100%;object-fit:cover;object-position:center center;display:block;${f?'filter:'+f:''}`;
+                    initEl.remove();picEl.appendChild(img);
+                  }
+                };
+                if(im.complete) setIt(); else { im.onload=setIt; }
+              });
+            });
+          }
+        });
       }
     });
 
+    el.appendChild(container);
+
+    // Load base enemy images immediately
+    requestAnimationFrame(()=>{
+      groups.forEach(({base})=>{
+        const imgSrc=base.img||'QueenElizabeth.jpg';
+        const im=gimg(imgSrc);
+        const initEl=document.getElementById('epic-init-'+base.id);
+        const picEl=document.getElementById('epic-'+base.id);
+        if(!initEl||!picEl) return;
+        const setIt=()=>{
+          if(!im._bad&&im.naturalWidth>0&&initEl&&picEl){
+            const img=makeFallbackImage(imgSrc,()=>{});
+            const f=tintFilter(base.tint);
+            img.style.cssText=`width:100%;height:100%;object-fit:cover;object-position:center center;display:block;${f?'filter:'+f:''}`;
+            initEl.remove();picEl.appendChild(img);
+          }
+        };
+        if(im.complete) setIt(); else { im.onload=setIt; }
+      });
+    });
   } else {
     el.innerHTML=`
       <div class="htp">
