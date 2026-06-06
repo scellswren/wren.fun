@@ -218,7 +218,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 /* SHOP ITEMS */
 .sitem{display:flex;align-items:center;gap:.5rem;padding:.45rem;
   border:1px solid #c8964030;border-radius:2px;cursor:pointer;transition:all .14s;
-  margin-bottom:.35rem;background:#ffffff04;position:relative}
+  margin-bottom:.35rem;background:#ffffff04;position:relative;flex-wrap:wrap}
 .sitem:hover{background:#f0c04012;border-color:#c8964066}
 .sitem.sel{background:#f0c04020;border-color:var(--gold);box-shadow:0 0 7px #f0c04033}
 .sitem.broke{opacity:.4;cursor:not-allowed}
@@ -226,9 +226,16 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
   overflow:hidden;background:#111;display:flex;align-items:center;justify-content:center;
   font-family:'Cinzel',serif;font-size:.7rem;color:var(--gold)}
 .spic img{width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
+.shop-info{min-width:0;flex:1}
 .sname{font-family:'Cinzel',serif;font-size:.7rem;color:var(--text);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .scost{color:var(--gold);font-size:.76rem;font-weight:700}
+.shop-upgs{display:none;width:100%;margin-top:.5rem;padding-top:.55rem;border-top:1px solid #c8964022}
+.sitem.sel .shop-upgs{display:block}
+.shop-upgtitle{font-family:'Cinzel',serif;font-size:.68rem;color:var(--gold);margin-bottom:.35rem;letter-spacing:.05em}
+.shop-upgitem{font-size:.73rem;line-height:1.4;color:var(--text);padding:.18rem 0}
+.shop-upgitem strong{color:var(--gold);font-weight:600}
+.shop-upghint{margin-top:.35rem;font-size:.68rem;color:var(--muted)}
 
 /* SELECTED PANEL */
 .selpic{width:72px;height:72px;border:2px solid #c8964066;border-radius:4px;
@@ -538,24 +545,19 @@ const ED = {
   // hp:80 / hp:80
   queenIron:        {id:'queenIron',        name:'Iron Queen Elizabeth',               hp:80,   spd:60,  sr:26, tint:'iron',    init:'IQE',  col:'#90a4ae', onDeath:'splitRainbow'},
   queenIronRegen:   {id:'queenIronRegen',   name:'Regenerating Iron Queen Elizabeth',  hp:80,   spd:60,  sr:35, tint:'iron',    init:'RIQE', col:'#90a4ae', regen:4, onDeath:'splitRainbow'},
-  // ── Leads ──
-  leadQueen:        {id:'leadQueen',        name:'Lead Queen Elizabeth',               hp:22,   spd:55,  sr:38, tint:'lead',    init:'LQ',   col:'#9ea7b2', lead:true},
-  leadBlue:         {id:'leadBlue',         name:'Lead Blue Queen Elizabeth',          hp:36,   spd:58,  sr:42, tint:'lead',    init:'LB',   col:'#9ea7b2', lead:true},
-  leadGreen:        {id:'leadGreen',        name:'Lead Green Queen Elizabeth',         hp:54,   spd:60,  sr:46, tint:'lead',    init:'LG',   col:'#9ea7b2', lead:true},
-  leadPink:         {id:'leadPink',         name:'Lead Pink Queen Elizabeth',          hp:80,   spd:68,  sr:50, tint:'lead',    init:'LP',   col:'#9ea7b2', lead:true},
-  leadZebra:        {id:'leadZebra',        name:'Lead Black and White Queen Elizabeth', hp:110, spd:72,  sr:54, tint:'lead',    init:'LZ',   col:'#a6afb8', lead:true},
-  leadIron:         {id:'leadIron',         name:'Lead Iron Queen Elizabeth',          hp:170,  spd:52,  sr:58, tint:'lead',    init:'LI',   col:'#b3bcc5', lead:true},
+  // ── Lead ──
+  lead:             {id:'lead',             name:'Lead',                               hp:25,   spd:58,  sr:38, tint:'lead',    init:'L',    col:'#aeb8c2', lead:true},
   // ── Bosses ──
   gigaLizzy:        {id:'gigaLizzy',        name:'Giga Lizzy',                         hp:300,  spd:50,  sr:40, tint:null,      init:'GL',   col:'#ef9a9a', scale:4, boss:true},
   queenVictoria:    {id:'queenVictoria',    name:'Queen Victoria',                     hp:1000, spd:40,  sr:60, tint:null,      init:'QV',   col:'#c9a227', scale:4, boss:true, img:'QueenV.jpg', nameScale:1.35},
   kingCharles:      {id:'kingCharles',      name:'King Charles',                       hp:6000, spd:40,  sr:80, tint:null,      init:'KC',   col:'#d7b65a', scale:4.5, boss:true, img:'KingCH.jpg', nameScale:1.25},
-  rishiSunak:       {id:'rishiSunak',       name:'Rishi Sunak',                        hp:900,  spd:520, sr:90, tint:'iron',    init:'RS',   col:'#b0bec5', scale:1.35, img:'Rishi.jpg'},
-  reinforcedIron:   {id:'reinforcedIron',   name:'Reinforced Iron Queen Elizabeth',     hp:180,  spd:60,  sr:38, tint:'iron',    init:'RI',   col:'#d7b65a', scale:1.18, reinforced:true, onDeath:'splitRainbow'},
-  reinforcedIronHeart:{id:'reinforcedIronHeart',name:'Reinforced Iron Heart',           hp:260,  spd:60,  sr:49, tint:'iron',    init:'RIH',  col:'#ff4d8a', scale:1.28, reinforced:true, heart:true, regen:4, onDeath:'splitRainbow'},
-  reinforcedRishi:  {id:'reinforcedRishi',  name:'Reinforced Rishi Sunak',              hp:1800, spd:520, sr:102,tint:'iron',    init:'RRS',  col:'#e0e0e0', scale:1.55, reinforced:true, img:'Rishi.jpg'},
-  reinforcedGiga:   {id:'reinforcedGiga',   name:'Reinforced Giga Lizzy',               hp:850,  spd:50,  sr:52, tint:null,      init:'RGL',  col:'#d7b65a', scale:4.3, boss:true, reinforced:true},
-  reinforcedVictoria:{id:'reinforcedVictoria',name:'Reinforced Queen Victoria',         hp:2500, spd:40,  sr:72, tint:null,      init:'RQV',  col:'#d7b65a', scale:4.3, boss:true, img:'QueenV.jpg', nameScale:1.2, reinforced:true},
-  reinforcedCharles:{id:'reinforcedCharles',name:'Reinforced King Charles',             hp:14000,spd:40,  sr:92, tint:null,      init:'RKC',  col:'#f0c040', scale:4.9, boss:true, img:'KingCH.jpg', nameScale:1.15, reinforced:true}
+  rishiSunak:       {id:'rishiSunak',       name:'Rishi Sunak',                        hp:900,  spd:520, sr:90, tint:'iron',    init:'RS',   col:'#b0bec5', scale:1.35, boss:true, img:'Rishi.jpg'},
+  reinforcedIron:   {id:'reinforcedIron',   name:'Reinforced Iron Queen Elizabeth',     hp:120,  spd:60,  sr:38, tint:'iron',    init:'RI',   col:'#d7b65a', scale:1.18, reinforced:true, onDeath:'splitRainbow'},
+  reinforcedIronHeart:{id:'reinforcedIronHeart',name:'Reinforced Regenerating Iron Queen Elizabeth', hp:120, spd:60, sr:49, tint:'iron', init:'RRI', col:'#d7b65a', scale:1.24, reinforced:true, regen:4, onDeath:'splitRainbow'},
+  reinforcedRishi:  {id:'reinforcedRishi',  name:'Reinforced Rishi Sunak',              hp:1350, spd:520, sr:102,tint:'iron',    init:'RRS',  col:'#e0e0e0', scale:1.55, boss:true, reinforced:true, img:'Rishi.jpg'},
+  reinforcedGiga:   {id:'reinforcedGiga',   name:'Reinforced Giga Lizzy',               hp:450,  spd:50,  sr:52, tint:null,      init:'RGL',  col:'#d7b65a', scale:4.3, boss:true, reinforced:true},
+  reinforcedVictoria:{id:'reinforcedVictoria',name:'Reinforced Queen Victoria',         hp:1500, spd:40,  sr:72, tint:null,      init:'RQV',  col:'#d7b65a', scale:4.3, boss:true, img:'QueenV.jpg', nameScale:1.2, reinforced:true},
+  reinforcedCharles:{id:'reinforcedCharles',name:'Reinforced King Charles',             hp:9000, spd:40,  sr:92, tint:null,      init:'RKC',  col:'#f0c040', scale:4.9, boss:true, img:'KingCH.jpg', nameScale:1.15, reinforced:true}
 };
 
 const MAX_REGEN_PER_SECOND = 4;
@@ -566,11 +568,10 @@ const ENEMY_GALLERY_ORDER = [
   'queenYellow','queenYellowRegen',
   'queenRed','queenRedRegen',
   'queenPink','queenPinkRegen',
-  'leadQueen','leadBlue','leadGreen','leadPink',
+  'lead',
   'queenZebra','queenZebraRegen',
-  'leadZebra',
   'queenRainbow','queenRainbowRegen',
-  'queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart','leadIron',
+  'queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart',
   'gigaLizzy','reinforcedGiga',
   'queenVictoria','reinforcedVictoria',
   'kingCharles','reinforcedCharles',
@@ -612,6 +613,29 @@ function registerEnemyVariants(){
   });
 }
 registerEnemyVariants();
+
+const CAMO_REVEAL_ROUNDS = {
+  queen:22,
+  queenBlue:22,
+  queenRegen:24,
+  queenBlueRegen:24,
+  queenGreen:26,
+  queenGreenRegen:26,
+  queenYellow:29,
+  queenRed:29,
+  queenPink:29,
+  queenYellowRegen:33,
+  queenRedRegen:33,
+  queenPinkRegen:33,
+  queenZebra:36,
+  queenZebraRegen:40,
+  queenRainbow:44,
+  queenRainbowRegen:44,
+  queenIron:50,
+  queenIronRegen:50,
+  reinforcedIron:50,
+  reinforcedIronHeart:50
+};
 
 function getTowerUpgradeLevel(t){
   return Number(t && t.upg) || 0;
@@ -661,14 +685,14 @@ function getTowerBorderStyle(level){
 function camoUnlockRoundFor(id){
   const e=ED[id];
   if(!e || e.boss || e.lead) return Infinity;
-  return Math.max(24, Math.min(56, 24 + Math.floor(Math.max(0,(e.sr||1)-1)/4)*4));
+  return CAMO_REVEAL_ROUNDS[id] ?? 50;
 }
 function maybeCamoEnemyId(id,rnd){
   const e=ED[id];
   if(!e || e.boss || e.lead) return id;
   const camoId=id+'Camo';
   if(!ED[camoId] || rnd<camoUnlockRoundFor(id)) return id;
-  const chance=Math.min(0.58, 0.16 + Math.max(0,rnd-camoUnlockRoundFor(id))*0.018);
+  const chance=Math.min(0.62, 0.18 + Math.max(0,rnd-camoUnlockRoundFor(id))*0.024);
   return Math.random()<chance ? camoId : id;
 }
 function getEnemyBaseId(id){
@@ -743,7 +767,7 @@ function mkState(mapId){
     gold:750,hp:100,round:0,
     towers:[],enemies:[],projs:[],particles:[],
     waveActive:false,waveQ:[],spawnIdx:0,spawnT:0,
-    shopSel:null,towerSel:null,
+    shopSel:null,shopInfoSel:null,towerSel:null,
     paused:false,over:false,
     speed:1,autoRound:false,
     cam:{x:COLS*CELL/2,y:ROWS*CELL/2,z:0.88},
@@ -1381,7 +1405,7 @@ function normalPoolForRound(rnd){
     ids=['queen','queenBlue'];
   }
   if(rnd>=38){
-    ids=ids.concat(['leadQueen','leadBlue','leadGreen','leadPink','leadZebra','leadIron'].filter(id=>ED[id]&&ED[id].sr<=rnd));
+    ids.push('lead');
   }
   return ids.map(id=>ED[id]).filter(e=>e&&e.sr<=rnd&&!e.boss);
 }
@@ -1616,41 +1640,58 @@ const TOWER_BASE_SIZE = CELL * 0.88;
 const TOWER_IMAGE_SIZE = CELL * 0.82;
 const TOWER_HALF = TOWER_BASE_SIZE / 2;
 const TOWER_HALF_DIAGONAL = Math.SQRT2 * TOWER_HALF;
+function getTowerScale(tOrId){
+  const id=typeof tOrId==='string' ? tOrId : tOrId && (tOrId.defId || tOrId.id);
+  return id==='orin' ? 1.4 : 1;
+}
+function getTowerBaseSize(tOrId){
+  return TOWER_BASE_SIZE*getTowerScale(tOrId);
+}
+function getTowerImageSize(tOrId){
+  return TOWER_IMAGE_SIZE*getTowerScale(tOrId);
+}
+function getTowerBaseHalf(tOrId){
+  return getTowerBaseSize(tOrId)/2;
+}
 function circleHitsTowerSquare(px,py,cx,cy,half,radius){
   const dx=Math.max(Math.abs(px-cx)-half,0);
   const dy=Math.max(Math.abs(py-cy)-half,0);
   return dx*dx+dy*dy<radius*radius;
 }
-function towerBoxContainsPoint(cx,cy,px,py,pad=0){
-  return Math.abs(px-cx)<=TOWER_HALF+pad&&Math.abs(py-cy)<=TOWER_HALF+pad;
+function towerBoxContainsPoint(t,px,py,pad=0){
+  const half=getTowerBaseHalf(t);
+  return Math.abs(px-t.x)<=half+pad&&Math.abs(py-t.y)<=half+pad;
 }
 function canPlaceAt(wx,wy){
+  const activeTowerId=S&&S.shopSel;
+  const half=getTowerBaseHalf(activeTowerId||'wren');
+  const halfDiagonal=Math.SQRT2*half;
   const W=COLS*CELL,H=ROWS*CELL;
-  if(wx<TOWER_HALF||wy<TOWER_HALF||wx>W-TOWER_HALF||wy>H-TOWER_HALF) return false;
+  if(wx<half||wy<half||wx>W-half||wy>H-half) return false;
 
   if(S&&S.mapId==='autumn'){
     // For autumn: check distance to each path point, BUT allow points inside the island
     const mc=MAPS.autumn.circle;
     const icx=mc.cx*CELL+CELL/2, icy=mc.cy*CELL+CELL/2;
-    const innerR=(mc.r*CELL)-(CELL*0.88/2)-4; // island radius (matches drawPathAutumn)
+    const innerR=(mc.r*CELL)-half-4; // island radius (matches drawPathAutumn)
     const distToCenter=Math.sqrt((wx-icx)**2+(wy-icy)**2);
-    const inIsland = distToCenter < innerR-TOWER_HALF_DIAGONAL-CELL*0.06;
+    const inIsland = distToCenter < innerR-halfDiagonal-CELL*0.06;
     if(!inIsland){
       // Outside island: must not be on the road ring
       const clearance=CELL*0.5;
       for(const pt of PPTS){
-        if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,TOWER_HALF,clearance)) return false;
+        if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
       }
     }
   } else {
     const clearance=PATH_RADIUS;
     for(const pt of PPTS){
-      if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,TOWER_HALF,clearance)) return false;
+      if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
     }
   }
 
   // Must not overlap an existing tower
-  if(S.towers.some(t=>Math.abs(wx-t.x)<TOWER_BASE_SIZE&&Math.abs(wy-t.y)<TOWER_BASE_SIZE)) return false;
+  if(S.towers.some(t=>Math.abs(wx-t.x)<half+getTowerBaseHalf(t)&&Math.abs(wy-t.y)<half+getTowerBaseHalf(t))) return false;
   return true;
 }
 
@@ -1669,6 +1710,7 @@ function placeTower(wx,wy){
     spent:d.cost
   });
   S.shopSel=null;   // deselect shop item
+  S.shopInfoSel=null;
   updateHUD();
   buildShop();
   selectTower(newId); // open this tower's selection panel
@@ -1712,7 +1754,8 @@ function buildShop(){
   body.innerHTML='';
   Object.values(TD).forEach(d=>{
     const canAfford=S.gold>=d.cost;
-    const isSel=S.shopSel===d.id;
+    const isSel=S.shopSel===d.id||S.shopInfoSel===d.id;
+    const upgs=getTowerUpgradeList(d.id);
     const div=document.createElement('div');
     div.className='sitem'+(isSel?' sel':'')+(canAfford?'':' broke');
     const pic=document.createElement('div'); pic.className='spic';
@@ -1730,13 +1773,20 @@ function buildShop(){
     setImg();
     const info=document.createElement('div'); info.className='shop-info';
     info.innerHTML=`<div class="sname">${d.name}</div><div class="scost">$${d.cost}</div>`;
+    const upgPanel=document.createElement('div');
+    upgPanel.className='shop-upgs';
+    upgPanel.innerHTML=upgs.length
+      ? `<div class="shop-upgtitle">Upgrades</div>${upgs.map((upg,i)=>`<div class="shop-upgitem"><strong>${i+1}. ${upg.name} - $${upg.cost}</strong><br>${upg.desc}</div>`).join('')}<div class="shop-upghint">Click again to hide upgrades.</div>`
+      : `<div class="shop-upgtitle">Upgrades</div><div class="shop-upgitem">No upgrades yet.</div>`;
     div.appendChild(pic); div.appendChild(info);
     div.addEventListener('click',()=>{
-      if(!canAfford) return;
-      S.shopSel=(S.shopSel===d.id)?null:d.id;
-      if(S.shopSel){S.towerSel=null;document.getElementById('selPanel').style.display='none';}
+      const closing=S.shopInfoSel===d.id||S.shopSel===d.id;
+      S.shopInfoSel=closing?null:d.id;
+      S.shopSel=!closing&&canAfford?d.id:null;
+      if(S.shopInfoSel){S.towerSel=null;document.getElementById('selPanel').style.display='none';}
       buildShop();
     });
+    div.appendChild(upgPanel);
     body.appendChild(div);
   });
 }
@@ -1748,7 +1798,7 @@ function toggleShop(){
 
 // ─── SELECTED TOWER ───
 function selectTower(id){
-  S.towerSel=id; S.shopSel=null; buildShop();
+  S.towerSel=id; S.shopSel=null; S.shopInfoSel=null; buildShop();
   const t=S.towers.find(t=>t.id===id); if(!t) return;
   const d=TD[t.defId];
   const stats=getTowerStats(t);
@@ -1833,7 +1883,7 @@ function setTowerPriority(id,pri){
 }
 
 function desel(){
-  S.towerSel=null; S.shopSel=null; buildShop();
+  S.towerSel=null; S.shopSel=null; S.shopInfoSel=null; buildShop();
   document.getElementById('selPanel').style.display='none';
 }
 
@@ -1909,7 +1959,7 @@ function initInput(){
     const rect=canvas.getBoundingClientRect();
     const wld=s2w(e.clientX-rect.left,e.clientY-rect.top);
     // Hit-test towers using their square body
-    const hit=S.towers.find(t=>towerBoxContainsPoint(t.x,t.y,wld.x,wld.y));
+    const hit=S.towers.find(t=>towerBoxContainsPoint(t,wld.x,wld.y));
     if(hit){selectTower(hit.id);return;}
     if(S.shopSel){placeTower(wld.x,wld.y);return;}
     S.drag=true;S.dragS={x:e.clientX,y:e.clientY};S.camS={x:S.cam.x,y:S.cam.y};
@@ -1924,19 +1974,19 @@ function initInput(){
     const wld=s2w(e.clientX-rect.left,e.clientY-rect.top);
     S.ghost={wx:wld.x,wy:wld.y};
     // Track hovered tower for range preview
-    S.hoveredTower=S.towers.find(t=>towerBoxContainsPoint(t.x,t.y,wld.x,wld.y))||null;
+    S.hoveredTower=S.towers.find(t=>towerBoxContainsPoint(t,wld.x,wld.y))||null;
   });
 
   canvas.addEventListener('mouseup',()=>S.drag=false);
   canvas.addEventListener('mouseleave',()=>{S.drag=false;S.ghost={wx:-9999,wy:-9999};});
-  canvas.addEventListener('contextmenu',e=>{e.preventDefault();S.shopSel=null;buildShop();});
+  canvas.addEventListener('contextmenu',e=>{e.preventDefault();S.shopSel=null;S.shopInfoSel=null;buildShop();});
 
   // Keyboard shortcuts
   document.addEventListener('keydown',e=>{
     if(!S||S.over) return;
     if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
     if(e.code==='Space'){e.preventDefault();if(!S.waveActive&&!S.paused) startWave();}
-    if(e.code==='Escape'){S.shopSel=null;buildShop();desel();}
+    if(e.code==='Escape'){S.shopSel=null;S.shopInfoSel=null;buildShop();desel();}
     if(e.code==='KeyP'){togglePause();}
     if(e.code==='KeyS'){e.preventDefault();toggleSpeed();}
   });
@@ -2002,7 +2052,7 @@ function handleEnemyDefeat(tgt, tower){
   const tgtDef=ED[tgt.defId];
   const baseDef=ED[baseId]||tgtDef;
   if(baseDef&&baseDef.onDeath==='splitRainbow'){
-    const splitBase=baseId==='queenIronRegen'?'queenRainbowRegen':'queenRainbow';
+    const splitBase=baseId==='queenIronRegen'||baseId==='reinforcedIronHeart'?'queenRainbowRegen':'queenRainbow';
     const splitId=tgt.camo&&ED[splitBase+'Camo']?splitBase+'Camo':splitBase;
     for(let si=0;si<2;si++){
       spawnEnemy(splitId,{x:tgt.x,y:tgt.y,pi:tgt.pi});
@@ -2108,7 +2158,7 @@ function update(dt){
         vx:(Math.random()-.5)*12,
         vy:-28-Math.random()*18,
         life:0.85+Math.random()*0.3,
-        col:Math.random()<0.25?'#ffffff':'#ff4d8a'
+        col:Math.random()<0.3?'#ffffff':'#ff6f91'
       });
     }
     let rem=e.spd*dt;
@@ -2720,23 +2770,34 @@ function towerRectPath(cx,cy,size,radius){
   ctx.beginPath();
   ctx.roundRect(cx-size/2,cy-size/2,size,size,radius);
 }
+function strokeTowerRectProgress(cx,cy,size,radius,progress){
+  const clamped=Math.max(0,Math.min(1,progress||0));
+  const straight=Math.max(0,size-2*radius);
+  const perimeter=Math.max(1,4*straight+2*Math.PI*radius);
+  ctx.setLineDash([perimeter*clamped, perimeter]);
+  towerRectPath(cx,cy,size,radius);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
 
 function drawTowers(){
   for(const t of S.towers){
     const d=TD[t.defId];
     const stats=getTowerStats(t);
-    const px=t.x-CELL/2,py=t.y-CELL/2;
     const isSel=S.towerSel===t.id;
-    const baseSize=CELL*.88;
-    const imgSize=CELL*.82;
-    const baseRadius=CELL*.16;
-    const imgRadius=CELL*.14;
+    const scale=getTowerScale(t);
+    const baseSize=TOWER_BASE_SIZE*scale;
+    const imgSize=TOWER_IMAGE_SIZE*scale;
+    const baseRadius=CELL*.16*scale;
+    const imgRadius=CELL*.14*scale;
+    const glowSize=baseSize+CELL*.08*scale;
+    const glowRadius=baseRadius+CELL*.02*scale;
     if(isSel){
       // Glow frame
       ctx.save();
       ctx.strokeStyle='rgba(240,192,64,0.88)';ctx.lineWidth=3;
       ctx.shadowColor='#f0c040';ctx.shadowBlur=14;
-      towerRectPath(t.x,t.y,CELL*.96,CELL*.18);ctx.stroke();
+      towerRectPath(t.x,t.y,glowSize,glowRadius);ctx.stroke();
       ctx.restore();
       if(stats.range<9999){
         ctx.save();
@@ -2753,14 +2814,26 @@ function drawTowers(){
     }
     // Base shadow
     ctx.fillStyle='rgba(0,0,0,0.35)';
-    ctx.beginPath();ctx.ellipse(t.x,t.y+CELL*.38,CELL*.36,CELL*.1,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(t.x,t.y+CELL*.38*scale,CELL*.36*scale,CELL*.1*scale,0,0,Math.PI*2);ctx.fill();
     // Base square
     ctx.fillStyle=`${d.col}22`;
-    ctx.strokeStyle=`${d.col}66`;ctx.lineWidth=1.5;
-    towerRectPath(t.x,t.y,baseSize,baseRadius);ctx.fill();ctx.stroke();
+    towerRectPath(t.x,t.y,baseSize,baseRadius);ctx.fill();
+
+    const borderStyle=getTowerBorderStyle(getTowerUpgradeLevel(t));
+    if(borderStyle){
+      ctx.save();
+      ctx.strokeStyle=borderStyle.stroke;
+      ctx.lineWidth=borderStyle.lineWidth;
+      if(borderStyle.glow){
+        ctx.shadowColor=borderStyle.glow;
+        ctx.shadowBlur=getTowerUpgradeLevel(t)>=5 ? 18 : 13;
+      }
+      towerRectPath(t.x,t.y,baseSize,baseRadius);ctx.stroke();
+      ctx.restore();
+    }
 
     // Tower image
-    const sz=imgSize,ix=px+(CELL-sz)/2,iy=py+(CELL-sz)/2;
+    const sz=imgSize,ix=t.x-sz/2,iy=t.y-sz/2;
     const im=gimg(d.img);
     if(!im._bad&&im.complete&&im.naturalWidth>0){
       ctx.save();towerRectPath(t.x,t.y,sz,imgRadius);ctx.clip();
@@ -2776,7 +2849,7 @@ function drawTowers(){
       const prog=(t.it||0)/stats.irate;
       ctx.save();
       ctx.strokeStyle=d.col;ctx.lineWidth=2.5;ctx.globalAlpha=.7;
-      ctx.beginPath();ctx.arc(t.x,t.y,CELL*.49,-Math.PI/2,-Math.PI/2+Math.PI*2*prog);ctx.stroke();
+      strokeTowerRectProgress(t.x,t.y,sz+CELL*.05*scale,imgRadius+CELL*.02*scale,prog);
       ctx.restore();
     }
 
@@ -2820,7 +2893,7 @@ function drawEnemies(){
     ctx.scale(squishX,squishY);
     if(!im._bad&&im.complete&&im.naturalWidth>0){
       ctx.save();
-      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'&&e.tint!=='lead'){
+      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'&&e.tint!=='lead'&&e.tint!=='zebra'){
         ctx.filter=tintFilter(e.tint);
       }
       traceEnemyBodyPath(sz,isHeart);ctx.clip();
@@ -2828,7 +2901,7 @@ function drawEnemies(){
       ctx.restore();
 
       // Tint overlays
-      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'&&e.tint!=='lead'){
+      if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'&&e.tint!=='lead'&&e.tint!=='zebra'){
         const tc={blue:'rgba(70,130,255,0.45)',green:'rgba(50,200,80,0.4)',yellow:'rgba(255,210,40,0.45)',red:'rgba(220,30,30,0.5)',pink:'rgba(255,80,180,0.45)'};
         if(tc[e.tint]){
           ctx.save();ctx.globalCompositeOperation='multiply';
@@ -2836,6 +2909,30 @@ function drawEnemies(){
           traceEnemyBodyPath(sz,isHeart);ctx.fill();
           ctx.restore();
         }
+      }
+
+      if(e.tint==='zebra'){
+        ctx.save();
+        traceEnemyBodyPath(sz,isHeart);ctx.clip();
+        ctx.globalAlpha=0.78;
+        ctx.strokeStyle='rgba(18,18,18,0.82)';
+        ctx.lineWidth=Math.max(3,sz*.11);
+        [-0.56,-0.3,-0.06,0.18,0.42].forEach(off=>{
+          ctx.beginPath();
+          ctx.moveTo(off*sz,-sz*.58);
+          ctx.lineTo((off+.22)*sz,sz*.58);
+          ctx.stroke();
+        });
+        ctx.globalAlpha=0.2;
+        ctx.strokeStyle='rgba(255,255,255,0.55)';
+        ctx.lineWidth=Math.max(1.2,sz*.03);
+        [-0.44,-0.18,0.08,0.34].forEach(off=>{
+          ctx.beginPath();
+          ctx.moveTo(off*sz,-sz*.54);
+          ctx.lineTo((off+.18)*sz,sz*.54);
+          ctx.stroke();
+        });
+        ctx.restore();
       }
 
       // Iron: steel-plate overlay with rivets
@@ -2883,15 +2980,24 @@ function drawEnemies(){
         ctx.drawImage(im,-sz/2,-sz/2,sz,sz);
         ctx.restore();
         ctx.save();traceEnemyBodyPath(sz,isHeart);ctx.clip();
-        ctx.fillStyle='rgba(90,102,114,0.34)';
-        ctx.fillRect(-sz/2,-sz*.08,sz,sz*.18);
-        ctx.strokeStyle='rgba(232,238,244,0.45)';
-        ctx.lineWidth=Math.max(1.3,sz*.02);
-        ctx.beginPath();ctx.moveTo(-sz*.42,-sz*.05);ctx.lineTo(sz*.42,-sz*.05);ctx.stroke();
+        ctx.fillStyle='rgba(76,88,102,0.2)';
+        ctx.fillRect(-sz/2,-sz/2,sz,sz);
+        const leadBand=ctx.createLinearGradient(-sz*.5,-sz*.3,sz*.5,sz*.24);
+        leadBand.addColorStop(0,'rgba(228,235,242,0.62)');
+        leadBand.addColorStop(0.5,'rgba(142,154,166,0.48)');
+        leadBand.addColorStop(1,'rgba(70,80,92,0.55)');
+        ctx.fillStyle=leadBand;
+        ctx.fillRect(-sz*.48,-sz*.14,sz*.96,sz*.28);
+        ctx.fillStyle='rgba(85,95,108,0.52)';
+        ctx.fillRect(-sz*.42,-sz*.37,sz*.84,sz*.12);
+        ctx.fillRect(-sz*.42,sz*.25,sz*.84,sz*.12);
+        ctx.strokeStyle='rgba(236,240,244,0.5)';
+        ctx.lineWidth=Math.max(1.4,sz*.024);
+        ctx.beginPath();ctx.moveTo(-sz*.42,-sz*.01);ctx.lineTo(sz*.42,-sz*.01);ctx.stroke();
         ctx.restore();
         ctx.save();
-        ctx.fillStyle='rgba(220,228,236,0.88)';
-        [[-.32,-.02],[.32,-.02],[-.18,.24],[.18,.24]].forEach(([rx,ry])=>{
+        ctx.fillStyle='rgba(220,228,236,0.94)';
+        [[-.34,-.02],[.34,-.02],[-.22,.31],[.22,.31],[0,-.31]].forEach(([rx,ry])=>{
           ctx.beginPath();ctx.arc(rx*sz,ry*sz,sz*.04,0,Math.PI*2);ctx.fill();
         });
         ctx.restore();
@@ -2914,9 +3020,18 @@ function drawEnemies(){
       if(e.camo){
         ctx.save();
         traceEnemyBodyPath(sz,isHeart);ctx.clip();
-        [['rgba(70,96,54,0.58)',-.24,-.16,.2],['rgba(132,114,76,0.48)',.2,-.1,.18],['rgba(92,120,74,0.56)',-.08,.14,.22],['rgba(54,74,42,0.42)',.22,.18,.16],['rgba(160,144,98,0.36)',-.3,.22,.13]].forEach(([col,ox,oy,rr])=>{
+        [['rgba(70,96,54,0.54)',-.24,-.16,.2],['rgba(132,114,76,0.44)',.2,-.1,.18],['rgba(92,120,74,0.52)',-.08,.14,.22],['rgba(54,74,42,0.4)',.22,.18,.16],['rgba(160,144,98,0.32)',-.3,.22,.13]].forEach(([col,ox,oy,rr])=>{
           ctx.fillStyle=col;
           ctx.beginPath();ctx.arc(ox*sz,oy*sz,rr*sz,0,Math.PI*2);ctx.fill();
+        });
+        ctx.globalAlpha=0.35;
+        ctx.strokeStyle='rgba(214,225,188,0.55)';
+        ctx.lineWidth=Math.max(1.1,sz*.018);
+        [-0.44,-0.16,0.12,0.38].forEach(off=>{
+          ctx.beginPath();
+          ctx.moveTo(-sz*.55,off*sz);
+          ctx.lineTo(sz*.55,(off-.22)*sz);
+          ctx.stroke();
         });
         ctx.restore();
       }
@@ -2973,6 +3088,20 @@ function drawEnemies(){
         ctx.restore();
       }
 
+      if(e.regen){
+        ctx.save();
+        traceEnemyBodyPath(sz,isHeart);ctx.clip();
+        ctx.globalCompositeOperation='screen';
+        ctx.globalAlpha=0.2+Math.sin((e.t||0)*7)*0.04;
+        const regenAura=ctx.createRadialGradient(0,0,sz*.12,0,0,sz*.54);
+        regenAura.addColorStop(0,'rgba(148,255,170,0.68)');
+        regenAura.addColorStop(0.58,'rgba(92,214,116,0.24)');
+        regenAura.addColorStop(1,'rgba(92,214,116,0)');
+        ctx.fillStyle=regenAura;
+        ctx.beginPath();ctx.arc(0,0,sz*.52,0,Math.PI*2);ctx.fill();
+        ctx.restore();
+      }
+
       // Border
       ctx.strokeStyle=e.reinforced?'#f0c040':e.lead?'#d2dbe3':e.camo?'#a5ba74':(e.col||'#fff');ctx.lineWidth=e.reinforced?3.2:1.5;
       traceEnemyBodyPath(sz,isHeart);ctx.stroke();
@@ -2990,7 +3119,7 @@ function drawEnemies(){
     }
     ctx.restore();
 
-    if(e.camo||e.lead){
+    if(e.camo||e.lead||e.regen){
       ctx.save();
       ctx.font=`bold ${Math.max(9,Math.floor(sz*.18))}px Cinzel,serif`;
       ctx.textAlign='center';ctx.textBaseline='middle';
@@ -3001,6 +3130,10 @@ function drawEnemies(){
       if(e.lead){
         ctx.fillStyle='#e0e6eb';
         ctx.fillText('L',drawX-sz*.26,drawY-sz*.26);
+      }
+      if(e.regen){
+        ctx.fillStyle='#8ef090';
+        ctx.fillText('♥',drawX,drawY+sz*.3);
       }
       ctx.restore();
     }
@@ -3095,15 +3228,18 @@ function drawGhost(){
   if(wx<0||wy<0||wx>W||wy>H) return;
   const ok=canPlaceAt(wx,wy);
   const d=TD[S.shopSel];
-  const sz=CELL*.82;
-  const ghostRadius=CELL*.14;
+  const scale=getTowerScale(d.id);
+  const baseSz=TOWER_BASE_SIZE*scale;
+  const sz=TOWER_IMAGE_SIZE*scale;
+  const ghostRadius=CELL*.14*scale;
+  const ghostBaseRadius=CELL*.16*scale;
   ctx.save();
   ctx.globalAlpha=.6;
   // Draw ghost tower square
   ctx.fillStyle=ok?'rgba(80,220,80,0.15)':'rgba(220,60,60,0.15)';
-  towerRectPath(wx,wy,sz,ghostRadius);ctx.fill();
+  towerRectPath(wx,wy,baseSz,ghostBaseRadius);ctx.fill();
   ctx.strokeStyle=ok?'#80e080':'#e06060';ctx.lineWidth=2;
-  towerRectPath(wx,wy,sz,ghostRadius);ctx.stroke();
+  towerRectPath(wx,wy,baseSz,ghostBaseRadius);ctx.stroke();
   const im=gimg(d.img);
   if(!im._bad&&im.complete&&im.naturalWidth>0){
     ctx.save();ctx.globalAlpha=.5;
