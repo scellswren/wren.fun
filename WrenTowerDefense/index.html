@@ -840,9 +840,9 @@ function maybeCamoEnemyId(id,rnd){
   // Weaker camos fade out in later rounds
   const fadeOut=CAMO_FADEOUT_ROUNDS[id];
   if(fadeOut && rnd>=fadeOut) return id;
-  // Chance ramps up steeply — very common post-round 60
+  // Chance ramps from 40% at unlock → 70% by +6 rounds → 88% by +15 rounds
   const sinceUnlock=rnd-camoUnlockRoundFor(id);
-  const chance=Math.min(0.82, 0.22 + sinceUnlock*0.032 + (rnd>=60?0.15:0) + (rnd>=80?0.1:0));
+  const chance=Math.min(0.92, 0.40 + sinceUnlock*0.05 + (rnd>=60?0.12:0) + (rnd>=75?0.08:0));
   return Math.random()<chance ? camoId : id;
 }
 function getTowerUpgradeLevel(t){
@@ -2007,39 +2007,60 @@ function rewardPenaltyLabel(rnd){
 }
 
 function normalPoolForRound(rnd){
+  // Each enemy only enters the pool at or after its sr (spawn round from enemy gallery).
+  // The pools below are the ELIGIBLE set; the sr<=rnd filter enforces exact debut rounds.
   let ids;
   if(rnd>=102){
-    ids=['queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart','rishiSunak','reinforcedRishi'];
+    // r102+: almost all reinforced iron + the boss-class regulars
+    ids=['reinforcedIron','reinforcedIronHeart','queenIron','queenIronRegen','rishiSunak','reinforcedRishi'];
   } else if(rnd>=95){
-    ids=['queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart','rishiSunak'];
+    ids=['reinforcedIron','reinforcedIronHeart','queenIron','queenIronRegen','queenRainbow','queenRainbowRegen','rishiSunak'];
   } else if(rnd>=90){
-    // By round 90: bosses and reinforced iron dominate, a little rainbow
-    ids=['queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen','rishiSunak'];
+    // r90: reinforced iron is common filler, rainbow + rishi as boss-tier regulars
+    ids=['reinforcedIron','reinforcedIronHeart','queenIron','queenIronRegen','queenRainbow','queenRainbowRegen','rishiSunak'];
   } else if(rnd>=85){
-    ids=['queenIron','queenIronRegen','reinforcedIron','queenRainbow','queenRainbowRegen','queenZebraRegen'];
-  } else if(rnd>=75){
-    ids=['queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen'];
-  } else if(rnd>=60){
+    // r85-89: transitioning — iron/rainbow/zebra still present but reinforced iron growing
+    ids=['reinforcedIron','queenIron','queenIronRegen','queenRainbow','queenRainbowRegen','queenZebraRegen','rishiSunak'];
+  } else if(rnd>=78){
+    // r78-84: iron + rainbow dominant; reinforced iron starts appearing (sr:38, eligible)
+    ids=['queenIron','queenIronRegen','reinforcedIron','queenRainbow','queenRainbowRegen','queenZebra','queenZebraRegen'];
+  } else if(rnd>=68){
+    // r68-77: zebra/rainbow/iron mix
+    ids=['queenZebra','queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron','queenIronRegen','reinforcedIron'];
+  } else if(rnd>=55){
+    // r55-67: pink/zebra/rainbow; iron eligible from sr:26 but kept back until r55 for balance
     ids=['queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron','reinforcedIron'];
-  } else if(rnd>=49){
-    ids=['queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart'];
-  } else if(rnd>=38){
-    ids=['queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenIron','reinforcedIron'];
-  } else if(rnd>=30){
-    ids=['queenGreenRegen','queenYellow','queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra'];
-  } else if(rnd>=20){
-    ids=['queenGreen','queenGreenRegen','queenYellow','queenYellowRegen','queenRed','queenRedRegen','queenPink'];
-  } else if(rnd>=12){
-    ids=['queenBlue','queenGreen','queenYellow','queenRed','queenPink','queenBlueRegen','queenGreenRegen'];
-  } else if(rnd>=6){
-    ids=['queen','queenBlue','queenGreen','queenYellow'];
-  } else {
+  } else if(rnd>=45){
+    // r45-54: red/pink/zebra/rainbow; iron eligible (sr:26+)
+    ids=['queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron','reinforcedIron','queenIronRegen','reinforcedIronHeart'];
+  } else if(rnd>=36){
+    // r36-44: yellow/red/pink/zebra/rainbow — rainbow sr:22 so eligible, iron sr:26 so eligible
+    ids=['queenYellow','queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenZebra','queenZebraRegen','queenRainbow','queenRainbowRegen','queenIron'];
+  } else if(rnd>=28){
+    // r28-35: green/yellow/red/pink/rainbow (sr:22 rainbow eligible from r28+)
+    ids=['queenGreen','queenGreenRegen','queenYellow','queenYellowRegen','queenRed','queenRedRegen','queenPink','queenPinkRegen','queenRainbow'];
+  } else if(rnd>=24){
+    // r24-27: ONLY normal queen and blue queen — user requirement for round 24
+    // queenRegen (sr:10) and queenBlueRegen (sr:13) also eligible but excluded by design
+    // to keep r24 restricted. Camo variants of queen+queenBlue debut at sr:24 exactly.
     ids=['queen','queenBlue'];
+  } else if(rnd>=14){
+    // r14-23: blue + green queens and their regen variants
+    ids=['queen','queenBlue','queenGreen','queenRegen','queenBlueRegen','queenGreenRegen'];
+  } else if(rnd>=8){
+    // r8-13: normal + blue + a little green
+    ids=['queen','queenBlue','queenGreen','queenRegen','queenBlueRegen'];
+  } else if(rnd>=3){
+    ids=['queen','queenBlue'];
+  } else {
+    ids=['queen'];
   }
+  // Lead: enters exactly at sr:38, phases out at 70
   if(rnd>=38 && rnd<70){
     ids.push('lead');
   }
-  return ids.map(id=>ED[id]).filter(e=>e&&e.sr<=rnd&&!e.boss);
+  // Always filter to enemies that have actually debuted (sr<=rnd) and are not bosses
+  return ids.map(id=>ED[id]).filter(e=>e && e.sr<=rnd && !e.boss);
 }
 
 function normalWaveCount(rnd){
@@ -2059,12 +2080,44 @@ function normalSpawnGap(rnd){
 
 function scheduledBosses(rnd){
   const q=[];
+
+  // ── EARLY BOSS INTRODUCTIONS (r40-r64) ──
+  // Giga Lizzy every 5 rounds from r45
   if(rnd>=45&&rnd<60&&rnd%5===0) q.push({id:'gigaLizzy',count:1});
+  // Extra Giga Lizzy at r50/55 — tease of escalation
+  if(rnd===50||rnd===55) q.push({id:'gigaLizzy',count:1});
+
+  // Reinforced Giga from r52
   if(rnd>=52&&rnd<90&&rnd%10===2) q.push({id:'reinforcedGiga',count:Math.max(1,Math.floor(1+(rnd-52)/28))});
+
+  // ── ESCALATION PHASE (r65-r89): gradually more bosses every wave ──
+  // Queen Victoria starts cycling more frequently from r65
   if(rnd>=65&&rnd<80&&rnd%4===1) q.push({id:'queenVictoria',count:1});
+  // Extra Victoria at r70 and r75
+  if(rnd===70||rnd===75) q.push({id:'queenVictoria',count:1});
+
+  // Reinforced Victoria from r72
   if(rnd>=72&&rnd<100&&rnd%12===0) q.push({id:'reinforcedVictoria',count:Math.max(1,Math.floor(1+(rnd-72)/36))});
+
+  // Giga Lizzy returns from r75, growing in count as we approach r90
+  if(rnd>=75&&rnd<95){
+    const gigaEvery=rnd>=85?3:5;
+    if(rnd%gigaEvery===0) q.push({id:'gigaLizzy',count:Math.max(1,Math.floor(1+(rnd-75)/10))});
+  }
+
+  // King Charles appears in support from r82 onwards (before his r80 debut round)
+  if(rnd>=82&&rnd<92&&rnd%6===2) q.push({id:'kingCharles',count:1});
+
+  // Rishi Sunak in the boss rotation from r91+ (after his debut at r90)
+  if(rnd>=91&&rnd<110){
+    const rishiEvery=rnd>=100?5:8;
+    if(rnd%rishiEvery===1) q.push({id:'rishiSunak',count:Math.max(2,Math.floor(2+(rnd-91)/9))});
+  }
+
+  // Reinforced Charles from r92
   if(rnd>=92&&rnd<120&&rnd%12===8) q.push({id:'reinforcedCharles',count:Math.max(1,Math.floor(1+(rnd-92)/32))});
 
+  // ── LATE GAME (r95+): bosses dominate ──
   if(rnd>=95){
     const gigaInterval=rnd>=145?2:rnd>=120?3:4;
     if(rnd%gigaInterval===0) q.push({id:'gigaLizzy',count:Math.max(2,Math.floor(2+(rnd-95)/18))});
@@ -2109,11 +2162,22 @@ function addWaveEntries(q,id,count,gap,start=0,rnd=0){
 
 function addMixedWave(q,pool,count,gap,start=0,rnd=1){
   if(!pool.length) return;
+  // Weight by sr (later-debut enemies are rarer/harder so appear less in mixed pools),
+  // with a small positional bias. For boss-tier enemies, reinforce their presence late-game.
   const weights=pool.map((e,i)=>{
-    let late=e.id==='queenIron'||e.id==='queenIronRegen'||e.id==='queenRainbow'||e.id==='queenRainbowRegen'||e.id==='rishiSunak'?1.6:1;
-    if(e.reinforced) late*=0.42;
-    if(e.id==='reinforcedRishi') late*=0.22;
-    return Math.pow(i+1,1.35)*Math.max(1,e.sr/8)*late;
+    // Base weight: inverse of index so earlier-listed (weaker) enemies don't dominate
+    let w=Math.pow(i+1,1.2)*Math.max(1,e.sr/6);
+    // Late-game adjustments: iron/rainbow/rishi should be common at r85+
+    if(rnd>=85){
+      if(e.id==='reinforcedIron'||e.id==='reinforcedIronHeart') w*=3.0;
+      if(e.id==='rishiSunak') w*=1.8;
+    } else if(rnd>=75){
+      if(e.id==='reinforcedIron') w*=1.8;
+    }
+    // Reinforced enemies are rarer in mid-game (r38-74)
+    if(e.reinforced && rnd<75) w*=0.35;
+    if(e.id==='reinforcedRishi') w*=0.18;
+    return w;
   });
   const total=weights.reduce((a,b)=>a+b,0);
   for(let i=0;i<count;i++){
@@ -2127,13 +2191,13 @@ function addMixedWave(q,pool,count,gap,start=0,rnd=1){
 }
 
 function estimateWaveSize(rnd){
-  if(rnd===18) return 30;
   if(rnd===40) return 2;
   if(rnd===60) return 1;
   if(rnd===80) return 26;
   if(rnd===81) return 210;
-  if(rnd===90) return 52;
-  if(rnd===95) return 115;
+  if(rnd===85) return 82;
+  if(rnd===90) return 72;
+  if(rnd===95) return 116;
   if(rnd===105) return 96;
   if(rnd===110) return 67;
   return normalWaveCount(rnd)+scheduledBosses(rnd).reduce((n,b)=>n+b.count,0);
@@ -2143,45 +2207,105 @@ function buildWave(rnd){
   const q=[];
   const gap=normalSpawnGap(rnd);
 
+  // ── SPECIAL / MILESTONE ROUNDS ──────────────────────────────────────────
+
+  // Round 3: first blue queen debut — small mixed wave
+  if(rnd===3){
+    addWaveEntries(q,'queen',5,gap,0,rnd);
+    addWaveEntries(q,'queenBlue',3,gap,5*gap,rnd);
+    return q.sort((a,b)=>a.t-b.t);
+  }
+
+  // Round 5: green queen debut
+  if(rnd===5){
+    addMixedWave(q,[ED.queen,ED.queenBlue].filter(Boolean),normalWaveCount(rnd),gap,0,rnd);
+    return q.sort((a,b)=>a.t-b.t);
+  }
+
+  // Round 18: special pink regen debut wave — but pink queen sr is 12, so round 18 is valid
   if(rnd===18){
-    addWaveEntries(q,'queenPink',30,Math.max(0.12,gap),0,rnd);
+    // Pink regen debut (sr:24) is NOT here — pink queens (sr:12) and pink regen (sr:24) not yet
+    // Use a harder version of the normal round 18 pool
+    addMixedWave(q,normalPoolForRound(rnd),normalWaveCount(rnd),gap,0,rnd);
     return q;
   }
+
+  // Round 24: ONLY normal queen and blue queen (+ their camo variants at their debut)
+  if(rnd===24){
+    // Force the pool to ONLY normal queen + blue queen; camo variants CAN appear this round (their sr=24)
+    const r24Pool=[ED.queen,ED.queenBlue].filter(Boolean);
+    addMixedWave(q,r24Pool,normalWaveCount(rnd),gap,0,rnd);
+    return q;
+  }
+
+  // Round 38: Lead debut — guaranteed a few leads in the wave
+  if(rnd===38){
+    addMixedWave(q,normalPoolForRound(rnd),Math.floor(normalWaveCount(rnd)*0.7),gap,0,rnd);
+    // Guarantee lead enemies appear
+    addWaveEntries(q,'lead',8,Math.max(0.5,gap*2),normalWaveCount(rnd)*gap*0.7,rnd);
+    return q.sort((a,b)=>a.t-b.t);
+  }
+
+  // Round 40: Giga Lizzy debut
   if(rnd===40){
     addWaveEntries(q,'gigaLizzy',2,4);
     return q;
   }
+
+  // Round 60: Queen Victoria debut
   if(rnd===60){
     addWaveEntries(q,'queenVictoria',1,1);
     return q;
   }
+
+  // Round 80: King Charles debut — with a supporting iron wave
   if(rnd===80){
     addWaveEntries(q,'kingCharles',1,1);
     addWaveEntries(q,'queenIron',20,0.18,4,rnd);
     addWaveEntries(q,'queenRainbowRegen',5,0.35,7,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
+
+  // Round 81: Pure iron flood — harder follow-up after Charles
   if(rnd===81){
     addWaveEntries(q,'queenIron',160,0.055,0,rnd);
     addWaveEntries(q,'queenIronRegen',50,0.09,2.5,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
+
+  // Round 85: Transitional milestone — reinforced iron begins in earnest + rainbow
+  if(rnd===85){
+    addWaveEntries(q,'reinforcedIron',30,0.16,0,rnd);
+    addWaveEntries(q,'queenIronRegen',40,0.10,2,rnd);
+    addWaveEntries(q,'queenRainbowRegen',12,0.30,6,rnd);
+    return q.sort((a,b)=>a.t-b.t);
+  }
+
+  // Round 90: Rishi Sunak debut — boss-heavy with reinforced iron support
   if(rnd===90){
     addWaveEntries(q,'rishiSunak',24,0.22,0,rnd);
-    addWaveEntries(q,'queenIronRegen',20,0.18,2,rnd);
-    addWaveEntries(q,'queenRainbowRegen',8,0.38,6,rnd);
+    addWaveEntries(q,'reinforcedIron',25,0.14,2,rnd);
+    addWaveEntries(q,'queenIronRegen',15,0.18,5,rnd);
+    addWaveEntries(q,'queenRainbowRegen',8,0.38,7,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
+
+  // Round 95: Reinforced iron dominates + iron regulars
   if(rnd===95){
-    addWaveEntries(q,'reinforcedIron',45,0.13,0,rnd);
-    addWaveEntries(q,'queenIronRegen',70,0.08,1.5,rnd);
+    addWaveEntries(q,'reinforcedIron',50,0.12,0,rnd);
+    addWaveEntries(q,'queenIronRegen',60,0.09,1.5,rnd);
+    addWaveEntries(q,'rishiSunak',6,0.60,8,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
+
+  // Round 105: Reinforced iron heart (regen) debut
   if(rnd===105){
     addWaveEntries(q,'reinforcedIronHeart',36,0.16,0,rnd);
     addWaveEntries(q,'reinforcedIron',60,0.11,2,rnd);
     return q.sort((a,b)=>a.t-b.t);
   }
+
+  // Round 110: Reinforced Rishi debut
   if(rnd===110){
     addWaveEntries(q,'reinforcedRishi',14,0.35,0,rnd);
     addWaveEntries(q,'rishiSunak',35,0.16,1,rnd);
@@ -2189,6 +2313,7 @@ function buildWave(rnd){
     return q.sort((a,b)=>a.t-b.t);
   }
 
+  // ── GENERAL ROUNDS ──────────────────────────────────────────────────────
   addMixedWave(q,normalPoolForRound(rnd),normalWaveCount(rnd),gap,0,rnd);
   const bossStart=q.length?Math.max(...q.map(e=>e.t))+2:0;
   let offset=0;
@@ -2209,12 +2334,15 @@ function startWave(){
   setWaveBtn(true,'Wave '+S.round+' in progress...');
   updateHUD();
 
-  if(S.round===40) showToast('Round 40: Giga Lizzy approaches.','#e57368');
-  else if(S.round===60) showToast('Round 60: Queen Victoria reigns.','#c9a227');
-  else if(S.round===80) showToast('Round 80: King Charles enters the track.','#d7b65a');
-  else if(S.round===90) showToast('Round 90: Rishi Sunak is incoming.','#b0bec5');
+  if(S.round===24) showToast('Round 24: Camo enemies appear — invisible to most towers!','#39ff14');
+  else if(S.round===38) showToast('Round 38: Lead enemies arrive — explosion damage only!','#aeb8c2');
+  else if(S.round===40) showToast('Round 40: Giga Lizzy approaches.','#e57368');
   else if(S.round===52) showToast('Round 52: Reinforced Giga Lizzy appears.','#f0c040');
+  else if(S.round===60) showToast('Round 60: Queen Victoria reigns.','#c9a227');
   else if(S.round===72) showToast('Round 72: Reinforced Queen Victoria arrives.','#f0c040');
+  else if(S.round===80) showToast('Round 80: King Charles enters the track.','#d7b65a');
+  else if(S.round===85) showToast('Round 85: Reinforced Iron is flooding the path.','#f0c040');
+  else if(S.round===90) showToast('Round 90: Rishi Sunak is incoming — camo, fast, dangerous.','#b0bec5');
   else if(S.round===92) showToast('Round 92: Reinforced King Charles arrives.','#f0c040');
   else if(S.round===102) showToast('Round 102: Reinforced Rishi joins the track.','#f0c040');
   else if(S.round===50||S.round===75||S.round===130) showToast('Gold rewards now pay '+rewardPenaltyLabel(S.round)+'.','#ff9800');
