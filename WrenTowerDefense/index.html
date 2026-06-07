@@ -504,36 +504,15 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
     <div class="menu-emblem">⚔️</div>
     <div class="mtitle" style="font-size:2.2rem;margin-bottom:.3rem">Choose Difficulty</div>
     <div class="msub" style="margin-bottom:1.8rem">How hard do you want to fight?</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;max-width:760px;width:100%">
-      <div class="diff-card easy" onclick="G.startGame(null,'easy')">
-        <div class="diff-title" style="color:#4caf50">🍃 Easy</div>
-        <div class="diff-desc">Relax and learn the ropes. Plenty of lives to work with.</div>
-        <div class="diff-stat">
-          <span><span class="dk">Lives</span><span class="dv" style="color:#4caf50">200</span></span>
-          <span><span class="dk">Tower costs</span><span class="dv">Normal</span></span>
-          <span><span class="dk">Boss HP</span><span class="dv">Normal</span></span>
-          <span><span class="dk">Win at</span><span class="dv" style="color:#4caf50">Round 40</span></span>
-        </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;max-width:340px;width:100%">
+      <div class="diff-card easy" onclick="G.startGame(null,'easy')" style="align-items:center;justify-content:center;padding:1.1rem 1.3rem">
+        <div class="diff-title" style="color:#4caf50;text-align:center;margin:0">🍃 Easy</div>
       </div>
-      <div class="diff-card medium" onclick="G.startGame(null,'medium')">
-        <div class="diff-title" style="color:#ff9800">🔥 Medium</div>
-        <div class="diff-desc">A real challenge. Enemies hit harder and everything costs more.</div>
-        <div class="diff-stat">
-          <span><span class="dk">Lives</span><span class="dv" style="color:#ff9800">100</span></span>
-          <span><span class="dk">Tower costs</span><span class="dv">1.2× more</span></span>
-          <span><span class="dk">Boss HP</span><span class="dv">1.3× stronger</span></span>
-          <span><span class="dk">Win at</span><span class="dv" style="color:#ff9800">Round 60</span></span>
-        </div>
+      <div class="diff-card medium" onclick="G.startGame(null,'medium')" style="align-items:center;justify-content:center;padding:1.1rem 1.3rem">
+        <div class="diff-title" style="color:#ff9800;text-align:center;margin:0">🔥 Medium</div>
       </div>
-      <div class="diff-card hard" onclick="G.startGame(null,'hard')">
-        <div class="diff-title" style="color:#e57368">💀 Hard</div>
-        <div class="diff-desc">No mercy. Survive on scarce lives against relentless bosses.</div>
-        <div class="diff-stat">
-          <span><span class="dk">Lives</span><span class="dv" style="color:#e57368">50</span></span>
-          <span><span class="dk">Tower costs</span><span class="dv">1.4× more</span></span>
-          <span><span class="dk">Boss HP</span><span class="dv">1.5× stronger</span></span>
-          <span><span class="dk">Win at</span><span class="dv" style="color:#e57368">Round 80</span></span>
-        </div>
+      <div class="diff-card hard" onclick="G.startGame(null,'hard')" style="align-items:center;justify-content:center;padding:1.1rem 1.3rem">
+        <div class="diff-title" style="color:#e57368;text-align:center;margin:0">💀 Hard</div>
       </div>
     </div>
     <button class="mbtn" style="margin-top:1.4rem;font-size:.85rem;min-width:140px" onclick="G.showMapSelect(null,true)">← Back</button>
@@ -894,7 +873,8 @@ setMap('grassy'); // default
 const TD = {
   wren:    {id:'wren',    name:'Wren',              img:'Wren.jpg',          cost:300, dmg:1,  rate:1,   range:130, income:0,   irate:0,  init:'W',  col:'#29b6f6'},
   tiki:    {id:'tiki',    name:'Tikitheg',           img:'TikiTheG.jpg',      cost:600, dmg:5,  rate:2,   range:9999,income:0,   irate:0,  init:'TG', col:'#ff7043'},
-  orin:    {id:'orin',    name:'The Mind of Orin',   img:'TheMindOfOrin.jpg', cost:1100,dmg:0,  rate:0,   range:130, income:10,  irate:12, init:'O',  col:'#ab47bc'}
+  orin:    {id:'orin',    name:'The Mind of Orin',   img:'TheMindOfOrin.jpg', cost:860, dmg:0,  rate:0,   range:130, income:10,  irate:12, init:'O',  col:'#ab47bc'},
+  wrenfun: {id:'wrenfun', name:'Wren.fun',            img:'Wren.fun.jpg',      cost:810, dmg:0,  rate:0,   range:90,  income:0,   irate:0,  init:'WF', col:'#e040fb', support:true}
 };
 const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg'};
 
@@ -913,6 +893,13 @@ const TOWER_UPGRADES = {
     {name:'Shrapnel', cost:1100, desc:'Damage increases to 8 and each shot has a 50% chance to burst for 4 nearby damage.', apply:s=>{s.dmg=8;s.shrapnelChance=0.5;s.shrapnelDamage=4;s.shrapnelRadius=62;}},
     {name:'Tiki Time', cost:6550, desc:'Attack speed improves to 0.20s.', apply:s=>{s.rate=0.2;}},
     {name:'Tiki Power', cost:TIKI_POWER_PRICE, desc:'Attack speed improves to 0.10s and damage rises to 10.', apply:s=>{s.rate=0.1;s.dmg=10;}}
+  ],
+  wrenfun: [
+    {name:'Range', cost:600, desc:'Wren.fun\'s range increases by 15%, and every tower within its range also gains 15% extra range.', apply:s=>{s.range*=1.15;s.rangeBoostPct=0.15;}},
+    {name:'Camo Vision', cost:950, desc:'Every tower within Wren.fun\'s range gains camo vision. A tower only needs to be at least 50% inside the circle to receive this buff.', apply:s=>{s.grantCamoVision=true;}},
+    {name:'All Enemies Attack', cost:2100, desc:'Every tower within Wren.fun\'s range can damage any type of enemy — camo, lead, explosive-immune, anything.', apply:s=>{s.grantAllEnemies=true;}},
+    {name:'Speed Is Key', cost:3800, desc:'Increases the attack speed of every tower in range by 60%, and Wren.fun\'s range grows by another 1.1×.', apply:s=>{s.range*=1.1;s.grantSpeedBoost=true;}},
+    {name:'All Hail Wren.fun', cost:67000, desc:'Wren.fun\'s range becomes global — its buffs now cover the entire map.', apply:s=>{s.range=9999;}}
   ],
   orin: [
     {name:'Money Grab', cost:900, desc:'Income rises from $10 to $25 every 12 seconds.', apply:s=>{s.income=25;}},
@@ -1154,7 +1141,11 @@ function getTowerStats(t){
     helpingHand:false,
     autoPickup:false,
     frenzy:false,
-    techMaster:false
+    techMaster:false,
+    rangeBoostPct:0,
+    grantCamoVision:false,
+    grantAllEnemies:false,
+    grantSpeedBoost:false
   };
   getTowerUpgradeList(t).slice(0,getTowerUpgradeLevel(t)).forEach(upg=>upg.apply(stats,t));
   return stats;
@@ -1176,6 +1167,10 @@ function describeTowerSpecials(stats){
   if(stats.income&&!stats.autoPickup) bits.push('DVD drops');
   if(stats.frenzy) bits.push('frenzy');
   if(stats.techMaster) bits.push('+25% Orin aura');
+  if(stats.rangeBoostPct) bits.push('+'+Math.round(stats.rangeBoostPct*100)+'% range aura');
+  if(stats.grantCamoVision) bits.push('camo vision aura');
+  if(stats.grantAllEnemies) bits.push('all-enemies aura');
+  if(stats.grantSpeedBoost) bits.push('+60% speed aura');
   return bits.length ? bits.join(', ') : '—';
 }
 function getTowerBorderStyle(level){
@@ -1188,6 +1183,39 @@ function getTowerBorderStyle(level){
 }
 function isOrinTower(t){
   return !!t&&t.defId==='orin';
+}
+function isWrenFunTower(t){
+  return !!t&&t.defId==='wrenfun';
+}
+function getWrenFunSources(){
+  return S ? S.towers.filter(t=>isWrenFunTower(t)) : [];
+}
+function getWrenFunStatsForTower(targetTower){
+  // Returns combined buffs from all Wren.fun towers whose range covers targetTower
+  // A tower counts as "in range" if at least 50% of it (its centre) is inside the circle
+  if(!S||!targetTower||isWrenFunTower(targetTower)) return null;
+  const wrenFuns=getWrenFunSources();
+  let rangeBoostPct=0, grantCamoVision=false, grantAllEnemies=false, grantSpeedBoost=false;
+  let anyBuff=false;
+  wrenFuns.forEach(wf=>{
+    const wfStats=getTowerStats(wf);
+    // Tier 5 = global range
+    let inRange=false;
+    if(wfStats.range>=9999){
+      inRange=true;
+    } else {
+      const dx=targetTower.x-wf.x, dy=targetTower.y-wf.y;
+      inRange=Math.sqrt(dx*dx+dy*dy)<=wfStats.range;
+    }
+    if(!inRange) return;
+    anyBuff=true;
+    if(wfStats.rangeBoostPct) rangeBoostPct=Math.max(rangeBoostPct,wfStats.rangeBoostPct);
+    if(wfStats.grantCamoVision) grantCamoVision=true;
+    if(wfStats.grantAllEnemies) grantAllEnemies=true;
+    if(wfStats.grantSpeedBoost) grantSpeedBoost=true;
+  });
+  if(!anyBuff) return null;
+  return {rangeBoostPct,grantCamoVision,grantAllEnemies,grantSpeedBoost};
 }
 function getOrinHelpingHandTowers(){
   return S?S.towers.filter(t=>isOrinTower(t)&&getTowerUpgradeLevel(t)>=2):[];
@@ -1252,6 +1280,9 @@ function collectIncomeDrop(drop, auto){
   const d=S.incomeDrops[idx];
   S.incomeDrops.splice(idx,1);
   S.gold+=d.amount;S.totalMoneyEarned=(S.totalMoneyEarned||0)+d.amount;
+  // Track per-tower earnings
+  const owner=S.towers.find(t=>t.id===d.ownerId);
+  if(owner){ owner.moneyEarned=(owner.moneyEarned||0)+d.amount; if(S.towerSel===owner.id) refreshSelPanel(); }
   recordMoneyEarned(d.amount);
   updateHUD();
   refreshShopAffordability();
@@ -1283,6 +1314,7 @@ function awardOrinIncome(t, baseAmount){
   const stats=getTowerStats(t);
   if(stats.autoPickup){
     S.gold+=amount;S.totalMoneyEarned=(S.totalMoneyEarned||0)+amount;
+    t.moneyEarned=(t.moneyEarned||0)+amount;
     recordMoneyEarned(amount);
     updateHUD();
     refreshShopAffordability();
@@ -1333,9 +1365,12 @@ function triggerOrinFrenzy(){
 function getEnemyBaseId(id){
   return id.endsWith('Camo') ? id.slice(0,-4) : id;
 }
-function canTowerAffectEnemy(stats, enemy){
-  if(enemy.camo && !stats.canSeeCamo) return false;
-  if(enemy.lead && !stats.explosive) return false;
+function canTowerAffectEnemy(stats, enemy, tower){
+  const wfBuff=tower ? getWrenFunStatsForTower(tower) : null;
+  const canSeeC=stats.canSeeCamo||(wfBuff&&wfBuff.grantCamoVision);
+  const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
+  if(enemy.camo && !canSeeC) return false;
+  if(enemy.lead && !stats.explosive && !canHitAll) return false;
   return true;
 }
 function isBlackAndWhiteEnemy(enemy){
@@ -1485,7 +1520,7 @@ function showSub(type){
   if(type==='stats'){
     CAREER=loadCareer(); // always refresh from localStorage before displaying
     const top3=getTop3Towers();
-    const towerNames={wren:'Wren',tiki:'Tikitheg',orin:'The Mind of Orin'};
+    const towerNames={wren:'Wren',tiki:'Tikitheg',orin:'The Mind of Orin',wrenfun:'Wren.fun'};
     const medals=['🥇','🥈','🥉'];
     const top3Html=top3.length
       ? top3.map(([id,count],i)=>`
@@ -1567,18 +1602,20 @@ function showSub(type){
 
   } else if(type==='characters'){
     const cards=Object.values(TD).map(t=>{
-      const roleTag=t.income?'Income':'Combat';
-      const roleCol=t.income?'#ab47bc':'#29b6f6';
+      // Show medium prices (base cost in TD = medium price)
+      const mediumCost=TD_BASE_COSTS[t.id]||t.cost;
+      const isSupport=t.support||t.id==='orin';
+      const roleTag=isSupport?'Support':'Combat';
+      const roleCol=isSupport?'#e040fb':'#29b6f6';
       const upgs=getTowerUpgradeList(t.id);
+      // Medium upgrade costs
+      const medUpgCosts=UPGRADE_BASE_COSTS[t.id]||[];
       const desc={
         wren:'Reliable combat tower. Shoots enemies along the path with quick accurate fire.',
         tiki:'Long-range sniper. Fires slow but hits incredibly hard from anywhere on the map.',
-        orin:'Passive income generator. Drops DVD cash every few seconds — collect it to earn gold.'
+        orin:'Passive income generator. Drops DVD cash every few seconds — collect it to earn gold.',
+        wrenfun:'Support tower. Buffs other towers within its range with increased range, camo vision, universal targeting, and speed.'
       }[t.id]||'';
-      const specials=[];
-      if(t.range>=9999) specials.push('🌐 Global Range');
-      if(t.income) specials.push('💰 Generates Income');
-      if(!t.income&&t.dmg) specials.push('⚔ Attacks Enemies');
       const imgSrc=getTowerImageSrc(t.id);
       return `
         <div class="ccard tower-card" data-tower-id="${t.id}">
@@ -1586,26 +1623,25 @@ function showSub(type){
           <div class="tower-card-inner">
             <div class="tower-img-wrap">
               <div class="cpic" style="margin:0;width:90px;height:90px" data-img-src="${imgSrc||''}" data-init="${t.init}"></div>
-              <div class="tower-cost" style="color:${roleCol}">$${t.cost}</div>
+              <div class="tower-cost" style="color:${roleCol}">$${mediumCost}</div>
             </div>
             <div class="tower-main">
               <div class="cbadge" style="color:${roleCol};background:${roleCol}18;border-color:${roleCol}44;margin-bottom:.35rem">${roleTag}</div>
               <div class="cname" style="margin-bottom:.28rem">${t.name}</div>
               <div class="cdesc" style="margin-top:0;padding-top:0;border-top:none;margin-bottom:.4rem">${desc}</div>
-              <div style="display:flex;gap:.3rem;flex-wrap:wrap">${specials.map(s=>`<span class="tower-tag">${s}</span>`).join('')}</div>
             </div>
           </div>
           <div class="tower-stats-row">
             ${t.dmg?`<div class="tstat"><span>⚔</span><span>${t.dmg} dmg</span></div>`:''}
             ${t.rate?`<div class="tstat"><span>⏱</span><span>${t.rate}s</span></div>`:''}
-            ${t.range<9999?`<div class="tstat"><span>📡</span><span>${formatRangePx(t.range)}px</span></div>`:''}
+            ${t.range&&t.range<9999?`<div class="tstat"><span>📡</span><span>${formatRangePx(t.range)}px</span></div>`:''}
             ${t.income?`<div class="tstat"><span>💎</span><span>$${t.income}/${t.irate}s</span></div>`:''}
           </div>
           <div class="tower-upgrades-toggle"><span class="upg-toggle-label">📈 ${upgs.length} Upgrade${upgs.length===1?'':'s'} · Click to view</span></div>
           <div class="cupgpanel">
             <div class="cupgtitle">Upgrades</div>
             ${upgs.length
-              ? upgs.map((upg,i)=>`<div class="cupgitem"><span class="upg-tier">T${i+1}</span><strong>${upg.name}</strong> — $${upg.cost}<br>${upg.desc}</div>`).join('')
+              ? upgs.map((upg,i)=>`<div class="cupgitem"><span class="upg-tier">T${i+1}</span><strong>${upg.name}</strong> — $${medUpgCosts[i]||upg.cost}<br>${upg.desc}</div>`).join('')
               : `<div class="cupgitem">No upgrades yet.</div>`}
           </div>
         </div>`;
@@ -1879,9 +1915,9 @@ const UPGRADE_BASE_COSTS = {};
 })();
 
 function getDiffCostMult(diff){
-  if(diff==='medium') return 1.2;
-  if(diff==='hard')   return 1.4;
-  return 1.0; // easy
+  if(diff==='easy')   return 1/1.2; // ~0.833 — 1.2× cheaper than medium
+  if(diff==='hard')   return 1.2;
+  return 1.0; // medium = base prices
 }
 
 function getDiffBossMult(diff){
@@ -1896,14 +1932,19 @@ function getDiffWinRound(diff){
   return 40;
 }
 
+function roundCost(n){
+  // Round to nearest 5 (e.g. 1032 → 1030, 1033 → 1035)
+  return Math.round(n/5)*5;
+}
+
 function applyDifficultyTowerCosts(diff){
   const mult=getDiffCostMult(diff);
   Object.values(TD).forEach(d=>{
-    d.cost=Math.round(TD_BASE_COSTS[d.id]*mult);
+    d.cost=roundCost(TD_BASE_COSTS[d.id]*mult);
   });
   Object.entries(TOWER_UPGRADES).forEach(([tid,upgList])=>{
     upgList.forEach((u,i)=>{
-      u.cost=Math.round(UPGRADE_BASE_COSTS[tid][i]*mult);
+      u.cost=roundCost(UPGRADE_BASE_COSTS[tid][i]*mult);
     });
   });
 }
@@ -3052,7 +3093,8 @@ function toggleShop(){
 
 // ─── SELECTED TOWER ───
 function selectTower(id){
-  S.towerSel=id; S.shopSel=null; S.shopInfoSel=null; buildShop();
+  S.towerSel=id;
+  if(!S._silentRefresh){ S.shopSel=null; S.shopInfoSel=null; buildShop(); }
   const t=S.towers.find(t=>t.id===id); if(!t) return;
   const d=TD[t.defId];
   const stats=getTowerStats(t);
@@ -3069,7 +3111,11 @@ function selectTower(id){
   if(!im._bad&&im.complete&&im.naturalWidth>0) picInner=`<img src="${resolvedImgSrc(towerImgSrc)}" onerror="this.parentNode.textContent='${d.init}'">`;
 
   const pri=t.priority||'first';
+  const effectiveRange=getEffectiveRangeForTower(t);
+  const rangeBoosted=effectiveRange>stats.range&&stats.range<9999;
+  const rangeDisplay=stats.range>=9999?'Global':(rangeBoosted?`<span style="color:#e040fb">${formatRangePx(effectiveRange)}px ↑</span>`:formatRangePx(stats.range)+'px');
   const orinExtraRows=isOrinTower(t)?`
+      <div class="srow"><span class="sl">Collected</span><span class="sv" style="color:#d6a4ff">$${t.moneyEarned||0}</span></div>
       <div class="srow"><span class="sl">Collect</span><span class="sv">${stats.autoPickup?'Auto':'DVD Clicks'}</span></div>
       <div class="srow"><span class="sl">Boost</span><span class="sv">${Math.round((getOrinIncomeMultiplier(t)-1)*100)}%</span></div>
       <div class="srow"><span class="sl">Frenzy</span><span class="sv">${getTowerUpgradeLevel(t)>=4?'x'+getOrinFrenzySpec().mult+' / '+getOrinFrenzySpec().duration+'s':'Locked'}</span></div>
@@ -3100,7 +3146,7 @@ function selectTower(id){
     <div class="selstats">
       <div class="srow"><span class="sl">Damage</span><span class="sv">${stats.dmg||'—'}</span></div>
       <div class="srow"><span class="sl">Atk Rate</span><span class="sv">${formatRate(stats.rate)}</span></div>
-      <div class="srow"><span class="sl">Range</span><span class="sv">${stats.range>=9999?'Global':formatRangePx(stats.range)+'px'}</span></div>
+      <div class="srow"><span class="sl">Range</span><span class="sv">${rangeDisplay}</span></div>
       ${stats.income?`<div class="srow"><span class="sl">Income</span><span class="sv">$${stats.income}/${stats.irate}s</span></div>`:''}
       ${orinExtraRows}
       <div class="srow"><span class="sl">Special</span><span class="sv">${describeTowerSpecials(stats)}</span></div>
@@ -3150,6 +3196,18 @@ function desel(){
 }
 
 // ─── HUD ───
+function refreshSelPanel(){
+  // Live-refresh the selected tower panel without rebuilding the whole shop
+  if(!S||!S.towerSel) return;
+  const t=S.towers.find(t=>t.id===S.towerSel);
+  if(!t) return;
+  // Re-render just the panel body by calling selectTower but guard against shop rebuild loop
+  // We set a flag so selectTower skips buildShop during a live refresh
+  S._silentRefresh=true;
+  selectTower(S.towerSel);
+  S._silentRefresh=false;
+}
+
 function updateHUD(){
   document.getElementById('hgold').textContent=S.mode==='sandbox'?'$INF':'$'+S.gold;
   const hpEl=document.getElementById('hhealth');
@@ -3168,6 +3226,7 @@ function updateHUD(){
     diffBadge.style.borderColor=diffCol;
   }
   updateOrinFrenzyUI();
+  refreshSelPanel();
 }
 
 // ─── TOAST NOTIFICATIONS ───
@@ -3355,13 +3414,47 @@ function initPanelResize(pid,rid){
   document.addEventListener('mouseup',()=>on=false);
 }
 
+function getEffectiveRangeForTower(t){
+  // Returns the actual range a placed tower uses, factoring in Wren.fun range buffs
+  const stats=getTowerStats(t);
+  if(stats.range>=9999) return 9999;
+  const wfBuff=getWrenFunStatsForTower(t);
+  if(wfBuff&&wfBuff.rangeBoostPct) return stats.range*(1+wfBuff.rangeBoostPct);
+  return stats.range;
+}
+
+function getEffectiveRangeAtPoint(defId, wx, wy){
+  // Returns what range a tower of type defId would have if placed at (wx,wy)
+  // Used for ghost placement preview
+  const d=TD[defId];
+  if(!d||d.id==='wrenfun') return d?d.range:0;
+  const baseRange=d.range; // base def range (before upgrades — ghost always shows base)
+  if(baseRange>=9999) return 9999;
+  // Check if any placed Wren.fun covers this point
+  if(!S) return baseRange;
+  let boost=0;
+  S.towers.filter(t=>isWrenFunTower(t)).forEach(wf=>{
+    const wfStats=getTowerStats(wf);
+    if(wfStats.range>=9999){
+      boost=Math.max(boost,wfStats.rangeBoostPct||0);
+    } else {
+      const dx=wx-wf.x, dy=wy-wf.y;
+      if(Math.sqrt(dx*dx+dy*dy)<=wfStats.range){
+        boost=Math.max(boost,wfStats.rangeBoostPct||0);
+      }
+    }
+  });
+  return boost>0 ? baseRange*(1+boost) : baseRange;
+}
+
 function getTargetsInRange(t, stats){
   const pri=t.priority||'first';
+  const effectiveRange=getEffectiveRangeForTower(t);
   const inRange=S.enemies.filter(e=>{
     if(e.dead||e.reached) return false;
-    if(!canTowerAffectEnemy(stats,e)) return false;
+    if(!canTowerAffectEnemy(stats,e,t)) return false;
     const dx=e.x-t.x,dy=e.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
-    return dist<=stats.range||stats.range>=9999;
+    return dist<=effectiveRange||effectiveRange>=9999;
   });
   inRange.sort((a,b)=>{
     if(pri==='last') return a.pi-b.pi || a.hp-b.hp;
@@ -3403,12 +3496,12 @@ function handleEnemyDefeat(tgt, tower){
   if(orinBonus>0){
     S.particles.push({x:tower.x,y:tower.y-CELL*.45,text:'Orin +$'+orinBonus,alpha:1,vy:-26,life:.9,col:'#d6a4ff'});
   }
-  if(S.towerSel===tower.id) selectTower(tower.id);
 }
 function damageEnemy(tgt, amount, tower, stats){
-  if(!tgt||tgt.dead||!canTowerAffectEnemy(stats,tgt)) return false;
+  if(!tgt||tgt.dead||!canTowerAffectEnemy(stats,tgt,tower)) return false;
   if(stats&&stats.explosive&&isBlackAndWhiteEnemy(tgt)) return false;
-  if(stats&&stats.explosive&&isRishiEnemy(tgt)) return false;
+  const wfBuff=tower?getWrenFunStatsForTower(tower):null;
+  if(stats&&stats.explosive&&isRishiEnemy(tgt)&&!(wfBuff&&wfBuff.grantAllEnemies)) return false;
   tgt.hp-=amount;
   tgt.flashT=0.12;
   if(tgt.hp<=0) handleEnemyDefeat(tgt,tower);
@@ -3580,9 +3673,11 @@ function update(dt){
       continue;
     }
     if(!stats.rate) continue;
+    const wfBuff=getWrenFunStatsForTower(t);
+    const effectiveRate=wfBuff&&wfBuff.grantSpeedBoost ? stats.rate/1.6 : stats.rate;
     t.at=(t.at||0)+dt;
-    while(t.at>=stats.rate){
-      t.at-=stats.rate;
+    while(t.at>=effectiveRate){
+      t.at-=effectiveRate;
       fireTowerAttack(t,stats);
       if(!S.enemies.length) break;
     }
@@ -4407,14 +4502,16 @@ function drawTowers(){
       if(stats.range<9999){
         ctx.save();
         ctx.strokeStyle='rgba(240,192,64,0.2)';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
-        ctx.beginPath();ctx.arc(t.x,t.y,stats.range,0,Math.PI*2);ctx.stroke();
+        const dispRange=getEffectiveRangeForTower(t);
+        ctx.beginPath();ctx.arc(t.x,t.y,dispRange,0,Math.PI*2);ctx.stroke();
         ctx.restore();
       }
     } else if(S.hoveredTower&&S.hoveredTower.id===t.id&&stats.range<9999){
       // Hover range preview
       ctx.save();
       ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=1.5;ctx.setLineDash([4,5]);
-      ctx.beginPath();ctx.arc(t.x,t.y,stats.range,0,Math.PI*2);ctx.stroke();
+      const dispRange=getEffectiveRangeForTower(t);
+      ctx.beginPath();ctx.arc(t.x,t.y,dispRange,0,Math.PI*2);ctx.stroke();
       ctx.restore();
     }
     // Base shadow
@@ -4949,8 +5046,19 @@ function drawGhost(){
     ctx.fillText(d.init,wx,wy);
   }
   if(d.range<9999&&ok){
-    ctx.globalAlpha=.12;ctx.strokeStyle='#80e080';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
-    ctx.beginPath();ctx.arc(wx,wy,d.range,0,Math.PI*2);ctx.stroke();
+    const ghostEffectiveRange=getEffectiveRangeAtPoint(d.id,wx,wy);
+    const boosted=ghostEffectiveRange>d.range;
+    ctx.globalAlpha=.18;
+    ctx.strokeStyle=boosted?'#e040fb':'#80e080';
+    ctx.lineWidth=boosted?2:1.5;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.arc(wx,wy,ghostEffectiveRange,0,Math.PI*2);ctx.stroke();
+    // If boosted, also show the base range faintly so player can compare
+    if(boosted){
+      ctx.globalAlpha=.07;
+      ctx.strokeStyle='#80e080';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(wx,wy,d.range,0,Math.PI*2);ctx.stroke();
+    }
   }
   ctx.restore();
 }
