@@ -1427,10 +1427,11 @@ setMap('grassy'); // default
 const TD = {
   wren:    {id:'wren',    name:'Wren',              img:'Wren.jpg',          cost:300, dmg:1,  rate:1,   range:130, income:0,   irate:0,  init:'W',  col:'#29b6f6'},
   tiki:    {id:'tiki',    name:'Tikitheg',           img:'TikiTheG.jpg',      cost:600, dmg:5,  rate:2,   range:9999,income:0,   irate:0,  init:'TG', col:'#ff7043'},
+  edunzie:  {id:'edunzie',  name:'Edunzie',              img:'Edunzie.jpg',       cost:550, dmg:2,  rate:1,   range:60,  income:0,   irate:0,  init:'EZ', col:'#66bb6a', canSeeCamo:true, sword:true},
   orin:    {id:'orin',    name:'The Mind of Orin',   img:'TheMindOfOrin.jpg', cost:950, dmg:0,  rate:0,   range:130, income:10,  irate:12, init:'O',  col:'#ab47bc'},
-  wrenfun: {id:'wrenfun', name:'Wren.fun',            img:'Wren.fun.jpg',      cost:900, dmg:0,  rate:0,   range:90,  income:0,   irate:0,  init:'WF', col:'#e040fb', support:true}
+  wrenfun:  {id:'wrenfun',  name:'Wren.fun',            img:'Wren.fun.jpg',      cost:900, dmg:0,  rate:0,   range:90,  income:0,   irate:0,  init:'WF', col:'#e040fb', support:true}
 };
-const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg'};
+const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg', edunzie:'EdunzieLicksPoo.jpg'};
 
 const TIKI_POWER_PRICE = 38000;
 const TOWER_UPGRADES = {
@@ -1461,6 +1462,13 @@ const TOWER_UPGRADES = {
     {name:'Auto Pick Up', cost:2800, desc:'DVD cash drops are collected automatically instead of needing a click, and income rises to $50 every 10 seconds.', apply:s=>{s.autoPickup=true;s.income=50;s.irate=10;}},
     {name:'Frenzy', cost:5600, desc:'Unlocks a bottom-screen ability with a 60 second cooldown that boosts Orin income to x2 for 10 seconds.', apply:s=>{s.frenzy=true;}},
     {name:'Tech Master', cost:101000, desc:'Income becomes $450 every 5 seconds, Frenzy becomes x3 for 15 seconds, other Orins gain +25% income (capped at 25% total), and the tower grows by 1.25x.', apply:s=>{s.income=450;s.irate=5;s.techMaster=true;s.frenzy=true;s.autoPickup=true;}}
+  ],
+  edunzie: [
+    {name:'Improved Glasses', cost:200, desc:'Range increases from 60px to 70px.', apply:s=>{s.range=70;}},
+    {name:'Katana', cost:670, desc:'Edunzie\'s sword grows longer, dealing 4 damage per hit.', apply:s=>{s.dmg=4;s.katana=true;}},
+    {name:'Sticky Mine', cost:1100, desc:'Every 15 seconds, places a sticky bomb on the track within range. It explodes after 5 seconds, dealing 50 damage to all enemies within 20px, including leads. Cannot pop Black and White enemies.', apply:s=>{s.stickyMine=true;s.mineDamage=50;s.mineRadius=20;s.mineCooldown=15;}},
+    {name:'Sensei', cost:2300, desc:'Edunzie\'s mastery grows — each hit now deals 20 damage.', apply:s=>{s.dmg=20;}},
+    {name:'Master Swordsman', cost:38000, desc:'Deals 130 damage per hit, range expands to 80px, sticky mines now deal 500 damage, and attack speed increases to every 0.75 seconds.', apply:s=>{s.dmg=130;s.range=80;s.mineDamage=500;s.rate=0.75;}}
   ]
 };
 
@@ -1699,7 +1707,13 @@ function getTowerStats(t){
     rangeBoostPct:0,
     grantCamoVision:false,
     grantAllEnemies:false,
-    grantSpeedBoost:false
+    grantSpeedBoost:false,
+    sword:!!(TD[t.defId]&&TD[t.defId].sword),
+    katana:false,
+    stickyMine:false,
+    mineDamage:50,
+    mineRadius:20,
+    mineCooldown:15
   };
   getTowerUpgradeList(t).slice(0,getTowerUpgradeLevel(t)).forEach(upg=>upg.apply(stats,t));
   return stats;
@@ -1714,6 +1728,8 @@ function describeTowerSpecials(stats){
   const bits=[];
   if(stats.shots>1) bits.push(stats.shots+' shots');
   if(stats.explosive) bits.push('explosive');
+  if(stats.sword) bits.push(stats.katana?'katana':'sword');
+  if(stats.stickyMine) bits.push('sticky mines');
   if(stats.canSeeCamo) bits.push('camo sight');
   if(stats.shrapnelChance) bits.push(Math.round(stats.shrapnelChance*100)+'% shrapnel');
   if(stats.helpingHand) bits.push('25% +$7 chain');
@@ -1991,6 +2007,8 @@ function makeFallbackImage(src,onFail){
 Object.values(TD).forEach(t=>gimg(t.img));
 Object.values(TOWER_TIER5_IMGS).forEach(src=>gimg(src));
 gimg('QueenElizabeth.jpg');
+gimg('Edunzie.jpg');
+gimg('EdunzieLicksPoo.jpg');
 gimg('QueenV.jpg');
 gimg('KingCH.jpg');
 gimg('Rishi.jpg');
@@ -2086,7 +2104,7 @@ function showSub(type){
   if(type==='stats'){
     CAREER=loadCareer(); // always refresh from localStorage before displaying
     const top3=getTop3Towers();
-    const towerNames={wren:'Wren',tiki:'Tikitheg',orin:'The Mind of Orin',wrenfun:'Wren.fun'};
+    const towerNames={wren:'Wren',tiki:'Tikitheg',edunzie:'Edunzie',orin:'The Mind of Orin',wrenfun:'Wren.fun'};
     const medals=['🥇','🥈','🥉'];
     const top3Html=top3.length
       ? top3.map(([id,count],i)=>`
@@ -2179,6 +2197,7 @@ function showSub(type){
       const desc={
         wren:'Reliable combat tower. Shoots enemies along the path with quick accurate fire.',
         tiki:'Long-range sniper. Fires slow but hits incredibly hard from anywhere on the map.',
+        edunzie:'Close-range swordsman. Slices nearby enemies and can see camo from the start.',
         orin:'Passive income generator. Drops DVD cash every few seconds — collect it to earn gold.',
         wrenfun:'Support tower. Buffs other towers within its range with increased range, camo vision, universal targeting, and speed.'
       }[t.id]||'';
@@ -4110,6 +4129,17 @@ function explodeAt(x,y,radius,damage,tower,stats,color){
   }
 }
 function fireTowerAttack(t, stats){
+  // Sword melee: hit all enemies in range at once (arc swing)
+  if(stats.sword){
+    const targets=getTargetsInRange(t,stats);
+    if(targets.length){
+      targets.forEach(tgt=>damageEnemy(tgt,stats.dmg,t,stats));
+      // Sword slash visual — arc sweep
+      const swordLen=stats.katana?(stats.range*0.9):(stats.range*0.75);
+      S.projs.push({type:'sword',sx:t.x,sy:t.y,len:swordLen,life:0.18,maxLife:0.18,katana:stats.katana});
+    }
+    return;
+  }
   const shots=Math.max(1,stats.shots||1);
   for(let si=0;si<shots;si++){
     const targets=getTargetsInRange(t,stats);
@@ -4267,6 +4297,47 @@ function update(dt){
       continue;
     }
     if(!stats.rate) continue;
+    // Sticky mine tick (Edunzie)
+    if(stats.stickyMine){
+      t.mineT=(t.mineT||0)+dt;
+      if(t.mineT>=stats.mineCooldown){
+        t.mineT=0;
+        // Find a path point within range
+        const effectiveRange=getEffectiveRangeForTower(t);
+        const inRange=PPTS.filter(pt=>{
+          const dx=pt.x-t.x,dy=pt.y-t.y;
+          return dx*dx+dy*dy<=effectiveRange*effectiveRange;
+        });
+        if(inRange.length){
+          const pt=inRange[Math.floor(Math.random()*inRange.length)];
+          S.particles.push({x:pt.x,y:pt.y-8,text:'💣',alpha:1,vy:0,life:5,col:'#ffb74d'});
+          // Schedule explosion after 5 seconds
+          const mineDmg=stats.mineDamage;
+          const mineRad=stats.mineRadius;
+          const mx=pt.x,my=pt.y;
+          setTimeout(()=>{
+            if(!S||S.over) return;
+            // Fake stats for mine explosion: can pop lead, can't pop zebra
+            const mineStats={explosive:true,canSeeCamo:true};
+            S.particles.push({x:mx,y:my,type:'ring',r:0,maxR:mineRad*2.2,alpha:1,life:0.32,col:'#ff8f00'});
+            S.particles.push({x:mx,y:my-10,text:'BOOM',alpha:1,vy:-38,life:0.9,col:'#ffb74d'});
+            for(const e of S.enemies){
+              if(e.dead||e.reached) continue;
+              if(isBlackAndWhiteEnemy(e)) continue; // can't pop B&W
+              const dx=e.x-mx,dy=e.y-my;
+              if(dx*dx+dy*dy<=mineRad*mineRad){
+                // Can pop lead
+                const fakeStats={explosive:true,canSeeCamo:true,canHitAll:false};
+                // Bypass lead check manually
+                e.hp-=mineDmg;
+                e.flashT=0.15;
+                if(e.hp<=0) handleEnemyDefeat(e,t);
+              }
+            }
+          },(5000/Math.max(1,S.speed)));
+        }
+      }
+    }
     const wfBuff=getWrenFunStatsForTower(t);
     const effectiveRate=wfBuff&&wfBuff.grantSpeedBoost ? stats.rate/1.2 : stats.rate;
     t.at=(t.at||0)+dt;
@@ -5190,6 +5261,66 @@ function drawTowers(){
         drawTowerSpark(t.x+CELL*ox*scale,t.y+CELL*oy*scale,CELL*szMul*scale*pulse,'rgba(255,240,180,0.96)',time+i);
       });
     }
+    // Edunzie sword overlay
+    if(t.defId==='edunzie'){
+      const stats=getTowerStats(t);
+      const isKatana=stats.katana;
+      const swLen=isKatana ? imgSize*0.72 : imgSize*0.55;
+      const swW=isKatana ? Math.max(2,imgSize*0.055) : Math.max(2,imgSize*0.07);
+      ctx.save();
+      ctx.translate(t.x, t.y);
+      ctx.rotate(-Math.PI/4); // diagonal, pointing upper-right
+      // Grip
+      ctx.strokeStyle='#5d3a1a';
+      ctx.lineWidth=swW*1.5;
+      ctx.lineCap='round';
+      ctx.beginPath();
+      ctx.moveTo(0, swLen*0.18);
+      ctx.lineTo(0, swLen*0.42);
+      ctx.stroke();
+      // Guard (crossguard)
+      ctx.strokeStyle=isKatana?'#b0bec5':'#8d6e35';
+      ctx.lineWidth=Math.max(1.5, imgSize*0.04);
+      ctx.lineCap='round';
+      ctx.beginPath();
+      ctx.moveTo(-swLen*0.18, swLen*0.2);
+      ctx.lineTo( swLen*0.18, swLen*0.2);
+      ctx.stroke();
+      // Blade
+      const bladeGrad=ctx.createLinearGradient(-swW,0,swW,0);
+      if(isKatana){
+        bladeGrad.addColorStop(0,'#c8d8e8');
+        bladeGrad.addColorStop(0.4,'#ffffff');
+        bladeGrad.addColorStop(0.7,'#dce8f0');
+        bladeGrad.addColorStop(1,'#8090a0');
+      } else {
+        bladeGrad.addColorStop(0,'#b0bec5');
+        bladeGrad.addColorStop(0.4,'#eceff1');
+        bladeGrad.addColorStop(0.7,'#cfd8dc');
+        bladeGrad.addColorStop(1,'#607d8b');
+      }
+      ctx.fillStyle=bladeGrad;
+      ctx.shadowColor=isKatana?'rgba(180,220,255,0.7)':'rgba(200,210,220,0.5)';
+      ctx.shadowBlur=isKatana?8:4;
+      ctx.beginPath();
+      ctx.moveTo(-swW*0.5, swLen*0.18);
+      ctx.lineTo(-swW*0.5, -swLen*0.7);
+      ctx.lineTo(0, -swLen);         // blade tip
+      ctx.lineTo( swW*0.5, -swLen*0.7);
+      ctx.lineTo( swW*0.5, swLen*0.18);
+      ctx.closePath();
+      ctx.fill();
+      // Edge highlight
+      ctx.strokeStyle='rgba(255,255,255,0.8)';
+      ctx.lineWidth=Math.max(0.8, swW*0.25);
+      ctx.lineCap='butt';
+      ctx.shadowBlur=0;
+      ctx.beginPath();
+      ctx.moveTo(-swW*0.18, swLen*0.18);
+      ctx.lineTo(-swW*0.18, -swLen*0.75);
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 }
 
@@ -5625,6 +5756,25 @@ function drawProjs(){
       ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();ctx.stroke();
       ctx.strokeStyle='#f6d27a';
       ctx.beginPath();ctx.moveTo(cx,cy-4);ctx.lineTo(cx+3,cy-8);ctx.stroke();
+    } else if(p.type==='sword'){
+      // Sword arc sweep — animated slash around tower centre
+      const sweepAngle=Math.PI*1.1;
+      const startAngle=-sweepAngle/2 + (1-alpha)*sweepAngle;
+      const endAngle=startAngle+sweepAngle*0.45;
+      const sLen=p.len||30;
+      ctx.strokeStyle=p.katana?'#e0e8ff':'#ffe082';
+      ctx.lineWidth=p.katana?3.5:2.8;
+      ctx.shadowColor=p.katana?'#90caf9':'#ffd54f';
+      ctx.shadowBlur=p.katana?14:10;
+      ctx.lineCap='round';
+      ctx.beginPath();
+      ctx.arc(p.sx,p.sy,sLen,startAngle,endAngle);
+      ctx.stroke();
+      // Blade tip glint
+      ctx.fillStyle='#ffffff';
+      ctx.beginPath();
+      ctx.arc(p.sx+Math.cos(endAngle)*sLen,p.sy+Math.sin(endAngle)*sLen,p.katana?3:2,0,Math.PI*2);
+      ctx.fill();
     }
     ctx.restore();
   }
