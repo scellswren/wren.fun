@@ -777,6 +777,27 @@ const LOG_FOREST_BUSH_VARIANTS = [
   ['#5f8e3a','#2f4f1e']
 ];
 
+const GRASSY_DECOR_BLOCKERS = [
+  {x:0.06,y:0.12,r:0.46},{x:0.09,y:0.35,r:0.36},{x:0.04,y:0.55,r:0.49},{x:0.07,y:0.78,r:0.41},
+  {x:0.93,y:0.15,r:0.46},{x:0.96,y:0.42,r:0.39},{x:0.91,y:0.65,r:0.46},{x:0.94,y:0.85,r:0.41},
+  {x:0.22,y:0.04,r:0.34},{x:0.55,y:0.04,r:0.38},{x:0.78,y:0.04,r:0.36},
+  {x:0.18,y:0.96,r:0.36},{x:0.48,y:0.96,r:0.34},{x:0.72,y:0.96,r:0.38},
+  {x:0.28,y:0.92,r:0.34},{x:0.65,y:0.06,r:0.34},{x:0.85,y:0.75,r:0.34},{x:0.15,y:0.48,r:0.34}
+];
+const AUTUMN_DECOR_BLOCKERS = [
+  {x:0.07,y:0.08,r:0.42},{x:0.20,y:0.10,r:0.34},{x:0.38,y:0.06,r:0.34},{x:0.62,y:0.06,r:0.33},
+  {x:0.82,y:0.10,r:0.34},{x:0.92,y:0.16,r:0.42},{x:0.95,y:0.40,r:0.36},{x:0.92,y:0.68,r:0.43},
+  {x:0.94,y:0.86,r:0.39},{x:0.18,y:0.95,r:0.36},{x:0.40,y:0.96,r:0.34},{x:0.73,y:0.95,r:0.37}
+];
+const LOG_FOREST_EXTRA_TREES = [
+  {x:1.15,y:1.55,scale:0.8},
+  {x:28.1,y:1.6,scale:0.8},
+  {x:1.0,y:8.25,scale:0.88},
+  {x:28.0,y:9.1,scale:0.86},
+  {x:4.5,y:15.6,scale:0.76}
+];
+const LOG_FOREST_DECOR_BLOCKERS = [];
+
 // ─── MAP DEFINITIONS ───
 const MAPS = {
   grassy: {
@@ -844,12 +865,37 @@ let PATH=MAPS.grassy.path;
 let BLOCKED=new Set();
 let PPTS=[];
 let NO_BUILD_RECTS=[];
+let DECOR_BLOCKERS=[];
+
+function buildDecorBlockers(mapId){
+  const W=COLS*CELL, H=ROWS*CELL;
+  const out=[];
+  const add = (x,y,r) => out.push({x:x*W,y:y*H,r:r*CELL});
+  if(mapId==='grassy'){
+    GRASSY_DECOR_BLOCKERS.forEach(b=>add(b.x,b.y,b.r));
+  } else if(mapId==='autumn'){
+    AUTUMN_DECOR_BLOCKERS.forEach(b=>add(b.x,b.y,b.r));
+  } else if(mapId==='logforest'){
+    const treePositions=[
+      [0.05,0.12,1.02],[0.08,0.32,0.84],[0.06,0.56,1.08],[0.08,0.83,0.92],
+      [0.2,0.07,0.76],[0.34,0.05,0.82],[0.68,0.05,0.78],[0.83,0.07,0.82],
+      [0.92,0.15,1],[0.95,0.4,0.86],[0.92,0.68,1.04],[0.94,0.86,0.9],
+      [0.18,0.95,0.82],[0.4,0.96,0.76],[0.73,0.95,0.84],[0.86,0.93,0.74],
+      ...LOG_FOREST_EXTRA_TREES.map(t=>[t.x/COLS,t.y/ROWS,t.scale])
+    ];
+    treePositions.forEach(([fx,fy,sc])=>add(fx,fy,0.42*sc));
+    LOG_FOREST_BUSHES.forEach(b=>add(b.x/COLS,b.y/ROWS,0.34*b.scale));
+    // Slightly wider no-build zones for the existing bushes/trees so towers can't clip them.
+  }
+  return out;
+}
 
 function setMap(mapId){
   const map=MAPS[mapId];
   PATH=map.path;
   BLOCKED=new Set();
   NO_BUILD_RECTS=(map.noBuildRects||[]).map(mapRectToPixels);
+  DECOR_BLOCKERS=buildDecorBlockers(mapId);
   // For grassy: block path + 1-tile padding for BLOCKED grid set
   // For autumn: path uses float coords so skip grid BLOCKED entirely — canPlaceAt uses PPTS distance
   if(mapId!=='autumn'){
@@ -873,10 +919,10 @@ setMap('grassy'); // default
 const TD = {
   wren:    {id:'wren',    name:'Wren',              img:'Wren.jpg',          cost:300, dmg:1,  rate:1,   range:130, income:0,   irate:0,  init:'W',  col:'#29b6f6'},
   tiki:    {id:'tiki',    name:'Tikitheg',           img:'TikiTheG.jpg',      cost:600, dmg:5,  rate:2,   range:9999,income:0,   irate:0,  init:'TG', col:'#ff7043'},
-  orin:    {id:'orin',    name:'The Mind of Orin',   img:'TheMindOfOrin.jpg', cost:860, dmg:0,  rate:0,   range:130, income:10,  irate:12, init:'O',  col:'#ab47bc'},
-  wrenfun: {id:'wrenfun', name:'Wren.fun',            img:'Wren.fun.jpg',      cost:810, dmg:0,  rate:0,   range:90,  income:0,   irate:0,  init:'WF', col:'#e040fb', support:true}
+  orin:    {id:'orin',    name:'The Mind of Orin',   img:'TheMindOfOrin.jpg', cost:950, dmg:0,  rate:0,   range:130, income:10,  irate:12, init:'O',  col:'#ab47bc'},
+  wrenfun: {id:'wrenfun', name:'Wren.fun',            img:'Wren.fun.jpg',      cost:900, dmg:0,  rate:0,   range:90,  income:0,   irate:0,  init:'WF', col:'#e040fb', support:true}
 };
-const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg'};
+const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg'};
 
 const TIKI_POWER_PRICE = 31000;
 const TOWER_UPGRADES = {
@@ -2276,7 +2322,7 @@ function drawForestPreviewRoad(ptx,map){
 
   ptx.save();
   const dirtShades=['rgba(112,70,26,0.12)','rgba(77,46,19,0.16)','rgba(146,96,38,0.1)'];
-  for(let i=0;i<55;i++){
+  for(let i=0;i<70;i++){
     const fx=(i*157.1+31)% (COLS*CELL);
     const fy=(i*103.7+17)% (ROWS*CELL);
     if(!forestDecorSpotClear(map,fx,fy,CELL*.12)) continue;
@@ -2949,6 +2995,12 @@ function canPlaceAt(wx,wy){
     const canUseWater=rect.kind==='water'&&activeTowerId&&TD[activeTowerId]&&TD[activeTowerId].canPlaceOnWater;
     if(canUseWater) continue;
     if(wx+half>rect.x&&wx-half<rect.x+rect.w&&wy+half>rect.y&&wy-half<rect.y+rect.h) return false;
+  }
+
+  for(const decor of (DECOR_BLOCKERS||[])){
+    const dx=wx-decor.x, dy=wy-decor.y;
+    const safe=decor.r + half + 2;
+    if(dx*dx+dy*dy < safe*safe) return false;
   }
 
   // Must not overlap an existing tower
@@ -3839,7 +3891,7 @@ function drawMapGrassy(){
 
   // ── Flower clusters ──
   const flowerCols=['#ff8fa0','#ffe066','#ffffff','#ffcc88','#cc99ff','#88ddff'];
-  for(let i=0;i<120;i++){
+  for(let i=0;i<160;i++){
     const fx=(i*211.3+17)%W,fy=(i*173.7+43)%H;
     const c=Math.floor(fx/CELL),r=Math.floor(fy/CELL);
     if(BLOCKED.has(`${c},${r}`)) continue;
@@ -3969,6 +4021,14 @@ function drawMapLogForest(){
   ctx.fillStyle=bg;
   ctx.fillRect(0,0,W,H);
 
+  const sideShade=ctx.createLinearGradient(0,0,W,0);
+  sideShade.addColorStop(0,'rgba(14,8,4,0.46)');
+  sideShade.addColorStop(.18,'rgba(14,8,4,0.10)');
+  sideShade.addColorStop(.82,'rgba(14,8,4,0.10)');
+  sideShade.addColorStop(1,'rgba(14,8,4,0.48)');
+  ctx.fillStyle=sideShade;
+  ctx.fillRect(0,0,W,H);
+
   const warmFog=ctx.createRadialGradient(W*.5,H*.35,0,W*.5,H*.35,W*.36);
   warmFog.addColorStop(0,'rgba(255,215,94,0.2)');
   warmFog.addColorStop(1,'rgba(255,215,94,0)');
@@ -3976,7 +4036,7 @@ function drawMapLogForest(){
   ctx.fillRect(0,0,W,H);
 
   const dirtShades=['rgba(91,55,23,0.3)','rgba(126,79,33,0.2)','rgba(58,35,16,0.24)','rgba(164,110,46,0.14)'];
-  for(let i=0;i<230;i++){
+  for(let i=0;i<310;i++){
     const fx=(i*149.3+41)%W, fy=(i*97.7+23)%H;
     const c=Math.floor(fx/CELL),r=Math.floor(fy/CELL);
     if(BLOCKED.has(`${c},${r}`)) continue;
@@ -4005,7 +4065,7 @@ function drawMapLogForest(){
   }
 
   const leafCols=['#8c4b17','#af6a1e','#d18b2a','#6b3713','#c27a22'];
-  for(let i=0;i<140;i++){
+  for(let i=0;i<190;i++){
     const lx=(i*203.1+59)%W, ly=(i*167.9+83)%H;
     const c=Math.floor(lx/CELL),r=Math.floor(ly/CELL);
     if(BLOCKED.has(`${c},${r}`)) continue;
@@ -4036,9 +4096,11 @@ function drawMapLogForest(){
     [0.05,0.12,1.02],[0.08,0.32,0.84],[0.06,0.56,1.08],[0.08,0.83,0.92],
     [0.2,0.07,0.76],[0.34,0.05,0.82],[0.68,0.05,0.78],[0.83,0.07,0.82],
     [0.92,0.15,1],[0.95,0.4,0.86],[0.92,0.68,1.04],[0.94,0.86,0.9],
-    [0.18,0.95,0.82],[0.4,0.96,0.76],[0.73,0.95,0.84],[0.86,0.93,0.74]
+    [0.18,0.95,0.82],[0.4,0.96,0.76],[0.73,0.95,0.84],[0.86,0.93,0.74],
+    [0.04,0.21,0.72],[0.04,0.71,0.78],[0.965,0.24,0.74],[0.965,0.74,0.8]
   ];
   for(const [fx,fy,sc] of treePositions) drawTree(fx*W,fy*H,sc);
+  LOG_FOREST_EXTRA_TREES.forEach(p=>drawTree(p.x*CELL,p.y*CELL,p.scale));
 
   drawForestPath();
 
