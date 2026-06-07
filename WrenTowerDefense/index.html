@@ -304,6 +304,27 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .ovsub{color:var(--muted);font-size:1.05rem;margin-bottom:1.8rem;font-style:italic;text-align:center;max-width:400px}
 .ovbtns{display:flex;flex-direction:column;gap:.55rem;align-items:center}
 
+/* CUSTOM CONFIRM MODAL */
+#confirmModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.72);z-index:9000;backdrop-filter:blur(6px)}
+#confirmModal.on{display:flex}
+.confirm-box{background:linear-gradient(160deg,#181208ee,#10100aee);
+  border:1px solid #c8964066;border-radius:6px;padding:2rem 2.2rem 1.6rem;
+  max-width:380px;width:90%;text-align:center;
+  box-shadow:0 8px 40px #000a,0 0 0 1px #f0c04022;
+  animation:fadeup .18s ease both}
+.confirm-title{font-family:'Cinzel',serif;font-size:1.15rem;color:var(--gold);
+  margin-bottom:.6rem;letter-spacing:.06em;text-shadow:0 0 18px #f0c04055}
+.confirm-msg{color:var(--muted);font-size:.9rem;line-height:1.6;margin-bottom:1.4rem}
+.confirm-btns{display:flex;gap:.7rem;justify-content:center}
+.confirm-btn{font-family:'Cinzel',serif;font-size:.82rem;padding:.5em 1.6em;
+  border-radius:2px;cursor:pointer;transition:all .15s;
+  clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
+.confirm-btn.yes{border:1px solid #c0392b88;background:#c0392b14;color:#e57368}
+.confirm-btn.yes:hover{background:#c0392b2e;border-color:#e57368;color:#fff}
+.confirm-btn.no{border:1px solid #c8964066;background:#f0c04010;color:var(--muted)}
+.confirm-btn.no:hover{border-color:var(--gold);color:var(--gold);background:#f0c04020}
+
 /* WAVE BUTTON */
 #wavebtn{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);
   font-family:'Cinzel',serif;font-size:.95rem;padding:.58em 2em;
@@ -584,6 +605,18 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
   </div>
 </div>
 
+<!-- CUSTOM CONFIRM MODAL -->
+<div id="confirmModal">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-btns">
+      <button class="confirm-btn yes" id="confirmYes">Yes, reset</button>
+      <button class="confirm-btn no" id="confirmNo">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const G = (() => {
 'use strict';
@@ -595,7 +628,7 @@ function loadCareer(){
     const raw=localStorage.getItem(CAREER_KEY);
     if(raw) return JSON.parse(raw);
   }catch(e){}
-  return {bestRound:0,totalMoney:0,towersPlaced:0,totalKills:0,tier5Count:0,towerUsage:{}};
+  return {bestRound:0,totalMoney:0,towersPlaced:0,totalKills:0,tier5Count:0,roundsPlayed:0,towerUsage:{}};
 }
 function saveCareer(c){
   try{ localStorage.setItem(CAREER_KEY,JSON.stringify(c)); }catch(e){}
@@ -603,11 +636,20 @@ function saveCareer(c){
 let CAREER = loadCareer();
 function recordGameEnd(S){
   if(!S||S.mode==='sandbox') return; // don't track sandbox runs
-  const totalKills=S.towers.reduce((a,t)=>a+(t.kills||0),0);
-  CAREER.bestRound=Math.max(CAREER.bestRound||0,S.round);
-  CAREER.totalMoney=(CAREER.totalMoney||0)+(S.totalMoneyEarned||0);
-  CAREER.totalKills=(CAREER.totalKills||0)+totalKills;
-  // Tower usage already tracked via recordTowerPlaced / recordTier5
+  // bestRound: only update if current round is higher
+  if(S.round>0) CAREER.bestRound=Math.max(CAREER.bestRound||0,S.round);
+  // totalMoney and totalKills are already being saved live via recordKill/recordMoney,
+  // so we don't double-add them here — just ensure bestRound is persisted
+  saveCareer(CAREER);
+}
+function recordKill(){
+  if(!S||S.mode==='sandbox') return;
+  CAREER.totalKills=(CAREER.totalKills||0)+1;
+  saveCareer(CAREER);
+}
+function recordMoneyEarned(amount){
+  if(!S||S.mode==='sandbox'||!amount) return;
+  CAREER.totalMoney=(CAREER.totalMoney||0)+amount;
   saveCareer(CAREER);
 }
 function recordTowerPlaced(defId){
@@ -811,9 +853,9 @@ const TOWER_UPGRADES = {
   orin: [
     {name:'Money Grab', cost:900, desc:'Income rises from $10 to $25 every 12 seconds.', apply:s=>{s.income=25;}},
     {name:'Helping Hand', cost:1005, desc:'If at least 2 upgraded Orins exist, payouts have a 25% chance to give every Helping Hand Orin an extra $7.', apply:s=>{s.helpingHand=true;}},
-    {name:'Auto Pick Up', cost:1350, desc:'DVD cash drops are collected automatically instead of needing a click.', apply:s=>{s.autoPickup=true;}},
+    {name:'Auto Pick Up', cost:1350, desc:'DVD cash drops are collected automatically instead of needing a click, and income rises to $50 every 10 seconds.', apply:s=>{s.autoPickup=true;s.income=50;s.irate=10;}},
     {name:'Frenzy', cost:3200, desc:'Unlocks a bottom-screen ability with a 60 second cooldown that boosts Orin income to x2 for 10 seconds.', apply:s=>{s.frenzy=true;}},
-    {name:'Tech Master', cost:89000, desc:'Income becomes $100 every 5 seconds, Frenzy becomes x3 for 15 seconds, other Orins gain +25% income (capped at 25% total), and the tower grows by 1.25x.', apply:s=>{s.income=100;s.irate=5;s.techMaster=true;s.frenzy=true;s.autoPickup=true;}}
+    {name:'Tech Master', cost:89000, desc:'Income becomes $1000 every 5 seconds, Frenzy becomes x3 for 15 seconds, other Orins gain +25% income (capped at 25% total), and the tower grows by 1.25x.', apply:s=>{s.income=1000;s.irate=5;s.techMaster=true;s.frenzy=true;s.autoPickup=true;}}
   ]
 };
 
@@ -1146,6 +1188,7 @@ function collectIncomeDrop(drop, auto){
   const d=S.incomeDrops[idx];
   S.incomeDrops.splice(idx,1);
   S.gold+=d.amount;S.totalMoneyEarned=(S.totalMoneyEarned||0)+d.amount;
+  recordMoneyEarned(d.amount);
   updateHUD();
   refreshShopAffordability();
   S.particles.push({
@@ -1176,6 +1219,7 @@ function awardOrinIncome(t, baseAmount){
   const stats=getTowerStats(t);
   if(stats.autoPickup){
     S.gold+=amount;S.totalMoneyEarned=(S.totalMoneyEarned||0)+amount;
+    recordMoneyEarned(amount);
     updateHUD();
     refreshShopAffordability();
     S.particles.push({
@@ -1233,6 +1277,10 @@ function canTowerAffectEnemy(stats, enemy){
 function isBlackAndWhiteEnemy(enemy){
   const baseId=getEnemyBaseId(enemy&&enemy.defId||enemy&&enemy.id||'');
   return baseId==='queenZebra'||baseId==='queenZebraRegen';
+}
+function isRishiEnemy(enemy){
+  const baseId=getEnemyBaseId(enemy&&enemy.defId||enemy&&enemy.id||'');
+  return baseId==='rishiSunak'||baseId==='reinforcedRishi';
 }
 
 // ─── IMAGE CACHE ───
@@ -1318,7 +1366,8 @@ function mkState(mapId, mode){
     incomeDrops:[],
     orinFrenzyCd:0,
     orinFrenzyT:0,
-    totalMoneyEarned:0
+    totalMoneyEarned:0,
+    totalKillsEarned:0
   };
 }
 
@@ -1365,6 +1414,7 @@ function showSub(type){
   el.innerHTML='';
 
   if(type==='stats'){
+    CAREER=loadCareer(); // always refresh from localStorage before displaying
     const top3=getTop3Towers();
     const towerNames={wren:'Wren',tiki:'Tikitheg',orin:'The Mind of Orin'};
     const medals=['🥇','🥈','🥉'];
@@ -1379,7 +1429,7 @@ function showSub(type){
 
     el.innerHTML=`
       <div class="stats-panel">
-        <div class="stats-note">Career stats track Classic mode games only.</div>
+        <div class="stats-note">Career stats track Classic mode games only. &nbsp;<button onclick="G._resetStats()" style="font-family:Cinzel,serif;font-size:.65rem;padding:.2em .7em;border:1px solid #c0392b66;background:#c0392b0e;color:#e57368;cursor:pointer;border-radius:2px">Reset Stats</button></div>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">🏆</div>
@@ -1405,6 +1455,11 @@ function showSub(type){
             <div class="stat-icon">⭐</div>
             <div class="stat-number">${formatNum(CAREER.tier5Count||0)}</div>
             <div class="stat-desc">Tier 5 Upgrades</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-number">${formatNum(CAREER.roundsPlayed||0)}</div>
+            <div class="stat-desc">Rounds Played</div>
           </div>
         </div>
         <div class="stats-top3">
@@ -1579,7 +1634,7 @@ function showSub(type){
               <span><span class="es-label">Reward</span><span class="es-val" style="color:#f0c040">$${e.hp}</span></span>
               ${eRegen?`<span><span class="es-label">Regen</span><span class="es-val" style="color:#4caf50">+${eRegen}/s</span></span>`:''}
               ${eIsCamo&&!eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#39ff14">Invisible to towers</span></span>`:''}
-              ${eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#b0bec5">Camo · Fast</span></span>`:''}
+              ${eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#b0bec5">Camo · Fast · Explosion Immune</span></span>`:''}
               ${e.lead?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#aeb8c2">Explosion only</span></span>`:''}
             </div>
           </div>
@@ -2163,6 +2218,7 @@ function positionPanels(){
 
 function exitToMenu(){
   if(raf){cancelAnimationFrame(raf);raf=null;}
+  if(S&&!S.over) recordGameEnd(S); // save stats even when quitting mid-game
   showScreen('menuScreen');
 }
 
@@ -2589,6 +2645,11 @@ function startWave(){
   S.waveActive=true;
   setWaveBtn(true,'Wave '+S.round+' in progress...');
   updateHUD();
+  // Count every round started (classic only, even if player exits mid-round)
+  if(S.mode!=='sandbox'){
+    CAREER.roundsPlayed=(CAREER.roundsPlayed||0)+1;
+    saveCareer(CAREER);
+  }
 }
 
 
@@ -2794,7 +2855,12 @@ function buildShop(){
       ? `<div class="shop-upgtitle">Upgrades</div>${upgs.map((upg,i)=>`<div class="shop-upgitem"><strong>${i+1}. ${upg.name} - $${upg.cost}</strong><br>${upg.desc}</div>`).join('')}<div class="shop-upghint">Click again on the highlighted tower to view upgrades.</div>`
       : `<div class="shop-upgtitle">Upgrades</div><div class="shop-upgitem">No upgrades yet.</div>`;
     div.appendChild(pic); div.appendChild(info);
-    div.addEventListener('click',()=>{
+    let _shopClickLock=false;
+    div.addEventListener('pointerdown',(e)=>{
+      e.preventDefault();
+      if(_shopClickLock) return;
+      _shopClickLock=true;
+      setTimeout(()=>{_shopClickLock=false;},120);
       const canAffordNow=S.gold>=d.cost;
       const alreadySel=S.shopSel===d.id;
       const showingInfo=S.shopInfoSel===d.id;
@@ -3100,6 +3166,8 @@ function handleEnemyDefeat(tgt, tower){
     S.particles.push({x:tgt.x,y:tgt.y,text:'x2 R',alpha:1,vy:-40,life:1.1,col:'#ffffff'});
   }
   tower.kills=(tower.kills||0)+1;
+  S.totalKillsEarned=(S.totalKillsEarned||0)+1;
+  recordKill();
   if(tower.kills===10||tower.kills===50||tower.kills===100||tower.kills%100===0){
     S.particles.push({x:tower.x,y:tower.y-CELL*.6,text:tower.kills+' KO',alpha:1,vy:-45,life:1.3,col:'#f0c040'});
   }
@@ -3107,7 +3175,12 @@ function handleEnemyDefeat(tgt, tower){
   const orinBonus=getOrinKillGoldBonus(gold,tower);
   const totalGold=gold+orinBonus;
   S.gold+=totalGold;S.totalMoneyEarned=(S.totalMoneyEarned||0)+totalGold;updateHUD();refreshShopAffordability();
-  S.particles.push({x:tgt.x,y:tgt.y,text:'$'+totalGold,alpha:1,vy:-30,life:.7,col:'#f0c040'});
+  recordMoneyEarned(totalGold);
+  const frenzyActive=S.orinFrenzyT>0;
+  const frenzyMult=frenzyActive?getOrinFrenzySpec().mult:1;
+  const goldLabel=frenzyActive?'$'+totalGold+' x'+frenzyMult:'$'+totalGold;
+  const goldCol=frenzyActive?'#d6a4ff':'#f0c040';
+  S.particles.push({x:tgt.x,y:tgt.y,text:goldLabel,alpha:1,vy:-30,life:.85,col:goldCol});
   if(orinBonus>0){
     S.particles.push({x:tower.x,y:tower.y-CELL*.45,text:'Orin +$'+orinBonus,alpha:1,vy:-26,life:.9,col:'#d6a4ff'});
   }
@@ -3116,6 +3189,7 @@ function handleEnemyDefeat(tgt, tower){
 function damageEnemy(tgt, amount, tower, stats){
   if(!tgt||tgt.dead||!canTowerAffectEnemy(stats,tgt)) return false;
   if(stats&&stats.explosive&&isBlackAndWhiteEnemy(tgt)) return false;
+  if(stats&&stats.explosive&&isRishiEnemy(tgt)) return false;
   tgt.hp-=amount;
   tgt.flashT=0.12;
   if(tgt.hp<=0) handleEnemyDefeat(tgt,tower);
@@ -3181,6 +3255,8 @@ function update(dt){
       // Round completion gold bonus
       const bonus=Math.round(100*rewardMultiplier(S.round));
       S.gold+=bonus;S.totalMoneyEarned=(S.totalMoneyEarned||0)+bonus;
+      recordMoneyEarned(bonus);
+      recordGameEnd(S); // save bestRound after each completed round
       updateHUD();
       refreshShopAffordability();
       showToast('Round '+S.round+' complete! +$'+bonus,'#4caf50');
@@ -3275,6 +3351,7 @@ function update(dt){
           }
         } else {
           S.gold+=stats.income;S.totalMoneyEarned=(S.totalMoneyEarned||0)+stats.income;
+          recordMoneyEarned(stats.income);
           updateHUD();
           refreshShopAffordability();
           S.particles.push({x:t.x,y:t.y-CELL*.3,text:'$'+stats.income,alpha:1,vy:-38,life:.9});
@@ -4774,10 +4851,40 @@ document.addEventListener('webkitfullscreenchange',updateFullscreenButton);
 document.addEventListener('msfullscreenchange',updateFullscreenButton);
 updateFullscreenButton();
 
+function showConfirmModal(title, msg, onYes){
+  const modal=document.getElementById('confirmModal');
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  modal.classList.add('on');
+  const yesBtn=document.getElementById('confirmYes');
+  const noBtn=document.getElementById('confirmNo');
+  // Clone to remove any previous listeners
+  const newYes=yesBtn.cloneNode(true);
+  const newNo=noBtn.cloneNode(true);
+  yesBtn.parentNode.replaceChild(newYes,yesBtn);
+  noBtn.parentNode.replaceChild(newNo,noBtn);
+  const close=()=>modal.classList.remove('on');
+  newYes.addEventListener('click',()=>{ close(); onYes(); });
+  newNo.addEventListener('click',close);
+  modal.addEventListener('click',(e)=>{ if(e.target===modal) close(); },{once:true});
+}
+
+function _resetStats(){
+  showConfirmModal(
+    'Reset Stats',
+    'This will permanently wipe all career stats. Are you sure?',
+    ()=>{
+      CAREER={bestRound:0,totalMoney:0,towersPlaced:0,totalKills:0,tier5Count:0,roundsPlayed:0,towerUsage:{}};
+      saveCareer(CAREER);
+      showSub('stats');
+    }
+  );
+}
+
 return {startGame,showModeSelect,showMapSelect,showSub,showScreen,togglePause,toggleShop,exitToMenu,
         startWave,sellTower,removeTower,desel,toggleSpeed,toggleAuto,setTowerPriority,
         toggleFullscreen,goHome,triggerOrinFrenzy,
-        toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll};
+        toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats};
 })();
 </script>
 </body>
