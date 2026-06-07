@@ -1035,10 +1035,11 @@ function setMenuVolume(val){
 }
 
 // ── Radio System ──
-const RADIO_TRACKS = Array.from({length:10},(_,i)=>`WTD ${i+1}.mp3`);
+const RADIO_TRACKS = Array.from({length:10},(_,i)=>`WTD${i+1}.mp3`);
 let radioAudio = null;
 let radioPlaylist = [];
 let radioIdx = 0;
+let radioReady = false;
 function shufflePlaylist(){
   radioPlaylist = RADIO_TRACKS.slice().sort(()=>Math.random()-.5);
   radioIdx = 0;
@@ -1047,21 +1048,33 @@ function initRadio(){
   if(radioAudio) return;
   radioAudio = new Audio();
   radioAudio.volume = AUDIO_PREFS.radioVol/100;
-  radioAudio.addEventListener('ended',()=>{ nextRadioTrack(); });
-  radioAudio.addEventListener('error',()=>{ nextRadioTrack(); });
+  radioAudio.addEventListener('ended',()=>{
+    radioIdx = (radioIdx+1) % radioPlaylist.length;
+    playRadio();
+  });
+  // Only skip on error if we were already playing (not on initial load failure)
+  radioAudio.addEventListener('error',(e)=>{
+    if(radioReady){
+      radioReady = false;
+      radioIdx = (radioIdx+1) % radioPlaylist.length;
+      playRadio();
+    }
+  });
+  radioAudio.addEventListener('canplay',()=>{ radioReady = true; });
 }
 function playRadio(){
   initRadio();
   if(!AUDIO_PREFS.radioOn) return;
   if(!radioPlaylist.length) shufflePlaylist();
+  radioReady = false;
   const track = radioPlaylist[radioIdx % radioPlaylist.length];
   radioAudio.src = track;
   radioAudio.volume = AUDIO_PREFS.radioVol/100;
   radioAudio.play().catch(()=>{});
-  showTrackDisplay(track);
 }
 function stopRadio(){
   if(!radioAudio) return;
+  radioReady = false;
   radioAudio.pause();
   radioAudio.src='';
 }
@@ -1090,13 +1103,7 @@ function setRadioVolume(val){
   updateSliderFill(document.getElementById('radioVolSlider'),val);
 }
 function showTrackDisplay(filename){
-  const el=document.getElementById('radioTrackDisplay');
-  if(!el) return;
-  const name = filename.replace(/\.mp3$/i,'');
-  el.textContent = '🎵 Now Playing: '+name;
-  el.classList.add('visible');
-  clearTimeout(el._to);
-  el._to = setTimeout(()=>el.classList.remove('visible'), 4000);
+  // Track display removed
 }
 
 // ── SFX controls ──
