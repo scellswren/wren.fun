@@ -128,6 +128,20 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
   background:radial-gradient(ellipse 90% 80% at 50% 35%,#1f4a1f,#0d200d 55%,#030803 100%)}
 #modeSelectScreen{flex-direction:column;align-items:center;justify-content:center;
   background:radial-gradient(ellipse 90% 80% at 50% 35%,#20322a,#0c1511 55%,#040806 100%)}
+#diffSelectScreen{flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 90% 80% at 50% 35%,#1f2a3a,#0c1018 55%,#040508 100%)}
+.diff-card{border:2px solid var(--border);background:#141009dd;border-radius:4px;
+  cursor:pointer;transition:all .22s;overflow:hidden;display:flex;flex-direction:column;
+  padding:1.1rem 1.3rem 1.3rem;min-width:220px}
+.diff-card:hover{border-color:var(--gold);box-shadow:0 0 28px #f0c04055;transform:translateY(-3px)}
+.diff-card.easy{border-color:#4caf5077}.diff-card.easy:hover{border-color:#4caf50;box-shadow:0 0 28px #4caf5055}
+.diff-card.medium{border-color:#ff980077}.diff-card.medium:hover{border-color:#ff9800;box-shadow:0 0 28px #ff980055}
+.diff-card.hard{border-color:#e5736877}.diff-card.hard:hover{border-color:#e57368;box-shadow:0 0 28px #e5736855}
+.diff-title{font-family:'Cinzel',serif;font-size:1.15rem;font-weight:700;margin-bottom:.5rem}
+.diff-desc{color:var(--muted);font-size:.82rem;line-height:1.55}
+.diff-stat{color:var(--text);font-size:.8rem;margin-top:.55rem;display:flex;flex-direction:column;gap:.18rem}
+.diff-stat span{display:flex;justify-content:space-between}
+.diff-stat .dk{color:var(--muted);font-size:.74rem}.diff-stat .dv{font-weight:700}
 #subScreen{flex-direction:column;align-items:center;
   background:radial-gradient(ellipse 110% 80% at 50% 0%,#1c3d1c 0%,#0e2010 40%,#060d06 100%);
   padding:2.5rem 2rem;overflow-y:auto}
@@ -484,6 +498,48 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
   </div>
 </div>
 
+<!-- DIFFICULTY SELECT SCREEN -->
+<div id="diffSelectScreen" class="screen">
+  <div class="menu-inner" style="z-index:1;animation:fadeup .5s ease both">
+    <div class="menu-emblem">⚔️</div>
+    <div class="mtitle" style="font-size:2.2rem;margin-bottom:.3rem">Choose Difficulty</div>
+    <div class="msub" style="margin-bottom:1.8rem">How hard do you want to fight?</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;max-width:760px;width:100%">
+      <div class="diff-card easy" onclick="G.startGame(null,'easy')">
+        <div class="diff-title" style="color:#4caf50">🍃 Easy</div>
+        <div class="diff-desc">Relax and learn the ropes. Plenty of lives to work with.</div>
+        <div class="diff-stat">
+          <span><span class="dk">Lives</span><span class="dv" style="color:#4caf50">200</span></span>
+          <span><span class="dk">Tower costs</span><span class="dv">Normal</span></span>
+          <span><span class="dk">Boss HP</span><span class="dv">Normal</span></span>
+          <span><span class="dk">Win at</span><span class="dv" style="color:#4caf50">Round 40</span></span>
+        </div>
+      </div>
+      <div class="diff-card medium" onclick="G.startGame(null,'medium')">
+        <div class="diff-title" style="color:#ff9800">🔥 Medium</div>
+        <div class="diff-desc">A real challenge. Enemies hit harder and everything costs more.</div>
+        <div class="diff-stat">
+          <span><span class="dk">Lives</span><span class="dv" style="color:#ff9800">100</span></span>
+          <span><span class="dk">Tower costs</span><span class="dv">1.2× more</span></span>
+          <span><span class="dk">Boss HP</span><span class="dv">1.3× stronger</span></span>
+          <span><span class="dk">Win at</span><span class="dv" style="color:#ff9800">Round 60</span></span>
+        </div>
+      </div>
+      <div class="diff-card hard" onclick="G.startGame(null,'hard')">
+        <div class="diff-title" style="color:#e57368">💀 Hard</div>
+        <div class="diff-desc">No mercy. Survive on scarce lives against relentless bosses.</div>
+        <div class="diff-stat">
+          <span><span class="dk">Lives</span><span class="dv" style="color:#e57368">50</span></span>
+          <span><span class="dk">Tower costs</span><span class="dv">1.4× more</span></span>
+          <span><span class="dk">Boss HP</span><span class="dv">1.5× stronger</span></span>
+          <span><span class="dk">Win at</span><span class="dv" style="color:#e57368">Round 80</span></span>
+        </div>
+      </div>
+    </div>
+    <button class="mbtn" style="margin-top:1.4rem;font-size:.85rem;min-width:140px" onclick="G.showMapSelect(null,true)">← Back</button>
+  </div>
+</div>
+
 <!-- MAP SELECT SCREEN -->
 <div id="mapSelectScreen" class="screen">
   <div class="menu-inner" style="z-index:1;animation:fadeup .5s ease both">
@@ -491,17 +547,17 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
     <div class="mtitle" style="font-size:2.2rem;margin-bottom:.3rem">Choose Your Map</div>
     <div class="msub" style="margin-bottom:1.8rem">Select a battlefield</div>
     <div id="mapGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;max-width:920px;width:100%">
-      <div class="mapcard" onclick="G.startGame('grassy')" id="mc-grassy">
+      <div class="mapcard" onclick="G.showDiffSelect('grassy')" id="mc-grassy">
         <canvas class="map-preview" id="prev-grassy" width="280" height="160"></canvas>
         <div class="map-name">🌿 Grassy</div>
         <div class="map-desc">A winding cobblestone path through lush meadows. The classic battlefield.</div>
       </div>
-      <div class="mapcard" onclick="G.startGame('autumn')" id="mc-autumn">
+      <div class="mapcard" onclick="G.showDiffSelect('autumn')" id="mc-autumn">
         <canvas class="map-preview" id="prev-autumn" width="280" height="160"></canvas>
         <div class="map-name">🍂 Autumn Sac</div>
         <div class="map-desc">A path rising from the south to a dead-end loop — enemies retreat the way they came.</div>
       </div>
-      <div class="mapcard" onclick="G.startGame('logforest')" id="mc-logforest">
+      <div class="mapcard" onclick="G.showDiffSelect('logforest')" id="mc-logforest">
         <canvas class="map-preview" id="prev-logforest" width="280" height="160"></canvas>
         <div class="map-name">🪵 Log Forest</div>
         <div class="map-desc">A golden forest maze of hollow logs, muddy trails, and a glowing central pond.</div>
@@ -530,6 +586,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
     <button class="tbtn" id="autobtn" onclick="G.toggleAuto()">⟳ Auto: OFF</button>
     <button class="tbtn" id="sandboxToggleBtn" onclick="G.toggleSandboxPanel()" style="border-color:#ab47bc66;color:#e6b6ff">🧪 Sandbox</button>
     <div class="tsp"></div>
+    <div class="hud" id="diffBadge" style="font-family:'Cinzel',serif;font-size:.72rem;padding:0 .65rem;border:1px solid #c8964044;color:var(--muted);border-radius:2px;letter-spacing:.06em"></div>
     <div class="hud">
       <span style="font-size:1rem">💰</span>
       <div><div class="hudv" id="hgold">$500</div><div class="hudl">Gold</div></div>
@@ -598,14 +655,21 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
       <div class="ovttl" id="goTitle">GAME OVER</div>
       <div class="ovsub" id="goSub">The meadow has fallen.</div>
       <div class="ovbtns">
-        <button class="mbtn" onclick="G.startGame()">↺ Play Again</button>
+        <button class="mbtn" onclick="G.showDiffSelect(null)">↺ Play Again</button>
         <button class="mbtn" style="font-size:.88rem" onclick="G.exitToMenu()">Exit to Menu</button>
+      </div>
+    </div>
+    <!-- Win milestone overlay -->
+    <div class="ov" id="winOv">
+      <div class="ovttl" id="winOvTitle" style="color:#4caf50">🏆 VICTORY!</div>
+      <div class="ovsub" id="winOvSub">You've won! Keep going or take your glory.</div>
+      <div class="ovbtns">
+        <button class="mbtn" id="winContinueBtn" onclick="G.winContinue()" style="border-color:#4caf5077;color:#4caf50">▶ Continue Playing</button>
+        <button class="mbtn" id="winLeaveBtn" onclick="G.winLeave()" style="font-size:.88rem">🏆 Leave & Claim Victory</button>
       </div>
     </div>
   </div>
 </div>
-
-<!-- CUSTOM CONFIRM MODAL -->
 <div id="confirmModal">
   <div class="confirm-box">
     <div class="confirm-title" id="confirmTitle">Are you sure?</div>
@@ -622,13 +686,13 @@ const G = (() => {
 'use strict';
 
 // ─── CAREER STATS (persistent across sessions via localStorage) ───
-const CAREER_KEY = 'wtd_career_v1';
+const CAREER_KEY = 'wtd_career_v2';
 function loadCareer(){
   try{
     const raw=localStorage.getItem(CAREER_KEY);
     if(raw) return JSON.parse(raw);
   }catch(e){}
-  return {bestRound:0,totalMoney:0,towersPlaced:0,totalKills:0,tier5Count:0,roundsPlayed:0,towerUsage:{}};
+  return {bestRound:0,totalMoney:0,towersPlaced:0,totalKills:0,tier5Count:0,roundsPlayed:0,towerUsage:{},easyWins:0,mediumWins:0,hardWins:0,totalWins:0,gamesPlayed:0};
 }
 function saveCareer(c){
   try{ localStorage.setItem(CAREER_KEY,JSON.stringify(c)); }catch(e){}
@@ -1347,13 +1411,17 @@ gimg('DVD.png');
 // ─── STATE ───
 let S, canvas, ctx, vp, raf=null, lastT=0;
 let pendingGameMode='classic';
+let pendingMapId='grassy';
 
-function mkState(mapId, mode){
+function mkState(mapId, mode, difficulty){
+  const diff=difficulty||'easy';
+  const startHp=diff==='easy'?200:diff==='medium'?100:50;
   return {
     mapId:mapId||'grassy',
     mode:mode||'classic',
+    difficulty:diff,
     gold:(mode||'classic')==='sandbox' ? Infinity : 750,
-    hp:100,round:0,
+    hp:startHp,round:0,
     towers:[],enemies:[],projs:[],particles:[],
     waveActive:false,waveQ:[],spawnIdx:0,spawnT:0,
     shopSel:null,shopInfoSel:null,towerSel:null,
@@ -1367,7 +1435,8 @@ function mkState(mapId, mode){
     orinFrenzyCd:0,
     orinFrenzyT:0,
     totalMoneyEarned:0,
-    totalKillsEarned:0
+    totalKillsEarned:0,
+    winClaimed:false
   };
 }
 
@@ -1465,6 +1534,34 @@ function showSub(type){
         <div class="stats-top3">
           <div class="stats-top3-title">Top 3 Towers</div>
           ${top3Html}
+        </div>
+        <div class="stats-top3" style="margin-top:1.2rem">
+          <div class="stats-top3-title">Win Record</div>
+          <div class="stat-row">
+            <span class="stat-medal">🍃</span>
+            <span class="stat-label">Easy Wins</span>
+            <span class="stat-val">${formatNum(CAREER.easyWins||0)}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-medal">🔥</span>
+            <span class="stat-label">Medium Wins</span>
+            <span class="stat-val">${formatNum(CAREER.mediumWins||0)}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-medal">💀</span>
+            <span class="stat-label">Hard Wins</span>
+            <span class="stat-val">${formatNum(CAREER.hardWins||0)}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-medal">🏆</span>
+            <span class="stat-label">Total Wins</span>
+            <span class="stat-val">${formatNum(CAREER.totalWins||0)}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-medal">🎮</span>
+            <span class="stat-label">Games Played</span>
+            <span class="stat-val">${formatNum(CAREER.gamesPlayed||0)}</span>
+          </div>
         </div>
       </div>`;
 
@@ -1717,7 +1814,7 @@ function showSub(type){
       <div class="htp">
         <div class="htp-s">
           <h3><span class="htp-icon">🎯</span> Objective</h3>
-          <p>Place towers along the path to stop enemies from reaching the exit. You start with <b>100 lives</b> and <b>$750 gold</b>. If your lives reach zero, the meadow falls.</p>
+          <p>Place towers along the path to stop enemies from reaching the exit. You start with lives based on your chosen difficulty (<b>200</b> Easy / <b>100</b> Medium / <b>50</b> Hard) and <b>$750 gold</b>. If your lives reach zero, the meadow falls.</p>
         </div>
         <div class="htp-s">
           <h3><span class="htp-icon">🏗️</span> Placing Towers</h3>
@@ -1770,12 +1867,58 @@ function picHTML(src,init,sz,tint){
   return `<img src="${resolvedImgSrc(src)}" ${style} onerror="this.parentNode.innerHTML='<span style=font-size:${Math.floor(sz*.3)}px>${init}</span>'">`;
 }
 
+// ─── DIFFICULTY COST MULTIPLIERS ───
+// Store original costs so they can be restored/re-applied
+const TD_BASE_COSTS = {};
+const UPGRADE_BASE_COSTS = {};
+(function initBaseCosts(){
+  Object.values(TD).forEach(d=>{TD_BASE_COSTS[d.id]=d.cost;});
+  Object.entries(TOWER_UPGRADES).forEach(([tid,upgList])=>{
+    UPGRADE_BASE_COSTS[tid]=upgList.map(u=>u.cost);
+  });
+})();
+
+function getDiffCostMult(diff){
+  if(diff==='medium') return 1.2;
+  if(diff==='hard')   return 1.4;
+  return 1.0; // easy
+}
+
+function getDiffBossMult(diff){
+  if(diff==='medium') return 1.3;
+  if(diff==='hard')   return 1.5;
+  return 1.0;
+}
+
+function getDiffWinRound(diff){
+  if(diff==='medium') return 60;
+  if(diff==='hard')   return 80;
+  return 40;
+}
+
+function applyDifficultyTowerCosts(diff){
+  const mult=getDiffCostMult(diff);
+  Object.values(TD).forEach(d=>{
+    d.cost=Math.round(TD_BASE_COSTS[d.id]*mult);
+  });
+  Object.entries(TOWER_UPGRADES).forEach(([tid,upgList])=>{
+    upgList.forEach((u,i)=>{
+      u.cost=Math.round(UPGRADE_BASE_COSTS[tid][i]*mult);
+    });
+  });
+}
+
 // ─── GAME INIT ───
 function showModeSelect(){
   showScreen('modeSelectScreen');
 }
 
-function showMapSelect(mode){
+function showDiffSelect(mapId){
+  if(mapId) pendingMapId=mapId;
+  showScreen('diffSelectScreen');
+}
+
+function showMapSelect(mode, backFromDiff){
   pendingGameMode=mode||pendingGameMode||'classic';
   // Render map previews then show screen
   showScreen('mapSelectScreen');
@@ -2161,11 +2304,19 @@ function drawForestPreviewRoad(ptx,map){
   ptx.restore();
 }
 
-function startGame(mapId, mode){
-  mapId=mapId||(S&&S.mapId)||'grassy';
-  const gameMode=mode||pendingGameMode||(S&&S.mode)||'classic';
+function startGame(mapId, difficulty){
+  mapId=mapId||pendingMapId||(S&&S.mapId)||'grassy';
+  const diff=difficulty||'easy';
+  const gameMode=pendingGameMode||(S&&S.mode)||'classic';
   setMap(mapId);
-  S=mkState(mapId,gameMode);
+  S=mkState(mapId,gameMode,diff);
+  // Apply difficulty cost multiplier to tower defs (store originals)
+  applyDifficultyTowerCosts(diff);
+  // Track games played
+  if(gameMode!=='sandbox'){
+    CAREER.gamesPlayed=(CAREER.gamesPlayed||0)+1;
+    saveCareer(CAREER);
+  }
   if(!canvas){
     canvas=document.getElementById('gc');
     ctx=canvas.getContext('2d');
@@ -2181,6 +2332,7 @@ function startGame(mapId, mode){
   showScreen('gameScreen');
   document.getElementById('pauseOv').classList.remove('on');
   document.getElementById('gameOverOv').classList.remove('on');
+  document.getElementById('winOv').classList.remove('on');
   // Use rAF to let the browser actually lay out the screen before sizing canvas
   requestAnimationFrame(()=>{
     resizeCanvas();
@@ -2673,7 +2825,8 @@ function spawnEnemy(id, opts){
   const spdMult=roundSpeedMultiplier(S.round||1);
   const regen=getRegenRate(d);
   const strengthMult=lateEnemyStrengthMultiplier(S.round||1);
-  const hp=Math.max(1,Math.round(d.hp*strengthMult));
+  const bossMult=(d.boss||d.reinforced)&&S&&S.mode!=='sandbox' ? getDiffBossMult(S.difficulty||'easy') : 1;
+  const hp=Math.max(1,Math.round(d.hp*strengthMult*bossMult));
   const e={
     id:Math.random(),defId:id,
     hp:hp,maxHp:hp,spd:d.spd*spdMult,
@@ -3001,9 +3154,19 @@ function updateHUD(){
   document.getElementById('hgold').textContent=S.mode==='sandbox'?'$INF':'$'+S.gold;
   const hpEl=document.getElementById('hhealth');
   hpEl.textContent=S.hp;
-  hpEl.style.color=S.hp<=20?'#e57368':S.hp<=50?'#ff9800':'var(--gold)';
+  const diff=S.difficulty||'easy';
+  const maxHp=diff==='easy'?200:diff==='medium'?100:50;
+  hpEl.style.color=S.hp<=maxHp*.1?'#e57368':S.hp<=maxHp*.25?'#ff9800':'var(--gold)';
   document.getElementById('hrnd').textContent=S.round;
-
+  // Show difficulty badge
+  const diffBadge=document.getElementById('diffBadge');
+  if(diffBadge&&S.mode!=='sandbox'){
+    const diffLabel=diff==='easy'?'🍃 Easy':diff==='medium'?'🔥 Medium':'💀 Hard';
+    const diffCol=diff==='easy'?'#4caf5088':diff==='medium'?'#ff980088':'#e5736888';
+    diffBadge.textContent=diffLabel;
+    diffBadge.style.color=diff==='easy'?'#4caf50':diff==='medium'?'#ff9800':'#e57368';
+    diffBadge.style.borderColor=diffCol;
+  }
   updateOrinFrenzyUI();
 }
 
@@ -3038,6 +3201,18 @@ function togglePause(){
 
 function triggerOver(won){
   S.over=true;
+  if(won && !S.winClaimed){
+    // Record win
+    S.winClaimed=true;
+    if(S.mode!=='sandbox'){
+      const diff=S.difficulty||'easy';
+      if(diff==='easy')   CAREER.easyWins=(CAREER.easyWins||0)+1;
+      else if(diff==='medium') CAREER.mediumWins=(CAREER.mediumWins||0)+1;
+      else if(diff==='hard')   CAREER.hardWins=(CAREER.hardWins||0)+1;
+      CAREER.totalWins=(CAREER.totalWins||0)+1;
+      saveCareer(CAREER);
+    }
+  }
   recordGameEnd(S);
   const totalKills=S.towers.reduce((a,t)=>a+(t.kills||0),0);
   const totalMoney=S.totalMoneyEarned||0;
@@ -3045,6 +3220,50 @@ function triggerOver(won){
   document.getElementById('goSub').textContent=won
     ?`The meadow stands! Reached round ${S.round} with ${totalKills} kills. Total money earned: $${totalMoney}.`
     :`The enemies broke through on round ${S.round}. Kills: ${totalKills}. Total money earned: $${totalMoney}.`;
+  document.getElementById('gameOverOv').classList.add('on');
+}
+
+function checkWinMilestone(){
+  if(!S||S.mode==='sandbox'||S.over) return;
+  const winRound=getDiffWinRound(S.difficulty||'easy');
+  if(S.round===winRound && !S.winClaimed){
+    // Show win overlay — don't set S.over so game continues if they choose
+    const diff=S.difficulty||'easy';
+    const diffLabel=diff==='easy'?'Easy':diff==='medium'?'Medium':'Hard';
+    const diffCol=diff==='easy'?'#4caf50':diff==='medium'?'#ff9800':'#e57368';
+    document.getElementById('winOvTitle').textContent='🏆 '+diffLabel+' Victory!';
+    document.getElementById('winOvTitle').style.color=diffCol;
+    document.getElementById('winOvSub').textContent=`You cleared round ${winRound} on ${diffLabel}! Keep going or claim your win.`;
+    document.getElementById('winContinueBtn').style.borderColor=diffCol+'77';
+    document.getElementById('winContinueBtn').style.color=diffCol;
+    document.getElementById('winOv').classList.add('on');
+    // Record the win immediately (even if they continue)
+    if(S.mode!=='sandbox'){
+      if(diff==='easy')   CAREER.easyWins=(CAREER.easyWins||0)+1;
+      else if(diff==='medium') CAREER.mediumWins=(CAREER.mediumWins||0)+1;
+      else if(diff==='hard')   CAREER.hardWins=(CAREER.hardWins||0)+1;
+      CAREER.totalWins=(CAREER.totalWins||0)+1;
+      saveCareer(CAREER);
+    }
+    S.winClaimed=true;
+  }
+}
+
+function winContinue(){
+  document.getElementById('winOv').classList.remove('on');
+  // Resume if paused by overlay
+}
+
+function winLeave(){
+  document.getElementById('winOv').classList.remove('on');
+  S.over=true;
+  recordGameEnd(S);
+  const totalKills=S.towers.reduce((a,t)=>a+(t.kills||0),0);
+  const totalMoney=S.totalMoneyEarned||0;
+  const diff=S.difficulty||'easy';
+  const diffLabel=diff==='easy'?'Easy':diff==='medium'?'Medium':'Hard';
+  document.getElementById('goTitle').textContent='🏆 '+diffLabel+' Victory!';
+  document.getElementById('goSub').textContent=`Cleared round ${S.round} on ${diffLabel}! Kills: ${totalKills}. Money earned: $${totalMoney}.`;
   document.getElementById('gameOverOv').classList.add('on');
 }
 
@@ -3260,6 +3479,7 @@ function update(dt){
       updateHUD();
       refreshShopAffordability();
       showToast('Round '+S.round+' complete! +$'+bonus,'#4caf50');
+      checkWinMilestone();
       if(S.autoRound) setTimeout(()=>{if(!S.waveActive&&!S.over&&!S.paused) startWave();},800);
     }
   }
@@ -4874,17 +5094,18 @@ function _resetStats(){
     'Reset Stats',
     'This will permanently wipe all career stats. Are you sure?',
     ()=>{
-      CAREER={bestRound:0,totalMoney:0,towersPlaced:0,totalKills:0,tier5Count:0,roundsPlayed:0,towerUsage:{}};
+      CAREER={bestRound:0,totalMoney:0,towersPlaced:0,totalKills:0,tier5Count:0,roundsPlayed:0,towerUsage:{},easyWins:0,mediumWins:0,hardWins:0,totalWins:0,gamesPlayed:0};
       saveCareer(CAREER);
       showSub('stats');
     }
   );
 }
 
-return {startGame,showModeSelect,showMapSelect,showSub,showScreen,togglePause,toggleShop,exitToMenu,
+return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen,togglePause,toggleShop,exitToMenu,
         startWave,sellTower,removeTower,desel,toggleSpeed,toggleAuto,setTowerPriority,
         toggleFullscreen,goHome,triggerOrinFrenzy,
-        toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats};
+        toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
+        winContinue,winLeave};
 })();
 </script>
 </body>
