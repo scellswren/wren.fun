@@ -454,12 +454,111 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .enemy-variants{display:flex;flex-direction:column;gap:.4rem;padding:.5rem .8rem .6rem;background:#0c0a06;border-top:1px solid #c8964022}
 .variant-row{padding:.4rem .5rem;border:1px solid #c8964020;border-radius:4px;background:#101008;transition:border-color .15s}
 .variant-row:hover{border-color:#c8964044}
+
+/* ── AUDIO SYSTEM ── */
+#menuMusicToggle{
+  position:fixed;
+  bottom:16px;
+  left:16px;
+  background:linear-gradient(135deg,#f0c04014,#c8960a08);
+  color:var(--gold);
+  border:1px solid #c8964055;
+  padding:.38em .9em;
+  cursor:pointer;
+  font-family:'Cinzel',serif;
+  font-size:.82rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  transition:all 0.2s;
+  z-index:1200;
+  user-select:none;
+  clip-path:polygon(7px 0%,100% 0%,calc(100% - 7px) 100%,0% 100%);
+  text-shadow:0 0 12px #f0c04055;
+  display:flex;align-items:center;gap:.4em;
+}
+#menuMusicToggle:hover{
+  background:linear-gradient(135deg,#f0c04030,#c8960a18);
+  border-color:var(--gold);
+  color:#fff;
+  box-shadow:0 0 16px #f0c04044;
+}
+#menuMusicToggle.muted{color:var(--muted);opacity:.6;}
+
+/* Audio settings panel (in pause overlay) */
+#audioPanel{
+  background:linear-gradient(160deg,#181208ee,#10100aee);
+  border:1px solid #c8964055;
+  border-radius:6px;
+  padding:1.1rem 1.4rem 1.2rem;
+  margin-top:1rem;
+  width:320px;
+  max-width:92vw;
+  animation:fadeup .2s ease both;
+}
+.audio-panel-title{
+  font-family:'Cinzel',serif;font-size:.88rem;color:var(--gold);
+  letter-spacing:.08em;margin-bottom:.9rem;padding-bottom:.5rem;
+  border-bottom:1px solid #c8964030;display:flex;align-items:center;gap:.5rem;
+}
+.audio-row{
+  display:flex;align-items:center;gap:.6rem;margin-bottom:.7rem;
+  font-family:'Cinzel',serif;font-size:.72rem;
+}
+.audio-row:last-child{margin-bottom:0;}
+.audio-label{color:var(--muted);min-width:80px;letter-spacing:.04em;}
+.audio-toggle{
+  font-family:'Cinzel',serif;font-size:.68rem;padding:.28em .9em;
+  border:1px solid #c8964055;background:#f0c0400a;color:var(--muted);
+  cursor:pointer;transition:all .15s;
+  clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);
+  letter-spacing:.05em;
+}
+.audio-toggle.on{color:var(--gold);border-color:var(--gold);background:#f0c04022;}
+.audio-toggle:hover{color:var(--gold);border-color:var(--gold);}
+.audio-slider{
+  flex:1;-webkit-appearance:none;height:3px;
+  background:linear-gradient(90deg,var(--gold) var(--val,100%),#c8964033 var(--val,100%));
+  border-radius:2px;outline:none;cursor:pointer;
+}
+.audio-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--gold);border:2px solid #181208;box-shadow:0 0 6px #f0c04077;cursor:pointer;
+}
+.audio-slider::-moz-range-thumb{
+  width:12px;height:12px;border-radius:50%;
+  background:var(--gold);border:2px solid #181208;cursor:pointer;
+}
+.audio-vol-label{color:var(--gold);font-family:'Cinzel',serif;font-size:.68rem;min-width:32px;text-align:right;}
+
+/* Radio track display */
+#radioTrackDisplay{
+  position:fixed;
+  bottom:52px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#0d0a06ee;
+  border:1px solid #c8964044;
+  border-radius:3px;
+  padding:.3em 1em;
+  font-family:'Cinzel',serif;
+  font-size:.7rem;
+  color:var(--muted);
+  pointer-events:none;
+  z-index:9999;
+  opacity:0;
+  transition:opacity .6s;
+  white-space:nowrap;
+  clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+}
+#radioTrackDisplay.visible{opacity:1;}
 </style>
 </head>
 <body>
 
 <div id="homeText" onclick="G.goHome()">Wren.fun</div>
 <button id="fullscreenBtn" onclick="G.toggleFullscreen()">⛶</button>
+<button id="menuMusicToggle" onclick="G.toggleMenuMusic()" title="Toggle menu music">🎵 Menu Music</button>
+<div id="radioTrackDisplay">🎵 Now Playing: —</div>
 
 <!-- MAIN MENU -->
 <div id="menuScreen" class="screen active">
@@ -626,6 +725,27 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
       <div class="ovsub">The meadow holds its breath…</div>
       <div class="ovbtns">
         <button class="mbtn" onclick="G.togglePause()">▶ Resume</button>
+        <div id="audioPanel">
+          <div class="audio-panel-title">🎵 Audio Settings</div>
+          <div class="audio-row">
+            <span class="audio-label">Sound FX</span>
+            <button class="audio-toggle" id="sfxToggle" onclick="G.toggleSFX()">ON</button>
+            <input class="audio-slider" id="sfxVolSlider" type="range" min="0" max="100" value="100" oninput="G.setSFXVolume(this.value)">
+            <span class="audio-vol-label" id="sfxVolLabel">100%</span>
+          </div>
+          <div class="audio-row">
+            <span class="audio-label">Radio</span>
+            <button class="audio-toggle" id="radioToggle" onclick="G.toggleRadio()">ON</button>
+            <input class="audio-slider" id="radioVolSlider" type="range" min="0" max="100" value="100" oninput="G.setRadioVolume(this.value)">
+            <span class="audio-vol-label" id="radioVolLabel">100%</span>
+          </div>
+          <div class="audio-row">
+            <span class="audio-label">Menu Music</span>
+            <button class="audio-toggle" id="menuMusicTogglePause" onclick="G.toggleMenuMusic()">ON</button>
+            <input class="audio-slider" id="menuVolSlider" type="range" min="0" max="100" value="100" oninput="G.setMenuVolume(this.value)">
+            <span class="audio-vol-label" id="menuVolLabel">100%</span>
+          </div>
+        </div>
         <button class="mbtn" style="font-size:.88rem" onclick="G.exitToMenu()">Exit to Menu</button>
       </div>
     </div>
@@ -663,6 +783,387 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 <script>
 const G = (() => {
 'use strict';
+
+// ═══════════════════════════════════════════════════════
+// ─── AUDIO SYSTEM ───────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+const AUDIO_KEY = 'wtd_audio_v1';
+function loadAudioPrefs(){
+  try{
+    const raw=localStorage.getItem(AUDIO_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {sfxOn:true,sfxVol:100,radioOn:true,radioVol:100,menuMusicOn:true,menuVol:100};
+}
+function saveAudioPrefs(){
+  try{ localStorage.setItem(AUDIO_KEY,JSON.stringify(AUDIO_PREFS)); }catch(e){}
+}
+let AUDIO_PREFS = loadAudioPrefs();
+
+// ── Web Audio context for SFX ──
+let audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
+  }
+  if(audioCtx && audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
+  return audioCtx;
+}
+
+// ── Procedural SFX ──
+function sfx(type){
+  if(!AUDIO_PREFS.sfxOn) return;
+  const ctx2=getAudioCtx(); if(!ctx2) return;
+  const vol=AUDIO_PREFS.sfxVol/100;
+  const gain=ctx2.createGain();
+  gain.connect(ctx2.destination);
+
+  if(type==='click'){
+    // Short click tick
+    const osc=ctx2.createOscillator();
+    osc.type='square'; osc.frequency.setValueAtTime(880,ctx2.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440,ctx2.currentTime+0.04);
+    gain.gain.setValueAtTime(vol*0.18,ctx2.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+0.05);
+    osc.connect(gain); osc.start(); osc.stop(ctx2.currentTime+0.055);
+
+  } else if(type==='place'){
+    // Satisfying placement thud + chime
+    const buf=ctx2.createBuffer(1,ctx2.sampleRate*.18,ctx2.sampleRate);
+    const data=buf.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2)*0.7;
+    const src=ctx2.createBufferSource(); src.buffer=buf;
+    const filter=ctx2.createBiquadFilter(); filter.type='lowpass'; filter.frequency.value=400;
+    src.connect(filter); filter.connect(gain);
+    gain.gain.setValueAtTime(vol*0.55,ctx2.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+0.18);
+    src.start();
+    // Chime overtone
+    const osc2=ctx2.createOscillator();
+    osc2.type='sine'; osc2.frequency.setValueAtTime(1200,ctx2.currentTime);
+    osc2.frequency.exponentialRampToValueAtTime(800,ctx2.currentTime+0.14);
+    const g2=ctx2.createGain();
+    g2.gain.setValueAtTime(vol*0.12,ctx2.currentTime);
+    g2.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+0.14);
+    osc2.connect(g2); g2.connect(ctx2.destination); osc2.start(); osc2.stop(ctx2.currentTime+0.15);
+
+  } else if(type==='sell'){
+    // Coin jingle
+    [0,0.06,0.12].forEach((delay,i)=>{
+      const osc=ctx2.createOscillator();
+      osc.type='sine';
+      osc.frequency.setValueAtTime(600+i*200,ctx2.currentTime+delay);
+      osc.frequency.exponentialRampToValueAtTime(400+i*150,ctx2.currentTime+delay+0.12);
+      const g=ctx2.createGain();
+      g.gain.setValueAtTime(vol*0.18,ctx2.currentTime+delay);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+delay+0.14);
+      osc.connect(g); g.connect(ctx2.destination);
+      osc.start(ctx2.currentTime+delay); osc.stop(ctx2.currentTime+delay+0.16);
+    });
+
+  } else if(type==='delete'){
+    // Downward whoosh
+    const osc=ctx2.createOscillator();
+    osc.type='sawtooth';
+    osc.frequency.setValueAtTime(500,ctx2.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80,ctx2.currentTime+0.22);
+    gain.gain.setValueAtTime(vol*0.18,ctx2.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+0.22);
+    osc.connect(gain); osc.start(); osc.stop(ctx2.currentTime+0.24);
+
+  } else if(type==='kill'){
+    // Satisfying pop
+    const buf=ctx2.createBuffer(1,ctx2.sampleRate*.07,ctx2.sampleRate);
+    const data=buf.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,1.5)*0.9;
+    const src=ctx2.createBufferSource(); src.buffer=buf;
+    const filter=ctx2.createBiquadFilter(); filter.type='bandpass'; filter.frequency.value=800; filter.Q.value=1.5;
+    src.connect(filter); filter.connect(gain);
+    gain.gain.setValueAtTime(vol*0.22,ctx2.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+0.07);
+    src.start();
+
+  } else if(type==='kill_boss'){
+    // Big boom for bosses
+    [0,0.05,0.12].forEach((delay,i)=>{
+      const buf=ctx2.createBuffer(1,ctx2.sampleRate*.25,ctx2.sampleRate);
+      const data=buf.getChannelData(0);
+      for(let j=0;j<data.length;j++) data[j]=(Math.random()*2-1)*Math.pow(1-j/data.length,1.2)*(0.9-i*0.2);
+      const src=ctx2.createBufferSource(); src.buffer=buf;
+      const filter=ctx2.createBiquadFilter(); filter.type='lowpass'; filter.frequency.value=300-i*60;
+      src.connect(filter); filter.connect(gain);
+      gain.gain.setValueAtTime(vol*(0.5-i*0.12),ctx2.currentTime+delay);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+delay+0.25);
+      src.start(ctx2.currentTime+delay);
+    });
+
+  } else if(type==='win'){
+    // Victory fanfare ascending
+    const notes=[523,659,784,1047];
+    notes.forEach((freq,i)=>{
+      const osc=ctx2.createOscillator();
+      osc.type='sine'; osc.frequency.value=freq;
+      const g=ctx2.createGain();
+      g.gain.setValueAtTime(0,ctx2.currentTime+i*0.14);
+      g.gain.linearRampToValueAtTime(vol*0.22,ctx2.currentTime+i*0.14+0.04);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+i*0.14+0.55);
+      osc.connect(g); g.connect(ctx2.destination);
+      osc.start(ctx2.currentTime+i*0.14);
+      osc.stop(ctx2.currentTime+i*0.14+0.6);
+    });
+    // Harmony
+    const notes2=[659,784,988,1319];
+    notes2.forEach((freq,i)=>{
+      const osc=ctx2.createOscillator();
+      osc.type='triangle'; osc.frequency.value=freq;
+      const g=ctx2.createGain();
+      g.gain.setValueAtTime(0,ctx2.currentTime+i*0.14+0.07);
+      g.gain.linearRampToValueAtTime(vol*0.12,ctx2.currentTime+i*0.14+0.11);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+i*0.14+0.5);
+      osc.connect(g); g.connect(ctx2.destination);
+      osc.start(ctx2.currentTime+i*0.14+0.07);
+      osc.stop(ctx2.currentTime+i*0.14+0.55);
+    });
+
+  } else if(type==='gameover'){
+    // Sad descending
+    const notes=[440,370,311,233];
+    notes.forEach((freq,i)=>{
+      const osc=ctx2.createOscillator();
+      osc.type='sine'; osc.frequency.value=freq;
+      const g=ctx2.createGain();
+      g.gain.setValueAtTime(0,ctx2.currentTime+i*0.2);
+      g.gain.linearRampToValueAtTime(vol*0.18,ctx2.currentTime+i*0.2+0.05);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+i*0.2+0.55);
+      osc.connect(g); g.connect(ctx2.destination);
+      osc.start(ctx2.currentTime+i*0.2);
+      osc.stop(ctx2.currentTime+i*0.2+0.6);
+    });
+
+  } else if(type==='wave_start'){
+    // Alert horn
+    const osc=ctx2.createOscillator();
+    osc.type='sawtooth';
+    osc.frequency.setValueAtTime(330,ctx2.currentTime);
+    osc.frequency.linearRampToValueAtTime(440,ctx2.currentTime+0.12);
+    osc.frequency.setValueAtTime(440,ctx2.currentTime+0.12);
+    osc.frequency.linearRampToValueAtTime(330,ctx2.currentTime+0.24);
+    gain.gain.setValueAtTime(vol*0.14,ctx2.currentTime);
+    gain.gain.setValueAtTime(vol*0.14,ctx2.currentTime+0.22);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+0.32);
+    osc.connect(gain); osc.start(); osc.stop(ctx2.currentTime+0.35);
+
+  } else if(type==='upgrade'){
+    // Ascending sparkle
+    [0,0.08,0.16].forEach((delay,i)=>{
+      const osc=ctx2.createOscillator();
+      osc.type='sine';
+      osc.frequency.value=800+i*300;
+      const g=ctx2.createGain();
+      g.gain.setValueAtTime(vol*0.14,ctx2.currentTime+delay);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+delay+0.18);
+      osc.connect(g); g.connect(ctx2.destination);
+      osc.start(ctx2.currentTime+delay); osc.stop(ctx2.currentTime+delay+0.2);
+    });
+  }
+}
+
+// ── Kill sound throttle (avoid spam) ──
+let _lastKillSfxT=0;
+let _killSfxCount=0;
+function sfxKill(isBoss){
+  const now=Date.now();
+  if(isBoss){ sfx('kill_boss'); return; }
+  // Play at most every 80ms to avoid audio overload
+  if(now-_lastKillSfxT>80){
+    sfx('kill');
+    _lastKillSfxT=now;
+    _killSfxCount=1;
+  }
+}
+
+// ── Menu Music ──
+let menuAudio = null;
+function initMenuMusic(){
+  if(menuAudio) return;
+  menuAudio = new Audio('WTD Menu.mp3');
+  menuAudio.loop = true;
+  menuAudio.volume = AUDIO_PREFS.menuVol/100;
+}
+function playMenuMusic(){
+  initMenuMusic();
+  if(!AUDIO_PREFS.menuMusicOn) return;
+  menuAudio.volume = AUDIO_PREFS.menuVol/100;
+  menuAudio.play().catch(()=>{});
+}
+function stopMenuMusic(fadeOut){
+  if(!menuAudio) return;
+  if(!fadeOut){ menuAudio.pause(); menuAudio.currentTime=0; return; }
+  // Fade out over 800ms
+  const startVol = menuAudio.volume;
+  const step = startVol/16;
+  const interval = setInterval(()=>{
+    if(!menuAudio||menuAudio.paused){ clearInterval(interval); return; }
+    menuAudio.volume = Math.max(0, menuAudio.volume - step);
+    if(menuAudio.volume<=0){ menuAudio.pause(); menuAudio.currentTime=0; clearInterval(interval); }
+  },50);
+}
+function toggleMenuMusic(){
+  initMenuMusic();
+  AUDIO_PREFS.menuMusicOn = !AUDIO_PREFS.menuMusicOn;
+  saveAudioPrefs();
+  updateAudioUI();
+  if(AUDIO_PREFS.menuMusicOn){
+    // Only play if we're on menu screen
+    const onMenu = document.getElementById('menuScreen').classList.contains('active') ||
+                   document.getElementById('mapSelectScreen').classList.contains('active') ||
+                   document.getElementById('modeSelectScreen').classList.contains('active') ||
+                   document.getElementById('diffSelectScreen').classList.contains('active') ||
+                   document.getElementById('subScreen').classList.contains('active');
+    if(onMenu) playMenuMusic();
+  } else {
+    stopMenuMusic(false);
+  }
+}
+function setMenuVolume(val){
+  AUDIO_PREFS.menuVol = parseInt(val);
+  saveAudioPrefs();
+  if(menuAudio) menuAudio.volume = AUDIO_PREFS.menuVol/100;
+  const lbl=document.getElementById('menuVolLabel');
+  if(lbl) lbl.textContent=val+'%';
+  updateSliderFill(document.getElementById('menuVolSlider'),val);
+}
+
+// ── Radio System ──
+const RADIO_TRACKS = Array.from({length:10},(_,i)=>`WTD ${i+1}.mp3`);
+let radioAudio = null;
+let radioPlaylist = [];
+let radioIdx = 0;
+function shufflePlaylist(){
+  radioPlaylist = RADIO_TRACKS.slice().sort(()=>Math.random()-.5);
+  radioIdx = 0;
+}
+function initRadio(){
+  if(radioAudio) return;
+  radioAudio = new Audio();
+  radioAudio.volume = AUDIO_PREFS.radioVol/100;
+  radioAudio.addEventListener('ended',()=>{ nextRadioTrack(); });
+  radioAudio.addEventListener('error',()=>{ nextRadioTrack(); });
+}
+function playRadio(){
+  initRadio();
+  if(!AUDIO_PREFS.radioOn) return;
+  if(!radioPlaylist.length) shufflePlaylist();
+  const track = radioPlaylist[radioIdx % radioPlaylist.length];
+  radioAudio.src = track;
+  radioAudio.volume = AUDIO_PREFS.radioVol/100;
+  radioAudio.play().catch(()=>{});
+  showTrackDisplay(track);
+}
+function stopRadio(){
+  if(!radioAudio) return;
+  radioAudio.pause();
+  radioAudio.src='';
+}
+function nextRadioTrack(){
+  radioIdx = (radioIdx+1) % radioPlaylist.length;
+  if(radioPlaylist.length===0) shufflePlaylist();
+  playRadio();
+}
+function toggleRadio(){
+  AUDIO_PREFS.radioOn = !AUDIO_PREFS.radioOn;
+  saveAudioPrefs();
+  updateAudioUI();
+  if(AUDIO_PREFS.radioOn){
+    const onGame = document.getElementById('gameScreen').classList.contains('active');
+    if(onGame) playRadio();
+  } else {
+    stopRadio();
+  }
+}
+function setRadioVolume(val){
+  AUDIO_PREFS.radioVol = parseInt(val);
+  saveAudioPrefs();
+  if(radioAudio) radioAudio.volume = AUDIO_PREFS.radioVol/100;
+  const lbl=document.getElementById('radioVolLabel');
+  if(lbl) lbl.textContent=val+'%';
+  updateSliderFill(document.getElementById('radioVolSlider'),val);
+}
+function showTrackDisplay(filename){
+  const el=document.getElementById('radioTrackDisplay');
+  if(!el) return;
+  const name = filename.replace(/\.mp3$/i,'');
+  el.textContent = '🎵 Now Playing: '+name;
+  el.classList.add('visible');
+  clearTimeout(el._to);
+  el._to = setTimeout(()=>el.classList.remove('visible'), 4000);
+}
+
+// ── SFX controls ──
+function toggleSFX(){
+  AUDIO_PREFS.sfxOn = !AUDIO_PREFS.sfxOn;
+  saveAudioPrefs();
+  updateAudioUI();
+}
+function setSFXVolume(val){
+  AUDIO_PREFS.sfxVol = parseInt(val);
+  saveAudioPrefs();
+  const lbl=document.getElementById('sfxVolLabel');
+  if(lbl) lbl.textContent=val+'%';
+  updateSliderFill(document.getElementById('sfxVolSlider'),val);
+}
+
+// ── UI sync helpers ──
+function updateSliderFill(slider,val){
+  if(!slider) return;
+  slider.style.setProperty('--val', val+'%');
+}
+function updateAudioUI(){
+  // sfx toggle
+  const st=document.getElementById('sfxToggle');
+  if(st){ st.textContent=AUDIO_PREFS.sfxOn?'ON':'OFF'; st.classList.toggle('on',AUDIO_PREFS.sfxOn); }
+  // radio toggle
+  const rt=document.getElementById('radioToggle');
+  if(rt){ rt.textContent=AUDIO_PREFS.radioOn?'ON':'OFF'; rt.classList.toggle('on',AUDIO_PREFS.radioOn); }
+  // menu music toggle (pause panel)
+  const mt=document.getElementById('menuMusicTogglePause');
+  if(mt){ mt.textContent=AUDIO_PREFS.menuMusicOn?'ON':'OFF'; mt.classList.toggle('on',AUDIO_PREFS.menuMusicOn); }
+  // corner menu music button
+  const mb=document.getElementById('menuMusicToggle');
+  if(mb){
+    mb.innerHTML=(AUDIO_PREFS.menuMusicOn?'🎵':'🔇')+' Menu Music';
+    mb.classList.toggle('muted',!AUDIO_PREFS.menuMusicOn);
+  }
+  // sliders
+  const sv=document.getElementById('sfxVolSlider');
+  if(sv){ sv.value=AUDIO_PREFS.sfxVol; updateSliderFill(sv,AUDIO_PREFS.sfxVol); }
+  const rv=document.getElementById('radioVolSlider');
+  if(rv){ rv.value=AUDIO_PREFS.radioVol; updateSliderFill(rv,AUDIO_PREFS.radioVol); }
+  const mv=document.getElementById('menuVolSlider');
+  if(mv){ mv.value=AUDIO_PREFS.menuVol; updateSliderFill(mv,AUDIO_PREFS.menuVol); }
+  // vol labels
+  const sl=document.getElementById('sfxVolLabel');
+  if(sl) sl.textContent=AUDIO_PREFS.sfxVol+'%';
+  const rl=document.getElementById('radioVolLabel');
+  if(rl) rl.textContent=AUDIO_PREFS.radioVol+'%';
+  const ml=document.getElementById('menuVolLabel');
+  if(ml) ml.textContent=AUDIO_PREFS.menuVol+'%';
+  // radio display: only show on game screen
+  const rd=document.getElementById('radioTrackDisplay');
+  const onGame = document.getElementById('gameScreen')&&document.getElementById('gameScreen').classList.contains('active');
+  if(rd) rd.style.display=onGame?'':'none';
+}
+
+// ── Show/hide menu music toggle based on screen ──
+function updateMenuMusicToggleVisibility(screenId){
+  const btn=document.getElementById('menuMusicToggle');
+  if(!btn) return;
+  const menuScreens=['menuScreen','mapSelectScreen','modeSelectScreen','diffSelectScreen','subScreen'];
+  btn.style.display=menuScreens.includes(screenId)?'flex':'none';
+}
+
+// END AUDIO SYSTEM
+// ═══════════════════════════════════════════════════════
 
 // ─── CAREER STATS (persistent across sessions via localStorage) ───
 const CAREER_KEY = 'wtd_career_v2';
@@ -1527,6 +2028,18 @@ function showScreen(id){
   document.getElementById(id).classList.add('active');
   const home=document.getElementById('homeText');
   if(home) home.style.display=id==='gameScreen'?'none':'block';
+  updateMenuMusicToggleVisibility(id);
+  // Music transitions
+  const menuScreens=['menuScreen','mapSelectScreen','modeSelectScreen','diffSelectScreen','subScreen'];
+  if(menuScreens.includes(id)){
+    stopRadio();
+    playMenuMusic();
+  } else if(id==='gameScreen'){
+    stopMenuMusic(true); // fade out
+  }
+  // Radio track display only on game
+  const rd=document.getElementById('radioTrackDisplay');
+  if(rd) rd.style.display=id==='gameScreen'?'':'none';
 }
 
 function goHome(){
@@ -2428,6 +2941,7 @@ function startGame(mapId, difficulty){
     setWaveBtn(false,'▶ Start Round 1');
     updateHUD();
     updateSandboxUI();
+    updateAudioUI();
     document.getElementById('speedbtn').textContent='▶▶ x1';
     document.getElementById('speedbtn').style.color='';
     document.getElementById('autobtn').textContent='⟳ Auto: OFF';
@@ -2435,6 +2949,11 @@ function startGame(mapId, difficulty){
     if(raf) cancelAnimationFrame(raf);
     lastT=performance.now();
     raf=requestAnimationFrame(loop);
+    // Start radio after brief delay (allow fade-out of menu music)
+    setTimeout(()=>{
+      shufflePlaylist();
+      playRadio();
+    }, 900);
   });
 }
 
@@ -2458,6 +2977,7 @@ function positionPanels(){
 function exitToMenu(){
   if(raf){cancelAnimationFrame(raf);raf=null;}
   if(S&&!S.over) recordGameEnd(S); // save stats even when quitting mid-game
+  stopRadio();
   showScreen('menuScreen');
 }
 
@@ -2877,6 +3397,7 @@ function _buildWaveInner(rnd){
 
 function startWave(){
   if(S.waveActive||S.over) return;
+  sfx('wave_start');
   S.round++;
   S.waveQ=buildWave(S.round);
   S.spawnIdx=0;
@@ -3023,6 +3544,7 @@ function placeTower(wx,wy){
     spent:d.cost
   });
   recordTowerPlaced(d.id);
+  sfx('place');
   S.shopSel=null;   // deselect shop item
   S.shopInfoSel=null;
   updateHUD();
@@ -3038,6 +3560,7 @@ function removeTower(id, refundPct){
   S.gold+=refund;
   const label=refundPct>=0.65?'SOLD':'DELETED';
   S.particles.push({x:t.x,y:t.y-CELL*.2,text:label,alpha:1,vy:-28,life:.7,col:'#f0c040'});
+  sfx(refundPct>=0.65?'sell':'delete');
   S.towers.splice(i,1);
   S.towerSel=null;
   document.getElementById('selPanel').style.display='none';
@@ -3062,6 +3585,7 @@ function buyTowerUpgrade(id){
   t.upg=getTowerUpgradeLevel(t)+1;
   t.spent=getTowerSpent(t)+next.cost;
   if(getTowerUpgradeLevel(t)>=5){ t.sparkleT=3; recordTier5(t.defId); }
+  sfx('upgrade');
   updateHUD();
   buildShop();
   selectTower(id);
@@ -3312,6 +3836,7 @@ function togglePause(){
 
 function triggerOver(won){
   S.over=true;
+  sfx(won?'win':'gameover');
   if(won && !S.winClaimed){
     // Record win
     S.winClaimed=true;
@@ -3338,6 +3863,7 @@ function checkWinMilestone(){
   if(!S||S.mode==='sandbox'||S.over) return;
   const winRound=getDiffWinRound(S.difficulty||'easy');
   if(S.round===winRound && !S.winClaimed){
+    sfx('win');
     // Show win overlay — don't set S.over so game continues if they choose
     const diff=S.difficulty||'easy';
     const diffLabel=diff==='easy'?'Easy':diff==='medium'?'Medium':'Hard';
@@ -3532,6 +4058,7 @@ function handleEnemyDefeat(tgt, tower){
   tower.kills=(tower.kills||0)+1;
   S.totalKillsEarned=(S.totalKillsEarned||0)+1;
   recordKill();
+  sfxKill(!!(tgt.boss||tgt.reinforced));
   if(tower.kills===10||tower.kills===50||tower.kills===100||tower.kills%100===0){
     S.particles.push({x:tower.x,y:tower.y-CELL*.6,text:tower.kills+' KO',alpha:1,vy:-45,life:1.3,col:'#f0c040'});
   }
@@ -5241,6 +5768,31 @@ document.addEventListener('webkitfullscreenchange',updateFullscreenButton);
 document.addEventListener('msfullscreenchange',updateFullscreenButton);
 updateFullscreenButton();
 
+// ── Global button SFX ──
+document.addEventListener('click',e=>{
+  const t=e.target;
+  if(t.tagName==='BUTTON'||t.closest('button')){
+    const btn=t.tagName==='BUTTON'?t:t.closest('button');
+    // Don't double-fire for sfx toggle itself
+    if(btn.id==='sfxToggle'||btn.id==='sfxVolSlider'||btn.id==='radioToggle') return;
+    sfx('click');
+  }
+},{capture:true});
+
+// ── Init audio UI state on page load ──
+(function initAudioUIOnLoad(){
+  updateAudioUI();
+  updateMenuMusicToggleVisibility('menuScreen');
+  // Try to play menu music on first user interaction
+  const startMenuOnInteract = ()=>{
+    playMenuMusic();
+    document.removeEventListener('click', startMenuOnInteract);
+    document.removeEventListener('keydown', startMenuOnInteract);
+  };
+  document.addEventListener('click', startMenuOnInteract);
+  document.addEventListener('keydown', startMenuOnInteract);
+})();
+
 function showConfirmModal(title, msg, onYes){
   const modal=document.getElementById('confirmModal');
   document.getElementById('confirmTitle').textContent=title;
@@ -5275,7 +5827,8 @@ return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen
         startWave,sellTower,removeTower,desel,toggleSpeed,toggleAuto,setTowerPriority,
         toggleFullscreen,goHome,triggerOrinFrenzy,
         toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
-        winContinue,winLeave};
+        winContinue,winLeave,
+        toggleMenuMusic,toggleRadio,toggleSFX,setSFXVolume,setRadioVolume,setMenuVolume};
 })();
 </script>
 </body>
