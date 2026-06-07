@@ -1432,7 +1432,7 @@ const TD = {
 };
 const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg'};
 
-const TIKI_POWER_PRICE = 31000;
+const TIKI_POWER_PRICE = 38000;
 const TOWER_UPGRADES = {
   wren: [
     {name:'Fast Shot', cost:100, desc:'Attack speed improves from 1.00s to 0.75s.', apply:s=>{s.rate=0.75;}},
@@ -1445,22 +1445,22 @@ const TOWER_UPGRADES = {
     {name:'Sharper', cost:300, desc:'Damage increases to 7.', apply:s=>{s.dmg=7;}},
     {name:'Nocturnal', cost:400, desc:'Can target camo enemies.', apply:s=>{s.canSeeCamo=true;}},
     {name:'Shrapnel', cost:1100, desc:'Damage increases to 8 and each shot has a 50% chance to burst for 4 nearby damage.', apply:s=>{s.dmg=8;s.shrapnelChance=0.5;s.shrapnelDamage=4;s.shrapnelRadius=62;}},
-    {name:'Tiki Time', cost:6550, desc:'Attack speed improves to 0.20s.', apply:s=>{s.rate=0.2;}},
-    {name:'Tiki Power', cost:TIKI_POWER_PRICE, desc:'Attack speed improves to 0.10s and damage rises to 10.', apply:s=>{s.rate=0.1;s.dmg=10;}}
+    {name:'Tiki Time', cost:6550, desc:'Attack speed improves to 0.65s.', apply:s=>{s.rate=0.65;}},
+    {name:'Tiki Power', cost:38000, desc:'Attack speed improves to 0.25s and damage rises to 10.', apply:s=>{s.rate=0.25;s.dmg=10;}}
   ],
   wrenfun: [
     {name:'Range', cost:600, desc:'Wren.fun\'s range increases by 15%, and every tower within its range also gains 15% extra range.', apply:s=>{s.range*=1.15;s.rangeBoostPct=0.15;}},
     {name:'Camo Vision', cost:950, desc:'Every tower within Wren.fun\'s range gains camo vision. A tower only needs to be at least 50% inside the circle to receive this buff.', apply:s=>{s.grantCamoVision=true;}},
-    {name:'All Enemies Attack', cost:2100, desc:'Every tower within Wren.fun\'s range can damage any type of enemy — camo, lead, explosive-immune, anything.', apply:s=>{s.grantAllEnemies=true;}},
-    {name:'Speed Is Key', cost:3800, desc:'Increases the attack speed of every tower in range by 60%, and Wren.fun\'s range grows by another 1.1×.', apply:s=>{s.range*=1.1;s.grantSpeedBoost=true;}},
-    {name:'All Hail Wren.fun', cost:67000, desc:'Wren.fun\'s range becomes global — its buffs now cover the entire map.', apply:s=>{s.range=9999;}}
+    {name:'All Enemies Attack', cost:6900, desc:'Every tower within Wren.fun\'s range can damage any type of enemy — camo, lead, explosive-immune, anything.', apply:s=>{s.grantAllEnemies=true;}},
+    {name:'Speed Is Key', cost:14560, desc:'Increases the attack speed of every tower in range by 20%, and Wren.fun\'s range grows by another 1.1×.', apply:s=>{s.range*=1.1;s.grantSpeedBoost=true;}},
+    {name:'All Hail Wren.fun', cost:111000, desc:'Wren.fun\'s range becomes global — its buffs now cover the entire map.', apply:s=>{s.range=9999;}}
   ],
   orin: [
     {name:'Money Grab', cost:900, desc:'Income rises from $10 to $25 every 12 seconds.', apply:s=>{s.income=25;}},
     {name:'Helping Hand', cost:1005, desc:'If at least 2 upgraded Orins exist, payouts have a 25% chance to give every Helping Hand Orin an extra $7.', apply:s=>{s.helpingHand=true;}},
-    {name:'Auto Pick Up', cost:1350, desc:'DVD cash drops are collected automatically instead of needing a click, and income rises to $50 every 10 seconds.', apply:s=>{s.autoPickup=true;s.income=50;s.irate=10;}},
-    {name:'Frenzy', cost:3200, desc:'Unlocks a bottom-screen ability with a 60 second cooldown that boosts Orin income to x2 for 10 seconds.', apply:s=>{s.frenzy=true;}},
-    {name:'Tech Master', cost:89000, desc:'Income becomes $1000 every 5 seconds, Frenzy becomes x3 for 15 seconds, other Orins gain +25% income (capped at 25% total), and the tower grows by 1.25x.', apply:s=>{s.income=1000;s.irate=5;s.techMaster=true;s.frenzy=true;s.autoPickup=true;}}
+    {name:'Auto Pick Up', cost:2800, desc:'DVD cash drops are collected automatically instead of needing a click, and income rises to $50 every 10 seconds.', apply:s=>{s.autoPickup=true;s.income=50;s.irate=10;}},
+    {name:'Frenzy', cost:5600, desc:'Unlocks a bottom-screen ability with a 60 second cooldown that boosts Orin income to x2 for 10 seconds.', apply:s=>{s.frenzy=true;}},
+    {name:'Tech Master', cost:101000, desc:'Income becomes $450 every 5 seconds, Frenzy becomes x3 for 15 seconds, other Orins gain +25% income (capped at 25% total), and the tower grows by 1.25x.', apply:s=>{s.income=450;s.irate=5;s.techMaster=true;s.frenzy=true;s.autoPickup=true;}}
   ]
 };
 
@@ -1724,7 +1724,7 @@ function describeTowerSpecials(stats){
   if(stats.rangeBoostPct) bits.push('+'+Math.round(stats.rangeBoostPct*100)+'% range aura');
   if(stats.grantCamoVision) bits.push('camo vision aura');
   if(stats.grantAllEnemies) bits.push('all-enemies aura');
-  if(stats.grantSpeedBoost) bits.push('+60% speed aura');
+  if(stats.grantSpeedBoost) bits.push('+20% speed aura');
   return bits.length ? bits.join(', ') : '—';
 }
 function getTowerBorderStyle(level){
@@ -3009,11 +3009,13 @@ function roundSpeedMultiplier(rnd){
 }
 
 function rewardMultiplier(rnd){
-  let mult=1;
-  if(rnd>=50) mult*=0.75;
-  if(rnd>=75) mult*=0.75;
-  if(rnd>=130) mult*=0.75;
-  return mult;
+  if(rnd>=141) return 0.02;
+  if(rnd>=121) return 0.04;
+  if(rnd>=101) return 0.05;
+  if(rnd>=86)  return 0.10;
+  if(rnd>=61)  return 0.20;
+  if(rnd>=51)  return 0.50;
+  return 1;
 }
 
 function rewardPenaltyLabel(rnd){
@@ -3153,8 +3155,8 @@ function lateSupportPoolForRound(rnd){
 //   reinforced variants: each 5 rounds after their base
 function bossWeightsForRound(rnd){
   const w={};
-  if(rnd>=41)  w.gigaLizzy=1;
-  if(rnd>=46)  w.reinforcedGiga=0.5;
+  if(rnd>=50)  w.gigaLizzy=1;
+  if(rnd>=55)  w.reinforcedGiga=0.5;
   if(rnd>=65)  w.queenVictoria=1;        // 5-round grace after r60 debut
   if(rnd>=70)  w.reinforcedVictoria=0.5;
   if(rnd>=85)  w.kingCharles=1;          // 5-round grace after r80 debut
@@ -3273,7 +3275,7 @@ function addMixedWave(q,pool,count,gap,start=0,rnd=1){
 }
 
 function estimateWaveSize(rnd){
-  if(rnd===40||rnd===60||rnd===80||rnd===100) return 1;
+  if(rnd===40||rnd===50||rnd===60||rnd===80||rnd===100) return rnd===50?2:1;
   if(rnd===81) return 210;
   return normalWaveCount(rnd)+scheduledBosses(rnd).reduce((n,b)=>n+b.count,0);
 }
@@ -3316,6 +3318,12 @@ function _buildWaveInner(rnd){
     addMixedWave(q,normalPoolForRound(rnd),Math.floor(normalWaveCount(rnd)*0.7),gap,0,rnd);
     addWaveEntries(q,'lead',8,Math.max(0.5,gap*2),normalWaveCount(rnd)*gap*0.7,rnd);
     return q.sort((a,b)=>a.t-b.t);
+  }
+
+  // Round 50: Reinforced Giga Lizzy double debut — only 2 reinforced gigas, nothing else
+  if(rnd===50){
+    addWaveEntries(q,'reinforcedGiga',2,2);
+    return q;
   }
 
   // Round 40: Giga Lizzy solo debut
@@ -4260,7 +4268,7 @@ function update(dt){
     }
     if(!stats.rate) continue;
     const wfBuff=getWrenFunStatsForTower(t);
-    const effectiveRate=wfBuff&&wfBuff.grantSpeedBoost ? stats.rate/1.6 : stats.rate;
+    const effectiveRate=wfBuff&&wfBuff.grantSpeedBoost ? stats.rate/1.2 : stats.rate;
     t.at=(t.at||0)+dt;
     while(t.at>=effectiveRate){
       t.at-=effectiveRate;
@@ -5309,32 +5317,61 @@ function drawEnemies(){
       }
 
       if(e.tint==='lead'){
+        // Draw lead as a solid ingot/bullet shape instead of using the queen image
         ctx.save();
-        ctx.filter=tintFilter('lead');
-        traceEnemyBodyPath(sz,isHeart);ctx.clip();
-        ctx.drawImage(im,-sz/2,-sz/2,sz,sz);
-        ctx.restore();
-        ctx.save();traceEnemyBodyPath(sz,isHeart);ctx.clip();
-        ctx.fillStyle='rgba(76,88,102,0.2)';
-        ctx.fillRect(-sz/2,-sz/2,sz,sz);
-        const leadBand=ctx.createLinearGradient(-sz*.5,-sz*.3,sz*.5,sz*.24);
-        leadBand.addColorStop(0,'rgba(228,235,242,0.62)');
-        leadBand.addColorStop(0.5,'rgba(142,154,166,0.48)');
-        leadBand.addColorStop(1,'rgba(70,80,92,0.55)');
-        ctx.fillStyle=leadBand;
-        ctx.fillRect(-sz*.48,-sz*.14,sz*.96,sz*.28);
-        ctx.fillStyle='rgba(85,95,108,0.52)';
-        ctx.fillRect(-sz*.42,-sz*.37,sz*.84,sz*.12);
-        ctx.fillRect(-sz*.42,sz*.25,sz*.84,sz*.12);
-        ctx.strokeStyle='rgba(236,240,244,0.5)';
-        ctx.lineWidth=Math.max(1.4,sz*.024);
-        ctx.beginPath();ctx.moveTo(-sz*.42,-sz*.01);ctx.lineTo(sz*.42,-sz*.01);ctx.stroke();
-        ctx.restore();
+        // Body: dark metallic gradient
+        const leadBodyGrad=ctx.createLinearGradient(-sz*.5,-sz*.5,sz*.5,sz*.5);
+        leadBodyGrad.addColorStop(0,'#7a8796');
+        leadBodyGrad.addColorStop(0.25,'#9daab5');
+        leadBodyGrad.addColorStop(0.5,'#b4bfc8');
+        leadBodyGrad.addColorStop(0.75,'#7e8e9c');
+        leadBodyGrad.addColorStop(1,'#4e5a64');
+        ctx.fillStyle=leadBodyGrad;
+        // Hexagonal ingot shape
+        ctx.beginPath();
+        const hR=sz*.46;
+        for(let hi=0;hi<6;hi++){
+          const ha=Math.PI/6+hi*(Math.PI/3);
+          hi===0?ctx.moveTo(Math.cos(ha)*hR,Math.sin(ha)*hR):ctx.lineTo(Math.cos(ha)*hR,Math.sin(ha)*hR);
+        }
+        ctx.closePath();ctx.fill();
+        // Specular highlight stripe
         ctx.save();
-        ctx.fillStyle='rgba(220,228,236,0.94)';
-        [[-.34,-.02],[.34,-.02],[-.22,.31],[.22,.31],[0,-.31]].forEach(([rx,ry])=>{
-          ctx.beginPath();ctx.arc(rx*sz,ry*sz,sz*.04,0,Math.PI*2);ctx.fill();
-        });
+        ctx.beginPath();
+        for(let hi=0;hi<6;hi++){
+          const ha=Math.PI/6+hi*(Math.PI/3);
+          hi===0?ctx.moveTo(Math.cos(ha)*hR,Math.sin(ha)*hR):ctx.lineTo(Math.cos(ha)*hR,Math.sin(ha)*hR);
+        }
+        ctx.closePath();ctx.clip();
+        const specGrad=ctx.createLinearGradient(-sz*.4,-sz*.45,sz*.15,sz*.1);
+        specGrad.addColorStop(0,'rgba(255,255,255,0.55)');
+        specGrad.addColorStop(0.35,'rgba(255,255,255,0.22)');
+        specGrad.addColorStop(0.6,'rgba(255,255,255,0.04)');
+        specGrad.addColorStop(1,'rgba(0,0,0,0.22)');
+        ctx.fillStyle=specGrad;ctx.fillRect(-sz*.5,-sz*.5,sz,sz);
+        ctx.restore();
+        // Hex border
+        ctx.strokeStyle='rgba(40,52,62,0.82)';ctx.lineWidth=Math.max(1.8,sz*.032);
+        ctx.beginPath();
+        for(let hi=0;hi<6;hi++){
+          const ha=Math.PI/6+hi*(Math.PI/3);
+          hi===0?ctx.moveTo(Math.cos(ha)*hR,Math.sin(ha)*hR):ctx.lineTo(Math.cos(ha)*hR,Math.sin(ha)*hR);
+        }
+        ctx.closePath();ctx.stroke();
+        // Inner hex ring (gives depth)
+        ctx.strokeStyle='rgba(180,195,208,0.4)';ctx.lineWidth=Math.max(1,sz*.018);
+        const hR2=hR*.7;
+        ctx.beginPath();
+        for(let hi=0;hi<6;hi++){
+          const ha=Math.PI/6+hi*(Math.PI/3);
+          hi===0?ctx.moveTo(Math.cos(ha)*hR2,Math.sin(ha)*hR2):ctx.lineTo(Math.cos(ha)*hR2,Math.sin(ha)*hR2);
+        }
+        ctx.closePath();ctx.stroke();
+        // "Pb" chemical symbol label
+        ctx.fillStyle='rgba(28,38,46,0.9)';
+        ctx.font=`bold ${Math.max(9,Math.floor(sz*.22))}px Cinzel,serif`;
+        ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText('Pb',0,0);
         ctx.restore();
       }
 
