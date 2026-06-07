@@ -158,6 +158,9 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 
 /* ── CHARACTER / ENEMY CARDS ── */
 .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1.5rem;width:100%;max-width:980px}
+.tower-section-hdr{font-family:'Cinzel',serif;font-size:.95rem;font-weight:700;letter-spacing:.12em;
+  color:var(--gold);text-transform:uppercase;width:100%;max-width:980px;
+  padding-bottom:.5rem;border-bottom:1px solid #c8964044;margin-bottom:.1rem}
 .ccard{border:1px solid #c8964038;background:linear-gradient(160deg,#181208ee,#10100aee);
   padding:0;border-radius:6px;transition:all .22s;overflow:hidden;display:flex;flex-direction:column}
 .ccard:hover{border-color:#c8960a88;box-shadow:0 0 20px #f0c04028,0 4px 18px #0009;transform:translateY(-3px)}
@@ -288,10 +291,12 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
   cursor:pointer;transition:all .14s;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%)}
 .sellbtn:hover{background:#c0392b2a;border-color:#e57368}
 .upgbtn{width:100%;margin-top:.4rem;font-family:'Cinzel',serif;font-size:.74rem;
-  padding:.42em;border:1px solid #2f7d3277;background:#2f7d3212;color:#8fe28f;
-  cursor:pointer;transition:all .14s;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%)}
+  padding:.55em .5em;border:1px solid #2f7d3277;background:#2f7d3212;color:#8fe28f;
+  cursor:pointer;transition:background .14s,border-color .14s;border-radius:3px;display:block;box-sizing:border-box;
+  position:relative;z-index:10;pointer-events:all;clip-path:none;-webkit-clip-path:none;
+  animation:none !important;transform:none !important;filter:none !important}
 .upgbtn:hover{background:#2f7d3228;border-color:#7fd97f}
-.upgbtn:disabled{cursor:not-allowed;opacity:.45}
+.upgbtn:disabled{cursor:not-allowed;opacity:.45;pointer-events:none}
 .upgbox{margin-top:.55rem;padding:.45rem;border:1px solid #c8964030;background:#00000020}
 .upgname{font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold)}
 .upgdesc{font-size:.73rem;line-height:1.35;color:var(--muted);margin-top:.16rem}
@@ -354,17 +359,27 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
   font-family:'Cinzel',serif;font-size:.65rem;color:var(--muted);opacity:.55;
   letter-spacing:.08em;pointer-events:none;white-space:nowrap}
 #orinFrenzyBtn{position:absolute;bottom:1rem;left:1rem;right:auto;
-  font-family:'Cinzel',serif;font-size:.82rem;padding:.52em 1.3em;
-  border:2px solid #ab47bc;background:linear-gradient(135deg,#ab47bc22,#6a1b9a16);
-  color:#e6b6ff;cursor:pointer;display:none;z-index:150;
-  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
-  transition:all .2s;box-shadow:0 0 14px #ab47bc30}
+  font-size:1.6rem;background:linear-gradient(135deg,#ab47bc22,#6a1b9a16);
+  border:2px solid #ab47bc88;color:inherit;cursor:pointer;display:none;z-index:150;
+  padding:.3em .5em;border-radius:6px;transition:all .2s;
+  box-shadow:0 0 14px #ab47bc30;line-height:1}
 #orinFrenzyBtn:hover{background:linear-gradient(135deg,#ab47bc38,#6a1b9a28);
   box-shadow:0 0 22px #ab47bc55;transform:translateY(-2px)}
 #orinFrenzyBtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 #orinFrenzyTip{position:absolute;bottom:3.5rem;left:1rem;right:auto;
   font-family:'Cinzel',serif;font-size:.63rem;color:#cfa3ea;opacity:.8;
-  letter-spacing:.06em;display:none;text-align:right;pointer-events:none}
+  letter-spacing:.06em;display:none;text-align:left;pointer-events:none}
+#bigBoomBtn{position:absolute;bottom:1rem;left:1rem;right:auto;
+  font-size:1.6rem;background:linear-gradient(135deg,#ff704322,#ff400011);
+  border:2px solid #ff704388;color:inherit;cursor:pointer;display:none;z-index:150;
+  padding:.3em .5em;border-radius:6px;transition:all .2s;
+  box-shadow:0 0 14px #ff704330;line-height:1}
+#bigBoomBtn:hover{background:linear-gradient(135deg,#ff704344,#ff400022);
+  box-shadow:0 0 22px #ff704355;transform:translateY(-2px)}
+#bigBoomBtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+#bigBoomTip{position:absolute;bottom:3.5rem;left:1rem;right:auto;
+  font-family:'Cinzel',serif;font-size:.63rem;color:#ffb09a;opacity:.8;
+  letter-spacing:.06em;display:none;text-align:left;pointer-events:none}
 
 /* ── TOWER CARD REDESIGN ── */
 .tower-card-inner{display:flex;gap:.75rem;align-items:flex-start;padding:.7rem .9rem .5rem}
@@ -692,8 +707,10 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
     </div>
     <button id="wavebtn" onclick="G.startWave()">▶ Start Round 1</button>
     <div id="wavetip">SPACE to start · ESC deselect · S speed · P pause</div>
-    <button id="orinFrenzyBtn" onclick="G.triggerOrinFrenzy()">DVD Frenzy</button>
+    <button id="orinFrenzyBtn" onclick="G.triggerOrinFrenzy()">📀</button>
     <div id="orinFrenzyTip"></div>
+    <button id="bigBoomBtn" onclick="G.triggerBigBoomGlobal()">💥</button>
+    <div id="bigBoomTip"></div>
     <!-- Sandbox panel -->
     <div id="sandboxPanel">
       <div class="sbhdr">
@@ -1428,10 +1445,11 @@ const TD = {
   wren:    {id:'wren',    name:'Wren',              img:'Wren.jpg',          cost:300, dmg:1,  rate:1,   range:130, income:0,   irate:0,  init:'W',  col:'#29b6f6'},
   tiki:    {id:'tiki',    name:'Tikitheg',           img:'TikiTheG.jpg',      cost:600, dmg:5,  rate:2,   range:9999,income:0,   irate:0,  init:'TG', col:'#ff7043'},
   edunzie:  {id:'edunzie',  name:'Edunzie',              img:'Edunzie.jpg',       cost:550, dmg:2,  rate:1,   range:60,  income:0,   irate:0,  init:'EZ', col:'#66bb6a', canSeeCamo:true, sword:true},
-  orin:    {id:'orin',    name:'The Mind of Orin',   img:'TheMindOfOrin.jpg', cost:950, dmg:0,  rate:0,   range:130, income:10,  irate:12, init:'O',  col:'#ab47bc'},
-  wrenfun:  {id:'wrenfun',  name:'Wren.fun',            img:'Wren.fun.jpg',      cost:900, dmg:0,  rate:0,   range:90,  income:0,   irate:0,  init:'WF', col:'#e040fb', support:true}
+  orin:    {id:'orin',    name:'The Mind of Orin',   img:'TheMindOfOrin.jpg', cost:950, dmg:0,  rate:0,   range:130, income:10,  irate:12, init:'O',  col:'#ab47bc', support:true},
+  wrenfun:  {id:'wrenfun',  name:'Wren.fun',            img:'Wren.fun.jpg',      cost:900, dmg:0,  rate:0,   range:90,  income:0,   irate:0,  init:'WF', col:'#e040fb', support:true},
+  thomasmini:{id:'thomasmini',name:'Thomas Mini',         img:'ThomasMini.jpg',    cost:425, dmg:3,  rate:2.5, range:125, income:0,   irate:0,  init:'TM', col:'#ff7043', canHitLead:true, bombTower:true}
 };
-const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg', edunzie:'EdunzieLicksPoo.jpg'};
+const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg', edunzie:'EdunzieLicksPoo.jpg', thomasmini:'ThomasIsADino.jpg'};
 
 const TIKI_POWER_PRICE = 38000;
 const TOWER_UPGRADES = {
@@ -1469,6 +1487,13 @@ const TOWER_UPGRADES = {
     {name:'Sticky Mine', cost:1100, desc:'Every 15 seconds, places a sticky bomb on the track within range. It explodes after 5 seconds, dealing 50 damage to all enemies within 20px, including leads. Cannot pop Black and White enemies.', apply:s=>{s.stickyMine=true;s.mineDamage=50;s.mineRadius=20;s.mineCooldown=15;}},
     {name:'Sensei', cost:2300, desc:'Edunzie\'s mastery grows — each hit now deals 20 damage.', apply:s=>{s.dmg=20;}},
     {name:'Master Swordsman', cost:38000, desc:'Deals 230 damage per hit, range expands to 80px, sticky mines now deal 5000 damage, and attack speed increases to every 0.75 seconds.', apply:s=>{s.dmg=230;s.range=80;s.mineDamage=5000;s.rate=0.75;}}
+  ],
+  thomasmini: [
+    {name:'Bigger Bomb', cost:300, desc:'The bomb increases in size by 17.5% and now deals 4 damage.', apply:s=>{s.dmg=4;s.bombSizeScale=(s.bombSizeScale||1)*1.175;s.explosionRadius=Math.round((s.explosionRadius||52)*1.175);}},
+    {name:'Faster Reload', cost:350, desc:'Attack speed increases to every 1.75 seconds and damage rises to 5.', apply:s=>{s.rate=1.75;s.dmg=5;}},
+    {name:'Cluster Thomas', cost:1150, desc:'Sends out a cluster of bombs that together deal 10 damage total, with a 25% chance to deal 13 damage instead.', apply:s=>{s.clusterBombs=true;s.dmg=10;s.clusterBonusDmg=13;s.clusterBonusChance=0.25;}},
+    {name:'Mega Stun', cost:2005, desc:'Range increases by 25% and any surviving enemy hit is stunned for 0.5 seconds.', apply:s=>{s.range*=1.25;s.stunDuration=0.5;s.megaStun=true;}},
+    {name:'Lizzy Destroyer', cost:58000, desc:'Deals 100 damage, stuns last 1.5 seconds, range increases by 30%, tower grows 10% bigger, attacks every second. Ability: 💥 Big Boom — sends a homing missile to the strongest enemy for 7000 damage (3-minute cooldown).', apply:s=>{s.dmg=100;s.stunDuration=1.5;s.range*=1.30;s.rate=1;s.bigBoomAbility=true;s.bigBoomCd=0;}}
   ]
 };
 
@@ -1690,12 +1715,13 @@ function getTowerUpgradeList(tOrId){
 }
 function getTowerStats(t){
   const d=TD[t.defId];
+  const isThomasMini=d.id==='thomasmini';
   const stats={
     ...d,
     shots:1,
-    explosive:false,
-    explosionRadius:0,
-    projectile:d.id==='tiki'?'tiki':'laser',
+    explosive:isThomasMini?true:false,
+    explosionRadius:isThomasMini?52:0,
+    projectile:d.id==='tiki'?'tiki':(isThomasMini?'bomb':'laser'),
     canSeeCamo:false,
     shrapnelChance:0,
     shrapnelDamage:0,
@@ -1713,9 +1739,19 @@ function getTowerStats(t){
     stickyMine:false,
     mineDamage:50,
     mineRadius:20,
-    mineCooldown:15
+    mineCooldown:15,
+    bombSizeScale:1,
+    clusterBombs:false,
+    clusterBonusDmg:0,
+    clusterBonusChance:0,
+    megaStun:false,
+    stunDuration:0,
+    bigBoomAbility:false,
+    bigBoomCd:0
   };
   getTowerUpgradeList(t).slice(0,getTowerUpgradeLevel(t)).forEach(upg=>upg.apply(stats,t));
+  // Thomas Mini always hits leads (base property)
+  if(isThomasMini) stats.canHitLead=true;
   return stats;
 }
 function formatRate(sec){
@@ -1728,6 +1764,10 @@ function describeTowerSpecials(stats){
   const bits=[];
   if(stats.shots>1) bits.push(stats.shots+' shots');
   if(stats.explosive) bits.push('explosive');
+  if(stats.canHitLead) bits.push('pops lead');
+  if(stats.clusterBombs) bits.push('cluster bombs');
+  if(stats.megaStun||stats.stunDuration>0) bits.push('stuns '+stats.stunDuration+'s');
+  if(stats.bigBoomAbility) bits.push('💥 Big Boom');
   if(stats.sword) bits.push(stats.katana?'katana':'sword');
   if(stats.stickyMine) bits.push('sticky mines');
   if(stats.canSeeCamo) bits.push('camo sight');
@@ -1906,23 +1946,46 @@ function updateOrinFrenzyUI(){
   const tip=document.getElementById('orinFrenzyTip');
   if(!btn||!tip||!S) return;
   const unlocked=hasOrinFrenzyUnlock()&&!S.over;
-  btn.style.display=unlocked?'block':'none';
+  btn.style.display=unlocked?'flex':'none';
   tip.style.display=unlocked?'block':'none';
-  if(!unlocked) return;
+  if(!unlocked){ updateBigBoomUI(); return; }
   const spec=getOrinFrenzySpec();
   if(S.orinFrenzyT>0){
     btn.disabled=true;
-    btn.textContent='DVD Frenzy x'+spec.mult+' - '+S.orinFrenzyT.toFixed(1)+'s';
-    tip.textContent='Cooling down: '+Math.ceil(Math.max(0,S.orinFrenzyCd))+'s';
+    btn.style.opacity='.5';
+    tip.textContent='Frenzy active: '+S.orinFrenzyT.toFixed(1)+'s';
   } else if(S.orinFrenzyCd>0){
     btn.disabled=true;
-    btn.textContent='DVD Frenzy Recharging';
+    btn.style.opacity='.5';
     tip.textContent='Ready in '+Math.ceil(S.orinFrenzyCd)+'s';
   } else {
     btn.disabled=false;
-    btn.textContent='DVD Frenzy x'+spec.mult;
-    tip.textContent=spec.duration+'s burst every '+spec.cooldown+'s';
+    btn.style.opacity='1';
+    tip.textContent='DVD Frenzy — Ready!';
   }
+  // Hover tooltip after 0.5s
+  if(!btn._tipSetup){
+    btn._tipSetup=true;
+    let _hT=null,_hEl=null;
+    btn.addEventListener('mouseenter',()=>{
+      _hT=setTimeout(()=>{
+        _hEl=document.createElement('div');
+        const spec2=getOrinFrenzySpec();
+        const cdNow=S?S.orinFrenzyCd:0;
+        const activeNow=S&&S.orinFrenzyT>0;
+        const descStr=activeNow
+          ?'DVD Frenzy x'+spec2.mult+' · '+S.orinFrenzyT.toFixed(1)+'s left'
+          :cdNow>0
+            ?'DVD Frenzy x'+spec2.mult+' · CD: '+Math.ceil(cdNow)+'s'
+            :'DVD Frenzy — x'+spec2.mult+' income for '+spec2.duration+'s';
+        _hEl.style.cssText='position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#131009ee;border:1px solid #c8964066;border-radius:4px;padding:.4em .7em;font-family:Cinzel,serif;font-size:.68rem;color:#f5e8c0;white-space:nowrap;z-index:9999;pointer-events:none;min-width:200px;text-align:center;line-height:1.5';
+        _hEl.textContent=descStr;
+        btn.appendChild(_hEl);
+      },500);
+    });
+    btn.addEventListener('mouseleave',()=>{clearTimeout(_hT);if(_hEl){_hEl.remove();_hEl=null;}});
+  }
+  updateBigBoomUI();
 }
 function triggerOrinFrenzy(){
   if(!S||S.over||!hasOrinFrenzyUnlock()||S.orinFrenzyCd>0||S.orinFrenzyT>0) return;
@@ -1932,6 +1995,81 @@ function triggerOrinFrenzy(){
   updateOrinFrenzyUI();
   showToast('DVD Frenzy active: x'+spec.mult+' income for '+spec.duration+'s.','#d7a6ff');
 }
+function hasBigBoomUnlock(){
+  return !!(S&&S.towers.some(t=>t.defId==='thomasmini'&&getTowerUpgradeLevel(t)>=5));
+}
+function getBigBoomTower(){
+  if(!S) return null;
+  return S.towers.find(t=>t.defId==='thomasmini'&&getTowerUpgradeLevel(t)>=5)||null;
+}
+function updateBigBoomUI(){
+  const btn=document.getElementById('bigBoomBtn');
+  const tip=document.getElementById('bigBoomTip');
+  const orinBtn=document.getElementById('orinFrenzyBtn');
+  if(!btn||!tip) return;
+  const unlocked=hasBigBoomUnlock()&&!!(S&&!S.over);
+  btn.style.display=unlocked?'flex':'none';
+  tip.style.display=unlocked?'block':'none';
+  // Stack above Orin Frenzy button if both visible
+  const orinVisible=orinBtn&&orinBtn.style.display!=='none'&&orinBtn.style.display!=='';
+  const btnBottom=unlocked&&orinVisible?'4.2rem':'1rem';
+  btn.style.bottom=btnBottom;
+  tip.style.bottom=unlocked&&orinVisible?'7.4rem':'3.5rem';
+  if(!unlocked) return;
+  const t=getBigBoomTower();
+  const cdLeft=t?(t.bigBoomCd||0):0;
+  if(cdLeft>0){
+    btn.disabled=true;
+    btn.style.opacity='.5';
+    tip.textContent='Ready in '+Math.ceil(cdLeft)+'s';
+  } else {
+    btn.disabled=false;
+    btn.style.opacity='1';
+    tip.textContent='Big Boom — Ready!';
+  }
+  // Hover tooltip
+  if(!btn._tipSetup){
+    btn._tipSetup=true;
+    let _hT=null,_hEl=null;
+    btn.addEventListener('mouseenter',()=>{
+      _hT=setTimeout(()=>{
+        _hEl=document.createElement('div');
+        const cdNow=getBigBoomTower();
+        const cdSec=cdNow?(cdNow.bigBoomCd||0):0;
+        _hEl.style.cssText='position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#131009ee;border:1px solid #c8964066;border-radius:4px;padding:.4em .7em;font-family:Cinzel,serif;font-size:.68rem;color:#f5e8c0;white-space:nowrap;z-index:9999;pointer-events:none;min-width:200px;text-align:center;line-height:1.5';
+        _hEl.textContent='💥 Big Boom — Homing missile, 7000 dmg'+(cdSec>0?' · CD: '+Math.ceil(cdSec)+'s':' · Ready');
+        btn.appendChild(_hEl);
+      },500);
+    });
+    btn.addEventListener('mouseleave',()=>{clearTimeout(_hT);if(_hEl){_hEl.remove();_hEl=null;}});
+  }
+}
+function triggerBigBoomGlobal(){
+  const t=getBigBoomTower();
+  if(!t){showToast('No Tier 5 Thomas Mini on field!','#ff7043');return;}
+  triggerBigBoom(t.id);
+  updateBigBoomUI();
+}
+function triggerBigBoom(towerId){
+  if(!S||S.over) return;
+  const t=S.towers.find(t=>t.id===towerId); if(!t) return;
+  const stats=getTowerStats(t);
+  if(!stats.bigBoomAbility) return;
+  if((t.bigBoomCd||0)>0){ showToast('Big Boom recharging: '+Math.ceil(t.bigBoomCd)+'s','#ff7043'); return; }
+  // Find strongest enemy (highest HP)
+  const strongest=S.enemies.filter(e=>!e.dead&&!e.reached).sort((a,b)=>b.hp-a.hp)[0];
+  if(!strongest){ showToast('No enemies on field!','#ff7043'); return; }
+  // Deal 7000 damage
+  const dmg=7000;
+  strongest.hp-=dmg;
+  strongest.flashT=0.3;
+  S.particles.push({x:strongest.x,y:strongest.y-20,text:'💥 7000!',alpha:1,vy:-50,life:1.5,col:'#ff4400'});
+  S.particles.push({x:strongest.x,y:strongest.y,type:'ring',r:0,maxR:80,alpha:1,life:0.4,col:'#ff6600'});
+  if(strongest.hp<=0) handleEnemyDefeat(strongest,t);
+  t.bigBoomCd=180; // 3 minutes
+  refreshSelPanel();
+  showToast('💥 Big Boom! 7000 damage dealt!','#ff7043');
+}
 function getEnemyBaseId(id){
   return id.endsWith('Camo') ? id.slice(0,-4) : id;
 }
@@ -1940,7 +2078,7 @@ function canTowerAffectEnemy(stats, enemy, tower){
   const canSeeC=stats.canSeeCamo||(wfBuff&&wfBuff.grantCamoVision);
   const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
   if(enemy.camo && !canSeeC) return false;
-  if(enemy.lead && !stats.explosive && !canHitAll) return false;
+  if(enemy.lead && !stats.explosive && !stats.canHitLead && !canHitAll) return false;
   return true;
 }
 function isBlackAndWhiteEnemy(enemy){
@@ -2104,7 +2242,7 @@ function showSub(type){
   if(type==='stats'){
     CAREER=loadCareer(); // always refresh from localStorage before displaying
     const top3=getTop3Towers();
-    const towerNames={wren:'Wren',tiki:'Tikitheg',edunzie:'Edunzie',orin:'The Mind of Orin',wrenfun:'Wren.fun'};
+    const towerNames={wren:'Wren',tiki:'Tikitheg',edunzie:'Edunzie',orin:'The Mind of Orin',wrenfun:'Wren.fun',thomasmini:'Thomas Mini'};
     const medals=['🥇','🥈','🥉'];
     const top3Html=top3.length
       ? top3.map(([id,count],i)=>`
@@ -2188,7 +2326,7 @@ function showSub(type){
     const cards=Object.values(TD).map(t=>{
       // Show medium prices (base cost in TD = medium price)
       const mediumCost=TD_BASE_COSTS[t.id]||t.cost;
-      const isSupport=t.support||t.id==='orin';
+      const isSupport=t.support;
       const roleTag=isSupport?'Support':'Combat';
       const roleCol=isSupport?'#e040fb':'#29b6f6';
       const upgs=getTowerUpgradeList(t.id);
@@ -2199,10 +2337,11 @@ function showSub(type){
         tiki:'Long-range sniper. Fires slow but hits incredibly hard from anywhere on the map.',
         edunzie:'Close-range swordsman. Slices nearby enemies and can see camo from the start.',
         orin:'Passive income generator. Drops DVD cash every few seconds — collect it to earn gold.',
-        wrenfun:'Support tower. Buffs other towers within its range with increased range, camo vision, universal targeting, and speed.'
+        wrenfun:'Support tower. Buffs other towers within its range with increased range, camo vision, universal targeting, and speed.',
+        thomasmini:'Bomb-lobbing tower. Drops explosive bombs that hurt leads from the start. Upgrades into cluster bombs, stuns, and a devastating homing missile ability.'
       }[t.id]||'';
       const imgSrc=getTowerImageSrc(t.id);
-      return `
+      const html=`
         <div class="ccard tower-card" data-tower-id="${t.id}">
           <div class="ccard-banner" style="background:linear-gradient(90deg,transparent,${t.col}88,transparent)"></div>
           <div class="tower-card-inner">
@@ -2230,9 +2369,18 @@ function showSub(type){
               : `<div class="cupgitem">No upgrades yet.</div>`}
           </div>
         </div>`;
-    }).join('');
+      return {isSupport, html};
+    });
 
-    el.innerHTML=`<div class="cgrid">${cards}</div>`;
+    const combatHtml=cards.filter(c=>!c.isSupport).map(c=>c.html).join('');
+    const supportHtml=cards.filter(c=>c.isSupport).map(c=>c.html).join('');
+
+    el.innerHTML=`
+      <div class="tower-section-hdr">⚔ Combat Towers</div>
+      <div class="cgrid">${combatHtml}</div>
+      <div class="tower-section-hdr" style="margin-top:2rem">✦ Support Towers</div>
+      <div class="cgrid">${supportHtml}</div>
+    `;
     el.querySelectorAll('.tower-card[data-tower-id]').forEach(card=>{
       card.addEventListener('click',()=>{
         card.classList.toggle('open');
@@ -3496,8 +3644,9 @@ const TOWER_HALF_DIAGONAL = Math.SQRT2 * TOWER_HALF;
 function getTowerScale(tOrId){
   const ref=typeof tOrId==='string' ? {defId:tOrId} : (tOrId||{});
   const id=ref.defId||ref.id;
-  let scale=id==='orin' ? 1.4 : 1;
-  if(id==='orin'&&getTowerUpgradeLevel(ref)>=5) scale*=1.25;
+  let scale=id==='orin' ? 1.4 : id==='wrenfun' ? 1.20 : 1;
+  if(id==='orin'&&getTowerUpgradeLevel(ref)>=5) scale*=1.30;
+  if(id==='thomasmini'&&getTowerUpgradeLevel(ref)>=5) scale*=1.10;
   return scale;
 }
 function getTowerBaseSize(tOrId){
@@ -3583,6 +3732,7 @@ function placeTower(wx,wy){
   S.shopInfoSel=null;
   updateHUD();
   buildShop();
+  updateOrinFrenzyUI();
   selectTower(newId); // open this tower's selection panel
 }
 
@@ -3600,6 +3750,7 @@ function removeTower(id, refundPct){
   document.getElementById('selPanel').style.display='none';
   updateHUD();
   buildShop();
+  updateOrinFrenzyUI();
 }
 
 function sellTower(id){
@@ -3622,6 +3773,7 @@ function buyTowerUpgrade(id){
   sfx('upgrade');
   updateHUD();
   buildShop();
+  updateOrinFrenzyUI();
   selectTower(id);
 }
 
@@ -3674,7 +3826,7 @@ function buildShop(){
       } else if(alreadySel){
         S.shopInfoSel=d.id;
       } else {
-        S.shopInfoSel=null; // keep upgrades hidden on first click
+        S.shopInfoSel=null;
         S.shopSel=canAffordNow?d.id:null;
       }
       if(S.shopSel||S.shopInfoSel){S.towerSel=null;document.getElementById('selPanel').style.display='none';}
@@ -3764,6 +3916,7 @@ function selectTower(id){
     </div>
     ${upgradeHtml}
     ${showPri?`<div class="pri-label">TARGET PRIORITY</div><div class="pri-btns" id="pribtns"></div>`:''}
+    ${stats.bigBoomAbility?`<div class="pri-label">ABILITIES</div><div id="abilitiesRow" style="display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.35rem"></div>`:''}
     <div style="margin-top:.55rem">
       <button class="sellbtn" id="selbtn-sell" style="width:100%">💰 Sell — $${Math.floor(getTowerSpent(t)*.65)}</button>
     </div>
@@ -3785,6 +3938,36 @@ function selectTower(id){
   document.getElementById('selbtn-sell').addEventListener('click',()=>removeTower(id,0.65));
   const upgBtn=document.getElementById('selbtn-upg');
   if(upgBtn) upgBtn.addEventListener('click',()=>buyTowerUpgrade(id));
+
+  // Wire up abilities (emoji buttons with hover tooltip)
+  const abilitiesRow=document.getElementById('abilitiesRow');
+  if(abilitiesRow&&stats.bigBoomAbility){
+    const cdLeft=t.bigBoomCd||0;
+    const cdStr=cdLeft>0?Math.ceil(cdLeft)+'s cd':'Ready';
+    const btn=document.createElement('button');
+    btn.style.cssText='font-size:1.3rem;background:none;border:1px solid #ff704344;border-radius:4px;padding:.2em .35em;cursor:pointer;position:relative;transition:border-color .15s;color:inherit';
+    btn.textContent='💥';
+    btn.title='';
+    // Hover tooltip after 0.5s
+    let _hoverTip=null,_hoverT=null;
+    btn.addEventListener('mouseenter',()=>{
+      _hoverT=setTimeout(()=>{
+        _hoverTip=document.createElement('div');
+        _hoverTip.style.cssText='position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#131009ee;border:1px solid #c8964066;border-radius:4px;padding:.4em .7em;font-family:Cinzel,serif;font-size:.68rem;color:#f5e8c0;white-space:nowrap;z-index:9999;pointer-events:none;min-width:180px;text-align:center;line-height:1.5';
+        _hoverTip.textContent='💥 Big Boom — Homing missile, 7000 dmg. CD: '+Math.ceil(t.bigBoomCd||0)+'s';
+        btn.appendChild(_hoverTip);
+      },500);
+    });
+    btn.addEventListener('mouseleave',()=>{ clearTimeout(_hoverT); if(_hoverTip){_hoverTip.remove();_hoverTip=null;} });
+    if(cdLeft>0){ btn.disabled=true; btn.style.opacity='.5'; btn.style.cursor='not-allowed'; }
+    btn.addEventListener('click',()=>triggerBigBoom(id));
+    abilitiesRow.appendChild(btn);
+    // CD label
+    const cdLabel=document.createElement('span');
+    cdLabel.style.cssText='font-family:Cinzel,serif;font-size:.68rem;color:var(--muted);align-self:center';
+    cdLabel.textContent=cdLeft>0?Math.ceil(cdLeft)+'s':'Ready';
+    abilitiesRow.appendChild(cdLabel);
+  }
 
   if(!im._bad&&(!im.complete||im.naturalWidth===0)){
     im.onload=()=>{
@@ -3908,6 +4091,9 @@ function checkWinMilestone(){
     document.getElementById('winContinueBtn').style.borderColor=diffCol+'77';
     document.getElementById('winContinueBtn').style.color=diffCol;
     document.getElementById('winOv').classList.add('on');
+    // Pause the game until the player decides
+    S.paused=true;
+    S.winPaused=true;
     // Record the win immediately (even if they continue)
     if(S.mode!=='sandbox'){
       if(diff==='easy')   CAREER.easyWins=(CAREER.easyWins||0)+1;
@@ -3922,7 +4108,13 @@ function checkWinMilestone(){
 
 function winContinue(){
   document.getElementById('winOv').classList.remove('on');
-  // Resume if paused by overlay
+  // Resume from win pause
+  if(S && S.winPaused){
+    S.winPaused=false;
+    S.paused=false;
+    lastT=performance.now();
+    raf=requestAnimationFrame(loop);
+  }
 }
 
 function winLeave(){
@@ -4145,6 +4337,47 @@ function fireTowerAttack(t, stats){
     }
     return;
   }
+  // Thomas Mini bomb attack (handles cluster, stun, lead)
+  if(t.defId==='thomasmini'){
+    const targets=getTargetsInRange(t,stats);
+    if(!targets.length) return;
+    const tgt=targets[0];
+    const radius=stats.explosionRadius||52;
+    const bombScale=stats.bombSizeScale||1;
+    // Determine damage
+    let dmg=stats.dmg;
+    if(stats.clusterBombs&&Math.random()<stats.clusterBonusChance) dmg=stats.clusterBonusDmg;
+    // Find all enemies in explosion radius
+    const hitEnemies=S.enemies.filter(e=>{
+      if(e.dead||e.reached) return false;
+      const dx=e.x-tgt.x,dy=e.y-tgt.y;
+      return dx*dx+dy*dy<=radius*radius;
+    });
+    hitEnemies.forEach(e=>{
+      // Thomas Mini always hits leads at all upgrade levels
+      const fakeStats={...stats,explosive:true};
+      if(isBlackAndWhiteEnemy(e)) return; // can't pop B&W
+      e.hp-=dmg;
+      e.flashT=0.12;
+      if(e.hp<=0){ handleEnemyDefeat(e,t); }
+      else if((stats.megaStun||stats.bigBoomAbility)&&stats.stunDuration>0){
+        e.stunned=true;
+        e.stunnedT=(e.stunnedT||0)+stats.stunDuration;
+      }
+    });
+    // Explosion visual
+    S.particles.push({x:tgt.x,y:tgt.y,type:'ring',r:0,maxR:radius*bombScale,alpha:1,life:0.28,col:'#ffb74d'});
+    // Projectile visual
+    S.projs.push({type:'bomb',sx:t.x,sy:t.y,ex:tgt.x,ey:tgt.y,life:0.3,maxLife:0.3,bombScale});
+    // Cluster: fire extra visual bombs at nearby targets
+    if(stats.clusterBombs){
+      targets.slice(1,4).forEach(ct=>{
+        S.projs.push({type:'bomb',sx:tgt.x,sy:tgt.y,ex:ct.x,ey:ct.y,life:0.2,maxLife:0.2,bombScale:bombScale*.7});
+        S.particles.push({x:ct.x,y:ct.y,type:'ring',r:0,maxR:radius*.6*bombScale,alpha:.7,life:0.2,col:'#ffa040'});
+      });
+    }
+    return;
+  }
   const shots=Math.max(1,stats.shots||1);
   for(let si=0;si<shots;si++){
     const targets=getTargetsInRange(t,stats);
@@ -4232,6 +4465,12 @@ function update(dt){
       });
     }
     let rem=e.spd*dt;
+    // Stun: can't move while stunned
+    if(e.stunned&&e.stunnedT>0){
+      e.stunnedT=Math.max(0,e.stunnedT-dt);
+      if(e.stunnedT<=0) e.stunned=false;
+      rem=0; // no movement while stunned
+    }
     while(rem>0&&e.pi<PPTS.length-1){
       const tgt=PPTS[e.pi+1];
       const dx=tgt.x-e.x,dy=tgt.y-e.y;
@@ -4356,6 +4595,7 @@ function update(dt){
   for(const t of S.towers){
     if(t.sparkleT>0) t.sparkleT=Math.max(0,t.sparkleT-dt);
     if(t.swingT!=null&&t.swingDur>0) t.swingT=Math.min(1,t.swingT+dt/t.swingDur);
+    if(t.bigBoomCd>0){ t.bigBoomCd=Math.max(0,t.bigBoomCd-dt); if(S.towerSel===t.id) refreshSelPanel(); updateBigBoomUI(); }
   }
 
   // Projectiles
@@ -6055,7 +6295,7 @@ function _resetStats(){
 
 return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen,togglePause,toggleShop,exitToMenu,
         startWave,sellTower,removeTower,desel,toggleSpeed,toggleAuto,setTowerPriority,
-        toggleFullscreen,goHome,triggerOrinFrenzy,
+        toggleFullscreen,goHome,triggerOrinFrenzy,triggerBigBoomGlobal,
         toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
         winContinue,winLeave,
         toggleMenuMusic,toggleRadio,toggleSFX,setSFXVolume,setRadioVolume,setMenuVolume};
