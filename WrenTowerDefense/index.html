@@ -2040,10 +2040,10 @@ const ED = {
   gigaLizzy:        {id:'gigaLizzy',        name:'Giga Lizzy',                         hp:300,  spd:50,  sr:40, tint:null,      init:'GL',   col:'#ef9a9a', scale:4, boss:true},
   queenVictoria:    {id:'queenVictoria',    name:'Queen Victoria',                     hp:1000, spd:40,  sr:60, tint:null,      init:'QV',   col:'#c9a227', scale:4, boss:true, img:'QueenV.jpg', nameScale:1.35},
   kingCharles:      {id:'kingCharles',      name:'King Charles',                       hp:6000, spd:40,  sr:80, tint:null,      init:'KC',   col:'#d7b65a', scale:4.5, boss:true, img:'KingCH.jpg', nameScale:1.25},
-  rishiSunak:       {id:'rishiSunak',       name:'Rishi Sunak',                        hp:900,  spd:320, sr:90, tint:'iron',    init:'RS',   col:'#b0bec5', scale:4.7, boss:true, camo:true, img:'Rishi.jpg'},
+  rishiSunak:       {id:'rishiSunak',       name:'Rishi Sunak',                        hp:900,  spd:320, sr:90, tint:'iron',    init:'RS',   col:'#b0bec5', scale:4.7, boss:true, camo:true, lead:true, img:'Rishi.jpg'},
   reinforcedIron:   {id:'reinforcedIron',   name:'Reinforced Iron Queen Elizabeth',     hp:120,  spd:60,  sr:38, tint:'iron',    init:'RI',   col:'#d7b65a', scale:1.18, reinforced:true, onDeath:'splitRainbow'},
   reinforcedIronHeart:{id:'reinforcedIronHeart',name:'Reinforced Regenerating Iron Queen Elizabeth', hp:120, spd:60, sr:49, tint:'iron', init:'RRI', col:'#d7b65a', scale:1.24, reinforced:true, regen:4, onDeath:'splitRainbow'},
-  reinforcedRishi:  {id:'reinforcedRishi',  name:'Reinforced Rishi Sunak',              hp:1350, spd:320, sr:102,tint:'iron',    init:'RRS',  col:'#e0e0e0', scale:4.7, boss:true, reinforced:true, camo:true, img:'Rishi.jpg'},
+  reinforcedRishi:  {id:'reinforcedRishi',  name:'Reinforced Rishi Sunak',              hp:1350, spd:320, sr:102,tint:'iron',    init:'RRS',  col:'#e0e0e0', scale:4.7, boss:true, reinforced:true, camo:true, lead:true, img:'Rishi.jpg'},
   reinforcedGiga:   {id:'reinforcedGiga',   name:'Reinforced Giga Lizzy',               hp:450,  spd:50,  sr:52, tint:null,      init:'RGL',  col:'#d7b65a', scale:4.3, boss:true, reinforced:true},
   reinforcedVictoria:{id:'reinforcedVictoria',name:'Reinforced Queen Victoria',         hp:1500, spd:40,  sr:72, tint:null,      init:'RQV',  col:'#d7b65a', scale:4.3, boss:true, img:'QueenV.jpg', nameScale:1.2, reinforced:true},
   reinforcedCharles:{id:'reinforcedCharles',name:'Reinforced King Charles',             hp:9000, spd:40,  sr:92, tint:null,      init:'RKC',  col:'#f0c040', scale:4.9, boss:true, img:'KingCH.jpg', nameScale:1.15, reinforced:true},
@@ -3046,8 +3046,8 @@ function showSub(type){
               <span><span class="es-label">Reward</span><span class="es-val" style="color:#f0c040">$${e.hp}</span></span>
               ${eRegen?`<span><span class="es-label">Regen</span><span class="es-val" style="color:#4caf50">+${eRegen}/s</span></span>`:''}
               ${eIsCamo&&!eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#39ff14">Invisible to towers</span></span>`:''}
-              ${eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#b0bec5">Camo · Fast · Explosion Immune</span></span>`:''}
-              ${e.lead?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#aeb8c2">Explosion only</span></span>`:''}
+              ${eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#b0bec5">Lead · Camo · Explosion Immune</span></span>`:''}
+              ${e.lead&&!eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#aeb8c2">Explosion only</span></span>`:''}
             </div>
           </div>
         </div>`;
@@ -3266,14 +3266,23 @@ function drawEnemyToGalleryCanvas(canvas, eDef){
 
     // Rainbow shimmer (static snapshot — 3 arcs at fixed angles)
     if(eDef.tint==='rainbow'){
-      [0,1,2,3,4,5].forEach(si=>{
-        const angle=(si/6)*Math.PI*2;
-        const hue=(si/6)*360;
-        gc.save(); gc.globalCompositeOperation='screen'; gc.globalAlpha=.18;
-        gc.fillStyle=`hsl(${hue},100%,60%)`;
-        gc.beginPath();gc.arc(Math.cos(angle)*sz*.18,Math.sin(angle)*sz*.18,sz*.22,0,Math.PI*2);gc.fill();
+      // Vivid full-body rainbow wash (static snapshot)
+      gc.save(); tracePath(); gc.clip();
+      const stops=12;
+      for(let si=0;si<stops;si++){
+        const angle=(si/stops)*Math.PI*2;
+        const hue=(si/stops)*360;
+        gc.save(); gc.globalCompositeOperation='screen'; gc.globalAlpha=.38;
+        gc.fillStyle=`hsl(${hue},100%,65%)`;
+        gc.beginPath();gc.arc(Math.cos(angle)*sz*.32,Math.sin(angle)*sz*.32,sz*.38,0,Math.PI*2);gc.fill();
         gc.restore();
-      });
+      }
+      gc.save(); gc.globalCompositeOperation='screen'; gc.globalAlpha=0.28;
+      const rgGlint=gc.createRadialGradient(0,0,0,0,0,sz*.6);
+      rgGlint.addColorStop(0,'hsl(60,100%,90%)'); rgGlint.addColorStop(0.45,'hsl(200,100%,60%)');
+      rgGlint.addColorStop(1,'rgba(255,255,255,0)');
+      gc.fillStyle=rgGlint; gc.beginPath(); gc.arc(0,0,sz*.6,0,Math.PI*2); gc.fill();
+      gc.restore(); gc.restore();
     }
 
     // Camo pattern
@@ -3339,7 +3348,7 @@ function drawEnemyToGalleryCanvas(canvas, eDef){
     }
 
     // Border
-    const isRishiCamo = eDef.camo && (eDef.id==='rishiSunakCamo'||eDef.id==='reinforcedRishiCamo');
+    const isRishiCamo = eDef.camo && (eDef.id==='rishiSunak'||eDef.id==='reinforcedRishi'||eDef.id==='rishiSunakCamo'||eDef.id==='reinforcedRishiCamo');
     if(eDef.camo && !isRishiCamo){
       gc.save();
       gc.shadowColor='#39ff14'; gc.shadowBlur=14;
@@ -5127,9 +5136,10 @@ function handleEnemyDefeat(tgt, tower){
 }
 function damageEnemy(tgt, amount, tower, stats){
   if(!tgt||tgt.dead||!canTowerAffectEnemy(stats,tgt,tower)) return false;
-  if(stats&&stats.explosive&&isBlackAndWhiteEnemy(tgt)) return false;
   const wfBuff=tower?getWrenFunStatsForTower(tower):null;
-  if(stats&&stats.explosive&&isRishiEnemy(tgt)&&!(wfBuff&&wfBuff.grantAllEnemies)) return false;
+  const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
+  if(stats&&stats.explosive&&isBlackAndWhiteEnemy(tgt)&&!canHitAll) return false;
+  if(stats&&stats.explosive&&isRishiEnemy(tgt)&&!canHitAll) return false;
   tgt.hp-=amount;
   tgt.flashT=0.12;
   if(tgt.hp<=0) handleEnemyDefeat(tgt,tower);
@@ -5179,7 +5189,8 @@ function fireTowerAttack(t, stats){
     hitEnemies.forEach(e=>{
       // Thomas Mini always hits leads at all upgrade levels
       const fakeStats={...stats,explosive:true};
-      if(isBlackAndWhiteEnemy(e)) return; // can't pop B&W
+      const wfBuff=getWrenFunStatsForTower(t);
+      if(isBlackAndWhiteEnemy(e)&&!(wfBuff&&wfBuff.grantAllEnemies)) return; // can't pop B&W unless wren.fun T3
       e.hp-=dmg;
       e.flashT=0.12;
       if(e.hp<=0){ handleEnemyDefeat(e,t); }
@@ -5384,13 +5395,15 @@ function update(dt){
           const mx=pt.x,my=pt.y;
           setTimeout(()=>{
             if(!S||S.over) return;
-            // Fake stats for mine explosion: can pop lead, can't pop zebra
+            // Fake stats for mine explosion: can pop lead, can't pop zebra (unless wren.fun T3)
             const mineStats={explosive:true,canSeeCamo:true};
+            const wfBuffMine=getWrenFunStatsForTower(t);
+            const mineCanHitAll=wfBuffMine&&wfBuffMine.grantAllEnemies;
             S.particles.push({x:mx,y:my,type:'ring',r:0,maxR:mineRad*2.2,alpha:1,life:0.32,col:'#ff8f00'});
             S.particles.push({x:mx,y:my-10,text:'BOOM',alpha:1,vy:-38,life:0.9,col:'#ffb74d'});
             for(const e of S.enemies){
               if(e.dead||e.reached) continue;
-              if(isBlackAndWhiteEnemy(e)) continue; // can't pop B&W
+              if(isBlackAndWhiteEnemy(e)&&!mineCanHitAll) continue; // can't pop B&W unless wren.fun T3
               const dx=e.x-mx,dy=e.y-my;
               if(dx*dx+dy*dy<=mineRad*mineRad){
                 // Can pop lead
@@ -6772,18 +6785,31 @@ function drawEnemies(){
         ctx.restore();
       }
 
-      // Rainbow: animated hue-rotate shimmer overlay
+      // Rainbow: vivid full-body animated hue-cycle overlay
       if(e.tint==='rainbow'){
         const t2=e.t||0;
-        const stops=6;
+        // Full-body rotating conic-like rainbow wash
+        ctx.save();
+        traceEnemyBodyPath(sz,isHeart);ctx.clip();
+        const stops=12;
         for(let si=0;si<stops;si++){
-          const angle=(si/stops)*Math.PI*2+t2*2;
-          const hue=((si/stops)*360+t2*120)%360;
-          ctx.save();ctx.globalCompositeOperation='screen';ctx.globalAlpha=.18;
-          ctx.fillStyle=`hsl(${hue},100%,60%)`;
-          ctx.beginPath();ctx.arc(Math.cos(angle)*sz*.18,Math.sin(angle)*sz*.18,sz*.22,0,Math.PI*2);ctx.fill();
+          const angle=(si/stops)*Math.PI*2+t2*1.8;
+          const hue=((si/stops)*360+t2*180)%360;
+          ctx.save();ctx.globalCompositeOperation='screen';ctx.globalAlpha=.38;
+          ctx.fillStyle=`hsl(${hue},100%,65%)`;
+          ctx.beginPath();ctx.arc(Math.cos(angle)*sz*.32,Math.sin(angle)*sz*.32,sz*.38,0,Math.PI*2);ctx.fill();
           ctx.restore();
         }
+        // Bright sweeping glint across centre
+        ctx.save();ctx.globalCompositeOperation='screen';ctx.globalAlpha=0.28;
+        const glint=ctx.createRadialGradient(Math.cos(t2*2)*sz*.15,Math.sin(t2*2)*sz*.15,0,0,0,sz*.6);
+        glint.addColorStop(0,`hsl(${(t2*120)%360},100%,90%)`);
+        glint.addColorStop(0.45,`hsl(${(t2*120+120)%360},100%,60%)`);
+        glint.addColorStop(1,'rgba(255,255,255,0)');
+        ctx.fillStyle=glint;ctx.beginPath();ctx.arc(0,0,sz*.6,0,Math.PI*2);ctx.fill();
+        ctx.restore();
+        ctx.restore();
+
       }
 
       if(e.camo){
@@ -6872,7 +6898,7 @@ function drawEnemies(){
       }
 
       // Border
-      const isRishiCamo=e.camo&&(e.defId==='rishiSunakCamo'||e.defId==='reinforcedRishiCamo');
+      const isRishiCamo=e.camo&&(e.defId==='rishiSunak'||e.defId==='reinforcedRishi'||e.defId==='rishiSunakCamo'||e.defId==='reinforcedRishiCamo');
       if(e.camo&&!isRishiCamo){
         // Neon glowing green outline for camo enemies
         ctx.save();
