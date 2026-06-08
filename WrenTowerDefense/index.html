@@ -1385,57 +1385,34 @@ const LOG_FOREST_MUSHROOMS = [
   {x:25.5,y:9.5,scale:0.72}
 ];
 const LOG_FOREST_LOGS = [
-  // Original logs
+  // Upper interior — clear of border trees and path
   {x:10.5,y:3.5,angle:25,scale:0.9},
-  {x:14.5,y:2.2,angle:-15,scale:0.85},
-  {x:19.5,y:3.8,angle:40,scale:0.95},
-  {x:24.0,y:3.0,angle:-30,scale:0.88},
-  {x:28.0,y:4.5,angle:70,scale:0.82},
-  {x:11.0,y:7.5,angle:15,scale:0.92},
-  {x:15.5,y:9.0,angle:-45,scale:0.88},
-  {x:21.0,y:8.5,angle:20,scale:0.9},
-  {x:25.0,y:7.5,angle:-10,scale:0.86},
-  {x:13.0,y:13.0,angle:35,scale:0.88},
-  {x:18.5,y:14.0,angle:-20,scale:0.85},
-  {x:22.5,y:12.5,angle:55,scale:0.9},
-  {x:27.0,y:10.0,angle:-35,scale:0.82},
-  {x:1.8,y:4.5,angle:80,scale:0.86},
-  {x:2.2,y:10.5,angle:-70,scale:0.88},
-  // Additional logs — upper region
-  {x:12.0,y:1.2,angle:10,scale:0.78},
-  {x:17.0,y:1.4,angle:-55,scale:0.82},
-  {x:22.0,y:1.1,angle:30,scale:0.8},
-  {x:26.5,y:1.8,angle:-20,scale:0.76},
-  {x:9.2,y:2.8,angle:60,scale:0.84},
-  {x:6.5,y:3.5,angle:-40,scale:0.8},
-  // Mid-left cluster (between path bends)
-  {x:1.2,y:2.5,angle:15,scale:0.74},
-  {x:2.8,y:4.0,angle:-65,scale:0.79},
-  {x:1.5,y:8.0,angle:50,scale:0.83},
-  {x:2.5,y:14.0,angle:-30,scale:0.8},
-  {x:1.3,y:16.5,angle:75,scale:0.72},
-  // Mid-right cluster
-  {x:28.5,y:3.0,angle:-50,scale:0.78},
-  {x:29.2,y:6.5,angle:25,scale:0.76},
-  {x:28.8,y:8.5,angle:-15,scale:0.8},
-  {x:27.5,y:15.5,angle:45,scale:0.77},
-  {x:29.0,y:13.5,angle:-60,scale:0.74},
-  // Interior mid zone
-  {x:5.5,y:9.5,angle:20,scale:0.86},
-  {x:6.8,y:14.5,angle:-35,scale:0.84},
-  {x:10.0,y:10.5,angle:65,scale:0.9},
-  {x:16.0,y:5.5,angle:-25,scale:0.88},
-  {x:20.5,y:4.5,angle:50,scale:0.86},
-  {x:23.0,y:6.0,angle:-45,scale:0.83},
-  {x:17.5,y:9.5,angle:10,scale:0.85},
-  {x:24.5,y:9.5,angle:-70,scale:0.8},
-  // Lower zone (below path bends)
-  {x:9.5,y:14.5,angle:30,scale:0.82},
-  {x:15.5,y:14.0,angle:-15,scale:0.84},
-  {x:21.5,y:13.5,angle:55,scale:0.79},
-  {x:11.8,y:17.2,angle:-40,scale:0.74},
-  {x:17.0,y:17.5,angle:20,scale:0.76},
-  {x:22.8,y:17.0,angle:-55,scale:0.72},
+  {x:15.5,y:2.5,angle:-15,scale:0.85},
+  {x:20.5,y:3.2,angle:40,scale:0.88},
+  {x:25.5,y:2.5,angle:-30,scale:0.84},
+  // Mid interior
+  {x:5.5,y:9.0,angle:20,scale:0.86},
+  {x:10.5,y:8.0,angle:65,scale:0.9},
+  {x:16.5,y:6.5,angle:-25,scale:0.88},
+  {x:21.5,y:7.5,angle:50,scale:0.86},
+  {x:25.5,y:9.5,angle:-45,scale:0.83},
+  // Left side openings
+  {x:2.5,y:5.5,angle:80,scale:0.84},
+  {x:2.5,y:12.5,angle:-55,scale:0.82},
+  // Right side openings
+  {x:27.5,y:6.5,angle:30,scale:0.8},
+  {x:27.5,y:12.5,angle:-20,scale:0.78},
+  // Lower interior
+  {x:6.5,y:15.0,angle:35,scale:0.84},
+  {x:16.5,y:15.5,angle:-20,scale:0.85},
+  {x:22.0,y:14.5,angle:55,scale:0.82},
+  {x:11.5,y:17.0,angle:-40,scale:0.76},
+  {x:19.5,y:17.0,angle:15,scale:0.74},
+  {x:25.5,y:16.5,angle:-60,scale:0.76},
+  // Centre clearing
+  {x:13.5,y:10.5,angle:-35,scale:0.88},
+  {x:18.5,y:10.5,angle:10,scale:0.85},
+  {x:15.5,y:13.0,angle:45,scale:0.82},
 ];
 const LOG_FOREST_BUSH_VARIANTS = [
   ['#6a9b43','#365a22'],
@@ -2306,6 +2283,7 @@ gimg('KingCH.jpg');
 gimg('Rishi.jpg');
 gimg('WinC.jpg');
 gimg('DVD.png');
+gimg('Log.png');
 
 // ─── STATE ───
 let S, canvas, ctx, vp, raf=null, lastT=0;
@@ -3230,81 +3208,15 @@ function drawForestPreviewRoad(ptx,map){
   LOG_FOREST_BUSHES.forEach(p=>drawBushPreview(p.x,p.y,p.scale));
   function drawLogPreview(x,y,angle,scale){
     const wx=x*CELL, wy=y*CELL;
-    if(!forestDecorSpotClear(map,wx,wy,CELL*.28*scale)) return;
-    const len=CELL*.88*scale;
-    const wid=CELL*.19*scale;
+    if(!forestDecorSpotClear(map,wx,wy,CELL*.72*scale)) return;
+    const im=gimg('Log.png');
+    if(!im||im._bad) return;
+    const w=CELL*1.1*scale, h=CELL*0.55*scale;
     const ang=angle*Math.PI/180;
     ptx.save();
     ptx.translate(wx,wy);
     ptx.rotate(ang);
-    // shadow
-    ptx.save();
-    ptx.translate(3,4);
-    ptx.fillStyle='rgba(0,0,0,0.28)';
-    ptx.beginPath();
-    ptx.ellipse(0,0,len*.52,wid*.8,0,0,Math.PI*2);
-    ptx.fill();
-    ptx.restore();
-    // bark body
-    const barkG=ptx.createLinearGradient(0,-wid,0,wid);
-    barkG.addColorStop(0,'#c47a28');
-    barkG.addColorStop(0.28,'#9a5612');
-    barkG.addColorStop(0.72,'#6b3608');
-    barkG.addColorStop(1,'#3e1e04');
-    ptx.fillStyle=barkG;
-    ptx.beginPath();
-    ptx.ellipse(0,0,len*.5,wid,0,0,Math.PI*2);
-    ptx.fill();
-    // grain lines
-    ptx.save();
-    ptx.beginPath();
-    ptx.ellipse(0,0,len*.5,wid,0,0,Math.PI*2);
-    ptx.clip();
-    ptx.strokeStyle='rgba(28,10,2,0.28)';
-    ptx.lineWidth=0.8;
-    for(let i=-2;i<=2;i++){
-      const oy=i*(wid*.3);
-      ptx.beginPath();
-      ptx.moveTo(-len*.46,oy);
-      ptx.quadraticCurveTo(0,oy+Math.sin(i)*wid*.18,len*.46,oy);
-      ptx.stroke();
-    }
-    ptx.restore();
-    // highlight
-    const shineG=ptx.createLinearGradient(0,-wid,0,-wid*.05);
-    shineG.addColorStop(0,'rgba(255,200,110,0.28)');
-    shineG.addColorStop(1,'rgba(255,200,110,0)');
-    ptx.fillStyle=shineG;
-    ptx.beginPath();
-    ptx.ellipse(0,-wid*.3,len*.46,wid*.44,0,0,Math.PI*2);
-    ptx.fill();
-    // moss
-    ptx.fillStyle='rgba(58,108,24,0.32)';
-    ptx.beginPath();
-    ptx.ellipse(-len*.13,wid*.24,len*.1,wid*.38,0.2,0,Math.PI*2);
-    ptx.fill();
-    // cut end
-    const er=wid*.9;
-    ptx.fillStyle='#2e1402';
-    ptx.beginPath();
-    ptx.ellipse(len*.5,0,er,er*.58,0,0,Math.PI*2);
-    ptx.fill();
-    const endG=ptx.createRadialGradient(len*.5-er*.18,er*-.22,0,len*.5,0,er);
-    endG.addColorStop(0,'#f0b450');
-    endG.addColorStop(0.42,'#c06c1a');
-    endG.addColorStop(0.75,'#7c3c0a');
-    endG.addColorStop(1,'#2e1402');
-    ptx.fillStyle=endG;
-    ptx.beginPath();
-    ptx.ellipse(len*.5,0,er*.88,er*.52,0,0,Math.PI*2);
-    ptx.fill();
-    ptx.strokeStyle='rgba(35,12,2,0.48)';
-    ptx.lineWidth=0.8;
-    for(const r of [0.62,0.38,0.18]){
-      ptx.beginPath();
-      ptx.ellipse(len*.5,0,er*.88*r,er*.52*r,0,0,Math.PI*2);
-      ptx.stroke();
-    }
+    ptx.drawImage(im,-w/2,-h/2,w,h);
     ptx.restore();
   }
   LOG_FOREST_MUSHROOMS.forEach(p=>drawMushroomPreview(p.x,p.y,p.scale));
@@ -5281,115 +5193,15 @@ function drawMapLogForest(){
   LOG_FOREST_BUSHES.forEach(p=>drawBush(p.x,p.y,p.scale));
   function drawLog(x,y,angle,scale){
     const wx=x*CELL, wy=y*CELL;
-    if(!forestDecorSpotClear(map,wx,wy,CELL*.3*scale)) return;
-    // Top-down log: wide flat oval — bark face seen from above
-    const len=CELL*.88*scale;  // half-length along log axis
-    const wid=CELL*.19*scale;  // half-width (thickness seen from top)
+    if(!forestDecorSpotClear(map,wx,wy,CELL*.72*scale)) return;
+    const im=gimg('Log.png');
+    if(!im||im._bad) return;
+    const w=CELL*1.1*scale, h=CELL*0.55*scale;
     const ang=angle*Math.PI/180;
     ctx.save();
     ctx.translate(wx,wy);
     ctx.rotate(ang);
-
-    // ground shadow
-    ctx.save();
-    ctx.translate(4,5);
-    ctx.fillStyle='rgba(0,0,0,0.30)';
-    ctx.beginPath();
-    ctx.ellipse(0,0,len*.52,wid*.82,0,0,Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-
-    // main bark body — gradient across width (lit from top)
-    const barkG=ctx.createLinearGradient(0,-wid,0,wid);
-    barkG.addColorStop(0,'#c47a28');
-    barkG.addColorStop(0.28,'#9a5612');
-    barkG.addColorStop(0.72,'#6b3608');
-    barkG.addColorStop(1,'#3e1e04');
-    ctx.fillStyle=barkG;
-    ctx.beginPath();
-    ctx.ellipse(0,0,len*.5,wid,0,0,Math.PI*2);
-    ctx.fill();
-
-    // bark grain — longitudinal lines running along the log
-    ctx.save();
-    ctx.beginPath();
-    ctx.ellipse(0,0,len*.5,wid,0,0,Math.PI*2);
-    ctx.clip();
-    ctx.strokeStyle='rgba(28,10,2,0.30)';
-    ctx.lineWidth=0.9;
-    for(let i=-3;i<=3;i++){
-      const oy=i*(wid*.28);
-      ctx.beginPath();
-      ctx.moveTo(-len*.47,oy+Math.sin(i*1.4)*wid*.14);
-      ctx.quadraticCurveTo(0,oy+Math.sin(i*0.9+1)*wid*.2,len*.47,oy+Math.sin(i*1.1+2)*wid*.11);
-      ctx.stroke();
-    }
-    // a few short cross-cracks
-    ctx.lineWidth=0.7;
-    for(let i=0;i<4;i++){
-      const cx=-len*.3+len*.2*i;
-      ctx.beginPath();
-      ctx.moveTo(cx,-wid*.3);
-      ctx.lineTo(cx+3,wid*.18);
-      ctx.stroke();
-    }
-    ctx.restore();
-
-    // top highlight (sun catching the curved top surface)
-    const shineG=ctx.createLinearGradient(0,-wid,0,-wid*.05);
-    shineG.addColorStop(0,'rgba(255,200,110,0.30)');
-    shineG.addColorStop(1,'rgba(255,200,110,0)');
-    ctx.fillStyle=shineG;
-    ctx.beginPath();
-    ctx.ellipse(0,-wid*.3,len*.46,wid*.46,0,0,Math.PI*2);
-    ctx.fill();
-
-    // moss/lichen patches
-    ctx.fillStyle='rgba(58,108,24,0.35)';
-    ctx.beginPath();
-    ctx.ellipse(-len*.13,wid*.24,len*.1,wid*.38,0.2,0,Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle='rgba(72,128,30,0.22)';
-    ctx.beginPath();
-    ctx.ellipse(len*.16,-wid*.2,len*.07,wid*.3,-0.3,0,Math.PI*2);
-    ctx.fill();
-
-    // cut-end cross-section circle on one end (the sawn face)
-    const er=wid*.95;
-    // dark outer ring
-    ctx.fillStyle='#2e1402';
-    ctx.beginPath();
-    ctx.ellipse(len*.5,0,er,er*.6,0,0,Math.PI*2);
-    ctx.fill();
-    // heartwood gradient
-    const endG=ctx.createRadialGradient(len*.5-er*.2,er*-.24,0,len*.5,0,er);
-    endG.addColorStop(0,'#f0b450');
-    endG.addColorStop(0.42,'#c06c1a');
-    endG.addColorStop(0.75,'#7c3c0a');
-    endG.addColorStop(1,'#2e1402');
-    ctx.fillStyle=endG;
-    ctx.beginPath();
-    ctx.ellipse(len*.5,0,er*.88,er*.52,0,0,Math.PI*2);
-    ctx.fill();
-    // tree rings
-    ctx.strokeStyle='rgba(35,12,2,0.50)';
-    ctx.lineWidth=0.9;
-    for(const r of [0.64,0.40,0.20]){
-      ctx.beginPath();
-      ctx.ellipse(len*.5,0,er*.88*r,er*.52*r,0,0,Math.PI*2);
-      ctx.stroke();
-    }
-    // pith
-    ctx.fillStyle='rgba(25,8,2,0.75)';
-    ctx.beginPath();
-    ctx.ellipse(len*.5,0,er*.08,er*.05,0,0,Math.PI*2);
-    ctx.fill();
-    // end-face highlight
-    ctx.fillStyle='rgba(255,215,140,0.26)';
-    ctx.beginPath();
-    ctx.ellipse(len*.5-er*.3,er*-.24,er*.26,er*.16,-0.35,0,Math.PI*2);
-    ctx.fill();
-
+    ctx.drawImage(im,-w/2,-h/2,w,h);
     ctx.restore();
   }
   LOG_FOREST_MUSHROOMS.forEach(p=>drawMushroomCluster(p.x,p.y,p.scale));
