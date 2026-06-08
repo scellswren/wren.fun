@@ -1445,7 +1445,28 @@ const LOG_FOREST_EXTRA_TREES = [
   {x:17.0,y:13.5,scale:0.8},
   {x:28.5,y:14.0,scale:0.74}
 ];
-const LOG_FOREST_DECOR_BLOCKERS = [];
+const LOG_FOREST_DECOR_BLOCKERS = [
+  // Border trees (converted from normalised coords: x*COLS, y*ROWS)
+  {x:1.5,y:2.16,r:1.1},{x:2.4,y:5.76,r:0.9},{x:1.8,y:10.08,r:1.16},{x:2.4,y:14.94,r:0.99},
+  {x:6.0,y:0.72,r:0.82},{x:10.2,y:0.9,r:0.88},{x:20.4,y:0.9,r:0.84},{x:24.9,y:1.26,r:0.88},
+  {x:27.6,y:2.7,r:1.08},{x:28.5,y:7.2,r:0.93},{x:27.6,y:12.24,r:1.12},{x:28.2,y:15.48,r:0.97},
+  {x:5.4,y:17.1,r:0.88},{x:12.0,y:17.28,r:0.82},{x:21.9,y:17.1,r:0.9},{x:25.8,y:17.28,r:0.8},
+  // Extra trees (grid coords direct)
+  {x:1.15,y:2.3,r:0.92},{x:28.1,y:1.6,r:0.92},{x:1.0,y:8.25,r:1.0},
+  {x:28.0,y:9.1,r:0.98},{x:4.5,y:15.6,r:0.88},{x:12.5,y:5.5,r:0.94},
+  {x:17.5,y:5.0,r:0.9},{x:23.5,y:5.5,r:0.92},{x:11.0,y:13.5,r:0.88},
+  {x:17.0,y:13.5,r:0.92},{x:28.5,y:14.0,r:0.86},
+  // Bushes (grid coords direct)
+  {x:2.0,y:2.25,r:0.7},{x:6.35,y:2.2,r:0.62},{x:13.8,y:1.7,r:0.64},{x:18.35,y:1.85,r:0.6},
+  {x:24.1,y:2.05,r:0.66},{x:27.35,y:3.2,r:0.58},{x:1.85,y:7.1,r:0.6},{x:27.95,y:8.45,r:0.6},
+  {x:1.75,y:15.0,r:0.72},{x:5.5,y:16.0,r:0.63},{x:11.35,y:15.7,r:0.6},{x:18.55,y:16.0,r:0.62},
+  {x:24.35,y:15.8,r:0.68},{x:27.2,y:14.9,r:0.64},{x:11.5,y:2.5,r:0.6},{x:16.0,y:2.8,r:0.58},
+  {x:21.0,y:4.0,r:0.62},{x:25.5,y:4.5,r:0.58},{x:10.5,y:8.0,r:0.62},{x:16.5,y:8.5,r:0.6},
+  {x:22.5,y:7.0,r:0.62},{x:23.5,y:13.5,r:0.58},{x:27.5,y:13.0,r:0.56},
+  // Mushroom clusters
+  {x:7.6,y:2.85,r:0.5},{x:21.7,y:3.05,r:0.5},{x:3.25,y:14.1,r:0.55},
+  {x:25.65,y:13.7,r:0.55},{x:13.5,y:4.5,r:0.5},{x:19.0,y:7.5,r:0.52},{x:25.5,y:9.5,r:0.48},
+];
 
 // ─── MAP DEFINITIONS ───
 const MAPS = {
@@ -3209,6 +3230,10 @@ function drawForestPreviewRoad(ptx,map){
   function drawLogPreview(x,y,angle,scale){
     const wx=x*CELL, wy=y*CELL;
     if(!forestDecorSpotClear(map,wx,wy,CELL*.18*scale)) return;
+    for(const b of LOG_FOREST_DECOR_BLOCKERS){
+      const dx=wx-b.x*CELL, dy=wy-b.y*CELL, minD=(b.r+0.55*scale)*CELL;
+      if(dx*dx+dy*dy<minD*minD) return;
+    }
     const im=gimg('Log.png');
     if(!im||im._bad) return;
     const w=CELL*1.1*scale, h=CELL*0.55*scale;
@@ -5194,6 +5219,10 @@ function drawMapLogForest(){
   function drawLog(x,y,angle,scale){
     const wx=x*CELL, wy=y*CELL;
     if(!forestDecorSpotClear(map,wx,wy,CELL*.18*scale)) return;
+    for(const b of LOG_FOREST_DECOR_BLOCKERS){
+      const dx=wx-b.x*CELL, dy=wy-b.y*CELL, minD=(b.r+0.55*scale)*CELL;
+      if(dx*dx+dy*dy<minD*minD) return;
+    }
     const im=gimg('Log.png');
     if(!im||im._bad) return;
     const w=CELL*1.1*scale, h=CELL*0.55*scale;
