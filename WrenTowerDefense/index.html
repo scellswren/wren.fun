@@ -3035,9 +3035,7 @@ function showSub(type){
         // Border styling — no glow in gallery, just clean colour border
         const borderCol=e.reinforced?'#f0c04088':(e.lead?'#aeb8c266':(eIsCamo&&!eIsRishi?'#39ff1466':'#c8964044'));
         return `<div class="enemy-card-row${isVariant?' variant-row':''}">
-          <div class="cpic" id="epic-${e.id}" style="width:64px;height:64px;flex-shrink:0;margin:0;border-radius:6px;border:2px solid ${borderCol}">
-            <div class="cpic-init" id="epic-init-${e.id}" style="font-size:1rem">${e.init}</div>
-          </div>
+          <canvas id="epic-${e.id}" width="64" height="64" style="width:64px;height:64px;flex-shrink:0;border-radius:6px;border:2px solid ${borderCol};background:#0c0a06;display:block"></canvas>
           <div class="enemy-info">
             <div style="display:flex;gap:.28rem;flex-wrap:wrap;margin-bottom:.22rem">${badges.join('')}</div>
             <div class="cname" style="font-size:.88rem;margin-bottom:.18rem">${e.name}</div>
@@ -3083,22 +3081,7 @@ function showSub(type){
           groupEl.classList.toggle('expanded',!open);
           if(!open){
             requestAnimationFrame(()=>{
-              variants.forEach(v=>{
-                const imgSrc=v.img||'QueenElizabeth.jpg';
-                const im=gimg(imgSrc);
-                const initEl=document.getElementById('epic-init-'+v.id);
-                const picEl=document.getElementById('epic-'+v.id);
-                if(!initEl||!picEl) return;
-                const setIt=()=>{
-                  if(!im._bad&&im.naturalWidth>0&&initEl&&picEl){
-                    const img=makeFallbackImage(imgSrc,()=>{});
-                    const f=tintFilter(v.tint);
-                    img.style.cssText=`width:100%;height:100%;object-fit:cover;object-position:center center;display:block;${f?'filter:'+f:''}`;
-                    initEl.remove();picEl.appendChild(img);
-                  }
-                };
-                if(im.complete) setIt(); else { im.onload=setIt; }
-              });
+              variants.forEach(v=>{ renderGalleryCanvas(v); });
             });
           }
         });
@@ -3107,24 +3090,9 @@ function showSub(type){
 
     el.appendChild(container);
 
-    // Load base enemy images immediately
+    // Render all visible enemy canvases (base enemies shown immediately; variants rendered when panel opens)
     requestAnimationFrame(()=>{
-      groups.forEach(({base})=>{
-        const imgSrc=base.img||'QueenElizabeth.jpg';
-        const im=gimg(imgSrc);
-        const initEl=document.getElementById('epic-init-'+base.id);
-        const picEl=document.getElementById('epic-'+base.id);
-        if(!initEl||!picEl) return;
-        const setIt=()=>{
-          if(!im._bad&&im.naturalWidth>0&&initEl&&picEl){
-            const img=makeFallbackImage(imgSrc,()=>{});
-            const f=tintFilter(base.tint);
-            img.style.cssText=`width:100%;height:100%;object-fit:cover;object-position:center center;display:block;${f?'filter:'+f:''}`;
-            initEl.remove();picEl.appendChild(img);
-          }
-        };
-        if(im.complete) setIt(); else { im.onload=setIt; }
-      });
+      groups.forEach(({base})=>{ renderGalleryCanvas(base); });
     });
   } else {
     el.innerHTML=`
@@ -3168,6 +3136,264 @@ function tintFilter(tint){
   const bri={yellow:1.35,red:1.1,pink:1.15,rainbow:1}[tint]||1;
   return `hue-rotate(${hue}deg) saturate(${sat}) brightness(${bri})`;
 }
+// ─── GALLERY CANVAS RENDERER ───
+// Renders an enemy definition onto a small canvas exactly as it appears in-game.
+function drawEnemyToGalleryCanvas(canvas, eDef){
+  const gc = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  gc.clearRect(0, 0, W, H);
+
+  const isHeart = !!(eDef.regen);
+  const sz = Math.min(W, H) * 0.82;
+  gc.save();
+  gc.translate(W/2, H/2);
+
+  // Helper: trace the body shape on gc
+  function tracePath(){
+    gc.beginPath();
+    if(isHeart){
+      gc.moveTo(0,-sz*.5);
+      gc.bezierCurveTo(sz*.55,-sz*.45,sz*.5,sz*.3,0,sz*.45);
+      gc.bezierCurveTo(-sz*.55,sz*.3,-sz*.5,-sz*.35,0,-sz*.5);
+    } else {
+      gc.arc(0,0,sz/2,0,Math.PI*2);
+    }
+  }
+
+  // Ambient glow
+  gc.save();
+  gc.globalCompositeOperation='screen';
+  gc.globalAlpha=eDef.boss?0.28:0.16;
+  const ambient=gc.createRadialGradient(0,0,sz*.12,0,0,sz*.74);
+  ambient.addColorStop(0,(eDef.col||'#ffffff')+'55');
+  ambient.addColorStop(1,'rgba(255,255,255,0)');
+  gc.fillStyle=ambient;
+  gc.beginPath();gc.arc(0,0,sz*.72,0,Math.PI*2);gc.fill();
+  gc.restore();
+
+  const imgSrc = eDef.img||'QueenElizabeth.jpg';
+  const im = gimg(imgSrc);
+  const imgReady = !im._bad && im.complete && im.naturalWidth>0;
+
+  if(imgReady){
+    // Draw photo with tint
+    gc.save();
+    const tf = tintFilter(eDef.tint);
+    if(eDef.tint && eDef.tint!=='rainbow' && eDef.tint!=='iron' && eDef.tint!=='zebra'){
+      gc.filter = tf;
+    }
+    tracePath(); gc.clip();
+    gc.drawImage(im,-sz/2,-sz/2,sz,sz);
+    gc.restore();
+
+    // Sheen
+    gc.save();
+    tracePath(); gc.clip();
+    const sheen=gc.createLinearGradient(-sz*.5,-sz*.55,sz*.4,sz*.45);
+    sheen.addColorStop(0,'rgba(255,255,255,0.2)');
+    sheen.addColorStop(0.36,'rgba(255,255,255,0.06)');
+    sheen.addColorStop(1,'rgba(0,0,0,0.14)');
+    gc.fillStyle=sheen; gc.fillRect(-sz/2,-sz/2,sz,sz);
+    gc.restore();
+
+    // Colour tint overlay
+    if(eDef.tint && eDef.tint!=='rainbow' && eDef.tint!=='iron' && eDef.tint!=='lead' && eDef.tint!=='zebra'){
+      const tc={blue:'rgba(70,130,255,0.45)',green:'rgba(50,200,80,0.4)',yellow:'rgba(255,210,40,0.45)',red:'rgba(220,30,30,0.5)',pink:'rgba(255,80,180,0.45)'};
+      if(tc[eDef.tint]){
+        gc.save();gc.globalCompositeOperation='multiply';
+        gc.fillStyle=tc[eDef.tint];
+        tracePath();gc.fill();gc.restore();
+      }
+    }
+
+    // Zebra stripes
+    if(eDef.tint==='zebra'){
+      gc.save(); tracePath(); gc.clip();
+      gc.globalAlpha=0.78;
+      gc.strokeStyle='rgba(18,18,18,0.82)'; gc.lineWidth=Math.max(3,sz*.11);
+      [-0.56,-0.3,-0.06,0.18,0.42].forEach(off=>{
+        gc.beginPath(); gc.moveTo(off*sz,-sz*.58); gc.lineTo((off+.22)*sz,sz*.58); gc.stroke();
+      });
+      gc.globalAlpha=0.2; gc.strokeStyle='rgba(255,255,255,0.55)'; gc.lineWidth=Math.max(1.2,sz*.03);
+      [-0.44,-0.18,0.08,0.34].forEach(off=>{
+        gc.beginPath(); gc.moveTo(off*sz,-sz*.54); gc.lineTo((off+.18)*sz,sz*.54); gc.stroke();
+      });
+      gc.restore();
+    }
+
+    // Iron overlay
+    if(eDef.tint==='iron'){
+      gc.save(); gc.filter=tintFilter('iron'); tracePath(); gc.clip();
+      gc.drawImage(im,-sz/2,-sz/2,sz,sz); gc.restore();
+      gc.save(); tracePath(); gc.clip();
+      const ms=gc.createLinearGradient(-sz*.6,-sz*.6,sz*.6,sz*.45);
+      ms.addColorStop(0,'rgba(255,255,255,0.62)'); ms.addColorStop(0.24,'rgba(215,230,240,0.36)');
+      ms.addColorStop(0.5,'rgba(120,145,165,0.12)'); ms.addColorStop(0.74,'rgba(245,250,255,0.22)');
+      ms.addColorStop(1,'rgba(45,62,78,0.42)');
+      gc.fillStyle=ms; gc.fillRect(-sz/2,-sz/2,sz,sz);
+      gc.globalCompositeOperation='screen';
+      const glint=gc.createRadialGradient(-sz*.18,-sz*.22,0,-sz*.18,-sz*.22,sz*.52);
+      glint.addColorStop(0,'rgba(255,255,255,0.42)'); glint.addColorStop(0.35,'rgba(220,235,245,0.22)');
+      glint.addColorStop(1,'rgba(255,255,255,0)');
+      gc.fillStyle=glint; tracePath(); gc.fill();
+      gc.strokeStyle='rgba(255,255,255,0.58)'; gc.lineWidth=Math.max(1.5,sz*.026);
+      gc.beginPath(); gc.moveTo(-sz*.42,-sz*.18); gc.lineTo(sz*.12,-sz*.34); gc.stroke();
+      gc.strokeStyle='rgba(210,230,245,0.42)'; gc.lineWidth=Math.max(1,sz*.018);
+      gc.beginPath(); gc.moveTo(-sz*.3,sz*.05); gc.lineTo(sz*.28,-sz*.08); gc.stroke();
+      gc.restore();
+      gc.save(); gc.fillStyle='rgba(210,225,235,0.92)';
+      [[-.35,-.35],[.35,-.35],[-.35,.35],[.35,.35],[0,-.46],[0,.46]].forEach(([rx,ry])=>{
+        gc.beginPath();gc.arc(rx*sz,ry*sz,sz*.045,0,Math.PI*2);gc.fill();
+      });
+      gc.restore();
+    }
+
+    // Lead sheen
+    if(eDef.tint==='lead'){
+      gc.save(); tracePath(); gc.clip();
+      const ls=gc.createLinearGradient(-sz*.52,-sz*.58,sz*.38,sz*.4);
+      ls.addColorStop(0,'rgba(255,255,255,0.62)'); ls.addColorStop(0.2,'rgba(255,255,255,0.28)');
+      ls.addColorStop(0.45,'rgba(180,180,180,0.06)'); ls.addColorStop(0.7,'rgba(255,255,255,0.18)');
+      ls.addColorStop(1,'rgba(0,0,0,0.32)');
+      gc.fillStyle=ls; gc.fillRect(-sz/2,-sz/2,sz,sz);
+      gc.globalCompositeOperation='screen'; gc.globalAlpha=0.45;
+      const gl=gc.createRadialGradient(-sz*.2,-sz*.28,0,-sz*.2,-sz*.28,sz*.38);
+      gl.addColorStop(0,'rgba(255,255,255,0.85)'); gl.addColorStop(0.4,'rgba(220,220,220,0.3)');
+      gl.addColorStop(1,'rgba(255,255,255,0)');
+      gc.fillStyle=gl; gc.beginPath();gc.arc(-sz*.2,-sz*.28,sz*.38,0,Math.PI*2);gc.fill();
+      gc.restore();
+    }
+
+    // Rainbow shimmer (static snapshot — 3 arcs at fixed angles)
+    if(eDef.tint==='rainbow'){
+      [0,1,2,3,4,5].forEach(si=>{
+        const angle=(si/6)*Math.PI*2;
+        const hue=(si/6)*360;
+        gc.save(); gc.globalCompositeOperation='screen'; gc.globalAlpha=.18;
+        gc.fillStyle=`hsl(${hue},100%,60%)`;
+        gc.beginPath();gc.arc(Math.cos(angle)*sz*.18,Math.sin(angle)*sz*.18,sz*.22,0,Math.PI*2);gc.fill();
+        gc.restore();
+      });
+    }
+
+    // Camo pattern
+    if(eDef.camo){
+      gc.save(); tracePath(); gc.clip();
+      [['rgba(70,96,54,0.54)',-.24,-.16,.2],['rgba(132,114,76,0.44)',.2,-.1,.18],
+       ['rgba(92,120,74,0.52)',-.08,.14,.22],['rgba(54,74,42,0.4)',.22,.18,.16],
+       ['rgba(160,144,98,0.32)',-.3,.22,.13]].forEach(([col,ox,oy,rr])=>{
+        gc.fillStyle=col; gc.beginPath();gc.arc(ox*sz,oy*sz,rr*sz,0,Math.PI*2);gc.fill();
+      });
+      gc.globalAlpha=0.35; gc.strokeStyle='rgba(214,225,188,0.55)'; gc.lineWidth=Math.max(1.1,sz*.018);
+      [-0.44,-0.16,0.12,0.38].forEach(off=>{
+        gc.beginPath(); gc.moveTo(-sz*.55,off*sz); gc.lineTo(sz*.55,(off-.22)*sz); gc.stroke();
+      });
+      gc.restore();
+    }
+
+    // Reinforced aura + stripes + badge
+    if(eDef.reinforced){
+      gc.save(); gc.globalCompositeOperation='screen'; gc.globalAlpha=0.38;
+      const aura=gc.createRadialGradient(0,0,sz*.18,0,0,sz*.68);
+      aura.addColorStop(0,'rgba(255,236,160,0.55)'); aura.addColorStop(0.58,'rgba(240,192,64,0.24)');
+      aura.addColorStop(1,'rgba(240,192,64,0)');
+      gc.fillStyle=aura; gc.beginPath();gc.arc(0,0,sz*.68,0,Math.PI*2);gc.fill();
+      gc.restore();
+      gc.save(); tracePath(); gc.clip(); gc.globalAlpha=0.72;
+      gc.strokeStyle='rgba(255,224,128,0.95)'; gc.lineWidth=Math.max(3,sz*.055);
+      gc.beginPath();gc.moveTo(-sz*.48,-sz*.22);gc.lineTo(sz*.48,-sz*.34);gc.stroke();
+      gc.beginPath();gc.moveTo(-sz*.50,sz*.10);gc.lineTo(sz*.50,sz*.02);gc.stroke();
+      gc.strokeStyle='rgba(70,55,30,0.72)'; gc.lineWidth=Math.max(1.5,sz*.025);
+      gc.beginPath();gc.moveTo(-sz*.48,-sz*.18);gc.lineTo(sz*.48,-sz*.30);gc.stroke();
+      gc.beginPath();gc.moveTo(-sz*.50,sz*.14);gc.lineTo(sz*.50,sz*.06);gc.stroke();
+      gc.restore();
+      gc.save(); gc.fillStyle='rgba(255,238,170,0.95)';
+      [[-.42,-.42],[.42,-.42],[-.42,.42],[.42,.42],[0,-.5],[0,.5]].forEach(([rx,ry])=>{
+        gc.beginPath();gc.arc(rx*sz,ry*sz,sz*.052,0,Math.PI*2);gc.fill();
+      });
+      if(isHeart){
+        gc.fillStyle='#ff4d8a';
+        gc.font=`bold ${Math.max(12,Math.floor(sz*.22))}px Cinzel,serif`;
+        gc.textAlign='center';gc.textBaseline='middle';gc.fillText('♥',0,-sz*.08);
+      }
+      gc.restore();
+      // R badge
+      gc.save();
+      gc.fillStyle='rgba(245,208,96,0.96)'; gc.strokeStyle='rgba(95,70,20,0.9)';
+      gc.lineWidth=Math.max(1.5,sz*.02);
+      gc.beginPath();gc.arc(sz*.28,-sz*.28,sz*.14,0,Math.PI*2);gc.fill();gc.stroke();
+      gc.fillStyle='rgba(70,48,10,0.95)';
+      gc.font=`bold ${Math.max(9,Math.floor(sz*.16))}px Cinzel,serif`;
+      gc.textAlign='center';gc.textBaseline='middle';gc.fillText('R',sz*.28,-sz*.28);
+      gc.restore();
+    }
+
+    // Regen glow
+    if(eDef.regen){
+      gc.save(); tracePath(); gc.clip(); gc.globalCompositeOperation='screen'; gc.globalAlpha=0.22;
+      const rAura=gc.createRadialGradient(0,0,sz*.12,0,0,sz*.54);
+      rAura.addColorStop(0,'rgba(148,255,170,0.68)'); rAura.addColorStop(0.58,'rgba(92,214,116,0.24)');
+      rAura.addColorStop(1,'rgba(92,214,116,0)');
+      gc.fillStyle=rAura; gc.beginPath();gc.arc(0,0,sz*.52,0,Math.PI*2);gc.fill();
+      gc.restore();
+    }
+
+    // Border
+    const isRishiCamo = eDef.camo && (eDef.id==='rishiSunakCamo'||eDef.id==='reinforcedRishiCamo');
+    if(eDef.camo && !isRishiCamo){
+      gc.save();
+      gc.shadowColor='#39ff14'; gc.shadowBlur=14;
+      gc.strokeStyle='#39ff14'; gc.lineWidth=2.8;
+      tracePath(); gc.stroke();
+      gc.shadowBlur=6; gc.globalAlpha=0.7;
+      gc.strokeStyle='#a0ffaa'; gc.lineWidth=1.2;
+      tracePath(); gc.stroke();
+      gc.restore();
+    } else if(eDef.lead){
+      gc.save();
+      gc.shadowColor='#c8d4dc'; gc.shadowBlur=14;
+      gc.strokeStyle='#c8d4dc'; gc.lineWidth=3.0;
+      tracePath(); gc.stroke();
+      gc.shadowBlur=4; gc.globalAlpha=0.65;
+      gc.strokeStyle='#ffffff'; gc.lineWidth=1.1;
+      tracePath(); gc.stroke();
+      gc.restore();
+    } else {
+      gc.strokeStyle=eDef.reinforced?'#f0c040':(eDef.col||'#fff');
+      gc.lineWidth=eDef.reinforced?3.2:1.5;
+      tracePath(); gc.stroke();
+    }
+    // Highlight stroke
+    gc.strokeStyle='rgba(255,255,255,0.16)'; gc.lineWidth=Math.max(0.8,sz*.02);
+    gc.beginPath();
+    gc.moveTo(-sz*.26,-sz*.34);
+    gc.quadraticCurveTo(0,-sz*.46,sz*.26,-sz*.26);
+    gc.stroke();
+
+  } else {
+    // Fallback: coloured shape + init text (same as in-game fallback)
+    gc.fillStyle='#1a0a0a'; tracePath(); gc.fill();
+    gc.fillStyle=eDef.col||'#fff';
+    gc.font=`bold ${Math.floor(sz*.28)}px Cinzel,serif`;
+    gc.textAlign='center'; gc.textBaseline='middle';
+    gc.fillText(eDef.init,0,0);
+  }
+
+  gc.restore();
+}
+
+// Draw a gallery canvas, waiting for the image to load first if needed.
+function renderGalleryCanvas(eDef){
+  const canvas = document.getElementById('epic-'+eDef.id);
+  if(!canvas) return;
+  const imgSrc = eDef.img||'QueenElizabeth.jpg';
+  const im = gimg(imgSrc);
+  const draw = ()=>{ drawEnemyToGalleryCanvas(canvas, eDef); };
+  if(!im._bad && im.complete && im.naturalWidth>0){ draw(); }
+  else if(!im._bad){ im.addEventListener('load', draw, {once:true}); }
+  else { draw(); } // fallback text render
+}
+
 function traceEnemyBodyPath(sz, heart){
   ctx.beginPath();
   if(heart){
