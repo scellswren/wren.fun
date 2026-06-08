@@ -2040,10 +2040,10 @@ const ED = {
   gigaLizzy:        {id:'gigaLizzy',        name:'Giga Lizzy',                         hp:300,  spd:50,  sr:40, tint:null,      init:'GL',   col:'#ef9a9a', scale:4, boss:true},
   queenVictoria:    {id:'queenVictoria',    name:'Queen Victoria',                     hp:1000, spd:40,  sr:60, tint:null,      init:'QV',   col:'#c9a227', scale:4, boss:true, img:'QueenV.jpg', nameScale:1.35},
   kingCharles:      {id:'kingCharles',      name:'King Charles',                       hp:6000, spd:40,  sr:80, tint:null,      init:'KC',   col:'#d7b65a', scale:4.5, boss:true, img:'KingCH.jpg', nameScale:1.25},
-  rishiSunak:       {id:'rishiSunak',       name:'Rishi Sunak',                        hp:900,  spd:320, sr:90, tint:'iron',    init:'RS',   col:'#b0bec5', scale:4.7, boss:true, camo:true, lead:true, img:'Rishi.jpg'},
+  rishiSunak:       {id:'rishiSunak',       name:'Rishi Sunak',                        hp:900,  spd:320, sr:90, tint:'iron',    init:'RS',   col:'#b0bec5', scale:4.7, boss:true, rishiCamo:true, rishiLead:true, img:'Rishi.jpg'},
   reinforcedIron:   {id:'reinforcedIron',   name:'Reinforced Iron Queen Elizabeth',     hp:120,  spd:60,  sr:38, tint:'iron',    init:'RI',   col:'#d7b65a', scale:1.18, reinforced:true, onDeath:'splitRainbow'},
   reinforcedIronHeart:{id:'reinforcedIronHeart',name:'Reinforced Regenerating Iron Queen Elizabeth', hp:120, spd:60, sr:49, tint:'iron', init:'RRI', col:'#d7b65a', scale:1.24, reinforced:true, regen:4, onDeath:'splitRainbow'},
-  reinforcedRishi:  {id:'reinforcedRishi',  name:'Reinforced Rishi Sunak',              hp:1350, spd:320, sr:102,tint:'iron',    init:'RRS',  col:'#e0e0e0', scale:4.7, boss:true, reinforced:true, camo:true, lead:true, img:'Rishi.jpg'},
+  reinforcedRishi:  {id:'reinforcedRishi',  name:'Reinforced Rishi Sunak',              hp:1350, spd:320, sr:102,tint:'iron',    init:'RRS',  col:'#e0e0e0', scale:4.7, boss:true, reinforced:true, rishiCamo:true, rishiLead:true, img:'Rishi.jpg'},
   reinforcedGiga:   {id:'reinforcedGiga',   name:'Reinforced Giga Lizzy',               hp:450,  spd:50,  sr:52, tint:null,      init:'RGL',  col:'#d7b65a', scale:4.3, boss:true, reinforced:true},
   reinforcedVictoria:{id:'reinforcedVictoria',name:'Reinforced Queen Victoria',         hp:1500, spd:40,  sr:72, tint:null,      init:'RQV',  col:'#d7b65a', scale:4.3, boss:true, img:'QueenV.jpg', nameScale:1.2, reinforced:true},
   reinforcedCharles:{id:'reinforcedCharles',name:'Reinforced King Charles',             hp:9000, spd:40,  sr:92, tint:null,      init:'RKC',  col:'#f0c040', scale:4.9, boss:true, img:'KingCH.jpg', nameScale:1.15, reinforced:true},
@@ -2068,7 +2068,7 @@ const ENEMY_GALLERY_ORDER = [
   'gigaLizzy','reinforcedGiga',
   'queenVictoria','reinforcedVictoria',
   'kingCharles','reinforcedCharles',
-  'rishiSunak','rishiSunakCamo','reinforcedRishi','reinforcedRishiCamo',
+  'rishiSunak','reinforcedRishi',
   'winstonChurchill','reinforcedWinston'
 ];
 
@@ -2101,7 +2101,7 @@ function getEnemyGalleryEntries(){
 }
 
 // Bosses that do NOT get a camo variant (too large / story bosses, or already IS a camo)
-const NO_CAMO_BOSS_IDS = new Set(['gigaLizzy','queenVictoria','kingCharles','reinforcedGiga','reinforcedVictoria','reinforcedCharles','rishiSunak','reinforcedRishi','winstonChurchill','reinforcedWinston']);
+const NO_CAMO_BOSS_IDS = new Set(['gigaLizzy','queenVictoria','kingCharles','reinforcedGiga','reinforcedVictoria','reinforcedCharles','winstonChurchill','reinforcedWinston']);
 
 // The round each camo variant first appears (sr field on the camo enemy)
 // Starts at round 24 for weakest, all unlocked by round 50 (except Rishi who is already camo)
@@ -2123,7 +2123,7 @@ const BASE_ENEMY_IDS = Object.keys(ED);
 function registerEnemyVariants(){
   BASE_ENEMY_IDS.forEach(id=>{
     const e=ED[id];
-    if(!e || e.lead || e.camo) return;
+    if(!e || e.lead || e.camo || e.rishiLead || e.rishiCamo) return;
     if(NO_CAMO_BOSS_IDS.has(id)) return;
     const camoSr = CAMO_SPAWN_ROUNDS[id] ?? Math.min(50, e.sr + 10);
     ED[id+'Camo']={
@@ -2152,7 +2152,7 @@ const CAMO_FADEOUT_ROUNDS = {
 
 function camoUnlockRoundFor(id){
   const e=ED[id];
-  if(!e || e.lead) return Infinity;
+  if(!e || e.lead || e.rishiLead) return Infinity;
   if(NO_CAMO_BOSS_IDS.has(id)) return Infinity;
   // Use the camo variant's own sr field (set in registerEnemyVariants)
   const camoId=id+'Camo';
@@ -2165,7 +2165,7 @@ function maybeCamoEnemyId(id,rnd){ return id; }
 // Returns true if this enemy id is eligible to become camo for a given round
 function isCamoEligible(id, rnd){
   const e=ED[id];
-  if(!e || e.lead || e.camo || e.boss) return false;
+  if(!e || e.lead || e.camo || e.rishiLead || e.rishiCamo || e.boss) return false;
   if(NO_CAMO_BOSS_IDS.has(id)) return false;
   const camoId=id+'Camo';
   if(!ED[camoId]) return false;
@@ -2598,8 +2598,8 @@ function canTowerAffectEnemy(stats, enemy, tower){
   const wfBuff=tower ? getWrenFunStatsForTower(tower) : null;
   const canSeeC=stats.canSeeCamo||(wfBuff&&wfBuff.grantCamoVision);
   const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
-  if(enemy.camo && !canSeeC) return false;
-  if(enemy.lead && !stats.explosive && !stats.canHitLead && !canHitAll) return false;
+  if((enemy.camo||enemy.rishiCamo) && !canSeeC) return false;
+  if((enemy.lead||enemy.rishiLead) && !stats.explosive && !stats.canHitLead && !canHitAll) return false;
   return true;
 }
 function isBlackAndWhiteEnemy(enemy){
@@ -3015,25 +3015,22 @@ function showSub(type){
     groups.forEach(({base,variants})=>{
       const hasVariants=variants.length>0;
       const hpCol=base.boss?'#e57368':base.hp>=80?'#c9a227':base.hp>=40?'#ff7043':base.hp>=20?'#f48fb1':base.hp>=10?'#e53935':base.hp>=5?'#81c784':base.hp>=2?'#64b5f6':'#aaa';
-      const isRishi=base.id==='rishiSunak'||base.id==='reinforcedRishi';
-      const accentCol=base.camo&&!isRishi?'#39ff14':(base.reinforced?'#f0c040':(base.boss?'#e57368':hpCol));
+      const accentCol=base.camo?'#39ff14':(base.reinforced?'#f0c040':(base.boss?'#e57368':hpCol));
 
       function enemyCardHtml(e,isVariant){
         const eHpCol=e.boss?'#e57368':e.hp>=80?'#c9a227':e.hp>=40?'#ff7043':e.hp>=20?'#f48fb1':e.hp>=10?'#e53935':e.hp>=5?'#81c784':e.hp>=2?'#64b5f6':'#aaa';
         const eRegen=getRegenRate(e);
         const eIsCamo=e.camo;
-        const eIsRishi=e.id==='rishiSunak'||e.id==='reinforcedRishi';
+        const eIsRishi=!!(e.rishiCamo||e.rishiLead); // used for trait line only
         // Badges — check all relevant properties
         const badges=[];
         if(e.boss&&!e.reinforced) badges.push(`<span class="ebadge" style="color:#e57368;background:#e5736818;border-color:#e5736844">Boss</span>`);
         if(e.reinforced) badges.push(`<span class="ebadge" style="color:#f0c040;background:#f0c04018;border-color:#f0c04044">⚔ Reinforced</span>`);
         if(eRegen) badges.push(`<span class="ebadge" style="color:#4caf50;background:#4caf5018;border-color:#4caf5044">♥ Regenerating</span>`);
-        if(eIsCamo) badges.push(eIsRishi
-          ?`<span class="ebadge" style="color:#b0bec5;background:#b0bec518;border-color:#b0bec544">Camo</span>`
-          :`<span class="ebadge" style="color:#39ff14;background:#39ff1418;border-color:#39ff1466">🌿 Camo</span>`);
+        if(e.camo) badges.push(`<span class="ebadge" style="color:#39ff14;background:#39ff1418;border-color:#39ff1466">🌿 Camo</span>`);
         if(e.lead) badges.push(`<span class="ebadge" style="color:#aeb8c2;background:#aeb8c218;border-color:#aeb8c244">Lead</span>`);
         // Border styling — no glow in gallery, just clean colour border
-        const borderCol=e.reinforced?'#f0c04088':(eIsRishi?'#c8964044':(e.lead?'#aeb8c266':(eIsCamo&&!eIsRishi?'#39ff1466':'#c8964044')));
+        const borderCol=e.reinforced?'#f0c04088':(e.lead?'#aeb8c266':(e.camo?'#39ff1466':'#c8964044'));
         return `<div class="enemy-card-row${isVariant?' variant-row':''}">
           <canvas id="epic-${e.id}" width="64" height="64" style="width:64px;height:64px;flex-shrink:0;border-radius:6px;border:2px solid ${borderCol};background:#0c0a06;display:block"></canvas>
           <div class="enemy-info">
@@ -3045,9 +3042,9 @@ function showSub(type){
               <span><span class="es-label">Round</span><span class="es-val" style="color:${eHpCol}">${e.sr}</span></span>
               <span><span class="es-label">Reward</span><span class="es-val" style="color:#f0c040">$${e.hp}</span></span>
               ${eRegen?`<span><span class="es-label">Regen</span><span class="es-val" style="color:#4caf50">+${eRegen}/s</span></span>`:''}
-              ${eIsCamo&&!eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#39ff14">Camo</span></span>`:''}
-              ${eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#b0bec5">Lead · Camo</span></span>`:''}
-              ${e.lead&&!eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#aeb8c2">Explosion only</span></span>`:''}
+              ${eIsCamo?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#39ff14">Camo</span></span>`:''}
+              ${e.rishiCamo?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#b0bec5">Camo · Fast · Lead</span></span>`:''}
+              ${e.lead?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#aeb8c2">Explosion only</span></span>`:''}
             </div>
           </div>
         </div>`;
@@ -3335,8 +3332,7 @@ function drawEnemyToGalleryCanvas(canvas, eDef){
     }
 
     // Border
-    const isRishi = eDef.id==='rishiSunak'||eDef.id==='reinforcedRishi';
-    if(eDef.camo && !isRishi){
+    if(eDef.camo){
       gc.save();
       gc.shadowColor='#39ff14'; gc.shadowBlur=14;
       gc.strokeStyle='#39ff14'; gc.lineWidth=2.8;
@@ -4407,7 +4403,7 @@ function spawnEnemy(id, opts){
     tint:d.tint,init:d.init,col:d.col,
     scale:d.scale||1,boss:d.boss||false,
     reinforced:d.reinforced||false,heart:Boolean(d.heart||regen),
-    camo:!!d.camo,lead:!!d.lead,
+    camo:!!d.camo,lead:!!d.lead,rishiCamo:!!d.rishiCamo,rishiLead:!!d.rishiLead,
     x:opts&&opts.x!=null?opts.x:PPTS[0].x,
     y:opts&&opts.y!=null?opts.y:PPTS[0].y,
     pi:opts&&opts.pi!=null?opts.pi:0,
@@ -6859,9 +6855,7 @@ function drawEnemies(){
       }
 
       // Border
-      const isRishiCamo=e.camo&&(e.defId==='rishiSunak'||e.defId==='reinforcedRishi'||e.defId==='rishiSunakCamo'||e.defId==='reinforcedRishiCamo');
-      const isRishiBase=e.defId==='rishiSunak'||e.defId==='reinforcedRishi';
-      if(e.camo&&!isRishiCamo){
+      if(e.camo){
         // Neon glowing green outline for camo enemies
         ctx.save();
         const neonGlow=0.55+Math.sin((e.t||0)*4)*0.2;
@@ -6877,7 +6871,7 @@ function drawEnemies(){
         ctx.lineWidth=1.2;
         traceEnemyBodyPath(sz,isHeart);ctx.stroke();
         ctx.restore();
-      } else if(e.lead&&!isRishiBase){
+      } else if(e.lead){
         // Pulsing glowing grey outline for Lead Queen Elizabeth
         ctx.save();
         const leadPulse=0.6+Math.sin((e.t||0)*3.5)*0.25;
