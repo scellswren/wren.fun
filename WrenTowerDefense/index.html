@@ -2083,19 +2083,19 @@ const MAPS = {
       return pts;
     })(),
     waterShapes:[
-      {name:'main',points:[[10.45,6.15],[11.25,4.95],[12.85,4.3],[14.95,4.15],[16.95,4.65],[18.25,5.85],[18.92,7.65],[18.65,9.35],[17.65,10.72],[15.92,11.42],[13.95,11.32],[12.2,10.55],[11.05,9.22],[10.45,7.62]]},
-      {name:'skate-cove',points:[[2.0,3.45],[2.72,2.78],[3.82,2.65],[4.75,3.12],[5.06,4.08],[4.62,5.05],[3.5,5.48],[2.38,5.12],[1.82,4.35]]},
-      {name:'bluehole',points:[[24.1,7.12],[25.28,6.38],[26.72,6.65],[27.3,7.75],[26.78,8.98],[25.32,9.28],[24.22,8.62],[23.72,7.78]]},
-      {name:'fishing-pocket',points:[[23.18,13.55],[24.15,12.92],[25.4,13.08],[26.02,14.12],[25.62,15.12],[24.4,15.5],[23.25,14.92],[22.82,14.15]]}
+      {name:'main',points:[[15.6,6.4],[16.8,6.1],[18.1,6.5],[19.1,7.5],[19.5,8.9],[19.2,10.3],[18.2,11.3],[16.8,11.8],[15.4,11.6],[14.3,10.7],[13.8,9.4],[13.9,8.0],[14.6,7.0]]},
+      {name:'skate-cove',points:[[2.1,3.2],[3.0,2.55],[4.1,2.45],[5.1,2.95],[5.5,3.95],[5.05,5.0],[3.8,5.5],[2.55,5.15],[1.95,4.2]]},
+      {name:'bluehole',points:[[23.8,6.8],[25.1,5.95],[26.7,6.28],[27.4,7.5],[26.85,8.85],[25.2,9.2],[23.95,8.45],[23.4,7.5]]},
+      {name:'fishing-pocket',points:[[22.9,13.3],[24.0,12.6],[25.4,12.82],[26.1,13.95],[25.65,15.05],[24.3,15.5],[23.1,14.85],[22.62,13.95]]}
     ],
     waterRects:[
-      {x:10.45,y:4.15,w:8.5,h:7.3,kind:'water'},
+      {x:13.2,y:5.9,w:6.1,h:6.0,kind:'water'},
       {x:1.82,y:2.65,w:3.25,h:2.85,kind:'water'},
       {x:23.72,y:6.38,w:3.6,h:2.95,kind:'water'},
       {x:22.82,y:12.92,w:3.22,h:2.6,kind:'water'},
     ],
     noBuildRects:[
-      {x:10.45,y:4.15,w:8.5,h:7.3,kind:'water'},
+      {x:13.2,y:5.9,w:6.1,h:6.0,kind:'water'},
       {x:1.82,y:2.65,w:3.25,h:2.85,kind:'water'},
       {x:23.72,y:6.38,w:3.6,h:2.95,kind:'water'},
       {x:22.82,y:12.92,w:3.22,h:2.6,kind:'water'},
@@ -4178,71 +4178,115 @@ function traceFrozenPath(g,path){
 
 function drawFrozenOrganicLake(g,shape,detail){
   const b=frozenShapeBounds(shape);
-  const glow=g.createRadialGradient(b.cx-b.w*.22,b.cy-b.h*.28,0,b.cx,b.cy,Math.max(b.w,b.h)*.72);
-  glow.addColorStop(0,'#93f5ff');
-  glow.addColorStop(.38,'#1ba3da');
-  glow.addColorStop(.72,'#075eab');
-  glow.addColorStop(1,'#023265');
   g.save();
-  g.fillStyle='rgba(2,38,94,0.25)';
-  traceFrozenShape(g,shape,0,CELL*.13);
+
+  // ── Drop shadow beneath the lake ──
+  g.shadowColor='rgba(4,30,80,0.55)';
+  g.shadowBlur=detail?20:9;
+  g.shadowOffsetY=detail?5:2;
+  g.fillStyle='rgba(4,30,80,0.01)'; // transparent fill just to trigger shadow
+  traceFrozenShape(g,shape,0,CELL*.18);
   g.fill();
-  g.shadowColor='rgba(11,84,150,0.42)';
-  g.shadowBlur=detail?18:8;
-  g.fillStyle=glow;
+  g.shadowBlur=0; g.shadowOffsetY=0;
+
+  // ── Deep water base gradient ──
+  const deep=g.createRadialGradient(b.cx-b.w*.15,b.cy-b.h*.2,b.w*.04,b.cx+b.w*.05,b.cy+b.h*.08,Math.max(b.w,b.h)*.68);
+  deep.addColorStop(0,'#a8ecff');
+  deep.addColorStop(.18,'#38c0e8');
+  deep.addColorStop(.44,'#0a82c8');
+  deep.addColorStop(.72,'#034f96');
+  deep.addColorStop(1,'#011e55');
   traceFrozenShape(g,shape,0,0);
+  g.fillStyle=deep;
   g.fill();
-  g.shadowBlur=0;
+
+  // ── Clip all interior detail to the lake shape ──
   g.save();
   traceFrozenShape(g,shape,0,0);
   g.clip();
-  for(let i=0;i<(detail?14:6);i++){
-    const y=b.y+b.h*(.14+((i*23)%74)/100);
-    const x=b.x+b.w*((i*41)%90/100);
-    g.strokeStyle=`rgba(210,250,255,${detail?(.14+i*.006):.16})`;
-    g.lineWidth=detail?2.2:1.4;
+
+  // ── Sub-surface colour depth blobs ──
+  const depthSpots=shape.name==='main'?5:2;
+  for(let i=0;i<depthSpots;i++){
+    const fx=.18+((i*37)%66)/100, fy=.22+((i*53)%58)/100;
+    const rx=b.w*(.18+((i*29)%22)/100), ry=b.h*(.16+((i*41)%18)/100);
+    const dg=g.createRadialGradient(b.x+b.w*fx,b.y+b.h*fy,0,b.x+b.w*fx,b.y+b.h*fy,Math.max(rx,ry));
+    dg.addColorStop(0,'rgba(0,20,70,0.28)');
+    dg.addColorStop(1,'rgba(0,20,70,0)');
+    g.fillStyle=dg;
     g.beginPath();
-    g.moveTo(x-b.w*.22,y);
-    g.bezierCurveTo(x-b.w*.05,y-b.h*.16,x+b.w*.08,y+b.h*.13,x+b.w*.28,y-b.h*.04);
-    g.stroke();
-  }
-  for(let i=0;i<(detail?28:10);i++){
-    const x=b.x+b.w*((i*37+11)%100)/100, y=b.y+b.h*((i*53+7)%100)/100;
-    const r=(detail?2.4:1.4)+(i%4);
-    g.fillStyle=`rgba(230,255,255,${.12+(i%5)*.025})`;
-    g.beginPath();
-    g.arc(x,y,r,0,Math.PI*2);
+    g.ellipse(b.x+b.w*fx,b.y+b.h*fy,rx,ry,i*.4,0,Math.PI*2);
     g.fill();
   }
-  g.restore();
-  g.lineJoin='round';
-  g.strokeStyle='rgba(218,250,255,0.72)';
-  g.lineWidth=detail?5:2.5;
+
+  // ── Ice surface overlay (semi-transparent milky white on top of water) ──
+  const ice=g.createLinearGradient(b.x,b.y,b.x+b.w*.6,b.y+b.h);
+  ice.addColorStop(0,'rgba(255,255,255,0.38)');
+  ice.addColorStop(.35,'rgba(220,248,255,0.18)');
+  ice.addColorStop(.7,'rgba(180,230,255,0.08)');
+  ice.addColorStop(1,'rgba(100,180,230,0.04)');
+  g.fillStyle=ice;
   traceFrozenShape(g,shape,0,0);
-  g.stroke();
-  g.strokeStyle='rgba(28,111,176,0.55)';
-  g.lineWidth=detail?1.7:1;
-  traceFrozenShape(g,shape,0,0);
-  g.stroke();
-  if(detail){
-    const shardCount=shape.name==='main'?30:12;
-    for(let i=0;i<shardCount;i++){
-      const a=(i/shardCount)*Math.PI*2;
-      const rx=b.w*.52, ry=b.h*.52;
-      const x=b.cx+Math.cos(a)*rx*.94, y=b.cy+Math.sin(a)*ry*.94;
-      g.save();
-      g.translate(x,y);
-      g.rotate(a+Math.PI/2);
-      g.fillStyle=i%3?'rgba(218,250,255,0.58)':'rgba(184,231,255,0.46)';
-      g.beginPath();
-      g.moveTo(0,-CELL*.18);
-      g.lineTo(CELL*.12,CELL*.14);
-      g.lineTo(-CELL*.12,CELL*.13);
-      g.closePath();
-      g.fill();
-      g.restore();
+  g.fill();
+
+  // ── Ice cracks ──
+  const crackCount=detail?(shape.name==='main'?18:8):4;
+  const rng=(seed)=>((seed*16807+1)%2147483647)/2147483647;
+  for(let i=0;i<crackCount;i++){
+    const sx=b.x+b.w*rng(i*7+1), sy=b.y+b.h*rng(i*13+3);
+    const alpha=detail?(.18+rng(i*5)*.22):(.10+rng(i*5)*.12);
+    g.strokeStyle=`rgba(255,255,255,${alpha})`;
+    g.lineWidth=detail?(rng(i*3)>.6?1.8:0.9):0.7;
+    g.lineCap='round';
+    g.beginPath();
+    g.moveTo(sx,sy);
+    let cx=sx,cy=sy;
+    const segments=detail?Math.floor(rng(i*11)*3)+2:2;
+    for(let s=0;s<segments;s++){
+      const nx=cx+b.w*(.04+rng(i*17+s*3)*.09)*(rng(i+s*2)>.5?1:-1);
+      const ny=cy+b.h*(.03+rng(i*19+s*5)*.07)*(rng(i*3+s)>.5?1:-1);
+      g.lineTo(nx,ny);
+      // branch off occasionally
+      if(detail&&rng(i*23+s)>.65){
+        g.moveTo(nx,ny);
+        g.lineTo(nx+b.w*(.02+rng(i*29+s)*.04)*(rng(s*7)>.5?1:-1),
+                 ny+b.h*(.02+rng(i*31+s)*.04)*(rng(s*11)>.5?1:-1));
+        g.moveTo(nx,ny);
+      }
+      cx=nx; cy=ny;
     }
+    g.stroke();
   }
+
+  // ── Light shimmer reflections ──
+  const shimmerCount=detail?(shape.name==='main'?10:5):3;
+  for(let i=0;i<shimmerCount;i++){
+    const sx=b.x+b.w*rng(i*7+2), sy=b.y+b.h*rng(i*11+4);
+    const rw=b.w*(.05+rng(i*13)*.1), rh=b.h*(.02+rng(i*17)*.04);
+    const sg=g.createRadialGradient(sx,sy,0,sx,sy,Math.max(rw,rh));
+    sg.addColorStop(0,`rgba(255,255,255,${detail?.28:.18})`);
+    sg.addColorStop(1,'rgba(255,255,255,0)');
+    g.fillStyle=sg;
+    g.beginPath();
+    g.ellipse(sx,sy,rw,rh,rng(i*19)*.8-.4,0,Math.PI*2);
+    g.fill();
+  }
+
+  g.restore(); // end clip
+
+  // ── Bright frosted rim ──
+  g.strokeStyle=detail?'rgba(240,252,255,0.82)':'rgba(240,252,255,0.55)';
+  g.lineWidth=detail?3.5:1.8;
+  g.lineJoin='round';
+  traceFrozenShape(g,shape,0,0);
+  g.stroke();
+
+  // ── Darker inner edge line for depth ──
+  g.strokeStyle='rgba(10,70,140,0.45)';
+  g.lineWidth=detail?2:1;
+  traceFrozenShape(g,shape,0,0);
+  g.stroke();
+
   g.restore();
 }
 
@@ -4464,24 +4508,36 @@ function drawFrozenLakePath(){
     ctx.moveTo(PPTS[0].x,PPTS[0].y);
     for(let i=1;i<PPTS.length;i++) ctx.lineTo(PPTS[i].x,PPTS[i].y);
   }
+  const W=COLS*CELL, H=ROWS*CELL;
   ctx.save();
   ctx.lineCap='round'; ctx.lineJoin='round';
-  // Path shadow
-  ctx.lineWidth=CELL*.92; ctx.strokeStyle='rgba(0,30,90,0.45)';
-  ctx.shadowColor='rgba(0,0,0,0.35)'; ctx.shadowBlur=8; ctx.shadowOffsetY=3;
+
+  // Deep shadow beneath path
+  ctx.lineWidth=CELL*.98; ctx.strokeStyle='rgba(0,20,60,0.5)';
+  ctx.shadowColor='rgba(0,10,40,0.6)'; ctx.shadowBlur=12; ctx.shadowOffsetY=4;
   tracePath(); ctx.stroke();
   ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
-  // Ice surface of path
-  const ig=ctx.createLinearGradient(0,0,COLS*CELL,ROWS*CELL);
-  ig.addColorStop(0,'#daf0ff');ig.addColorStop(.5,'#c8e8f8');ig.addColorStop(1,'#d8f0ff');
-  ctx.lineWidth=CELL*.84; ctx.strokeStyle=ig;
+
+  // Base ice — cool blue-white, not pure white
+  const ig=ctx.createLinearGradient(0,0,W,H);
+  ig.addColorStop(0,'#cde8f5'); ig.addColorStop(.5,'#b8d8ee'); ig.addColorStop(1,'#c5e2f4');
+  ctx.lineWidth=CELL*.86; ctx.strokeStyle=ig;
   tracePath(); ctx.stroke();
-  // Inner worn groove
-  ctx.lineWidth=CELL*.42; ctx.strokeStyle='rgba(160,220,255,0.45)';
+
+  // Compressed ice centre — slightly darker/bluer, shows the skate track wear
+  ctx.lineWidth=CELL*.54; ctx.strokeStyle='rgba(140,195,228,0.55)';
   tracePath(); ctx.stroke();
-  // Edge shimmer
-  ctx.lineWidth=CELL*.18; ctx.strokeStyle='rgba(255,255,255,0.65)';
+
+  // Fine edge highlight lines (both sides implied by thin bright centre)
+  ctx.lineWidth=CELL*.12; ctx.strokeStyle='rgba(255,255,255,0.7)';
   tracePath(); ctx.stroke();
+
+  // Dashed lane markers
+  ctx.setLineDash([CELL*.55, CELL*.38]);
+  ctx.lineWidth=CELL*.055; ctx.strokeStyle='rgba(180,220,245,0.5)';
+  tracePath(); ctx.stroke();
+  ctx.setLineDash([]);
+
   ctx.restore();
 }
 
@@ -4491,53 +4547,44 @@ function drawMapFrozenLake(){
   // Clip everything to the map rectangle so shadows/glows never bleed outside
   ctx.save();
   ctx.beginPath(); ctx.rect(0,0,W,H); ctx.clip();
-  const bg=ctx.createRadialGradient(W*.48,H*.44,0,W*.48,H*.44,Math.max(W,H)*.78);
-  bg.addColorStop(0,'#dffbff');
-  bg.addColorStop(.35,'#bcecf7');
-  bg.addColorStop(.68,'#7ec7e6');
-  bg.addColorStop(1,'#3d8ac4');
+  // ── Deep atmospheric ice background ──
+  const bg=ctx.createLinearGradient(0,0,W*.6,H);
+  bg.addColorStop(0,'#c8e8f5');
+  bg.addColorStop(.3,'#aed6ed');
+  bg.addColorStop(.65,'#8bbdd8');
+  bg.addColorStop(1,'#6da3c8');
   ctx.fillStyle=bg;
   ctx.fillRect(0,0,W,H);
 
+  // ── Subtle directional light overlay (top-left bright, bottom-right cool shadow) ──
+  const light=ctx.createLinearGradient(0,0,W*.75,H*.65);
+  light.addColorStop(0,'rgba(255,255,255,0.22)');
+  light.addColorStop(.45,'rgba(200,230,248,0.08)');
+  light.addColorStop(1,'rgba(80,130,180,0.18)');
+  ctx.fillStyle=light; ctx.fillRect(0,0,W,H);
 
-
-  const frostColors=['rgba(255,255,255,.28)','rgba(132,210,235,.16)','rgba(31,132,188,.13)','rgba(238,252,255,.20)'];
-  for(let i=0;i<360;i++){
-    const fx=(i*149.31+41)%W, fy=(i*97.73+23)%H;
-    ctx.save();
-    ctx.translate(fx,fy);
-    ctx.rotate(((i*37)%180)*Math.PI/180);
-    ctx.fillStyle=frostColors[i%frostColors.length];
+  // ── Snow drift patches ──
+  const rng2=(s)=>((s*16807+1)%2147483647)/2147483647;
+  ctx.save();
+  for(let i=0;i<28;i++){
+    const x=(i*337.1+55)%W, y=(i*211.9+33)%H;
+    const dg=ctx.createRadialGradient(x,y,0,x,y,CELL*(1.2+rng2(i*7)*.9));
+    dg.addColorStop(0,`rgba(255,255,255,${.14+rng2(i*11)*.12})`);
+    dg.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=dg;
     ctx.beginPath();
-    ctx.ellipse(0,0,CELL*(.08+(i%7)*.018),CELL*(.018+(i%5)*.007),0,0,Math.PI*2);
+    ctx.ellipse(x,y,CELL*(1.4+rng2(i*13)*.8),CELL*(.5+rng2(i*17)*.4),rng2(i*19)*Math.PI,0,Math.PI*2);
     ctx.fill();
-    ctx.restore();
   }
+  ctx.restore();
 
-  for(let i=0;i<42;i++){
-    const x=(i*181+77)%W, y=(i*113+29)%H;
-    const len=CELL*(.32+(i%5)*.18);
-    ctx.strokeStyle=`rgba(32,124,184,${.12+(i%4)*.035})`;
-    ctx.lineWidth=i%3===0?1.7:1;
-    ctx.beginPath();
-    ctx.moveTo(x,y);
-    ctx.lineTo(x+Math.cos(i*.83)*len,y+Math.sin(i*.83)*len*.55);
-    if(i%4===0){
-      ctx.moveTo(x+len*.34,y+len*.08);
-      ctx.lineTo(x+len*.62,y-len*.22);
-    }
-    ctx.stroke();
+  // Helper: true if pixel (px,py) is within minDist pixels of any path point
+  const TRACK_CLEAR=43; // half path width (~23px) + 20px buffer
+  function tooCloseToPath(px,py,extra){
+    const d=TRACK_CLEAR+(extra||0);
+    for(const pt of PPTS){ const dx=pt.x-px,dy=pt.y-py; if(dx*dx+dy*dy<d*d) return true; }
+    return false;
   }
-
-  [{x:W*.17,y:H*.25,rx:CELL*2.8,ry:CELL*.92,rot:.22,a:.46},
-   {x:W*.31,y:H*.56,rx:CELL*2.5,ry:CELL*.8,rot:-.34,a:.28},
-   {x:W*.50,y:H*.45,rx:CELL*5.9,ry:CELL*2.1,rot:-.18,a:.34},
-   {x:W*.73,y:H*.19,rx:CELL*2.4,ry:CELL*.78,rot:.22,a:.25},
-   {x:W*.80,y:H*.73,rx:CELL*2.0,ry:CELL*.72,rot:-.12,a:.28}
-  ].forEach(s=>{
-    const c=Math.floor(s.x/CELL), r=Math.floor(s.y/CELL);
-    if(!BLOCKED.has(`${c},${r}`)) drawFrozenSkateCurl(ctx,s.x,s.y,s.rx,s.ry,s.rot,s.a);
-  });
 
   (map.waterShapes||[]).forEach(shape=>drawFrozenOrganicLake(ctx,shape,true));
 
@@ -4546,27 +4593,40 @@ function drawMapFrozenLake(){
     ctx.save();
     ctx.translate(tx,ty);
     ctx.rotate((lean||0)*Math.PI/180);
-    ctx.fillStyle='rgba(0,47,88,.20)';
-    ctx.beginPath(); ctx.ellipse(CELL*.08*scale,h*.82,CELL*.34*scale,CELL*.1*scale,0,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#5a351d';
-    ctx.fillRect(-CELL*.045*scale,h*.42,CELL*.09*scale,h*.38);
+    // Ground shadow
+    ctx.fillStyle='rgba(0,30,70,.22)';
+    ctx.beginPath(); ctx.ellipse(CELL*.06*scale,h*.86,CELL*.38*scale,CELL*.09*scale,.1,0,Math.PI*2); ctx.fill();
+    // Trunk
+    const tg=ctx.createLinearGradient(-CELL*.05*scale,0,CELL*.05*scale,0);
+    tg.addColorStop(0,'#3a2010'); tg.addColorStop(.5,'#5c3518'); tg.addColorStop(1,'#2e1a0c');
+    ctx.fillStyle=tg;
+    ctx.fillRect(-CELL*.048*scale,h*.44,CELL*.096*scale,h*.4);
+    // Layers — dark forest green, not bright
     [
-      {y:h*.58,r:CELL*.44},{y:h*.42,r:CELL*.36},{y:h*.26,r:CELL*.28},{y:h*.12,r:CELL*.19}
+      {y:h*.60,r:CELL*.46},{y:h*.44,r:CELL*.37},{y:h*.28,r:CELL*.28},{y:h*.13,r:CELL*.18}
     ].forEach((l,idx)=>{
-      ctx.fillStyle=idx%2?'#1b5128':'#266633';
+      // Dark side (right)
+      ctx.fillStyle=idx%2?'#112e18':'#183820';
       ctx.beginPath();
-      ctx.moveTo(0,l.y-l.r*.72);
-      ctx.lineTo(l.r,l.y+l.r*.23);
-      ctx.lineTo(-l.r,l.y+l.r*.23);
-      ctx.closePath();
-      ctx.fill();
-      const sg=ctx.createLinearGradient(-l.r,l.y-l.r*.5,l.r,l.y);
-      sg.addColorStop(0,'rgba(255,255,255,.96)');
-      sg.addColorStop(.55,'rgba(236,248,255,.82)');
-      sg.addColorStop(1,'rgba(186,224,241,.48)');
+      ctx.moveTo(0,l.y-l.r*.75);
+      ctx.lineTo(l.r,l.y+l.r*.26);
+      ctx.lineTo(-l.r,l.y+l.r*.26);
+      ctx.closePath(); ctx.fill();
+      // Light side (left highlight)
+      ctx.fillStyle=idx%2?'#1e4a28':'#244f2e';
+      ctx.beginPath();
+      ctx.moveTo(0,l.y-l.r*.75);
+      ctx.lineTo(-l.r*.05,l.y+l.r*.26);
+      ctx.lineTo(-l.r,l.y+l.r*.26);
+      ctx.closePath(); ctx.fill();
+      // Snow on top — not pure white, slightly blue-tinted
+      const sg=ctx.createLinearGradient(-l.r*.6,l.y-l.r*.5,l.r*.3,l.y);
+      sg.addColorStop(0,'rgba(235,248,255,.95)');
+      sg.addColorStop(.5,'rgba(210,235,250,.75)');
+      sg.addColorStop(1,'rgba(170,210,235,.3)');
       ctx.fillStyle=sg;
       ctx.beginPath();
-      ctx.ellipse(-l.r*.1,l.y-l.r*.46,l.r*.7,l.r*.16,-.04,0,Math.PI*2);
+      ctx.ellipse(-l.r*.08,l.y-l.r*.48,l.r*.65,l.r*.15,-.06,0,Math.PI*2);
       ctx.fill();
     });
     ctx.restore();
@@ -4592,74 +4652,53 @@ function drawMapFrozenLake(){
   }
 
   [
-    [35,76,1.05,-4],[72,155,.82,5],[42,307,1.12,2],[84,520,.98,-5],[44,730,1.06,3],
+    [35,76,1.05,-4],[72,155,.82,5],[42,307,1.12,2],[44,730,1.06,3],
     [178,35,.82,-2],[340,38,.72,4],[585,28,.68,-3],[1115,32,.74,2],[1265,34,.78,-4],
     [1468,87,1.02,3],[1517,202,.82,-5],[1478,356,1.08,4],[1512,594,.93,-3],[1470,770,1.02,5],
     [178,888,.84,-2],[374,904,.7,4],[650,892,.76,-4],[910,898,.82,3],[1195,892,.72,-2],
     [390,220,.72,-5],[1160,190,.67,3],[1014,654,.64,-2],[286,665,.66,2]
-  ].forEach(p=>{
-    const cx=Math.floor(p[0]/CELL), cy=Math.floor(p[1]/CELL);
-    // Check centre + immediate neighbours so no part of the tree overlaps the path
-    let onPath=false;
-    for(let dc=-1;dc<=1&&!onPath;dc++) for(let dr=-1;dr<=1&&!onPath;dr++) if(BLOCKED.has(`${cx+dc},${cy+dr}`)) onPath=true;
-    if(!onPath) drawSnowPine(p[0],p[1],p[2],p[3]);
-  });
+  ].forEach(p=>{ if(!tooCloseToPath(p[0],p[1])) drawSnowPine(p[0],p[1],p[2],p[3]); });
 
-  {const bx=W-CELL*3.25,by=CELL*1.06,cx=Math.floor(bx/CELL),cy=Math.floor(by/CELL);let ok=true;for(let dc=-1;dc<=1&&ok;dc++)for(let dr=-1;dr<=1&&ok;dr++)if(BLOCKED.has(`${cx+dc},${cy+dr}`))ok=false;if(ok)drawFrozenCabin(ctx,bx,by,.86);}
-  {const bx=CELL*6.55,by=H-CELL*1.24,cx=Math.floor(bx/CELL),cy=Math.floor(by/CELL);let ok=true;for(let dc=-1;dc<=1&&ok;dc++)for(let dr=-1;dr<=1&&ok;dr++)if(BLOCKED.has(`${cx+dc},${cy+dr}`))ok=false;if(ok)drawFrozenCabin(ctx,bx,by,.7);}
+  if(!tooCloseToPath(W-CELL*3.25,CELL*1.06,10)) drawFrozenCabin(ctx,W-CELL*3.25,CELL*1.06,.86);
+  if(!tooCloseToPath(CELL*6.55,H-CELL*1.24,10)) drawFrozenCabin(ctx,CELL*6.55,H-CELL*1.24,.7);
 
   [
     [CELL*7.6,CELL*4.0,.7],[CELL*9.1,CELL*15.4,.55],[CELL*19.4,CELL*13.0,.62],[CELL*22.2,CELL*5.3,.58],
     [CELL*27.2,CELL*10.4,.66],[CELL*3.4,CELL*8.4,.48],[CELL*12.2,CELL*2.7,.52],[CELL*21.1,CELL*15.7,.56]
-  ].forEach(r=>{
-    const cx=Math.floor(r[0]/CELL), cy=Math.floor(r[1]/CELL);
-    let onPath=false;
-    for(let dc=-1;dc<=1&&!onPath;dc++) for(let dr=-1;dr<=1&&!onPath;dr++) if(BLOCKED.has(`${cx+dc},${cy+dr}`)) onPath=true;
-    if(!onPath) drawFrozenRock(r[0],r[1],r[2]);
-  });
+  ].forEach(r=>{ if(!tooCloseToPath(r[0],r[1])) drawFrozenRock(r[0],r[1],r[2]); });
 
   for(let i=0;i<78;i++){
     const x=(i*271+93)%W, y=(i*157+61)%H;
     const nearEdge=x<CELL*1.4||x>W-CELL*1.4||y<CELL*1.3||y>H-CELL*1.3;
     if(!nearEdge&&i%3) continue;
-    ctx.fillStyle=i%2?'rgba(255,255,255,.62)':'rgba(205,234,247,.45)';
+    ctx.fillStyle=i%2?'rgba(255,255,255,.55)':'rgba(205,234,247,.35)';
     ctx.beginPath();
-    ctx.ellipse(x,y,CELL*(.16+(i%4)*.04),CELL*(.055+(i%3)*.018),((i*23)%180)*Math.PI/180,0,Math.PI*2);
+    ctx.ellipse(x,y,CELL*(.14+(i%4)*.035),CELL*(.04+(i%3)*.014),((i*23)%180)*Math.PI/180,0,Math.PI*2);
     ctx.fill();
   }
 
   drawFrozenLakePath();
 
+  // ── Sparse snow sparkle dots ──
   ctx.save();
-  ctx.fillStyle='rgba(255,255,255,.74)';
-  for(let i=0;i<55;i++){
+  ctx.fillStyle='rgba(255,255,255,.82)';
+  for(let i=0;i<40;i++){
     const x=(i*229+17)%W, y=(i*173+31)%H;
-    if(i%4===0) continue;
-    ctx.beginPath();
-    ctx.arc(x,y,1.3+(i%3)*.45,0,Math.PI*2);
-    ctx.fill();
+    if(i%3===0) continue;
+    ctx.beginPath(); ctx.arc(x,y,1.0+(i%3)*.35,0,Math.PI*2); ctx.fill();
   }
   ctx.restore();
 
-  const topShine=ctx.createLinearGradient(0,0,W,H*.38);
-  topShine.addColorStop(0,'rgba(255,255,255,.28)');
-  topShine.addColorStop(.62,'rgba(255,255,255,.05)');
-  topShine.addColorStop(1,'rgba(255,255,255,0)');
-  ctx.fillStyle=topShine;
-  ctx.fillRect(0,0,W,H*.44);
+  // ── Deep cool vignette ──
+  const vig=ctx.createRadialGradient(W*.5,H*.5,Math.min(W,H)*.28,W*.5,H*.5,Math.max(W,H)*.72);
+  vig.addColorStop(0,'rgba(0,0,0,0)');
+  vig.addColorStop(.6,'rgba(0,30,70,0.12)');
+  vig.addColorStop(1,'rgba(0,15,50,0.48)');
+  ctx.fillStyle=vig; ctx.fillRect(0,0,W,H);
 
-  const vig=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.32,W/2,H/2,Math.max(W,H)*.78);
-  vig.addColorStop(0,'rgba(0,50,100,0)');
-  vig.addColorStop(.78,'rgba(0,44,94,.16)');
-  vig.addColorStop(1,'rgba(0,24,68,.38)');
-  ctx.fillStyle=vig;
-  ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='rgba(218,249,255,.72)';
-  ctx.lineWidth=5;
-  ctx.strokeRect(2.5,2.5,W-5,H-5);
-  ctx.strokeStyle='rgba(0,66,128,.55)';
-  ctx.lineWidth=2;
-  ctx.strokeRect(8,8,W-16,H-16);
+  // ── Frost border ──
+  ctx.strokeStyle='rgba(190,235,255,0.55)'; ctx.lineWidth=6; ctx.strokeRect(3,3,W-6,H-6);
+  ctx.strokeStyle='rgba(60,120,180,0.4)'; ctx.lineWidth=2; ctx.strokeRect(7,7,W-14,H-14);
   ctx.restore(); // end map clip
 }
 
