@@ -2594,13 +2594,25 @@ function triggerBigBoom(towerId){
 function getEnemyBaseId(id){
   return id.endsWith('Camo') ? id.slice(0,-4) : id;
 }
-function canTowerAffectEnemy(stats, enemy, tower){
+// Can this tower see and target the enemy? (camo blocks targeting; lead does NOT — towers can still shoot at leads)
+function canTowerTargetEnemy(stats, enemy, tower){
   const wfBuff=tower ? getWrenFunStatsForTower(tower) : null;
   const canSeeC=stats.canSeeCamo||(wfBuff&&wfBuff.grantCamoVision);
   const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
-  if((enemy.camo||enemy.rishiCamo) && !canSeeC) return false;
+  if((enemy.camo||enemy.rishiCamo) && !canSeeC && !canHitAll) return false;
+  return true;
+}
+// Can this tower actually damage the enemy? (lead blocks damage unless tower is explosive/canHitLead)
+function canTowerDamageEnemy(stats, enemy, tower){
+  if(!canTowerTargetEnemy(stats,enemy,tower)) return false;
+  const wfBuff=tower ? getWrenFunStatsForTower(tower) : null;
+  const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
   if((enemy.lead||enemy.rishiLead) && !stats.explosive && !stats.canHitLead && !canHitAll) return false;
   return true;
+}
+// Legacy alias — used by damageEnemy; checks full damage eligibility
+function canTowerAffectEnemy(stats, enemy, tower){
+  return canTowerDamageEnemy(stats, enemy, tower);
 }
 function isBlackAndWhiteEnemy(enemy){
   const baseId=getEnemyBaseId(enemy&&enemy.defId||enemy&&enemy.id||'');
@@ -5052,7 +5064,7 @@ function getTargetsInRange(t, stats){
   const effectiveRange=getEffectiveRangeForTower(t);
   const inRange=S.enemies.filter(e=>{
     if(e.dead||e.reached) return false;
-    if(!canTowerAffectEnemy(stats,e,t)) return false;
+    if(!canTowerTargetEnemy(stats,e,t)) return false;
     const dx=e.x-t.x,dy=e.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
     return dist<=effectiveRange||effectiveRange>=9999;
   });
