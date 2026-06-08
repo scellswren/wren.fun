@@ -223,6 +223,49 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .map-preview{width:100%;display:block;background:#0a0a0a}
 .map-name{font-family:'Cinzel',serif;color:var(--gold);font-size:1.05rem;padding:.55rem .8rem .2rem}
 .map-desc{color:var(--muted);font-size:.82rem;padding:0 .8rem .8rem;line-height:1.5}
+
+/* ── SHOP TABS ── */
+.mshop-tabs{display:flex;gap:0;border-bottom:1px solid #ff220033;position:sticky;top:82px;
+  background:linear-gradient(180deg,#1a1008f8,#10100af8);backdrop-filter:blur(8px);z-index:9;}
+.mshop-tab{font-family:'Cinzel',serif;font-size:.82rem;font-weight:700;letter-spacing:.08em;
+  padding:.55em 1.5em;border:none;background:none;color:var(--muted);cursor:pointer;
+  border-bottom:2px solid transparent;transition:all .18s;position:relative;top:1px;}
+.mshop-tab:hover{color:var(--text);}
+.mshop-tab.active{color:#ff4422;border-bottom-color:#ff4422;background:linear-gradient(180deg,#ff220010,transparent);}
+.mshop-tab-panel{display:none;}
+.mshop-tab-panel.active{display:flex;flex-direction:column;gap:1rem;}
+
+/* ── MAPS SHOP CARDS ── */
+.mshop-map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:1.2rem;width:min(100%,940px);align-self:center;padding:.2rem 0;}
+.mshop-mapcard{border:1px solid #4a8fc044;background:linear-gradient(135deg,#0d1520ee,#0a1018ee);
+  border-radius:6px;overflow:hidden;transition:all .22s;cursor:default;}
+.mshop-mapcard.unlocked{cursor:pointer;}
+.mshop-mapcard.unlocked:hover{border-color:#7ec8e388;box-shadow:0 0 22px #4a8fc033;transform:translateY(-2px);}
+.mshop-mapcard.locked{opacity:.7;}
+.mshop-map-preview{width:100%;height:130px;display:block;background:#07111a;}
+.mshop-map-info{padding:.65rem .85rem .75rem;}
+.mshop-map-name{font-family:'Cinzel',serif;font-size:.95rem;color:#7ec8e3;margin-bottom:.25rem;letter-spacing:.04em;}
+.mshop-map-desc{font-size:.76rem;color:var(--muted);line-height:1.5;margin-bottom:.55rem;}
+.mshop-map-price{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.4rem;}
+.mshop-map-shard{display:flex;align-items:center;gap:.3rem;font-family:'Cinzel',serif;font-size:.8rem;
+  color:#a78bfa;background:#7c3aed14;border:1px solid #7c3aed44;padding:.2em .6em;border-radius:3px;}
+.mshop-map-buy{font-family:'Cinzel',serif;font-size:.78rem;font-weight:700;letter-spacing:.06em;
+  padding:.45em 1.3em;border:1px solid #7ec8e355;background:linear-gradient(135deg,#4a8fc018,#2a6a8a0a);
+  color:#7ec8e3;cursor:pointer;transition:all .2s;
+  clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);}
+.mshop-map-buy:hover{background:linear-gradient(135deg,#4a8fc035,#2a6a8a20);box-shadow:0 0 16px #4a8fc044;}
+.mshop-map-buy:disabled{opacity:.38;cursor:not-allowed;}
+.mshop-map-buy.owned{border-color:#4caf5077;color:#4caf50;background:#4caf5012;cursor:default;}
+.mshop-map-tag{font-size:.62rem;padding:.12em .42em;border-radius:3px;font-family:'Cinzel',serif;
+  letter-spacing:.04em;display:inline-block;margin-right:.25rem;margin-bottom:.22rem;}
+.mshop-map-tag.winter{background:#1a3a5a22;border:1px solid #7ec8e355;color:#7ec8e3;}
+.mshop-map-tag.water{background:#0a2a4a22;border:1px solid #4a9fc355;color:#4a9fc3;}
+.mshop-map-tag.new{background:#2a1a0022;border:1px solid #f0c04055;color:var(--gold);}
+
+/* Frozen lake mapcard in game select */
+.mapcard.frozen{border-color:#4a8fc055;}
+.mapcard.frozen:hover{border-color:#7ec8e3;box-shadow:0 0 28px #4a8fc055;}
 #mapSelectScreen{flex-direction:column;align-items:center;justify-content:center;
   background:radial-gradient(ellipse 90% 80% at 50% 35%,#1f4a1f,#0d200d 55%,#030803 100%)}
 #modeSelectScreen{flex-direction:column;align-items:center;justify-content:center;
@@ -853,6 +896,11 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
         <div class="map-name">🪵 Log Forest</div>
         <div class="map-desc">A golden forest maze of hollow logs, muddy trails, and a glowing central pond.</div>
       </div>
+      <div class="mapcard frozen" onclick="G.trySelectFrozenLake()" id="mc-frozenlake" style="display:none">
+        <canvas class="map-preview" id="prev-frozenlake" width="280" height="160"></canvas>
+        <div class="map-name">❄️ Frozen Lake</div>
+        <div class="map-desc">A glittering skate-trail battlefield with carved snowbanks, deep blue lake pockets, cabins, pines, and a dry winding ice road.</div>
+      </div>
     </div>
     <button class="mbtn" style="margin-top:1.4rem;font-size:.85rem;min-width:140px" onclick="G.showScreen('menuScreen')">← Back</button>
   </div>
@@ -1002,6 +1050,10 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
       <div class="mshop-title">🛒 Shop</div>
       <div class="mshop-shards">💎 <span id="mshopShardCount">0</span> Rare Shards</div>
       <span class="mshop-close" onclick="G.closeMenuShop()">✕</span>
+    </div>
+    <div class="mshop-tabs">
+      <button class="mshop-tab active" id="mshopTabTowers" onclick="G.switchShopTab('towers')">⚔ Towers</button>
+      <button class="mshop-tab" id="mshopTabMaps" onclick="G.switchShopTab('maps')">🗺 Maps</button>
     </div>
     <div class="mshop-body" id="mshopBody">
       <!-- populated by JS -->
@@ -1486,8 +1538,12 @@ function updateMenuMusicToggleVisibility(screenId){
   }
 }
 function updateShardHud(){
-  const el=document.getElementById('shardHudCount');
-  if(el) el.textContent=formatNum(CAREER.rareShards||0);
+  const shards=CAREER.rareShards||0;
+  const text=formatNum(shards);
+  const hudEl=document.getElementById('shardHudCount');
+  if(hudEl) hudEl.textContent=text;
+  const shopEl=document.getElementById('mshopShardCount');
+  if(shopEl) shopEl.textContent=text;
 }
 function toggleMusicPopup(){
   const popup=document.getElementById('musicPopup');
@@ -1565,17 +1621,96 @@ function getMenuShopCountdown(targetDate){
   return parts.join(' ');
 }
 
+// ── MENU SHOP MAPS ──
+const MENU_SHOP_MAPS = [
+  {
+    id:'map_frozenlake',
+    mapId:'frozenlake',
+    name:'Frozen Lake',
+    shardCost:10,
+    desc:'A premium frozen lake battlefield inspired by skate trails: organic blue lake pockets, snowy pine borders, cabins, rocks, and a dry winding ice road.',
+    tags:['winter','water','new'],
+    preview:'frozenlake'
+  }
+];
+
+let _activeShopTab = 'towers';
+
+function switchShopTab(tab){
+  _activeShopTab = tab;
+  document.querySelectorAll('.mshop-tab').forEach(el=>{
+    el.classList.toggle('active', el.id==='mshopTab'+tab.charAt(0).toUpperCase()+tab.slice(1));
+  });
+  renderMenuShopBody();
+}
+
 function showMenuShop(){
   CAREER=loadCareer();
   if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
+  _activeShopTab='towers';
   const overlay=document.getElementById('menuShopOverlay');
   overlay.classList.add('open');
-  const shardEl=document.getElementById('mshopShardCount');
-  if(shardEl) shardEl.textContent=CAREER.rareShards||0;
-  renderMenuShopItems();
+  updateShardHud();
+  // Reset tab buttons
+  document.querySelectorAll('.mshop-tab').forEach(el=>{
+    el.classList.toggle('active', el.id==='mshopTabTowers');
+  });
+  renderMenuShopBody();
 }
 function closeMenuShop(){
   document.getElementById('menuShopOverlay').classList.remove('open');
+}
+
+function renderMenuShopBody(){
+  if(_activeShopTab==='towers') renderMenuShopItems();
+  else renderMenuShopMaps();
+}
+
+function renderMenuShopMaps(){
+  const body=document.getElementById('mshopBody');
+  if(!body) return;
+  body.innerHTML='';
+  if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
+  const section=document.createElement('div');
+  section.innerHTML='<div class="mshop-section-title">🗺 Available Maps</div>';
+  body.appendChild(section);
+  const grid=document.createElement('div');
+  grid.className='mshop-map-grid';
+  MENU_SHOP_MAPS.forEach(item=>{
+    const owned=!!(CAREER.shopUnlocks[item.id]);
+    const canAfford=(CAREER.rareShards||0)>=item.shardCost;
+    const card=document.createElement('div');
+    card.className='mshop-mapcard'+(owned?' unlocked':' locked');
+    // Preview canvas
+    const previewId='mshop-prev-'+item.id;
+    const tagsHtml=(item.tags||[]).map(t=>`<span class="mshop-map-tag ${t}">${t==='winter'?'❄ Winter':t==='water'?'💧 Water':t==='new'?'✨ New':t}</span>`).join('');
+    card.innerHTML=`
+      <canvas class="mshop-map-preview" id="${previewId}" width="280" height="130"></canvas>
+      <div class="mshop-map-info">
+        <div style="margin-bottom:.3rem">${tagsHtml}</div>
+        <div class="mshop-map-name">❄️ ${item.name}</div>
+        <div class="mshop-map-desc">${owned?item.desc:'Purchase to reveal map details.'}</div>
+        <div class="mshop-map-price">
+          <div class="mshop-map-shard">💎 ${item.shardCost} Rare Shard${item.shardCost!==1?'s':''}</div>
+        </div>
+        ${owned
+          ?`<button class="mshop-map-buy owned" disabled>✓ Unlocked</button>`
+          :`<button class="mshop-map-buy" id="mshop-mapbuy-${item.id}" ${canAfford?'':'disabled'}>${canAfford?'Purchase':'Need '+item.shardCost+' Rare Shards'}</button>`
+        }
+      </div>`;
+    if(!owned){
+      const buyBtn=card.querySelector('#mshop-mapbuy-'+item.id);
+      if(buyBtn&&canAfford){
+        buyBtn.addEventListener('click',()=>purchaseMapItem(item));
+      }
+    }
+    grid.appendChild(card);
+    // Render preview after DOM insert
+    requestAnimationFrame(()=>{
+      renderMapPreview(item.preview, previewId);
+    });
+  });
+  body.appendChild(grid);
 }
 function renderMenuShopItems(){
   const body=document.getElementById('mshopBody');
@@ -1633,6 +1768,22 @@ function renderMenuShopItems(){
   });
 }
 
+function purchaseMapItem(item){
+  CAREER=loadCareer();
+  if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
+  if(CAREER.shopUnlocks[item.id]) return;
+  if(item.shardCost&&(CAREER.rareShards||0)<item.shardCost){
+    showToast('Not enough Rare Shards!','#e57368');
+    return;
+  }
+  if(item.shardCost) CAREER.rareShards=(CAREER.rareShards||0)-item.shardCost;
+  CAREER.shopUnlocks[item.id]=true;
+  saveCareer(CAREER);
+  updateShardHud();
+  renderMenuShopMaps();
+  showToast('Frozen Lake unlocked! Find it in Map Select.','#7ec8e3');
+}
+
 function purchaseShopItem(item){
   CAREER=loadCareer();
   if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
@@ -1645,8 +1796,6 @@ function purchaseShopItem(item){
   CAREER.shopUnlocks[item.id]=true;
   saveCareer(CAREER);
   updateShardHud();
-  const shardEl=document.getElementById('mshopShardCount');
-  if(shardEl) shardEl.textContent=CAREER.rareShards||0;
   renderMenuShopItems();
   showToast('Farmer Orin unlocked!','#8bc34a');
 }
@@ -1898,6 +2047,61 @@ const MAPS = {
     noBuildRects:[
       LOG_FOREST_POND
     ]
+  },
+  frozenlake: {
+    name:'Frozen Lake',
+    shopUnlockOnly:true,
+    path:(()=>{
+      // Curved path using float coordinates for smooth bends
+      const pts = [];
+      const addCurve = (x0,y0,x1,y1,x2,y2,steps) => {
+        for(let i=1;i<=steps;i++){
+          const t=i/steps;
+          const mt=1-t;
+          pts.push([mt*mt*x0+2*mt*t*x1+t*t*x2, mt*mt*y0+2*mt*t*y1+t*t*y2]);
+        }
+      };
+      // Start: left edge row 9
+      pts.push([0,10.6]);
+      // First gentle S-curve sweep right and up
+      addCurve(0,10.6, 2.2,10.2, 4.4,11.2, 14);
+      // Curve around a water section — dip south
+      addCurve(4.4,11.2, 6.7,12.8, 9.4,12.4, 16);
+      // Straight run right across ice
+      addCurve(9.4,12.4, 11.2,14.9, 14.5,14.6, 18);
+      // Big arc bend curving around the central lake — go south
+      addCurve(14.5,14.6, 18.7,14.2, 20.7,11.3, 22);
+      // Curve west briefly then south again
+      addCurve(20.7,11.3, 22.0,8.6, 20.5,6.3, 20);
+      // Curve east — lower lane crossing
+      addCurve(20.5,6.3, 19.4,4.2, 21.9,3.1, 18);
+      // North-east arc curving back up around eastern lake
+      addCurve(21.9,3.1, 25.2,2.6, 27.1,4.1, 18);
+      // Final straight run to right edge
+      addCurve(27.1,4.1, 28.2,4.8, 29,5.6, 10);
+      pts.push([29,5.6]);
+      return pts;
+    })(),
+    waterShapes:[
+      {name:'main',points:[[10.45,6.15],[11.25,4.95],[12.85,4.3],[14.95,4.15],[16.95,4.65],[18.25,5.85],[18.92,7.65],[18.65,9.35],[17.65,10.72],[15.92,11.42],[13.95,11.32],[12.2,10.55],[11.05,9.22],[10.45,7.62]]},
+      {name:'skate-cove',points:[[2.0,3.45],[2.72,2.78],[3.82,2.65],[4.75,3.12],[5.06,4.08],[4.62,5.05],[3.5,5.48],[2.38,5.12],[1.82,4.35]]},
+      {name:'bluehole',points:[[24.1,7.12],[25.28,6.38],[26.72,6.65],[27.3,7.75],[26.78,8.98],[25.32,9.28],[24.22,8.62],[23.72,7.78]]},
+      {name:'fishing-pocket',points:[[23.18,13.55],[24.15,12.92],[25.4,13.08],[26.02,14.12],[25.62,15.12],[24.4,15.5],[23.25,14.92],[22.82,14.15]]}
+    ],
+    waterRects:[
+      {x:10.45,y:4.15,w:8.5,h:7.3,kind:'water'},
+      {x:1.82,y:2.65,w:3.25,h:2.85,kind:'water'},
+      {x:23.72,y:6.38,w:3.6,h:2.95,kind:'water'},
+      {x:22.82,y:12.92,w:3.22,h:2.6,kind:'water'},
+    ],
+    noBuildRects:[
+      {x:10.45,y:4.15,w:8.5,h:7.3,kind:'water'},
+      {x:1.82,y:2.65,w:3.25,h:2.85,kind:'water'},
+      {x:23.72,y:6.38,w:3.6,h:2.95,kind:'water'},
+      {x:22.82,y:12.92,w:3.22,h:2.6,kind:'water'},
+      {x:25.78,y:1.05,w:2.15,h:1.15,kind:'decor'},
+      {x:5.7,y:15.0,w:1.8,h:1.35,kind:'decor'},
+    ]
   }
 };
 
@@ -1927,6 +2131,18 @@ function buildDecorBlockers(mapId){
     treePositions.forEach(([fx,fy,sc])=>add(fx,fy,0.42*sc));
     LOG_FOREST_BUSHES.forEach(b=>add(b.x/COLS,b.y/ROWS,0.34*b.scale));
     // Slightly wider no-build zones for the existing bushes/trees so towers can't clip them.
+  } else if(mapId==='frozenlake'){
+    const frozenDecor=[
+      [35/W,76/H,0.36],[72/W,155/H,0.28],[42/W,307/H,0.38],[84/W,520/H,0.34],[44/W,730/H,0.36],
+      [178/W,35/H,0.28],[340/W,38/H,0.25],[585/W,28/H,0.23],[1115/W,32/H,0.25],[1265/W,34/H,0.27],
+      [1468/W,87/H,0.35],[1517/W,202/H,0.28],[1478/W,356/H,0.37],[1512/W,594/H,0.32],[1470/W,770/H,0.35],
+      [178/W,888/H,0.29],[374/W,904/H,0.24],[650/W,892/H,0.26],[910/W,898/H,0.28],[1195/W,892/H,0.25],
+      [390/W,220/H,0.25],[1160/W,190/H,0.23],[1014/W,654/H,0.22],[286/W,665/H,0.23],
+      [7.6/COLS,4.0/ROWS,0.28],[9.1/COLS,15.4/ROWS,0.22],[19.4/COLS,13.0/ROWS,0.25],[22.2/COLS,5.3/ROWS,0.23],
+      [27.2/COLS,10.4/ROWS,0.26],[3.4/COLS,8.4/ROWS,0.2],[12.2/COLS,2.7/ROWS,0.21],[21.1/COLS,15.7/ROWS,0.22],
+      [(COLS-3.25)/COLS,1.06/ROWS,0.52],[6.55/COLS,(ROWS-1.24)/ROWS,0.42]
+    ];
+    frozenDecor.forEach(([fx,fy,r])=>add(fx,fy,r));
   }
   return out;
 }
@@ -1939,7 +2155,7 @@ function setMap(mapId){
   DECOR_BLOCKERS=buildDecorBlockers(mapId);
   // For grassy: block path + 1-tile padding for BLOCKED grid set
   // For autumn: path uses float coords so skip grid BLOCKED entirely — canPlaceAt uses PPTS distance
-  if(mapId!=='autumn'){
+  if(mapId!=='autumn'&&mapId!=='frozenlake'){
     PATH.forEach(([c,r])=>{
       for(let dc=-1;dc<=1;dc++) for(let dr=-1;dr<=1;dr++) BLOCKED.add(`${c+dc},${r+dr}`);
     });
@@ -3500,13 +3716,32 @@ function showDiffSelect(mapId){
 
 function showMapSelect(mode, backFromDiff){
   pendingGameMode=mode||pendingGameMode||'classic';
+  // Show/hide frozen lake card based on unlock
+  CAREER=loadCareer();
+  const frozenCard=document.getElementById('mc-frozenlake');
+  if(frozenCard){
+    const unlocked=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_frozenlake']);
+    frozenCard.style.display=unlocked?'flex':'none';
+  }
   // Render map previews then show screen
   showScreen('mapSelectScreen');
   requestAnimationFrame(()=>{
     renderMapPreview('grassy','prev-grassy');
     renderMapPreview('autumn','prev-autumn');
     renderMapPreview('logforest','prev-logforest');
+    if(frozenCard&&frozenCard.style.display!=='none'){
+      renderMapPreview('frozenlake','prev-frozenlake');
+    }
   });
+}
+
+function trySelectFrozenLake(){
+  CAREER=loadCareer();
+  if(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_frozenlake']){
+    showDiffSelect('frozenlake');
+  } else {
+    showToast('Unlock Frozen Lake in the Shop first!','#7ec8e3');
+  }
 }
 
 function renderMapPreview(mapId,canvasId){
@@ -3699,6 +3934,17 @@ function renderMapPreview(mapId,canvasId){
     ptx.beginPath();
     ptx.ellipse(W*.5,H*.34,W*.24,H*.18,0,0,Math.PI*2);
     ptx.fill();
+  } else if(mapId==='frozenlake'){
+    // Frozen lake background: icy blue-white
+    const bg=ptx.createLinearGradient(0,0,W,H);
+    bg.addColorStop(0,'#c8e8f8'); bg.addColorStop(.4,'#a8d4ee'); bg.addColorStop(1,'#8ac0e0');
+    ptx.fillStyle=bg; ptx.fillRect(0,0,W,H);
+    // Ice texture shimmers
+    ptx.fillStyle='rgba(255,255,255,0.28)';
+    for(let i=0;i<30;i++){
+      const x=(i*137)%W, y=(i*97)%H;
+      ptx.beginPath(); ptx.ellipse(x,y,4+(i%5),1.5,((i*47)%180)*Math.PI/180,0,Math.PI*2); ptx.fill();
+    }
   } else {
     const bg=ptx.createLinearGradient(0,0,W,H);
     bg.addColorStop(0,'#3e7a34'); bg.addColorStop(1,'#375f2e');
@@ -3715,6 +3961,7 @@ function renderMapPreview(mapId,canvasId){
   ptx.translate(offsetX,offsetY);
   if(isAutumn) drawAutumnRoadUnified(ptx,{preview:true});
   else if(isLogForest) drawForestPreviewRoad(ptx,MAPS[mapId]);
+  else if(mapId==='frozenlake') drawFrozenLakePreviewRoad(ptx);
   else drawGrassyPreviewRoad(ptx,MAPS[mapId].path);
   ptx.restore();
 }
@@ -3900,6 +4147,564 @@ function drawForestPreviewRoad(ptx,map){
   LOG_FOREST_MUSHROOMS.forEach(p=>drawMushroomPreview(p.x,p.y,p.scale));
   LOG_FOREST_LOGS.forEach(p=>drawLogPreview(p.x,p.y,p.angle,p.scale));
   ptx.restore();
+}
+
+function frozenShapeBounds(shape){
+  const xs=shape.points.map(p=>p[0]*CELL), ys=shape.points.map(p=>p[1]*CELL);
+  const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
+  return {x:minX,y:minY,w:maxX-minX,h:maxY-minY,cx:(minX+maxX)/2,cy:(minY+maxY)/2};
+}
+
+function traceFrozenShape(g,shape,ox,oy){
+  ox=ox||0; oy=oy||0;
+  const pts=shape.points.map(([x,y])=>({x:x*CELL+ox,y:y*CELL+oy}));
+  g.beginPath();
+  const firstMid={x:(pts[pts.length-1].x+pts[0].x)/2,y:(pts[pts.length-1].y+pts[0].y)/2};
+  g.moveTo(firstMid.x,firstMid.y);
+  for(let i=0;i<pts.length;i++){
+    const p=pts[i], n=pts[(i+1)%pts.length];
+    g.quadraticCurveTo(p.x,p.y,(p.x+n.x)/2,(p.y+n.y)/2);
+  }
+  g.closePath();
+}
+
+function traceFrozenPath(g,path){
+  g.beginPath();
+  path.forEach(([c,r],i)=>{
+    const px=c*CELL+CELL/2, py=r*CELL+CELL/2;
+    i===0?g.moveTo(px,py):g.lineTo(px,py);
+  });
+}
+
+function drawFrozenOrganicLake(g,shape,detail){
+  const b=frozenShapeBounds(shape);
+  const glow=g.createRadialGradient(b.cx-b.w*.22,b.cy-b.h*.28,0,b.cx,b.cy,Math.max(b.w,b.h)*.72);
+  glow.addColorStop(0,'#93f5ff');
+  glow.addColorStop(.38,'#1ba3da');
+  glow.addColorStop(.72,'#075eab');
+  glow.addColorStop(1,'#023265');
+  g.save();
+  g.fillStyle='rgba(2,38,94,0.25)';
+  traceFrozenShape(g,shape,0,CELL*.13);
+  g.fill();
+  g.shadowColor='rgba(11,84,150,0.42)';
+  g.shadowBlur=detail?18:8;
+  g.fillStyle=glow;
+  traceFrozenShape(g,shape,0,0);
+  g.fill();
+  g.shadowBlur=0;
+  g.save();
+  traceFrozenShape(g,shape,0,0);
+  g.clip();
+  for(let i=0;i<(detail?14:6);i++){
+    const y=b.y+b.h*(.14+((i*23)%74)/100);
+    const x=b.x+b.w*((i*41)%90/100);
+    g.strokeStyle=`rgba(210,250,255,${detail?(.14+i*.006):.16})`;
+    g.lineWidth=detail?2.2:1.4;
+    g.beginPath();
+    g.moveTo(x-b.w*.22,y);
+    g.bezierCurveTo(x-b.w*.05,y-b.h*.16,x+b.w*.08,y+b.h*.13,x+b.w*.28,y-b.h*.04);
+    g.stroke();
+  }
+  for(let i=0;i<(detail?28:10);i++){
+    const x=b.x+b.w*((i*37+11)%100)/100, y=b.y+b.h*((i*53+7)%100)/100;
+    const r=(detail?2.4:1.4)+(i%4);
+    g.fillStyle=`rgba(230,255,255,${.12+(i%5)*.025})`;
+    g.beginPath();
+    g.arc(x,y,r,0,Math.PI*2);
+    g.fill();
+  }
+  g.restore();
+  g.lineJoin='round';
+  g.strokeStyle='rgba(218,250,255,0.72)';
+  g.lineWidth=detail?5:2.5;
+  traceFrozenShape(g,shape,0,0);
+  g.stroke();
+  g.strokeStyle='rgba(28,111,176,0.55)';
+  g.lineWidth=detail?1.7:1;
+  traceFrozenShape(g,shape,0,0);
+  g.stroke();
+  if(detail){
+    const shardCount=shape.name==='main'?30:12;
+    for(let i=0;i<shardCount;i++){
+      const a=(i/shardCount)*Math.PI*2;
+      const rx=b.w*.52, ry=b.h*.52;
+      const x=b.cx+Math.cos(a)*rx*.94, y=b.cy+Math.sin(a)*ry*.94;
+      g.save();
+      g.translate(x,y);
+      g.rotate(a+Math.PI/2);
+      g.fillStyle=i%3?'rgba(218,250,255,0.58)':'rgba(184,231,255,0.46)';
+      g.beginPath();
+      g.moveTo(0,-CELL*.18);
+      g.lineTo(CELL*.12,CELL*.14);
+      g.lineTo(-CELL*.12,CELL*.13);
+      g.closePath();
+      g.fill();
+      g.restore();
+    }
+  }
+  g.restore();
+}
+
+function drawFrozenSkateCurl(g,x,y,rx,ry,rot,alpha){
+  g.save();
+  g.translate(x,y);
+  g.rotate(rot);
+  g.strokeStyle=`rgba(239,253,255,${alpha})`;
+  g.lineWidth=2;
+  g.beginPath();
+  g.ellipse(0,0,rx,ry,0,.12,Math.PI*1.82);
+  g.stroke();
+  g.strokeStyle=`rgba(116,202,235,${alpha*.42})`;
+  g.lineWidth=1;
+  g.beginPath();
+  g.ellipse(rx*.05,ry*.04,rx*.73,ry*.73,0,.28,Math.PI*1.55);
+  g.stroke();
+  g.restore();
+}
+
+function drawFrozenPreviewPine(g,x,y,s){
+  g.save();
+  g.translate(x,y);
+  g.scale(s,s);
+  g.fillStyle='rgba(0,63,96,.2)';
+  g.beginPath(); g.ellipse(2,13,9,3,0,0,Math.PI*2); g.fill();
+  g.fillStyle='#245d2d';
+  for(let i=0;i<3;i++){
+    g.beginPath();
+    g.moveTo(0,-14+i*9);
+    g.lineTo(12-i*2,7+i*5);
+    g.lineTo(-12+i*2,7+i*5);
+    g.closePath();
+    g.fill();
+    g.fillStyle='rgba(247,253,255,.92)';
+    g.beginPath(); g.ellipse(0,-7+i*9,8-i,2.6,0,0,Math.PI*2); g.fill();
+    g.fillStyle='#245d2d';
+  }
+  g.restore();
+}
+
+function drawFrozenCabin(g,x,y,s){
+  g.save();
+  g.translate(x,y);
+  g.scale(s,s);
+  g.fillStyle='rgba(0,43,82,.24)';
+  g.beginPath(); g.ellipse(9,22,26,8,0,0,Math.PI*2); g.fill();
+  g.fillStyle='#6a381e';
+  g.fillRect(-16,-2,32,22);
+  g.fillStyle='#8b4e2a';
+  g.fillRect(-11,3,9,15);
+  g.fillStyle='#f0c977';
+  g.fillRect(5,4,8,7);
+  g.fillStyle='#f8fbff';
+  g.beginPath();
+  g.moveTo(-21,-4); g.lineTo(0,-21); g.lineTo(22,-4); g.closePath(); g.fill();
+  g.strokeStyle='#8b311d'; g.lineWidth=4;
+  g.beginPath(); g.moveTo(-18,-2); g.lineTo(0,-17); g.lineTo(19,-2); g.stroke();
+  g.fillStyle='rgba(255,255,255,.8)';
+  g.beginPath(); g.ellipse(-9,-2,8,3,0,0,Math.PI*2); g.fill();
+  g.restore();
+}
+
+function drawFrozenLakePreviewRoad(ptx){
+  const map=MAPS.frozenlake;
+  const W=COLS*CELL, H=ROWS*CELL;
+  ptx.save();
+  ptx.fillStyle='rgba(255,255,255,0.18)';
+  for(let i=0;i<55;i++){
+    const x=(i*97+11)%W, y=(i*79+23)%H;
+    ptx.beginPath();ptx.ellipse(x,y,3+(i%5),1.15,((i*53)%180)*Math.PI/180,0,Math.PI*2);ptx.fill();
+  }
+  drawFrozenSkateCurl(ptx,W*.12,H*.25,CELL*1.3,CELL*.55,.15,.44);
+  drawFrozenSkateCurl(ptx,W*.56,H*.48,CELL*4.4,CELL*1.9,-.18,.33);
+  drawFrozenSkateCurl(ptx,W*.73,H*.23,CELL*1.8,CELL*.68,.35,.24);
+  (map.waterShapes||[]).forEach(shape=>drawFrozenOrganicLake(ptx,shape,false));
+  [[18,24,.7],[34,42,.58],[47,118,.65],[W-28,24,.62],[W-42,132,.7],[W-85,22,.52],[W-116,H-18,.55],[76,H-18,.6]].forEach(p=>drawFrozenPreviewPine(ptx,p[0],p[1],p[2]));
+  drawFrozenCabin(ptx,W-74,34,.43);
+  drawFrozenCabin(ptx,121,H-31,.36);
+  ptx.lineCap='round'; ptx.lineJoin='round';
+  ptx.strokeStyle='rgba(3,42,82,.38)'; ptx.lineWidth=CELL*.98;
+  ptx.shadowColor='rgba(0,28,68,.45)'; ptx.shadowBlur=8; ptx.shadowOffsetY=3;
+  traceFrozenPath(ptx,map.path); ptx.stroke();
+  ptx.shadowColor='transparent'; ptx.shadowBlur=0; ptx.shadowOffsetY=0;
+  ptx.strokeStyle='rgba(235,251,255,.95)'; ptx.lineWidth=CELL*.84;
+  traceFrozenPath(ptx,map.path); ptx.stroke();
+  const road=ptx.createLinearGradient(0,H*.4,W,H);
+  road.addColorStop(0,'#effcff');road.addColorStop(.48,'#c7effa');road.addColorStop(1,'#f8fdff');
+  ptx.strokeStyle=road; ptx.lineWidth=CELL*.66;
+  traceFrozenPath(ptx,map.path); ptx.stroke();
+  ptx.strokeStyle='rgba(83,172,220,.32)'; ptx.lineWidth=CELL*.12;
+  ptx.setLineDash([CELL*.28,CELL*.2]);
+  traceFrozenPath(ptx,map.path); ptx.stroke();
+  ptx.setLineDash([]);
+  ptx.restore();
+}
+
+function drawMapFrozenLake(){
+  const W=COLS*CELL, H=ROWS*CELL;
+  // ── Sky/ice ground gradient ──
+  const g=ctx.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,'#cce8f8');g.addColorStop(.35,'#b0d8f0');g.addColorStop(.7,'#98c8e8');g.addColorStop(1,'#80b8e0');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+  // ── Fine ice texture ──
+  ctx.fillStyle='rgba(255,255,255,0.22)';
+  for(let i=0;i<220;i++){
+    const fx=(i*149.3+41)%W, fy=(i*97.7+23)%H;
+    ctx.save();ctx.translate(fx,fy);ctx.rotate((i%9)*0.3);
+    ctx.beginPath();ctx.ellipse(0,0,CELL*(0.12+(i%4)*0.018),CELL*(0.04+(i%3)*0.01),0,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+
+  // ── Ice crack network ──
+  ctx.strokeStyle='rgba(150,200,240,0.35)'; ctx.lineWidth=1.2;
+  for(let i=0;i<35;i++){
+    const x1=(i*177)%W, y1=(i*113)%H;
+    const x2=x1+((i%7)-3)*CELL*1.8, y2=y1+((i%5)-2)*CELL*1.4;
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  }
+
+  // ── Snow drifts along edges ──
+  for(let i=0;i<20;i++){
+    const sx=(i*137.5)%W;
+    ctx.fillStyle=`rgba(255,255,255,${0.25+((i%3)*0.08)})`;
+    ctx.beginPath();ctx.ellipse(sx,H-CELL*(0.2+(i%3)*0.12),CELL*(0.6+(i%4)*0.15),CELL*(0.12+(i%3)*0.04),0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(sx,CELL*(0.2+(i%3)*0.12),CELL*(0.55+(i%4)*0.13),CELL*(0.1+(i%2)*0.04),0,0,Math.PI*2);ctx.fill();
+  }
+
+  // ── Snow pine trees ──
+  function drawPineTree(tx,ty,scale){
+    scale=scale||1;
+    const h=CELL*1.0*scale;
+    // Shadow
+    ctx.fillStyle='rgba(0,80,160,0.18)';
+    ctx.beginPath();ctx.ellipse(tx+4,ty+h*.95,CELL*.22*scale,CELL*.07*scale,0,0,Math.PI*2);ctx.fill();
+    // Trunk
+    ctx.fillStyle='#5a3a18';
+    ctx.fillRect(tx-CELL*.04*scale,ty+h*.7,CELL*.08*scale,h*.3);
+    // Snow-laden layers (bottom to top)
+    const layers=[[0,h*.7,CELL*.36],[0,h*.5,CELL*.3],[0,h*.3,CELL*.22],[0,h*.12,CELL*.13]];
+    layers.forEach(([ox,oy,r],li)=>{
+      // Dark green inner
+      ctx.fillStyle=li===3?'#1a4a20':'#1e5a24';
+      ctx.beginPath();ctx.moveTo(tx+ox,ty+oy-r*.6);ctx.lineTo(tx+ox+r,ty+oy+r*.15);ctx.lineTo(tx+ox-r,ty+oy+r*.15);ctx.closePath();ctx.fill();
+      // Snow cap
+      ctx.fillStyle='rgba(240,250,255,0.92)';
+      ctx.beginPath();ctx.ellipse(tx+ox,ty+oy-r*.45,r*.75,r*.22,0,0,Math.PI*2);ctx.fill();
+    });
+  }
+  // Place pines avoiding path and water
+  const pinePos=[
+    [0.05,0.12,1.05],[0.09,0.45,0.88],[0.06,0.72,1.0],[0.96,0.18,0.92],[0.94,0.55,1.0],[0.97,0.82,0.88],
+    [0.18,0.04,0.8],[0.45,0.04,0.76],[0.72,0.04,0.82],[0.88,0.04,0.78],
+    [0.15,0.96,0.82],[0.42,0.96,0.76],[0.68,0.96,0.8],[0.88,0.96,0.72],
+    [0.28,0.18,0.72],[0.78,0.25,0.74]
+  ];
+  for(const [fx,fy,sc] of pinePos) drawPineTree(fx*W,fy*H,sc);
+
+  // ── Water zones ──
+  const waterZones=MAPS.frozenlake.waterRects||[];
+  waterZones.forEach(zr=>{
+    const z={x:zr.x*CELL,y:zr.y*CELL,w:zr.w*CELL,h:zr.h*CELL};
+    // Deep shadow beneath
+    ctx.fillStyle='rgba(0,40,120,0.22)';
+    ctx.beginPath();ctx.roundRect(z.x-5,z.y+6,z.w+10,z.h+10,16);ctx.fill();
+    // Deep water gradient
+    const wg=ctx.createRadialGradient(z.x+z.w*.38,z.y+z.h*.28,0,z.x+z.w/2,z.y+z.h/2,z.w*.8);
+    wg.addColorStop(0,'#5ab8f0');wg.addColorStop(.45,'#2878c8');wg.addColorStop(1,'#10508e');
+    ctx.fillStyle=wg;
+    ctx.beginPath();ctx.roundRect(z.x,z.y,z.w,z.h,14);ctx.fill();
+    // Water shimmer
+    ctx.save();ctx.beginPath();ctx.roundRect(z.x,z.y,z.w,z.h,14);ctx.clip();
+    for(let i=0;i<5;i++){
+      ctx.strokeStyle=`rgba(180,240,255,${0.14+i*0.04})`;ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.moveTo(z.x+z.w*(0.1+i*0.18),z.y+z.h*.15);
+      ctx.quadraticCurveTo(z.x+z.w*(0.3+i*0.1),z.y+z.h*.55,z.x+z.w*(0.55+i*0.09),z.y+z.h*.82);
+      ctx.stroke();
+    }
+    ctx.restore();
+    // Ice edge / border
+    ctx.strokeStyle='rgba(200,240,255,0.6)';ctx.lineWidth=2.2;
+    ctx.beginPath();ctx.roundRect(z.x,z.y,z.w,z.h,14);ctx.stroke();
+    // Ice cracks near edge
+    ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.lineWidth=1;
+    ctx.save();ctx.beginPath();ctx.roundRect(z.x,z.y,z.w,z.h,14);ctx.clip();
+    ctx.beginPath();
+    ctx.moveTo(z.x+z.w*.25,z.y+4);ctx.lineTo(z.x+z.w*.6,z.y+z.h*.35);
+    ctx.moveTo(z.x+z.w*.7,z.y+8);ctx.lineTo(z.x+z.w*.4,z.y+z.h*.5);
+    ctx.moveTo(z.x+6,z.y+z.h*.4);ctx.lineTo(z.x+z.w*.45,z.y+z.h*.8);
+    ctx.stroke();
+    ctx.restore();
+    // "Water Only" label if large enough
+    if(z.w>CELL*2&&z.h>CELL*1.5){
+      ctx.save();
+      ctx.fillStyle='rgba(200,240,255,0.65)';
+      ctx.font=`bold ${Math.max(9,Math.floor(CELL*.24))}px Cinzel,serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('💧 Water',z.x+z.w/2,z.y+z.h/2);
+      ctx.restore();
+    }
+  });
+
+  // ── Path ──
+  drawFrozenLakePath();
+
+  // ── Vignette ──
+  const vig=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.32,W/2,H/2,Math.max(W,H)*.8);
+  vig.addColorStop(0,'rgba(0,40,100,0)');vig.addColorStop(1,'rgba(0,40,100,0.38)');
+  ctx.fillStyle=vig;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(0,40,120,0.7)';ctx.lineWidth=4;ctx.strokeRect(0,0,W,H);
+}
+
+function drawFrozenLakePath(){
+  if(PPTS.length<2) return;
+  function tracePath(){
+    ctx.beginPath();
+    ctx.moveTo(PPTS[0].x,PPTS[0].y);
+    for(let i=1;i<PPTS.length;i++) ctx.lineTo(PPTS[i].x,PPTS[i].y);
+  }
+  ctx.save();
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  // Path shadow
+  ctx.lineWidth=CELL*.92; ctx.strokeStyle='rgba(0,30,90,0.45)';
+  ctx.shadowColor='rgba(0,0,0,0.35)'; ctx.shadowBlur=8; ctx.shadowOffsetY=3;
+  tracePath(); ctx.stroke();
+  ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+  // Ice surface of path
+  const ig=ctx.createLinearGradient(0,0,COLS*CELL,ROWS*CELL);
+  ig.addColorStop(0,'#daf0ff');ig.addColorStop(.5,'#c8e8f8');ig.addColorStop(1,'#d8f0ff');
+  ctx.lineWidth=CELL*.84; ctx.strokeStyle=ig;
+  tracePath(); ctx.stroke();
+  // Inner worn groove
+  ctx.lineWidth=CELL*.42; ctx.strokeStyle='rgba(160,220,255,0.45)';
+  tracePath(); ctx.stroke();
+  // Edge shimmer
+  ctx.lineWidth=CELL*.18; ctx.strokeStyle='rgba(255,255,255,0.65)';
+  tracePath(); ctx.stroke();
+  ctx.restore();
+}
+
+function drawMapFrozenLake(){
+  const W=COLS*CELL, H=ROWS*CELL;
+  const map=MAPS.frozenlake;
+  const bg=ctx.createRadialGradient(W*.48,H*.44,0,W*.48,H*.44,Math.max(W,H)*.78);
+  bg.addColorStop(0,'#dffbff');
+  bg.addColorStop(.35,'#bcecf7');
+  bg.addColorStop(.68,'#7ec7e6');
+  bg.addColorStop(1,'#3d8ac4');
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,W,H);
+
+  [
+    {x:-CELL*.8,y:-CELL*.28,w:W*.46,h:CELL*1.45,a:.92},
+    {x:W*.48,y:-CELL*.22,w:W*.55,h:CELL*1.62,a:.88},
+    {x:-CELL*.7,y:H-CELL*1.1,w:W*.43,h:CELL*1.65,a:.9},
+    {x:W*.36,y:H-CELL*1.18,w:W*.7,h:CELL*1.78,a:.86},
+    {x:-CELL*.55,y:H*.34,w:CELL*1.5,h:H*.42,a:.62},
+    {x:W-CELL*.92,y:H*.18,w:CELL*1.7,h:H*.62,a:.58}
+  ].forEach((b,i)=>{
+    const grd=ctx.createLinearGradient(b.x,b.y,b.x+b.w,b.y+b.h);
+    grd.addColorStop(0,`rgba(255,255,255,${b.a})`);
+    grd.addColorStop(.58,`rgba(238,249,255,${b.a*.82})`);
+    grd.addColorStop(1,'rgba(205,235,250,0)');
+    ctx.fillStyle=grd;
+    ctx.beginPath();
+    ctx.ellipse(b.x+b.w*.5,b.y+b.h*.5,b.w*.55,b.h*.52,(i%2?-.09:.08),0,Math.PI*2);
+    ctx.fill();
+  });
+
+  const frostColors=['rgba(255,255,255,.28)','rgba(132,210,235,.16)','rgba(31,132,188,.13)','rgba(238,252,255,.20)'];
+  for(let i=0;i<360;i++){
+    const fx=(i*149.31+41)%W, fy=(i*97.73+23)%H;
+    ctx.save();
+    ctx.translate(fx,fy);
+    ctx.rotate(((i*37)%180)*Math.PI/180);
+    ctx.fillStyle=frostColors[i%frostColors.length];
+    ctx.beginPath();
+    ctx.ellipse(0,0,CELL*(.08+(i%7)*.018),CELL*(.018+(i%5)*.007),0,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  for(let i=0;i<42;i++){
+    const x=(i*181+77)%W, y=(i*113+29)%H;
+    const len=CELL*(.32+(i%5)*.18);
+    ctx.strokeStyle=`rgba(32,124,184,${.12+(i%4)*.035})`;
+    ctx.lineWidth=i%3===0?1.7:1;
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    ctx.lineTo(x+Math.cos(i*.83)*len,y+Math.sin(i*.83)*len*.55);
+    if(i%4===0){
+      ctx.moveTo(x+len*.34,y+len*.08);
+      ctx.lineTo(x+len*.62,y-len*.22);
+    }
+    ctx.stroke();
+  }
+
+  drawFrozenSkateCurl(ctx,W*.17,H*.25,CELL*2.8,CELL*.92,.22,.46);
+  drawFrozenSkateCurl(ctx,W*.31,H*.56,CELL*2.5,CELL*.8,-.34,.28);
+  drawFrozenSkateCurl(ctx,W*.50,H*.45,CELL*5.9,CELL*2.1,-.18,.34);
+  drawFrozenSkateCurl(ctx,W*.73,H*.19,CELL*2.4,CELL*.78,.22,.25);
+  drawFrozenSkateCurl(ctx,W*.80,H*.73,CELL*2.0,CELL*.72,-.12,.28);
+
+  (map.waterShapes||[]).forEach(shape=>drawFrozenOrganicLake(ctx,shape,true));
+
+  function drawSnowPine(tx,ty,scale,lean){
+    const h=CELL*1.36*scale;
+    ctx.save();
+    ctx.translate(tx,ty);
+    ctx.rotate((lean||0)*Math.PI/180);
+    ctx.fillStyle='rgba(0,47,88,.20)';
+    ctx.beginPath(); ctx.ellipse(CELL*.08*scale,h*.82,CELL*.34*scale,CELL*.1*scale,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#5a351d';
+    ctx.fillRect(-CELL*.045*scale,h*.42,CELL*.09*scale,h*.38);
+    [
+      {y:h*.58,r:CELL*.44},{y:h*.42,r:CELL*.36},{y:h*.26,r:CELL*.28},{y:h*.12,r:CELL*.19}
+    ].forEach((l,idx)=>{
+      ctx.fillStyle=idx%2?'#1b5128':'#266633';
+      ctx.beginPath();
+      ctx.moveTo(0,l.y-l.r*.72);
+      ctx.lineTo(l.r,l.y+l.r*.23);
+      ctx.lineTo(-l.r,l.y+l.r*.23);
+      ctx.closePath();
+      ctx.fill();
+      const sg=ctx.createLinearGradient(-l.r,l.y-l.r*.5,l.r,l.y);
+      sg.addColorStop(0,'rgba(255,255,255,.96)');
+      sg.addColorStop(.55,'rgba(236,248,255,.82)');
+      sg.addColorStop(1,'rgba(186,224,241,.48)');
+      ctx.fillStyle=sg;
+      ctx.beginPath();
+      ctx.ellipse(-l.r*.1,l.y-l.r*.46,l.r*.7,l.r*.16,-.04,0,Math.PI*2);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  function drawFrozenRock(x,y,s){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.scale(s,s);
+    ctx.fillStyle='rgba(11,72,116,.16)';
+    ctx.beginPath(); ctx.ellipse(8,12,22,7,0,0,Math.PI*2); ctx.fill();
+    const rg=ctx.createLinearGradient(-12,-9,18,18);
+    rg.addColorStop(0,'#e9f7fb'); rg.addColorStop(.45,'#9ab7c1'); rg.addColorStop(1,'#537a8d');
+    ctx.fillStyle=rg;
+    ctx.beginPath();
+    ctx.moveTo(-16,8); ctx.lineTo(-7,-9); ctx.lineTo(8,-13); ctx.lineTo(20,1); ctx.lineTo(14,14); ctx.lineTo(-8,16);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.55)';
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(-6,-7); ctx.lineTo(4,5); ctx.lineTo(14,1); ctx.stroke();
+    ctx.restore();
+  }
+
+  [
+    [35,76,1.05,-4],[72,155,.82,5],[42,307,1.12,2],[84,520,.98,-5],[44,730,1.06,3],
+    [178,35,.82,-2],[340,38,.72,4],[585,28,.68,-3],[1115,32,.74,2],[1265,34,.78,-4],
+    [1468,87,1.02,3],[1517,202,.82,-5],[1478,356,1.08,4],[1512,594,.93,-3],[1470,770,1.02,5],
+    [178,888,.84,-2],[374,904,.7,4],[650,892,.76,-4],[910,898,.82,3],[1195,892,.72,-2],
+    [390,220,.72,-5],[1160,190,.67,3],[1014,654,.64,-2],[286,665,.66,2]
+  ].forEach(p=>drawSnowPine(p[0],p[1],p[2],p[3]));
+
+  drawFrozenCabin(ctx,W-CELL*3.25,CELL*1.06,.86);
+  drawFrozenCabin(ctx,CELL*6.55,H-CELL*1.24,.7);
+
+  [
+    [CELL*7.6,CELL*4.0,.7],[CELL*9.1,CELL*15.4,.55],[CELL*19.4,CELL*13.0,.62],[CELL*22.2,CELL*5.3,.58],
+    [CELL*27.2,CELL*10.4,.66],[CELL*3.4,CELL*8.4,.48],[CELL*12.2,CELL*2.7,.52],[CELL*21.1,CELL*15.7,.56]
+  ].forEach(r=>drawFrozenRock(r[0],r[1],r[2]));
+
+  for(let i=0;i<78;i++){
+    const x=(i*271+93)%W, y=(i*157+61)%H;
+    const nearEdge=x<CELL*1.4||x>W-CELL*1.4||y<CELL*1.3||y>H-CELL*1.3;
+    if(!nearEdge&&i%3) continue;
+    ctx.fillStyle=i%2?'rgba(255,255,255,.62)':'rgba(205,234,247,.45)';
+    ctx.beginPath();
+    ctx.ellipse(x,y,CELL*(.16+(i%4)*.04),CELL*(.055+(i%3)*.018),((i*23)%180)*Math.PI/180,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  drawFrozenLakePath();
+
+  ctx.save();
+  ctx.fillStyle='rgba(255,255,255,.74)';
+  for(let i=0;i<55;i++){
+    const x=(i*229+17)%W, y=(i*173+31)%H;
+    if(i%4===0) continue;
+    ctx.beginPath();
+    ctx.arc(x,y,1.3+(i%3)*.45,0,Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  const topShine=ctx.createLinearGradient(0,0,W,H*.38);
+  topShine.addColorStop(0,'rgba(255,255,255,.28)');
+  topShine.addColorStop(.62,'rgba(255,255,255,.05)');
+  topShine.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=topShine;
+  ctx.fillRect(0,0,W,H*.44);
+
+  const vig=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.32,W/2,H/2,Math.max(W,H)*.78);
+  vig.addColorStop(0,'rgba(0,50,100,0)');
+  vig.addColorStop(.78,'rgba(0,44,94,.16)');
+  vig.addColorStop(1,'rgba(0,24,68,.38)');
+  ctx.fillStyle=vig;
+  ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(218,249,255,.72)';
+  ctx.lineWidth=5;
+  ctx.strokeRect(2.5,2.5,W-5,H-5);
+  ctx.strokeStyle='rgba(0,66,128,.55)';
+  ctx.lineWidth=2;
+  ctx.strokeRect(8,8,W-16,H-16);
+}
+
+function drawFrozenLakePath(){
+  if(PPTS.length<2) return;
+  ctx.save();
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+  ctx.strokeStyle='rgba(0,34,78,.28)';
+  ctx.lineWidth=CELL*1.08;
+  ctx.shadowColor='rgba(0,25,65,.42)';
+  ctx.shadowBlur=14;
+  ctx.shadowOffsetY=5;
+  traceFrozenPath(ctx,PATH);
+  ctx.stroke();
+  ctx.shadowColor='transparent';
+  ctx.shadowBlur=0;
+  ctx.shadowOffsetY=0;
+
+  ctx.strokeStyle='rgba(101,188,224,.42)';
+  ctx.lineWidth=CELL*.96;
+  traceFrozenPath(ctx,PATH);
+  ctx.stroke();
+  ctx.strokeStyle='rgba(247,253,255,.98)';
+  ctx.lineWidth=CELL*.84;
+  traceFrozenPath(ctx,PATH);
+  ctx.stroke();
+  const ice=ctx.createLinearGradient(0,ROWS*CELL, COLS*CELL,0);
+  ice.addColorStop(0,'#f9feff');
+  ice.addColorStop(.42,'#c9eff8');
+  ice.addColorStop(.68,'#e9fbff');
+  ice.addColorStop(1,'#b6e4f3');
+  ctx.strokeStyle=ice;
+  ctx.lineWidth=CELL*.68;
+  traceFrozenPath(ctx,PATH);
+  ctx.stroke();
+  ctx.strokeStyle='rgba(65,159,211,.35)';
+  ctx.lineWidth=CELL*.18;
+  ctx.setLineDash([CELL*.34,CELL*.18]);
+  traceFrozenPath(ctx,PATH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle='rgba(255,255,255,.75)';
+  ctx.lineWidth=CELL*.08;
+  ctx.setLineDash([CELL*.12,CELL*.36]);
+  traceFrozenPath(ctx,PATH);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function startGame(mapId, difficulty){
@@ -4516,6 +5321,12 @@ function canPlaceAt(wx,wy){
       for(const pt of PPTS){
         if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
       }
+    }
+  } else if(S&&S.mapId==='frozenlake'){
+    // Frozen lake: curved path — use point-distance clearance
+    const clearance=CELL*0.52;
+    for(const pt of PPTS){
+      if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
     }
   } else {
     const clearance=PATH_RADIUS;
@@ -5643,6 +6454,7 @@ function render(){
 function drawMap(){
   if(S&&S.mapId==='autumn') drawMapAutumn();
   else if(S&&S.mapId==='logforest') drawMapLogForest();
+  else if(S&&S.mapId==='frozenlake') drawMapFrozenLake();
   else drawMapGrassy();
 }
 
@@ -7422,6 +8234,27 @@ function loop(ts){
   if(!S.paused&&!S.over) raf=requestAnimationFrame(loop);
 }
 
+// ── Shard cheat: stats x10 then fullscreen x10 within 30s ──
+(function(){
+  let fsClicks=0, phaseStart=0;
+  document.addEventListener('click',e=>{
+    const btn=e.target.closest('button')||e.target;
+    const isFS=btn.id==='fullscreenBtn'||btn.closest('#fullscreenBtn');
+    if(isFS){
+      if(fsClicks===0) phaseStart=Date.now();
+      if(Date.now()-phaseStart>25000){ fsClicks=1; phaseStart=Date.now(); return; }
+      fsClicks++;
+      if(fsClicks>=30){
+        CAREER.rareShards=999999999;
+        saveCareer(CAREER);
+        updateShardHud();
+        showToast('♦ Infinite Shards Unlocked!','#a78bfa');
+        fsClicks=0;
+      }
+    }
+  },{capture:true});
+})();
+
 document.addEventListener('fullscreenchange',updateFullscreenButton);
 document.addEventListener('webkitfullscreenchange',updateFullscreenButton);
 document.addEventListener('msfullscreenchange',updateFullscreenButton);
@@ -7487,8 +8320,7 @@ function _resetStats(){
     const shardHud=document.getElementById('shardHud');
     if(shardHud){
       shardHud.style.display='flex';
-      const el=document.getElementById('shardHudCount');
-      if(el) el.textContent=(CAREER.rareShards||0);
+      updateShardHud();
     }
   })();
 
@@ -7498,7 +8330,7 @@ return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen
         toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
         winContinue,winLeave,
         toggleMenuMusic,toggleMusicPopup,toggleRadio,toggleSFX,setSFXVolume,setRadioVolume,setMenuVolume,
-        showMenuShop,closeMenuShop};
+        showMenuShop,closeMenuShop,switchShopTab,trySelectFrozenLake};
 })();
 
 </script>
