@@ -1464,7 +1464,7 @@ function mapRectToPixels(rect){
 const LOG_FOREST_POND = {x:4.1,y:2.7,w:2.8,h:2.6,kind:'water'};
 const LOG_FOREST_ROUTE = expandGridPath([
   [0,1],[8,1],[8,6],[3,6],[3,12],[8,12],[8,16],[14,16],
-  [14,8],[20,8],[20,3],[26,3],[26,8],[29,8]
+  [14,8],[20,8],[20,3],[26,3],[26,8],[29,8],[29,17]
 ]);
 const LOG_FOREST_BUSHES = [
   {x:2.0,y:2.25,scale:1.08},
@@ -1474,10 +1474,10 @@ const LOG_FOREST_BUSHES = [
   {x:24.1,y:2.05,scale:1.02},
   {x:27.35,y:1.5,scale:0.88},
   {x:1.85,y:7.1,scale:0.9},
-  {x:27.95,y:11.5,scale:0.92},
+  {x:27.0,y:11.5,scale:0.92},   // moved: was 27.95,11.5 (overlapped tree)
   {x:1.75,y:15.0,scale:1.1},
   {x:5.5,y:16.0,scale:0.96},
-  {x:11.35,y:15.7,scale:0.9},
+  {x:11.535,y:15.290,scale:0.9}, // moved: was 11.35,15.7 (too close to path)
   {x:18.55,y:16.0,scale:0.94},
   {x:24.35,y:15.8,scale:1.03},
   {x:27.2,y:14.9,scale:0.98},
@@ -1491,8 +1491,8 @@ const LOG_FOREST_BUSHES = [
   {x:27.5,y:13.0,scale:0.86}
 ];
 const LOG_FOREST_MUSHROOMS = [
-  {x:7.6,y:2.85,scale:0.74},
-  {x:21.7,y:1.5,scale:0.74},
+  {x:7.21,y:2.70,scale:0.74},   // moved: was 7.6,2.85 (too close to path)
+  {x:21.7,y:0.75,scale:0.74},   // moved: was 21.7,1.5 (overlapped tree)
   {x:3.25,y:14.1,scale:0.82},
   {x:25.65,y:13.7,scale:0.82},
   {x:13.5,y:4.5,scale:0.74},
@@ -1503,17 +1503,17 @@ const LOG_FOREST_LOGS = [
   // Upper interior
   {x:10.5,y:3.5,angle:25,scale:0.9},
   {x:15.5,y:2.5,angle:-15,scale:0.85},
-  {x:22.5,y:2.0,angle:40,scale:0.88},
+  {x:19.5,y:2.2,angle:40,scale:0.88},  // moved: was 22.5,2.0 (too close to row-3 path + overlapped tree)
   {x:28.0,y:2.5,angle:-30,scale:0.84},
-  // Mid interior — away from new path spine
+  // Mid interior
   {x:5.5,y:9.0,angle:20,scale:0.86},
   {x:11.5,y:7.0,angle:65,scale:0.9},
   {x:17.5,y:10.5,angle:-25,scale:0.88},
   {x:23.0,y:10.5,angle:50,scale:0.86},
-  {x:28.5,y:11.0,angle:-45,scale:0.83},
+  {x:27.4,y:12.2,angle:-45,scale:0.83}, // moved: was 28.5,11.0 (too close to col-29 path)
   // Left side
-  {x:2.5,y:5.5,angle:80,scale:0.84},
-  {x:2.5,y:12.5,angle:-55,scale:0.82},
+  {x:2.4,y:5.4,angle:80,scale:0.84},    // moved: was 2.5,5.5 (too close to path)
+  {x:2.4,y:12.6,angle:-55,scale:0.82},  // moved: was 2.5,12.5 (too close to path)
   // Right side
   {x:28.5,y:5.5,angle:30,scale:0.8},
   // Lower interior
@@ -1550,14 +1550,14 @@ const LOG_FOREST_EXTRA_TREES = [
   {x:1.15,y:2.3,scale:0.8},
   {x:28.1,y:1.6,scale:0.8},
   {x:1.0,y:8.25,scale:0.88},
-  {x:28.0,y:11.5,scale:0.86},
+  {x:28.15,y:11.0,scale:0.86},  // moved: was 28.0,11.5 (overlap with bush/log cluster)
   {x:4.5,y:15.6,scale:0.76},
   {x:12.5,y:5.5,scale:0.82},
   {x:17.5,y:11.5,scale:0.78},
   {x:23.5,y:11.5,scale:0.8},
   {x:11.0,y:13.5,scale:0.76},
   {x:21.0,y:1.5,scale:0.78},
-  {x:28.5,y:11.0,scale:0.74}
+  {x:27.0,y:10.2,scale:0.74}    // moved: was 28.5,11.0 (too close to col-29 path + overlap)
 ];
 const LOG_FOREST_DECOR_BLOCKERS = [
   // Border trees
@@ -1567,18 +1567,18 @@ const LOG_FOREST_DECOR_BLOCKERS = [
   {x:5.4,y:17.1,r:0.88},{x:12.0,y:17.28,r:0.82},{x:21.9,y:17.1,r:0.9},{x:25.8,y:17.28,r:0.8},
   // Extra trees
   {x:1.15,y:2.3,r:0.92},{x:28.1,y:1.6,r:0.92},{x:1.0,y:8.25,r:1.0},
-  {x:28.0,y:11.5,r:0.98},{x:4.5,y:15.6,r:0.88},{x:12.5,y:5.5,r:0.94},
+  {x:28.15,y:11.0,r:0.98},{x:4.5,y:15.6,r:0.88},{x:12.5,y:5.5,r:0.94},
   {x:17.5,y:11.5,r:0.9},{x:23.5,y:11.5,r:0.92},{x:11.0,y:13.5,r:0.88},
-  {x:21.0,y:1.5,r:0.9},{x:28.5,y:11.0,r:0.86},
+  {x:21.0,y:1.5,r:0.9},{x:27.0,y:10.2,r:0.86},
   // Bushes
   {x:2.0,y:2.25,r:0.7},{x:6.35,y:2.2,r:0.62},{x:13.8,y:1.7,r:0.64},{x:18.35,y:1.85,r:0.6},
-  {x:24.1,y:2.05,r:0.66},{x:27.35,y:1.5,r:0.58},{x:1.85,y:7.1,r:0.6},{x:27.95,y:11.5,r:0.6},
-  {x:1.75,y:15.0,r:0.72},{x:5.5,y:16.0,r:0.63},{x:11.35,y:15.7,r:0.6},{x:18.55,y:16.0,r:0.62},
+  {x:24.1,y:2.05,r:0.66},{x:27.35,y:1.5,r:0.58},{x:1.85,y:7.1,r:0.6},{x:27.0,y:11.5,r:0.6},
+  {x:1.75,y:15.0,r:0.72},{x:5.5,y:16.0,r:0.63},{x:11.535,y:15.290,r:0.6},{x:18.55,y:16.0,r:0.62},
   {x:24.35,y:15.8,r:0.68},{x:27.2,y:14.9,r:0.64},{x:11.5,y:2.5,r:0.6},{x:16.0,y:2.8,r:0.58},
   {x:22.5,y:1.5,r:0.62},{x:10.5,y:10.5,r:0.62},{x:16.5,y:11.5,r:0.6},
   {x:22.5,y:11.0,r:0.62},{x:23.5,y:13.5,r:0.58},{x:27.5,y:13.0,r:0.56},
   // Mushrooms
-  {x:7.6,y:2.85,r:0.5},{x:21.7,y:1.5,r:0.5},{x:3.25,y:14.1,r:0.55},
+  {x:7.21,y:2.70,r:0.5},{x:21.7,y:0.75,r:0.5},{x:3.25,y:14.1,r:0.55},
   {x:25.65,y:13.7,r:0.55},{x:13.5,y:4.5,r:0.5},{x:11.5,y:10.0,r:0.52},{x:17.5,y:13.5,r:0.48},
 ];
 
