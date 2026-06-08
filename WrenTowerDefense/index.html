@@ -168,13 +168,13 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .mshop-body{padding:1.2rem 2rem 2rem;display:flex;flex-direction:column;gap:1rem;min-height:calc(100vh - 82px)}
 .mshop-section-title{font-family:'Cinzel',serif;font-size:.8rem;letter-spacing:.12em;color:#ff4422;
   text-transform:uppercase;padding-bottom:.4rem;border-bottom:1px solid #ff220022;margin-bottom:.2rem;
-  opacity:.8}
+  opacity:.8;width:min(100%,940px);align-self:center}
 
 /* ── SHOP TOWER CARD ── */
 .mshop-card{
   border:1px solid #c8964038;background:linear-gradient(135deg,#181208ee,#12100aee);
   border-radius:6px;overflow:hidden;display:flex;flex-direction:column;transition:all .22s;
-  width:100%;
+  width:min(100%,940px);align-self:center;
 }
 .mshop-card:hover{border-color:#c8960a88;box-shadow:0 0 22px #f0c04028;transform:translateY(-2px)}
 .mshop-card.locked{border-color:#2a2418;opacity:.65}
@@ -1621,7 +1621,6 @@ function renderMenuShopItems(){
           }
         </div>
       </div>
-      ${owned&&upgrades.length?`<div class="mshop-upgrades"><div class="mshop-upg-title">Upgrades (in-game)</div>${upgHtml}</div>`:''}
     `;
 
     if(!owned){
@@ -5407,6 +5406,7 @@ function update(dt){
       continue;
     }
     if(!stats.rate) continue;
+    if(t.defId==='farmerorin') continue;
     // Sticky mine tick (Edunzie)
     if(stats.stickyMine){
       t.mineT=(t.mineT||0)+dt;
