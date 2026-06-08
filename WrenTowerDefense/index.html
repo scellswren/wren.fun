@@ -1099,6 +1099,22 @@ function sfx(type){
     gain.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+0.22);
     osc.connect(gain); osc.start(); osc.stop(ctx2.currentTime+0.24);
 
+  } else if(type==='metal'){
+    // Short metallic clink for blocked hits
+    const osc=ctx2.createOscillator();
+    osc.type='triangle';
+    osc.frequency.setValueAtTime(1700,ctx2.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(950,ctx2.currentTime+0.09);
+    const g=ctx2.createGain();
+    g.gain.setValueAtTime(vol*0.11,ctx2.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+0.1);
+    const filter=ctx2.createBiquadFilter();
+    filter.type='bandpass';
+    filter.frequency.value=2200;
+    filter.Q.value=3;
+    osc.connect(filter); filter.connect(g); g.connect(ctx2.destination);
+    osc.start(); osc.stop(ctx2.currentTime+0.11);
+
   } else if(type==='kill'){
     // Satisfying pop
     const buf=ctx2.createBuffer(1,ctx2.sampleRate*.07,ctx2.sampleRate);
@@ -5122,10 +5138,18 @@ function handleEnemyDefeat(tgt, tower){
   }
 }
 function damageEnemy(tgt, amount, tower, stats){
-  if(!tgt||tgt.dead||!canTowerAffectEnemy(stats,tgt,tower)) return false;
+  if(!tgt||tgt.dead) return false;
+  if(!canTowerTargetEnemy(stats,tgt,tower)) return false;
   const wfBuff=tower?getWrenFunStatsForTower(tower):null;
   const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
-  if(stats&&stats.explosive&&isBlackAndWhiteEnemy(tgt)&&!canHitAll) return false;
+  if(stats&&stats.explosive&&isBlackAndWhiteEnemy(tgt)&&!canHitAll){
+    sfx('metal');
+    return true;
+  }
+  if(!canTowerDamageEnemy(stats,tgt,tower)){
+    sfx('metal');
+    return true;
+  }
   tgt.hp-=amount;
   tgt.flashT=0.12;
   if(tgt.hp<=0) handleEnemyDefeat(tgt,tower);
