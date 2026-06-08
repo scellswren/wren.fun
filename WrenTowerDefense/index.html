@@ -6660,15 +6660,17 @@ function drawEnemies(){
     ctx.save();
     ctx.translate(drawX,drawY);
     ctx.scale(squishX,squishY);
-    ctx.save();
-    ctx.globalCompositeOperation='screen';
-    ctx.globalAlpha=e.boss?0.28:0.16;
-    const ambient=ctx.createRadialGradient(0,0,sz*.12,0,0,sz*.74);
-    ambient.addColorStop(0,withAlpha(e.col||'#ffffff','55'));
-    ambient.addColorStop(1,'rgba(255,255,255,0)');
-    ctx.fillStyle=ambient;
-    ctx.beginPath();ctx.arc(0,0,sz*.72,0,Math.PI*2);ctx.fill();
-    ctx.restore();
+    if(!plainRishi){
+      ctx.save();
+      ctx.globalCompositeOperation='screen';
+      ctx.globalAlpha=e.boss?0.28:0.16;
+      const ambient=ctx.createRadialGradient(0,0,sz*.12,0,0,sz*.74);
+      ambient.addColorStop(0,withAlpha(e.col||'#ffffff','55'));
+      ambient.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle=ambient;
+      ctx.beginPath();ctx.arc(0,0,sz*.72,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    }
     if(!im._bad&&im.complete&&im.naturalWidth>0){
       ctx.save();
       if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'&&e.tint!=='zebra'){
@@ -6677,15 +6679,17 @@ function drawEnemies(){
       traceEnemyBodyPath(sz,isHeart);ctx.clip();
       ctx.drawImage(im,-sz/2,-sz/2,sz,sz);
       ctx.restore();
-      ctx.save();
-      traceEnemyBodyPath(sz,isHeart);ctx.clip();
-      const sheen=ctx.createLinearGradient(-sz*.5,-sz*.55,sz*.4,sz*.45);
-      sheen.addColorStop(0,'rgba(255,255,255,0.2)');
-      sheen.addColorStop(0.36,'rgba(255,255,255,0.06)');
-      sheen.addColorStop(1,'rgba(0,0,0,0.14)');
-      ctx.fillStyle=sheen;
-      ctx.fillRect(-sz/2,-sz/2,sz,sz);
-      ctx.restore();
+      if(!plainRishi){
+        ctx.save();
+        traceEnemyBodyPath(sz,isHeart);ctx.clip();
+        const sheen=ctx.createLinearGradient(-sz*.5,-sz*.55,sz*.4,sz*.45);
+        sheen.addColorStop(0,'rgba(255,255,255,0.2)');
+        sheen.addColorStop(0.36,'rgba(255,255,255,0.06)');
+        sheen.addColorStop(1,'rgba(0,0,0,0.14)');
+        ctx.fillStyle=sheen;
+        ctx.fillRect(-sz/2,-sz/2,sz,sz);
+        ctx.restore();
+      }
 
       // Tint overlays
       if(e.tint&&e.tint!=='rainbow'&&e.tint!=='iron'&&e.tint!=='lead'&&e.tint!=='zebra'){
@@ -6760,7 +6764,7 @@ function drawEnemies(){
         ctx.restore();
       }
 
-      if(e.tint==='lead'){
+      if(e.tint==='lead'&&!plainRishi){
         // Shiny metallic black-and-white sheen over the already-grayscale image
         ctx.save();
         traceEnemyBodyPath(sz,isHeart);ctx.clip();
@@ -6812,26 +6816,7 @@ function drawEnemies(){
 
       }
 
-      if(e.camo){
-        ctx.save();
-        traceEnemyBodyPath(sz,isHeart);ctx.clip();
-        [['rgba(70,96,54,0.54)',-.24,-.16,.2],['rgba(132,114,76,0.44)',.2,-.1,.18],['rgba(92,120,74,0.52)',-.08,.14,.22],['rgba(54,74,42,0.4)',.22,.18,.16],['rgba(160,144,98,0.32)',-.3,.22,.13]].forEach(([col,ox,oy,rr])=>{
-          ctx.fillStyle=col;
-          ctx.beginPath();ctx.arc(ox*sz,oy*sz,rr*sz,0,Math.PI*2);ctx.fill();
-        });
-        ctx.globalAlpha=0.35;
-        ctx.strokeStyle='rgba(214,225,188,0.55)';
-        ctx.lineWidth=Math.max(1.1,sz*.018);
-        [-0.44,-0.16,0.12,0.38].forEach(off=>{
-          ctx.beginPath();
-          ctx.moveTo(-sz*.55,off*sz);
-          ctx.lineTo(sz*.55,(off-.22)*sz);
-          ctx.stroke();
-        });
-        ctx.restore();
-      }
-
-      if(e.reinforced){
+      if(e.reinforced&&!plainRishi){
         const pulse=0.65+Math.sin((e.t||0)*5)*0.18;
         ctx.save();
         ctx.globalCompositeOperation='screen';
@@ -6898,49 +6883,28 @@ function drawEnemies(){
       }
 
       // Border
-      const isRishiCamo=e.camo&&(e.defId==='rishiSunak'||e.defId==='reinforcedRishi'||e.defId==='rishiSunakCamo'||e.defId==='reinforcedRishiCamo');
-      if(e.camo&&!isRishiCamo){
-        // Neon glowing green outline for camo enemies
-        ctx.save();
+      const borderCol=plainRishi?(e.col||'#fff'):e.reinforced?'#f0c040':e.lead?'#d2dbe3':e.camo?'#59ff73':(e.col||'#fff');
+      ctx.save();
+      if(e.camo&&!plainRishi){
         const neonGlow=0.55+Math.sin((e.t||0)*4)*0.2;
         ctx.shadowColor='#39ff14';
         ctx.shadowBlur=18+neonGlow*10;
-        ctx.strokeStyle='#39ff14';
-        ctx.lineWidth=2.8;
-        traceEnemyBodyPath(sz,isHeart);ctx.stroke();
-        // Second pass for extra glow intensity
-        ctx.shadowBlur=8;
-        ctx.globalAlpha=0.7;
-        ctx.strokeStyle='#a0ffaa';
-        ctx.lineWidth=1.2;
-        traceEnemyBodyPath(sz,isHeart);ctx.stroke();
-        ctx.restore();
-      } else if(e.lead){
-        // Pulsing glowing grey outline for Lead Queen Elizabeth
-        ctx.save();
-        const leadPulse=0.6+Math.sin((e.t||0)*3.5)*0.25;
-        ctx.shadowColor='#c8d4dc';
-        ctx.shadowBlur=16+leadPulse*12;
-        ctx.strokeStyle='#c8d4dc';
-        ctx.lineWidth=3.0;
-        traceEnemyBodyPath(sz,isHeart);ctx.stroke();
-        // Inner bright ring for sheen
-        ctx.shadowBlur=5;
-        ctx.globalAlpha=0.65;
-        ctx.strokeStyle='#ffffff';
-        ctx.lineWidth=1.1;
-        traceEnemyBodyPath(sz,isHeart);ctx.stroke();
-        ctx.restore();
-      } else {
-        ctx.strokeStyle=e.reinforced?'#f0c040':(e.camo?'#a5ba74':(e.col||'#fff'));ctx.lineWidth=e.reinforced?3.2:1.5;
+        ctx.strokeStyle='rgba(89,255,115,0.45)';
+        ctx.lineWidth=Math.max(3.2,sz*.09);
         traceEnemyBodyPath(sz,isHeart);ctx.stroke();
       }
-      ctx.strokeStyle='rgba(255,255,255,0.16)';
-      ctx.lineWidth=Math.max(0.8,sz*.02);
-      ctx.beginPath();
-      ctx.moveTo(-sz*.26,-sz*.34);
-      ctx.quadraticCurveTo(0,-sz*.46,sz*.26,-sz*.26);
-      ctx.stroke();
+      ctx.strokeStyle=borderCol;
+      ctx.lineWidth=plainRishi?1.5:(e.reinforced?3.2:(e.camo?2.2:1.5));
+      traceEnemyBodyPath(sz,isHeart);ctx.stroke();
+      ctx.restore();
+      if(!plainRishi){
+        ctx.strokeStyle='rgba(255,255,255,0.16)';
+        ctx.lineWidth=Math.max(0.8,sz*.02);
+        ctx.beginPath();
+        ctx.moveTo(-sz*.26,-sz*.34);
+        ctx.quadraticCurveTo(0,-sz*.46,sz*.26,-sz*.26);
+        ctx.stroke();
+      }
       // Hit flash white overlay
       if(e.flashT>0){
         ctx.save();ctx.globalAlpha=e.flashT/0.12*0.55;
@@ -6966,7 +6930,7 @@ function drawEnemies(){
     }
     ctx.restore();
 
-    if(e.camo||e.lead||e.regen){
+    if((e.camo||e.lead||e.regen)&&!plainRishi){
       ctx.save();
       ctx.font=`bold ${Math.max(9,Math.floor(sz*.18))}px Cinzel,serif`;
       ctx.textAlign='center';ctx.textBaseline='middle';
