@@ -3046,7 +3046,7 @@ function showSub(type){
               <span><span class="es-label">Reward</span><span class="es-val" style="color:#f0c040">$${e.hp}</span></span>
               ${eRegen?`<span><span class="es-label">Regen</span><span class="es-val" style="color:#4caf50">+${eRegen}/s</span></span>`:''}
               ${eIsCamo&&!eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#39ff14">Invisible to towers</span></span>`:''}
-              ${eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#b0bec5">Lead · Camo · Explosion Immune</span></span>`:''}
+              ${eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#b0bec5">Lead · Camo</span></span>`:''}
               ${e.lead&&!eIsRishi?`<span><span class="es-label">Trait</span><span class="es-val" style="color:#aeb8c2">Explosion only</span></span>`:''}
             </div>
           </div>
@@ -4687,6 +4687,7 @@ function selectTower(id){
   const rangeDisplay=stats.range>=9999?'Global':(rangeBoosted?`<span style="color:#e040fb">${formatRangePx(effectiveRange)}px ↑</span>`:formatRangePx(stats.range)+'px');
   const orinExtraRows=isOrinTower(t)?`
       <div class="srow"><span class="sl">Collect</span><span class="sv">${stats.autoPickup?'Auto':'DVD Clicks'}</span></div>
+      <div class="srow"><span class="sl">Collected</span><span class="sv">$${formatNum(t.moneyEarned||0)}</span></div>
       <div class="srow"><span class="sl">Boost</span><span class="sv">${Math.round((getOrinIncomeMultiplier(t)-1)*100)}%</span></div>
   `:'';
   const showOrinAbility=isOrinTower(t)&&getTowerUpgradeLevel(t)>=4;  const priorities=[
@@ -5139,7 +5140,6 @@ function damageEnemy(tgt, amount, tower, stats){
   const wfBuff=tower?getWrenFunStatsForTower(tower):null;
   const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
   if(stats&&stats.explosive&&isBlackAndWhiteEnemy(tgt)&&!canHitAll) return false;
-  if(stats&&stats.explosive&&isRishiEnemy(tgt)&&!canHitAll) return false;
   tgt.hp-=amount;
   tgt.flashT=0.12;
   if(tgt.hp<=0) handleEnemyDefeat(tgt,tower);
