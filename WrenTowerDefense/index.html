@@ -262,6 +262,8 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .mshop-map-tag.winter{background:#1a3a5a22;border:1px solid #7ec8e355;color:#7ec8e3;}
 .mshop-map-tag.water{background:#0a2a4a22;border:1px solid #4a9fc355;color:#4a9fc3;}
 .mshop-map-tag.new{background:#2a1a0022;border:1px solid #f0c04055;color:var(--gold);}
+.mshop-map-tag.desert{background:#3a200822;border:1px solid #e0b05055;color:#e0b050;}
+.mshop-map-tag.hot{background:#3a100022;border:1px solid #ff704355;color:#ff7043;}
 
 /* Frozen lake mapcard in game select */
 .mapcard.frozen{border-color:#4a8fc055;}
@@ -901,6 +903,11 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
         <canvas class="map-preview" id="prev-frozenlake" width="280" height="160"></canvas>
         <div class="map-name">❄️ Frozen Lake</div>
         <div class="map-desc">A glittering skate-trail battlefield with carved snowbanks, deep blue lake pockets, cabins, pines, and a dry winding ice road.</div>
+      </div>
+      <div class="mapcard" onclick="G.trySelectDesertRoad()" id="mc-desertroad" style="display:none">
+        <canvas class="map-preview" id="prev-desertroad" width="280" height="160"></canvas>
+        <div class="map-name">🏜️ Desert Road</div>
+        <div class="map-desc">A scorching S-bend highway through the sand. Enemies reach the end and turn back — towers must stop them both ways.</div>
       </div>
     </div>
     <button class="mbtn" style="margin-top:1.4rem;font-size:.85rem;min-width:140px" onclick="G.showScreen('menuScreen')">← Back</button>
@@ -1632,6 +1639,15 @@ const MENU_SHOP_MAPS = [
     desc:'A premium frozen lake battlefield inspired by skate trails: organic blue lake pockets, snowy pine borders, cabins, rocks, and a dry winding ice road.',
     tags:['winter','water','new'],
     preview:'frozenlake'
+  },
+  {
+    id:'map_desertroad',
+    mapId:'desertroad',
+    name:'Desert Road',
+    shardCost:10,
+    desc:'A scorching S-bend highway through the desert. Enemies march to the far end then reverse back to the start — your towers face both directions of traffic.',
+    tags:['desert','hot','new'],
+    preview:'desertroad'
   }
 ];
 
@@ -1684,12 +1700,13 @@ function renderMenuShopMaps(){
     card.className='mshop-mapcard'+(owned?' unlocked':' locked');
     // Preview canvas
     const previewId='mshop-prev-'+item.id;
-    const tagsHtml=(item.tags||[]).map(t=>`<span class="mshop-map-tag ${t}">${t==='winter'?'❄ Winter':t==='water'?'💧 Water':t==='new'?'✨ New':t}</span>`).join('');
+    const tagsHtml=(item.tags||[]).map(t=>`<span class="mshop-map-tag ${t}">${t==='winter'?'❄ Winter':t==='water'?'💧 Water':t==='new'?'✨ New':t==='desert'?'🏜 Desert':t==='hot'?'🔥 Hot':t}</span>`).join('');
+    const mapIcon=item.id==='map_desertroad'?'🏜️':item.id==='map_frozenlake'?'❄️':'🗺️';
     card.innerHTML=`
       <canvas class="mshop-map-preview" id="${previewId}" width="280" height="130"></canvas>
       <div class="mshop-map-info">
         <div style="margin-bottom:.3rem">${tagsHtml}</div>
-        <div class="mshop-map-name">❄️ ${item.name}</div>
+        <div class="mshop-map-name">${mapIcon} ${item.name}</div>
         <div class="mshop-map-desc">${owned?item.desc:'Purchase to reveal map details.'}</div>
         <div class="mshop-map-price">
           <div class="mshop-map-shard">💎 ${item.shardCost} Rare Shard${item.shardCost!==1?'s':''}</div>
@@ -1782,7 +1799,11 @@ function purchaseMapItem(item){
   saveCareer(CAREER);
   updateShardHud();
   renderMenuShopMaps();
-  showToast('Frozen Lake unlocked! Find it in Map Select.','#7ec8e3');
+  if(item.id==='map_desertroad'){
+    showToast('Desert Road unlocked! Find it in Map Select.','#e0b050');
+  } else {
+    showToast('Frozen Lake unlocked! Find it in Map Select.','#7ec8e3');
+  }
 }
 
 function purchaseShopItem(item){
@@ -2105,6 +2126,40 @@ const MAPS = {
     ]
   }
 };
+
+// ─── DESERT ROAD MAP DATA ───
+(()=>{
+  // Path goes left→right with S-bend hairpins, then reverses back to start
+  const addCurve=(pts,x0,y0,x1,y1,x2,y2,steps)=>{
+    for(let i=1;i<=steps;i++){
+      const t=i/steps,mt=1-t;
+      pts.push([mt*mt*x0+2*mt*t*x1+t*t*x2, mt*mt*y0+2*mt*t*y1+t*t*y2]);
+    }
+  };
+  const fwd=[];
+  // Enter from left mid
+  fwd.push([0,8.5]);
+  addCurve(fwd, 0,8.5,  4,8.5,  6,8.5,  10);   // straight run right
+  addCurve(fwd, 6,8.5,  8,8.5,  9,6.5,  8);    // bend up-right
+  addCurve(fwd, 9,6.5,  10,4.5, 13,4.5, 10);   // run right top lane
+  addCurve(fwd, 13,4.5, 16,4.5, 17,6.5, 8);    // bend down-right
+  addCurve(fwd, 17,6.5, 18,8.5, 21,8.5, 10);   // run right mid
+  addCurve(fwd, 21,8.5, 22,8.5, 23,6.5, 8);    // bend up-right again
+  addCurve(fwd, 23,6.5, 24,4.5, 27,4.5, 10);   // run right upper
+  fwd.push([29,4.5]);                            // reach right edge (end)
+
+  // Return: reverse the path back to start
+  const rev=[...fwd].reverse();
+  // Combine: forward to end, then back to start
+  const full=[...fwd, ...rev.slice(1)];
+  MAPS.desertroad={
+    name:'Desert Road',
+    shopUnlockOnly:true,
+    path:full,
+    minProgress:fwd.length-1, // must reach the far end before lives are lost on return
+    noBuildRects:[]
+  };
+})();
 
 // ─── ACTIVE MAP STATE (set per game) ───
 let PATH=MAPS.grassy.path;
@@ -3724,6 +3779,12 @@ function showMapSelect(mode, backFromDiff){
     const unlocked=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_frozenlake']);
     frozenCard.style.display=unlocked?'flex':'none';
   }
+  // Show/hide desert road card based on unlock
+  const desertCard=document.getElementById('mc-desertroad');
+  if(desertCard){
+    const unlocked=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_desertroad']);
+    desertCard.style.display=unlocked?'flex':'none';
+  }
   // Render map previews then show screen
   showScreen('mapSelectScreen');
   requestAnimationFrame(()=>{
@@ -3732,6 +3793,9 @@ function showMapSelect(mode, backFromDiff){
     renderMapPreview('logforest','prev-logforest');
     if(frozenCard&&frozenCard.style.display!=='none'){
       renderMapPreview('frozenlake','prev-frozenlake');
+    }
+    if(desertCard&&desertCard.style.display!=='none'){
+      renderMapPreview('desertroad','prev-desertroad');
     }
   });
 }
@@ -3742,6 +3806,15 @@ function trySelectFrozenLake(){
     showDiffSelect('frozenlake');
   } else {
     showToast('Unlock Frozen Lake in the Shop first!','#7ec8e3');
+  }
+}
+
+function trySelectDesertRoad(){
+  CAREER=loadCareer();
+  if(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_desertroad']){
+    showDiffSelect('desertroad');
+  } else {
+    showToast('Unlock Desert Road in the Shop first!','#e0b050');
   }
 }
 
@@ -3946,6 +4019,17 @@ function renderMapPreview(mapId,canvasId){
       const x=(i*137)%W, y=(i*97)%H;
       ptx.beginPath(); ptx.ellipse(x,y,4+(i%5),1.5,((i*47)%180)*Math.PI/180,0,Math.PI*2); ptx.fill();
     }
+  } else if(mapId==='desertroad'){
+    // Desert Road background: sandy warm gold
+    const bg=ptx.createLinearGradient(0,0,W,H);
+    bg.addColorStop(0,'#f5e4a8'); bg.addColorStop(.5,'#ecd48a'); bg.addColorStop(1,'#d4b455');
+    ptx.fillStyle=bg; ptx.fillRect(0,0,W,H);
+    // Sand ripple texture
+    ptx.fillStyle='rgba(180,130,30,0.12)';
+    for(let i=0;i<25;i++){
+      const x=(i*313+17)%W, y=(i*197+41)%H;
+      ptx.beginPath(); ptx.ellipse(x,y,8+(i%5)*3,2+(i%3),((i*37)%180)*Math.PI/180,0,Math.PI*2); ptx.fill();
+    }
   } else {
     const bg=ptx.createLinearGradient(0,0,W,H);
     bg.addColorStop(0,'#3e7a34'); bg.addColorStop(1,'#375f2e');
@@ -3963,6 +4047,7 @@ function renderMapPreview(mapId,canvasId){
   if(isAutumn) drawAutumnRoadUnified(ptx,{preview:true});
   else if(isLogForest) drawForestPreviewRoad(ptx,MAPS[mapId]);
   else if(mapId==='frozenlake') drawFrozenLakePreviewRoad(ptx);
+  else if(mapId==='desertroad') drawDesertRoadPreviewRoad(ptx);
   else drawGrassyPreviewRoad(ptx,MAPS[mapId].path);
   ptx.restore();
 }
@@ -4352,8 +4437,7 @@ function drawFrozenCabin(g,x,y,s){
 }
 
 function drawFrozenLakePreviewRoad(ptx){
-  const map=MAPS.frozenlake;
-  const W=COLS*CELL, H=ROWS*CELL;
+  const map=MAPS.frozenlake;  const W=COLS*CELL, H=ROWS*CELL;
   ptx.save();
   ptx.fillStyle='rgba(255,255,255,0.18)';
   for(let i=0;i<55;i++){
@@ -4381,6 +4465,44 @@ function drawFrozenLakePreviewRoad(ptx){
   ptx.strokeStyle='rgba(83,172,220,.32)'; ptx.lineWidth=CELL*.12;
   ptx.setLineDash([CELL*.28,CELL*.2]);
   traceFrozenPath(ptx,map.path); ptx.stroke();
+  ptx.setLineDash([]);
+  ptx.restore();
+}
+
+function drawDesertRoadPreviewRoad(ptx){
+  const map=MAPS.desertroad;
+  // Only draw the forward half of the path (enemies go out and come back)
+  const half=Math.ceil(map.path.length/2);
+  const fwdPath=map.path.slice(0,half);
+  function traceDesertPath(p){
+    ptx.beginPath();
+    p.forEach(([c,r],i)=>{
+      const px=c*CELL+CELL/2, py=r*CELL+CELL/2;
+      i===0?ptx.moveTo(px,py):ptx.lineTo(px,py);
+    });
+  }
+  ptx.save();
+  ptx.lineCap='round'; ptx.lineJoin='round';
+  // Shadow
+  ptx.strokeStyle='rgba(100,60,10,0.45)'; ptx.lineWidth=CELL*.96;
+  ptx.shadowColor='rgba(60,30,0,0.5)'; ptx.shadowBlur=8; ptx.shadowOffsetY=3;
+  traceDesertPath(fwdPath); ptx.stroke();
+  ptx.shadowColor='transparent'; ptx.shadowBlur=0; ptx.shadowOffsetY=0;
+  // Road body
+  const rg=ptx.createLinearGradient(0,0,COLS*CELL,ROWS*CELL);
+  rg.addColorStop(0,'#e8c878'); rg.addColorStop(.5,'#d4b060'); rg.addColorStop(1,'#e0bc70');
+  ptx.strokeStyle=rg; ptx.lineWidth=CELL*.84;
+  traceDesertPath(fwdPath); ptx.stroke();
+  // Road edge shading
+  ptx.strokeStyle='rgba(180,130,40,0.5)'; ptx.lineWidth=CELL*.30;
+  traceDesertPath(fwdPath); ptx.stroke();
+  // Centre highlight
+  ptx.strokeStyle='rgba(255,240,180,0.7)'; ptx.lineWidth=CELL*.06;
+  traceDesertPath(fwdPath); ptx.stroke();
+  // Dashed centre line
+  ptx.setLineDash([CELL*.5,CELL*.35]);
+  ptx.strokeStyle='rgba(255,245,200,0.55)'; ptx.lineWidth=CELL*.05;
+  traceDesertPath(fwdPath); ptx.stroke();
   ptx.setLineDash([]);
   ptx.restore();
 }
@@ -6498,6 +6620,7 @@ function drawMap(){
   if(S&&S.mapId==='autumn') drawMapAutumn();
   else if(S&&S.mapId==='logforest') drawMapLogForest();
   else if(S&&S.mapId==='frozenlake') drawMapFrozenLake();
+  else if(S&&S.mapId==='desertroad') drawMapDesertRoad();
   else drawMapGrassy();
 }
 
@@ -6974,6 +7097,155 @@ function drawMapAutumn(){
   vig.addColorStop(0,'rgba(0,0,0,0)');vig.addColorStop(1,'rgba(0,0,0,0.45)');
   ctx.fillStyle=vig;ctx.fillRect(0,0,W,H);
   ctx.strokeStyle='rgba(0,0,0,0.7)';ctx.lineWidth=4;ctx.strokeRect(0,0,W,H);
+}
+
+function drawDesertRoadPath(){
+  if(PPTS.length<2) return;
+  const half=Math.ceil(PPTS.length/2);
+  const pts=PPTS.slice(0,half);
+  function trace(p){
+    ctx.beginPath(); ctx.moveTo(p[0].x,p[0].y);
+    for(let i=1;i<p.length;i++) ctx.lineTo(p[i].x,p[i].y);
+  }
+  ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.lineWidth=CELL*.96; ctx.strokeStyle='rgba(100,60,10,0.45)';
+  ctx.shadowColor='rgba(60,30,0,0.5)'; ctx.shadowBlur=10; ctx.shadowOffsetY=4;
+  trace(pts); ctx.stroke();
+  ctx.shadowColor='transparent'; ctx.shadowBlur=0; ctx.shadowOffsetY=0;
+  const rg=ctx.createLinearGradient(0,0,COLS*CELL,ROWS*CELL);
+  rg.addColorStop(0,'#e8c878'); rg.addColorStop(.5,'#d4b060'); rg.addColorStop(1,'#e0bc70');
+  ctx.lineWidth=CELL*.84; ctx.strokeStyle=rg; trace(pts); ctx.stroke();
+  ctx.lineWidth=CELL*.30; ctx.strokeStyle='rgba(180,130,40,0.5)'; trace(pts); ctx.stroke();
+  ctx.lineWidth=CELL*.06; ctx.strokeStyle='rgba(255,240,180,0.7)'; trace(pts); ctx.stroke();
+  ctx.setLineDash([CELL*.5,CELL*.35]);
+  ctx.lineWidth=CELL*.05; ctx.strokeStyle='rgba(255,245,200,0.55)'; trace(pts); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawMapDesertRoad(){
+  const W=COLS*CELL, H=ROWS*CELL;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(0,0,W,H); ctx.clip();
+
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#f5e4a8'); bg.addColorStop(.4,'#ecd48a'); bg.addColorStop(.8,'#e0c470'); bg.addColorStop(1,'#d4b455');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  const haze=ctx.createLinearGradient(0,0,0,H*.5);
+  haze.addColorStop(0,'rgba(255,250,230,0.22)'); haze.addColorStop(1,'rgba(255,250,230,0)');
+  ctx.fillStyle=haze; ctx.fillRect(0,0,W,H*.5);
+
+  const rng=(s)=>((s*16807+1)%2147483647)/2147483647;
+
+  ctx.save();
+  for(let i=0;i<60;i++){
+    const x=(i*313.7+17)%W, y=(i*197.3+41)%H;
+    const w=CELL*(2.2+rng(i*7)*3.5), h2=CELL*(0.12+rng(i*11)*0.18);
+    ctx.fillStyle=`rgba(180,130,30,${0.06+rng(i*13)*0.07})`;
+    ctx.beginPath(); ctx.ellipse(x,y,w,h2,rng(i*17)*0.3-.15,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+
+  ctx.save();
+  for(let i=0;i<20;i++){
+    const x=(i*337+55)%W, y=(i*211+33)%H;
+    const dg=ctx.createRadialGradient(x,y,0,x,y,CELL*(1.8+rng(i*7)*.9));
+    dg.addColorStop(0,`rgba(255,240,180,${0.18+rng(i*11)*0.14})`);
+    dg.addColorStop(1,'rgba(255,240,180,0)');
+    ctx.fillStyle=dg;
+    ctx.beginPath(); ctx.ellipse(x,y,CELL*(2.0+rng(i*13)),CELL*(0.7+rng(i*17)*.4),rng(i*19)*Math.PI,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+
+  function drawCactus(cx,cy,s){
+    ctx.save(); ctx.translate(cx,cy); ctx.scale(s,s);
+    const h=CELL*1.2;
+    ctx.fillStyle='rgba(100,70,10,0.22)';
+    ctx.beginPath(); ctx.ellipse(6,h*.92,14,5,0,0,Math.PI*2); ctx.fill();
+    const cg=ctx.createLinearGradient(-8,0,8,0);
+    cg.addColorStop(0,'#3a7a3a'); cg.addColorStop(.5,'#4a9a4a'); cg.addColorStop(1,'#2d6a2d');
+    ctx.fillStyle=cg;
+    ctx.beginPath(); ctx.roundRect(-7,0,14,h,6); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(-18,h*.35,10,h*.22,5); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(-18,h*.2,8,h*.18,4); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(8,h*.5,10,h*.2,5); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(15,h*.34,8,h*.18,4); ctx.fill();
+    ctx.fillStyle='rgba(255,255,220,0.5)';
+    for(let j=0;j<4;j++){ctx.beginPath();ctx.arc(-3+j*2,h*(0.15+j*0.18),1.2,0,Math.PI*2);ctx.fill();}
+    ctx.restore();
+  }
+
+  function drawDesertRock(rx,ry,s){
+    ctx.save(); ctx.translate(rx,ry); ctx.scale(s,s);
+    ctx.fillStyle='rgba(100,70,10,0.2)';
+    ctx.beginPath(); ctx.ellipse(6,14,20,6,0,0,Math.PI*2); ctx.fill();
+    const drg=ctx.createLinearGradient(-14,-10,16,18);
+    drg.addColorStop(0,'#d4b87a'); drg.addColorStop(.4,'#b09050'); drg.addColorStop(1,'#8a6a30');
+    ctx.fillStyle=drg;
+    ctx.beginPath();
+    ctx.moveTo(-14,8); ctx.lineTo(-6,-10); ctx.lineTo(8,-14); ctx.lineTo(20,2); ctx.lineTo(14,14); ctx.lineTo(-6,16);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='rgba(255,240,180,0.4)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(-4,-8); ctx.lineTo(6,4); ctx.lineTo(16,0); ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawShrub(bx,by,s){
+    ctx.save(); ctx.translate(bx,by); ctx.scale(s,s);
+    ctx.fillStyle='rgba(100,70,10,0.18)';
+    ctx.beginPath(); ctx.ellipse(0,12,16,5,0,0,Math.PI*2); ctx.fill();
+    const cols=['#8a7a30','#7a6a20','#968432','#6a5a18'];
+    for(let j=0;j<7;j++){
+      ctx.fillStyle=cols[j%4];
+      ctx.beginPath(); ctx.ellipse(-10+j*3.5+(j%2?2:-2),-8+Math.abs(j-3)*1.5,5+j%3,4+j%2,(j*.4-.9),0,Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  const DCLEAR=46;
+  function farFromPath(px,py){
+    for(const pt of PPTS){const dx=pt.x-px,dy=pt.y-py;if(dx*dx+dy*dy<DCLEAR*DCLEAR)return false;}
+    return true;
+  }
+
+  [
+    [CELL*1.5,CELL*2.5,.9],[CELL*4,CELL*14,.8],[CELL*7,CELL*2,.75],[CELL*10,CELL*12,.85],
+    [CELL*13,CELL*14,.7],[CELL*17,CELL*2,.8],[CELL*20,CELL*13,.75],[CELL*23,CELL*2,.9],
+    [CELL*26,CELL*13,.8],[CELL*28,CELL*1.5,.7],[CELL*2,CELL*6,.6],[CELL*25,CELL*7,.65]
+  ].forEach(([cx,cy,s])=>{ if(farFromPath(cx,cy)) drawCactus(cx,cy,s); });
+
+  [
+    [CELL*3,CELL*11,.8],[CELL*6,CELL*3,.65],[CELL*9,CELL*14,.7],[CELL*12,CELL*2,.6],
+    [CELL*15,CELL*13,.75],[CELL*18,CELL*3,.65],[CELL*21,CELL*11,.7],[CELL*24,CELL*3,.8],
+    [CELL*27,CELL*11,.6],[CELL*1.5,CELL*13,.55],[CELL*28,CELL*8,.7]
+  ].forEach(([rx,ry,s])=>{ if(farFromPath(rx,ry)) drawDesertRock(rx,ry,s); });
+
+  [
+    [CELL*2,CELL*3.5,.9],[CELL*5,CELL*13,.8],[CELL*8,CELL*1.5,.75],[CELL*11,CELL*13.5,.7],
+    [CELL*14,CELL*2,.8],[CELL*19,CELL*13,.75],[CELL*22,CELL*2.5,.7],[CELL*26,CELL*11,.8],
+    [CELL*4,CELL*6,.65],[CELL*16,CELL*12,.7],[CELL*28,CELL*12,.65]
+  ].forEach(([bx,by,s])=>{ if(farFromPath(bx,by)) drawShrub(bx,by,s); });
+
+  drawDesertRoadPath();
+
+  ctx.save();
+  for(let i=0;i<45;i++){
+    const x=(i*271+93)%W, y=(i*157+61)%H;
+    if(!farFromPath(x,y)) continue;
+    ctx.fillStyle=i%3?'rgba(160,120,50,.35)':'rgba(200,170,90,.25)';
+    ctx.beginPath(); ctx.ellipse(x,y,2+i%3,1.5+i%2,((i*31)%180)*Math.PI/180,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+
+  const vig=ctx.createRadialGradient(W*.5,H*.5,Math.min(W,H)*.25,W*.5,H*.5,Math.max(W,H)*.72);
+  vig.addColorStop(0,'rgba(0,0,0,0)');
+  vig.addColorStop(.65,'rgba(120,70,0,0.12)');
+  vig.addColorStop(1,'rgba(80,40,0,0.42)');
+  ctx.fillStyle=vig; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(180,130,50,0.5)'; ctx.lineWidth=5; ctx.strokeRect(3,3,W-6,H-6);
+  ctx.strokeStyle='rgba(100,60,10,0.4)'; ctx.lineWidth=2; ctx.strokeRect(7,7,W-14,H-14);
+  ctx.restore();
 }
 
 function drawPathAutumn(){
@@ -8374,7 +8646,7 @@ return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen
         toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
         winContinue,winLeave,
         toggleMenuMusic,toggleMusicPopup,toggleRadio,toggleSFX,setSFXVolume,setRadioVolume,setMenuVolume,
-        showMenuShop,closeMenuShop,switchShopTab,trySelectFrozenLake};
+        showMenuShop,closeMenuShop,switchShopTab,trySelectFrozenLake,trySelectDesertRoad};
 })();
 
 </script>
