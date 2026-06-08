@@ -2437,6 +2437,27 @@ function collectIncomeDrop(drop, auto){
   });
   return true;
 }
+function triggerFarmerPickupAnim(tower, drop){
+  if(!tower||!drop) return;
+  tower.farmerPickupT=0.34;
+  tower.farmerPickupAngle=Math.atan2(drop.y-tower.y,drop.x-tower.x)+Math.PI/2;
+  S.projs.push({
+    type:'farmerPickup',
+    sx:drop.x,
+    sy:drop.y,
+    ex:tower.x,
+    ey:tower.y-CELL*0.1,
+    life:0.26,
+    maxLife:0.26,
+    size:drop.size||16
+  });
+}
+function triggerFarmerAttackAnim(tower, target, stats){
+  if(!tower||!target) return;
+  tower.farmerAttackDur=Math.min(stats&&stats.rate||0.22,0.24);
+  tower.farmerAttackT=tower.farmerAttackDur;
+  tower.farmerAttackAngle=Math.atan2(target.y-tower.y,target.x-tower.x)+Math.PI/2;
+}
 function tryCollectIncomeDropAt(wx,wy){
   for(let i=S.incomeDrops.length-1;i>=0;i--){
     const drop=S.incomeDrops[i];
@@ -5511,10 +5532,9 @@ function update(dt){
         if(roll<(fstats.farmerBonusChance||0)) amount*=2;
         // Override drop amount for collection
         drop.amount=amount;
+        triggerFarmerPickupAnim(ft,drop);
         collectIncomeDrop(drop,true);
         collectedByFarmer=true;
-        // Trigger fork animation
-        ft.farmerPickupT=0.6;
         break;
       }
     }
@@ -5535,6 +5555,7 @@ function update(dt){
       const targets=getTargetsInRange(ft,fstats);
       if(targets.length){
         const tgt=targets[0];
+        triggerFarmerAttackAnim(ft,tgt,fstats);
         // Golden Eye: enemies under 1000 HP turn to gold
         if(fstats.farmerGoldenEye&&tgt.hp<1000&&!tgt.goldenEye){
           tgt.goldenEye=true;
@@ -5542,23 +5563,20 @@ function update(dt){
           tgt.goldenEyeReward=tgt.hp*10;
           tgt.farmerTower=ft;
         } else if(!tgt.goldenEye){
-          tgt.hp-=fstats.dmg;
-          tgt.flashT=0.12;
-          if(tgt.hp<=0){
-            const baseReward=tgt.hp<0?0:tgt.hp;
+          const wasAlive=!tgt.dead;
+          if(damageEnemy(tgt,fstats.dmg,ft,fstats)&&wasAlive&&tgt.dead){
             const killReward=Math.round((tgt.maxHp||tgt.hp)*(fstats.farmerKillMult||1));
             S.gold+=killReward;S.totalMoneyEarned=(S.totalMoneyEarned||0)+killReward;
             recordMoneyEarned(killReward);
             updateHUD();
             refreshShopAffordability();
             S.particles.push({x:tgt.x,y:tgt.y-20,text:'$'+killReward,alpha:1,vy:-38,life:0.9,col:'#8bc34a'});
-            handleEnemyDefeat(tgt,ft);
           }
         }
-        S.projs.push({type:'laser',sx:ft.x,sy:ft.y,ex:tgt.x,ey:tgt.y,life:0.1,maxLife:0.1,col:'#8bc34a'});
       }
     }
     if(ft.farmerPickupT>0) ft.farmerPickupT=Math.max(0,ft.farmerPickupT-dt);
+    if(ft.farmerAttackT>0) ft.farmerAttackT=Math.max(0,ft.farmerAttackT-dt);
   }
 
   // Golden Eye countdown
@@ -6599,40 +6617,91 @@ function drawTowers(){
     if(t.defId==='farmerorin'){
       const fstats=getTowerStats(t);
       const forkScale=(fstats.farmerForkScale||1)*scale;
+      const forkBaseAngle=Math.PI*0.24;
+      const pickupDur=0.34;
+      const attackDur=t.farmerAttackDur||0.24;
+      const pickupProg=t.farmerPickupT>0 ? 1-Math.min(1,(t.farmerPickupT||0)/pickupDur) : 0;
+      const attackProg=t.farmerAttackT>0 ? 1-Math.min(1,(t.farmerAttackT||0)/attackDur) : 0;
       const isPickingUp=t.farmerPickupT>0;
-      // Fork stays at right side; animates upward when picking up
-      const forkBaseAngle=Math.PI*0.15; // slight angle from vertical
-      const pickupAngle=isPickingUp?(-Math.PI*0.4*(t.farmerPickupT||0)/0.6):0;
-      const forkAngle=forkBaseAngle+pickupAngle;
-      const forkLen=imgSize*0.75*forkScale;
-      const forkW=Math.max(2,imgSize*0.06*forkScale);
-      const offsetX=imgSize*0.52*forkScale;
-      const offsetY=imgSize*0.05;
+      const isAttacking=t.farmerAttackT>0;
+      let forkAngle=forkBaseAngle;
+      if(isAttacking){
+        const dir=t.farmerAttackAngle||forkBaseAngle;
+        const ease=attackProg<0.5 ? 2*attackProg*attackProg : -1+(4-2*attackProg)*attackProg;
+        const swingOffset=(ease-0.5)*Math.PI*0.56;
+        forkAngle=dir+swingOffset;
+      } else if(isPickingUp){
+        const dir=t.farmerPickupAngle||forkBaseAngle;
+        const reach=Math.sin(pickupProg*Math.PI);
+        forkAngle=forkBaseAngle+(dir-forkBaseAngle)*Math.min(1,pickupProg*1.2)-reach*Math.PI*0.1;
+      }
+      const forkLen=imgSize*0.9*forkScale;
+      const shaftW=Math.max(2.4,imgSize*0.055*forkScale);
+      const handOffset=imgSize*0.4;
 
       ctx.save();
-      ctx.translate(t.x+offsetX,t.y+offsetY);
+      ctx.translate(t.x,t.y);
       ctx.rotate(forkAngle);
+      ctx.translate(0,-handOffset);
 
-      // Handle
-      ctx.strokeStyle='#5a3510';ctx.lineWidth=forkW*0.8;ctx.lineCap='round';
-      ctx.beginPath();ctx.moveTo(0,forkLen*0.5);ctx.lineTo(0,-forkLen*0.35);ctx.stroke();
-
-      // Tines (pitchfork prongs)
-      const tineCount=3;
-      const tineSpread=forkW*2.5;
-      const tineLen=forkLen*0.38;
-      ctx.strokeStyle=getTowerUpgradeLevel(t)>=5?'#ffd700':'#c0c8d0';
-      ctx.lineWidth=Math.max(1.5,forkW*0.45);
+      // Handle shaft
+      ctx.strokeStyle='#70461a';
+      ctx.lineWidth=shaftW;
       ctx.lineCap='round';
+      ctx.beginPath();
+      ctx.moveTo(0,forkLen*0.56);
+      ctx.lineTo(0,-forkLen*0.18);
+      ctx.stroke();
+
+      // Grip wrap near the hand
+      ctx.strokeStyle='#3f250c';
+      ctx.lineWidth=Math.max(1.6,shaftW*0.45);
+      ctx.beginPath();
+      ctx.moveTo(0,forkLen*0.46);
+      ctx.lineTo(0,forkLen*0.28);
+      ctx.stroke();
+
+      // Ferrule/socket at the head of the fork
+      const metalCol=getTowerUpgradeLevel(t)>=5?'#ffd700':'#c0c8d0';
+      const ferruleW=shaftW*1.3;
+      const ferruleTop=-forkLen*0.18;
+      const ferruleBot=-forkLen*0.04;
+      ctx.fillStyle=getTowerUpgradeLevel(t)>=5?'#e1b93f':'#92a0ad';
+      ctx.beginPath();
+      ctx.moveTo(-ferruleW*0.6,ferruleBot);
+      ctx.lineTo(-ferruleW*0.42,ferruleTop);
+      ctx.lineTo( ferruleW*0.42,ferruleTop);
+      ctx.lineTo( ferruleW*0.6,ferruleBot);
+      ctx.closePath();
+      ctx.fill();
+
+      // Four prongs for a more tool-like fork silhouette
+      const tineCount=4;
+      const tineSpread=shaftW*1.5;
+      const tineLen=forkLen*0.3;
+      const tineBaseY=ferruleTop;
+      ctx.strokeStyle=metalCol;
+      ctx.lineWidth=Math.max(1.5,shaftW*0.42);
       if(getTowerUpgradeLevel(t)>=5){ctx.shadowColor='#ffd700';ctx.shadowBlur=10;}
       for(let ti=0;ti<tineCount;ti++){
         const tx2=(ti-(tineCount-1)/2)*tineSpread;
+        const flare=(ti-(tineCount-1)/2)*shaftW*0.28;
         ctx.beginPath();
-        ctx.moveTo(tx2,-forkLen*0.35);
-        ctx.lineTo(tx2,-forkLen*0.35-tineLen);
+        ctx.moveTo(tx2,tineBaseY);
+        ctx.lineTo(tx2+flare,tineBaseY-tineLen);
         ctx.stroke();
       }
       ctx.shadowBlur=0;
+
+      // Attack swipe so melee hits read clearly
+      if(isAttacking){
+        const arcR=forkLen*0.72;
+        ctx.strokeStyle='rgba(139,195,74,0.28)';
+        ctx.lineWidth=Math.max(2.5,shaftW*0.9);
+        ctx.beginPath();
+        ctx.arc(0,0,arcR,-Math.PI*0.9,-Math.PI*0.18,false);
+        ctx.stroke();
+      }
       ctx.restore();
 
       // Golden tinge on golden-eye T5
@@ -7099,6 +7168,30 @@ function drawProjs(){
       ctx.lineWidth=3;
       ctx.shadowColor='#ff4400';ctx.shadowBlur=20;
       ctx.beginPath();ctx.arc(mx,my,14,0,Math.PI*2);ctx.stroke();
+    } else if(p.type==='farmerPickup'){
+      const dvd=gimg('DVD.png');
+      const size=(p.size||16)*(1-prog*0.18);
+      ctx.strokeStyle='rgba(139,195,74,0.4)';
+      ctx.lineWidth=2.2;
+      ctx.beginPath();
+      ctx.moveTo(p.sx,p.sy);
+      ctx.lineTo(cx,cy);
+      ctx.stroke();
+      if(!dvd._bad&&dvd.complete&&dvd.naturalWidth>0){
+        ctx.drawImage(dvd,cx-size/2,cy-size/2,size,size);
+      } else {
+        ctx.fillStyle='#f5e8c0';
+        ctx.fillRect(cx-size/2,cy-size/2,size,size*0.72);
+        ctx.fillStyle='#1a1209';
+        ctx.font=`bold ${Math.max(6,Math.floor(size*0.24))}px Cinzel,serif`;
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.fillText('DVD',cx,cy);
+      }
+      ctx.fillStyle='rgba(255,255,210,0.65)';
+      ctx.beginPath();
+      ctx.arc(cx,cy,size*0.12,0,Math.PI*2);
+      ctx.fill();
     } else if(p.type==='laser'){
       ctx.strokeStyle='#29b6f6';ctx.lineWidth=2.5;
       ctx.shadowColor='#29b6f6';ctx.shadowBlur=7;
