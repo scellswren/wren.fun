@@ -1662,7 +1662,6 @@ function switchShopTab(tab){
 }
 
 function showMenuShop(){
-  CAREER=loadCareer();
   if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
   _activeShopTab='towers';
   const overlay=document.getElementById('menuShopOverlay');
@@ -1787,7 +1786,6 @@ function renderMenuShopItems(){
 }
 
 function purchaseMapItem(item){
-  CAREER=loadCareer();
   if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
   if(CAREER.shopUnlocks[item.id]) return;
   if(item.shardCost&&(CAREER.rareShards||0)<item.shardCost){
@@ -1807,7 +1805,6 @@ function purchaseMapItem(item){
 }
 
 function purchaseShopItem(item){
-  CAREER=loadCareer();
   if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
   if(CAREER.shopUnlocks[item.id]) return;
   if(item.shardCost&&(CAREER.rareShards||0)<item.shardCost){
@@ -3166,7 +3163,6 @@ function showSub(type){
       </div>`;
 
   } else if(type==='characters'){
-    CAREER=loadCareer();
     if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
     const cards=Object.values(TD).map(t=>{
       const requiresUnlock=t.shopUnlockOnly;
@@ -3773,7 +3769,6 @@ function showDiffSelect(mapId){
 function showMapSelect(mode, backFromDiff){
   pendingGameMode=mode||pendingGameMode||'classic';
   // Show/hide frozen lake card based on unlock
-  CAREER=loadCareer();
   const frozenCard=document.getElementById('mc-frozenlake');
   if(frozenCard){
     const unlocked=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_frozenlake']);
@@ -3801,7 +3796,6 @@ function showMapSelect(mode, backFromDiff){
 }
 
 function trySelectFrozenLake(){
-  CAREER=loadCareer();
   if(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_frozenlake']){
     showDiffSelect('frozenlake');
   } else {
@@ -3810,7 +3804,6 @@ function trySelectFrozenLake(){
 }
 
 function trySelectDesertRoad(){
-  CAREER=loadCareer();
   if(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_desertroad']){
     showDiffSelect('desertroad');
   } else {
@@ -4019,6 +4012,60 @@ function renderMapPreview(mapId,canvasId){
       const x=(i*137)%W, y=(i*97)%H;
       ptx.beginPath(); ptx.ellipse(x,y,4+(i%5),1.5,((i*47)%180)*Math.PI/180,0,Math.PI*2); ptx.fill();
     }
+    // Ice crack network
+    ptx.strokeStyle='rgba(150,200,240,0.35)'; ptx.lineWidth=1;
+    for(let i=0;i<12;i++){
+      const x1=(i*177)%W, y1=(i*113)%H;
+      const x2=x1+((i%7)-3)*W*.12, y2=y1+((i%5)-2)*H*.1;
+      ptx.beginPath(); ptx.moveTo(x1,y1); ptx.lineTo(x2,y2); ptx.stroke();
+    }
+    // Lake water pockets (scaled to preview canvas)
+    const psc=W/(COLS*CELL);
+    function drawPreviewLake(pts,col){
+      ptx.beginPath();
+      pts.forEach(([cx,cy],i)=>{
+        const px=cx*CELL*psc, py=cy*CELL*psc;
+        i===0?ptx.moveTo(px,py):ptx.lineTo(px,py);
+      });
+      ptx.closePath();
+      ptx.fillStyle=col; ptx.fill();
+    }
+    drawPreviewLake([[15.6,6.4],[16.8,6.1],[18.1,6.5],[19.1,7.5],[19.5,8.9],[19.2,10.3],[18.2,11.3],[16.8,11.8],[15.4,11.6],[14.3,10.7],[13.8,9.4],[13.9,8.0],[14.6,7.0]],'rgba(80,160,220,0.55)');
+    drawPreviewLake([[2.1,3.2],[3.0,2.55],[4.1,2.45],[5.1,2.95],[5.5,3.95],[5.05,5.0],[3.8,5.5],[2.55,5.15],[1.95,4.2]],'rgba(80,160,220,0.45)');
+    drawPreviewLake([[23.8,6.8],[25.1,5.95],[26.7,6.28],[27.4,7.5],[26.85,8.85],[25.2,9.2],[23.95,8.45],[23.4,7.5]],'rgba(80,160,220,0.45)');
+    drawPreviewLake([[22.9,13.3],[24.0,12.6],[25.4,12.82],[26.1,13.95],[25.65,15.05],[24.3,15.5],[23.1,14.85],[22.62,13.95]],'rgba(80,160,220,0.4)');
+    // Skate curls (scaled to preview)
+    const sW=COLS*CELL*psc, sH=ROWS*CELL*psc;
+    [[sW*.12,sH*.25,CELL*psc*1.3,CELL*psc*.55,.15,.44],[sW*.56,sH*.48,CELL*psc*4.4,CELL*psc*1.9,-.18,.33],[sW*.73,sH*.23,CELL*psc*1.8,CELL*psc*.68,.35,.24]].forEach(([x,y,rx,ry,rot,a])=>{
+      ptx.save(); ptx.globalAlpha=a; ptx.strokeStyle='rgba(200,240,255,.8)'; ptx.lineWidth=1.8;
+      ptx.beginPath(); ptx.ellipse(x,y,rx,ry,rot,0,Math.PI*2); ptx.stroke(); ptx.restore();
+    });
+    // Pine trees along edges
+    function drawIconPine(gx,gy,s){
+      ptx.save(); ptx.translate(gx,gy); ptx.scale(s,s);
+      ptx.fillStyle='rgba(0,63,96,.18)'; ptx.beginPath(); ptx.ellipse(2,13,9,3,0,0,Math.PI*2); ptx.fill();
+      ptx.fillStyle='#245d2d';
+      for(let i=0;i<3;i++){
+        ptx.beginPath(); ptx.moveTo(0,-14+i*9); ptx.lineTo(12-i*2,7+i*5); ptx.lineTo(-12+i*2,7+i*5); ptx.closePath(); ptx.fill();
+        ptx.fillStyle='rgba(247,253,255,.88)'; ptx.beginPath(); ptx.ellipse(0,-7+i*9,8-i,2.6,0,0,Math.PI*2); ptx.fill();
+        ptx.fillStyle='#245d2d';
+      }
+      ptx.restore();
+    }
+    [[W*.04,H*.18,.38],[W*.1,H*.5,.32],[W*.06,H*.82,.36],[W*.22,H*.06,.3],[W*.45,H*.08,.28],[W*.72,H*.05,.26],[W*.88,H*.18,.32],[W*.93,H*.52,.3],[W*.9,H*.82,.34],[W*.18,H*.93,.3],[W*.42,H*.95,.26],[W*.72,H*.94,.28]].forEach(([x,y,s])=>drawIconPine(x,y,s));
+    // Cabin
+    function drawIconCabin(gx,gy,s){
+      ptx.save(); ptx.translate(gx,gy); ptx.scale(s,s);
+      ptx.fillStyle='rgba(0,43,82,.2)'; ptx.beginPath(); ptx.ellipse(9,22,26,8,0,0,Math.PI*2); ptx.fill();
+      ptx.fillStyle='#6a381e'; ptx.fillRect(-16,-2,32,22);
+      ptx.fillStyle='#8b4e2a'; ptx.fillRect(-11,3,9,15);
+      ptx.fillStyle='#f0c977'; ptx.fillRect(5,4,8,7);
+      ptx.fillStyle='#f8fbff'; ptx.beginPath(); ptx.moveTo(-21,-4); ptx.lineTo(0,-21); ptx.lineTo(22,-4); ptx.closePath(); ptx.fill();
+      ptx.strokeStyle='#8b311d'; ptx.lineWidth=4; ptx.beginPath(); ptx.moveTo(-18,-2); ptx.lineTo(0,-17); ptx.lineTo(19,-2); ptx.stroke();
+      ptx.fillStyle='rgba(255,255,255,.8)'; ptx.beginPath(); ptx.ellipse(-9,-2,8,3,0,0,Math.PI*2); ptx.fill();
+      ptx.restore();
+    }
+    drawIconCabin(W*.82,H*.12,.28); drawIconCabin(W*.25,H*.82,.24);
   } else if(mapId==='desertroad'){
     // Desert Road background: sandy warm gold
     const bg=ptx.createLinearGradient(0,0,W,H);
@@ -4030,6 +4077,34 @@ function renderMapPreview(mapId,canvasId){
       const x=(i*313+17)%W, y=(i*197+41)%H;
       ptx.beginPath(); ptx.ellipse(x,y,8+(i%5)*3,2+(i%3),((i*37)%180)*Math.PI/180,0,Math.PI*2); ptx.fill();
     }
+    // Sand dune highlights
+    const rng=(s)=>((s*16807+1)%2147483647)/2147483647;
+    for(let i=0;i<10;i++){
+      const x=(i*337+55)%W, y=(i*211+33)%H;
+      const dg=ptx.createRadialGradient(x,y,0,x,y,W*.1+rng(i*7)*W*.06);
+      dg.addColorStop(0,`rgba(255,240,180,${0.18+rng(i*11)*0.12})`); dg.addColorStop(1,'rgba(255,240,180,0)');
+      ptx.fillStyle=dg; ptx.beginPath(); ptx.ellipse(x,y,W*.1+rng(i*13)*W*.05,H*.06+rng(i*17)*H*.03,rng(i*19)*Math.PI,0,Math.PI*2); ptx.fill();
+    }
+    // Cacti
+    function drawIconCactus(cx,cy,s){
+      ptx.save(); ptx.translate(cx,cy); ptx.scale(s,s);
+      const ch=18;
+      ptx.fillStyle='rgba(100,70,10,0.18)'; ptx.beginPath(); ptx.ellipse(3,ch+4,10,4,0,0,Math.PI*2); ptx.fill();
+      const cg=ptx.createLinearGradient(-5,0,5,0); cg.addColorStop(0,'#3a7a3a'); cg.addColorStop(.5,'#4a9a4a'); cg.addColorStop(1,'#2d6a2d');
+      ptx.fillStyle=cg; ptx.beginPath(); ptx.roundRect(-5,0,10,ch,4); ptx.fill();
+      ptx.beginPath(); ptx.roundRect(-13,ch*.35,7,ch*.18,3); ptx.fill();
+      ptx.beginPath(); ptx.roundRect(6,ch*.5,7,ch*.16,3); ptx.fill();
+      ptx.restore();
+    }
+    // Rocks
+    function drawIconRock(rx,ry,s){
+      ptx.save(); ptx.translate(rx,ry); ptx.scale(s,s);
+      const drg=ptx.createLinearGradient(-10,-8,12,14); drg.addColorStop(0,'#d4b87a'); drg.addColorStop(.4,'#b09050'); drg.addColorStop(1,'#8a6a30');
+      ptx.fillStyle=drg; ptx.beginPath(); ptx.moveTo(-10,6); ptx.lineTo(-4,-7); ptx.lineTo(6,-10); ptx.lineTo(14,2); ptx.lineTo(10,10); ptx.lineTo(-4,12); ptx.closePath(); ptx.fill();
+      ptx.restore();
+    }
+    [[W*.08,H*.2,1.1],[W*.25,H*.75,1.0],[W*.55,H*.15,.95],[W*.72,H*.72,1.05],[W*.88,H*.25,.9]].forEach(([x,y,s])=>drawIconCactus(x,y,s));
+    [[W*.18,H*.55,.8],[W*.38,H*.2,.7],[W*.62,H*.6,.75],[W*.82,H*.55,.7]].forEach(([x,y,s])=>drawIconRock(x,y,s));
   } else {
     const bg=ptx.createLinearGradient(0,0,W,H);
     bg.addColorStop(0,'#3e7a34'); bg.addColorStop(1,'#375f2e');
@@ -4471,9 +4546,9 @@ function drawFrozenLakePreviewRoad(ptx){
 
 function drawDesertRoadPreviewRoad(ptx){
   const map=MAPS.desertroad;
-  // Only draw the forward half of the path (enemies go out and come back)
+  // Only draw 70% of the forward half of the path
   const half=Math.ceil(map.path.length/2);
-  const fwdPath=map.path.slice(0,half);
+  const fwdPath=map.path.slice(0,Math.ceil(half*0.7));
   function traceDesertPath(p){
     ptx.beginPath();
     p.forEach(([c,r],i)=>{
@@ -5883,6 +5958,7 @@ function triggerOver(won){
       else if(diff==='hard')   { CAREER.hardWins=(CAREER.hardWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+3; }
       CAREER.totalWins=(CAREER.totalWins||0)+1;
       saveCareer(CAREER);
+      if(typeof updateShardHud==='function') updateShardHud();
     }
   }
   recordGameEnd(S);
