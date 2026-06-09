@@ -265,6 +265,98 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .mshop-map-tag.desert{background:#3a200822;border:1px solid #e0b05055;color:#e0b050;}
 .mshop-map-tag.hot{background:#3a100022;border:1px solid #ff704355;color:#ff7043;}
 .mshop-map-tag.gravel{background:#2a1e1022;border:1px solid #9a826255;color:#c0a882;}
+/* ── BOX SHOP SECTION ── */
+.mshop-box-section-title{font-family:'Cinzel',serif;font-size:.8rem;letter-spacing:.12em;color:#f5a623;
+  padding:.5rem 0 .6rem;border-bottom:1px solid #f5a62322;margin-bottom:.8rem;text-transform:uppercase;}
+.mshop-boxcard{background:linear-gradient(135deg,#1a1208ee,#221508dd);
+  border:1px solid #f5a62344;border-radius:6px;overflow:hidden;transition:all .2s;margin-bottom:.5rem;}
+.mshop-boxcard:hover{border-color:#f5a623aa;box-shadow:0 0 28px #f5a62330;transform:translateY(-2px)}
+.mshop-boxcard-inner{display:flex;gap:1rem;align-items:flex-start;padding:.9rem 1rem}
+.mshop-box-icon{width:88px;height:88px;border:1px solid #f5a62344;border-radius:5px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-size:2.8rem;flex-shrink:0;
+  background:linear-gradient(135deg,#2a1800,#1a1000);position:relative}
+.mshop-box-info{flex:1}
+.mshop-box-name{font-family:'Cinzel',serif;font-size:1rem;color:#f5a623;margin-bottom:.3rem;letter-spacing:.04em}
+.mshop-box-desc{font-size:.8rem;color:var(--muted);font-style:italic;line-height:1.5;margin-bottom:.6rem}
+.mshop-box-price{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;font-family:'Cinzel',serif;font-size:.82rem;color:#a78bfa;}
+.mshop-box-buy{font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;letter-spacing:.06em;
+  padding:.45em 1.2em;border:1px solid #f5a62366;background:linear-gradient(135deg,#f5a62318,transparent);
+  color:#f5a623;border-radius:3px;cursor:pointer;transition:all .18s}
+.mshop-box-buy:hover{background:linear-gradient(135deg,#f5a62340,#f5a62320);box-shadow:0 0 16px #f5a62355}
+.mshop-box-buy:disabled{opacity:.35;cursor:not-allowed}
+/* ── BOX OPENING OVERLAY ── */
+#boxOpenOverlay{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.9);flex-direction:column;gap:.5rem;}
+#boxOpenOverlay.open{display:flex;}
+.box-anim-wrap{position:relative;width:220px;height:220px;margin:0 auto;perspective:700px;}
+.box-lid{position:absolute;top:0;left:0;width:100%;height:44%;
+  background:linear-gradient(160deg,#a06218,#6b3800);border:2px solid #f5a623;
+  border-radius:6px 6px 0 0;transform-origin:50% 100%;transform-style:preserve-3d;
+  transform:rotateX(0deg);transition:transform .85s cubic-bezier(.34,1.56,.64,1);}
+.box-lid.open{transform:rotateX(-125deg) translateY(-14px);}
+.box-lid-band{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:22px;height:100%;background:linear-gradient(90deg,#f5a623,#f0c040,#f5a623);opacity:.85;border-radius:3px}
+.box-body{position:absolute;bottom:0;left:0;width:100%;height:61%;
+  background:linear-gradient(160deg,#7a4200,#502800);
+  border:2px solid #f5a623;border-radius:0 0 8px 8px;border-top:none}
+.box-body-band{position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:22px;height:100%;background:linear-gradient(90deg,#f5a623,#f0c040,#f5a623);opacity:.85;border-radius:3px}
+.box-shine{position:absolute;top:8%;left:12%;width:36%;height:26%;
+  background:radial-gradient(ellipse,rgba(255,255,255,0.2),transparent);border-radius:50%}
+.box-reveal{position:absolute;top:50%;left:50%;
+  width:120px;height:120px;border-radius:7px;overflow:hidden;border:2px solid #f0c040;
+  opacity:0;transition:opacity .55s ease .8s,transform .55s cubic-bezier(.34,1.56,.64,1) .8s;
+  transform:translate(-50%,-56%) scale(.25);pointer-events:none}
+.box-reveal.show{opacity:1;transform:translate(-50%,-56%) scale(1);}
+.box-reveal img{width:100%;height:100%;object-fit:cover;}
+.box-glow{position:absolute;inset:-30px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(245,196,35,0.28),transparent 62%);
+  opacity:0;transition:opacity .5s ease .75s;pointer-events:none}
+.box-glow.show{opacity:1}
+.box-particles-layer{position:absolute;inset:-80px;pointer-events:none;overflow:visible}
+.box-particles-layer span{position:absolute;font-size:1.5rem;opacity:0;pointer-events:none;top:50%;left:50%}
+.box-particles-layer span.fly{animation:confettiFly var(--dur,.9s) ease forwards;}
+@keyframes confettiFly{0%{opacity:1;transform:translate(-50%,-50%) rotate(0deg) scale(1.1)}
+  100%{opacity:0;transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) rotate(var(--tr)) scale(.3)}}
+.box-open-title{font-family:'Cinzel',serif;font-size:1.4rem;color:#f5a623;
+  text-shadow:0 0 24px #f5a62388;letter-spacing:.08em;text-align:center;}
+.box-tower-name{font-family:'Cinzel',serif;font-size:1.1rem;color:#f0c040;
+  text-align:center;opacity:0;transition:opacity .4s ease 1.2s}
+.box-tower-name.show{opacity:1}
+.box-subtitle{font-size:.82rem;color:var(--muted);font-style:italic;
+  text-align:center;opacity:0;transition:opacity .4s ease 1.4s}
+.box-subtitle.show{opacity:1}
+.box-close-btn{font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;letter-spacing:.06em;
+  padding:.55em 2em;border:1px solid #f5a62366;background:linear-gradient(135deg,#f5a62318,transparent);
+  color:#f5a623;border-radius:3px;cursor:pointer;opacity:0;transition:opacity .3s ease 1.6s}
+.box-close-btn.show{opacity:1}
+/* ── TEAM SELECTOR ── */
+.shop-team-section{padding:.3rem .3rem .1rem;border-bottom:1px solid #c8964022;margin-bottom:.2rem}
+.shop-team-title{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.09em;color:var(--gold);opacity:.7;text-transform:uppercase;margin-bottom:.2rem}
+.shop-team-slots{display:flex;flex-wrap:wrap;gap:3px}
+.shop-team-slot{width:20px;height:20px;border-radius:2px;border:1px solid #c8964044;background:#0a0804;
+  display:flex;align-items:center;justify-content:center;font-size:.48rem;font-family:'Cinzel',serif;color:#c89640}
+.shop-team-slot.filled{border-color:#f0c04066;background:#1a1204;color:#f0c040}
+.team-manager-wrap{background:#0e0b06;border:1px solid #c8964033;border-radius:4px;padding:.6rem .8rem;margin:.8rem 0 .4rem}
+.team-manager-title{font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.45rem;opacity:.85}
+.team-manager-slots{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:.35rem}
+.tm-slot{width:36px;height:36px;border-radius:4px;border:2px solid #c8964044;background:#0a0804;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;
+  font-family:'Cinzel',serif;cursor:pointer;transition:all .18s;position:relative}
+.tm-slot.filled{border-color:#f0c04066;background:#1c1508}
+.tm-slot:hover{border-color:#f0c040;background:#241808}
+.tm-slot .tm-num{font-size:.38rem;color:var(--muted);position:absolute;top:1px;right:2px}
+.tm-slot .tm-init{font-size:.65rem;color:#f0c040;font-weight:700}
+.tm-slot .tm-empty{font-size:.55rem;color:#c8964044}
+.team-manager-hint{font-size:.7rem;color:var(--muted);font-style:italic;line-height:1.4}
+.ccard-team-badge{display:inline-block;padding:.1em .45em;border-radius:2px;font-size:.6rem;
+  font-family:'Cinzel',serif;margin-left:.4rem;vertical-align:middle;cursor:pointer;transition:all .15s}
+.ccard-team-badge.in-team{background:#4caf5018;border:1px solid #4caf5044;color:#4caf50}
+.ccard-team-badge.in-team:hover{background:#4caf5030}
+.ccard-team-badge.not-in-team{background:#c8964018;border:1px solid #c8964044;color:#c89640}
+.ccard-team-badge.not-in-team:hover{background:#c8964030}
+.ccard-team-badge.team-full{background:#c0392b18;border:1px solid #c0392b44;color:#e57368;cursor:not-allowed}
+
 
 /* Frozen lake mapcard in game select */
 .mapcard.frozen{border-color:#4a8fc055;}
@@ -550,6 +642,14 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 #bigBoomTip{position:absolute;bottom:3.5rem;left:1rem;right:auto;
   font-family:'Cinzel',serif;font-size:.63rem;color:#ffb09a;opacity:.8;
   letter-spacing:.06em;display:none;text-align:left;pointer-events:none}
+#cheeseStormBtn{position:absolute;bottom:1rem;left:1rem;right:auto;
+  font-size:1.6rem;background:linear-gradient(135deg,#f5c51822,#c89a1011);
+  border:2px solid #f5c51888;color:inherit;cursor:pointer;display:none;z-index:150;
+  padding:.3em .5em;border-radius:6px;transition:border-color .2s,box-shadow .2s,transform .2s;
+  box-shadow:0 0 14px #f5c51830;line-height:1;overflow:hidden}
+#cheeseStormBtn:hover{background:linear-gradient(135deg,#f5c51840,#c89a1022);
+  box-shadow:0 0 22px #f5c51855;transform:translateY(-2px)}
+#cheeseStormBtn:disabled{cursor:not-allowed;transform:none}
 .ability-cd-sweep{position:absolute;inset:0;border-radius:4px;pointer-events:none;z-index:1;
   transition:none}
 
@@ -570,6 +670,27 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .cupgitem{font-size:.74rem;color:var(--text);line-height:1.45;padding:.2rem 0;border-bottom:1px solid #c8964014}
 .cupgitem:last-child{border-bottom:none}
 .upg-tier{display:inline-block;font-family:'Cinzel',serif;font-size:.6rem;color:var(--muted);background:#f0c04010;border:1px solid #f0c04030;padding:.08em .35em;border-radius:2px;margin-right:.3rem}
+
+/* ── TOWER MENU TEAM SELECTION ── */
+.tower-team-header{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;width:100%;max-width:980px;
+  padding:.65rem 1rem;background:linear-gradient(135deg,#181208ee,#10100aee);
+  border:1px solid #c8964044;border-radius:5px;margin-bottom:.8rem}
+.tower-team-label{font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;color:var(--gold);letter-spacing:.08em}
+.tower-team-count{font-family:'Cinzel',serif;font-size:.82rem;color:#a78bfa;
+  background:#7c3aed18;border:1px solid #7c3aed44;padding:.2em .7em;border-radius:3px}
+.tower-team-hint{font-size:.73rem;color:var(--muted);font-style:italic;opacity:.8}
+.tower-card-footer{display:flex;align-items:center;justify-content:space-between;
+  padding:.4rem .9rem .55rem;border-top:1px solid #c8964018;gap:.5rem}
+.tower-card-footer .tower-upgrades-toggle{padding:0;border-top:none;flex:1;cursor:pointer;transition:background .15s}
+.tower-card-footer .tower-upgrades-toggle:hover{background:none}
+.tower-select-btn{font-family:'Cinzel',serif;font-size:.7rem;font-weight:700;letter-spacing:.06em;
+  padding:.38em 1.05em;border:1px solid #c8964066;
+  background:linear-gradient(135deg,#c8964018,#c8960a08);
+  color:var(--muted);cursor:pointer;transition:all .18s;flex-shrink:0;
+  clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%)}
+.tower-select-btn:hover{background:linear-gradient(135deg,#f0c04030,#c8960a18);color:var(--gold);border-color:var(--gold)}
+.tower-select-btn.selected{border-color:#4caf5077;color:#4caf50;background:linear-gradient(135deg,#4caf5018,#4caf500a)}
+.tower-select-btn.selected:hover{background:linear-gradient(135deg,#c0392b22,#c0392b0a);border-color:#e5736877;color:#e57368}
 
 /* ── SANDBOX PANEL ── */
 #sandboxPanel{display:none;position:absolute;bottom:4.2rem;left:50%;transform:translateX(-50%);
@@ -974,6 +1095,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
     <div id="orinFrenzyTip"></div>
     <button id="bigBoomBtn" onclick="G.triggerBigBoomGlobal()">💥<div class="ability-cd-sweep" id="bigBoomSweep"></div></button>
     <div id="bigBoomTip"></div>
+    <button id="cheeseStormBtn" onclick="G.triggerCheeseStormGlobal()">🧀<div class="ability-cd-sweep" id="cheeseStormSweep"></div></button>
     <!-- Sandbox panel -->
     <div id="sandboxPanel">
       <div class="sbhdr">
@@ -1076,6 +1198,28 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
       <!-- populated by JS -->
     </div>
   </div>
+</div>
+
+<!-- BOX OPENING OVERLAY -->
+<div id="boxOpenOverlay">
+  <div class="box-open-title">📦 Opening Box…</div>
+  <div class="box-anim-wrap" id="boxAnimWrap">
+    <div class="box-glow" id="boxGlow"></div>
+    <div class="box-lid" id="boxLid">
+      <div class="box-lid-band"></div>
+      <div class="box-shine"></div>
+    </div>
+    <div class="box-body">
+      <div class="box-body-band"></div>
+    </div>
+    <div class="box-reveal" id="boxReveal">
+      <img id="boxRevealImg" src="" alt="">
+    </div>
+    <div class="box-particles-layer" id="boxParticles"></div>
+  </div>
+  <div class="box-tower-name" id="boxTowerName"></div>
+  <div class="box-subtitle" id="boxSubtitle"></div>
+  <button class="box-close-btn" id="boxCloseBtn" onclick="G.closeBoxOpen()">✓ Awesome!</button>
 </div>
 
 <script>
@@ -1605,6 +1749,52 @@ let CAREER = loadCareer();
 
 // Ensure shopUnlocks exists
 if(!CAREER.shopUnlocks) { CAREER.shopUnlocks={}; saveCareer(CAREER); }
+// Ensure selectedTeam exists (array of up to 10 tower IDs in order)
+if(!CAREER.selectedTeam) { CAREER.selectedTeam=[...Object.keys({wren:1,tiki:1,edunzie:1,orin:1,wrenfun:1,thomasmini:1})]; saveCareer(CAREER); }
+
+const MAX_TEAM_SIZE = 10;
+
+function getAvailableTowerIds(){
+  const unlocks=CAREER.shopUnlocks||{};
+  return Object.values(TD).filter(d=>!d.shopUnlockOnly||unlocks[d.id]).map(d=>d.id);
+}
+
+function getTeam(){
+  if(!CAREER.selectedTeam) CAREER.selectedTeam=getAvailableTowerIds().slice(0,MAX_TEAM_SIZE);
+  // Filter to only available towers
+  const avail=new Set(getAvailableTowerIds());
+  CAREER.selectedTeam=CAREER.selectedTeam.filter(id=>avail.has(id));
+  return CAREER.selectedTeam;
+}
+
+function isInTeam(towerId){ return getTeam().includes(towerId); }
+
+function toggleTeamTower(towerId){
+  const team=getTeam();
+  const idx=team.indexOf(towerId);
+  if(idx!==-1){
+    // Remove from team
+    CAREER.selectedTeam=team.filter(id=>id!==towerId);
+  } else {
+    if(team.length>=MAX_TEAM_SIZE){
+      showToast('Team is full! (Max '+MAX_TEAM_SIZE+' towers)','#e57368');
+      return;
+    }
+    CAREER.selectedTeam=[...team,towerId];
+  }
+  saveCareer(CAREER);
+}
+
+function moveTeamTower(towerId, direction){
+  const team=[...getTeam()];
+  const idx=team.indexOf(towerId);
+  if(idx===-1) return;
+  const newIdx=idx+direction;
+  if(newIdx<0||newIdx>=team.length) return;
+  [team[idx],team[newIdx]]=[team[newIdx],team[idx]];
+  CAREER.selectedTeam=team;
+  saveCareer(CAREER);
+}
 
 // ── MENU SHOP ──
 const MENU_SHOP_ITEMS = [
@@ -1671,6 +1861,156 @@ const MENU_SHOP_MAPS = [
 
 let _activeShopTab = 'towers';
 
+const MENU_SHOP_BOXES = [
+  {
+    id:'box_small_youtuber',
+    name:'Small Youtuber Box',
+    shardCost:12,
+    desc:'A box filled with secrets from the small YouTuber world. Open it to receive a brand new exclusive tower!',
+    contains:[{towerId:'cheeseblock', name:'Block of Cheese', img:'Cyatr9.jpg'}],
+    multiOpen:true  // can open multiple times if more content added later
+  }
+];
+
+function renderMenuShopBoxes(){
+  const body=document.getElementById('mshopBody');
+  if(!body) return;
+  body.innerHTML='';
+  if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
+
+  const section=document.createElement('div');
+  section.innerHTML='<div class="mshop-box-section-title">📦 Boxes</div>';
+  body.appendChild(section);
+
+  MENU_SHOP_BOXES.forEach(box=>{
+    const canAfford=(CAREER.rareShards||0)>=box.shardCost;
+    // Check if all contents are already unlocked
+    const allOwned=box.contains.every(c=>!!(CAREER.shopUnlocks&&CAREER.shopUnlocks[c.towerId]));
+
+    const card=document.createElement('div');
+    card.className='mshop-boxcard';
+
+    const containsList=box.contains.map(c=>`<span style="color:#f0c040">${c.name}</span>`).join(', ');
+    card.innerHTML=`
+      <div class="mshop-boxcard-inner">
+        <div class="mshop-box-icon">📦</div>
+        <div class="mshop-box-info">
+          <div class="mshop-box-name">${box.name}</div>
+          <div class="mshop-box-desc">${box.desc}</div>
+          <div class="mshop-box-price">💎 ${box.shardCost} Rare Shard${box.shardCost!==1?'s':''}</div>
+          ${allOwned
+            ?`<button class="mshop-box-buy" disabled style="border-color:#4caf5077;color:#4caf50;background:#4caf5012">✓ All Contents Unlocked</button>`
+            :`<button class="mshop-box-buy" id="mshop-boxbuy-${box.id}" ${canAfford?'':'disabled'}>${canAfford?'🎁 Open Box':'Need '+box.shardCost+' Rare Shards'}</button>`
+          }
+        </div>
+      </div>`;
+
+    if(!allOwned){
+      const btn=card.querySelector(`#mshop-boxbuy-${box.id}`);
+      if(btn&&canAfford){
+        btn.addEventListener('click',()=>openBox(box));
+      }
+    }
+    body.appendChild(card);
+  });
+}
+
+function openBox(box){
+  if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
+  if((CAREER.rareShards||0)<box.shardCost){
+    showToast('Not enough Rare Shards!','#e57368');
+    return;
+  }
+  // Deduct shards
+  CAREER.rareShards=(CAREER.rareShards||0)-box.shardCost;
+
+  // Pick a random unowned tower from the box (or random if all owned)
+  const unowned=box.contains.filter(c=>!(CAREER.shopUnlocks&&CAREER.shopUnlocks[c.towerId]));
+  const prize=unowned.length>0 ? unowned[Math.floor(Math.random()*unowned.length)]
+                               : box.contains[Math.floor(Math.random()*box.contains.length)];
+
+  // Unlock the tower
+  CAREER.shopUnlocks[prize.towerId]=true;
+  saveCareer(CAREER);
+  updateShardHud();
+
+  // Show the animation
+  playBoxOpenAnimation(prize);
+}
+
+function playBoxOpenAnimation(prize){
+  const overlay=document.getElementById('boxOpenOverlay');
+  const lid=document.getElementById('boxLid');
+  const reveal=document.getElementById('boxReveal');
+  const revealImg=document.getElementById('boxRevealImg');
+  const towerName=document.getElementById('boxTowerName');
+  const subtitle=document.getElementById('boxSubtitle');
+  const closeBtn=document.getElementById('boxCloseBtn');
+  const particles=document.getElementById('boxParticles');
+  const glow=document.getElementById('boxGlow');
+
+  // Reset
+  lid.classList.remove('open');
+  reveal.classList.remove('show');
+  towerName.classList.remove('show');
+  subtitle.classList.remove('show');
+  closeBtn.classList.remove('show');
+  glow.classList.remove('show');
+  particles.innerHTML='';
+  revealImg.src=resolvedImgSrc(prize.img);
+  towerName.textContent=prize.name;
+  subtitle.textContent='A brand new tower for your arsenal!';
+
+  overlay.classList.add('open');
+
+  // Shake box briefly before opening
+  const wrap=document.getElementById('boxAnimWrap');
+  wrap.style.animation='';
+  setTimeout(()=>{
+    wrap.style.animation='boxShake .45s ease';
+    setTimeout(()=>{
+      wrap.style.animation='';
+      // Open the lid
+      lid.classList.add('open');
+      glow.classList.add('show');
+
+      // Fire confetti particles after lid opens
+      setTimeout(()=>{
+        const emojis=['🧀','⭐','✨','🎉','💛','🌟','🎊','💫'];
+        for(let i=0;i<18;i++){
+          const span=document.createElement('span');
+          span.textContent=emojis[i%emojis.length];
+          const angle=Math.random()*Math.PI*2;
+          const dist=80+Math.random()*120;
+          span.style.setProperty('--tx',(Math.cos(angle)*dist)+'px');
+          span.style.setProperty('--ty',(Math.sin(angle)*dist-60)+'px');
+          span.style.setProperty('--tr',((Math.random()*720-360))+'deg');
+          span.style.setProperty('--dur',(0.7+Math.random()*0.5)+'s');
+          span.style.animationDelay=(Math.random()*0.3)+'s';
+          particles.appendChild(span);
+          requestAnimationFrame(()=>requestAnimationFrame(()=>span.classList.add('fly')));
+        }
+        reveal.classList.add('show');
+        towerName.classList.add('show');
+        subtitle.classList.add('show');
+        closeBtn.classList.add('show');
+      }, 750);
+
+    }, 450);
+  }, 200);
+}
+
+function closeBoxOpen(){
+  document.getElementById('boxOpenOverlay').classList.remove('open');
+  renderMenuShopItems();
+}
+
+// Add boxShake keyframe dynamically
+(function(){
+  const style=document.createElement('style');
+  style.textContent='@keyframes boxShake{0%{transform:rotate(0deg)}15%{transform:rotate(-4deg)}30%{transform:rotate(4deg)}45%{transform:rotate(-3deg)}60%{transform:rotate(3deg)}80%{transform:rotate(-1.5deg)}100%{transform:rotate(0deg)}}';
+  document.head.appendChild(style);
+})();
 function switchShopTab(tab){
   _activeShopTab = tab;
   document.querySelectorAll('.mshop-tab').forEach(el=>{
@@ -1697,7 +2037,7 @@ function closeMenuShop(){
 
 function renderMenuShopBody(){
   if(_activeShopTab==='towers') renderMenuShopItems();
-  else renderMenuShopMaps();
+  else if(_activeShopTab==='maps') renderMenuShopMaps();
 }
 
 function renderMenuShopMaps(){
@@ -1724,7 +2064,6 @@ function renderMenuShopMaps(){
       <div class="mshop-map-info">
         <div style="margin-bottom:.3rem">${tagsHtml}</div>
         <div class="mshop-map-name">${mapIcon} ${item.name}</div>
-        <div class="mshop-map-desc">${owned?item.desc:'Purchase to reveal map details.'}</div>
         <div class="mshop-map-price">
           <div class="mshop-map-shard">💎 ${item.shardCost} Rare Shard${item.shardCost!==1?'s':''}</div>
         </div>
@@ -1801,6 +2140,42 @@ function renderMenuShopItems(){
     }
     body.appendChild(card);
   });
+
+  // ── Boxes section (nested inside Towers tab) ──
+  if(MENU_SHOP_BOXES&&MENU_SHOP_BOXES.length){
+    const boxSectionTitle=document.createElement('div');
+    boxSectionTitle.innerHTML='<div class="mshop-section-title" style="margin-top:1.2rem">📦 Boxes</div>';
+    body.appendChild(boxSectionTitle);
+
+    MENU_SHOP_BOXES.forEach(box=>{
+      const canAfford=(CAREER.rareShards||0)>=box.shardCost;
+      const allOwned=box.contains.every(c=>!!(CAREER.shopUnlocks&&CAREER.shopUnlocks[c.towerId]));
+
+      const card=document.createElement('div');
+      card.className='mshop-boxcard';
+
+      card.innerHTML=`
+        <div class="mshop-boxcard-inner">
+          <div class="mshop-box-icon">📦</div>
+          <div class="mshop-box-info">
+            <div class="mshop-box-name">${box.name}</div>
+            <div class="mshop-box-price">💎 ${box.shardCost} Rare Shard${box.shardCost!==1?'s':''}</div>
+            ${allOwned
+              ?`<button class="mshop-box-buy" disabled style="border-color:#4caf5077;color:#4caf50;background:#4caf5012">✓ All Contents Unlocked</button>`
+              :`<button class="mshop-box-buy" id="mshop-boxbuy-${box.id}" ${canAfford?'':'disabled'}>${canAfford?'🎁 Open Box':'Need '+box.shardCost+' Rare Shards'}</button>`
+            }
+          </div>
+        </div>`;
+
+      if(!allOwned){
+        const btn=card.querySelector(`#mshop-boxbuy-${box.id}`);
+        if(btn&&canAfford){
+          btn.addEventListener('click',()=>openBox(box));
+        }
+      }
+      body.appendChild(card);
+    });
+  }
 }
 
 function purchaseMapItem(item){
@@ -2290,9 +2665,10 @@ const TD = {
   orin:    {id:'orin',    name:'The Mind of Orin',   img:'TheMindOfOrin.jpg', cost:950, dmg:0,  rate:0,   range:130, income:10,  irate:12, init:'O',  col:'#ab47bc', support:true},
   wrenfun:  {id:'wrenfun',  name:'Wren.fun',            img:'Wren.fun.jpg',      cost:900, dmg:0,  rate:0,   range:90,  income:0,   irate:0,  init:'WF', col:'#e040fb', support:true},
   thomasmini:{id:'thomasmini',name:'Thomas Mini',         img:'ThomasMini.jpg',    cost:425, dmg:3,  rate:2.5, range:125, income:0,   irate:0,  init:'TM', col:'#ff7043', canHitLead:true, bombTower:true},
-  farmerorin:{id:'farmerorin',name:'Farmer Orin',          img:'FarmerOrin.jpg',    cost:500, dmg:0,  rate:0,   range:160, income:0,   irate:0,  init:'FO', col:'#8bc34a', support:true, farmerCollector:true, shopUnlockOnly:true}
+  farmerorin:{id:'farmerorin',name:'Farmer Orin',          img:'FarmerOrin.jpg',    cost:500, dmg:0,  rate:0,   range:160, income:0,   irate:0,  init:'FO', col:'#8bc34a', support:true, farmerCollector:true, shopUnlockOnly:true},
+  cheeseblock:{id:'cheeseblock',name:'Block of Cheese',     img:'Cyatr9.jpg',        cost:650, dmg:5,  rate:0,   range:110, income:0,   irate:0,  init:'🧀', col:'#f5c518', cheeseFactory:true, shopUnlockOnly:true}
 };
-const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg', edunzie:'EdunzieLicksPoo.jpg', thomasmini:'ThomasIsADino.jpg', farmerorin:'OrinTheFarmer.jpg'};
+const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg', edunzie:'EdunzieLicksPoo.jpg', thomasmini:'ThomasIsADino.jpg', farmerorin:'OrinTheFarmer.jpg', cheeseblock:'CheeseBlock.jpg'};
 
 const TIKI_POWER_PRICE = 38000;
 const TOWER_UPGRADES = {
@@ -2344,6 +2720,13 @@ const TOWER_UPGRADES = {
     {name:'Bonus', cost:980, desc:'Every time Farmer Orin picks up a DVD there is a 10% chance the money is doubled.', apply:s=>{s.farmerBonusChance=0.10;}},
     {name:'Farm Boy', cost:2900, desc:'Collects every second. 50% chance to double money. Gains attack: swings his rake for 10 damage every 2s. Every kill earns 3× the enemy\'s base reward.', apply:s=>{s.farmerCollectTime=1;s.farmerBonusChance=0.50;s.dmg=10;s.rate=2;s.farmerKillMult=3;}},
     {name:'Golden Eye', cost:61000, desc:'100% chance to double money. Enemies under 1000 HP hit by Farmer Orin turn to gold, then explode for 10× their reward after 1s. Collects any money-drop tower globally and instantly. Farmer rake grows 1.5×.', apply:s=>{s.farmerBonusChance=1.0;s.farmerGoldenEye=true;s.farmerGlobal=true;s.farmerForkScale=1.5;}}
+  ],
+  cheeseblock: [
+    {name:'Double Cheese', cost:600, desc:'Can now place 2 pieces of cheese on the track at once.', apply:s=>{s.cheeseMax=2;}},
+    {name:'Faster Place', cost:700, desc:'New cheese is placed 1.5s after the previous disappears (down from 3s). Each cheese now has 7 HP.', apply:s=>{s.cheeseCooldown=1.5;s.cheeseDmg=7;}},
+    {name:'1000 Degree Cheese', cost:1400, desc:'Cheese can now pop lead enemies. Each cheese does 15 damage.', apply:s=>{s.cheesePopLead=true;s.cheeseDmg=15;}},
+    {name:'Factory Protect', cost:3200, desc:'Up to 5 cheeses on the track at once, each doing 30 damage.', apply:s=>{s.cheeseMax=5;s.cheeseDmg=30;}},
+    {name:'The Blue Cheese', cost:95000, desc:'Cheese turns blue. Up to 300 cheeses on the track at once, each doing 50 damage. 1.5 second delay between placements. Ability: 🧀 Cheese Storm — covers the entire track with 100 cheeses (2.5-minute cooldown).', apply:s=>{s.cheeseMax=300;s.cheeseDmg=50;s.cheeseCooldown=1.5;s.blueCheeseT5=true;s.cheeseStormAbility=true;s.cheeseStormCd=0;}}
   ]
 };
 
@@ -2603,7 +2986,15 @@ function getTowerStats(t){
     farmerKillMult:0,
     farmerGoldenEye:false,
     farmerGlobal:false,
-    farmerForkScale:1.0
+    farmerForkScale:1.0,
+    // Cheese factory
+    cheeseMax:1,
+    cheeseDmg:5,
+    cheeseCooldown:3,
+    cheesePopLead:false,
+    blueCheeseT5:false,
+    cheeseStormAbility:false,
+    cheeseStormCd:0
   };
   getTowerUpgradeList(t).slice(0,getTowerUpgradeLevel(t)).forEach(upg=>upg.apply(stats,t));
   // Thomas Mini always hits leads (base property)
@@ -2637,6 +3028,7 @@ function describeTowerSpecials(stats){
   if(stats.grantCamoVision) bits.push('camo vision aura');
   if(stats.grantAllEnemies) bits.push('all-enemies aura');
   if(stats.grantSpeedBoost) bits.push('+20% speed aura');
+  if(stats.cheeseFactory) bits.push('cheese drops ('+stats.cheeseMax+' max, '+stats.cheeseDmg+' dmg each)');
   return bits.length ? bits.join(', ') : '—';
 }
 function getTowerBorderStyle(level){
@@ -2826,7 +3218,7 @@ function updateOrinFrenzyUI(){
   const unlocked=hasOrinFrenzyUnlock()&&!S.over;
   btn.style.display=unlocked?'flex':'none';
   if(tip) tip.style.display='none'; // never show tip text — hover only
-  if(!unlocked){ updateBigBoomUI(); return; }
+  if(!unlocked){ updateBigBoomUI(); updateCheeseStormUI(); return; }
   const spec=getOrinFrenzySpec();
   const onCd=S.orinFrenzyCd>0||S.orinFrenzyT>0;
   btn.disabled=onCd;
@@ -2866,13 +3258,14 @@ function updateOrinFrenzyUI(){
     btn.addEventListener('mouseleave',()=>{clearTimeout(_hT);if(_hEl){_hEl.remove();_hEl=null;}});
   }
   updateBigBoomUI();
+  updateCheeseStormUI();
 }
 function triggerOrinFrenzy(){
   if(!S||S.over||!hasOrinFrenzyUnlock()||S.orinFrenzyCd>0||S.orinFrenzyT>0) return;
   const spec=getOrinFrenzySpec();
   S.orinFrenzyT=spec.duration;
   S.orinFrenzyCd=spec.cooldown;
-  updateOrinFrenzyUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI();
   showToast('DVD Frenzy active: x'+spec.mult+' income for '+spec.duration+'s.','#d7a6ff');
 }
 function hasBigBoomUnlock(){
@@ -2956,6 +3349,85 @@ function triggerBigBoom(towerId){
 }
 function getEnemyBaseId(id){
   return id.endsWith('Camo') ? id.slice(0,-4) : id;
+}
+
+function hasCheeseStormUnlock(){
+  return !!(S&&S.towers.some(t=>t.defId==='cheeseblock'&&getTowerUpgradeLevel(t)>=5));
+}
+function getCheeseStormTower(){
+  if(!S) return null;
+  return S.towers.find(t=>t.defId==='cheeseblock'&&getTowerUpgradeLevel(t)>=5)||null;
+}
+function updateCheeseStormUI(){
+  const btn=document.getElementById('cheeseStormBtn');
+  const sweep=document.getElementById('cheeseStormSweep');
+  const bigBtn=document.getElementById('bigBoomBtn');
+  const orinBtn=document.getElementById('orinFrenzyBtn');
+  if(!btn) return;
+  const unlocked=hasCheeseStormUnlock()&&!!(S&&!S.over);
+  btn.style.display=unlocked?'flex':'none';
+  if(!unlocked) return;
+  const t=getCheeseStormTower();
+  const cdLeft=t?(t.cheeseStormCd||0):0;
+  const cdMax=150;
+  btn.disabled=cdLeft>0;
+  if(sweep){
+    if(cdLeft>0){
+      const pct=Math.round((cdLeft/cdMax)*100);
+      sweep.style.background=`linear-gradient(to right,rgba(0,0,0,0.55) ${pct}%,transparent ${pct}%)`;
+    } else {
+      sweep.style.background='transparent';
+    }
+  }
+  // Stack position: above bigBoom and orin buttons if they're visible
+  const orinVis=orinBtn&&orinBtn.style.display!=='none'&&orinBtn.style.display!=='';
+  const bigVis=bigBtn&&bigBtn.style.display!=='none'&&bigBtn.style.display!=='';
+  let bottom=1;
+  if(orinVis) bottom+=3.2;
+  if(bigVis) bottom+=3.2;
+  btn.style.bottom=bottom+'rem';
+  // Hover tooltip (once)
+  if(!btn._tipSetup){
+    btn._tipSetup=true;
+    let _hT=null,_hEl=null;
+    btn.addEventListener('mouseenter',()=>{
+      _hT=setTimeout(()=>{
+        _hEl=document.createElement('div');
+        const t2=getCheeseStormTower();
+        const cdSec=t2?(t2.cheeseStormCd||0):0;
+        _hEl.style.cssText='position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#131009ee;border:1px solid #f5c51866;border-radius:4px;padding:.4em .7em;font-family:Cinzel,serif;font-size:.68rem;color:#f5e8c0;white-space:nowrap;z-index:9999;pointer-events:none;min-width:200px;text-align:center;line-height:1.5';
+        _hEl.textContent='🧀 Cheese Storm — covers entire track with 100 cheeses'+(cdSec>0?' · CD: '+Math.ceil(cdSec)+'s':' · Ready');
+        btn.appendChild(_hEl);
+      },500);
+    });
+    btn.addEventListener('mouseleave',()=>{clearTimeout(_hT);if(_hEl){_hEl.remove();_hEl=null;}});
+  }
+}
+function triggerCheeseStormGlobal(){
+  const t=getCheeseStormTower();
+  if(!t){showToast('No Tier 5 Block of Cheese on field!','#f5c518');return;}
+  triggerCheeseStorm(t.id);
+  updateCheeseStormUI();
+}
+function triggerCheeseStorm(towerId){
+  if(!S||S.over) return;
+  const t=S.towers.find(t=>t.id===towerId); if(!t) return;
+  const stats=getTowerStats(t);
+  if(!stats.cheeseStormAbility) return;
+  if((t.cheeseStormCd||0)>0){ showToast('Cheese Storm recharging: '+Math.ceil(t.cheeseStormCd)+'s','#f5c518'); return; }
+  // Spread 100 cheeses evenly across ALL path points
+  const allPts=(S&&S.mapId==='xmarks'&&PPTS_B.length)?[...PPTS,...PPTS_B]:PPTS;
+  if(!allPts.length){ showToast('No track to storm!','#f5c518'); return; }
+  if(!t.cheesePieces) t.cheesePieces=[];
+  const stormCount=100;
+  const step=Math.max(1,Math.floor(allPts.length/stormCount));
+  for(let i=0;i<stormCount;i++){
+    const pt=allPts[(i*step)%allPts.length];
+    t.cheesePieces.push({ x:pt.x, y:pt.y, hp:stats.cheeseDmg, maxHp:stats.cheeseDmg, id:Math.random(), stormPiece:true });
+  }
+  t.cheeseStormCd=150; // 2.5 minutes
+  refreshSelPanel();
+  showToast('🧀 Cheese Storm! 100 cheeses blanket the track!','#f5c518');
 }
 // Can this tower see and target the enemy? (camo blocks targeting; lead does NOT — towers can still shoot at leads)
 function canTowerTargetEnemy(stats, enemy, tower){
@@ -3221,6 +3693,20 @@ function showSub(type){
 
   } else if(type==='characters'){
     if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
+
+    // Helper: rebuild the team counter badge and all select buttons after toggle
+    function refreshTeamUI(){
+      const team=getTeam();
+      const badge=el.querySelector('.tower-team-count');
+      if(badge) badge.textContent=team.length+'/'+MAX_TEAM_SIZE+' selected';
+      el.querySelectorAll('.tower-select-btn[data-tower-id]').forEach(btn=>{
+        const tid=btn.dataset.towerId;
+        const inTeam=team.includes(tid);
+        btn.textContent=inTeam?'✓ Deselect':'+ Select';
+        btn.classList.toggle('selected',inTeam);
+      });
+    }
+
     const cards=Object.values(TD).map(t=>{
       const requiresUnlock=t.shopUnlockOnly;
       const isUnlocked=!requiresUnlock||(CAREER.shopUnlocks&&CAREER.shopUnlocks[t.id]);
@@ -3239,7 +3725,8 @@ function showSub(type){
         orin:'Passive income tower. Drops DVD cash every few seconds for you to collect.',
         wrenfun:'Support tower. Buffs nearby towers with range, camo vision, speed, and more.',
         thomasmini:'Bomb tower. Hurls explosives that damage leads and stun enemies on impact.',
-        farmerorin:'Support collector. Picks up DVDs Orin drops and banks the cash for you.'
+        farmerorin:'Support collector. Picks up DVDs Orin drops and banks the cash for you.',
+        cheeseblock:'Spike factory. Drops blocks of cheese on the track that damage enemies walking over them.'
       }[t.id]||'';
       const imgSrc=getTowerImageSrc(t.id);
 
@@ -3260,7 +3747,7 @@ function showSub(type){
             </div>
             <div class="tower-stats-row"><div class="tstat" style="opacity:.4"><span>🔒</span><span>Locked</span></div></div>
           </div>`;
-        return {isSupport, html};
+        return {isSupport, html, id:t.id, unlocked:false};
       }
 
       const html=`
@@ -3283,7 +3770,10 @@ function showSub(type){
             ${t.range&&t.range<9999?`<div class="tstat"><span>📡</span><span>${formatRangePx(t.range)}px</span></div>`:''}
             ${t.income?`<div class="tstat"><span>💎</span><span>$${t.income}/${t.irate}s</span></div>`:''}
           </div>
-          <div class="tower-upgrades-toggle"><span class="upg-toggle-label">📈 ${upgs.length} Upgrade${upgs.length===1?'':'s'} · Click to view</span></div>
+          <div class="tower-card-footer">
+            <div class="tower-upgrades-toggle"><span class="upg-toggle-label">📈 ${upgs.length} Upgrade${upgs.length===1?'':'s'} · Click card to view</span></div>
+            <button class="tower-select-btn" data-tower-id="${t.id}">+ Select</button>
+          </div>
           <div class="cupgpanel">
             <div class="cupgtitle">Upgrades</div>
             ${upgs.length
@@ -3291,20 +3781,42 @@ function showSub(type){
               : `<div class="cupgitem">No upgrades yet.</div>`}
           </div>
         </div>`;
-      return {isSupport, html};
+      return {isSupport, html, id:t.id, unlocked:true};
     });
 
     const combatHtml=cards.filter(c=>!c.isSupport).map(c=>c.html).join('');
     const supportHtml=cards.filter(c=>c.isSupport).map(c=>c.html).join('');
 
+    const team=getTeam();
     el.innerHTML=`
+      <div class="tower-team-header">
+        <span class="tower-team-label">⚔ Active Team</span>
+        <span class="tower-team-count">${team.length}/${MAX_TEAM_SIZE} selected</span>
+        <span class="tower-team-hint">Select up to ${MAX_TEAM_SIZE} towers to bring into battle</span>
+      </div>
       <div class="tower-section-hdr">⚔ Combat Towers</div>
       <div class="cgrid">${combatHtml}</div>
       <div class="tower-section-hdr" style="margin-top:2rem">✦ Support Towers</div>
       <div class="cgrid">${supportHtml}</div>
     `;
+
+    // Wire up select/deselect buttons (stop propagation so card expand still works via card click)
+    el.querySelectorAll('.tower-select-btn[data-tower-id]').forEach(btn=>{
+      const tid=btn.dataset.towerId;
+      const inTeam=getTeam().includes(tid);
+      btn.textContent=inTeam?'✓ Deselect':'+ Select';
+      btn.classList.toggle('selected',inTeam);
+      btn.addEventListener('click',(e)=>{
+        e.stopPropagation();
+        toggleTeamTower(tid);
+        refreshTeamUI();
+      });
+    });
+
+    // Card click toggles upgrades panel (but not if clicking the button)
     el.querySelectorAll('.tower-card[data-tower-id]').forEach(card=>{
-      card.addEventListener('click',()=>{
+      card.addEventListener('click',(e)=>{
+        if(e.target.closest('.tower-select-btn')) return;
         card.classList.toggle('open');
       });
     });
@@ -5794,7 +6306,7 @@ function placeTower(wx,wy){
   S.shopInfoSel=null;
   updateHUD();
   buildShop();
-  updateOrinFrenzyUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI();
   selectTower(newId); // open this tower's selection panel
 }
 
@@ -5812,7 +6324,7 @@ function removeTower(id, refundPct){
   document.getElementById('selPanel').style.display='none';
   updateHUD();
   buildShop();
-  updateOrinFrenzyUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI();
 }
 
 function sellTower(id){
@@ -5835,7 +6347,7 @@ function buyTowerUpgrade(id){
   sfx('upgrade');
   updateHUD();
   buildShop();
-  updateOrinFrenzyUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI();
   selectTower(id);
 }
 
@@ -5844,8 +6356,14 @@ function buildShop(){
   const body=document.getElementById('shopBody');
   body.innerHTML='';
   const unlockedShop=CAREER&&CAREER.shopUnlocks?CAREER.shopUnlocks:{};
-  Object.values(TD).forEach(d=>{
-    // Only show shopUnlockOnly towers if they are unlocked
+  const team=getTeam();
+  const availIds=getAvailableTowerIds();
+
+  // Show towers in team order
+  const displayIds=team.length>0 ? team : Object.keys(TD);
+  displayIds.forEach(defId=>{
+    const d=TD[defId];
+    if(!d) return;
     if(d.shopUnlockOnly&&!unlockedShop[d.id]) return;
     const canAfford=S.gold>=d.cost;
     const isSel=S.shopSel===d.id||S.shopInfoSel===d.id;
@@ -5946,7 +6464,15 @@ function selectTower(id){
       <div class="srow"><span class="sl">Collected</span><span class="sv">$${formatNum(t.moneyEarned||0)}</span></div>
       <div class="srow"><span class="sl">Boost</span><span class="sv">${Math.round((getOrinIncomeMultiplier(t)-1)*100)}%</span></div>
   `:'';
-  const showOrinAbility=isOrinTower(t)&&getTowerUpgradeLevel(t)>=4;  const priorities=[
+  const showOrinAbility=isOrinTower(t)&&getTowerUpgradeLevel(t)>=4;
+  const isCheeseBlock=t.defId==='cheeseblock';
+  const cheeseRows=isCheeseBlock?`
+    <div class="srow"><span class="sl">Cheeses</span><span class="sv">${(t.cheesePieces||[]).length}/${stats.cheeseMax}</span></div>
+    <div class="srow"><span class="sl">Cheese HP</span><span class="sv">${stats.cheeseDmg} dmg each</span></div>
+    <div class="srow"><span class="sl">Cooldown</span><span class="sv">${stats.cheeseCooldown}s after last</span></div>
+    ${stats.cheesePopLead?'<div class="srow"><span class="sl">Lead Pop</span><span class="sv" style="color:#aeb8c2">✓ Yes</span></div>':''}
+  `:'';
+  const priorities=[
     {k:'first',    label:'⬆ First'},
     {k:'last',     label:'⬇ Last'},
     {k:'strongest',label:'💪 Strong'},
@@ -5975,12 +6501,14 @@ function selectTower(id){
       <div class="srow"><span class="sl">Range</span><span class="sv">${rangeDisplay}</span></div>
       ${stats.income?`<div class="srow"><span class="sl">Income</span><span class="sv">$${stats.income}/${stats.irate}s</span></div>`:''}
       ${orinExtraRows}
+      ${cheeseRows}
       <div class="srow"><span class="sl">Special</span><span class="sv">${describeTowerSpecials(stats)}</span></div>
       <div class="srow"><span class="sl">Kills</span><span class="sv" style="color:#f0c040">${t.kills||0}</span></div>
     </div>
     ${upgradeHtml}
     ${showPri?`<div class="pri-label">TARGET PRIORITY</div><div class="pri-btns" id="pribtns"></div>`:''}
-    ${(stats.bigBoomAbility||showOrinAbility)?`<div class="pri-label">ABILITIES</div><div id="abilitiesRow" style="display:flex;gap:.28rem;flex-wrap:wrap;margin-bottom:.35rem"></div>`:''}
+    ${isCheeseBlock?`<div class="pri-label">CHEESE PLACEMENT</div><div class="pri-btns" id="cheesemodbtns"></div>`:''}
+    ${(stats.bigBoomAbility||showOrinAbility||stats.cheeseStormAbility)?`<div class="pri-label">ABILITIES</div><div id="abilitiesRow" style="display:flex;gap:.28rem;flex-wrap:wrap;margin-bottom:.35rem"></div>`:''}
     <div style="margin-top:.55rem">
       <button class="sellbtn" id="selbtn-sell" style="width:100%">💰 Sell — $${Math.floor(getTowerSpent(t)*.65)}</button>
     </div>
@@ -5996,6 +6524,27 @@ function selectTower(id){
       btn.addEventListener('click',()=>setTowerPriority(id,p.k));
       priContainer.appendChild(btn);
     });
+  }
+
+  // Wire up cheese placement mode buttons
+  if(isCheeseBlock){
+    const cheeseModeContainer=document.getElementById('cheesemodbtns');
+    if(cheeseModeContainer){
+      const cheeseModes=[
+        {k:'random', label:'🎲 Random'},
+        {k:'far',    label:'➡ Far'},
+        {k:'near',   label:'⬅ Near'},
+        {k:'front',  label:'🧀 Front'}
+      ];
+      const curMode=t.cheeseMode||'random';
+      cheeseModes.forEach(m=>{
+        const btn=document.createElement('button');
+        btn.className='pbtn'+(curMode===m.k?' active':'');
+        btn.textContent=m.label;
+        btn.addEventListener('click',()=>setCheeseMode(id,m.k));
+        cheeseModeContainer.appendChild(btn);
+      });
+    }
   }
 
   // Wire up sell button
@@ -6043,6 +6592,10 @@ function selectTower(id){
       const statusStr=S.orinFrenzyT>0?' · Active: '+S.orinFrenzyT.toFixed(1)+'s':S.orinFrenzyCd>0?' · CD: '+Math.ceil(S.orinFrenzyCd)+'s':' · Ready';
       makeAbilityBtn('📀','DVD Frenzy','x'+spec.mult+' income for '+spec.duration+'s'+statusStr,cdLeftVal,spec.cooldown,()=>triggerOrinFrenzy());
     }
+    if(stats.cheeseStormAbility){
+      const cdLeft=t.cheeseStormCd||0;
+      makeAbilityBtn('🧀','Cheese Storm','Covers entire track with 100 cheeses'+(cdLeft>0?' · CD: '+Math.ceil(cdLeft)+'s':' · Ready'),cdLeft,150,()=>triggerCheeseStorm(id));
+    }
   }
 
   if(!im._bad&&(!im.complete||im.naturalWidth===0)){
@@ -6056,6 +6609,12 @@ function selectTower(id){
 function setTowerPriority(id,pri){
   const t=S.towers.find(t=>t.id===id); if(!t) return;
   t.priority=pri;
+  selectTower(id);
+}
+
+function setCheeseMode(id,mode){
+  const t=S.towers.find(t=>t.id===id); if(!t) return;
+  t.cheeseMode=mode;
   selectTower(id);
 }
 
@@ -6094,7 +6653,7 @@ function updateHUD(){
     diffBadge.style.color=diff==='easy'?'#4caf50':diff==='medium'?'#ff9800':'#e57368';
     diffBadge.style.borderColor=diffCol;
   }
-  updateOrinFrenzyUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI();
   refreshSelPanel();
 }
 
@@ -6513,7 +7072,7 @@ function update(dt){
     if(S.orinFrenzyCd>0) S.orinFrenzyCd=Math.max(0,S.orinFrenzyCd-dt);
     if(S.orinFrenzyT>0) S.orinFrenzyT=Math.max(0,S.orinFrenzyT-dt);
   }
-  updateOrinFrenzyUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI();
 
   // Spawn
   if(S.waveActive){
@@ -6643,6 +7202,7 @@ function update(dt){
     }
     if(!stats.rate) continue;
     if(t.defId==='farmerorin') continue;
+    if(t.defId==='cheeseblock') continue; // handled by cheese factory update below
     // Sticky mine tick (Edunzie)
     if(stats.stickyMine){
       t.mineT=(t.mineT||0)+dt;
@@ -6832,6 +7392,93 @@ function update(dt){
       S.particles.push({x:e.x,y:e.y-20,text:'💰 x10!',alpha:1,vy:-46,life:1.1,col:'#ffd700'});
       S.particles.push({x:e.x,y:e.y,type:'ring',r:0,maxR:55,alpha:1,life:0.3,col:'#ffd700'});
       handleEnemyDefeat(e,e.farmerTower||S.towers[0]);
+    }
+  }
+
+  // ─── CHEESE BLOCK FACTORY UPDATE ───
+  for(const t of S.towers){
+    if(t.defId!=='cheeseblock') continue;
+    const stats=getTowerStats(t);
+    if(!t.cheesePieces) t.cheesePieces=[];
+
+    // Tick cooldown timer
+    if(t.cheeseCooldownT>0) t.cheeseCooldownT=Math.max(0,t.cheeseCooldownT-dt);
+    // Tick cheese storm cooldown
+    if(t.cheeseStormCd>0){ t.cheeseStormCd=Math.max(0,t.cheeseStormCd-dt); if(S.towerSel===t.id) refreshSelPanel(); updateCheeseStormUI(); }
+
+    // Helper: place one cheese piece according to current mode
+    function placeOneCheese(){
+      const effectiveRange=getEffectiveRangeForTower(t);
+      const allPts=(S&&S.mapId==='xmarks'&&PPTS_B.length)?[...PPTS,...PPTS_B]:PPTS;
+      const inRange=allPts.filter(pt=>{
+        const dx=pt.x-t.x, dy=pt.y-t.y;
+        return dx*dx+dy*dy<=effectiveRange*effectiveRange;
+      });
+      if(!inRange.length) return;
+      const mode=t.cheeseMode||'random';
+      let chosenPt;
+      if(mode==='far'){
+        chosenPt=inRange.reduce((best,pt)=>{
+          const bi=PPTS.indexOf(best), pi=PPTS.indexOf(pt);
+          return pi>bi?pt:best;
+        }, inRange[0]);
+      } else if(mode==='near'){
+        chosenPt=inRange.reduce((best,pt)=>{
+          const bi=PPTS.indexOf(best), pi=PPTS.indexOf(pt);
+          return pi<bi?pt:best;
+        }, inRange[0]);
+      } else if(mode==='front'){
+        chosenPt=inRange.reduce((best,pt)=>{
+          const da=(pt.x-t.x)**2+(pt.y-t.y)**2;
+          const db=(best.x-t.x)**2+(best.y-t.y)**2;
+          return da<db?pt:best;
+        }, inRange[0]);
+      } else {
+        chosenPt=inRange[Math.floor(Math.random()*inRange.length)];
+      }
+      t.cheesePieces.push({
+        x:chosenPt.x, y:chosenPt.y,
+        hp:stats.cheeseDmg, maxHp:stats.cheeseDmg,
+        id:Math.random()
+      });
+    }
+
+    // Place new cheese if under max and cooldown expired
+    while(t.cheesePieces.length<stats.cheeseMax && (t.cheeseCooldownT||0)<=0){
+      placeOneCheese();
+      // If we still need more pieces, no cooldown between them — only applies when replacing a destroyed piece
+      if(t.cheesePieces.length<stats.cheeseMax) break; // prevent infinite loop if inRange empty
+    }
+
+    // Damage enemies walking over cheese pieces
+    for(let ci=t.cheesePieces.length-1;ci>=0;ci--){
+      const piece=t.cheesePieces[ci];
+      if(piece.hp<=0){
+        t.cheesePieces.splice(ci,1);
+        t.cheeseCooldownT=stats.cheeseCooldown; // start cooldown, then auto-place next tick
+        if(S.towerSel===t.id) refreshSelPanel();
+        continue;
+      }
+      for(const e of S.enemies){
+        if(e.dead||e.reached||piece.hp<=0) continue;
+        const wfBuff=getWrenFunStatsForTower(t);
+        const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
+        if((e.lead||e.rishiLead)&&!stats.cheesePopLead&&!canHitAll) continue;
+        if(isBlackAndWhiteEnemy(e)&&!canHitAll) continue;
+        const dx=e.x-piece.x, dy=e.y-piece.y;
+        if(dx*dx+dy*dy>((CELL*0.55)**2)) continue;
+        const dmgToApply=Math.min(piece.hp, e.hp);
+        piece.hp-=dmgToApply;
+        e.hp-=dmgToApply;
+        e.flashT=0.12;
+        if(e.hp<=0){ handleEnemyDefeat(e,t); }
+      }
+      // Remove depleted cheese
+      if(piece.hp<=0){
+        t.cheesePieces.splice(ci,1);
+        t.cheeseCooldownT=stats.cheeseCooldown;
+        if(S.towerSel===t.id) refreshSelPanel();
+      }
     }
   }
 
@@ -8033,6 +8680,54 @@ function strokeTowerRectProgress(cx,cy,size,radius,progress){
 }
 
 function drawTowers(){
+  // ── Draw cheese pieces on track first (below towers) ──
+  for(const t of S.towers){
+    if(t.defId!=='cheeseblock'||!t.cheesePieces||!t.cheesePieces.length) continue;
+    const stats=getTowerStats(t);
+    const isBlue=stats.blueCheeseT5;
+    for(const piece of t.cheesePieces){
+      const sz=CELL*0.54;
+      ctx.save();
+      // Shadow
+      ctx.fillStyle='rgba(0,0,0,0.32)';
+      ctx.beginPath();ctx.ellipse(piece.x+2,piece.y+sz*.38,sz*.4,sz*.12,0,0,Math.PI*2);ctx.fill();
+      // Cheese block body
+      const hpFrac=piece.hp/piece.maxHp;
+      ctx.globalAlpha=0.78+hpFrac*0.22;
+      const cx2=piece.x, cy2=piece.y;
+      const hw=sz*0.46, hh=sz*0.36;
+      // Main block
+      const cg=ctx.createLinearGradient(cx2-hw,cy2-hh,cx2+hw,cy2+hh);
+      if(isBlue){
+        cg.addColorStop(0,'#b0d8ff');
+        cg.addColorStop(.5,'#5ab4ff');
+        cg.addColorStop(1,'#2980d9');
+      } else {
+        cg.addColorStop(0,'#ffe566');
+        cg.addColorStop(.45,'#f5c518');
+        cg.addColorStop(1,'#c8920a');
+      }
+      ctx.fillStyle=cg;
+      ctx.beginPath();ctx.roundRect(cx2-hw,cy2-hh,hw*2,hh*2,3);ctx.fill();
+      // Holes (Swiss-style)
+      ctx.fillStyle=isBlue?'rgba(0,80,180,0.35)':'rgba(160,90,0,0.35)';
+      [[-.22,-.1,.08],[.1,.08,.07],[-.05,.06,.05],[.18,-.08,.055]].forEach(([ox,oy,r])=>{
+        ctx.beginPath();ctx.arc(cx2+ox*sz,cy2+oy*sz,r*sz,0,Math.PI*2);ctx.fill();
+      });
+      // Shine
+      ctx.fillStyle='rgba(255,255,255,0.28)';
+      ctx.beginPath();ctx.ellipse(cx2-hw*0.3,cy2-hh*0.5,hw*0.25,hh*0.2,-0.2,0,Math.PI*2);ctx.fill();
+      // HP bar
+      const barW=sz*.9, barH=4;
+      ctx.globalAlpha=0.85;
+      ctx.fillStyle='rgba(0,0,0,0.55)';
+      ctx.beginPath();ctx.roundRect(cx2-barW/2,cy2-hh-8,barW,barH,2);ctx.fill();
+      ctx.fillStyle=isBlue?'#5ab4ff':'#f5c518';
+      ctx.beginPath();ctx.roundRect(cx2-barW/2,cy2-hh-8,barW*hpFrac,barH,2);ctx.fill();
+      ctx.restore();
+    }
+  }
+
   for(const t of S.towers){
     const d=TD[t.defId];
     const stats=getTowerStats(t);
@@ -9143,12 +9838,12 @@ function _resetStats(){
   })();
 
 return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen,togglePause,toggleShop,exitToMenu,
-        startWave,sellTower,removeTower,desel,toggleSpeed,toggleAuto,setTowerPriority,
-        toggleFullscreen,goHome,triggerOrinFrenzy,triggerBigBoomGlobal,
+        startWave,sellTower,removeTower,desel,toggleSpeed,toggleAuto,setTowerPriority,setCheeseMode,
+        toggleFullscreen,goHome,triggerOrinFrenzy,triggerBigBoomGlobal,triggerCheeseStormGlobal,
         toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
         winContinue,winLeave,
         toggleMenuMusic,toggleMusicPopup,toggleRadio,toggleSFX,setSFXVolume,setRadioVolume,setMenuVolume,
-        showMenuShop,closeMenuShop,switchShopTab,trySelectFrozenLake,trySelectDesertRoad,trySelectXMarks};
+        showMenuShop,closeMenuShop,closeBoxOpen,switchShopTab,trySelectFrozenLake,trySelectDesertRoad,trySelectXMarks};
 })();
 
 </script>
