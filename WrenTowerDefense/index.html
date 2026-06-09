@@ -264,10 +264,14 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .mshop-map-tag.new{background:#2a1a0022;border:1px solid #f0c04055;color:var(--gold);}
 .mshop-map-tag.desert{background:#3a200822;border:1px solid #e0b05055;color:#e0b050;}
 .mshop-map-tag.hot{background:#3a100022;border:1px solid #ff704355;color:#ff7043;}
+.mshop-map-tag.gravel{background:#2a1e1022;border:1px solid #9a826255;color:#c0a882;}
 
 /* Frozen lake mapcard in game select */
 .mapcard.frozen{border-color:#4a8fc055;}
 .mapcard.frozen:hover{border-color:#7ec8e3;box-shadow:0 0 28px #4a8fc055;}
+/* X Marks the Spot mapcard */
+.mapcard.xmarks{border-color:#6a5a4055;}
+.mapcard.xmarks:hover{border-color:#c0a882;box-shadow:0 0 28px #c0a88255;}
 #mapSelectScreen{flex-direction:column;align-items:center;justify-content:center;
   background:radial-gradient(ellipse 90% 80% at 50% 35%,#1f4a1f,#0d200d 55%,#030803 100%)}
 #modeSelectScreen{flex-direction:column;align-items:center;justify-content:center;
@@ -908,6 +912,11 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
         <canvas class="map-preview" id="prev-desertroad" width="280" height="160"></canvas>
         <div class="map-name">🏜️ Desert Road</div>
         <div class="map-desc">A scorching S-bend highway through the sand. Enemies reach the end and turn back — towers must stop them both ways.</div>
+      </div>
+      <div class="mapcard" onclick="G.trySelectXMarks()" id="mc-xmarks" style="display:none">
+        <canvas class="map-preview" id="prev-xmarks" width="280" height="160"></canvas>
+        <div class="map-name">✖️ X Marks the Spot</div>
+        <div class="map-desc">Two gravel roads cut diagonal lines across a concrete wasteland. Half the enemies take each path — all heading straight for the opposite corner.</div>
       </div>
     </div>
     <button class="mbtn" style="margin-top:1.4rem;font-size:.85rem;min-width:140px" onclick="G.showScreen('menuScreen')">← Back</button>
@@ -1648,6 +1657,15 @@ const MENU_SHOP_MAPS = [
     desc:'A scorching S-bend highway through the desert. Enemies march to the far end then reverse back to the start — your towers face both directions of traffic.',
     tags:['desert','hot','new'],
     preview:'desertroad'
+  },
+  {
+    id:'map_xmarks',
+    mapId:'xmarks',
+    name:'X Marks the Spot',
+    shardCost:10,
+    desc:'Two diagonal gravel roads form a great X across a concrete battlefield. Half the enemies charge each diagonal, heading straight for the opposite corner — defend the crossing.',
+    tags:['gravel','new'],
+    preview:'xmarks'
   }
 ];
 
@@ -1699,8 +1717,8 @@ function renderMenuShopMaps(){
     card.className='mshop-mapcard'+(owned?' unlocked':' locked');
     // Preview canvas
     const previewId='mshop-prev-'+item.id;
-    const tagsHtml=(item.tags||[]).map(t=>`<span class="mshop-map-tag ${t}">${t==='winter'?'❄ Winter':t==='water'?'💧 Water':t==='new'?'✨ New':t==='desert'?'🏜 Desert':t==='hot'?'🔥 Hot':t}</span>`).join('');
-    const mapIcon=item.id==='map_desertroad'?'🏜️':item.id==='map_frozenlake'?'❄️':'🗺️';
+    const tagsHtml=(item.tags||[]).map(t=>`<span class="mshop-map-tag ${t}">${t==='winter'?'❄ Winter':t==='water'?'💧 Water':t==='new'?'✨ New':t==='desert'?'🏜 Desert':t==='hot'?'🔥 Hot':t==='gravel'?'🪨 Gravel':t}</span>`).join('');
+    const mapIcon=item.id==='map_desertroad'?'🏜️':item.id==='map_frozenlake'?'❄️':item.id==='map_xmarks'?'✖️':'🗺️';
     card.innerHTML=`
       <canvas class="mshop-map-preview" id="${previewId}" width="280" height="130"></canvas>
       <div class="mshop-map-info">
@@ -1799,6 +1817,8 @@ function purchaseMapItem(item){
   renderMenuShopMaps();
   if(item.id==='map_desertroad'){
     showToast('Desert Road unlocked! Find it in Map Select.','#e0b050');
+  } else if(item.id==='map_xmarks'){
+    showToast('X Marks the Spot unlocked! Find it in Map Select.','#c0a882');
   } else {
     showToast('Frozen Lake unlocked! Find it in Map Select.','#7ec8e3');
   }
@@ -2158,10 +2178,41 @@ const MAPS = {
   };
 })();
 
+// ─── X MARKS THE SPOT MAP DATA ───
+(()=>{
+  function makeDiagonal(x0,y0,x1,y1,steps){
+    const pts=[];
+    for(let i=0;i<=steps;i++){
+      const t=i/steps;
+      pts.push([x0+(x1-x0)*t, y0+(y1-y0)*t]);
+    }
+    return pts;
+  }
+
+  const steps=80;
+  // Path A: top-left corner → bottom-right corner  (\ diagonal)
+  const pathA=makeDiagonal(0, 0, COLS-1, ROWS-1, steps);
+  // Path B: top-right corner → bottom-left corner  (/ diagonal)
+  const pathB=makeDiagonal(COLS-1, 0, 0, ROWS-1, steps);
+
+  MAPS.xmarks={
+    name:'X Marks the Spot',
+    shopUnlockOnly:true,
+    path:pathA,
+    pathA:pathA,
+    pathB:pathB,
+    dualPath:true,
+    noBuildRects:[],
+    minProgress:0,
+    groupAssignment:null
+  };
+})();
+
 // ─── ACTIVE MAP STATE (set per game) ───
 let PATH=MAPS.grassy.path;
 let BLOCKED=new Set();
 let PPTS=[];
+let PPTS_B=[]; // second path for xmarks dual-path map
 let NO_BUILD_RECTS=[];
 let DECOR_BLOCKERS=[];
 
@@ -2208,7 +2259,7 @@ function setMap(mapId){
   DECOR_BLOCKERS=buildDecorBlockers(mapId);
   // For grassy: block path + 1-tile padding for BLOCKED grid set
   // For autumn: path uses float coords so skip grid BLOCKED entirely — canPlaceAt uses PPTS distance
-  if(mapId!=='autumn'&&mapId!=='frozenlake'){
+  if(mapId!=='autumn'&&mapId!=='frozenlake'&&mapId!=='xmarks'){
     PATH.forEach(([c,r])=>{
       for(let dc=-1;dc<=1;dc++) for(let dr=-1;dr<=1;dr++) BLOCKED.add(`${c+dc},${r+dr}`);
     });
@@ -2222,6 +2273,12 @@ function setMap(mapId){
   });
   // PPTS: pixel centres — float grid coords supported
   PPTS=PATH.map(([c,r])=>({x:c*CELL+CELL/2,y:r*CELL+CELL/2}));
+  // For xmarks: also build second path pixel points
+  if(mapId==='xmarks'&&map.pathB){
+    PPTS_B=map.pathB.map(([c,r])=>({x:c*CELL+CELL/2,y:r*CELL+CELL/2}));
+  } else {
+    PPTS_B=[];
+  }
 }
 setMap('grassy'); // default
 
@@ -3780,6 +3837,12 @@ function showMapSelect(mode, backFromDiff){
     const unlocked=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_desertroad']);
     desertCard.style.display=unlocked?'flex':'none';
   }
+  // Show/hide X Marks the Spot card based on unlock
+  const xmarksCard=document.getElementById('mc-xmarks');
+  if(xmarksCard){
+    const unlocked=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_xmarks']);
+    xmarksCard.style.display=unlocked?'flex':'none';
+  }
   // Render map previews then show screen
   showScreen('mapSelectScreen');
   requestAnimationFrame(()=>{
@@ -3791,6 +3854,9 @@ function showMapSelect(mode, backFromDiff){
     }
     if(desertCard&&desertCard.style.display!=='none'){
       renderMapPreview('desertroad','prev-desertroad');
+    }
+    if(xmarksCard&&xmarksCard.style.display!=='none'){
+      renderMapPreview('xmarks','prev-xmarks');
     }
   });
 }
@@ -3808,6 +3874,14 @@ function trySelectDesertRoad(){
     showDiffSelect('desertroad');
   } else {
     showToast('Unlock Desert Road in the Shop first!','#e0b050');
+  }
+}
+
+function trySelectXMarks(){
+  if(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_xmarks']){
+    showDiffSelect('xmarks');
+  } else {
+    showToast('Unlock X Marks the Spot in the Shop first!','#c0a882');
   }
 }
 
@@ -4105,6 +4179,41 @@ function renderMapPreview(mapId,canvasId){
     }
     [[W*.08,H*.2,1.1],[W*.25,H*.75,1.0],[W*.55,H*.15,.95],[W*.72,H*.72,1.05],[W*.88,H*.25,.9]].forEach(([x,y,s])=>drawIconCactus(x,y,s));
     [[W*.18,H*.55,.8],[W*.38,H*.2,.7],[W*.62,H*.6,.75],[W*.82,H*.55,.7]].forEach(([x,y,s])=>drawIconRock(x,y,s));
+  } else if(mapId==='xmarks'){
+    // Concrete background
+    const bg=ptx.createLinearGradient(0,0,W,H);
+    bg.addColorStop(0,'#b8b4ac'); bg.addColorStop(.5,'#aca8a0'); bg.addColorStop(1,'#a8a49c');
+    ptx.fillStyle=bg; ptx.fillRect(0,0,W,H);
+    // Slab grid
+    const sw=W/10, sh=H/6;
+    ptx.strokeStyle='rgba(80,76,70,0.3)'; ptx.lineWidth=1;
+    for(let x=0;x<W;x+=sw){ ptx.beginPath(); ptx.moveTo(x,0); ptx.lineTo(x,H); ptx.stroke(); }
+    for(let y=0;y<H;y+=sh){ ptx.beginPath(); ptx.moveTo(0,y); ptx.lineTo(W,y); ptx.stroke(); }
+    // Cracks
+    [[W*.1,H*.15,30,H*.15],[W*.8,H*.1,-25,H*.12],[W*.05,H*.65,15,H*.18],[W*.88,H*.7,-20,H*.16],
+     [W*.35,H*.85,40,H*.1],[W*.6,H*.88,-35,H*.12]].forEach(([x,y,a,l])=>{
+      const r=a*Math.PI/180,hl=l*.5;
+      ptx.strokeStyle='rgba(70,66,60,0.4)'; ptx.lineWidth=1;
+      ptx.beginPath(); ptx.moveTo(x-Math.cos(r)*hl,y-Math.sin(r)*hl); ptx.lineTo(x+Math.cos(r)*hl,y+Math.sin(r)*hl); ptx.stroke();
+    });
+    // Rocks in corners
+    function drawIconConcreteRock(rx,ry,s){
+      ptx.save(); ptx.translate(rx,ry); ptx.scale(s,s);
+      const drg=ptx.createLinearGradient(-10,-8,12,14);
+      drg.addColorStop(0,'#d2cfc8'); drg.addColorStop(.4,'#b0aca4'); drg.addColorStop(1,'#7a766e');
+      ptx.fillStyle=drg;
+      ptx.beginPath(); ptx.moveTo(-10,5); ptx.lineTo(-5,-8); ptx.lineTo(6,-10); ptx.lineTo(13,2); ptx.lineTo(9,11); ptx.lineTo(-4,12); ptx.closePath(); ptx.fill();
+      ptx.strokeStyle='rgba(255,255,255,0.3)'; ptx.lineWidth=1;
+      ptx.beginPath(); ptx.moveTo(-3,-5); ptx.lineTo(4,3); ptx.stroke();
+      ptx.restore();
+    }
+    [[W*.06,H*.1,.9],[W*.88,H*.08,.85],[W*.07,H*.88,.8],[W*.9,H*.9,.88],
+     [W*.2,H*.08,.65],[W*.75,H*.08,.6],[W*.15,H*.9,.62],[W*.8,H*.9,.68]].forEach(([x,y,s])=>drawIconConcreteRock(x,y,s));
+    // Faded X centre marker
+    ptx.save(); ptx.globalAlpha=0.14; ptx.strokeStyle='#e0d8c8'; ptx.lineWidth=4; ptx.lineCap='round';
+    ptx.beginPath(); ptx.moveTo(W*.38,H*.35); ptx.lineTo(W*.62,H*.65); ptx.stroke();
+    ptx.beginPath(); ptx.moveTo(W*.62,H*.35); ptx.lineTo(W*.38,H*.65); ptx.stroke();
+    ptx.restore();
   } else {
     const bg=ptx.createLinearGradient(0,0,W,H);
     bg.addColorStop(0,'#3e7a34'); bg.addColorStop(1,'#375f2e');
@@ -4123,6 +4232,7 @@ function renderMapPreview(mapId,canvasId){
   else if(isLogForest) drawForestPreviewRoad(ptx,MAPS[mapId]);
   else if(mapId==='frozenlake') drawFrozenLakePreviewRoad(ptx);
   else if(mapId==='desertroad') drawDesertRoadPreviewRoad(ptx);
+  else if(mapId==='xmarks') drawXMarksPreviewRoad(ptx);
   else drawGrassyPreviewRoad(ptx,MAPS[mapId].path);
   ptx.restore();
 }
@@ -4166,6 +4276,35 @@ function drawGrassyPreviewRoad(ptx,mapPath){
 
   ptx.strokeStyle='rgba(228,208,162,0.48)'; ptx.lineWidth=CELL*.28;
   tracePreviewPath(ptx,mapPath); ptx.stroke();
+  ptx.restore();
+}
+
+function drawXMarksPreviewRoad(ptx){
+  const paths=[MAPS.xmarks.pathA, MAPS.xmarks.pathB];
+  ptx.save();
+  ptx.lineCap='round'; ptx.lineJoin='round';
+  paths.forEach(path=>{
+    function trace(){
+      ptx.beginPath();
+      path.forEach(([c,r],i)=>{
+        const px=c*CELL+CELL/2, py=r*CELL+CELL/2;
+        i===0?ptx.moveTo(px,py):ptx.lineTo(px,py);
+      });
+    }
+    // Shadow
+    ptx.lineWidth=CELL*.98; ptx.strokeStyle='rgba(20,12,6,0.55)';
+    ptx.shadowColor='rgba(0,0,0,0.5)'; ptx.shadowBlur=10; ptx.shadowOffsetY=4;
+    trace(); ptx.stroke();
+    ptx.shadowColor='transparent'; ptx.shadowBlur=0; ptx.shadowOffsetY=0;
+    // Gravel base
+    const gg=ptx.createLinearGradient(0,0,COLS*CELL,ROWS*CELL);
+    gg.addColorStop(0,'#5a5248'); gg.addColorStop(.5,'#4e4840'); gg.addColorStop(1,'#544e46');
+    ptx.lineWidth=CELL*.84; ptx.strokeStyle=gg; trace(); ptx.stroke();
+    // Gravel centre highlight
+    ptx.lineWidth=CELL*.38; ptx.strokeStyle='rgba(110,100,88,0.4)'; trace(); ptx.stroke();
+    // Edge kerb
+    ptx.lineWidth=CELL*.05; ptx.strokeStyle='rgba(30,24,18,0.55)'; trace(); ptx.stroke();
+  });
   ptx.restore();
 }
 
@@ -5450,7 +5589,31 @@ function startWave(){
   if(S.waveActive||S.over) return;
   sfx('wave_start');
   S.round++;
-  S.waveQ=buildWave(S.round);
+  const rawQ=buildWave(S.round);
+
+  // For xmarks: split wave half/half between two paths
+  if(S.mapId==='xmarks'&&PPTS_B.length){
+    const bosses=rawQ.filter(e=>{ const d=ED[e.id]; return d&&(d.boss||d.reinforced); });
+    const normals=rawQ.filter(e=>{ const d=ED[e.id]; return !d||(!d.boss&&!d.reinforced); });
+
+    // Shuffle and split normals 50/50
+    for(let i=normals.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[normals[i],normals[j]]=[normals[j],normals[i]];}
+    const half=Math.ceil(normals.length/2);
+    normals.slice(0,half).forEach(e=>e.pathGroup='A');
+    normals.slice(half).forEach(e=>e.pathGroup='B');
+
+    // Bosses: single boss → random path; multiple → split evenly
+    if(bosses.length===1){
+      bosses[0].pathGroup=Math.random()<0.5?'A':'B';
+    } else {
+      bosses.forEach((b,i)=>{ b.pathGroup=i%2===0?'A':'B'; });
+    }
+
+    S.waveQ=[...rawQ].sort((a,b)=>a.t-b.t);
+  } else {
+    S.waveQ=rawQ;
+  }
+
   S.spawnIdx=0;
   S.spawnT=0;
   S.waveActive=true;
@@ -5491,6 +5654,15 @@ function spawnEnemy(id, opts){
   const strengthMult=lateEnemyStrengthMultiplier(S.round||1);
   const bossMult=(d.boss||d.reinforced)&&S&&S.mode!=='sandbox' ? getDiffBossMult(S.difficulty||'easy') : 1;
   const hp=Math.max(1,Math.round(d.hp*strengthMult*bossMult));
+
+  // For xmarks: pick the correct path based on pathGroup option
+  let activePPTS=PPTS;
+  if(S&&S.mapId==='xmarks'&&PPTS_B.length){
+    const pg=opts&&opts.pathGroup;
+    if(pg==='B') activePPTS=PPTS_B;
+    else activePPTS=PPTS; // default group A
+  }
+
   const e={
     id:Math.random(),defId:id,
     hp:hp,maxHp:hp,spd:d.spd*spdMult,
@@ -5498,13 +5670,14 @@ function spawnEnemy(id, opts){
     scale:d.scale||1,boss:d.boss||false,
     reinforced:d.reinforced||false,heart:Boolean(d.heart||regen),
     camo:!!d.camo,lead:!!d.lead,rishiCamo:!!d.rishiCamo,rishiLead:!!d.rishiLead,
-    x:opts&&opts.x!=null?opts.x:PPTS[0].x,
-    y:opts&&opts.y!=null?opts.y:PPTS[0].y,
+    x:opts&&opts.x!=null?opts.x:activePPTS[0].x,
+    y:opts&&opts.y!=null?opts.y:activePPTS[0].y,
     pi:opts&&opts.pi!=null?opts.pi:0,
     maxPi:opts&&opts.pi!=null?opts.pi:0,
     dead:false,reached:false,
     regen:regen,
-    regenT:0
+    regenT:0,
+    _ppts: activePPTS  // store reference to which path this enemy follows
   };
   S.enemies.push(e);
 }
@@ -5566,6 +5739,15 @@ function canPlaceAt(wx,wy){
     // Frozen lake: curved path — use point-distance clearance
     const clearance=CELL*0.52;
     for(const pt of PPTS){
+      if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
+    }
+  } else if(S&&S.mapId==='xmarks'){
+    // X Marks: check both diagonal paths
+    const clearance=CELL*0.52;
+    for(const pt of PPTS){
+      if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
+    }
+    for(const pt of PPTS_B){
       if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
     }
   } else {
@@ -6337,7 +6519,8 @@ function update(dt){
   if(S.waveActive){
     S.spawnT+=dt;
     while(S.spawnIdx<S.waveQ.length&&S.spawnT>=S.waveQ[S.spawnIdx].t){
-      spawnEnemy(S.waveQ[S.spawnIdx].id);
+      const entry=S.waveQ[S.spawnIdx];
+      spawnEnemy(entry.id, entry.pathGroup?{pathGroup:entry.pathGroup}:undefined);
       S.spawnIdx++;
     }
     if(S.spawnIdx>=S.waveQ.length&&S.enemies.every(e=>e.dead||e.reached)){
@@ -6388,16 +6571,17 @@ function update(dt){
       if(e.stunnedT<=0) e.stunned=false;
       rem=0; // no movement while stunned
     }
-    while(rem>0&&e.pi<PPTS.length-1){
-      const tgt=PPTS[e.pi+1];
+    const ePath=e._ppts||PPTS;
+    while(rem>0&&e.pi<ePath.length-1){
+      const tgt=ePath[e.pi+1];
       const dx=tgt.x-e.x,dy=tgt.y-e.y;
       const dist=Math.sqrt(dx*dx+dy*dy);
       if(dist<=rem){
         e.x=tgt.x;e.y=tgt.y;rem-=dist;e.pi++;
         e.maxPi=Math.max(e.maxPi||0,e.pi);
         // store facing direction
-        if(e.pi<PPTS.length-1){
-          const nx=PPTS[e.pi+1].x-e.x,ny=PPTS[e.pi+1].y-e.y;
+        if(e.pi<ePath.length-1){
+          const nx=ePath[e.pi+1].x-e.x,ny=ePath[e.pi+1].y-e.y;
           const nd=Math.sqrt(nx*nx+ny*ny)||1;
           e.dx=nx/nd;e.dy=ny/nd;
         }
@@ -6407,7 +6591,7 @@ function update(dt){
         e.x+=e.dx*rem;e.y+=e.dy*rem;rem=0;
       }
     }
-    if(e.pi>=PPTS.length-1){
+    if(e.pi>=ePath.length-1){
       e.reached=true;
       // Only lose lives if enemy has actually completed the route (past minProgress)
       const minProg=MAPS[S.mapId]&&MAPS[S.mapId].minProgress||0;
@@ -6466,7 +6650,8 @@ function update(dt){
         t.mineT=0;
         // Find a path point within range
         const effectiveRange=getEffectiveRangeForTower(t);
-        const inRange=PPTS.filter(pt=>{
+        const allPts=(S&&S.mapId==='xmarks'&&PPTS_B.length)?[...PPTS,...PPTS_B]:PPTS;
+        const inRange=allPts.filter(pt=>{
           const dx=pt.x-t.x,dy=pt.y-t.y;
           return dx*dx+dy*dy<=effectiveRange*effectiveRange;
         });
@@ -6697,6 +6882,7 @@ function drawMap(){
   else if(S&&S.mapId==='logforest') drawMapLogForest();
   else if(S&&S.mapId==='frozenlake') drawMapFrozenLake();
   else if(S&&S.mapId==='desertroad') drawMapDesertRoad();
+  else if(S&&S.mapId==='xmarks') drawMapXMarks();
   else drawMapGrassy();
 }
 
@@ -7321,6 +7507,246 @@ function drawMapDesertRoad(){
   ctx.fillStyle=vig; ctx.fillRect(0,0,W,H);
   ctx.strokeStyle='rgba(180,130,50,0.5)'; ctx.lineWidth=5; ctx.strokeRect(3,3,W-6,H-6);
   ctx.strokeStyle='rgba(100,60,10,0.4)'; ctx.lineWidth=2; ctx.strokeRect(7,7,W-14,H-14);
+  ctx.restore();
+}
+
+function drawXMarksPath(){
+  if(PPTS.length<2) return;
+  function tracePath(pts){
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x,pts[0].y);
+    for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+  }
+  const allPaths=[PPTS];
+  if(PPTS_B&&PPTS_B.length) allPaths.push(PPTS_B);
+
+  ctx.save();
+  ctx.lineCap='round';ctx.lineJoin='round';
+
+  allPaths.forEach(pts=>{
+    // Shadow under gravel
+    ctx.lineWidth=CELL*1.02;ctx.strokeStyle='rgba(20,12,6,0.55)';
+    ctx.shadowColor='rgba(0,0,0,0.6)';ctx.shadowBlur=14;ctx.shadowOffsetY=5;
+    tracePath(pts);ctx.stroke();
+    ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+
+    // Gravel base — warm dark grey
+    const gg=ctx.createLinearGradient(0,0,COLS*CELL,ROWS*CELL);
+    gg.addColorStop(0,'#5a5248');gg.addColorStop(.5,'#4e4840');gg.addColorStop(1,'#544e46');
+    ctx.lineWidth=CELL*.88;ctx.strokeStyle=gg;
+    tracePath(pts);ctx.stroke();
+
+    // Gravel texture — slightly lighter centre band
+    ctx.lineWidth=CELL*.42;ctx.strokeStyle='rgba(110,100,88,0.45)';
+    tracePath(pts);ctx.stroke();
+
+    // Gravel pebble noise (subtle grain strokes)
+    for(let g=0;g<pts.length-1;g+=3){
+      const px=(pts[g].x+pts[g+1].x)/2, py=(pts[g].y+pts[g+1].y)/2;
+      const offX=(((g*37)%11)-5)*CELL*.055;
+      const offY=(((g*53)%9)-4)*CELL*.04;
+      ctx.fillStyle=g%3===0?'rgba(80,72,62,0.55)':g%3===1?'rgba(130,118,100,0.35)':'rgba(65,58,50,0.45)';
+      ctx.beginPath();ctx.ellipse(px+offX,py+offY,(1.5+g%3)*.9,(1.2+g%2)*.7,((g*29)%180)*Math.PI/180,0,Math.PI*2);ctx.fill();
+    }
+
+    // Edge border lines — subtle kerb
+    ctx.lineWidth=CELL*.055;ctx.strokeStyle='rgba(35,28,22,0.6)';
+    tracePath(pts);ctx.stroke();
+
+    // Very faint centre marker
+    ctx.setLineDash([CELL*.3,CELL*.45]);
+    ctx.lineWidth=CELL*.04;ctx.strokeStyle='rgba(200,185,165,0.25)';
+    tracePath(pts);ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  ctx.restore();
+}
+
+function drawMapXMarks(){
+  const W=COLS*CELL, H=ROWS*CELL;
+  ctx.save();
+  ctx.beginPath();ctx.rect(0,0,W,H);ctx.clip();
+
+  // ── Concrete ground ──
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#b8b4ac');bg.addColorStop(.35,'#aca8a0');bg.addColorStop(.7,'#b2aea6');bg.addColorStop(1,'#a8a49c');
+  ctx.fillStyle='#afa9a1';ctx.fillRect(0,0,W,H);
+
+  // Concrete panel grid — large slabs
+  ctx.save();
+  const slabW=CELL*3, slabH=CELL*3;
+  for(let sx=0;sx<W;sx+=slabW){
+    for(let sy=0;sy<H;sy+=slabH){
+      // Slab base tone variation
+      const tone=(Math.floor(sx/slabW)+Math.floor(sy/slabH))%2;
+      ctx.fillStyle=tone?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.04)';
+      ctx.fillRect(sx,sy,slabW,slabH);
+      // Expansion joint grooves
+      ctx.strokeStyle='rgba(80,76,70,0.35)';ctx.lineWidth=1.5;
+      ctx.strokeRect(sx+.75,sy+.75,slabW-1.5,slabH-1.5);
+      // Subtle diagonal light sheen on each slab
+      const sg=ctx.createLinearGradient(sx,sy,sx+slabW*.6,sy+slabH*.6);
+      sg.addColorStop(0,'rgba(255,255,255,0.07)');sg.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle=sg;ctx.fillRect(sx,sy,slabW,slabH);
+    }
+  }
+  ctx.restore();
+
+  // Concrete fine surface texture — tiny aggregate speckle
+  const rng=(s)=>((s*16807+1)%2147483647)/2147483647;
+  ctx.save();
+  for(let i=0;i<400;i++){
+    const x=(i*313.7+17)%W, y=(i*197.3+41)%H;
+    ctx.fillStyle=i%3===0?`rgba(80,75,70,${0.08+rng(i*7)*0.07})`
+                 :i%3===1?`rgba(200,195,185,${0.06+rng(i*11)*0.06})`
+                          :`rgba(140,130,120,${0.05+rng(i*13)*0.05})`;
+    ctx.beginPath();
+    ctx.ellipse(x,y,(0.7+rng(i*17)*.9)*(1+i%2*.3),(0.5+rng(i*19)*.6),rng(i*23)*Math.PI,0,Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // ── Large cracks in the concrete ──
+  ctx.save();
+  const crackSeeds=[
+    {x:0.12,y:0.08,angle:35,len:2.2},{x:0.78,y:0.15,angle:-40,len:1.8},
+    {x:0.06,y:0.55,angle:20,len:2.6},{x:0.88,y:0.6,angle:-25,len:2.0},
+    {x:0.35,y:0.85,angle:45,len:1.6},{x:0.62,y:0.88,angle:-30,len:1.9},
+    {x:0.22,y:0.38,angle:55,len:1.4},{x:0.75,y:0.42,angle:-50,len:1.3},
+    {x:0.48,y:0.12,angle:15,len:1.5},{x:0.5,y:0.88,angle:-10,len:1.7},
+    {x:0.1,y:0.82,angle:60,len:1.2},{x:0.88,y:0.88,angle:-60,len:1.4},
+  ];
+  crackSeeds.forEach(({x,y,angle,len})=>{
+    const cx=x*W, cy=y*H;
+    const rad=angle*Math.PI/180;
+    const hl=len*CELL*.5;
+    ctx.strokeStyle='rgba(75,70,62,0.45)';ctx.lineWidth=1.2;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(cx-Math.cos(rad)*hl,cy-Math.sin(rad)*hl);
+    ctx.lineTo(cx+Math.cos(rad)*hl,cy+Math.sin(rad)*hl);ctx.stroke();
+    // Branch crack
+    const br=rad+Math.PI*0.22;
+    ctx.strokeStyle='rgba(75,70,62,0.3)';ctx.lineWidth=0.8;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(br)*hl*.45,cy+Math.sin(br)*hl*.45);ctx.stroke();
+  });
+  ctx.restore();
+
+  // ── Worn concrete patches (darker worn-down spots) ──
+  ctx.save();
+  [[0.08,0.1],[0.85,0.08],[0.12,0.9],[0.82,0.88],[0.5,0.5],[0.3,0.5],[0.7,0.5]].forEach(([fx,fy],i)=>{
+    const wx2=fx*W, wy2=fy*H;
+    const rr=CELL*(1.2+i*.3);
+    const wg=ctx.createRadialGradient(wx2,wy2,0,wx2,wy2,rr);
+    wg.addColorStop(0,'rgba(90,84,76,0.22)');wg.addColorStop(1,'rgba(90,84,76,0)');
+    ctx.fillStyle=wg;ctx.beginPath();ctx.ellipse(wx2,wy2,rr,rr*.6,(i*.4),0,Math.PI*2);ctx.fill();
+  });
+  ctx.restore();
+
+  // ── Rocks scattered around ──
+  function drawConcreteRock(rx,ry,s,rot){
+    ctx.save();ctx.translate(rx,ry);ctx.rotate((rot||0)*Math.PI/180);ctx.scale(s,s);
+    // Shadow
+    ctx.fillStyle='rgba(0,0,0,0.28)';ctx.beginPath();ctx.ellipse(5,14,22,7,0,0,Math.PI*2);ctx.fill();
+    // Rock body gradient — cool grey concrete-look
+    const drg=ctx.createLinearGradient(-16,-10,18,18);
+    drg.addColorStop(0,'#d2cfc8');drg.addColorStop(.35,'#b8b4ac');drg.addColorStop(.7,'#8e8a82');drg.addColorStop(1,'#6a6660');
+    ctx.fillStyle=drg;
+    ctx.beginPath();
+    ctx.moveTo(-15,6);ctx.lineTo(-8,-11);ctx.lineTo(7,-15);ctx.lineTo(19,2);ctx.lineTo(13,14);ctx.lineTo(-7,17);
+    ctx.closePath();ctx.fill();
+    // Edge highlight
+    ctx.strokeStyle='rgba(255,255,255,0.38)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(-5,-9);ctx.lineTo(5,4);ctx.lineTo(14,0);ctx.stroke();
+    // Crevice
+    ctx.strokeStyle='rgba(60,56,50,0.55)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(2,-6);ctx.lineTo(-4,8);ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawSmallRock(rx,ry,s,rot){
+    ctx.save();ctx.translate(rx,ry);ctx.rotate((rot||0)*Math.PI/180);ctx.scale(s,s);
+    ctx.fillStyle='rgba(0,0,0,0.2)';ctx.beginPath();ctx.ellipse(3,9,12,4,0,0,Math.PI*2);ctx.fill();
+    const sg=ctx.createLinearGradient(-9,-6,10,10);
+    sg.addColorStop(0,'#c8c4bc');sg.addColorStop(.5,'#9c9890');sg.addColorStop(1,'#706c64');
+    ctx.fillStyle=sg;
+    ctx.beginPath();ctx.moveTo(-8,4);ctx.lineTo(-4,-7);ctx.lineTo(5,-8);ctx.lineTo(10,2);ctx.lineTo(7,9);ctx.lineTo(-5,10);
+    ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(-2,-4);ctx.lineTo(4,3);ctx.stroke();
+    ctx.restore();
+  }
+
+  // Helper: check clear from both diagonal paths
+  const RCLEAR=38;
+  function farFromPaths(px,py){
+    for(const pt of PPTS){const dx=pt.x-px,dy=pt.y-py;if(dx*dx+dy*dy<RCLEAR*RCLEAR)return false;}
+    if(PPTS_B&&PPTS_B.length){for(const pt of PPTS_B){const dx=pt.x-px,dy=pt.y-py;if(dx*dx+dy*dy<RCLEAR*RCLEAR)return false;}}
+    return true;
+  }
+
+  // Large rocks in corners and off-centre
+  [
+    [CELL*.8,CELL*.7,.82,12],[CELL*28.5,CELL*.7,.78,-15],[CELL*.8,CELL*16.8,.76,20],[CELL*28.5,CELL*16.8,.8,-8],
+    [CELL*5,CELL*1.5,.65,5],[CELL*24,CELL*1.5,.6,-20],[CELL*5,CELL*15.8,.68,15],[CELL*24,CELL*15.8,.62,-10],
+    [CELL*2.5,CELL*5,.55,30],[CELL*27,CELL*5,.52,-25],[CELL*2.5,CELL*12.5,.57,18],[CELL*27,CELL*12.5,.54,-18],
+    [CELL*8,CELL*2,.5,8],[CELL*21,CELL*2,.48,-12],[CELL*8,CELL*16,.52,22],[CELL*21,CELL*16,.5,-5],
+    [CELL*1.5,CELL*9,.6,0],[CELL*28,CELL*9,.58,10],
+    [CELL*12,CELL*.8,.45,35],[CELL*17,CELL*.8,.44,-30],[CELL*12,CELL*17,.47,15],[CELL*17,CELL*17,.46,-20],
+  ].forEach(([rx,ry,s,rot])=>{ if(farFromPaths(rx,ry)) drawConcreteRock(rx,ry,s,rot); });
+
+  // Small rocks scattered more densely
+  [
+    [CELL*3.5,CELL*2,.38,15],[CELL*7,CELL*1,.36,-10],[CELL*11,CELL*2,.34,25],
+    [CELL*18,CELL*1.5,.35,-18],[CELL*22,CELL*3,.37,8],[CELL*26,CELL*2,.36,-22],
+    [CELL*3,CELL*7,.32,30],[CELL*27,CELL*7,.33,-12],[CELL*2,CELL*11,.35,5],[CELL*28,CELL*11,.31,-30],
+    [CELL*3.5,CELL*14,.34,20],[CELL*26,CELL*14,.33,-8],[CELL*7,CELL*16.5,.3,40],[CELL*22,CELL*16.5,.32,-35],
+    [CELL*10,CELL*.5,.3,12],[CELL*19,CELL*.5,.29,-15],[CELL*10,CELL*17.2,.31,18],[CELL*19,CELL*17.2,.3,-20],
+    [CELL*1,CELL*3,.28,45],[CELL*28.5,CELL*3,.27,-45],[CELL*1,CELL*15,.29,50],[CELL*28.5,CELL*15,.28,-50],
+    [CELL*6,CELL*8,.26,0],[CELL*23,CELL*8,.25,10],[CELL*6,CELL*11,.27,-5],[CELL*23,CELL*11,.26,15],
+  ].forEach(([rx,ry,s,rot])=>{ if(farFromPaths(rx,ry)) drawSmallRock(rx,ry,s,rot); });
+
+  // ── Rubble piles (clusters of tiny pebbles) ──
+  ctx.save();
+  [[CELL*4,CELL*4],[CELL*25,CELL*3],[CELL*4,CELL*14],[CELL*25,CELL*14],
+   [CELL*9,CELL*1],[CELL*20,CELL*2],[CELL*9,CELL*17],[CELL*20,CELL*17]].forEach(([rx,ry])=>{
+    if(!farFromPaths(rx,ry)) return;
+    for(let p=0;p<7;p++){
+      const px=rx+((p*37)%24)-12, py=ry+((p*53)%20)-10;
+      ctx.fillStyle=`rgba(${100+p*8},${96+p*7},${88+p*6},0.6)`;
+      ctx.beginPath();ctx.ellipse(px,py,2.5+p%3,1.8+p%2,((p*41)%180)*Math.PI/180,0,Math.PI*2);ctx.fill();
+    }
+  });
+  ctx.restore();
+
+  // ── Old painted lines (faded X marker in centre) ──
+  const cx=W*.5, cy=H*.5;
+  ctx.save();
+  ctx.globalAlpha=0.12;
+  ctx.strokeStyle='#e0d8c8';ctx.lineWidth=CELL*.22;ctx.lineCap='round';
+  ctx.setLineDash([CELL*.8,CELL*.5]);
+  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(W,H);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(W,0);ctx.lineTo(0,H);ctx.stroke();
+  ctx.setLineDash([]);
+  // Centre X marker
+  ctx.globalAlpha=0.18;ctx.lineWidth=CELL*.18;
+  ctx.beginPath();ctx.moveTo(cx-CELL*2,cy-CELL*1.5);ctx.lineTo(cx+CELL*2,cy+CELL*1.5);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx+CELL*2,cy-CELL*1.5);ctx.lineTo(cx-CELL*2,cy+CELL*1.5);ctx.stroke();
+  ctx.restore();
+
+  // ── Draw both gravel paths ──
+  drawXMarksPath();
+
+  // ── Vignette ──
+  const vig=ctx.createRadialGradient(W*.5,H*.5,Math.min(W,H)*.2,W*.5,H*.5,Math.max(W,H)*.75);
+  vig.addColorStop(0,'rgba(0,0,0,0)');
+  vig.addColorStop(.65,'rgba(40,36,30,0.12)');
+  vig.addColorStop(1,'rgba(20,16,12,0.48)');
+  ctx.fillStyle=vig;ctx.fillRect(0,0,W,H);
+
+  // ── Concrete border ──
+  ctx.strokeStyle='rgba(60,56,50,0.75)';ctx.lineWidth=6;ctx.strokeRect(3,3,W-6,H-6);
+  ctx.strokeStyle='rgba(200,190,175,0.4)';ctx.lineWidth=2;ctx.strokeRect(7,7,W-14,H-14);
+
   ctx.restore();
 }
 
@@ -8722,7 +9148,7 @@ return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen
         toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
         winContinue,winLeave,
         toggleMenuMusic,toggleMusicPopup,toggleRadio,toggleSFX,setSFXVolume,setRadioVolume,setMenuVolume,
-        showMenuShop,closeMenuShop,switchShopTab,trySelectFrozenLake,trySelectDesertRoad};
+        showMenuShop,closeMenuShop,switchShopTab,trySelectFrozenLake,trySelectDesertRoad,trySelectXMarks};
 })();
 
 </script>
