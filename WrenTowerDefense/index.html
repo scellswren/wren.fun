@@ -8685,6 +8685,7 @@ function drawTowers(){
     if(t.defId!=='cheeseblock'||!t.cheesePieces||!t.cheesePieces.length) continue;
     const stats=getTowerStats(t);
     const isBlue=stats.blueCheeseT5;
+    const isRed=!isBlue&&stats.cheesePopLead;
     for(const piece of t.cheesePieces){
       const sz=CELL*0.54;
       ctx.save();
@@ -8702,6 +8703,10 @@ function drawTowers(){
         cg.addColorStop(0,'#b0d8ff');
         cg.addColorStop(.5,'#5ab4ff');
         cg.addColorStop(1,'#2980d9');
+      } else if(isRed){
+        cg.addColorStop(0,'#ff9977');
+        cg.addColorStop(.45,'#e03010');
+        cg.addColorStop(1,'#9a1a04');
       } else {
         cg.addColorStop(0,'#ffe566');
         cg.addColorStop(.45,'#f5c518');
@@ -8710,7 +8715,7 @@ function drawTowers(){
       ctx.fillStyle=cg;
       ctx.beginPath();ctx.roundRect(cx2-hw,cy2-hh,hw*2,hh*2,3);ctx.fill();
       // Holes (Swiss-style)
-      ctx.fillStyle=isBlue?'rgba(0,80,180,0.35)':'rgba(160,90,0,0.35)';
+      ctx.fillStyle=isBlue?'rgba(0,80,180,0.35)':isRed?'rgba(100,0,0,0.35)':'rgba(160,90,0,0.35)';
       [[-.22,-.1,.08],[.1,.08,.07],[-.05,.06,.05],[.18,-.08,.055]].forEach(([ox,oy,r])=>{
         ctx.beginPath();ctx.arc(cx2+ox*sz,cy2+oy*sz,r*sz,0,Math.PI*2);ctx.fill();
       });
@@ -8722,7 +8727,7 @@ function drawTowers(){
       ctx.globalAlpha=0.85;
       ctx.fillStyle='rgba(0,0,0,0.55)';
       ctx.beginPath();ctx.roundRect(cx2-barW/2,cy2-hh-8,barW,barH,2);ctx.fill();
-      ctx.fillStyle=isBlue?'#5ab4ff':'#f5c518';
+      ctx.fillStyle=isBlue?'#5ab4ff':isRed?'#e03010':'#f5c518';
       ctx.beginPath();ctx.roundRect(cx2-barW/2,cy2-hh-8,barW*hpFrac,barH,2);ctx.fill();
       ctx.restore();
     }
