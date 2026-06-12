@@ -3415,19 +3415,45 @@ function triggerCheeseStorm(towerId){
   const stats=getTowerStats(t);
   if(!stats.cheeseStormAbility) return;
   if((t.cheeseStormCd||0)>0){ showToast('Cheese Storm recharging: '+Math.ceil(t.cheeseStormCd)+'s','#f5c518'); return; }
-  // Spread 100 cheeses evenly across ALL path points
   const allPts=(S&&S.mapId==='xmarks'&&PPTS_B.length)?[...PPTS,...PPTS_B]:PPTS;
   if(!allPts.length){ showToast('No track to storm!','#f5c518'); return; }
   if(!t.cheesePieces) t.cheesePieces=[];
+  if(!t.cheeseFlying) t.cheeseFlying=[];
+
+  // Build 100 target points spread evenly across the track
   const stormCount=100;
   const step=Math.max(1,Math.floor(allPts.length/stormCount));
-  for(let i=0;i<stormCount;i++){
-    const pt=allPts[(i*step)%allPts.length];
-    t.cheesePieces.push({ x:pt.x, y:pt.y, hp:stats.cheeseDmg, maxHp:stats.cheeseDmg, id:Math.random(), stormPiece:true });
-  }
+  const targets=[];
+  for(let i=0;i<stormCount;i++) targets.push(allPts[(i*step)%allPts.length]);
+
+  // Animated rain sweep: cheeses fall from above in a left-to-right wave across the whole map
+  const mapW=COLS*CELL, mapH=ROWS*CELL;
+  const sweepDur=1.8;   // seconds for the wave front to cross full map width
+  const fallHeight=mapH*0.75+CELL*3; // how far above target each cheese starts
+  const fallDur=0.42;   // each cheese falls over ~this many seconds
+
+  if(!S.cheeseStormAnim) S.cheeseStormAnim=[];
+  targets.forEach((pt)=>{
+    // Delay = x fraction of map width * sweep duration, plus jitter
+    const xFrac=Math.max(0,Math.min(1,pt.x/mapW));
+    const delay=xFrac*sweepDur+(Math.random()-0.5)*0.22;
+    S.cheeseStormAnim.push({
+      towerId:t.id,
+      tx:pt.x, ty:pt.y,
+      sx:pt.x+(Math.random()-0.5)*CELL*1.4,
+      sy:pt.y-fallHeight-Math.random()*CELL*2.5,
+      delay:Math.max(0,delay),
+      dur:fallDur*(0.8+Math.random()*0.4),
+      elapsed:0,
+      spin:Math.random()*Math.PI*2,
+      wobble:(Math.random()-0.5)*0.22,
+      dmg:stats.cheeseDmg
+    });
+  });
+
   t.cheeseStormCd=150; // 2.5 minutes
   refreshSelPanel();
-  showToast('🧀 Cheese Storm! 100 cheeses blanket the track!','#f5c518');
+  showToast('🧀 Cheese Storm! The sky rains cheese!','#f5c518');
 }
 // Can this tower see and target the enemy? (camo blocks targeting; lead does NOT — towers can still shoot at leads)
 function canTowerTargetEnemy(stats, enemy, tower){
@@ -3550,7 +3576,8 @@ function mkState(mapId, mode, difficulty){
     orinFrenzyT:0,
     totalMoneyEarned:0,
     totalKillsEarned:0,
-    winClaimed:false
+    winClaimed:false,
+    cheeseStormAnim:[]
   };
 }
 
@@ -6467,7 +6494,7 @@ function selectTower(id){
   const showOrinAbility=isOrinTower(t)&&getTowerUpgradeLevel(t)>=4;
   const isCheeseBlock=t.defId==='cheeseblock';
   const cheeseRows=isCheeseBlock?`
-    <div class="srow"><span class="sl">Cheeses</span><span class="sv">${(t.cheesePieces||[]).length}/${stats.cheeseMax}</span></div>
+    <div class="srow"><span class="sl">Cheeses</span><span class="sv">${((t.cheesePieces||[]).length+(t.cheeseFlying||[]).length)}/${stats.cheeseMax}</span></div>
     <div class="srow"><span class="sl">Cheese HP</span><span class="sv">${stats.cheeseDmg} dmg each</span></div>
     <div class="srow"><span class="sl">Cooldown</span><span class="sv">${stats.cheeseCooldown}s after last</span></div>
     ${stats.cheesePopLead?'<div class="srow"><span class="sl">Lead Pop</span><span class="sv" style="color:#aeb8c2">✓ Yes</span></div>':''}
@@ -6683,7 +6710,8 @@ function togglePause(){
   if(S.over) return;
   S.paused=!S.paused;
   document.getElementById('pauseOv').classList.toggle('on',S.paused);
-  if(!S.paused){lastT=performance.now();raf=requestAnimationFrame(loop);}
+  // raf loop always runs while not over — just reset lastT on unpause to avoid time jump
+  if(!S.paused) lastT=performance.now();
 }
 
 function triggerOver(won){
@@ -6751,7 +6779,7 @@ function winContinue(){
     S.winPaused=false;
     S.paused=false;
     lastT=performance.now();
-    raf=requestAnimationFrame(loop);
+    // raf loop already running (render-only while paused); just reset time
   }
 }
 
@@ -7400,62 +7428,106 @@ function update(dt){
     if(t.defId!=='cheeseblock') continue;
     const stats=getTowerStats(t);
     if(!t.cheesePieces) t.cheesePieces=[];
+    if(!t.cheeseFlying) t.cheeseFlying=[];
 
-    // Tick cooldown timer
+    // Tick cooldown timer (dt already accounts for 2x/3x speed)
     if(t.cheeseCooldownT>0) t.cheeseCooldownT=Math.max(0,t.cheeseCooldownT-dt);
     // Tick cheese storm cooldown
     if(t.cheeseStormCd>0){ t.cheeseStormCd=Math.max(0,t.cheeseStormCd-dt); if(S.towerSel===t.id) refreshSelPanel(); updateCheeseStormUI(); }
 
-    // Helper: place one cheese piece according to current mode
-    function placeOneCheese(){
+    // Tick flying cheese animations
+    for(let fi=t.cheeseFlying.length-1;fi>=0;fi--){
+      const fly=t.cheeseFlying[fi];
+      fly.t+=dt/fly.dur;
+      if(fly.t>=1){
+        fly.t=1;
+        // Land: add as a real cheese piece
+        t.cheesePieces.push({
+          x:fly.tx, y:fly.ty,
+          hp:stats.cheeseDmg, maxHp:stats.cheeseDmg,
+          id:fly.id,
+          landT:0.18 // brief land-bounce timer
+        });
+        t.cheeseFlying.splice(fi,1);
+        if(S.towerSel===t.id) refreshSelPanel();
+      }
+    }
+
+    // Tick land-bounce timers on placed cheese
+    for(const piece of t.cheesePieces){
+      if(piece.landT>0) piece.landT=Math.max(0,piece.landT-dt);
+    }
+
+    // Helper: pick target point according to placement mode
+    function pickCheesePt(){
       const effectiveRange=getEffectiveRangeForTower(t);
       const allPts=(S&&S.mapId==='xmarks'&&PPTS_B.length)?[...PPTS,...PPTS_B]:PPTS;
       const inRange=allPts.filter(pt=>{
         const dx=pt.x-t.x, dy=pt.y-t.y;
         return dx*dx+dy*dy<=effectiveRange*effectiveRange;
       });
-      if(!inRange.length) return;
+      if(!inRange.length) return null;
       const mode=t.cheeseMode||'random';
-      let chosenPt;
       if(mode==='far'){
-        chosenPt=inRange.reduce((best,pt)=>{
+        return inRange.reduce((best,pt)=>{
           const bi=PPTS.indexOf(best), pi=PPTS.indexOf(pt);
           return pi>bi?pt:best;
         }, inRange[0]);
       } else if(mode==='near'){
-        chosenPt=inRange.reduce((best,pt)=>{
+        return inRange.reduce((best,pt)=>{
           const bi=PPTS.indexOf(best), pi=PPTS.indexOf(pt);
           return pi<bi?pt:best;
         }, inRange[0]);
       } else if(mode==='front'){
-        chosenPt=inRange.reduce((best,pt)=>{
+        return inRange.reduce((best,pt)=>{
           const da=(pt.x-t.x)**2+(pt.y-t.y)**2;
           const db=(best.x-t.x)**2+(best.y-t.y)**2;
           return da<db?pt:best;
         }, inRange[0]);
       } else {
-        chosenPt=inRange[Math.floor(Math.random()*inRange.length)];
+        return inRange[Math.floor(Math.random()*inRange.length)];
       }
-      t.cheesePieces.push({
-        x:chosenPt.x, y:chosenPt.y,
-        hp:stats.cheeseDmg, maxHp:stats.cheeseDmg,
-        id:Math.random()
+    }
+
+    // Helper: launch one cheese as a flying projectile from tower to target
+    function launchOneCheese(){
+      const chosenPt=pickCheesePt();
+      if(!chosenPt) return;
+      const dx=chosenPt.x-t.x, dy=chosenPt.y-t.y;
+      const dist=Math.sqrt(dx*dx+dy*dy)||1;
+      // Travel time: 0.22s base, scaled by distance — feels snappy but visible
+      const travelDur=Math.max(0.18, Math.min(0.55, dist/320));
+      t.cheeseFlying.push({
+        sx:t.x, sy:t.y,          // start (tower centre)
+        tx:chosenPt.x, ty:chosenPt.y, // target
+        t:0, dur:travelDur,
+        id:Math.random(),
+        arc:0.38+Math.random()*0.22, // arc height factor
+        spin:Math.random()*Math.PI*2  // initial rotation for spin anim
       });
     }
 
-    // Place new cheese if under max and cooldown expired
-    while(t.cheesePieces.length<stats.cheeseMax && (t.cheeseCooldownT||0)<=0){
-      placeOneCheese();
-      // If we still need more pieces, no cooldown between them — only applies when replacing a destroyed piece
-      if(t.cheesePieces.length<stats.cheeseMax) break; // prevent infinite loop if inRange empty
+    // Only place ONE new cheese per cooldown cycle (one-at-a-time, never instant-fill)
+    // Active + in-flight count together toward the cap
+    // Only place during active waves, not between rounds
+    const activeCount = t.cheesePieces.length + t.cheeseFlying.length;
+    if(S.waveActive && activeCount < stats.cheeseMax && (t.cheeseCooldownT||0)<=0){
+      // At max cap with oldest-removal: if placing would exceed due to rounding, evict oldest placed piece
+      if(t.cheesePieces.length >= stats.cheeseMax){
+        t.cheesePieces.shift(); // remove oldest placed cheese
+      }
+      launchOneCheese();
+      // Always set a cooldown after launching so they space out properly
+      t.cheeseCooldownT = stats.cheeseCooldown;
+      if(S.towerSel===t.id) refreshSelPanel();
     }
 
-    // Damage enemies walking over cheese pieces
+    // Damage enemies walking over placed cheese pieces
     for(let ci=t.cheesePieces.length-1;ci>=0;ci--){
       const piece=t.cheesePieces[ci];
       if(piece.hp<=0){
         t.cheesePieces.splice(ci,1);
-        t.cheeseCooldownT=stats.cheeseCooldown; // start cooldown, then auto-place next tick
+        t.cheeseCooldownT=stats.cheeseCooldown;
         if(S.towerSel===t.id) refreshSelPanel();
         continue;
       }
@@ -7478,6 +7550,29 @@ function update(dt){
         t.cheesePieces.splice(ci,1);
         t.cheeseCooldownT=stats.cheeseCooldown;
         if(S.towerSel===t.id) refreshSelPanel();
+      }
+    }
+  }
+
+  // ─── CHEESE STORM RAIN ANIMATION UPDATE ───
+  if(S.cheeseStormAnim&&S.cheeseStormAnim.length){
+    for(let si=S.cheeseStormAnim.length-1;si>=0;si--){
+      const sa=S.cheeseStormAnim[si];
+      sa.delay-=dt;
+      if(sa.delay>0) continue; // still waiting
+      sa.elapsed=Math.min(sa.dur,sa.elapsed+dt);
+      if(sa.elapsed>=sa.dur){
+        // Land: add as real cheese piece on the tower it belongs to
+        const tt=S.towers.find(tw=>tw.id===sa.towerId);
+        if(tt){
+          if(!tt.cheesePieces) tt.cheesePieces=[];
+          // evict oldest if over cap
+          const ttStats=getTowerStats(tt);
+          if(tt.cheesePieces.length>=ttStats.cheeseMax) tt.cheesePieces.shift();
+          tt.cheesePieces.push({ x:sa.tx, y:sa.ty, hp:sa.dmg, maxHp:sa.dmg, id:Math.random(), landT:0.18, stormPiece:true });
+          if(S.towerSel===tt.id) refreshSelPanel();
+        }
+        S.cheeseStormAnim.splice(si,1);
       }
     }
   }
@@ -7510,6 +7605,7 @@ function render(){
   drawEnemies();
   drawParticles();
   drawGhost();
+  drawStormRain(); // cheese storm falling pieces (world-space, above everything)
   ctx.restore();
   // Damage flash — screen-space overlay (no camera transform)
   if(S.dmgFlash>0){
@@ -7522,6 +7618,107 @@ function render(){
     grd.addColorStop(1,`rgba(192,57,43,${alpha})`);
     ctx.save();ctx.fillStyle=grd;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore();
   }
+  // Cheese storm screen-flash sweep overlay
+  drawStormScreenFX();
+}
+
+function drawStormRain(){
+  if(!S.cheeseStormAnim||!S.cheeseStormAnim.length) return;
+  // Figure out blue/red from any cheeseblock tower
+  for(const sa of S.cheeseStormAnim){
+    if(sa.delay>0) continue; // not yet falling
+    const p=Math.min(1,sa.elapsed/sa.dur); // 0→1 fall progress
+    // Eased fall: accelerate downward (gravity feel)
+    const pe=p*p; // quadratic ease-in
+    // Current position: lerp with wobble
+    const wx=Math.sin(p*Math.PI*2)*sa.wobble*CELL*3; // horizontal sway
+    const cx=sa.sx+(sa.tx-sa.sx)*p+wx;
+    const cy=sa.sy+(sa.ty-sa.sy)*pe; // y uses eased progress for gravity
+    const sz=CELL*(0.22+p*0.32); // grows as it approaches ground
+    const spinAngle=sa.spin+p*Math.PI*4.2;
+    const alpha=Math.min(1,p*4)*0.95;
+
+    // Determine colour from the associated tower
+    const tt=S.towers&&S.towers.find(tw=>tw.id===sa.towerId);
+    const tStats=tt?getTowerStats(tt):null;
+    const isBlue=tStats&&tStats.blueCheeseT5;
+    const isRed=tStats&&!isBlue&&tStats.cheesePopLead;
+
+    // Trail behind each falling cheese
+    for(let tr=1;tr<=4;tr++){
+      const tp=Math.max(0,p-(tr*0.05));
+      const tpe=tp*tp;
+      const twx=Math.sin(tp*Math.PI*2)*sa.wobble*CELL*3;
+      const tcx=sa.sx+(sa.tx-sa.sx)*tp+twx;
+      const tcy=sa.sy+(sa.ty-sa.sy)*tpe;
+      const tsz=CELL*(0.22+tp*0.32);
+      const ta=spinAngle-tr*0.35;
+      ctx.save();
+      ctx.translate(tcx,tcy);
+      ctx.rotate(ta);
+      ctx.globalAlpha=alpha*(0.18-tr*0.04);
+      const hw=tsz*0.46, hh=tsz*0.36;
+      const cg=ctx.createLinearGradient(-hw,-hh,hw,hh);
+      if(isBlue){ cg.addColorStop(0,'#b0d8ff');cg.addColorStop(1,'#2980d9'); }
+      else if(isRed){ cg.addColorStop(0,'#ff9977');cg.addColorStop(1,'#9a1a04'); }
+      else { cg.addColorStop(0,'#ffe566');cg.addColorStop(1,'#c8920a'); }
+      ctx.fillStyle=cg;
+      ctx.beginPath();ctx.roundRect(-hw,-hh,hw*2,hh*2,3);ctx.fill();
+      ctx.restore();
+    }
+
+    // Main falling cheese
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(spinAngle);
+    ctx.globalAlpha=alpha;
+    const hw=sz*0.46, hh=sz*0.36;
+    // Glow
+    const glowC=isBlue?'#5ab4ff':isRed?'#ff4422':'#f5c518';
+    ctx.shadowColor=glowC; ctx.shadowBlur=16*(1-p)*0.8+8;
+    const cg=ctx.createLinearGradient(-hw,-hh,hw,hh);
+    if(isBlue){ cg.addColorStop(0,'#b0d8ff');cg.addColorStop(.5,'#5ab4ff');cg.addColorStop(1,'#2980d9'); }
+    else if(isRed){ cg.addColorStop(0,'#ff9977');cg.addColorStop(.45,'#e03010');cg.addColorStop(1,'#9a1a04'); }
+    else { cg.addColorStop(0,'#ffe566');cg.addColorStop(.45,'#f5c518');cg.addColorStop(1,'#c8920a'); }
+    ctx.fillStyle=cg;
+    ctx.beginPath();ctx.roundRect(-hw,-hh,hw*2,hh*2,3);ctx.fill();
+    // Holes
+    ctx.shadowBlur=0;
+    ctx.fillStyle=isBlue?'rgba(0,80,180,0.35)':isRed?'rgba(100,0,0,0.35)':'rgba(160,90,0,0.35)';
+    [[-.22,-.1,.08],[.1,.08,.07],[-.05,.06,.05],[.18,-.08,.055]].forEach(([ox,oy,r])=>{
+      ctx.beginPath();ctx.arc(ox*sz,oy*sz,r*sz,0,Math.PI*2);ctx.fill();
+    });
+    // Shine
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.beginPath();ctx.ellipse(-hw*0.3,-hh*0.5,hw*0.25,hh*0.2,-0.2,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawStormScreenFX(){
+  if(!S.cheeseStormAnim||!S.cheeseStormAnim.length) return;
+  // Count active (non-delayed) falling cheeses
+  const active=S.cheeseStormAnim.filter(sa=>sa.delay<=0).length;
+  if(!active) return;
+  const total=S.cheeseStormAnim.length+active; // rough measure
+  // Find leading x front of the sweep (world coords → screen coords)
+  // Compute the sweep progress (0→1 as cheeses rain left to right)
+  let minDelay=Infinity, maxDelay=0;
+  for(const sa of S.cheeseStormAnim){ minDelay=Math.min(minDelay,Math.max(0,sa.delay)); maxDelay=Math.max(maxDelay,sa.delay+sa.dur); }
+  // Screen-space golden flash that sweeps left→right
+  const totalDur=1.8+0.42; // sweepDur + fallDur estimate
+  const activeRatio=Math.min(1,active/Math.max(1,S.cheeseStormAnim.length+active));
+  // Subtle golden screen tint that pulses with activity
+  const flashAlpha=activeRatio*0.08;
+  ctx.save();
+  const grd=ctx.createLinearGradient(0,0,canvas.width,0);
+  grd.addColorStop(0,`rgba(245,197,24,0)`);
+  grd.addColorStop(0.3,`rgba(245,197,24,${flashAlpha})`);
+  grd.addColorStop(0.7,`rgba(245,197,24,${flashAlpha})`);
+  grd.addColorStop(1,`rgba(245,197,24,0)`);
+  ctx.fillStyle=grd;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.restore();
 }
 
 function drawMap(){
@@ -8682,54 +8879,121 @@ function strokeTowerRectProgress(cx,cy,size,radius,progress){
 function drawTowers(){
   // ── Draw cheese pieces on track first (below towers) ──
   for(const t of S.towers){
-    if(t.defId!=='cheeseblock'||!t.cheesePieces||!t.cheesePieces.length) continue;
+    if(t.defId!=='cheeseblock') continue;
     const stats=getTowerStats(t);
     const isBlue=stats.blueCheeseT5;
     const isRed=!isBlue&&stats.cheesePopLead;
-    for(const piece of t.cheesePieces){
-      const sz=CELL*0.54;
+
+    // Helper: draw a cheese block at given position/scale/alpha/rotation
+    function drawCheeseAt(cx2,cy2,drawSz,alpha,rot){
       ctx.save();
-      // Shadow
-      ctx.fillStyle='rgba(0,0,0,0.32)';
-      ctx.beginPath();ctx.ellipse(piece.x+2,piece.y+sz*.38,sz*.4,sz*.12,0,0,Math.PI*2);ctx.fill();
-      // Cheese block body
-      const hpFrac=piece.hp/piece.maxHp;
-      ctx.globalAlpha=0.78+hpFrac*0.22;
-      const cx2=piece.x, cy2=piece.y;
-      const hw=sz*0.46, hh=sz*0.36;
-      // Main block
+      ctx.globalAlpha=alpha;
+      if(rot) ctx.rotate(rot);
+      const hw=drawSz*0.46, hh=drawSz*0.36;
+      // Shadow (only for landed pieces)
+      if(!rot){
+        ctx.fillStyle='rgba(0,0,0,0.28)';
+        ctx.beginPath();ctx.ellipse(cx2+2,cy2+drawSz*.38,drawSz*.4,drawSz*.12,0,0,Math.PI*2);ctx.fill();
+      }
       const cg=ctx.createLinearGradient(cx2-hw,cy2-hh,cx2+hw,cy2+hh);
       if(isBlue){
-        cg.addColorStop(0,'#b0d8ff');
-        cg.addColorStop(.5,'#5ab4ff');
-        cg.addColorStop(1,'#2980d9');
+        cg.addColorStop(0,'#b0d8ff'); cg.addColorStop(.5,'#5ab4ff'); cg.addColorStop(1,'#2980d9');
       } else if(isRed){
-        cg.addColorStop(0,'#ff9977');
-        cg.addColorStop(.45,'#e03010');
-        cg.addColorStop(1,'#9a1a04');
+        cg.addColorStop(0,'#ff9977'); cg.addColorStop(.45,'#e03010'); cg.addColorStop(1,'#9a1a04');
       } else {
-        cg.addColorStop(0,'#ffe566');
-        cg.addColorStop(.45,'#f5c518');
-        cg.addColorStop(1,'#c8920a');
+        cg.addColorStop(0,'#ffe566'); cg.addColorStop(.45,'#f5c518'); cg.addColorStop(1,'#c8920a');
       }
       ctx.fillStyle=cg;
       ctx.beginPath();ctx.roundRect(cx2-hw,cy2-hh,hw*2,hh*2,3);ctx.fill();
-      // Holes (Swiss-style)
+      // Holes
       ctx.fillStyle=isBlue?'rgba(0,80,180,0.35)':isRed?'rgba(100,0,0,0.35)':'rgba(160,90,0,0.35)';
       [[-.22,-.1,.08],[.1,.08,.07],[-.05,.06,.05],[.18,-.08,.055]].forEach(([ox,oy,r])=>{
-        ctx.beginPath();ctx.arc(cx2+ox*sz,cy2+oy*sz,r*sz,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();ctx.arc(cx2+ox*drawSz,cy2+oy*drawSz,r*drawSz,0,Math.PI*2);ctx.fill();
       });
       // Shine
       ctx.fillStyle='rgba(255,255,255,0.28)';
       ctx.beginPath();ctx.ellipse(cx2-hw*0.3,cy2-hh*0.5,hw*0.25,hh*0.2,-0.2,0,Math.PI*2);ctx.fill();
-      // HP bar
-      const barW=sz*.9, barH=4;
-      ctx.globalAlpha=0.85;
-      ctx.fillStyle='rgba(0,0,0,0.55)';
-      ctx.beginPath();ctx.roundRect(cx2-barW/2,cy2-hh-8,barW,barH,2);ctx.fill();
-      ctx.fillStyle=isBlue?'#5ab4ff':isRed?'#e03010':'#f5c518';
-      ctx.beginPath();ctx.roundRect(cx2-barW/2,cy2-hh-8,barW*hpFrac,barH,2);ctx.fill();
       ctx.restore();
+    }
+
+    // Draw flying cheese projectiles (arcing from tower to destination)
+    if(t.cheeseFlying){
+      for(const fly of t.cheeseFlying){
+        const p=fly.t; // 0→1 progress
+        // Quadratic bezier arc: control point above midpoint
+        const mx=(fly.sx+fly.tx)/2, my=(fly.sy+fly.ty)/2;
+        const arcHeight=Math.sqrt((fly.tx-fly.sx)**2+(fly.ty-fly.sy)**2)*fly.arc;
+        const cpx=mx, cpy=my-arcHeight;
+        // Position along arc
+        const bx=(1-p)*(1-p)*fly.sx + 2*(1-p)*p*cpx + p*p*fly.tx;
+        const by=(1-p)*(1-p)*fly.sy + 2*(1-p)*p*cpy + p*p*fly.ty;
+        // Size: starts small at tower, grows to full at destination
+        const sz=CELL*(0.28+p*0.26);
+        // Spin rotation angle
+        const spinAngle=fly.spin + p*Math.PI*3.5;
+        // Alpha: fade in quickly, stay solid
+        const alpha=Math.min(1, p*6)*0.92;
+        // Motion trail — ghost copies behind
+        for(let trail=1;trail<=3;trail++){
+          const tp=Math.max(0,p-(trail*0.07));
+          const tbx=(1-tp)*(1-tp)*fly.sx + 2*(1-tp)*tp*cpx + tp*tp*fly.tx;
+          const tby=(1-tp)*(1-tp)*fly.sy + 2*(1-tp)*tp*cpy + tp*tp*fly.ty;
+          const tsz=CELL*(0.28+tp*0.26);
+          ctx.save();
+          ctx.translate(tbx,tby);
+          const tangle=fly.spin+tp*Math.PI*3.5;
+          drawCheeseAt(0,0,tsz,alpha*(0.22-trail*0.06),tangle);
+          ctx.restore();
+        }
+        // Main flying cheese
+        ctx.save();
+        ctx.translate(bx,by);
+        // Glow aura while in-flight
+        const glowColor=isBlue?'#5ab4ff':isRed?'#e03010':'#f5c518';
+        ctx.shadowColor=glowColor;
+        ctx.shadowBlur=12*p;
+        drawCheeseAt(0,0,sz,alpha,spinAngle);
+        ctx.restore();
+      }
+    }
+
+    // Draw landed cheese pieces
+    if(t.cheesePieces&&t.cheesePieces.length){
+      for(const piece of t.cheesePieces){
+        const sz=CELL*0.54;
+        const hpFrac=piece.hp/piece.maxHp;
+        // Land-bounce: brief scale pop when freshly placed
+        let landScale=1;
+        if(piece.landT>0){
+          const lp=piece.landT/0.18; // 1→0
+          // Squash-and-stretch bounce: overshoot then settle
+          landScale = 1 + Math.sin(lp*Math.PI)*0.35*(lp>0.5?1:-0.5);
+        }
+        const cx2=piece.x, cy2=piece.y;
+        ctx.save();
+        if(landScale!==1){
+          ctx.translate(cx2,cy2);
+          ctx.scale(landScale,landScale);
+          ctx.translate(-cx2,-cy2);
+          // Landing flash ring
+          const ringAlpha=(piece.landT/0.18)*0.6;
+          ctx.strokeStyle=isBlue?'#5ab4ff':isRed?'#ff5533':'#f5c518';
+          ctx.lineWidth=2;
+          ctx.globalAlpha=ringAlpha;
+          ctx.beginPath();ctx.arc(cx2,cy2,sz*(1.1+(1-piece.landT/0.18)*0.5),0,Math.PI*2);ctx.stroke();
+          ctx.globalAlpha=1;
+        }
+        drawCheeseAt(cx2,cy2,sz,0.78+hpFrac*0.22,0);
+        // HP bar
+        const hw=sz*0.46, hh=sz*0.36;
+        const barW=sz*.9, barH=4;
+        ctx.globalAlpha=0.85;
+        ctx.fillStyle='rgba(0,0,0,0.55)';
+        ctx.beginPath();ctx.roundRect(cx2-barW/2,cy2-hh-8,barW,barH,2);ctx.fill();
+        ctx.fillStyle=isBlue?'#5ab4ff':isRed?'#e03010':'#f5c518';
+        ctx.beginPath();ctx.roundRect(cx2-barW/2,cy2-hh-8,barW*hpFrac,barH,2);ctx.fill();
+        ctx.restore();
+      }
     }
   }
 
@@ -9744,11 +10008,14 @@ function sandboxSellAll(){
 function loop(ts){
   const rawDt=Math.min((ts-lastT)/1000,.1);
   lastT=ts;
-  if(!S.paused&&!S.over){
-    const dt=rawDt*S.speed;
-    update(dt);render();
+  if(!S.over){
+    if(!S.paused){
+      const dt=rawDt*S.speed;
+      update(dt);
+    }
+    render();
   }
-  if(!S.paused&&!S.over) raf=requestAnimationFrame(loop);
+  if(!S.over) raf=requestAnimationFrame(loop);
 }
 
 // ── Shard cheat: stats x10 then fullscreen x10 within 30s ──
