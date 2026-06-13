@@ -650,6 +650,14 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 #cheeseStormBtn:hover{background:linear-gradient(135deg,#f5c51840,#c89a1022);
   box-shadow:0 0 22px #f5c51855;transform:translateY(-2px)}
 #cheeseStormBtn:disabled{cursor:not-allowed;transform:none}
+#nathanRelocateBtn{position:absolute;bottom:1rem;left:1rem;right:auto;
+  font-size:1.6rem;background:linear-gradient(135deg,#4fc3f722,#0288d111);
+  border:2px solid #4fc3f788;color:inherit;cursor:pointer;display:none;z-index:150;
+  padding:.3em .5em;border-radius:6px;transition:border-color .2s,box-shadow .2s,transform .2s;
+  box-shadow:0 0 14px #4fc3f730;line-height:1;overflow:hidden}
+#nathanRelocateBtn:hover{background:linear-gradient(135deg,#4fc3f744,#0288d122);
+  box-shadow:0 0 22px #4fc3f755;transform:translateY(-2px)}
+#nathanRelocateBtn:disabled{cursor:not-allowed;transform:none}
 .ability-cd-sweep{position:absolute;inset:0;border-radius:4px;pointer-events:none;z-index:1;
   transition:none}
 
@@ -1096,6 +1104,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
     <button id="bigBoomBtn" onclick="G.triggerBigBoomGlobal()">💥<div class="ability-cd-sweep" id="bigBoomSweep"></div></button>
     <div id="bigBoomTip"></div>
     <button id="cheeseStormBtn" onclick="G.triggerCheeseStormGlobal()">🧀<div class="ability-cd-sweep" id="cheeseStormSweep"></div></button>
+    <button id="nathanRelocateBtn" onclick="G.triggerNathanRelocateGlobal()">🧱<div class="ability-cd-sweep" id="nathanRelocateSweep"></div></button>
     <!-- Sandbox panel -->
     <div id="sandboxPanel">
       <div class="sbhdr">
@@ -2687,7 +2696,7 @@ const TD = {
   thomasmini:{id:'thomasmini',name:'Thomas Mini',         img:'ThomasMini.jpg',    cost:425, dmg:3,  rate:2.5, range:125, income:0,   irate:0,  init:'TM', col:'#ff7043', canHitLead:true, bombTower:true},
   farmerorin:{id:'farmerorin',name:'Farmer Orin',          img:'FarmerOrin.jpg',    cost:500, dmg:0,  rate:0,   range:160, income:0,   irate:0,  init:'FO', col:'#8bc34a', support:true, farmerCollector:true, shopUnlockOnly:true},
   cheeseblock:{id:'cheeseblock',name:'Block of Cheese',     img:'Cyatr9.jpg',        cost:650, dmg:5,  rate:0,   range:110, income:0,   irate:0,  init:'🧀', col:'#f5c518', cheeseFactory:true, shopUnlockOnly:true},
-  nathan8028: {id:'nathan8028', name:'Nathan8028',           img:'Nathan8028.jpg',    cost:125, dmg:0,  rate:0,   range:0,   income:0,   irate:0,  init:'N',  col:'#4fc3f7', wallTower:true, canPlaceOnPath:true, shopUnlockOnly:true}
+  nathan8028: {id:'nathan8028', name:'Nathan8028',           img:'Nathan8028.jpg',    cost:125, dmg:0,  rate:0,   range:0,   income:0,   irate:0,  init:'N',  col:'#4fc3f7', support:true, canPlaceOnPath:true, shopUnlockOnly:true}
 };
 const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg', edunzie:'EdunzieLicksPoo.jpg', thomasmini:'ThomasIsADino.jpg', farmerorin:'OrinTheFarmer.jpg', cheeseblock:'CheeseBlock.jpg', nathan8028:'Nathan888.jpg'};
 
@@ -3259,7 +3268,7 @@ function updateOrinFrenzyUI(){
   const unlocked=hasOrinFrenzyUnlock()&&!S.over;
   btn.style.display=unlocked?'flex':'none';
   if(tip) tip.style.display='none'; // never show tip text — hover only
-  if(!unlocked){ updateBigBoomUI(); updateCheeseStormUI(); return; }
+  if(!unlocked){ updateBigBoomUI(); updateCheeseStormUI(); updateNathanRelocateUI(); return; }
   const spec=getOrinFrenzySpec();
   const onCd=S.orinFrenzyCd>0||S.orinFrenzyT>0;
   btn.disabled=onCd;
@@ -3300,13 +3309,14 @@ function updateOrinFrenzyUI(){
   }
   updateBigBoomUI();
   updateCheeseStormUI();
+  updateNathanRelocateUI();
 }
 function triggerOrinFrenzy(){
   if(!S||S.over||!hasOrinFrenzyUnlock()||S.orinFrenzyCd>0||S.orinFrenzyT>0) return;
   const spec=getOrinFrenzySpec();
   S.orinFrenzyT=spec.duration;
   S.orinFrenzyCd=spec.cooldown;
-  updateOrinFrenzyUI(); updateCheeseStormUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI();
   showToast('DVD Frenzy active: x'+spec.mult+' income for '+spec.duration+'s.','#d7a6ff');
 }
 function hasBigBoomUnlock(){
@@ -3478,6 +3488,67 @@ function commitNathanRelocate(wx,wy){
   S.shopSel=null;
   if(S.towerSel===t.id) refreshSelPanel();
   showToast('Nathan8028 relocated!','#4fc3f7');
+}
+
+function hasNathanRelocateUnlock(){
+  return !!(S&&S.towers.some(t=>t.defId==='nathan8028'&&getTowerUpgradeLevel(t)>=5&&!t._dead));
+}
+function getNathanRelocateTower(){
+  if(!S) return null;
+  return S.towers.find(t=>t.defId==='nathan8028'&&getTowerUpgradeLevel(t)>=5&&!t._dead)||null;
+}
+function updateNathanRelocateUI(){
+  const btn=document.getElementById('nathanRelocateBtn');
+  const sweep=document.getElementById('nathanRelocateSweep');
+  const orinBtn=document.getElementById('orinFrenzyBtn');
+  const bigBtn=document.getElementById('bigBoomBtn');
+  const cheeseBtn=document.getElementById('cheeseStormBtn');
+  if(!btn) return;
+  const unlocked=hasNathanRelocateUnlock()&&!!(S&&!S.over);
+  btn.style.display=unlocked?'flex':'none';
+  if(!unlocked) return;
+  const t=getNathanRelocateTower();
+  const cdLeft=t?(t.wallRelocateCd||0):0;
+  const cdMax=5;
+  btn.disabled=cdLeft>0;
+  if(sweep){
+    if(cdLeft>0){
+      const pct=Math.round((cdLeft/cdMax)*100);
+      sweep.style.background=`linear-gradient(to right,rgba(0,0,0,0.55) ${pct}%,transparent ${pct}%)`;
+    } else {
+      sweep.style.background='transparent';
+    }
+  }
+  // Stack position above other visible ability buttons
+  const orinVis=orinBtn&&orinBtn.style.display!=='none'&&orinBtn.style.display!=='';
+  const bigVis=bigBtn&&bigBtn.style.display!=='none'&&bigBtn.style.display!=='';
+  const cheeseVis=cheeseBtn&&cheeseBtn.style.display!=='none'&&cheeseBtn.style.display!=='';
+  let bottom=1;
+  if(orinVis) bottom+=3.2;
+  if(bigVis) bottom+=3.2;
+  if(cheeseVis) bottom+=3.2;
+  btn.style.bottom=bottom+'rem';
+  if(!btn._tipSetup){
+    btn._tipSetup=true;
+    let _hT=null,_hEl=null;
+    btn.addEventListener('mouseenter',()=>{
+      _hT=setTimeout(()=>{
+        _hEl=document.createElement('div');
+        const t2=getNathanRelocateTower();
+        const cdSec=t2?(t2.wallRelocateCd||0):0;
+        _hEl.style.cssText='position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#131009ee;border:1px solid #4fc3f766;border-radius:4px;padding:.4em .7em;font-family:Cinzel,serif;font-size:.68rem;color:#f5e8c0;white-space:nowrap;z-index:9999;pointer-events:none;min-width:200px;text-align:center;line-height:1.5';
+        _hEl.textContent='🧱 Relocate — move Nathan8028 to a new spot'+(cdSec>0?' · CD: '+Math.ceil(cdSec)+'s':' · Ready');
+        btn.appendChild(_hEl);
+      },500);
+    });
+    btn.addEventListener('mouseleave',()=>{clearTimeout(_hT);if(_hEl){_hEl.remove();_hEl=null;}});
+  }
+}
+function triggerNathanRelocateGlobal(){
+  const t=getNathanRelocateTower();
+  if(!t){showToast('No Tier 5 Nathan8028 on field!','#4fc3f7');return;}
+  triggerNathanRelocate(t.id);
+  updateNathanRelocateUI();
 }
 
 function triggerCheeseStormGlobal(){
@@ -3832,7 +3903,7 @@ function showSub(type){
         thomasmini:'Bomb tower. Hurls explosives that damage leads and stun enemies on impact.',
         farmerorin:'Support collector. Picks up DVDs Orin drops and banks the cash for you.',
         cheeseblock:'Spike factory. Drops blocks of cheese on the track that damage enemies walking over them.',
-        nathan8028:'Wall tower. Placed ON the track to block and absorb enemies. Upgrade to scream enemies back and become a mighty boulder.'
+        nathan8028:'Support tower. Placed on the map to block and absorb enemies. Upgrade to scream enemies back and become a mighty boulder.'
       }[t.id]||'';
       const imgSrc=getTowerImageSrc(t.id);
 
@@ -6421,7 +6492,7 @@ function placeTower(wx,wy){
   S.shopInfoSel=null;
   updateHUD();
   buildShop();
-  updateOrinFrenzyUI(); updateCheeseStormUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI();
   selectTower(newId); // open this tower's selection panel
 }
 
@@ -6442,7 +6513,7 @@ function removeTower(id, refundPct){
   document.getElementById('selPanel').style.display='none';
   updateHUD();
   buildShop();
-  updateOrinFrenzyUI(); updateCheeseStormUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI();
 }
 
 function sellTower(id){
@@ -6473,7 +6544,7 @@ function buyTowerUpgrade(id){
   sfx('upgrade');
   updateHUD();
   buildShop();
-  updateOrinFrenzyUI(); updateCheeseStormUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI();
   selectTower(id);
 }
 
@@ -6792,7 +6863,7 @@ function updateHUD(){
     diffBadge.style.color=diff==='easy'?'#4caf50':diff==='medium'?'#ff9800':'#e57368';
     diffBadge.style.borderColor=diffCol;
   }
-  updateOrinFrenzyUI(); updateCheeseStormUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI();
   refreshSelPanel();
 }
 
@@ -7214,7 +7285,7 @@ function update(dt){
     if(S.orinFrenzyCd>0) S.orinFrenzyCd=Math.max(0,S.orinFrenzyCd-dt);
     if(S.orinFrenzyT>0) S.orinFrenzyT=Math.max(0,S.orinFrenzyT-dt);
   }
-  updateOrinFrenzyUI(); updateCheeseStormUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI();
 
   // Spawn
   if(S.waveActive){
@@ -7548,10 +7619,11 @@ function update(dt){
     if(t.wallHp===undefined) t.wallHp=stats.wallMaxHp;
     if(t.wallHp===null) t.wallHp=stats.wallMaxHp;
 
-    // Tick relocate cooldown
-    if(stats.wallRelocateAbility && (t.wallRelocateCd||0)>0){
+    // Tick relocate cooldown (only during wave, speed-affected via dt)
+    if(stats.wallRelocateAbility && (t.wallRelocateCd||0)>0 && S.waveActive){
       t.wallRelocateCd=Math.max(0,t.wallRelocateCd-dt);
       if(S.towerSel===t.id) refreshSelPanel();
+      updateNathanRelocateUI();
     }
 
     // Tick scream cooldown
@@ -9289,39 +9361,18 @@ function drawTowers(){
     ctx.save();
 
     if(isBoulder){
-      // Big Boulder: draw as large grey-brown boulder
+      // Tier 5: big circle showing Nathan888.jpg
       const r=wallW/2;
-      // Shadow
-      ctx.fillStyle='rgba(0,0,0,0.38)';
-      ctx.beginPath();ctx.ellipse(t.x+4,t.y+r*0.6,r*0.88,r*0.22,0,0,Math.PI*2);ctx.fill();
-      // Boulder body gradient
-      const bg=ctx.createRadialGradient(t.x-r*0.3,t.y-r*0.35,r*0.05,t.x,t.y,r);
-      bg.addColorStop(0,'#c8b89a');
-      bg.addColorStop(0.5,'#9a8268');
-      bg.addColorStop(1,'#5c4a32');
-      ctx.fillStyle=bg;
-      ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);ctx.fill();
-      // Boulder cracks
-      ctx.strokeStyle='rgba(60,40,20,0.45)';ctx.lineWidth=2;
-      [[0.2,-0.4,0.5,0.1],[-0.3,0.1,-0.1,0.55],[0.1,0.2,0.4,-0.2]].forEach(([x1,y1,x2,y2])=>{
-        ctx.beginPath();ctx.moveTo(t.x+x1*r,t.y+y1*r);ctx.lineTo(t.x+x2*r,t.y+y2*r);ctx.stroke();
-      });
-      // Boulder shine
-      const shine=ctx.createRadialGradient(t.x-r*0.28,t.y-r*0.32,0,t.x-r*0.15,t.y-r*0.2,r*0.55);
-      shine.addColorStop(0,'rgba(255,255,255,0.22)');
-      shine.addColorStop(1,'rgba(255,255,255,0)');
-      ctx.fillStyle=shine;
-      ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);ctx.fill();
-      // Nathan image inside boulder (clipped to circle)
       const im=gimg('Nathan888.jpg');
+      ctx.save();
+      ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);ctx.clip();
       if(!im._bad&&im.complete&&im.naturalWidth>0){
-        ctx.save();ctx.beginPath();ctx.arc(t.x,t.y,r*0.72,0,Math.PI*2);ctx.clip();
-        ctx.globalAlpha=0.55;
-        ctx.drawImage(im,t.x-r*0.72,t.y-r*0.72,r*1.44,r*1.44);
-        ctx.restore();
+        ctx.drawImage(im,t.x-r,t.y-r,r*2,r*2);
+      } else {
+        ctx.fillStyle='#4fc3f7';ctx.fill();
       }
-      // Boulder border
-      ctx.strokeStyle='rgba(90,60,30,0.7)';ctx.lineWidth=3;
+      ctx.restore();
+      ctx.strokeStyle='rgba(79,195,247,0.85)';ctx.lineWidth=3;
       ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);ctx.stroke();
     } else {
       // Rectangle wall drawing
@@ -10547,7 +10598,7 @@ function _resetStats(){
 
 return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen,togglePause,toggleShop,exitToMenu,
         startWave,sellTower,removeTower,desel,toggleSpeed,toggleAuto,setTowerPriority,setCheeseMode,
-        toggleFullscreen,goHome,triggerOrinFrenzy,triggerBigBoomGlobal,triggerCheeseStormGlobal,triggerNathanRelocate,
+        toggleFullscreen,goHome,triggerOrinFrenzy,triggerBigBoomGlobal,triggerCheeseStormGlobal,triggerNathanRelocate,triggerNathanRelocateGlobal,
         toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
         winContinue,winLeave,
         toggleMenuMusic,toggleMusicPopup,toggleRadio,toggleSFX,setSFXVolume,setRadioVolume,setMenuVolume,
