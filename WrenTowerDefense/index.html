@@ -1867,7 +1867,7 @@ const MENU_SHOP_BOXES = [
     name:'Small Youtuber Box',
     shardCost:12,
     desc:'A box filled with secrets from the small YouTuber world. Open it to receive a brand new exclusive tower!',
-    contains:[{towerId:'cheeseblock', name:'Block of Cheese', img:'Cyatr9.jpg'}],
+    contains:[{towerId:'cheeseblock', name:'Block of Cheese', img:'Cyatr9.jpg'},{towerId:'nathan8028', name:'Nathan8028', img:'Nathan8028.jpg'}],
     multiOpen:true  // can open multiple times if more content added later
   }
 ];
@@ -1891,11 +1891,19 @@ function renderMenuShopBoxes(){
     card.className='mshop-boxcard';
 
     const containsList=box.contains.map(c=>`<span style="color:#f0c040">${c.name}</span>`).join(', ');
+    // Build contents list with images for the info tooltip
+    const contentsHtml=box.contains.map(c=>{
+      const owned=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks[c.towerId]);
+      return `<div style="display:flex;align-items:center;gap:.4rem;margin:.2rem 0"><img src="${c.img}" style="width:28px;height:28px;object-fit:cover;border-radius:3px;border:1px solid #c8964044" onerror="this.style.display='none'"><span style="color:${owned?'#4caf50':'#f0c040'}">${c.name}${owned?' ✓':''}</span></div>`;
+    }).join('');
     card.innerHTML=`
       <div class="mshop-boxcard-inner">
         <div class="mshop-box-icon">📦</div>
         <div class="mshop-box-info">
-          <div class="mshop-box-name">${box.name}</div>
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <div class="mshop-box-name">${box.name}</div>
+            <div class="mshop-box-info-btn" id="mshop-info-${box.id}" title="See box contents" style="width:18px;height:18px;border-radius:50%;background:#c8964033;border:1px solid #c8964066;color:#f0c040;font-size:.7rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative">ℹ</div>
+          </div>
           <div class="mshop-box-desc">${box.desc}</div>
           <div class="mshop-box-price">💎 ${box.shardCost} Rare Shard${box.shardCost!==1?'s':''}</div>
           ${allOwned
@@ -1910,6 +1918,18 @@ function renderMenuShopBoxes(){
       if(btn&&canAfford){
         btn.addEventListener('click',()=>openBox(box));
       }
+    }
+    // Info button: hover tooltip showing box contents
+    const infoBtn=card.querySelector(`#mshop-info-${box.id}`);
+    if(infoBtn){
+      let _tip=null;
+      infoBtn.addEventListener('mouseenter',()=>{
+        _tip=document.createElement('div');
+        _tip.style.cssText='position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1208ee;border:1px solid #c8964066;border-radius:5px;padding:.6em .9em;font-family:Cinzel,serif;font-size:.72rem;color:#f5e8c0;white-space:nowrap;z-index:9999;pointer-events:none;min-width:160px;box-shadow:0 4px 20px #00000088';
+        _tip.innerHTML='<div style="color:#f5a623;font-weight:700;margin-bottom:.4rem">Box Contents:</div>'+contentsHtml;
+        infoBtn.appendChild(_tip);
+      });
+      infoBtn.addEventListener('mouseleave',()=>{if(_tip){_tip.remove();_tip=null;}});
     }
     body.appendChild(card);
   });
@@ -2666,9 +2686,10 @@ const TD = {
   wrenfun:  {id:'wrenfun',  name:'Wren.fun',            img:'Wren.fun.jpg',      cost:900, dmg:0,  rate:0,   range:90,  income:0,   irate:0,  init:'WF', col:'#e040fb', support:true},
   thomasmini:{id:'thomasmini',name:'Thomas Mini',         img:'ThomasMini.jpg',    cost:425, dmg:3,  rate:2.5, range:125, income:0,   irate:0,  init:'TM', col:'#ff7043', canHitLead:true, bombTower:true},
   farmerorin:{id:'farmerorin',name:'Farmer Orin',          img:'FarmerOrin.jpg',    cost:500, dmg:0,  rate:0,   range:160, income:0,   irate:0,  init:'FO', col:'#8bc34a', support:true, farmerCollector:true, shopUnlockOnly:true},
-  cheeseblock:{id:'cheeseblock',name:'Block of Cheese',     img:'Cyatr9.jpg',        cost:650, dmg:5,  rate:0,   range:110, income:0,   irate:0,  init:'🧀', col:'#f5c518', cheeseFactory:true, shopUnlockOnly:true}
+  cheeseblock:{id:'cheeseblock',name:'Block of Cheese',     img:'Cyatr9.jpg',        cost:650, dmg:5,  rate:0,   range:110, income:0,   irate:0,  init:'🧀', col:'#f5c518', cheeseFactory:true, shopUnlockOnly:true},
+  nathan8028: {id:'nathan8028', name:'Nathan8028',           img:'Nathan8028.jpg',    cost:125, dmg:0,  rate:0,   range:0,   income:0,   irate:0,  init:'N',  col:'#4fc3f7', wallTower:true, canPlaceOnPath:true, shopUnlockOnly:true}
 };
-const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg', edunzie:'EdunzieLicksPoo.jpg', thomasmini:'ThomasIsADino.jpg', farmerorin:'OrinTheFarmer.jpg', cheeseblock:'CheeseBlock.jpg'};
+const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg', edunzie:'EdunzieLicksPoo.jpg', thomasmini:'ThomasIsADino.jpg', farmerorin:'OrinTheFarmer.jpg', cheeseblock:'CheeseBlock.jpg', nathan8028:'Nathan888.jpg'};
 
 const TIKI_POWER_PRICE = 38000;
 const TOWER_UPGRADES = {
@@ -2727,6 +2748,13 @@ const TOWER_UPGRADES = {
     {name:'1000 Degree Cheese', cost:1400, desc:'Cheese can now pop lead enemies. Each cheese does 15 damage.', apply:s=>{s.cheesePopLead=true;s.cheeseDmg=15;}},
     {name:'Factory Protect', cost:3200, desc:'Up to 5 cheeses on the track at once, each doing 30 damage.', apply:s=>{s.cheeseMax=5;s.cheeseDmg=30;}},
     {name:'The Blue Cheese', cost:95000, desc:'Cheese turns blue. Up to 300 cheeses on the track at once, each doing 50 damage. 1.5 second delay between placements. Ability: 🧀 Cheese Storm — covers the entire track with 100 cheeses (2.5-minute cooldown).', apply:s=>{s.cheeseMax=300;s.cheeseDmg=50;s.cheeseCooldown=1.5;s.blueCheeseT5=true;s.cheeseStormAbility=true;s.cheeseStormCd=0;}}
+  ],
+  nathan8028: [
+    {name:'Stronger Wall', cost:50, desc:'Wall health increases to 8. Can take a bigger beating before crumbling.', apply:s=>{s.wallHp=8;s.wallMaxHp=8;}},
+    {name:'Even Stronger Wall', cost:100, desc:'Wall health increases to 13.', apply:s=>{s.wallHp=13;s.wallMaxHp=13;}},
+    {name:'Screaming', cost:500, desc:'Nathan screams every 2 seconds, sending enemies 20px back along the path (does not affect bosses, reinforced, or leads). Now has 40 health.', apply:s=>{s.wallHp=40;s.wallMaxHp=40;s.wallScream=true;s.wallScreamCooldown=2;s.wallScreamPush=20;s.wallScreamAffectReinforced=false;s.wallScreamAffectBoss=false;}},
+    {name:'Mega Wall', cost:1200, desc:'Wall health increases to 150. Screams every 2 seconds, pushing enemies 40px back. Scream now affects reinforced and lead enemies.', apply:s=>{s.wallHp=150;s.wallMaxHp=150;s.wallScreamPush=40;s.wallScreamAffectReinforced=true;}},
+    {name:'Big Boulder', cost:21000, desc:'Nathan becomes a massive boulder with 750 health. Scream pushes 60px and now affects all bosses except Winston Churchill. Nathan respawns 15 seconds after death. Ability: 🧱 Relocate — move Nathan to a new spot (5s cooldown).', apply:s=>{s.wallHp=750;s.wallMaxHp=750;s.wallScreamPush=60;s.wallScreamAffectBoss=true;s.wallBoulder=true;s.wallRespawn=true;s.wallRespawnTime=15;s.wallRelocateAbility=true;s.wallRelocateCd=0;}}
   ]
 };
 
@@ -2994,7 +3022,20 @@ function getTowerStats(t){
     cheesePopLead:false,
     blueCheeseT5:false,
     cheeseStormAbility:false,
-    cheeseStormCd:0
+    cheeseStormCd:0,
+    // Nathan8028 wall
+    wallHp:4,
+    wallMaxHp:4,
+    wallScream:false,
+    wallScreamCooldown:2,
+    wallScreamPush:20,
+    wallScreamAffectReinforced:false,
+    wallScreamAffectBoss:false,
+    wallBoulder:false,
+    wallRespawn:false,
+    wallRespawnTime:15,
+    wallRelocateAbility:false,
+    wallRelocateCd:0
   };
   getTowerUpgradeList(t).slice(0,getTowerUpgradeLevel(t)).forEach(upg=>upg.apply(stats,t));
   // Thomas Mini always hits leads (base property)
@@ -3403,6 +3444,42 @@ function updateCheeseStormUI(){
     btn.addEventListener('mouseleave',()=>{clearTimeout(_hT);if(_hEl){_hEl.remove();_hEl=null;}});
   }
 }
+function triggerNathanRelocate(towerId){
+  if(!S||S.over) return;
+  const t=S.towers.find(t=>t.id===towerId); if(!t) return;
+  const stats=getTowerStats(t);
+  if(!stats.wallRelocateAbility) return;
+  if((t.wallRelocateCd||0)>0){ showToast('Relocate recharging: '+Math.ceil(t.wallRelocateCd)+'s','#4fc3f7'); return; }
+  if(t._dead){ showToast('Nathan is respawning!','#4fc3f7'); return; }
+  // Enter relocation mode: show ghost and let user click a new spot
+  S.nathanRelocating=towerId;
+  S.shopSel='nathan8028'; // use nathan's placement ghost
+  showToast('🧱 Click to move Nathan8028!','#4fc3f7');
+}
+
+function cancelNathanRelocate(){
+  S.nathanRelocating=null;
+  S.shopSel=null;
+}
+
+function commitNathanRelocate(wx,wy){
+  if(!S.nathanRelocating) return;
+  const t=S.towers.find(t=>t.id===S.nathanRelocating); if(!t) return;
+  // Check the new location is valid (temporarily remove nathan from towers so it doesn't block itself)
+  const origX=t.x, origY=t.y;
+  t.x=-9999; t.y=-9999; // move it out of the way for collision check
+  const ok=canPlaceAt(wx,wy);
+  t.x=origX; t.y=origY;
+  if(!ok){ showToast('Cannot place Nathan there!','#e57368'); return; }
+  // Move Nathan
+  t.x=wx; t.y=wy;
+  t.wallRelocateCd=5; // 5s cooldown
+  S.nathanRelocating=null;
+  S.shopSel=null;
+  if(S.towerSel===t.id) refreshSelPanel();
+  showToast('Nathan8028 relocated!','#4fc3f7');
+}
+
 function triggerCheeseStormGlobal(){
   const t=getCheeseStormTower();
   if(!t){showToast('No Tier 5 Block of Cheese on field!','#f5c518');return;}
@@ -3572,6 +3649,7 @@ function mkState(mapId, mode, difficulty){
     ghost:{wx:-9999,wy:-9999},
     incomeParticles:[],
     incomeDrops:[],
+    nathanRelocating:null,
     orinFrenzyCd:0,
     orinFrenzyT:0,
     totalMoneyEarned:0,
@@ -3753,7 +3831,8 @@ function showSub(type){
         wrenfun:'Support tower. Buffs nearby towers with range, camo vision, speed, and more.',
         thomasmini:'Bomb tower. Hurls explosives that damage leads and stun enemies on impact.',
         farmerorin:'Support collector. Picks up DVDs Orin drops and banks the cash for you.',
-        cheeseblock:'Spike factory. Drops blocks of cheese on the track that damage enemies walking over them.'
+        cheeseblock:'Spike factory. Drops blocks of cheese on the track that damage enemies walking over them.',
+        nathan8028:'Wall tower. Placed ON the track to block and absorb enemies. Upgrade to scream enemies back and become a mighty boulder.'
       }[t.id]||'';
       const imgSrc=getTowerImageSrc(t.id);
 
@@ -6230,9 +6309,10 @@ const TOWER_HALF_DIAGONAL = Math.SQRT2 * TOWER_HALF;
 function getTowerScale(tOrId){
   const ref=typeof tOrId==='string' ? {defId:tOrId} : (tOrId||{});
   const id=ref.defId||ref.id;
-  let scale=id==='orin' ? 1.4 : id==='wrenfun' ? 1.20 : 1;
+  let scale=id==='orin' ? 1.4 : id==='wrenfun' ? 1.20 : id==='nathan8028' ? 0.9 : 1;
   if(id==='orin'&&getTowerUpgradeLevel(ref)>=5) scale*=1.30;
   if(id==='thomasmini'&&getTowerUpgradeLevel(ref)>=5) scale*=1.10;
+  if(id==='nathan8028'&&getTowerUpgradeLevel(ref)>=5) scale*=1.3; // boulder is bigger
   return scale;
 }
 function getTowerBaseSize(tOrId){
@@ -6255,6 +6335,8 @@ function towerBoxContainsPoint(t,px,py,pad=0){
 }
 function canPlaceAt(wx,wy){
   const activeTowerId=S&&S.shopSel;
+  // Wall towers (nathan8028) can be placed ON the path — skip path-clearance checks
+  const isWallTower=activeTowerId&&TD[activeTowerId]&&TD[activeTowerId].canPlaceOnPath;
   const half=getTowerBaseHalf(activeTowerId||'wren');
   const halfDiagonal=Math.SQRT2*half;
   const W=COLS*CELL,H=ROWS*CELL;
@@ -6267,7 +6349,7 @@ function canPlaceAt(wx,wy){
     const innerR=(mc.r*CELL)-half-4; // island radius (matches drawPathAutumn)
     const distToCenter=Math.sqrt((wx-icx)**2+(wy-icy)**2);
     const inIsland = distToCenter < innerR-halfDiagonal-CELL*0.06;
-    if(!inIsland){
+    if(!inIsland && !isWallTower){
       // Outside island: must not be on the road ring
       const clearance=CELL*0.5;
       for(const pt of PPTS){
@@ -6276,23 +6358,29 @@ function canPlaceAt(wx,wy){
     }
   } else if(S&&S.mapId==='frozenlake'){
     // Frozen lake: curved path — use point-distance clearance
-    const clearance=CELL*0.52;
-    for(const pt of PPTS){
-      if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
+    if(!isWallTower){
+      const clearance=CELL*0.52;
+      for(const pt of PPTS){
+        if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
+      }
     }
   } else if(S&&S.mapId==='xmarks'){
     // X Marks: check both diagonal paths
-    const clearance=CELL*0.52;
-    for(const pt of PPTS){
-      if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
-    }
-    for(const pt of PPTS_B){
-      if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
+    if(!isWallTower){
+      const clearance=CELL*0.52;
+      for(const pt of PPTS){
+        if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
+      }
+      for(const pt of PPTS_B){
+        if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
+      }
     }
   } else {
-    const clearance=PATH_RADIUS;
-    for(const pt of PPTS){
-      if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
+    if(!isWallTower){
+      const clearance=PATH_RADIUS;
+      for(const pt of PPTS){
+        if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
+      }
     }
   }
 
@@ -6344,7 +6432,10 @@ function removeTower(id, refundPct){
   const refund=Math.floor(getTowerSpent(t)*refundPct);
   S.gold+=refund;
   const label=refundPct>=0.65?'SOLD':'DELETED';
-  S.particles.push({x:t.x,y:t.y-CELL*.2,text:label,alpha:1,vy:-28,life:.7,col:'#f0c040'});
+  const px=t._respawnX||t.x, py=t._respawnY||t.y;
+  S.particles.push({x:px,y:py-CELL*.2,text:label,alpha:1,vy:-28,life:.7,col:'#f0c040'});
+  // Cancel any nathan relocate mode if this tower is being sold
+  if(S.nathanRelocating===t.id) S.nathanRelocating=null;
   sfx(refundPct>=0.65?'sell':'delete');
   S.towers.splice(i,1);
   S.towerSel=null;
@@ -6368,8 +6459,16 @@ function buyTowerUpgrade(id){
     return;
   }
   S.gold-=next.cost;
+  const prevStats=getTowerStats(t); // stats BEFORE upgrade
   t.upg=getTowerUpgradeLevel(t)+1;
   t.spent=getTowerSpent(t)+next.cost;
+  // Nathan8028: sync wallHp up to new max when wall gets stronger
+  if(t.defId==='nathan8028'){
+    const newStats=getTowerStats(t);
+    const hpGain=newStats.wallMaxHp-prevStats.wallMaxHp;
+    if(hpGain>0) t.wallHp=Math.min(newStats.wallMaxHp,(t.wallHp||prevStats.wallMaxHp)+hpGain);
+    t.wallHp=Math.min(newStats.wallMaxHp,t.wallHp||newStats.wallMaxHp);
+  }
   if(getTowerUpgradeLevel(t)>=5){ t.sparkleT=3; recordTier5(t.defId); }
   sfx('upgrade');
   updateHUD();
@@ -6499,6 +6598,18 @@ function selectTower(id){
     <div class="srow"><span class="sl">Cooldown</span><span class="sv">${stats.cheeseCooldown}s after last</span></div>
     ${stats.cheesePopLead?'<div class="srow"><span class="sl">Lead Pop</span><span class="sv" style="color:#aeb8c2">✓ Yes</span></div>':''}
   `:'';
+  const isNathan=t.defId==='nathan8028';
+  const nathanHp=t.wallHp!==undefined?t.wallHp:stats.wallMaxHp;
+  const nathanHpPct=Math.round((nathanHp/stats.wallMaxHp)*100);
+  const nathanHpCol=nathanHpPct>60?'#4fc3f7':nathanHpPct>30?'#ffb74d':'#e53935';
+  const nathanRows=isNathan?`
+    <div class="srow"><span class="sl">Wall HP</span><span class="sv" style="color:${nathanHpCol}">${t._dead?'<span style="color:#e57368">Respawning…</span>':(nathanHp+' / '+stats.wallMaxHp)}</span></div>
+    ${t._dead?`<div class="srow"><span class="sl">Respawn</span><span class="sv" style="color:#4fc3f7">${Math.ceil(t._respawnIn||0)}s</span></div>`:''}
+    ${stats.wallScream?`<div class="srow"><span class="sl">Scream</span><span class="sv">Every ${stats.wallScreamCooldown}s · ${stats.wallScreamPush}px pushback</span></div>`:''}
+    ${stats.wallScream?`<div class="srow"><span class="sl">Affects</span><span class="sv">${[!stats.wallScreamAffectBoss?'No bosses':'Bosses',!stats.wallScreamAffectReinforced?'No reinforced':'Reinforced+Leads'].join(' · ')}</span></div>`:''}
+    ${stats.wallBoulder?'<div class="srow"><span class="sl">Form</span><span class="sv" style="color:#c8b89a">🪨 Big Boulder</span></div>':''}
+    ${stats.wallRespawn?'<div class="srow"><span class="sl">Respawn</span><span class="sv" style="color:#4fc3f7">✓ '+stats.wallRespawnTime+'s after death</span></div>':''}
+  `:'';
   const priorities=[
     {k:'first',    label:'⬆ First'},
     {k:'last',     label:'⬇ Last'},
@@ -6523,19 +6634,20 @@ function selectTower(id){
     <div class="selpic" id="selPicEl">${picInner}</div>
     <div class="selname">${d.name}</div>
     <div class="selstats">
-      <div class="srow"><span class="sl">Damage</span><span class="sv">${stats.dmg||'—'}</span></div>
-      <div class="srow"><span class="sl">Atk Rate</span><span class="sv">${formatRate(stats.rate)}</span></div>
-      <div class="srow"><span class="sl">Range</span><span class="sv">${rangeDisplay}</span></div>
+      ${!isNathan?`<div class="srow"><span class="sl">Damage</span><span class="sv">${stats.dmg||'—'}</span></div>`:''}
+      ${!isNathan?`<div class="srow"><span class="sl">Atk Rate</span><span class="sv">${formatRate(stats.rate)}</span></div>`:''}
+      ${!isNathan?`<div class="srow"><span class="sl">Range</span><span class="sv">${rangeDisplay}</span></div>`:''}
       ${stats.income?`<div class="srow"><span class="sl">Income</span><span class="sv">$${stats.income}/${stats.irate}s</span></div>`:''}
       ${orinExtraRows}
       ${cheeseRows}
-      <div class="srow"><span class="sl">Special</span><span class="sv">${describeTowerSpecials(stats)}</span></div>
+      ${nathanRows}
+      ${!isNathan?`<div class="srow"><span class="sl">Special</span><span class="sv">${describeTowerSpecials(stats)}</span></div>`:''}
       <div class="srow"><span class="sl">Kills</span><span class="sv" style="color:#f0c040">${t.kills||0}</span></div>
     </div>
     ${upgradeHtml}
     ${showPri?`<div class="pri-label">TARGET PRIORITY</div><div class="pri-btns" id="pribtns"></div>`:''}
     ${isCheeseBlock?`<div class="pri-label">CHEESE PLACEMENT</div><div class="pri-btns" id="cheesemodbtns"></div>`:''}
-    ${(stats.bigBoomAbility||showOrinAbility||stats.cheeseStormAbility)?`<div class="pri-label">ABILITIES</div><div id="abilitiesRow" style="display:flex;gap:.28rem;flex-wrap:wrap;margin-bottom:.35rem"></div>`:''}
+    ${(stats.bigBoomAbility||showOrinAbility||stats.cheeseStormAbility||stats.wallRelocateAbility)?`<div class="pri-label">ABILITIES</div><div id="abilitiesRow" style="display:flex;gap:.28rem;flex-wrap:wrap;margin-bottom:.35rem"></div>`:''}
     <div style="margin-top:.55rem">
       <button class="sellbtn" id="selbtn-sell" style="width:100%">💰 Sell — $${Math.floor(getTowerSpent(t)*.65)}</button>
     </div>
@@ -6812,8 +6924,10 @@ function initInput(){
     const rect=canvas.getBoundingClientRect();
     const wld=s2w(e.clientX-rect.left,e.clientY-rect.top);
     if(tryCollectIncomeDropAt(wld.x,wld.y)) return;
+    // Nathan8028 relocate mode: click to move Nathan
+    if(S.nathanRelocating){ commitNathanRelocate(wld.x,wld.y); return; }
     // Hit-test towers using their square body
-    const hit=S.towers.find(t=>towerBoxContainsPoint(t,wld.x,wld.y));
+    const hit=S.towers.find(t=>!t._dead&&towerBoxContainsPoint(t,wld.x,wld.y));
     if(hit){selectTower(hit.id);return;}
     if(S.shopSel){placeTower(wld.x,wld.y);return;}
     S.drag=true;S.dragS={x:e.clientX,y:e.clientY};S.camS={x:S.cam.x,y:S.cam.y};
@@ -6833,14 +6947,14 @@ function initInput(){
 
   canvas.addEventListener('mouseup',()=>S.drag=false);
   canvas.addEventListener('mouseleave',()=>{S.drag=false;S.ghost={wx:-9999,wy:-9999};});
-  canvas.addEventListener('contextmenu',e=>{e.preventDefault();S.shopSel=null;S.shopInfoSel=null;buildShop();});
+  canvas.addEventListener('contextmenu',e=>{e.preventDefault();if(S.nathanRelocating)cancelNathanRelocate();S.shopSel=null;S.shopInfoSel=null;buildShop();});
 
   // Keyboard shortcuts
   document.addEventListener('keydown',e=>{
     if(!S||S.over) return;
     if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
     if(e.code==='Space'){e.preventDefault();if(!S.waveActive&&!S.paused) startWave();}
-    if(e.code==='Escape'){S.shopSel=null;S.shopInfoSel=null;buildShop();desel();}
+    if(e.code==='Escape'){if(S.nathanRelocating)cancelNathanRelocate();S.shopSel=null;S.shopInfoSel=null;buildShop();desel();}
     if(e.code==='KeyP'){togglePause();}
     if(e.code==='KeyS'){e.preventDefault();toggleSpeed();}
   });
@@ -7231,6 +7345,7 @@ function update(dt){
     if(!stats.rate) continue;
     if(t.defId==='farmerorin') continue;
     if(t.defId==='cheeseblock') continue; // handled by cheese factory update below
+    if(t.defId==='nathan8028') continue; // handled by nathan8028 wall update above
     // Sticky mine tick (Edunzie)
     if(stats.stickyMine){
       t.mineT=(t.mineT||0)+dt;
@@ -7420,6 +7535,156 @@ function update(dt){
       S.particles.push({x:e.x,y:e.y-20,text:'💰 x10!',alpha:1,vy:-46,life:1.1,col:'#ffd700'});
       S.particles.push({x:e.x,y:e.y,type:'ring',r:0,maxR:55,alpha:1,life:0.3,col:'#ffd700'});
       handleEnemyDefeat(e,e.farmerTower||S.towers[0]);
+    }
+  }
+
+  // ─── NATHAN8028 WALL UPDATE ───
+  for(let ti=S.towers.length-1;ti>=0;ti--){
+    const t=S.towers[ti];
+    if(t.defId!=='nathan8028') continue;
+    const stats=getTowerStats(t);
+
+    // Init wall hp if not set
+    if(t.wallHp===undefined) t.wallHp=stats.wallMaxHp;
+    if(t.wallHp===null) t.wallHp=stats.wallMaxHp;
+
+    // Tick relocate cooldown
+    if(stats.wallRelocateAbility && (t.wallRelocateCd||0)>0){
+      t.wallRelocateCd=Math.max(0,t.wallRelocateCd-dt);
+      if(S.towerSel===t.id) refreshSelPanel();
+    }
+
+    // Tick scream cooldown
+    if(stats.wallScream && S.waveActive){
+      t.wallScreamT=(t.wallScreamT||0)-dt;
+      if(t.wallScreamT<=0){
+        t.wallScreamT=stats.wallScreamCooldown;
+        // Scream! Push nearby enemies back along the path
+        const screamRadius=CELL*3.5; // scream reaches ~3.5 cells around Nathan
+        let didScream=false;
+        for(const e of S.enemies){
+          if(e.dead||e.reached) continue;
+          const dx=e.x-t.x, dy=e.y-t.y;
+          if(dx*dx+dy*dy>screamRadius*screamRadius) continue;
+          // Check exclusions
+          if(!stats.wallScreamAffectBoss && e.boss) continue;
+          if(!stats.wallScreamAffectReinforced && e.reinforced) continue;
+          if(!stats.wallScreamAffectReinforced && e.lead) continue;
+          // Extra: never affects Winston Churchill even at T5
+          if(e.id==='winstonChurchill'||e.id==='reinforcedWinston') continue;
+          // Push enemy back along path by wallScreamPush pixels
+          didScream=true;
+          let pushRem=stats.wallScreamPush;
+          const ePath=e._ppts||PPTS;
+          // Walk backwards along path
+          while(pushRem>0 && e.pi>0){
+            const prev=ePath[e.pi];
+            const prevPrev=ePath[Math.max(0,e.pi-1)];
+            const dx2=e.x-prevPrev.x, dy2=e.y-prevPrev.y;
+            const segDist=Math.sqrt(dx2*dx2+dy2*dy2);
+            if(segDist<=pushRem){
+              pushRem-=segDist;
+              e.pi=Math.max(0,e.pi-1);
+              e.x=ePath[e.pi].x; e.y=ePath[e.pi].y;
+            } else {
+              // Push partway back along segment
+              const segDir=segDist>0?{x:-dx2/segDist,y:-dy2/segDist}:{x:0,y:0};
+              e.x+=segDir.x*pushRem; e.y+=segDir.y*pushRem;
+              pushRem=0;
+            }
+          }
+          e.pushFlash=0.3; // visual push flash
+        }
+        if(didScream){
+          // Spawn sound wave particles
+          t.screamWave={t:0,dur:0.55};
+          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:screamRadius,alpha:0.85,life:0.45,col:'#4fc3f7'});
+          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:screamRadius*0.6,alpha:0.7,life:0.35,col:'#81d4fa'});
+          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:screamRadius*1.3,alpha:0.55,life:0.6,col:'#b3e5fc'});
+        }
+      }
+    }
+
+    // Tick scream wave visual
+    if(t.screamWave){
+      t.screamWave.t+=dt;
+      if(t.screamWave.t>=t.screamWave.dur) t.screamWave=null;
+    }
+
+    // Wall blocks enemies: stop enemies that try to walk through Nathan
+    // An enemy is "blocked" if it's within Nathan's blocking rect on the path
+    if(S.waveActive && t.wallHp>0){
+      const blockW=CELL*1.6; // Nathan's blocking width across path
+      const blockH=CELL*0.8; // and depth along path
+      for(const e of S.enemies){
+        if(e.dead||e.reached) continue;
+        const dx=Math.abs(e.x-t.x), dy=Math.abs(e.y-t.y);
+        if(dx<blockW/2 && dy<blockH/2){
+          // Damage wall by enemy's total HP when enemy first contacts
+          if(!e._nathanBlocked){
+            e._nathanBlocked=t.id;
+            // Wall takes damage equal to enemy's remaining HP 
+            t.wallHp=Math.max(0, t.wallHp - e.hp);
+            e.stunned=true; e.stunnedT=0.5; // brief stun on contact
+            if(S.towerSel===t.id) refreshSelPanel();
+          }
+          // Keep enemy pushed back slightly so they don't pass through while wall lives
+          if(t.wallHp>0){
+            const ePath=e._ppts||PPTS;
+            if(e.pi>0){
+              const segDir={x:e.dx||0,y:e.dy||0};
+              e.x-=segDir.x*2; e.y-=segDir.y*2;
+            }
+          }
+        } else {
+          if(e._nathanBlocked===t.id) e._nathanBlocked=null;
+        }
+      }
+    }
+
+    // Wall destroyed
+    if(t.wallHp<=0 && !t._destroying){
+      t._destroying=true;
+      t.wallHp=0;
+      // Destruction particles
+      for(let i=0;i<12;i++){
+        S.particles.push({
+          x:t.x+(Math.random()-.5)*CELL*1.5,
+          y:t.y+(Math.random()-.5)*CELL,
+          text:['💥','🪨','💢'][Math.floor(Math.random()*3)],
+          alpha:1,vx:(Math.random()-.5)*80,vy:-60-Math.random()*60,
+          life:0.7+Math.random()*0.4,col:'#4fc3f7'
+        });
+      }
+      showToast('Nathan8028 has fallen!','#4fc3f7');
+
+      if(stats.wallRespawn){
+        // Schedule respawn — stores position for later re-insertion
+        t._respawnX=t.x; t._respawnY=t.y;
+        t._respawnIn=stats.wallRespawnTime;
+        t._dead=true; // mark as dead so it hides but stays in array
+        // Don't remove — we keep it in towers array to track respawn
+        if(S.towerSel===t.id){ S.towerSel=null; document.getElementById('selPanel').style.display='none'; }
+      } else {
+        // Permanent death — remove from towers
+        S.towers.splice(ti,1);
+        if(S.towerSel===t.id){ S.towerSel=null; document.getElementById('selPanel').style.display='none'; }
+      }
+    }
+
+    // Respawn countdown
+    if(t._dead && stats.wallRespawn){
+      t._respawnIn=Math.max(0,(t._respawnIn||0)-dt);
+      if(t._respawnIn<=0){
+        // Respawn!
+        t._dead=false;
+        t._destroying=false;
+        t.wallHp=stats.wallMaxHp;
+        showToast('Nathan8028 has respawned!','#4fc3f7');
+        if(S.towerSel===t.id) refreshSelPanel();
+        // Clear any enemy blocked flags that were targeting this tower
+        for(const e of S.enemies) if(e._nathanBlocked===t.id) e._nathanBlocked=null;
+      }
     }
   }
 
@@ -8997,7 +9262,178 @@ function drawTowers(){
     }
   }
 
+  // ─── NATHAN8028 WALL DRAWING ───
   for(const t of S.towers){
+    if(t.defId!=='nathan8028') continue;
+    if(t._dead) continue; // hidden while dead
+    const stats=getTowerStats(t);
+    const isSel=S.towerSel===t.id;
+    const isBoulder=stats.wallBoulder;
+    const scale=getTowerScale(t);
+    const wallW=CELL*(isBoulder?2.0:1.55)*scale;
+    const wallH=CELL*(isBoulder?1.6:0.85)*scale;
+    const wallHp=t.wallHp!==undefined?t.wallHp:stats.wallMaxHp;
+    const hpFrac=Math.max(0,wallHp/stats.wallMaxHp);
+
+    // Selection glow
+    if(isSel){
+      ctx.save();
+      ctx.strokeStyle='rgba(79,195,247,0.9)';ctx.lineWidth=3;
+      ctx.shadowColor='#4fc3f7';ctx.shadowBlur=16;
+      ctx.beginPath();
+      if(isBoulder) ctx.arc(t.x,t.y,wallW/2+4,0,Math.PI*2);
+      else ctx.roundRect(t.x-wallW/2-4,t.y-wallH/2-4,wallW+8,wallH+8,isBoulder?100:8);
+      ctx.stroke();ctx.restore();
+    }
+
+    ctx.save();
+
+    if(isBoulder){
+      // Big Boulder: draw as large grey-brown boulder
+      const r=wallW/2;
+      // Shadow
+      ctx.fillStyle='rgba(0,0,0,0.38)';
+      ctx.beginPath();ctx.ellipse(t.x+4,t.y+r*0.6,r*0.88,r*0.22,0,0,Math.PI*2);ctx.fill();
+      // Boulder body gradient
+      const bg=ctx.createRadialGradient(t.x-r*0.3,t.y-r*0.35,r*0.05,t.x,t.y,r);
+      bg.addColorStop(0,'#c8b89a');
+      bg.addColorStop(0.5,'#9a8268');
+      bg.addColorStop(1,'#5c4a32');
+      ctx.fillStyle=bg;
+      ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);ctx.fill();
+      // Boulder cracks
+      ctx.strokeStyle='rgba(60,40,20,0.45)';ctx.lineWidth=2;
+      [[0.2,-0.4,0.5,0.1],[-0.3,0.1,-0.1,0.55],[0.1,0.2,0.4,-0.2]].forEach(([x1,y1,x2,y2])=>{
+        ctx.beginPath();ctx.moveTo(t.x+x1*r,t.y+y1*r);ctx.lineTo(t.x+x2*r,t.y+y2*r);ctx.stroke();
+      });
+      // Boulder shine
+      const shine=ctx.createRadialGradient(t.x-r*0.28,t.y-r*0.32,0,t.x-r*0.15,t.y-r*0.2,r*0.55);
+      shine.addColorStop(0,'rgba(255,255,255,0.22)');
+      shine.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle=shine;
+      ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);ctx.fill();
+      // Nathan image inside boulder (clipped to circle)
+      const im=gimg('Nathan888.jpg');
+      if(!im._bad&&im.complete&&im.naturalWidth>0){
+        ctx.save();ctx.beginPath();ctx.arc(t.x,t.y,r*0.72,0,Math.PI*2);ctx.clip();
+        ctx.globalAlpha=0.55;
+        ctx.drawImage(im,t.x-r*0.72,t.y-r*0.72,r*1.44,r*1.44);
+        ctx.restore();
+      }
+      // Boulder border
+      ctx.strokeStyle='rgba(90,60,30,0.7)';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);ctx.stroke();
+    } else {
+      // Rectangle wall drawing
+      // Shadow
+      ctx.fillStyle='rgba(0,0,0,0.35)';
+      ctx.beginPath();ctx.ellipse(t.x+3,t.y+wallH/2+3,wallW*0.45,wallH*0.15,0,0,Math.PI*2);ctx.fill();
+      const crumble=1-hpFrac;
+      // Clip everything to the wall rect
+      ctx.save();
+      ctx.beginPath();ctx.roundRect(t.x-wallW/2,t.y-wallH/2,wallW,wallH,6);ctx.clip();
+      // Draw Nathan8028.jpg stretched to fill the entire wall
+      const imN=gimg('Nathan8028.jpg');
+      if(!imN._bad&&imN.complete&&imN.naturalWidth>0){
+        ctx.drawImage(imN,t.x-wallW/2,t.y-wallH/2,wallW,wallH);
+      } else {
+        // Fallback colour block
+        ctx.fillStyle='#4fc3f7';
+        ctx.fillRect(t.x-wallW/2,t.y-wallH/2,wallW,wallH);
+      }
+      // Damage tint overlay — shifts red as HP drops
+      if(crumble>0){
+        ctx.globalAlpha=crumble*0.55;
+        ctx.fillStyle=`rgba(180,40,20,1)`;
+        ctx.fillRect(t.x-wallW/2,t.y-wallH/2,wallW,wallH);
+        ctx.globalAlpha=1;
+      }
+      // Crack lines when damaged
+      if(crumble>0.3){
+        ctx.globalAlpha=Math.min(0.85,(crumble-0.3)*1.6);
+        ctx.strokeStyle='rgba(0,0,0,0.9)';ctx.lineWidth=2;
+        [[-wallW*0.1,-wallH*0.3,wallW*0.15,wallH*0.2],[wallW*0.2,-wallH*0.1,-wallW*0.05,wallH*0.35],[0,-wallH*0.45,wallW*0.05,wallH*0.1]].forEach(([x1,y1,x2,y2])=>{
+          ctx.beginPath();ctx.moveTo(t.x+x1,t.y+y1);ctx.lineTo(t.x+x2,t.y+y2);ctx.stroke();
+        });
+        ctx.globalAlpha=1;
+      }
+      // Shine highlight on top half
+      const wshine=ctx.createLinearGradient(t.x-wallW/2,t.y-wallH/2,t.x-wallW/2,t.y);
+      wshine.addColorStop(0,'rgba(255,255,255,0.18)');wshine.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle=wshine;ctx.fillRect(t.x-wallW/2,t.y-wallH/2,wallW,wallH/2);
+      ctx.restore();
+      // Border (outside clip)
+      ctx.strokeStyle=hpFrac>0.5?'rgba(79,195,247,0.8)':hpFrac>0.25?'rgba(255,165,0,0.8)':'rgba(220,50,50,0.9)';
+      ctx.lineWidth=2.5;ctx.beginPath();ctx.roundRect(t.x-wallW/2,t.y-wallH/2,wallW,wallH,6);ctx.stroke();
+    }
+
+    // HP bar (shown above Nathan)
+    const barY=t.y-(isBoulder?wallW/2:wallH/2)-10;
+    const barW=wallW*0.9;
+    ctx.globalAlpha=0.9;
+    ctx.fillStyle='rgba(0,0,0,0.6)';ctx.beginPath();ctx.roundRect(t.x-barW/2,barY-5,barW,6,3);ctx.fill();
+    const hpCol=hpFrac>0.6?'#4fc3f7':hpFrac>0.3?'#ffb74d':'#e53935';
+    ctx.fillStyle=hpCol;ctx.beginPath();ctx.roundRect(t.x-barW/2,barY-5,barW*hpFrac,6,3);ctx.fill();
+    ctx.globalAlpha=1;
+
+    // Respawn timer label if dead (shouldn't reach here due to continue, but just in case)
+    // Scream wave visual
+    if(t.screamWave){
+      const wp=t.screamWave.t/t.screamWave.dur;
+      const screamRadius=CELL*3.5*getTowerScale(t);
+      for(let wave=0;wave<3;wave++){
+        const wp2=Math.max(0,wp-wave*0.2);
+        if(wp2<=0) continue;
+        const wr=screamRadius*wp2*(0.6+wave*0.2);
+        ctx.save();
+        ctx.strokeStyle='#4fc3f7';
+        ctx.lineWidth=2.5-wave*0.6;
+        ctx.globalAlpha=(1-wp2)*(0.7-wave*0.15);
+        ctx.beginPath();ctx.arc(t.x,t.y,wr,0,Math.PI*2);ctx.stroke();
+        ctx.restore();
+      }
+      // "Wavy" effect: multiple partial arcs
+      const numWaves=8;
+      for(let i=0;i<numWaves;i++){
+        const ang=(i/numWaves)*Math.PI*2;
+        const waveLen=0.35;
+        const wr=CELL*2*wp*getTowerScale(t);
+        ctx.save();
+        ctx.strokeStyle='rgba(179,229,252,0.5)';
+        ctx.lineWidth=1.5;
+        ctx.globalAlpha=(1-wp)*0.55;
+        ctx.beginPath();ctx.arc(t.x,t.y,wr,ang,ang+waveLen);ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    ctx.restore();
+
+    // Name label above HP bar
+    ctx.save();
+    ctx.font=`bold ${Math.floor(CELL*0.22*scale)}px Cinzel,serif`;
+    ctx.fillStyle='#b3e5fc';
+    ctx.textAlign='center';ctx.textBaseline='bottom';
+    ctx.shadowColor='#000';ctx.shadowBlur=4;
+    ctx.fillText('Nathan8028',t.x,barY-7);
+    ctx.restore();
+  }
+
+  // ─── RESPAWN COUNTDOWN LABELS ───
+  for(const t of S.towers){
+    if(t.defId!=='nathan8028'||!t._dead) continue;
+    const timeLeft=Math.ceil(t._respawnIn||0);
+    ctx.save();
+    ctx.font=`bold ${Math.floor(CELL*0.3)}px Cinzel,serif`;
+    ctx.fillStyle='#4fc3f7';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.shadowColor='#000';ctx.shadowBlur=6;
+    ctx.fillText('Nathan: '+timeLeft+'s',t._respawnX||t.x,t._respawnY||t.y);
+    ctx.restore();
+  }
+
+  // ─── REGULAR TOWER DRAWING ───
+  for(const t of S.towers){
+    if(t.defId==='nathan8028') continue; // drawn above
     const d=TD[t.defId];
     const stats=getTowerStats(t);
     const isSel=S.towerSel===t.id;
@@ -10111,7 +10547,7 @@ function _resetStats(){
 
 return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen,togglePause,toggleShop,exitToMenu,
         startWave,sellTower,removeTower,desel,toggleSpeed,toggleAuto,setTowerPriority,setCheeseMode,
-        toggleFullscreen,goHome,triggerOrinFrenzy,triggerBigBoomGlobal,triggerCheeseStormGlobal,
+        toggleFullscreen,goHome,triggerOrinFrenzy,triggerBigBoomGlobal,triggerCheeseStormGlobal,triggerNathanRelocate,
         toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
         winContinue,winLeave,
         toggleMenuMusic,toggleMusicPopup,toggleRadio,toggleSFX,setSFXVolume,setRadioVolume,setMenuVolume,
