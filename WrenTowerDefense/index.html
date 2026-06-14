@@ -2785,7 +2785,7 @@ const TOWER_UPGRADES = {
     {name:'Nocturnal', cost:400, desc:'Can target camo enemies.', apply:s=>{s.canSeeCamo=true;}},
     {name:'Shrapnel', cost:1100, desc:'Damage increases to 8 and each shot has a 50% chance to burst for 4 nearby damage.', apply:s=>{s.dmg=8;s.shrapnelChance=0.5;s.shrapnelDamage=4;s.shrapnelRadius=62;}},
     {name:'Tiki Time', cost:6550, desc:'Attack speed improves to 0.65s.', apply:s=>{s.rate=0.65;}},
-    {name:'Tiki Power', cost:38000, desc:'Attack speed improves to 0.25s and damage rises to 10.', apply:s=>{s.rate=0.25;s.dmg=10;}}
+    {name:'Tiki Power', cost:38000, desc:'Attack speed improves to 0.15s and damage rises to 10.', apply:s=>{s.rate=0.15;s.dmg=10;}}
   ],
   wrenfun: [
     {name:'Range', cost:600, desc:'Wren.fun\'s range increases by 15%, and every tower within its range also gains 15% extra range.', apply:s=>{s.range*=1.15;s.rangeBoostPct=0.15;}},
@@ -2797,8 +2797,8 @@ const TOWER_UPGRADES = {
   orin: [
     {name:'Money Grab', cost:900, desc:'Income rises from $10 to $25 every 12 seconds.', apply:s=>{s.income=25;}},
     {name:'Helping Hand', cost:1005, desc:'If at least 2 upgraded Orins exist, payouts have a 25% chance to give every Helping Hand Orin an extra $7.', apply:s=>{s.helpingHand=true;}},
-    {name:'Auto Pick Up', cost:2800, desc:'DVD cash drops are collected automatically instead of needing a click, and income rises to $50 every 10 seconds.', apply:s=>{s.autoPickup=true;s.income=50;s.irate=10;}},
-    {name:'Frenzy', cost:5600, desc:'Unlocks a bottom-screen ability with a 60 second cooldown that boosts Orin income to x2 for 10 seconds.', apply:s=>{s.frenzy=true;}},
+    {name:'Auto Pick Up', cost:8900, desc:'DVD cash drops are collected automatically instead of needing a click, and income rises to $50 every 10 seconds.', apply:s=>{s.autoPickup=true;s.income=50;s.irate=10;}},
+    {name:'Frenzy', cost:15600, desc:'Unlocks a bottom-screen ability with a 60 second cooldown that boosts Orin income to x2 for 10 seconds.', apply:s=>{s.frenzy=true;}},
     {name:'Tech Master', cost:101000, desc:'Income becomes $450 every 5 seconds, Frenzy becomes x3 for 15 seconds, other Orins gain +25% income (capped at 25% total), and the tower grows by 1.25x.', apply:s=>{s.income=450;s.irate=5;s.techMaster=true;s.frenzy=true;s.autoPickup=true;}}
   ],
   edunzie: [
@@ -3785,7 +3785,7 @@ function mkState(mapId, mode, difficulty){
     mapId:mapId||'grassy',
     mode:mode||'classic',
     difficulty:diff,
-    gold:(mode||'classic')==='sandbox' ? Infinity : 750,
+    gold:(mode||'classic')==='sandbox' ? Infinity : (diff==='hard'?500:diff==='medium'?650:750),
     hp:startHp,round:0,
     towers:[],enemies:[],projs:[],particles:[],
     waveActive:false,waveQ:[],spawnIdx:0,spawnT:0,
@@ -4236,7 +4236,7 @@ function showSub(type){
       <div class="htp">
         <div class="htp-s">
           <h3><span class="htp-icon">🎯</span> Objective</h3>
-          <p>Place towers along the path to stop enemies from reaching the exit. You start with lives based on your chosen difficulty (<b>200</b> Easy / <b>100</b> Medium / <b>50</b> Hard) and <b>$750 gold</b>. If your lives reach zero, the meadow falls.</p>
+          <p>Place towers along the path to stop enemies from reaching the exit. You start with lives based on your chosen difficulty (<b>200</b> Easy / <b>100</b> Medium / <b>50</b> Hard) and starting gold (<b>$750</b> Easy / <b>$650</b> Medium / <b>$500</b> Hard). If your lives reach zero, the meadow falls.</p>
         </div>
         <div class="htp-s">
           <h3><span class="htp-icon">🏗️</span> Placing Towers</h3>
@@ -6110,8 +6110,8 @@ function bossWeightsForRound(rnd){
     const wp = Math.min(1,(rnd-110)/90); // 0 at r110, 1 at r200
     w.winstonChurchill = 0.15 + wp*2.85; // 0.15 → 3.0
   }
-  if(rnd>=115){
-    const wp = Math.min(1,(rnd-115)/85);
+  if(rnd>=140){
+    const wp = Math.min(1,(rnd-140)/60); // 0 at r140, 1 at r200
     w.reinforcedWinston = 0.05 + wp*0.55; // 0.05 → 0.6 (reinforced stays minority)
   }
   return w;
@@ -7246,7 +7246,8 @@ function handleEnemyDefeat(tgt, tower){
   if(tower.kills===10||tower.kills===50||tower.kills===100||tower.kills%100===0){
     S.particles.push({x:tower.x,y:tower.y-CELL*.6,text:tower.kills+' KO',alpha:1,vy:-45,life:1.3,col:'#f0c040'});
   }
-  const gold=Math.round(tgt.maxHp*rewardMultiplier(S.round));
+  const baseGold=Math.round(tgt.maxHp*rewardMultiplier(S.round));
+  const gold=(S.difficulty==='hard')?Math.floor(baseGold*0.7):baseGold;
   const orinBonus=getOrinKillGoldBonus(gold,tower);
   const totalGold=gold+orinBonus;
   S.gold+=totalGold;S.totalMoneyEarned=(S.totalMoneyEarned||0)+totalGold;updateHUD();refreshShopAffordability();
@@ -7307,7 +7308,11 @@ function fireTowerAttack(t, stats){
   if(t.defId==='thomasmini'){
     const targets=getTargetsInRange(t,stats);
     if(!targets.length) return;
-    const tgt=targets[0];
+    // Stun targets strongest regardless of tower priority setting
+    const hasStunable=(stats.megaStun||stats.bigBoomAbility)&&stats.stunDuration>0;
+    const tgt=hasStunable
+      ? targets.reduce((best,e)=>(!best||e.hp>best.hp)?e:best,null)||targets[0]
+      : targets[0];
     const radius=stats.explosionRadius||52;
     const bombScale=stats.bombSizeScale||1;
     // Determine damage
@@ -7319,6 +7324,8 @@ function fireTowerAttack(t, stats){
       const dx=e.x-tgt.x,dy=e.y-tgt.y;
       return dx*dx+dy*dy<=radius*radius;
     });
+    // Find the single strongest enemy in range that can be stunned (only 1 stun active at a time)
+    const alreadyStunned=S.enemies.find(e=>!e.dead&&!e.reached&&e.stunned&&e.stunnedT>0);
     hitEnemies.forEach(e=>{
       // Thomas Mini always hits leads at all upgrade levels
       const fakeStats={...stats,explosive:true};
@@ -7328,8 +7335,17 @@ function fireTowerAttack(t, stats){
       e.flashT=0.12;
       if(e.hp<=0){ handleEnemyDefeat(e,t); }
       else if((stats.megaStun||stats.bigBoomAbility)&&stats.stunDuration>0){
-        e.stunned=true;
-        e.stunnedT=(e.stunnedT||0)+stats.stunDuration;
+        // Stun only if no other enemy is currently stunned — always pick the strongest non-Winston
+        if(!alreadyStunned){
+          // Find the strongest (most hp) alive enemy in the explosion that isn't a Winston
+          const strongest=hitEnemies
+            .filter(x=>!x.dead&&!x.reached&&x.defId!=='winstonChurchill'&&x.defId!=='reinforcedWinston')
+            .reduce((best,x)=>(!best||x.hp>best.hp)?x:best,null);
+          if(strongest&&e===strongest){
+            e.stunned=true;
+            e.stunnedT=stats.stunDuration;
+          }
+        }
       }
     });
     // Explosion visual
@@ -7793,7 +7809,8 @@ function update(dt){
             e._nathanBlocked=t.id;
             // Wall takes damage equal to enemy's remaining HP 
             t.wallHp=Math.max(0, t.wallHp - e.hp);
-            e.stunned=true; e.stunnedT=0.5; // brief stun on contact
+            e.stunned=true; e.stunnedT=0.5; // brief stun on contact (not Winstons)
+            if(e.defId==='winstonChurchill'||e.defId==='reinforcedWinston'){ e.stunned=false; e.stunnedT=0; }
             if(S.towerSel===t.id) refreshSelPanel();
           }
           // Keep enemy pushed back slightly so they don't pass through while wall lives
