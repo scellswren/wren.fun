@@ -609,6 +609,27 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .confirm-btn.no{border:1px solid #c8964066;background:#f0c04010;color:var(--muted)}
 .confirm-btn.no:hover{border-color:var(--gold);color:var(--gold);background:#f0c04020}
 
+/* BOX CONTENTS MODAL */
+#boxContentsModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.72);z-index:9500;backdrop-filter:blur(6px)}
+#boxContentsModal.on{display:flex}
+.boxc-box{background:linear-gradient(160deg,#181208ee,#10100aee);
+  border:1px solid #c8964066;border-radius:6px;padding:1.6rem 1.8rem;
+  max-width:360px;width:90%;text-align:center;
+  box-shadow:0 8px 40px #000a,0 0 0 1px #f0c04022;
+  animation:fadeup .18s ease both}
+.boxc-title{font-family:'Cinzel',serif;font-size:1.05rem;color:var(--gold);
+  margin-bottom:.2rem;letter-spacing:.06em;text-shadow:0 0 18px #f0c04055}
+.boxc-sub{font-family:'Cinzel',serif;font-size:.75rem;color:#f5a623;
+  text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem;opacity:.85}
+.boxc-list{text-align:left;max-height:50vh;overflow-y:auto;margin-bottom:1rem;
+  scrollbar-width:thin;scrollbar-color:#c8964066 transparent}
+.boxc-close{font-family:'Cinzel',serif;font-size:.82rem;padding:.5em 1.8em;
+  border-radius:2px;cursor:pointer;transition:all .15s;
+  border:1px solid #c8964066;background:#f0c04010;color:var(--muted);
+  clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
+.boxc-close:hover{border-color:var(--gold);color:var(--gold);background:#f0c04020}
+
 /* WAVE BUTTON */
 @keyframes wavebtnPulse{
   0%,100%{box-shadow:0 0 14px #f0c04030}
@@ -1196,6 +1217,15 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
       <button class="confirm-btn yes" id="confirmYes">Yes, reset</button>
       <button class="confirm-btn no" id="confirmNo">Cancel</button>
     </div>
+  </div>
+</div>
+
+<div id="boxContentsModal">
+  <div class="boxc-box">
+    <div class="boxc-title" id="boxcTitle">Box Contents</div>
+    <div class="boxc-sub">Possible Rewards</div>
+    <div class="boxc-list" id="boxcList"></div>
+    <button class="boxc-close" id="boxcClose">Close</button>
   </div>
 </div>
 
@@ -1895,7 +1925,7 @@ const MENU_SHOP_BOXES = [
     name:'Small Youtuber Box',
     shardCost:12,
     desc:'A box filled with secrets from the small YouTuber world. Open it to receive a brand new exclusive tower!',
-    contains:[{towerId:'cheeseblock', name:'Block of Cheese', img:'Cyatr9.jpg'},{towerId:'nathan8028', name:'Nathan8028', img:'Nathan8028.jpg'}],
+    contains:[{towerId:'cheeseblock', name:'Block of Cheese', img:'Cyatr9.jpg'},{towerId:'nathan8028', name:'Nathan8028', img:'Nathan8028.jpg'},{towerId:'turtlekid', name:'Turtle Kid 2012', img:'TurtleKid2012.jpg'}],
     multiOpen:true  // can open multiple times if more content added later
   }
 ];
@@ -1977,16 +2007,24 @@ function openBox(box){
   const prize=unowned.length>0 ? unowned[Math.floor(Math.random()*unowned.length)]
                                : box.contains[Math.floor(Math.random()*box.contains.length)];
 
+  // If this is a duplicate (already owned), refund 50% of the shard cost (lose the other 50%)
+  const isDuplicate=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks[prize.towerId]);
+  let refund=0;
+  if(isDuplicate){
+    refund=Math.floor(box.shardCost*0.5);
+    CAREER.rareShards=(CAREER.rareShards||0)+refund;
+  }
+
   // Unlock the tower
   CAREER.shopUnlocks[prize.towerId]=true;
   saveCareer(CAREER);
   updateShardHud();
 
   // Show the animation
-  playBoxOpenAnimation(prize);
+  playBoxOpenAnimation(prize, isDuplicate, refund);
 }
 
-function playBoxOpenAnimation(prize){
+function playBoxOpenAnimation(prize, isDuplicate, refund){
   const overlay=document.getElementById('boxOpenOverlay');
   const lid=document.getElementById('boxLid');
   const reveal=document.getElementById('boxReveal');
@@ -2007,7 +2045,9 @@ function playBoxOpenAnimation(prize){
   particles.innerHTML='';
   revealImg.src=resolvedImgSrc(prize.img);
   towerName.textContent=prize.name;
-  subtitle.textContent='A brand new tower for your arsenal!';
+  subtitle.textContent=isDuplicate
+    ? `Duplicate! You got ${refund} Rare Shard${refund!==1?'s':''} back (50% refund).`
+    : 'A brand new tower for your arsenal!';
 
   overlay.classList.add('open');
 
@@ -2200,6 +2240,12 @@ function renderMenuShopItems(){
       const canAfford=(CAREER.rareShards||0)>=box.shardCost;
       const allOwned=box.contains.every(c=>!!(CAREER.shopUnlocks&&CAREER.shopUnlocks[c.towerId]));
 
+      // Build contents list with images for the info tooltip
+      const contentsHtml=box.contains.map(c=>{
+        const owned=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks[c.towerId]);
+        return `<div style="display:flex;align-items:center;gap:.4rem;margin:.2rem 0"><img src="${resolvedImgSrc(c.img)}" style="width:28px;height:28px;object-fit:cover;border-radius:3px;border:1px solid #c8964044" onerror="this.style.display='none'"><span style="color:${owned?'#4caf50':'#f0c040'}">${c.name}${owned?' ✓':''}</span></div>`;
+      }).join('');
+
       const card=document.createElement('div');
       card.className='mshop-boxcard';
 
@@ -2207,20 +2253,30 @@ function renderMenuShopItems(){
         <div class="mshop-boxcard-inner">
           <div class="mshop-box-icon">📦</div>
           <div class="mshop-box-info">
-            <div class="mshop-box-name">${box.name}</div>
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <div class="mshop-box-name">${box.name}</div>
+              <div class="mshop-box-info-btn" id="mshop-info-${box.id}" title="See box contents" style="width:18px;height:18px;border-radius:50%;background:#c8964033;border:1px solid #c8964066;color:#f0c040;font-size:.7rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative">ℹ</div>
+            </div>
             <div class="mshop-box-price">💎 ${box.shardCost} Rare Shard${box.shardCost!==1?'s':''}</div>
             ${allOwned
-              ?`<button class="mshop-box-buy" disabled style="border-color:#4caf5077;color:#4caf50;background:#4caf5012">✓ All Contents Unlocked</button>`
+              ?`<button class="mshop-box-buy" id="mshop-boxbuy-${box.id}" ${canAfford?'':'disabled'} style="border-color:#4caf5077;color:#4caf50;background:#4caf5012">${canAfford?'🎁 Open Box':'Need '+box.shardCost+' Rare Shards'}</button>`
               :`<button class="mshop-box-buy" id="mshop-boxbuy-${box.id}" ${canAfford?'':'disabled'}>${canAfford?'🎁 Open Box':'Need '+box.shardCost+' Rare Shards'}</button>`
             }
           </div>
         </div>`;
 
-      if(!allOwned){
-        const btn=card.querySelector(`#mshop-boxbuy-${box.id}`);
-        if(btn&&canAfford){
-          btn.addEventListener('click',()=>openBox(box));
-        }
+      const btn=card.querySelector(`#mshop-boxbuy-${box.id}`);
+      if(btn&&canAfford){
+        btn.addEventListener('click',()=>openBox(box));
+      }
+
+      // Info button: opens a centered modal showing box contents
+      const infoBtn=card.querySelector(`#mshop-info-${box.id}`);
+      if(infoBtn){
+        infoBtn.addEventListener('click',(e)=>{
+          e.stopPropagation();
+          showBoxContentsModal(box, contentsHtml);
+        });
       }
       body.appendChild(card);
     });
@@ -2767,9 +2823,10 @@ const TD = {
   thomasmini:{id:'thomasmini',name:'Thomas Mini',         img:'ThomasMini.jpg',    cost:425, dmg:3,  rate:2.5, range:125, income:0,   irate:0,  init:'TM', col:'#ff7043', canHitLead:true, bombTower:true},
   farmerorin:{id:'farmerorin',name:'Farmer Orin',          img:'FarmerOrin.jpg',    cost:500, dmg:0,  rate:0,   range:160, income:0,   irate:0,  init:'FO', col:'#8bc34a', support:true, farmerCollector:true, shopUnlockOnly:true},
   cheeseblock:{id:'cheeseblock',name:'Block of Cheese',     img:'Cyatr9.jpg',        cost:650, dmg:5,  rate:0,   range:110, income:0,   irate:0,  init:'🧀', col:'#f5c518', cheeseFactory:true, shopUnlockOnly:true},
-  nathan8028: {id:'nathan8028', name:'Nathan8028',           img:'Nathan8028.jpg',    cost:125, dmg:0,  rate:0,   range:0,   income:0,   irate:0,  init:'N',  col:'#4fc3f7', support:true, canPlaceOnPath:true, shopUnlockOnly:true}
+  nathan8028: {id:'nathan8028', name:'Nathan8028',           img:'Nathan8028.jpg',    cost:125, dmg:0,  rate:0,   range:0,   income:0,   irate:0,  init:'N',  col:'#4fc3f7', support:true, canPlaceOnPath:true, shopUnlockOnly:true},
+  turtlekid: {id:'turtlekid', name:'Turtle Kid 2012',        img:'TurtleKid2012.jpg', cost:700, dmg:1,  rate:1,   range:115, income:0,   irate:0,  init:'TK', col:'#26a69a', requiresWater:true, canPlaceOnWater:true, shopUnlockOnly:true}
 };
-const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg', edunzie:'EdunzieLicksPoo.jpg', thomasmini:'ThomasIsADino.jpg', farmerorin:'OrinTheFarmer.jpg', cheeseblock:'CheeseBlock.jpg', nathan8028:'Nathan888.jpg'};
+const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg', edunzie:'EdunzieLicksPoo.jpg', thomasmini:'ThomasIsADino.jpg', farmerorin:'OrinTheFarmer.jpg', cheeseblock:'CheeseBlock.jpg', nathan8028:'Nathan888.jpg', turtlekid:'Turtle911.jpg'};
 
 const TIKI_POWER_PRICE = 38000;
 const TOWER_UPGRADES = {
@@ -2835,6 +2892,13 @@ const TOWER_UPGRADES = {
     {name:'Screaming', cost:500, desc:'Nathan screams every 2 seconds, sending enemies 20px back along the path (does not affect bosses, reinforced, or leads). Now has 40 health.', apply:s=>{s.wallHp=40;s.wallMaxHp=40;s.wallScream=true;s.wallScreamCooldown=2;s.wallScreamPush=20;s.wallScreamAffectReinforced=false;s.wallScreamAffectBoss=false;}},
     {name:'Mega Wall', cost:1200, desc:'Wall health increases to 150. Screams every 2 seconds, pushing enemies 40px back. Scream now affects reinforced and lead enemies.', apply:s=>{s.wallHp=150;s.wallMaxHp=150;s.wallScreamPush=40;s.wallScreamAffectReinforced=true;}},
     {name:'Big Boulder', cost:21000, desc:'Nathan becomes a massive boulder with 750 health. Scream pushes 60px and now affects all bosses except Winston Churchill. Nathan respawns 15 seconds after death. Ability: 🧱 Relocate — move Nathan to a new spot (5s cooldown).', apply:s=>{s.wallHp=750;s.wallMaxHp=750;s.wallScreamPush=60;s.wallScreamAffectBoss=true;s.wallBoulder=true;s.wallRespawn=true;s.wallRespawnTime=15;s.wallRelocateAbility=true;s.wallRelocateCd=0;}}
+  ],
+  turtlekid: [
+    {name:'Further Shells', cost:150, desc:'Range increases by 15 pixels.', apply:s=>{s.range+=15;}},
+    {name:'Stronger Shells', cost:450, desc:'Now deals 3 damage per shot. The shells turn pink and Turtle Kid attacks every 0.9 seconds.', apply:s=>{s.dmg=3;s.rate=0.9;s.projectile='turtleShellPink';}},
+    {name:'Down The Tortoise\'s', cost:1000, desc:'Now throws red Tortoise bodies that deal 10 damage, and range increases by 30 pixels.', apply:s=>{s.dmg=10;s.range+=30;s.projectile='tortoiseBody';}},
+    {name:'Wave', cost:2850, desc:'Every 20 seconds, Turtle Kid summons a big wave from the water that deals 100 damage to enemies in front of it. Range increases by 40 pixels and base shots now deal 15 damage.', apply:s=>{s.dmg=15;s.range+=40;s.waveAbility=true;s.waveCooldown=20;s.waveDamage=100;s.waveCd=0;}},
+    {name:'First Steps', cost:77800, desc:'Turtle Kid can now move and follow enemies even out of the water, dealing 100 damage per hit and able to attack every type of enemy. The wave attack now triggers every 4 seconds, can push enemies back (does not affect bosses stronger than Giga Lizzy), and the projectiles become blue and shiny. Range becomes global.', apply:s=>{s.dmg=100;s.range=9999;s.mobile=true;s.canHitAll=true;s.waveCooldown=4;s.wavePush=true;s.projectile='turtleShellBlueShiny';}}
   ]
 };
 
@@ -3062,7 +3126,7 @@ function getTowerStats(t){
     shots:1,
     explosive:isThomasMini?true:false,
     explosionRadius:isThomasMini?52:0,
-    projectile:d.id==='tiki'?'tiki':(isThomasMini?'bomb':'laser'),
+    projectile:d.id==='tiki'?'tiki':(isThomasMini?'bomb':(d.id==='turtlekid'?'turtleShell':'laser')),
     canSeeCamo:!!d.canSeeCamo,
     shrapnelChance:0,
     shrapnelDamage:0,
@@ -3115,7 +3179,15 @@ function getTowerStats(t){
     wallRespawn:false,
     wallRespawnTime:15,
     wallRelocateAbility:false,
-    wallRelocateCd:0
+    wallRelocateCd:0,
+    // Turtle Kid 2012
+    waveAbility:false,
+    waveCooldown:20,
+    waveDamage:100,
+    waveCd:0,
+    mobile:false,
+    canHitAll:false,
+    wavePush:false
   };
   getTowerUpgradeList(t).slice(0,getTowerUpgradeLevel(t)).forEach(upg=>upg.apply(stats,t));
   // Thomas Mini always hits leads (base property)
@@ -3677,8 +3749,8 @@ function triggerCheeseStorm(towerId){
 // Can this tower see and target the enemy? (camo blocks targeting; lead does NOT — towers can still shoot at leads)
 function canTowerTargetEnemy(stats, enemy, tower){
   const wfBuff=tower ? getWrenFunStatsForTower(tower) : null;
-  const canSeeC=stats.canSeeCamo||(wfBuff&&wfBuff.grantCamoVision);
-  const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
+  const canSeeC=stats.canSeeCamo||stats.canHitAll||(wfBuff&&wfBuff.grantCamoVision);
+  const canHitAll=stats.canHitAll||(wfBuff&&wfBuff.grantAllEnemies);
   if((enemy.camo||enemy.rishiCamo) && !canSeeC && !canHitAll) return false;
   return true;
 }
@@ -3686,7 +3758,7 @@ function canTowerTargetEnemy(stats, enemy, tower){
 function canTowerDamageEnemy(stats, enemy, tower){
   if(!canTowerTargetEnemy(stats,enemy,tower)) return false;
   const wfBuff=tower ? getWrenFunStatsForTower(tower) : null;
-  const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
+  const canHitAll=stats.canHitAll||(wfBuff&&wfBuff.grantAllEnemies);
   if((enemy.lead||enemy.rishiLead) && !stats.explosive && !stats.canHitLead && !canHitAll) return false;
   return true;
 }
@@ -3696,7 +3768,7 @@ function canTowerDamageEnemy(stats, enemy, tower){
 function canTowerActuallyHurt(stats, enemy, tower){
   if(!canTowerDamageEnemy(stats,enemy,tower)) return false;
   const wfBuff=tower?getWrenFunStatsForTower(tower):null;
-  const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
+  const canHitAll=stats.canHitAll||(wfBuff&&wfBuff.grantAllEnemies);
   if(stats&&stats.explosive&&isBlackAndWhiteEnemy(enemy)&&!canHitAll) return false;
   return true;
 }
@@ -3980,7 +4052,8 @@ function showSub(type){
         thomasmini:'Bomb tower. Hurls explosives that damage leads and stun enemies on impact.',
         farmerorin:'Support collector. Picks up DVDs Orin drops and banks the cash for you.',
         cheeseblock:'Spike factory. Drops cheese onto the track to damage passing enemies.',
-        nathan8028:'Wall tower. Blocks and absorbs enemies, then screams them back when upgraded.'
+        nathan8028:'Wall tower. Blocks and absorbs enemies, then screams them back when upgraded.',
+        turtlekid:'Water tower. Must be placed on water and lobs turtle shells at nearby enemies.'
       }[t.id]||'';
       const imgSrc=getTowerImageSrc(t.id);
 
@@ -6538,6 +6611,13 @@ function canPlaceAt(wx,wy){
     if(wx+half>rect.x&&wx-half<rect.x+rect.w&&wy+half>rect.y&&wy-half<rect.y+rect.h) return false;
   }
 
+  // Towers that require water (e.g. Turtle Kid 2012) must be placed fully within a water rect
+  if(activeTowerId&&TD[activeTowerId]&&TD[activeTowerId].requiresWater){
+    const onWater=NO_BUILD_RECTS.some(rect=>rect.kind==='water'
+      &&wx-half>=rect.x&&wx+half<=rect.x+rect.w&&wy-half>=rect.y&&wy+half<=rect.y+rect.h);
+    if(!onWater) return false;
+  }
+
   for(const decor of (DECOR_BLOCKERS||[])){
     const dx=wx-decor.x, dy=wy-decor.y;
     const safe=decor.r + half + 2;
@@ -7375,6 +7455,8 @@ function fireTowerAttack(t, stats){
     if(!damageEnemy(tgt,stats.dmg,t,stats)) continue;
     if(stats.projectile==='tiki'){
       S.projs.push({type:'tiki',sx:t.x,sy:t.y,ex:tgt.x,ey:tgt.y,life:0.14,maxLife:0.14});
+    } else if(stats.projectile==='turtleShell'||stats.projectile==='turtleShellPink'||stats.projectile==='tortoiseBody'||stats.projectile==='turtleShellBlueShiny'){
+      S.projs.push({type:stats.projectile,sx:t.x,sy:t.y,ex:tgt.x,ey:tgt.y,life:0.22,maxLife:0.22});
     } else {
       S.projs.push({type:'laser',sx:t.x,sy:t.y,ex:tgt.x,ey:tgt.y,life:0.1,maxLife:0.1});
     }
@@ -7869,6 +7951,86 @@ function update(dt){
         if(S.towerSel===t.id) refreshSelPanel();
         // Clear any enemy blocked flags that were targeting this tower
         for(const e of S.enemies) if(e._nathanBlocked===t.id) e._nathanBlocked=null;
+      }
+    }
+  }
+
+  // ─── TURTLE KID 2012 UPDATE ───
+  for(const t of S.towers){
+    if(t.defId!=='turtlekid') continue;
+    const stats=getTowerStats(t);
+
+    // First Steps: move toward the nearest targetable enemy
+    if(stats.mobile && S.waveActive){
+      const targets=S.enemies.filter(e=>!e.dead&&!e.reached&&canTowerTargetEnemy(stats,e,t));
+      if(targets.length){
+        let nearest=null,nd=Infinity;
+        for(const e of targets){
+          const dx=e.x-t.x,dy=e.y-t.y,d2=dx*dx+dy*dy;
+          if(d2<nd){nd=d2;nearest=e;}
+        }
+        if(nearest){
+          const dx=nearest.x-t.x,dy=nearest.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
+          const followDist=40; // stop a little short of the enemy
+          if(dist>followDist){
+            const moveSpeed=70; // px/sec
+            const step=Math.min(moveSpeed*dt,dist-followDist);
+            const W=COLS*CELL,H=ROWS*CELL,half=getTowerBaseHalf(t);
+            t.x=Math.max(half,Math.min(W-half,t.x+(dx/dist)*step));
+            t.y=Math.max(half,Math.min(H-half,t.y+(dy/dist)*step));
+          }
+        }
+      }
+    }
+
+    // Wave ability
+    if(stats.waveAbility){
+      t.waveCd=(t.waveCd||0)-dt;
+      if(t.waveCd<=0 && S.waveActive){
+        t.waveCd=stats.waveCooldown;
+        const waveRange=getEffectiveRangeForTower(t)+40; // big wave reaches a bit further than normal range
+        let didWave=false;
+        for(const e of S.enemies){
+          if(e.dead||e.reached) continue;
+          if(!canTowerTargetEnemy(stats,e,t)) continue;
+          const dx=e.x-t.x,dy=e.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
+          if(dist<=waveRange||waveRange>=9999){
+            didWave=true;
+            const wasAlive=!e.dead;
+            damageEnemy(e,stats.waveDamage,t,stats);
+            // Wave pushback (First Steps only) — does not affect bosses stronger than Giga Lizzy
+            if(stats.wavePush&&!e.dead){
+              const exemptBosses=['gigaLizzy','reinforcedGigaLizzy','winstonChurchill','reinforcedWinston'];
+              const baseId=getEnemyBaseId(e.defId);
+              const tooStrong=e.boss&&!exemptBosses.includes(baseId)&&!exemptBosses.includes(e.defId)
+                ?  (ED[baseId]&&ED['gigaLizzy']&&ED[baseId].hp>ED['gigaLizzy'].hp) : false;
+              if(!tooStrong){
+                let pushRem=40;
+                const ePath=e._ppts||PPTS;
+                while(pushRem>0 && e.pi>0){
+                  const prevPrev=ePath[Math.max(0,e.pi-1)];
+                  const dx2=e.x-prevPrev.x, dy2=e.y-prevPrev.y;
+                  const segDist=Math.sqrt(dx2*dx2+dy2*dy2);
+                  if(segDist<=pushRem){
+                    pushRem-=segDist;
+                    e.pi=Math.max(0,e.pi-1);
+                    e.x=ePath[e.pi].x; e.y=ePath[e.pi].y;
+                  } else {
+                    const segDir=segDist>0?{x:-dx2/segDist,y:-dy2/segDist}:{x:0,y:0};
+                    e.x+=segDir.x*pushRem; e.y+=segDir.y*pushRem;
+                    pushRem=0;
+                  }
+                }
+                e.pushFlash=0.3;
+              }
+            }
+          }
+        }
+        if(didWave){
+          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:waveRange,alpha:0.85,life:0.5,col:'#29b6f6'});
+          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:waveRange*0.6,alpha:0.7,life:0.4,col:'#81d4fa'});
+          S.particles.push({x:t.x,y:t.y-CELL*.5,text:'🌊 Wave!',alpha:1,vy:-30,life:0.9,col:'#29b6f6'});
+        }
       }
     }
   }
@@ -10429,6 +10591,42 @@ function drawProjs(){
       ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();ctx.stroke();
       ctx.strokeStyle='#f6d27a';
       ctx.beginPath();ctx.moveTo(cx,cy-4);ctx.lineTo(cx+3,cy-8);ctx.stroke();
+    } else if(p.type==='turtleShell'){
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(prog*Math.PI*4);
+      ctx.fillStyle='#4caf50';
+      ctx.shadowColor='#2e7d32';ctx.shadowBlur=8;
+      ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#1b5e20';ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.moveTo(-5,0);ctx.lineTo(5,0);ctx.moveTo(0,-5);ctx.lineTo(0,5);ctx.stroke();
+      ctx.restore();
+    } else if(p.type==='turtleShellPink'){
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(prog*Math.PI*4);
+      ctx.fillStyle='#f06292';
+      ctx.shadowColor='#ad1457';ctx.shadowBlur=10;
+      ctx.beginPath();ctx.arc(0,0,5.5,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#880e4f';ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.moveTo(-5,0);ctx.lineTo(5,0);ctx.moveTo(0,-5);ctx.lineTo(0,5);ctx.stroke();
+      ctx.restore();
+    } else if(p.type==='tortoiseBody'){
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(Math.atan2(dy,dx));
+      ctx.fillStyle='#c62828';
+      ctx.shadowColor='#7f0000';ctx.shadowBlur=10;
+      ctx.beginPath();ctx.ellipse(0,0,9,6,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#8d1f1f';
+      ctx.beginPath();ctx.ellipse(6,0,3,3,0,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    } else if(p.type==='turtleShellBlueShiny'){
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(prog*Math.PI*5);
+      const grad=ctx.createRadialGradient(0,0,0,0,0,7);
+      grad.addColorStop(0,'#e1f5fe');
+      grad.addColorStop(0.5,'#29b6f6');
+      grad.addColorStop(1,'#01579b');
+      ctx.fillStyle=grad;
+      ctx.shadowColor='#40c4ff';ctx.shadowBlur=16;
+      ctx.beginPath();ctx.arc(0,0,6.5,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=1.4;
+      ctx.beginPath();ctx.moveTo(-6,0);ctx.lineTo(6,0);ctx.moveTo(0,-6);ctx.lineTo(0,6);ctx.stroke();
+      ctx.restore();
     } else if(p.type==='sword'){
       const baseAngle=(p.angle||0);
       const sweepArc=Math.PI*1.1;
@@ -10715,6 +10913,20 @@ function showConfirmModal(title, msg, onYes){
   newNo.addEventListener('click',close);
   modal.addEventListener('click',(e)=>{ if(e.target===modal) close(); },{once:true});
 }
+
+function showBoxContentsModal(box, contentsHtml){
+  const modal=document.getElementById('boxContentsModal');
+  document.getElementById('boxcTitle').textContent=box.name;
+  document.getElementById('boxcList').innerHTML=contentsHtml;
+  modal.classList.add('on');
+  const closeBtn=document.getElementById('boxcClose');
+  const newClose=closeBtn.cloneNode(true);
+  closeBtn.parentNode.replaceChild(newClose,closeBtn);
+  const close=()=>modal.classList.remove('on');
+  newClose.addEventListener('click',close);
+  modal.addEventListener('click',(e)=>{ if(e.target===modal) close(); },{once:true});
+}
+
 
 function _resetStats(){
   showConfirmModal(
