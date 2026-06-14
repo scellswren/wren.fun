@@ -7960,26 +7960,44 @@ function update(dt){
     if(t.defId!=='turtlekid') continue;
     const stats=getTowerStats(t);
 
-    // First Steps: move toward the nearest targetable enemy
+    // First Steps: move toward the nearest targetable enemy (stays at least 20px away)
     if(stats.mobile && S.waveActive){
       const targets=S.enemies.filter(e=>!e.dead&&!e.reached&&canTowerTargetEnemy(stats,e,t));
       if(targets.length){
-        let nearest=null,nd=Infinity;
-        for(const e of targets){
-          const dx=e.x-t.x,dy=e.y-t.y,d2=dx*dx+dy*dy;
-          if(d2<nd){nd=d2;nearest=e;}
+        // Stick to the current lock-on target while it's still valid, to avoid jittery retargeting
+        let lockedTarget=targets.find(e=>e.id===t._moveTargetId);
+        if(!lockedTarget){
+          let nearest=null,nd=Infinity;
+          for(const e of targets){
+            const dx=e.x-t.x,dy=e.y-t.y,d2=dx*dx+dy*dy;
+            if(d2<nd){nd=d2;nearest=e;}
+          }
+          lockedTarget=nearest;
+          t._moveTargetId=lockedTarget?lockedTarget.id:null;
         }
-        if(nearest){
-          const dx=nearest.x-t.x,dy=nearest.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
-          const followDist=40; // stop a little short of the enemy
-          if(dist>followDist){
+        if(lockedTarget){
+          const dx=lockedTarget.x-t.x,dy=lockedTarget.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
+          const minDist=20; // never get closer than 20px to the enemy
+          const stopBuffer=4; // small buffer so it settles smoothly instead of jittering at the edge
+          if(dist>minDist+stopBuffer){
             const moveSpeed=70; // px/sec
-            const step=Math.min(moveSpeed*dt,dist-followDist);
+            const step=Math.min(moveSpeed*dt,dist-(minDist+stopBuffer));
             const W=COLS*CELL,H=ROWS*CELL,half=getTowerBaseHalf(t);
-            t.x=Math.max(half,Math.min(W-half,t.x+(dx/dist)*step));
-            t.y=Math.max(half,Math.min(H-half,t.y+(dy/dist)*step));
+            const nx=dx/dist,ny=dy/dist;
+            t.x=Math.max(half,Math.min(W-half,t.x+nx*step));
+            t.y=Math.max(half,Math.min(H-half,t.y+ny*step));
+          } else if(dist<minDist){
+            // Too close — back off slightly to maintain the 20px gap
+            const W=COLS*CELL,H=ROWS*CELL,half=getTowerBaseHalf(t);
+            const moveSpeed=70;
+            const step=Math.min(moveSpeed*dt,minDist-dist);
+            const nx=dx/(dist||1),ny=dy/(dist||1);
+            t.x=Math.max(half,Math.min(W-half,t.x-nx*step));
+            t.y=Math.max(half,Math.min(H-half,t.y-ny*step));
           }
         }
+      } else {
+        t._moveTargetId=null;
       }
     }
 
@@ -7988,13 +8006,17 @@ function update(dt){
       t.waveCd=(t.waveCd||0)-dt;
       if(t.waveCd<=0 && S.waveActive){
         t.waveCd=stats.waveCooldown;
-        const waveRange=getEffectiveRangeForTower(t)+40; // big wave reaches a bit further than normal range
+        const effRange=getEffectiveRangeForTower(t);
+        const isGlobal=effRange>=9999;
+        const mapDiagonal=Math.sqrt((COLS*CELL)**2+(ROWS*CELL)**2);
+        const waveRange=isGlobal?effRange+40:effRange+40; // big wave reaches a bit further than normal range
+        const waveVisualR=isGlobal?mapDiagonal:waveRange; // clamp visuals to map size when global
         let didWave=false;
         for(const e of S.enemies){
           if(e.dead||e.reached) continue;
           if(!canTowerTargetEnemy(stats,e,t)) continue;
           const dx=e.x-t.x,dy=e.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
-          if(dist<=waveRange||waveRange>=9999){
+          if(dist<=waveRange||isGlobal){
             didWave=true;
             const wasAlive=!e.dead;
             damageEnemy(e,stats.waveDamage,t,stats);
@@ -8027,8 +8049,8 @@ function update(dt){
           }
         }
         if(didWave){
-          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:waveRange,alpha:0.85,life:0.5,col:'#29b6f6'});
-          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:waveRange*0.6,alpha:0.7,life:0.4,col:'#81d4fa'});
+          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:waveVisualR,alpha:0.85,life:0.5,col:'#29b6f6'});
+          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:waveVisualR*0.6,alpha:0.7,life:0.4,col:'#81d4fa'});
           S.particles.push({x:t.x,y:t.y-CELL*.5,text:'🌊 Wave!',alpha:1,vy:-30,life:0.9,col:'#29b6f6'});
         }
       }
@@ -10591,41 +10613,75 @@ function drawProjs(){
       ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();ctx.stroke();
       ctx.strokeStyle='#f6d27a';
       ctx.beginPath();ctx.moveTo(cx,cy-4);ctx.lineTo(cx+3,cy-8);ctx.stroke();
-    } else if(p.type==='turtleShell'){
-      ctx.save();ctx.translate(cx,cy);ctx.rotate(prog*Math.PI*4);
-      ctx.fillStyle='#4caf50';
-      ctx.shadowColor='#2e7d32';ctx.shadowBlur=8;
-      ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle='#1b5e20';ctx.lineWidth=1.2;
-      ctx.beginPath();ctx.moveTo(-5,0);ctx.lineTo(5,0);ctx.moveTo(0,-5);ctx.lineTo(0,5);ctx.stroke();
-      ctx.restore();
-    } else if(p.type==='turtleShellPink'){
-      ctx.save();ctx.translate(cx,cy);ctx.rotate(prog*Math.PI*4);
-      ctx.fillStyle='#f06292';
-      ctx.shadowColor='#ad1457';ctx.shadowBlur=10;
-      ctx.beginPath();ctx.arc(0,0,5.5,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle='#880e4f';ctx.lineWidth=1.2;
-      ctx.beginPath();ctx.moveTo(-5,0);ctx.lineTo(5,0);ctx.moveTo(0,-5);ctx.lineTo(0,5);ctx.stroke();
+    } else if(p.type==='turtleShell'||p.type==='turtleShellPink'||p.type==='turtleShellBlueShiny'){
+      const isPink=p.type==='turtleShellPink';
+      const isBlue=p.type==='turtleShellBlueShiny';
+      const domeR=isPink?6.5:isBlue?7:6;
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(prog*Math.PI*3.2);
+      // glow for special variants
+      if(isPink){ctx.shadowColor='#ad1457';ctx.shadowBlur=10;}
+      else if(isBlue){ctx.shadowColor='#40c4ff';ctx.shadowBlur=16;}
+      else {ctx.shadowColor='#1b5e20';ctx.shadowBlur=6;}
+      // shell dome
+      let domeFill, rimFill, lineCol;
+      if(isBlue){
+        const grad=ctx.createRadialGradient(-domeR*.3,-domeR*.3,0,0,0,domeR*1.3);
+        grad.addColorStop(0,'#e1f5fe');
+        grad.addColorStop(0.5,'#29b6f6');
+        grad.addColorStop(1,'#01579b');
+        domeFill=grad; rimFill='#0288d1'; lineCol='#e1f5fe';
+      } else if(isPink){
+        domeFill='#f06292'; rimFill='#ad1457'; lineCol='#ffe0eb';
+      } else {
+        domeFill='#66bb6a'; rimFill='#2e7d32'; lineCol='#c8e6c9';
+      }
+      ctx.fillStyle=domeFill;
+      ctx.beginPath();ctx.arc(0,0,domeR,Math.PI,0);ctx.closePath();ctx.fill();
+      // rim
+      ctx.fillStyle=rimFill;
+      ctx.beginPath();ctx.ellipse(0,domeR*0.15,domeR,domeR*0.32,0,0,Math.PI*2);ctx.fill();
+      // hexagon segment lines on the dome
+      ctx.strokeStyle=lineCol;ctx.lineWidth=0.8;ctx.globalAlpha*=0.9;
+      ctx.beginPath();
+      ctx.moveTo(-domeR*0.55,-domeR*0.05);ctx.lineTo(0,-domeR*0.95);ctx.lineTo(domeR*0.55,-domeR*0.05);
+      ctx.moveTo(0,-domeR*0.95);ctx.lineTo(0,domeR*0.1);
+      ctx.moveTo(-domeR*0.95,domeR*0.05);ctx.lineTo(-domeR*0.55,-domeR*0.05);
+      ctx.moveTo(domeR*0.95,domeR*0.05);ctx.lineTo(domeR*0.55,-domeR*0.05);
+      ctx.stroke();
+      // shiny highlight for blue variant
+      if(isBlue){
+        ctx.fillStyle='rgba(255,255,255,0.85)';
+        ctx.beginPath();ctx.ellipse(-domeR*0.35,-domeR*0.45,domeR*0.28,domeR*0.16,-0.5,0,Math.PI*2);ctx.fill();
+      }
       ctx.restore();
     } else if(p.type==='tortoiseBody'){
-      ctx.save();ctx.translate(cx,cy);ctx.rotate(Math.atan2(dy,dx));
-      ctx.fillStyle='#c62828';
+      const angle=Math.atan2(dy,dx);
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(angle);
       ctx.shadowColor='#7f0000';ctx.shadowBlur=10;
-      ctx.beginPath();ctx.ellipse(0,0,9,6,0,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#8d1f1f';
-      ctx.beginPath();ctx.ellipse(6,0,3,3,0,0,Math.PI*2);ctx.fill();
-      ctx.restore();
-    } else if(p.type==='turtleShellBlueShiny'){
-      ctx.save();ctx.translate(cx,cy);ctx.rotate(prog*Math.PI*5);
-      const grad=ctx.createRadialGradient(0,0,0,0,0,7);
-      grad.addColorStop(0,'#e1f5fe');
-      grad.addColorStop(0.5,'#29b6f6');
-      grad.addColorStop(1,'#01579b');
-      ctx.fillStyle=grad;
-      ctx.shadowColor='#40c4ff';ctx.shadowBlur=16;
-      ctx.beginPath();ctx.arc(0,0,6.5,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle='#fff';ctx.lineWidth=1.4;
-      ctx.beginPath();ctx.moveTo(-6,0);ctx.lineTo(6,0);ctx.moveTo(0,-6);ctx.lineTo(0,6);ctx.stroke();
+      // legs (small ellipses peeking from under the shell)
+      ctx.fillStyle='#a33';
+      [[-5,-5],[ -5,5],[5,-5],[5,5]].forEach(([lx,ly])=>{
+        ctx.beginPath();ctx.ellipse(lx,ly,2.6,1.8,0,0,Math.PI*2);ctx.fill();
+      });
+      // tail
+      ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(-12,1.5);ctx.lineTo(-12,-1.5);ctx.closePath();ctx.fill();
+      // head
+      ctx.fillStyle='#c0392b';
+      ctx.beginPath();ctx.ellipse(9,0,3.2,2.6,0,0,Math.PI*2);ctx.fill();
+      // shell body
+      ctx.fillStyle='#d84315';
+      ctx.beginPath();ctx.ellipse(0,0,8.5,6,0,0,Math.PI*2);ctx.fill();
+      // shell segment pattern
+      ctx.strokeStyle='#7f0000';ctx.lineWidth=1;
+      ctx.beginPath();
+      ctx.ellipse(0,0,5,3.4,0,0,Math.PI*2);
+      ctx.moveTo(0,-3.4);ctx.lineTo(0,3.4);
+      ctx.moveTo(-3.5,-2.2);ctx.lineTo(3.5,2.2);
+      ctx.moveTo(-3.5,2.2);ctx.lineTo(3.5,-2.2);
+      ctx.stroke();
+      // eye
+      ctx.fillStyle='#1a0a05';
+      ctx.beginPath();ctx.arc(10.5,-1,0.8,0,Math.PI*2);ctx.fill();
       ctx.restore();
     } else if(p.type==='sword'){
       const baseAngle=(p.angle||0);
