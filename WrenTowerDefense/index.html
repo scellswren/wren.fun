@@ -278,6 +278,14 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .mshop-box-info{flex:1}
 .mshop-box-name{font-family:'Cinzel',serif;font-size:1rem;color:#f5a623;margin-bottom:.3rem;letter-spacing:.04em}
 .mshop-box-desc{font-size:.8rem;color:var(--muted);font-style:italic;line-height:1.5;margin-bottom:.6rem}
+.mshop-extra-card{background:linear-gradient(135deg,#0d0d1fee,#131328dd);
+  border:1px solid #a78bfa44;border-radius:6px;overflow:hidden;transition:all .2s;margin-bottom:.5rem;}
+.mshop-extra-card:hover{border-color:#a78bfaaa;box-shadow:0 0 28px #a78bfa25;transform:translateY(-2px)}
+.mshop-extra-card.owned{border-color:#4caf5044;background:linear-gradient(135deg,#0d1a0dee,#111e11dd)}
+.mshop-extra-inner{display:flex;gap:1rem;align-items:flex-start;padding:.9rem 1rem}
+.mshop-extra-icon{width:72px;height:72px;border:1px solid #a78bfa44;border-radius:5px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-size:2.4rem;flex-shrink:0;
+  background:linear-gradient(135deg,#0a0820,#060412);}
 .mshop-box-price{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;font-family:'Cinzel',serif;font-size:.82rem;color:#a78bfa;}
 .mshop-box-buy{font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;letter-spacing:.06em;
   padding:.45em 1.2em;border:1px solid #f5a62366;background:linear-gradient(135deg,#f5a62318,transparent);
@@ -1202,6 +1210,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
     <div class="mshop-tabs">
       <button class="mshop-tab active" id="mshopTabTowers" onclick="G.switchShopTab('towers')">⚔ Towers</button>
       <button class="mshop-tab" id="mshopTabMaps" onclick="G.switchShopTab('maps')">🗺 Maps</button>
+      <button class="mshop-tab" id="mshopTabExtras" onclick="G.switchShopTab('extras')">⚡ Extras</button>
     </div>
     <div class="mshop-body" id="mshopBody">
       <!-- populated by JS -->
@@ -1868,6 +1877,16 @@ const MENU_SHOP_MAPS = [
   }
 ];
 
+const MENU_SHOP_EXTRAS = [
+  {
+    id:'unlock_x4speed',
+    name:'x4 Speed',
+    icon:'⚡',
+    shardCost:50,
+    desc:'Adds a blazing x4 speed mode to the speed toggle button during any game. Cycle through x1 → x2 → x3 → x4 → x1.'
+  }
+];
+
 let _activeShopTab = 'towers';
 
 const MENU_SHOP_BOXES = [
@@ -2067,6 +2086,7 @@ function closeMenuShop(){
 function renderMenuShopBody(){
   if(_activeShopTab==='towers') renderMenuShopItems();
   else if(_activeShopTab==='maps') renderMenuShopMaps();
+  else if(_activeShopTab==='extras') renderMenuShopExtras();
 }
 
 function renderMenuShopMaps(){
@@ -2240,7 +2260,58 @@ function purchaseShopItem(item){
   saveCareer(CAREER);
   updateShardHud();
   renderMenuShopItems();
-  showToast('Farmer Orin unlocked!','#8bc34a');
+  showToast((item.name||'Item')+' unlocked!','#8bc34a');
+}
+
+function purchaseExtraItem(item){
+  if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
+  if(CAREER.shopUnlocks[item.id]) return;
+  if(item.shardCost&&(CAREER.rareShards||0)<item.shardCost){
+    showToast('Not enough Rare Shards!','#e57368');
+    return;
+  }
+  if(item.shardCost) CAREER.rareShards=(CAREER.rareShards||0)-item.shardCost;
+  CAREER.shopUnlocks[item.id]=true;
+  saveCareer(CAREER);
+  updateShardHud();
+  renderMenuShopExtras();
+  showToast(item.name+' unlocked!','#8bc34a');
+}
+
+function renderMenuShopExtras(){
+  const body=document.getElementById('mshopBody');
+  if(!body) return;
+  body.innerHTML='';
+  if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
+  const section=document.createElement('div');
+  section.innerHTML='<div class="mshop-section-title">⚡ Power-Ups</div>';
+  body.appendChild(section);
+  MENU_SHOP_EXTRAS.forEach(item=>{
+    const owned=!!(CAREER.shopUnlocks[item.id]);
+    const canAfford=(CAREER.rareShards||0)>=item.shardCost;
+    const card=document.createElement('div');
+    card.className='mshop-extra-card'+(owned?' owned':'');
+    card.innerHTML=`
+      <div class="mshop-extra-inner">
+        <div class="mshop-extra-icon">${item.icon||'⭐'}</div>
+        <div class="mshop-info">
+          <div class="mshop-name">${item.name}</div>
+          <div class="mshop-desc">${item.desc}</div>
+          <div class="mshop-price-row">
+            <div class="mshop-shard-cost">💎 ${item.shardCost} Rare Shard${item.shardCost!==1?'s':''}</div>
+          </div>
+          ${owned
+            ?`<button class="mshop-buy-btn owned" disabled>✓ Unlocked</button>`
+            :`<button class="mshop-buy-btn" id="mshop-extra-buy-${item.id}" ${canAfford?'':'disabled'}>${canAfford?'Purchase':'Need '+item.shardCost+' Rare Shards'}</button>`
+          }
+        </div>
+      </div>`;
+    if(!owned){
+      const btn=card.querySelector('#mshop-extra-buy-'+item.id);
+      if(btn&&canAfford) btn.addEventListener('click',()=>purchaseExtraItem(item));
+    }
+    body.appendChild(card);
+  });
 }
 
 function recordGameEnd(S){
@@ -9529,16 +9600,31 @@ function drawTowers(){
       ctx.restore();
       if(stats.range<9999){
         ctx.save();
-        ctx.strokeStyle='rgba(240,192,64,0.2)';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
         const dispRange=getEffectiveRangeForTower(t);
+        // Soft glowing fill so the covered area is easy to see at a glance
+        const rangeGrad=ctx.createRadialGradient(t.x,t.y,0,t.x,t.y,dispRange);
+        rangeGrad.addColorStop(0,'rgba(240,192,64,0.10)');
+        rangeGrad.addColorStop(0.85,'rgba(240,192,64,0.05)');
+        rangeGrad.addColorStop(1,'rgba(240,192,64,0)');
+        ctx.fillStyle=rangeGrad;
+        ctx.beginPath();ctx.arc(t.x,t.y,dispRange,0,Math.PI*2);ctx.fill();
+        // Bright glowing dashed ring on top
+        ctx.strokeStyle='rgba(255,214,107,0.85)';ctx.lineWidth=2.2;ctx.setLineDash([7,5]);
+        ctx.shadowColor='#f0c040';ctx.shadowBlur=10;
         ctx.beginPath();ctx.arc(t.x,t.y,dispRange,0,Math.PI*2);ctx.stroke();
         ctx.restore();
       }
     } else if(S.hoveredTower&&S.hoveredTower.id===t.id&&stats.range<9999){
       // Hover range preview
       ctx.save();
-      ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=1.5;ctx.setLineDash([4,5]);
       const dispRange=getEffectiveRangeForTower(t);
+      const rangeGrad=ctx.createRadialGradient(t.x,t.y,0,t.x,t.y,dispRange);
+      rangeGrad.addColorStop(0,'rgba(255,255,255,0.07)');
+      rangeGrad.addColorStop(0.85,'rgba(255,255,255,0.03)');
+      rangeGrad.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle=rangeGrad;
+      ctx.beginPath();ctx.arc(t.x,t.y,dispRange,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=1.8;ctx.setLineDash([5,5]);
       ctx.beginPath();ctx.arc(t.x,t.y,dispRange,0,Math.PI*2);ctx.stroke();
       ctx.restore();
     }
@@ -10401,16 +10487,27 @@ function drawGhost(){
   if(d.range<9999&&ok){
     const ghostEffectiveRange=getEffectiveRangeAtPoint(d.id,wx,wy);
     const boosted=ghostEffectiveRange>d.range;
-    ctx.globalAlpha=.18;
-    ctx.strokeStyle=boosted?'#e040fb':'#80e080';
-    ctx.lineWidth=boosted?2:1.5;
-    ctx.setLineDash([4,4]);
+    const ringCol=boosted?'#e040fb':'#80e080';
+    ctx.save();
+    const rangeGrad=ctx.createRadialGradient(wx,wy,0,wx,wy,ghostEffectiveRange);
+    rangeGrad.addColorStop(0,withAlpha(ringCol,'18'));
+    rangeGrad.addColorStop(0.85,withAlpha(ringCol,'0c'));
+    rangeGrad.addColorStop(1,withAlpha(ringCol,'00'));
+    ctx.fillStyle=rangeGrad;
+    ctx.beginPath();ctx.arc(wx,wy,ghostEffectiveRange,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=.85;
+    ctx.strokeStyle=ringCol;
+    ctx.lineWidth=boosted?2.4:2;
+    ctx.setLineDash([6,5]);
     ctx.beginPath();ctx.arc(wx,wy,ghostEffectiveRange,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
     // If boosted, also show the base range faintly so player can compare
     if(boosted){
-      ctx.globalAlpha=.07;
-      ctx.strokeStyle='#80e080';ctx.lineWidth=1;
+      ctx.save();
+      ctx.globalAlpha=.35;
+      ctx.strokeStyle='#80e080';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
       ctx.beginPath();ctx.arc(wx,wy,d.range,0,Math.PI*2);ctx.stroke();
+      ctx.restore();
     }
   }
   ctx.restore();
@@ -10418,10 +10515,12 @@ function drawGhost(){
 
 // ─── SPEED / AUTO CONTROLS ───
 function toggleSpeed(){
-  S.speed=S.speed===1?2:S.speed===2?3:1;
+  const hasX4=!!(CAREER&&CAREER.shopUnlocks&&CAREER.shopUnlocks['unlock_x4speed']);
+  const maxSpeed=hasX4?4:3;
+  S.speed=S.speed>=maxSpeed?1:S.speed+1;
   const b=document.getElementById('speedbtn');
   b.textContent='▶▶ x'+S.speed;
-  b.style.color=S.speed===1?'':S.speed===2?'var(--gold)':'#ff7043';
+  b.style.color=S.speed===1?'':S.speed===2?'var(--gold)':S.speed===3?'#ff7043':'#e040fb';
 }
 function toggleAuto(){
   S.autoRound=!S.autoRound;
@@ -10627,7 +10726,8 @@ return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen
         toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
         winContinue,winLeave,
         toggleMenuMusic,toggleMusicPopup,toggleRadio,toggleSFX,setSFXVolume,setRadioVolume,setMenuVolume,
-        showMenuShop,closeMenuShop,closeBoxOpen,switchShopTab,trySelectFrozenLake,trySelectDesertRoad,trySelectXMarks};
+        showMenuShop,closeMenuShop,closeBoxOpen,switchShopTab,trySelectFrozenLake,trySelectDesertRoad,trySelectXMarks,
+        purchaseExtraItem,renderMenuShopExtras};
 })();
 
 </script>
