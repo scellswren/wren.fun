@@ -265,6 +265,8 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .mshop-map-tag.desert{background:#3a200822;border:1px solid #e0b05055;color:#e0b050;}
 .mshop-map-tag.hot{background:#3a100022;border:1px solid #ff704355;color:#ff7043;}
 .mshop-map-tag.gravel{background:#2a1e1022;border:1px solid #9a826255;color:#c0a882;}
+.mshop-map-tag.pride{background:linear-gradient(90deg,#ff000022,#ff880022,#ffff0022,#00aa0022,#0055ff22,#8800ff22);border:1px solid #ff88bb77;color:#ffaadd;font-weight:700;}
+.mshop-map-tag.limited{background:#aa000022;border:1px solid #ff330055;color:#ff6644;}
 /* ── BOX SHOP SECTION ── */
 .mshop-box-section-title{font-family:'Cinzel',serif;font-size:.8rem;letter-spacing:.12em;color:#f5a623;
   padding:.5rem 0 .6rem;border-bottom:1px solid #f5a62322;margin-bottom:.8rem;text-transform:uppercase;}
@@ -1076,6 +1078,12 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
         <canvas class="map-preview" id="prev-xmarks" width="280" height="160"></canvas>
         <div class="map-name">✖️ X Marks the Spot</div>
         <div class="map-desc">Two gravel roads cut diagonal lines across a concrete wasteland. Half the enemies take each path — all heading straight for the opposite corner.</div>
+      </div>
+      <div class="mapcard" onclick="G.trySelectPrideMap()" id="mc-pridemap" style="display:none;border-color:#ff66aa55">
+        <canvas class="map-preview" id="prev-pridemap" width="280" height="160"></canvas>
+        <div class="map-name" style="background:linear-gradient(90deg,#ff4444,#ff8800,#ffdd00,#22bb22,#2266ff,#9933ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🏳‍🌈 Pride Map</div>
+        <div class="map-desc">A long colourful battlefield wrapped in a giant animated rainbow lake. The winding track cuts through a pride-flag landscape — only available until July 1st!</div>
+        <div style="font-family:'Cinzel',serif;font-size:.64rem;color:#ff6644;padding:.15rem .8rem .65rem;letter-spacing:.04em">⏳ Limited Time</div>
       </div>
     </div>
     <button class="mbtn" style="margin-top:1.4rem;font-size:.85rem;min-width:140px" onclick="G.showScreen('menuScreen')">← Back</button>
@@ -1912,6 +1920,17 @@ const MENU_SHOP_MAPS = [
     desc:'Two diagonal gravel roads form a great X across a concrete battlefield. Half the enemies charge each diagonal, heading straight for the opposite corner — defend the crossing.',
     tags:['gravel','new'],
     preview:'xmarks'
+  },
+  {
+    id:'map_pridemap',
+    mapId:'pridemap',
+    name:'Pride Map',
+    shardCost:15,
+    desc:'A long, colourful battlefield wrapped in a giant rainbow lake. The track winds through a pride-flag landscape with animated rainbow water that hugs the entire route.',
+    tags:['pride','limited','new'],
+    preview:'pridemap',
+    limited:true,
+    limitedUntil:new Date('2026-07-01T00:00:00')
   }
 ];
 
@@ -2164,46 +2183,71 @@ function renderMenuShopMaps(){
   if(!body) return;
   body.innerHTML='';
   if(!CAREER.shopUnlocks) CAREER.shopUnlocks={};
-  const section=document.createElement('div');
-  section.innerHTML='<div class="mshop-section-title">🗺 Available Maps</div>';
-  body.appendChild(section);
-  const grid=document.createElement('div');
-  grid.className='mshop-map-grid';
-  MENU_SHOP_MAPS.forEach(item=>{
-    const owned=!!(CAREER.shopUnlocks[item.id]);
-    const canAfford=(CAREER.rareShards||0)>=item.shardCost;
-    const card=document.createElement('div');
-    card.className='mshop-mapcard'+(owned?' unlocked':' locked');
-    // Preview canvas
-    const previewId='mshop-prev-'+item.id;
-    const tagsHtml=(item.tags||[]).map(t=>`<span class="mshop-map-tag ${t}">${t==='winter'?'❄ Winter':t==='water'?'💧 Water':t==='new'?'✨ New':t==='desert'?'🏜 Desert':t==='hot'?'🔥 Hot':t==='gravel'?'🪨 Gravel':t}</span>`).join('');
-    const mapIcon=item.id==='map_desertroad'?'🏜️':item.id==='map_frozenlake'?'❄️':item.id==='map_xmarks'?'✖️':'🗺️';
-    card.innerHTML=`
-      <canvas class="mshop-map-preview" id="${previewId}" width="280" height="130"></canvas>
-      <div class="mshop-map-info">
-        <div style="margin-bottom:.3rem">${tagsHtml}</div>
-        <div class="mshop-map-name">${mapIcon} ${item.name}</div>
-        <div class="mshop-map-price">
-          <div class="mshop-map-shard">💎 ${item.shardCost} Rare Shard${item.shardCost!==1?'s':''}</div>
-        </div>
-        ${owned
-          ?`<button class="mshop-map-buy owned" disabled>✓ Unlocked</button>`
-          :`<button class="mshop-map-buy" id="mshop-mapbuy-${item.id}" ${canAfford?'':'disabled'}>${canAfford?'Purchase':'Need '+item.shardCost+' Rare Shards'}</button>`
-        }
-      </div>`;
-    if(!owned){
-      const buyBtn=card.querySelector('#mshop-mapbuy-'+item.id);
-      if(buyBtn&&canAfford){
-        buyBtn.addEventListener('click',()=>purchaseMapItem(item));
+
+  const regularMaps=MENU_SHOP_MAPS.filter(m=>!m.limited);
+  const limitedMaps=MENU_SHOP_MAPS.filter(m=>m.limited);
+
+  function buildMapGrid(maps,container){
+    const grid=document.createElement('div');
+    grid.className='mshop-map-grid';
+    maps.forEach(item=>{
+      const owned=!!(CAREER.shopUnlocks[item.id]);
+      const canAfford=(CAREER.rareShards||0)>=item.shardCost;
+      const isExpired=item.limited&&item.limitedUntil&&(new Date()>=item.limitedUntil);
+      const countdownStr=item.limited&&item.limitedUntil?getMenuShopCountdown(item.limitedUntil):'';
+      const card=document.createElement('div');
+      card.className='mshop-mapcard'+(owned?' unlocked':' locked');
+      if(item.limited&&!owned) card.style.borderColor='#ff336644';
+      const previewId='mshop-prev-'+item.id;
+      const tagsHtml=(item.tags||[]).map(t=>{
+        const label=t==='winter'?'❄ Winter':t==='water'?'💧 Water':t==='new'?'✨ New':t==='desert'?'🏜 Desert':t==='hot'?'🔥 Hot':t==='gravel'?'🪨 Gravel':t==='pride'?'🏳‍🌈 Pride':t==='limited'?'⏳ Limited':t;
+        return `<span class="mshop-map-tag ${t}">${label}</span>`;
+      }).join('');
+      const mapIcon=item.id==='map_desertroad'?'🏜️':item.id==='map_frozenlake'?'❄️':item.id==='map_xmarks'?'✖️':item.id==='map_pridemap'?'🏳‍🌈':'🗺️';
+      let buyHtml;
+      if(owned){
+        buyHtml=`<button class="mshop-map-buy owned" disabled>✓ Unlocked</button>`;
+      } else if(isExpired){
+        buyHtml=`<button class="mshop-map-buy" disabled style="opacity:.55;cursor:not-allowed;border-color:#44444455;color:#666;background:#0a0a0a22">⛔ No Longer Available</button>`;
+      } else {
+        buyHtml=`<button class="mshop-map-buy" id="mshop-mapbuy-${item.id}" ${canAfford?'':'disabled'}>${canAfford?'Purchase':'Need '+item.shardCost+' Rare Shards'}</button>`;
       }
-    }
-    grid.appendChild(card);
-    // Render preview after DOM insert
-    requestAnimationFrame(()=>{
-      renderMapPreview(item.preview, previewId);
+      card.innerHTML=`
+        <canvas class="mshop-map-preview" id="${previewId}" width="280" height="130"></canvas>
+        <div class="mshop-map-info">
+          <div style="margin-bottom:.3rem">${tagsHtml}</div>
+          <div class="mshop-map-name">${mapIcon} ${item.name}</div>
+          <div class="mshop-map-price">
+            <div class="mshop-map-shard">💎 ${item.shardCost} Rare Shard${item.shardCost!==1?'s':''}</div>
+          </div>
+          ${item.limited&&countdownStr&&!isExpired?`<div class="mshop-countdown"><span class="mshop-countdown-label">⏳ Limited until:</span><span class="mshop-countdown-val">${countdownStr}</span></div>`:''}
+          ${item.limited&&isExpired&&!owned?`<div class="mshop-countdown" style="color:#555;border-color:#22222233;background:#0a0a0a11"><span class="mshop-countdown-label" style="opacity:1;color:#555">Sale ended</span></div>`:''}
+          ${buyHtml}
+        </div>`;
+      if(!owned&&!isExpired){
+        const buyBtn=card.querySelector('#mshop-mapbuy-'+item.id);
+        if(buyBtn&&canAfford){
+          buyBtn.addEventListener('click',()=>purchaseMapItem(item));
+        }
+      }
+      grid.appendChild(card);
+      requestAnimationFrame(()=>{ renderMapPreview(item.preview, previewId); });
     });
-  });
-  body.appendChild(grid);
+    container.appendChild(grid);
+  }
+
+  if(regularMaps.length){
+    const sec=document.createElement('div');
+    sec.innerHTML='<div class="mshop-section-title">🗺 Available Maps</div>';
+    body.appendChild(sec);
+    buildMapGrid(regularMaps,body);
+  }
+  if(limitedMaps.length){
+    const sec=document.createElement('div');
+    sec.innerHTML='<div class="mshop-section-title" style="color:#ff9944;border-bottom-color:#ff660022">⏳ Limited Time Maps</div>';
+    body.appendChild(sec);
+    buildMapGrid(limitedMaps,body);
+  }
 }
 function renderMenuShopItems(){
   const body=document.getElementById('mshopBody');
@@ -2329,6 +2373,8 @@ function purchaseMapItem(item){
     showToast('Desert Road unlocked! Find it in Map Select.','#e0b050');
   } else if(item.id==='map_xmarks'){
     showToast('X Marks the Spot unlocked! Find it in Map Select.','#c0a882');
+  } else if(item.id==='map_pridemap'){
+    showToast('Pride Map unlocked! Find it in Map Select. 🏳‍🌈','#ff88cc');
   } else {
     showToast('Frozen Lake unlocked! Find it in Map Select.','#7ec8e3');
   }
@@ -2771,6 +2817,85 @@ const MAPS = {
   };
 })();
 
+// ─── PRIDE MAP DATA ───
+(()=>{
+  // Helper: quadratic bezier
+  const addCurve=(pts,x0,y0,x1,y1,x2,y2,steps)=>{
+    for(let i=1;i<=steps;i++){
+      const t=i/steps,mt=1-t;
+      pts.push([mt*mt*x0+2*mt*t*x1+t*t*x2, mt*mt*y0+2*mt*t*y1+t*t*y2]);
+    }
+  };
+  // Helper: straight line
+  const addLine=(pts,x0,y0,x1,y1,steps)=>{
+    for(let i=1;i<=steps;i++){
+      const t=i/steps;
+      pts.push([x0+(x1-x0)*t, y0+(y1-y0)*t]);
+    }
+  };
+
+  const pts=[];
+  // START: top-left corner
+  pts.push([1,1]);
+  // Straight right along the top
+  addLine(pts,1,1, 8,1, 10);
+  // Sweeping curve down-right
+  addCurve(pts,8,1, 12,1, 14,3, 14);
+  // Straight down right side
+  addLine(pts,14,3, 14,6, 6);
+  // Tight left-turn hairpin — sweeps west
+  addCurve(pts,14,6, 14,8, 10,8, 12);
+  // Straight left
+  addLine(pts,10,8, 5,8, 8);
+  // Sweeping curve down-left
+  addCurve(pts,5,8, 2,8, 2,11, 12);
+  // Straight down
+  addLine(pts,2,11, 2,13, 4);
+  // Big sweeping arc to the right
+  addCurve(pts,2,13, 2,16, 7,16, 16);
+  // Straight right across lower band
+  addLine(pts,7,16, 18,16, 16);
+  // Curve up-right toward the right side
+  addCurve(pts,18,16, 22,16, 24,12, 14);
+  // Straight up the right side
+  addLine(pts,24,12, 24,6, 6);
+  // Big decorative loop near the end — a wide teardrop loop that crosses
+  // itself once near its entry (a classic loop-de-loop), then exits
+  // cleanly to the top-right corner
+  addCurve(pts,24,6, 22.5,2.5, 27,1, 16);
+  addCurve(pts,27,1, 30,2, 28,5.5, 16);
+  addCurve(pts,28,5.5, 25,6.5, 23.5,4, 16);
+  addCurve(pts,23.5,4, 25,2, 29,4, 14);
+  pts.push([29,4]);
+
+  // Lake zone — fills the interior of the lower-left hairpin loop and
+  // extends down to hug the bottom-left arc of the track, so the water
+  // reaches all the way down to the road there.
+  const lakePoly = [
+    [[3.4,8.85],[8.5,8.85],[8.5,11.6],[7.6,13.0],
+     [6.42,15.41],[5.38,15.32],[4.52,15.15],[3.83,14.9],[3.31,14.59],
+     [2.95,14.23],[2.72,13.81],[2.59,13.26],[2.75,10.0]],
+  ];
+  // Pool anchor points spread across the lake, used to keep
+  // lighting/ripples even across the whole shape
+  lakePoly[0]._pools = [[5.5,10.5], [4.5,13.5], [5.5,14.8]];
+
+  // Water collision rects (kind:'water') — block non-water towers, allow
+  // water-requiring towers. Two rects approximate the lake's shape.
+  const lakeRects = [
+    {x:3.0, y:9.2, w:5.0, h:5.0, kind:'water'},
+    {x:3.2, y:13.5, w:2.8, h:1.1, kind:'water'},
+  ];
+
+  MAPS.pridemap={
+    name:'Pride Map',
+    shopUnlockOnly:true,
+    path:pts,
+    lakePoly:lakePoly,
+    noBuildRects:lakeRects
+  };
+})();
+
 // ─── ACTIVE MAP STATE (set per game) ───
 let PATH=MAPS.grassy.path;
 let BLOCKED=new Set();
@@ -2822,7 +2947,7 @@ function setMap(mapId){
   DECOR_BLOCKERS=buildDecorBlockers(mapId);
   // For grassy: block path + 1-tile padding for BLOCKED grid set
   // For autumn: path uses float coords so skip grid BLOCKED entirely — canPlaceAt uses PPTS distance
-  if(mapId!=='autumn'&&mapId!=='frozenlake'&&mapId!=='xmarks'){
+  if(mapId!=='autumn'&&mapId!=='frozenlake'&&mapId!=='xmarks'&&mapId!=='pridemap'){
     PATH.forEach(([c,r])=>{
       for(let dc=-1;dc<=1;dc++) for(let dr=-1;dr<=1;dr++) BLOCKED.add(`${c+dc},${r+dr}`);
     });
@@ -2965,7 +3090,7 @@ const ED = {
   queenIronRegen:   {id:'queenIronRegen',   name:'Regenerating Iron Queen Elizabeth',  hp:80,   spd:60,  sr:35, tint:'iron',    init:'RIQE', col:'#90a4ae', regen:4, onDeath:'splitRainbow'},
   // ── Lead ──
   lead:             {id:'lead',             name:'Lead Queen Elizabeth',                               hp:25,   spd:58,  sr:38, tint:'lead',    init:'L',    col:'#aeb8c2', lead:true},
-  leadCamo:         {id:'leadCamo',         name:'Camo Lead Queen Elizabeth',                          hp:25,   spd:58,  sr:40, tint:'lead',    init:'CL',   col:'#8d9f68', lead:true, camo:true},
+  leadCamo:         {id:'leadCamo',         name:'Camo Lead Queen Elizabeth',                          hp:25,   spd:58,  sr:41, tint:'lead',    init:'CL',   col:'#8d9f68', lead:true, camo:true},
   leadRegen:        {id:'leadRegen',        name:'Regenerating Lead Queen Elizabeth',                   hp:40,   spd:58,  sr:42, tint:'lead',    init:'RL',   col:'#aeb8c2', lead:true, regen:2},
   leadRegenCamo:    {id:'leadRegenCamo',    name:'Camo Regenerating Lead Queen Elizabeth',              hp:40,   spd:58,  sr:45, tint:'lead',    init:'CRL',  col:'#8d9f68', lead:true, regen:2, camo:true},
   reinforcedLead:   {id:'reinforcedLead',   name:'Reinforced Lead Queen Elizabeth',                     hp:60,   spd:52,  sr:48, tint:'lead',    init:'RFL',  col:'#d7b65a', lead:true, reinforced:true, scale:1.18},
@@ -4720,6 +4845,12 @@ function showMapSelect(mode, backFromDiff){
     const unlocked=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_xmarks']);
     xmarksCard.style.display=unlocked?'flex':'none';
   }
+  // Show/hide Pride Map card based on unlock
+  const prideCard=document.getElementById('mc-pridemap');
+  if(prideCard){
+    const unlocked=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_pridemap']);
+    prideCard.style.display=unlocked?'flex':'none';
+  }
   // Render map previews then show screen
   showScreen('mapSelectScreen');
   requestAnimationFrame(()=>{
@@ -4734,6 +4865,9 @@ function showMapSelect(mode, backFromDiff){
     }
     if(xmarksCard&&xmarksCard.style.display!=='none'){
       renderMapPreview('xmarks','prev-xmarks');
+    }
+    if(prideCard&&prideCard.style.display!=='none'){
+      renderMapPreview('pridemap','prev-pridemap');
     }
   });
 }
@@ -4759,6 +4893,14 @@ function trySelectXMarks(){
     showDiffSelect('xmarks');
   } else {
     showToast('Unlock X Marks the Spot in the Shop first!','#c0a882');
+  }
+}
+
+function trySelectPrideMap(){
+  if(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_pridemap']){
+    showDiffSelect('pridemap');
+  } else {
+    showToast('Unlock the Pride Map in the Shop first! 🏳‍🌈','#ff88cc');
   }
 }
 
@@ -5091,6 +5233,12 @@ function renderMapPreview(mapId,canvasId){
     ptx.beginPath(); ptx.moveTo(W*.38,H*.35); ptx.lineTo(W*.62,H*.65); ptx.stroke();
     ptx.beginPath(); ptx.moveTo(W*.62,H*.35); ptx.lineTo(W*.38,H*.65); ptx.stroke();
     ptx.restore();
+  } else if(mapId==='pridemap'){
+    // Full solid pride flag stripes — drawn here so the preview bg matches gameplay
+    const pstripes=['#FF0018','#FFA52C','#FFFF41','#008018','#0000F9','#86007D'];
+    const psh=H/pstripes.length;
+    pstripes.forEach((c,i)=>{ ptx.fillStyle=c; ptx.globalAlpha=1; ptx.fillRect(0,Math.floor(i*psh),W,Math.ceil(psh)+1); });
+    ptx.globalAlpha=1;
   } else {
     const bg=ptx.createLinearGradient(0,0,W,H);
     bg.addColorStop(0,'#3e7a34'); bg.addColorStop(1,'#375f2e');
@@ -5110,6 +5258,7 @@ function renderMapPreview(mapId,canvasId){
   else if(mapId==='frozenlake') drawFrozenLakePreviewRoad(ptx);
   else if(mapId==='desertroad') drawDesertRoadPreviewRoad(ptx);
   else if(mapId==='xmarks') drawXMarksPreviewRoad(ptx);
+  else if(mapId==='pridemap') drawPridePreviewRoad(ptx);
   else drawGrassyPreviewRoad(ptx,MAPS[mapId].path);
   ptx.restore();
 }
@@ -6161,8 +6310,8 @@ function normalPoolForRound(rnd){
   if(rnd>=38 && rnd<70){
     ids.push('lead');
   }
-  // Camo Lead: enters at r40
-  if(rnd>=40 && rnd<75){
+  // Camo Lead: enters at r41
+  if(rnd>=41 && rnd<75){
     ids.push('leadCamo');
   }
   // Regen Lead: enters at r42
@@ -8433,6 +8582,7 @@ function drawMap(){
   else if(S&&S.mapId==='frozenlake') drawMapFrozenLake();
   else if(S&&S.mapId==='desertroad') drawMapDesertRoad();
   else if(S&&S.mapId==='xmarks') drawMapXMarks();
+  else if(S&&S.mapId==='pridemap') drawMapPride();
   else drawMapGrassy();
 }
 
@@ -9300,6 +9450,276 @@ function drawMapXMarks(){
   ctx.restore();
 }
 
+// ─── PRIDE MAP DRAWING ───
+let _prideAnimT = 0;
+
+// Shared helper: trace the pride path on any context
+function _tracePridePath(c, path){
+  c.beginPath();
+  path.forEach(([gx,gy],i)=>{
+    const px=gx*CELL+CELL/2, py=gy*CELL+CELL/2;
+    i===0?c.moveTo(px,py):c.lineTo(px,py);
+  });
+}
+
+// Shared helper: fill a lake polygon (grid coords) on any context
+function _fillLakePoly(c, poly){
+  c.beginPath();
+  poly.forEach(([gx,gy],i)=>{
+    const px=gx*CELL, py=gy*CELL;
+    i===0?c.moveTo(px,py):c.lineTo(px,py);
+  });
+  c.closePath();
+  c.fill();
+}
+
+// Draw the pink-gravel road on any context (ctx or ptx)
+function _drawPrideRoad(c, path){
+  c.save();
+  c.lineCap='round'; c.lineJoin='round';
+  // Shadow
+  c.shadowColor='rgba(0,0,0,0.55)'; c.shadowBlur=14; c.shadowOffsetY=5;
+  c.strokeStyle='rgba(0,0,0,0.65)'; c.lineWidth=CELL*1.08;
+  _tracePridePath(c,path); c.stroke();
+  c.shadowColor='transparent'; c.shadowBlur=0; c.shadowOffsetY=0;
+  // Outer border (darker pink-brown)
+  c.strokeStyle='#8b3a5a'; c.lineWidth=CELL*1.0;
+  _tracePridePath(c,path); c.stroke();
+  // Pink gravel base
+  const rg=c.createLinearGradient(0,0,COLS*CELL,ROWS*CELL);
+  rg.addColorStop(0,'#e8829c');
+  rg.addColorStop(0.25,'#d46882');
+  rg.addColorStop(0.5,'#e07090');
+  rg.addColorStop(0.75,'#d46882');
+  rg.addColorStop(1,'#e8829c');
+  c.strokeStyle=rg; c.lineWidth=CELL*0.88;
+  _tracePridePath(c,path); c.stroke();
+  // Inner lighter pink highlight
+  c.strokeStyle='rgba(255,180,210,0.55)'; c.lineWidth=CELL*0.46;
+  _tracePridePath(c,path); c.stroke();
+  // Centre dashed white line
+  c.strokeStyle='rgba(255,255,255,0.70)'; c.lineWidth=CELL*0.11;
+  c.setLineDash([CELL*0.38, CELL*0.28]);
+  _tracePridePath(c,path); c.stroke();
+  c.setLineDash([]);
+  // Gravel speckle texture (static dots baked by position)
+  c.globalAlpha=0.22;
+  path.forEach(([gx,gy],i)=>{
+    if(i%3!==0) return;
+    const px=gx*CELL+CELL/2, py=gy*CELL+CELL/2;
+    for(let d=0;d<4;d++){
+      const ox=((i*17+d*31)%22)-11, oy=((i*13+d*19)%18)-9;
+      const r=1.2+((i+d*7)%3);
+      c.fillStyle=d%2===0?'rgba(255,140,180,0.9)':'rgba(200,80,120,0.7)';
+      c.beginPath(); c.arc(px+ox,py+oy,r,0,Math.PI*2); c.fill();
+    }
+  });
+  c.globalAlpha=1;
+  // Edge kerb lines
+  c.strokeStyle='rgba(255,230,240,0.45)'; c.lineWidth=CELL*0.06;
+  c.setLineDash([CELL*0.18, CELL*0.14]);
+  // left kerb: offset outward not really possible without normals, just do two thin passes
+  c.strokeStyle='rgba(255,255,255,0.25)'; c.lineWidth=CELL*0.96;
+  _tracePridePath(c,path); c.stroke();
+  c.setLineDash([]);
+  c.restore();
+}
+
+// Draw rainbow lakes in a "log forest pond" style: soft bank glow, a
+// glowing halo, an even rainbow water body, shoreline stroke, and ripple
+// highlights — clipped to the lake polygon so water never escapes.
+// Multiple "pool" anchor points are used (instead of one bbox-centred
+// radial) so long L-shaped lakes light up evenly along their whole length.
+function _drawPrideLakes(c, lakePoly, t, animated){
+  const W=COLS*CELL, H=ROWS*CELL;
+  lakePoly.forEach((poly,li)=>{
+    // bounding box of this lake (in pixels)
+    const xs=poly.map(p=>p[0]*CELL), ys=poly.map(p=>p[1]*CELL);
+    const bx=Math.min(...xs), by=Math.min(...ys);
+    const bw=Math.max(...xs)-bx, bh=Math.max(...ys)-by;
+
+    const tracePoly=()=>{
+      c.beginPath();
+      poly.forEach(([gx,gy],i)=>{
+        const px=Math.max(0,Math.min(W,gx*CELL)), py=Math.max(0,Math.min(H,gy*CELL));
+        i===0?c.moveTo(px,py):c.lineTo(px,py);
+      });
+      c.closePath();
+    };
+
+    // Pool anchors spread along the lake's length (grid coords -> pixels).
+    // Falls back to the bbox centre if none supplied.
+    const anchors=(poly._pools||[[ (bx+bw/2)/CELL, (by+bh/2)/CELL ]])
+      .map(([gx,gy])=>[gx*CELL, gy*CELL]);
+    const poolR=Math.max(CELL*2.2, Math.max(bw,bh)/Math.max(1,anchors.length)*0.85);
+
+    const hueShift=animated?(t*45+li*55)%360:0;
+
+    // ── Soft glowing halo around each pool, bleeding slightly outside ──
+    c.save();
+    anchors.forEach(([ax,ay],ai)=>{
+      const glow=c.createRadialGradient(ax,ay,0,ax,ay,poolR*1.3);
+      if(animated){
+        const h=(hueShift+ai*40)%360;
+        glow.addColorStop(0,`hsla(${h},100%,75%,0.30)`);
+        glow.addColorStop(1,`hsla(${h},100%,75%,0)`);
+      } else {
+        glow.addColorStop(0,'rgba(255,255,255,0.22)');
+        glow.addColorStop(1,'rgba(255,255,255,0)');
+      }
+      c.fillStyle=glow;
+      c.fillRect(ax-poolR*1.3,ay-poolR*1.3,poolR*2.6,poolR*2.6);
+    });
+    c.restore();
+
+    // ── Main water body, clipped to polygon ──
+    c.save();
+    tracePoly(); c.clip();
+
+    if(animated){
+      // Even rainbow gradient sweeping along the lake's long axis
+      const lg=(bw>=bh)
+        ? c.createLinearGradient(bx,by,bx+bw,by)
+        : c.createLinearGradient(bx,by,bx,by+bh);
+      for(let s=0;s<=6;s++){
+        const h=(hueShift+s*51)%360;
+        lg.addColorStop(s/6,`hsl(${h},95%,60%)`);
+      }
+      c.fillStyle=lg;
+      c.fillRect(bx,by,bw,bh);
+
+      // Gentle highlight near each pool centre (keeps the long shape lit evenly)
+      anchors.forEach(([ax,ay])=>{
+        const d=c.createRadialGradient(ax,ay,0,ax,ay,poolR);
+        d.addColorStop(0,'rgba(255,255,255,0.16)');
+        d.addColorStop(1,'rgba(255,255,255,0)');
+        c.fillStyle=d;
+        c.fillRect(ax-poolR,ay-poolR,poolR*2,poolR*2);
+      });
+
+      // Animated ripple rings at each pool
+      anchors.forEach(([ax,ay],ai)=>{
+        for(let wave=0;wave<2;wave++){
+          const wt=t*0.9+wave*1.1+li*0.7+ai*0.5;
+          const ph=(hueShift+wave*60+ai*30)%360;
+          c.strokeStyle=`hsla(${ph},100%,85%,${0.26+Math.sin(wt)*0.1})`;
+          c.lineWidth=2+Math.sin(wt*1.3)*0.8;
+          const rx=poolR*(0.4+wave*0.35);
+          const ry=rx*0.6;
+          c.beginPath();
+          c.ellipse(ax,ay,rx,ry,wt*0.2,0,Math.PI*2);
+          c.stroke();
+        }
+      });
+
+      // Sparkles scattered evenly across the whole shape
+      for(let s=0;s<14;s++){
+        const st=t*1.8+s*0.9+li*0.5;
+        const sa=0.3+Math.sin(st)*0.35;
+        const sh=(hueShift+s*31)%360;
+        const sx=bx+((s*53+li*17)%100)/100*bw + Math.cos(st+s)*CELL*0.4;
+        const sy=by+((s*37+li*29)%100)/100*bh + Math.sin(st*0.7+s)*CELL*0.3;
+        c.globalAlpha=Math.max(0,sa);
+        c.fillStyle=`hsl(${sh},100%,82%)`;
+        const sr=1.6+Math.sin(st*2)*0.9;
+        c.beginPath(); c.arc(sx,sy,sr,0,Math.PI*2); c.fill();
+        c.strokeStyle=`hsl(${sh},100%,96%)`; c.lineWidth=0.8; c.globalAlpha=sa*0.6;
+        c.beginPath();
+        c.moveTo(sx-sr*2.5,sy); c.lineTo(sx+sr*2.5,sy);
+        c.moveTo(sx,sy-sr*2.5); c.lineTo(sx,sy+sr*2.5);
+        c.stroke();
+        c.globalAlpha=1;
+      }
+    } else {
+      // Static preview rainbow gradient along the long axis
+      const lg=(bw>=bh)
+        ? c.createLinearGradient(bx,by,bx+bw,by)
+        : c.createLinearGradient(bx,by,bx,by+bh);
+      const cols6=['#FF0050','#FF9600','#FFE600','#00AA00','#0050FF','#8C00D2'];
+      cols6.forEach((col,i)=>lg.addColorStop(i/5,col));
+      c.fillStyle=lg;
+      c.fillRect(bx,by,bw,bh);
+    }
+
+    // ── Even edge-darkening vignette (inset shadow along the shoreline) ──
+    c.save();
+    c.shadowColor='rgba(10,10,30,0.55)';
+    c.shadowBlur=CELL*0.55;
+    c.strokeStyle='rgba(10,10,30,0.001)'; // near-invisible, just casts the shadow
+    c.lineWidth=CELL*0.7;
+    tracePoly(); c.stroke();
+    c.restore();
+
+    c.restore(); // end clip
+
+    // ── Shoreline stroke ──
+    c.save();
+    c.strokeStyle='rgba(255,255,255,0.45)';
+    c.lineWidth=2.5;
+    tracePoly(); c.stroke();
+    c.restore();
+  });
+}
+
+function drawPridePreviewRoad(ptx){
+  const W=COLS*CELL, H=ROWS*CELL;
+  const map=MAPS.pridemap;
+  const stripes=['#FF0018','#FFA52C','#FFFF41','#008018','#0000F9','#86007D'];
+  const sh=H/stripes.length;
+  // Full pride flag — 6 solid stripes
+  stripes.forEach((col,i)=>{
+    ptx.fillStyle=col;
+    ptx.globalAlpha=1;
+    ptx.fillRect(0,i*sh,W,sh);
+  });
+  ptx.globalAlpha=1;
+  // Draw lakes
+  if(map.lakePoly) _drawPrideLakes(ptx, map.lakePoly, 0, false);
+  // Draw road
+  _drawPrideRoad(ptx, map.path);
+}
+
+function drawPridePath(){
+  const map=MAPS.pridemap;
+  _drawPrideRoad(ctx, map.path);
+}
+
+function drawMapPride(){
+  const W=COLS*CELL, H=ROWS*CELL;
+  const map=MAPS.pridemap;
+  const t=_prideAnimT;
+  _prideAnimT+=0.014;
+
+  // ── 1. Full pride flag background — solid horizontal stripes ──
+  const stripes=['#FF0018','#FFA52C','#FFFF41','#008018','#0000F9','#86007D'];
+  const sh=H/stripes.length;
+  stripes.forEach((col,i)=>{
+    ctx.fillStyle=col;
+    ctx.fillRect(0,Math.floor(i*sh),W,Math.ceil(sh)+1);
+  });
+
+  // ── 2. Animated rainbow lakes ──
+  if(map.lakePoly) _drawPrideLakes(ctx, map.lakePoly, t, true);
+
+  // ── 3. Pink gravel road ──
+  drawPridePath();
+
+  // ── 4. Subtle vignette only (no arch, no overlay) ──
+  const vig=ctx.createRadialGradient(W*.5,H*.5,Math.min(W,H)*.15,W*.5,H*.5,Math.max(W,H)*.75);
+  vig.addColorStop(0,'rgba(0,0,0,0)');
+  vig.addColorStop(0.75,'rgba(0,0,0,0.06)');
+  vig.addColorStop(1,'rgba(0,0,0,0.32)');
+  ctx.fillStyle=vig; ctx.fillRect(0,0,W,H);
+
+  // ── 5. Glittery border ──
+  const borderH=(t*80)%360;
+  ctx.strokeStyle=`hsl(${borderH},100%,65%)`; ctx.lineWidth=4;
+  ctx.strokeRect(2,2,W-4,H-4);
+  ctx.strokeStyle=`hsl(${(borderH+180)%360},100%,75%)`; ctx.lineWidth=1.5;
+  ctx.strokeRect(6,6,W-12,H-12);
+}
+
+
 function drawPathAutumn(){
   const W=COLS*CELL, H=ROWS*CELL;
   const roadX  = 14*CELL + CELL/2;   // 754
@@ -9453,6 +9873,7 @@ function drawAutumnRoadUnified(g,opts={}){
 
   g.restore();
 }
+
 
 function drawPathAutumn(){
   drawAutumnRoadUnified(ctx);
@@ -11116,7 +11537,7 @@ return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen
         toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
         winContinue,winLeave,
         toggleMenuMusic,toggleMusicPopup,toggleRadio,toggleSFX,setSFXVolume,setRadioVolume,setMenuVolume,
-        showMenuShop,closeMenuShop,closeBoxOpen,switchShopTab,trySelectFrozenLake,trySelectDesertRoad,trySelectXMarks,
+        showMenuShop,closeMenuShop,closeBoxOpen,switchShopTab,trySelectFrozenLake,trySelectDesertRoad,trySelectXMarks,trySelectPrideMap,
         purchaseExtraItem,renderMenuShopExtras};
 })();
 
