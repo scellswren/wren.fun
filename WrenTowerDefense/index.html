@@ -977,6 +977,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
   <span class="shard-icon">🟣</span>
   <span class="shard-count" id="shardHudCount">0</span>
   <span style="color:var(--muted);font-size:.72rem;font-weight:400">Rare Shards</span>
+  <span id="shardX2Badge" style="display:none;font-family:'Cinzel',serif;font-size:.62rem;color:#a78bfa;background:#7c3aed18;border:1px solid #7c3aed55;padding:.15em .45em;border-radius:3px;margin-left:.15rem">×2</span>
 </div>
 <div id="radioTrackDisplay">🎵 Now Playing: —</div>
 
@@ -1108,6 +1109,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
     <div class="hud">
       <span style="font-size:1rem">❤️</span>
       <div><div class="hudv" id="hhealth">100</div><div class="hudl">Lives</div></div>
+      <span id="bonusLifeIndicator" style="display:none;font-family:'Cinzel',serif;font-size:.62rem;color:#ef5350;background:#ef535018;border:1px solid #ef535044;padding:.15em .4em;border-radius:3px;margin-left:.3rem;white-space:nowrap">+1 next</span>
     </div>
     <div class="rndinfo">Round <span id="hrnd">0</span></div>
     <button class="tbtn" style="margin-left:.4rem;border-color:#c0392b55;color:#e57368" onclick="G.exitToMenu()">✕ Exit</button>
@@ -1234,7 +1236,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
   <div id="menuShopBox">
     <div class="mshop-hdr">
       <div class="mshop-title">🛒 Shop</div>
-      <div class="mshop-shards">💎 <span id="mshopShardCount">0</span> Rare Shards</div>
+      <div class="mshop-shards">💎 <span id="mshopShardCount">0</span> Rare Shards<span id="mshopShardX2Badge" style="display:none;font-family:'Cinzel',serif;font-size:.6rem;color:#a78bfa;background:#7c3aed18;border:1px solid #7c3aed55;padding:.1em .4em;border-radius:3px;margin-left:.4rem">×2 active</span></div>
       <span class="mshop-close" onclick="G.closeMenuShop()">✕</span>
     </div>
     <div class="mshop-tabs">
@@ -1753,6 +1755,12 @@ function updateShardHud(){
   if(hudEl) hudEl.textContent=text;
   const shopEl=document.getElementById('mshopShardCount');
   if(shopEl) shopEl.textContent=text;
+  // Show/hide ×2 badges
+  const has2x=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks['unlock_2x_shards']);
+  const x2Badge=document.getElementById('shardX2Badge');
+  if(x2Badge) x2Badge.style.display=has2x?'inline':'none';
+  const x2ShopBadge=document.getElementById('mshopShardX2Badge');
+  if(x2ShopBadge) x2ShopBadge.style.display=has2x?'inline':'none';
 }
 function toggleMusicPopup(){
   const popup=document.getElementById('musicPopup');
@@ -1914,6 +1922,28 @@ const MENU_SHOP_EXTRAS = [
     icon:'⚡',
     shardCost:50,
     desc:'Adds a blazing x4 speed mode to the speed toggle button during any game. Cycle through x1 → x2 → x3 → x4 → x1.'
+  },
+  {
+    id:'unlock_x5speed',
+    name:'x5 Speed',
+    icon:'⚡⚡',
+    shardCost:100,
+    requiresUnlock:'unlock_x4speed',
+    desc:'Adds an absolutely unhinged x5 speed mode. Only appears after purchasing x4 Speed. Cycle through x1 → x2 → x3 → x4 → x5 → x1.'
+  },
+  {
+    id:'unlock_2x_shards',
+    name:'2x Shards',
+    icon:'💎',
+    shardCost:50,
+    desc:'Double all Rare Shard rewards earned from completing Classic games. Win bonuses are doubled permanently.'
+  },
+  {
+    id:'unlock_bonus_life',
+    name:'+1 Life Per Round',
+    icon:'❤️',
+    shardCost:50,
+    desc:'Earn +1 life at the end of every completed round in Classic mode (not Sandbox). A little extra breathing room each wave!'
   }
 ];
 
@@ -2343,6 +2373,8 @@ function renderMenuShopExtras(){
   section.innerHTML='<div class="mshop-section-title">⚡ Power-Ups</div>';
   body.appendChild(section);
   MENU_SHOP_EXTRAS.forEach(item=>{
+    // Hide x5 speed until x4 is owned
+    if(item.requiresUnlock && !CAREER.shopUnlocks[item.requiresUnlock]) return;
     const owned=!!(CAREER.shopUnlocks[item.id]);
     const canAfford=(CAREER.rareShards||0)>=item.shardCost;
     const card=document.createElement('div');
@@ -2933,6 +2965,11 @@ const ED = {
   queenIronRegen:   {id:'queenIronRegen',   name:'Regenerating Iron Queen Elizabeth',  hp:80,   spd:60,  sr:35, tint:'iron',    init:'RIQE', col:'#90a4ae', regen:4, onDeath:'splitRainbow'},
   // ── Lead ──
   lead:             {id:'lead',             name:'Lead Queen Elizabeth',                               hp:25,   spd:58,  sr:38, tint:'lead',    init:'L',    col:'#aeb8c2', lead:true},
+  leadCamo:         {id:'leadCamo',         name:'Camo Lead Queen Elizabeth',                          hp:25,   spd:58,  sr:40, tint:'lead',    init:'CL',   col:'#8d9f68', lead:true, camo:true},
+  leadRegen:        {id:'leadRegen',        name:'Regenerating Lead Queen Elizabeth',                   hp:40,   spd:58,  sr:42, tint:'lead',    init:'RL',   col:'#aeb8c2', lead:true, regen:2},
+  leadRegenCamo:    {id:'leadRegenCamo',    name:'Camo Regenerating Lead Queen Elizabeth',              hp:40,   spd:58,  sr:45, tint:'lead',    init:'CRL',  col:'#8d9f68', lead:true, regen:2, camo:true},
+  reinforcedLead:   {id:'reinforcedLead',   name:'Reinforced Lead Queen Elizabeth',                     hp:60,   spd:52,  sr:48, tint:'lead',    init:'RFL',  col:'#d7b65a', lead:true, reinforced:true, scale:1.18},
+  reinforcedLeadCamo:{id:'reinforcedLeadCamo',name:'Reinforced Camo Lead Queen Elizabeth',             hp:60,   spd:52,  sr:51, tint:'lead',    init:'RCFL', col:'#8d9f68', lead:true, reinforced:true, camo:true, scale:1.18},
   // ── Bosses ──
   gigaLizzy:        {id:'gigaLizzy',        name:'Giga Lizzy',                         hp:300,  spd:50,  sr:40, tint:null,      init:'GL',   col:'#ef9a9a', scale:4, boss:true},
   queenVictoria:    {id:'queenVictoria',    name:'Queen Victoria',                     hp:1000, spd:40,  sr:60, tint:null,      init:'QV',   col:'#c9a227', scale:4, boss:true, img:'QueenV.jpg', nameScale:1.35},
@@ -2957,7 +2994,7 @@ const ENEMY_GALLERY_ORDER = [
   'queenYellow','queenYellowCamo','queenYellowRegen','queenYellowRegenCamo',
   'queenRed','queenRedCamo','queenRedRegen','queenRedRegenCamo',
   'queenPink','queenPinkCamo','queenPinkRegen','queenPinkRegenCamo',
-  'lead',
+  'lead','leadCamo','leadRegen','leadRegenCamo','reinforcedLead','reinforcedLeadCamo',
   'queenZebra','queenZebraCamo','queenZebraRegen','queenZebraRegenCamo',
   'queenRainbow','queenRainbowCamo','queenRainbowRegen','queenRainbowRegenCamo',
   'queenIron','queenIronCamo','reinforcedIron','reinforcedIronCamo',
@@ -2998,7 +3035,7 @@ function getEnemyGalleryEntries(){
 }
 
 // Bosses that do NOT get a camo variant (too large / story bosses, or already IS a camo)
-const NO_CAMO_BOSS_IDS = new Set(['gigaLizzy','queenVictoria','kingCharles','reinforcedGiga','reinforcedVictoria','reinforcedCharles','winstonChurchill','reinforcedWinston']);
+const NO_CAMO_BOSS_IDS = new Set(['gigaLizzy','queenVictoria','kingCharles','reinforcedGiga','reinforcedVictoria','reinforcedCharles','winstonChurchill','reinforcedWinston','lead','leadCamo','leadRegen','leadRegenCamo','reinforcedLead','reinforcedLeadCamo']);
 
 // The round each camo variant first appears (sr field on the camo enemy)
 // Starts at round 24 for weakest, all unlocked by round 50 (except Rishi who is already camo)
@@ -3044,7 +3081,8 @@ const CAMO_FADEOUT_ROUNDS = {
   queenRed:72,    queenRedRegen:75,
   queenPink:75,   queenPinkRegen:78,
   queenZebra:90,  queenZebraRegen:95,
-  lead:70
+  lead:70,
+  leadCamo:75, leadRegen:75, leadRegenCamo:80, reinforcedLead:82, reinforcedLeadCamo:85
 };
 
 function camoUnlockRoundFor(id){
@@ -4173,7 +4211,7 @@ function showSub(type){
       {id:'queenYellow',   reinforced:[]},
       {id:'queenRed',      reinforced:[]},
       {id:'queenPink',     reinforced:[]},
-      {id:'lead',          reinforced:[],skipRegen:true,skipCamo:true},
+      {id:'lead',          reinforced:['leadCamo','leadRegen','leadRegenCamo','reinforcedLead','reinforcedLeadCamo'],skipRegen:true,skipCamo:true},
       {id:'queenZebra',    reinforced:[]},
       {id:'queenRainbow',  reinforced:[]},
       {id:'queenIron',     reinforced:['reinforcedIron','reinforcedIronHeart']},
@@ -6123,6 +6161,26 @@ function normalPoolForRound(rnd){
   if(rnd>=38 && rnd<70){
     ids.push('lead');
   }
+  // Camo Lead: enters at r40
+  if(rnd>=40 && rnd<75){
+    ids.push('leadCamo');
+  }
+  // Regen Lead: enters at r42
+  if(rnd>=42 && rnd<75){
+    ids.push('leadRegen');
+  }
+  // Camo Regen Lead: enters at r45
+  if(rnd>=45 && rnd<80){
+    ids.push('leadRegenCamo');
+  }
+  // Reinforced Lead: enters at r48
+  if(rnd>=48 && rnd<82){
+    ids.push('reinforcedLead');
+  }
+  // Reinforced Camo Lead: enters at r51
+  if(rnd>=51 && rnd<85){
+    ids.push('reinforcedLeadCamo');
+  }
   // Always filter to enemies that have actually debuted (sr<=rnd) and are not bosses
   return ids.map(id=>ED[id]).filter(e=>e && e.sr<=rnd && !e.boss);
 }
@@ -7015,6 +7073,11 @@ function updateHUD(){
   const diff=S.difficulty||'easy';
   const maxHp=diff==='easy'?200:diff==='medium'?100:50;
   hpEl.style.color=S.hp<=maxHp*.1?'#e57368':S.hp<=maxHp*.25?'#ff9800':'var(--gold)';
+  // Show +1 life indicator if bonus life is unlocked and not sandbox
+  const bonusLifeEl=document.getElementById('bonusLifeIndicator');
+  if(bonusLifeEl){
+    bonusLifeEl.style.display=(S.mode!=='sandbox'&&CAREER.shopUnlocks&&CAREER.shopUnlocks['unlock_bonus_life'])?'inline':'none';
+  }
   document.getElementById('hrnd').textContent=S.round;
   // Show difficulty badge
   const diffBadge=document.getElementById('diffBadge');
@@ -7067,9 +7130,10 @@ function triggerOver(won){
     S.winClaimed=true;
     if(S.mode!=='sandbox'){
       const diff=S.difficulty||'easy';
-      if(diff==='easy')   { CAREER.easyWins=(CAREER.easyWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+1; }
-      else if(diff==='medium') { CAREER.mediumWins=(CAREER.mediumWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+2; }
-      else if(diff==='hard')   { CAREER.hardWins=(CAREER.hardWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+3; }
+      const shardMult=(CAREER.shopUnlocks&&CAREER.shopUnlocks['unlock_2x_shards'])?2:1;
+      if(diff==='easy')   { CAREER.easyWins=(CAREER.easyWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+1*shardMult; }
+      else if(diff==='medium') { CAREER.mediumWins=(CAREER.mediumWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+2*shardMult; }
+      else if(diff==='hard')   { CAREER.hardWins=(CAREER.hardWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+3*shardMult; }
       CAREER.totalWins=(CAREER.totalWins||0)+1;
       saveCareer(CAREER);
       if(typeof updateShardHud==='function') updateShardHud();
@@ -7094,10 +7158,11 @@ function checkWinMilestone(){
     const diff=S.difficulty||'easy';
     const diffLabel=diff==='easy'?'Easy':diff==='medium'?'Medium':'Hard';
     const diffCol=diff==='easy'?'#4caf50':diff==='medium'?'#ff9800':'#e57368';
+    const shardMult=(CAREER.shopUnlocks&&CAREER.shopUnlocks['unlock_2x_shards'])?2:1;
+    const shards=(diff==='easy'?1:diff==='medium'?2:3)*shardMult;
     document.getElementById('winOvTitle').textContent='🏆 '+diffLabel+' Victory!';
     document.getElementById('winOvTitle').style.color=diffCol;
-    const shards=diff==='easy'?1:diff==='medium'?2:3;
-    document.getElementById('winOvSub').textContent=`You cleared round ${winRound} on ${diffLabel}! Keep going or claim your win. +${shards} 🟣 Rare Shard${shards>1?'s':''}!`;
+    document.getElementById('winOvSub').textContent=`You cleared round ${winRound} on ${diffLabel}! Keep going or claim your win. +${shards} 🟣 Rare Shard${shards>1?'s':''}${shardMult>1?' (2x bonus!)':''}!`;
     document.getElementById('winContinueBtn').style.borderColor=diffCol+'77';
     document.getElementById('winContinueBtn').style.color=diffCol;
     document.getElementById('winOv').classList.add('on');
@@ -7106,9 +7171,9 @@ function checkWinMilestone(){
     S.winPaused=true;
     // Record the win immediately (even if they continue)
     if(S.mode!=='sandbox'){
-      if(diff==='easy')   { CAREER.easyWins=(CAREER.easyWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+1; }
-      else if(diff==='medium') { CAREER.mediumWins=(CAREER.mediumWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+2; }
-      else if(diff==='hard')   { CAREER.hardWins=(CAREER.hardWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+3; }
+      if(diff==='easy')   { CAREER.easyWins=(CAREER.easyWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+1*shardMult; }
+      else if(diff==='medium') { CAREER.mediumWins=(CAREER.mediumWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+2*shardMult; }
+      else if(diff==='hard')   { CAREER.hardWins=(CAREER.hardWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+3*shardMult; }
       CAREER.totalWins=(CAREER.totalWins||0)+1;
       saveCareer(CAREER);
       if(typeof updateShardHud==='function') updateShardHud();
@@ -7497,9 +7562,16 @@ function update(dt){
       S.gold+=bonus;S.totalMoneyEarned=(S.totalMoneyEarned||0)+bonus;
       recordMoneyEarned(bonus);
       recordGameEnd(S); // save bestRound after each completed round
+      // +1 Life per round bonus (Classic mode only, if unlocked)
+      if(S.mode!=='sandbox' && CAREER.shopUnlocks && CAREER.shopUnlocks['unlock_bonus_life']){
+        S.hp+=1;
+        S.particles.push({x:(COLS*CELL/2),y:(ROWS*CELL/2),text:'+1 ❤️',alpha:1,vy:-36,life:1.1,col:'#ef5350'});
+        showToast('Round '+S.round+' complete! +$'+bonus+' · +1 ❤️','#4caf50');
+      } else {
+        showToast('Round '+S.round+' complete! +$'+bonus,'#4caf50');
+      }
       updateHUD();
       refreshShopAffordability();
-      showToast('Round '+S.round+' complete! +$'+bonus,'#4caf50');
       checkWinMilestone();
       if(S.autoRound) setTimeout(()=>{if(!S.waveActive&&!S.over&&!S.paused) startWave();},800);
     }
@@ -10787,11 +10859,12 @@ function drawGhost(){
 // ─── SPEED / AUTO CONTROLS ───
 function toggleSpeed(){
   const hasX4=!!(CAREER&&CAREER.shopUnlocks&&CAREER.shopUnlocks['unlock_x4speed']);
-  const maxSpeed=hasX4?4:3;
+  const hasX5=!!(CAREER&&CAREER.shopUnlocks&&CAREER.shopUnlocks['unlock_x5speed']);
+  const maxSpeed=hasX5?5:hasX4?4:3;
   S.speed=S.speed>=maxSpeed?1:S.speed+1;
   const b=document.getElementById('speedbtn');
   b.textContent='▶▶ x'+S.speed;
-  b.style.color=S.speed===1?'':S.speed===2?'var(--gold)':S.speed===3?'#ff7043':'#e040fb';
+  b.style.color=S.speed===1?'':S.speed===2?'var(--gold)':S.speed===3?'#ff7043':S.speed===4?'#e040fb':'#ff4081';
 }
 function toggleAuto(){
   S.autoRound=!S.autoRound;
@@ -10899,6 +10972,38 @@ function loop(ts){
   }
   if(!S.over) raf=requestAnimationFrame(loop);
 }
+
+// ─── BACKGROUND TAB SUPPORT ───
+// When the tab is hidden, keep the game running via setInterval unless paused.
+let _bgInterval = null;
+let _lastBgT = 0;
+document.addEventListener('visibilitychange', () => {
+  if(!S || S.over) return;
+  if(document.hidden){
+    // Tab hidden: switch from rAF to setInterval so game keeps ticking
+    if(raf){ cancelAnimationFrame(raf); raf=null; }
+    _lastBgT = performance.now();
+    if(_bgInterval) clearInterval(_bgInterval);
+    _bgInterval = setInterval(() => {
+      if(!S || S.over){ clearInterval(_bgInterval); _bgInterval=null; return; }
+      if(!S.paused){
+        const now = performance.now();
+        const rawDt = Math.min((now - _lastBgT)/1000, 0.1);
+        _lastBgT = now;
+        update(rawDt * S.speed);
+      } else {
+        _lastBgT = performance.now();
+      }
+    }, 50); // ~20 tps in background
+  } else {
+    // Tab visible again: stop interval, restart rAF
+    if(_bgInterval){ clearInterval(_bgInterval); _bgInterval=null; }
+    if(!raf && S && !S.over){
+      lastT = performance.now();
+      raf = requestAnimationFrame(loop);
+    }
+  }
+});
 
 // ── Shard cheat: stats x10 then fullscreen x10 within 30s ──
 (function(){
