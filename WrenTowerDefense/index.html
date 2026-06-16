@@ -2924,6 +2924,10 @@ function buildDecorBlockers(mapId){
       [(COLS-3.25)/COLS,1.06/ROWS,0.52],[6.55/COLS,(ROWS-1.24)/ROWS,0.42]
     ];
     frozenDecor.forEach(([fx,fy,r])=>add(fx,fy,r));
+  } else if(mapId==='pridemap'){
+    PRIDE_ROCK_SPOTS.forEach(([gx,gy,scale])=>{
+      add(gx/COLS, gy/ROWS, 0.3*scale);
+    });
   }
   return out;
 }
@@ -4027,7 +4031,9 @@ function mkState(mapId, mode, difficulty){
     totalMoneyEarned:0,
     totalKillsEarned:0,
     winClaimed:false,
-    cheeseStormAnim:[]
+    cheeseStormAnim:[],
+    pridePig:null,
+    pridePigTimer:0
   };
 }
 
@@ -7360,6 +7366,7 @@ function initInput(){
     const rect=canvas.getBoundingClientRect();
     const wld=s2w(e.clientX-rect.left,e.clientY-rect.top);
     if(tryCollectIncomeDropAt(wld.x,wld.y)) return;
+    if(tryCollectPridePigAt(wld.x,wld.y)) return;
     // Nathan8028 relocate mode: click to move Nathan
     if(S.nathanRelocating){ commitNathanRelocate(wld.x,wld.y); return; }
     // Hit-test towers using their square body
@@ -7959,6 +7966,9 @@ function update(dt){
     if(drop.life<=0) S.incomeDrops.splice(i,1);
   }
 
+  // Gay pig (pride map only): appears every 2 minutes, gives +$3 when clicked
+  updatePridePig(dt);
+
   // Farmer Orin combat attacks + golden eye
   for(const ft of S.towers){
     if(ft.defId!=='farmerorin') continue;
@@ -8445,6 +8455,7 @@ function render(){
   drawMap();
   drawTowers();
   drawIncomeDrops();
+  drawPridePig();
   drawProjs();
   drawEnemies();
   drawParticles();
@@ -9442,6 +9453,44 @@ function drawMapXMarks(){
 // ─── PRIDE MAP DRAWING ───
 let _prideAnimT = 0;
 
+// Rainbow hues matched roughly to the 6 flag stripe colours, used to tint rocks/bugs/sparkles
+const PRIDE_HUES = [0, 32, 55, 140, 230, 290];
+
+// Decorative rainbow rocks scattered across open grass (grid units, away from road/lake)
+// [gridX, gridY, sizeScale, hueIndex]
+const PRIDE_ROCK_SPOTS = [
+  [18, 5,    1.0, 0],
+  [22, 4,    0.85,1],
+  [24, 9,    1.1, 2],
+  [17, 11.5, 0.9, 3],
+  [20.5,12.5,1.0, 4],
+  [23, 6.5,  0.8, 5],
+  [1.3,5,    0.95,0],
+  [1.1,11.5, 0.85,3],
+  [8, 16.5,  1.0, 1],
+  [19,16.6,  0.9, 4],
+  [25,16.3,  0.8, 2]
+];
+
+// Little rainbow bugs that wander lazily around the grass (grid units)
+// [gridX, gridY, hueIndex, phase]
+const PRIDE_BUG_SPOTS = [
+  [16.5,3.5, 0, 0.0],
+  [21,  7,   1, 1.1],
+  [24,  11.5,2, 2.3],
+  [18,  13.5,3, 0.6],
+  [2,   7,   4, 1.8],
+  [2,   13,  5, 3.0],
+  [11,  16.7,0, 2.0],
+  [22,  16.2,1, 0.4],
+  [6,   1,   2, 1.4]
+];
+
+// Spots where the gay pig can pop up — open meadow only
+const PRIDE_PIG_SPOTS = [
+  [19, 9], [22.5, 11], [17, 6.5], [24, 7], [12, 16.6], [22, 16.4]
+];
+
 // Shared helper: trace the pride path on any context
 function _tracePridePath(c, path){
   c.beginPath();
@@ -9511,6 +9560,44 @@ function _drawPrideRoad(c, path){
   c.strokeStyle='rgba(255,255,255,0.25)'; c.lineWidth=CELL*0.96;
   _tracePridePath(c,path); c.stroke();
   c.setLineDash([]);
+
+  // Rainbow "fairy lights" strung along both edges of the road, like parade-route bunting
+  const halfRoad=CELL*0.46;
+  for(let i=2;i<path.length-2;i+=3){
+    const [px0,py0]=path[i-1], [px1,py1]=path[i+1];
+    const dx=px1-px0, dy=py1-py0;
+    const len=Math.sqrt(dx*dx+dy*dy)||1;
+    const nx=-dy/len, ny=dx/len;
+    const [gx,gy]=path[i];
+    const cx=gx*CELL+CELL/2, cy=gy*CELL+CELL/2;
+    const hue=(i*16+_prideAnimT*70)%360;
+    const tw=0.55+0.4*Math.max(0,Math.sin(_prideAnimT*2.4+i*0.5));
+    [1,-1].forEach(side=>{
+      const lx=cx+nx*halfRoad*side, ly=cy+ny*halfRoad*side;
+      c.save();
+      c.globalAlpha=tw;
+      c.shadowColor=`hsl(${hue},100%,70%)`; c.shadowBlur=5;
+      c.fillStyle=`hsl(${hue},100%,72%)`;
+      c.beginPath(); c.arc(lx,ly,1.7,0,Math.PI*2); c.fill();
+      c.restore();
+    });
+  }
+  c.globalAlpha=1;
+  // Subtle glossy highlight running down the centre for a polished, glazed look
+  c.strokeStyle='rgba(255,255,255,0.18)'; c.lineWidth=CELL*0.2;
+  c.lineCap='round';
+  _tracePridePath(c,path); c.stroke();
+  // Scattered shine glints along the road surface
+  path.forEach(([gx,gy],i)=>{
+    if(i%9!==0) return;
+    const px=gx*CELL+CELL/2, py=gy*CELL+CELL/2;
+    const tw=0.35+0.45*Math.max(0,Math.sin(_prideAnimT*2.2+i*0.7));
+    const hue=(i*23+_prideAnimT*80)%360;
+    c.globalAlpha=tw;
+    c.fillStyle=`hsl(${hue},100%,90%)`;
+    c.beginPath();c.arc(px+((i*7)%14)-7,py+((i*11)%10)-5,1.6,0,Math.PI*2);c.fill();
+    c.globalAlpha=1;
+  });
   c.restore();
 }
 
@@ -9638,6 +9725,134 @@ function _drawPrideLakes(c, lakePoly, t, animated){
   });
 }
 
+// Adds fabric-style detail to the flag ground while keeping the stripes bright:
+// stitched seams between bands, soft fold shading for depth, an animated silk
+// sheen sweep, and scattered twinkling glitter.
+function _drawPrideGroundDetail(c,t,animated){
+  const W=COLS*CELL,H=ROWS*CELL;
+  const stripeCount=6;
+  const sh=H/stripeCount;
+
+  // Stitched seams between stripes
+  c.save();
+  c.strokeStyle='rgba(255,255,255,0.22)';
+  c.lineWidth=1.4;
+  c.setLineDash([6,5]);
+  for(let i=1;i<stripeCount;i++){
+    const y=i*sh;
+    c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke();
+  }
+  c.setLineDash([]);
+  c.restore();
+
+  // Soft fold shading inside each band for fabric-like depth
+  for(let i=0;i<stripeCount;i++){
+    const y0=i*sh;
+    const fold=c.createLinearGradient(0,y0,0,y0+sh);
+    fold.addColorStop(0,'rgba(255,255,255,0.10)');
+    fold.addColorStop(0.45,'rgba(255,255,255,0)');
+    fold.addColorStop(0.58,'rgba(0,0,0,0)');
+    fold.addColorStop(1,'rgba(0,0,0,0.12)');
+    c.fillStyle=fold;
+    c.fillRect(0,y0,W,sh);
+  }
+
+  // Animated silk sheen sweeping slowly across the whole flag
+  if(animated){
+    const sweepX=((t*42)%(W+440))-220;
+    const sheen=c.createLinearGradient(sweepX-140,0,sweepX+140,H);
+    sheen.addColorStop(0,'rgba(255,255,255,0)');
+    sheen.addColorStop(0.5,'rgba(255,255,255,0.10)');
+    sheen.addColorStop(1,'rgba(255,255,255,0)');
+    c.fillStyle=sheen;
+    c.fillRect(0,0,W,H);
+  }
+
+  // Twinkling glitter scattered across the ground
+  for(let i=0;i<55;i++){
+    const fx=(i*173.7+41)%W, fy=(i*129.3+23)%H;
+    const tw=animated?Math.max(0,0.25+0.35*Math.sin(t*2+i*0.7)):0.3;
+    if(tw<=0) continue;
+    const hue=(i*47+(animated?t*30:0))%360;
+    c.globalAlpha=tw;
+    c.fillStyle=`hsl(${hue},100%,92%)`;
+    c.beginPath();c.arc(fx,fy,1.3,0,Math.PI*2);c.fill();
+  }
+  c.globalAlpha=1;
+}
+
+// A single rainbow-tinted rock with a sparkly highlight
+function _drawGayRock(c,rx,ry,sz,hue){
+  c.save();
+  c.fillStyle='rgba(0,0,0,0.22)';
+  c.beginPath();c.ellipse(rx+3,ry+sz*.42,sz*.58,sz*.18,0,0,Math.PI*2);c.fill();
+  const rg=c.createRadialGradient(rx-sz*.2,ry-sz*.25,0,rx,ry,sz*.65);
+  rg.addColorStop(0,`hsl(${hue},90%,78%)`);
+  rg.addColorStop(0.55,`hsl(${hue},80%,58%)`);
+  rg.addColorStop(1,`hsl(${hue},70%,32%)`);
+  c.fillStyle=rg;
+  c.beginPath();
+  c.moveTo(rx,ry-sz*.5);
+  c.bezierCurveTo(rx+sz*.55,ry-sz*.45,rx+sz*.5,ry+sz*.3,rx,ry+sz*.45);
+  c.bezierCurveTo(rx-sz*.55,ry+sz*.3,rx-sz*.5,ry-sz*.35,rx,ry-sz*.5);
+  c.fill();
+  c.strokeStyle='rgba(255,255,255,0.4)';c.lineWidth=1.2;
+  c.beginPath();c.moveTo(rx-sz*.12,ry-sz*.28);c.lineTo(rx+sz*.16,ry+sz*.08);c.stroke();
+  // Glittery sparkle glint
+  c.fillStyle='rgba(255,255,255,0.9)';
+  c.beginPath();c.arc(rx-sz*.18,ry-sz*.22,sz*.07,0,Math.PI*2);c.fill();
+  c.strokeStyle='rgba(255,255,255,0.65)';c.lineWidth=0.8;
+  c.beginPath();
+  c.moveTo(rx-sz*.18-sz*.16,ry-sz*.22);c.lineTo(rx-sz*.18+sz*.16,ry-sz*.22);
+  c.moveTo(rx-sz*.18,ry-sz*.22-sz*.16);c.lineTo(rx-sz*.18,ry-sz*.22+sz*.16);
+  c.stroke();
+  c.restore();
+}
+function drawPrideRocks(c){
+  PRIDE_ROCK_SPOTS.forEach(([gx,gy,scale,hueIdx])=>{
+    const rx=gx*CELL, ry=gy*CELL;
+    const sz=CELL*0.34*scale;
+    _drawGayRock(c,rx,ry,sz,PRIDE_HUES[hueIdx%PRIDE_HUES.length]);
+  });
+}
+
+// A tiny rainbow ladybug-style bug, lazily wandering in a small loop
+function _drawGayBug(c,bx,by,sz,hue,wobble){
+  c.save();
+  c.translate(bx,by);
+  c.rotate(wobble*0.12);
+  c.fillStyle='rgba(0,0,0,0.25)';
+  c.beginPath();c.ellipse(1,sz*0.55,sz*0.5,sz*0.18,0,0,Math.PI*2);c.fill();
+  const shellGrad=c.createRadialGradient(-sz*0.15,-sz*0.2,0,0,0,sz*0.62);
+  shellGrad.addColorStop(0,`hsl(${hue},95%,68%)`);
+  shellGrad.addColorStop(1,`hsl(${hue},90%,42%)`);
+  c.fillStyle=shellGrad;
+  c.beginPath();c.ellipse(0,0,sz*0.55,sz*0.46,0,0,Math.PI*2);c.fill();
+  c.strokeStyle='rgba(0,0,0,0.35)';c.lineWidth=sz*0.05;
+  c.beginPath();c.moveTo(0,-sz*0.42);c.lineTo(0,sz*0.4);c.stroke();
+  c.fillStyle='#1a1209';
+  [[-sz*0.22,-sz*0.12],[sz*0.24,-sz*0.05],[-sz*0.18,sz*0.2],[sz*0.2,sz*0.22]].forEach(([ox,oy])=>{
+    c.beginPath();c.arc(ox,oy,sz*0.085,0,Math.PI*2);c.fill();
+  });
+  c.beginPath();c.ellipse(0,-sz*0.5,sz*0.22,sz*0.18,0,0,Math.PI*2);c.fill();
+  c.strokeStyle='#1a1209';c.lineWidth=sz*0.045;
+  c.beginPath();c.moveTo(-sz*0.08,-sz*0.62);c.lineTo(-sz*0.2,-sz*0.82);c.stroke();
+  c.beginPath();c.moveTo(sz*0.08,-sz*0.62);c.lineTo(sz*0.2,-sz*0.82);c.stroke();
+  c.fillStyle='rgba(255,255,255,0.55)';
+  c.beginPath();c.ellipse(-sz*0.18,-sz*0.18,sz*0.1,sz*0.06,-0.5,0,Math.PI*2);c.fill();
+  c.restore();
+}
+function drawPrideBugs(c,t){
+  PRIDE_BUG_SPOTS.forEach(([gx,gy,hueIdx,phase])=>{
+    const baseX=gx*CELL, baseY=gy*CELL;
+    const ox=Math.sin(t*0.55+phase)*CELL*0.4;
+    const oy=Math.cos(t*0.4+phase*1.4)*CELL*0.22;
+    const wobble=Math.sin(t*3+phase*2);
+    const sz=CELL*0.16;
+    _drawGayBug(c,baseX+ox,baseY+oy,sz,PRIDE_HUES[hueIdx%PRIDE_HUES.length],wobble);
+  });
+}
+
 function drawPridePreviewRoad(ptx){
   const W=COLS*CELL, H=ROWS*CELL;
   const map=MAPS.pridemap;
@@ -9650,6 +9865,8 @@ function drawPridePreviewRoad(ptx){
     ptx.fillRect(0,i*sh,W,sh);
   });
   ptx.globalAlpha=1;
+  // Subtle static fabric detail so the thumbnail matches the in-game look
+  _drawPrideGroundDetail(ptx, 0, false);
   // Draw lakes
   if(map.lakePoly) _drawPrideLakes(ptx, map.lakePoly, 0, false);
   // Draw road
@@ -9675,10 +9892,17 @@ function drawMapPride(){
     ctx.fillRect(0,Math.floor(i*sh),W,Math.ceil(sh)+1);
   });
 
-  // ── 2. Animated rainbow lakes ──
+  // ── 2. Fabric detail — stitching, fold shading, sheen and glitter on the flag ──
+  _drawPrideGroundDetail(ctx, t, true);
+
+  // ── 3. Animated rainbow lakes ──
   if(map.lakePoly) _drawPrideLakes(ctx, map.lakePoly, t, true);
 
-  // ── 3. Pink gravel road ──
+  // ── 3b. Gay rocks and bugs scattered across the meadow ──
+  drawPrideRocks(ctx);
+  drawPrideBugs(ctx, t);
+
+  // ── 4. Pink gravel road ──
   drawPridePath();
 
   // ── 4. Subtle vignette only (no arch, no overlay) ──
@@ -9694,6 +9918,120 @@ function drawMapPride(){
   ctx.strokeRect(2,2,W-4,H-4);
   ctx.strokeStyle=`hsl(${(borderH+180)%360},100%,75%)`; ctx.lineWidth=1.5;
   ctx.strokeRect(6,6,W-12,H-12);
+}
+
+// ─── GAY PIG BONUS (pride map only) ───
+// A friendly pig wanders onto the track every 2 minutes. Click it for +$3!
+function spawnPridePig(){
+  if(!S||S.mapId!=='pridemap') return;
+  const spot=PRIDE_PIG_SPOTS[Math.floor(Math.random()*PRIDE_PIG_SPOTS.length)];
+  S.pridePig={
+    x:spot[0]*CELL,
+    y:spot[1]*CELL,
+    age:0,
+    lifespan:16
+  };
+  showToast('🐷 A gay pig wandered onto the track! Click it for +$3!','#ff66aa');
+}
+function updatePridePig(dt){
+  if(!S||S.mapId!=='pridemap'||S.over) return;
+  if(S.pridePig){
+    S.pridePig.age+=dt;
+    if(S.pridePig.age>=S.pridePig.lifespan){
+      S.pridePig=null;
+      S.pridePigTimer=0;
+    }
+  } else {
+    S.pridePigTimer=(S.pridePigTimer||0)+dt;
+    if(S.pridePigTimer>=120){
+      spawnPridePig();
+      S.pridePigTimer=0;
+    }
+  }
+}
+function tryCollectPridePigAt(wx,wy){
+  if(!S||S.mapId!=='pridemap'||!S.pridePig) return false;
+  const pig=S.pridePig;
+  const dx=wx-pig.x, dy=wy-pig.y;
+  if(dx*dx+dy*dy>30*30) return false;
+  S.gold+=3; S.totalMoneyEarned=(S.totalMoneyEarned||0)+3;
+  updateHUD();
+  refreshShopAffordability();
+  S.particles.push({x:pig.x,y:pig.y-26,text:'🐷 +$3',alpha:1,vy:-36,life:0.9,col:'#ff8fc4'});
+  for(let i=0;i<10;i++){
+    const a=Math.random()*Math.PI*2;
+    S.particles.push({
+      x:pig.x+Math.cos(a)*6, y:pig.y+Math.sin(a)*6,
+      type:'ring', r:0, maxR:26+Math.random()*16, alpha:1, life:0.5,
+      col:`hsl(${Math.floor(Math.random()*360)},100%,70%)`
+    });
+  }
+  sfx('sell');
+  showToast('🐷 +$3! Thanks for the pets!','#ff8fc4');
+  S.pridePig=null;
+  S.pridePigTimer=0;
+  return true;
+}
+function drawPridePig(){
+  if(!S||S.mapId!=='pridemap'||!S.pridePig) return;
+  const pig=S.pridePig;
+  const t=_prideAnimT;
+  const bob=Math.sin(t*3.2)*4;
+  const ageFrac=pig.age/pig.lifespan;
+  const fadeAlpha=ageFrac>0.82?Math.max(0,1-(ageFrac-0.82)/0.18):1;
+  const popScale=pig.age<0.35?Math.max(0.05,pig.age/0.35):1;
+  const hue=(t*70)%360;
+
+  ctx.save();
+  ctx.globalAlpha=fadeAlpha;
+  ctx.translate(pig.x,pig.y+bob);
+  ctx.scale(popScale,popScale);
+
+  // Rainbow glow halo so it's easy to spot
+  const glow=ctx.createRadialGradient(0,0,0,0,0,34);
+  glow.addColorStop(0,`hsla(${hue},100%,75%,0.55)`);
+  glow.addColorStop(1,`hsla(${hue},100%,75%,0)`);
+  ctx.fillStyle=glow;
+  ctx.beginPath();ctx.arc(0,0,34,0,Math.PI*2);ctx.fill();
+
+  // Ground shadow
+  ctx.fillStyle='rgba(0,0,0,0.3)';
+  ctx.beginPath();ctx.ellipse(0,20,16,6,0,0,Math.PI*2);ctx.fill();
+
+  // Pig
+  ctx.font='34px serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('🐷',0,0);
+
+  // Tiny rainbow bandana
+  ctx.save();
+  ctx.beginPath();ctx.roundRect(-11,6,22,7,3);ctx.clip();
+  const bandColors=['#FF0018','#FFA52C','#FFFF41','#008018','#0000F9','#86007D'];
+  const stripeH=7/bandColors.length;
+  bandColors.forEach((col,i)=>{
+    ctx.fillStyle=col;
+    ctx.fillRect(-11,6+i*stripeH,22,stripeH+0.5);
+  });
+  ctx.restore();
+
+  // Sparkle ring orbiting the pig
+  for(let i=0;i<6;i++){
+    const a=t*2+i*(Math.PI*2/6);
+    const sx=Math.cos(a)*26, sy=Math.sin(a)*22;
+    ctx.globalAlpha=fadeAlpha*0.85;
+    ctx.fillStyle=`hsl(${(hue+i*60)%360},100%,85%)`;
+    ctx.beginPath();ctx.arc(sx,sy,2,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=fadeAlpha;
+
+  // Floating click prompt
+  ctx.font='bold 12px Cinzel, serif';
+  ctx.strokeStyle='rgba(0,0,0,0.7)';ctx.lineWidth=3;
+  ctx.strokeText('Click for +$3!',0,-30);
+  ctx.fillStyle='#fff';
+  ctx.fillText('Click for +$3!',0,-30);
+
+  ctx.restore();
 }
 
 
