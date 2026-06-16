@@ -1081,7 +1081,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
       </div>
       <div class="mapcard" onclick="G.trySelectPrideMap()" id="mc-pridemap" style="display:none;border-color:#ff66aa55">
         <canvas class="map-preview" id="prev-pridemap" width="280" height="160"></canvas>
-        <div class="map-name" style="background:linear-gradient(90deg,#ff4444,#ff8800,#ffdd00,#22bb22,#2266ff,#9933ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🏳‍🌈 Pride Map</div>
+        <div class="map-name" style="background:linear-gradient(90deg,#ff4444,#ff8800,#ffdd00,#22bb22,#2266ff,#9933ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🏳‍🌈 The Very Gay Track</div>
         <div class="map-desc">A long colourful battlefield wrapped in a giant animated rainbow lake. The winding track cuts through a pride-flag landscape — only available until July 1st!</div>
         <div style="font-family:'Cinzel',serif;font-size:.64rem;color:#ff6644;padding:.15rem .8rem .65rem;letter-spacing:.04em">⏳ Limited Time</div>
       </div>
@@ -1924,9 +1924,8 @@ const MENU_SHOP_MAPS = [
   {
     id:'map_pridemap',
     mapId:'pridemap',
-    name:'Pride Map',
+    name:'The Very Gay Track',
     shardCost:15,
-    desc:'A long, colourful battlefield wrapped in a giant rainbow lake. The track winds through a pride-flag landscape with animated rainbow water that hugs the entire route.',
     tags:['pride','limited','new'],
     preview:'pridemap',
     limited:true,
@@ -2374,7 +2373,7 @@ function purchaseMapItem(item){
   } else if(item.id==='map_xmarks'){
     showToast('X Marks the Spot unlocked! Find it in Map Select.','#c0a882');
   } else if(item.id==='map_pridemap'){
-    showToast('Pride Map unlocked! Find it in Map Select. 🏳‍🌈','#ff88cc');
+    showToast('The Very Gay Track unlocked! Find it in Map Select. 🏳‍🌈','#ff88cc');
   } else {
     showToast('Frozen Lake unlocked! Find it in Map Select.','#7ec8e3');
   }
@@ -2835,60 +2834,50 @@ const MAPS = {
   };
 
   const pts=[];
-  // START: top-left corner
-  pts.push([1,1]);
-  // Straight right along the top
-  addLine(pts,1,1, 8,1, 10);
-  // Sweeping curve down-right
-  addCurve(pts,8,1, 12,1, 14,3, 14);
-  // Straight down right side
-  addLine(pts,14,3, 14,6, 6);
-  // Tight left-turn hairpin — sweeps west
-  addCurve(pts,14,6, 14,8, 10,8, 12);
-  // Straight left
-  addLine(pts,10,8, 5,8, 8);
-  // Sweeping curve down-left
-  addCurve(pts,5,8, 2,8, 2,11, 12);
-  // Straight down
-  addLine(pts,2,11, 2,13, 4);
-  // Big sweeping arc to the right
-  addCurve(pts,2,13, 2,16, 7,16, 16);
-  // Straight right across lower band
-  addLine(pts,7,16, 18,16, 16);
-  // Curve up-right toward the right side
-  addCurve(pts,18,16, 22,16, 24,12, 14);
-  // Straight up the right side
-  addLine(pts,24,12, 24,6, 6);
-  // Big decorative loop near the end — a wide teardrop loop that crosses
-  // itself once near its entry (a classic loop-de-loop), then exits
-  // cleanly to the top-right corner
-  addCurve(pts,24,6, 22.5,2.5, 27,1, 16);
-  addCurve(pts,27,1, 30,2, 28,5.5, 16);
-  addCurve(pts,28,5.5, 25,6.5, 23.5,4, 16);
-  addCurve(pts,23.5,4, 25,2, 29,4, 14);
-  pts.push([29,4]);
+  // START: left edge at y=2, facing right
+  pts.push([0,2]);
+  addLine(pts,0,2, 10,2, 16);                        // straight right across top
+  addCurve(pts,10,2, 14,2, 15,4, 10);                // sweep down-right
+  addLine(pts,15,4, 15,8, 8);                         // straight down
+  addCurve(pts,15,8, 15,10, 13,10, 10);              // hairpin start — left
+  addCurve(pts,13,10, 9,10, 7,8, 12);                // hairpin sweep — wide and smooth
+  addCurve(pts,7,8, 3,8, 3,10, 10);                  // sweep down into lake corridor
+  addLine(pts,3,10, 3,14, 8);                         // straight down left side (lake here)
+  addCurve(pts,3,14, 3,15, 5,15, 8);                 // bottom-left corner
+  addLine(pts,5,15, 23,15, 28);                       // straight right across bottom (y=15, not 17)
+  addCurve(pts,23,15, 26,15, 26,13, 8);              // bottom-right corner
+  addLine(pts,26,13, 26,6, 14);                       // straight up right side
+  addCurve(pts,26,6, 26,2, 29,2, 8);                 // sweep right to exit
+  // END: right edge at y=2, facing right — same height as start but opposite side
+  pts.push([29,2]);
 
-  // Lake zone — fills the interior of the lower-left hairpin loop and
-  // extends down to hug the bottom-left arc of the track, so the water
-  // reaches all the way down to the road there.
+  // Lake: top touches the hairpin road (y≈8.8), bottom touches bottom road (y≈15)
+  // Left edge follows the road at x≈3, right side has a nice organic bulge
   const lakePoly = [
-    [[3.4,8.85],[8.5,8.85],[8.5,11.6],[7.6,13.0],
-     [6.42,15.41],[5.38,15.32],[4.52,15.15],[3.83,14.9],[3.31,14.59],
-     [2.95,14.23],[2.72,13.81],[2.59,13.26],[2.75,10.0]],
+    [
+      [3.8,  8.8],   // top-left — right under the hairpin
+      [6.5,  8.8],   // top-right
+      [9.0,  9.5],   // upper-right bulge
+      [9.5, 11.0],   // right mid-upper
+      [9.2, 12.5],   // right mid
+      [8.5, 13.8],   // right lower
+      [7.0, 14.9],   // lower-right
+      [5.0, 15.0],   // bottom-right (touching bottom road)
+      [3.8, 15.0],   // bottom-left (touching bottom road)
+      [3.2, 13.5],   // left lower
+      [3.2, 11.0],   // left mid
+      [3.3,  9.5],   // left upper
+    ],
   ];
-  // Pool anchor points spread across the lake, used to keep
-  // lighting/ripples even across the whole shape
-  lakePoly[0]._pools = [[5.5,10.5], [4.5,13.5], [5.5,14.8]];
+  lakePoly[0]._pools = [[6.0,10.0], [6.5,12.0], [5.5,14.0]];
 
-  // Water collision rects (kind:'water') — block non-water towers, allow
-  // water-requiring towers. Two rects approximate the lake's shape.
   const lakeRects = [
-    {x:3.0, y:9.2, w:5.0, h:5.0, kind:'water'},
-    {x:3.2, y:13.5, w:2.8, h:1.1, kind:'water'},
+    {x:3.8, y:9.0,  w:5.5, h:4.0, kind:'water'},
+    {x:3.8, y:13.0, w:3.5, h:2.0, kind:'water'},
   ];
 
   MAPS.pridemap={
-    name:'Pride Map',
+    name:'The Very Gay Track',
     shopUnlockOnly:true,
     path:pts,
     lakePoly:lakePoly,
@@ -4900,7 +4889,7 @@ function trySelectPrideMap(){
   if(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_pridemap']){
     showDiffSelect('pridemap');
   } else {
-    showToast('Unlock the Pride Map in the Shop first! 🏳‍🌈','#ff88cc');
+    showToast('Unlock The Very Gay Track in the Shop first! 🏳‍🌈','#ff88cc');
   }
 }
 
@@ -9477,11 +9466,11 @@ function _fillLakePoly(c, poly){
 function _drawPrideRoad(c, path){
   c.save();
   c.lineCap='round'; c.lineJoin='round';
-  // Shadow
-  c.shadowColor='rgba(0,0,0,0.55)'; c.shadowBlur=14; c.shadowOffsetY=5;
-  c.strokeStyle='rgba(0,0,0,0.65)'; c.lineWidth=CELL*1.08;
+  // Shadow — small, tight, fitted close under the road
+  c.shadowColor='rgba(0,0,0,0.45)'; c.shadowBlur=5; c.shadowOffsetX=2; c.shadowOffsetY=3;
+  c.strokeStyle='rgba(0,0,0,0.50)'; c.lineWidth=CELL*1.0;
   _tracePridePath(c,path); c.stroke();
-  c.shadowColor='transparent'; c.shadowBlur=0; c.shadowOffsetY=0;
+  c.shadowColor='transparent'; c.shadowBlur=0; c.shadowOffsetX=0; c.shadowOffsetY=0;
   // Outer border (darker pink-brown)
   c.strokeStyle='#8b3a5a'; c.lineWidth=CELL*1.0;
   _tracePridePath(c,path); c.stroke();
@@ -9525,18 +9514,17 @@ function _drawPrideRoad(c, path){
   c.restore();
 }
 
-// Draw rainbow lakes in a "log forest pond" style: soft bank glow, a
-// glowing halo, an even rainbow water body, shoreline stroke, and ripple
-// highlights — clipped to the lake polygon so water never escapes.
-// Multiple "pool" anchor points are used (instead of one bbox-centred
-// radial) so long L-shaped lakes light up evenly along their whole length.
+// Draw rainbow lakes styled after the log-forest pond:
+// outer bank shadow, glow halo, radial depth gradient (light centre → dark edge),
+// inner highlight rings, and animated rainbow hue-shift + ripple lines on top.
 function _drawPrideLakes(c, lakePoly, t, animated){
   const W=COLS*CELL, H=ROWS*CELL;
   lakePoly.forEach((poly,li)=>{
-    // bounding box of this lake (in pixels)
     const xs=poly.map(p=>p[0]*CELL), ys=poly.map(p=>p[1]*CELL);
     const bx=Math.min(...xs), by=Math.min(...ys);
     const bw=Math.max(...xs)-bx, bh=Math.max(...ys)-by;
+    const cx=bx+bw/2, cy=by+bh/2;
+    const r=Math.max(bw,bh)*0.5;
 
     const tracePoly=()=>{
       c.beginPath();
@@ -9547,117 +9535,106 @@ function _drawPrideLakes(c, lakePoly, t, animated){
       c.closePath();
     };
 
-    // Pool anchors spread along the lake's length (grid coords -> pixels).
-    // Falls back to the bbox centre if none supplied.
-    const anchors=(poly._pools||[[ (bx+bw/2)/CELL, (by+bh/2)/CELL ]])
-      .map(([gx,gy])=>[gx*CELL, gy*CELL]);
-    const poolR=Math.max(CELL*2.2, Math.max(bw,bh)/Math.max(1,anchors.length)*0.85);
+    // hue animates slowly so the whole lake shifts through the rainbow
+    const hueOff=animated?(t*22+li*55)%360:0;
 
-    const hueShift=animated?(t*45+li*55)%360:0;
-
-    // ── Soft glowing halo around each pool, bleeding slightly outside ──
+    // ── 1. Subtle dark shadow just outside the shoreline (traced from polygon) ──
     c.save();
-    anchors.forEach(([ax,ay],ai)=>{
-      const glow=c.createRadialGradient(ax,ay,0,ax,ay,poolR*1.3);
-      if(animated){
-        const h=(hueShift+ai*40)%360;
-        glow.addColorStop(0,`hsla(${h},100%,75%,0.30)`);
-        glow.addColorStop(1,`hsla(${h},100%,75%,0)`);
-      } else {
-        glow.addColorStop(0,'rgba(255,255,255,0.22)');
-        glow.addColorStop(1,'rgba(255,255,255,0)');
-      }
-      c.fillStyle=glow;
-      c.fillRect(ax-poolR*1.3,ay-poolR*1.3,poolR*2.6,poolR*2.6);
-    });
+    c.shadowColor='rgba(0,0,0,0.45)';
+    c.shadowBlur=8;
+    c.shadowOffsetX=2;
+    c.shadowOffsetY=3;
+    c.fillStyle='rgba(0,0,0,0.001)'; // near-invisible fill, just to cast shadow
+    tracePoly(); c.fill();
     c.restore();
 
-    // ── Main water body, clipped to polygon ──
+    // ── 2. Outer glow halo ──
+    const glow=c.createRadialGradient(cx,by+bh*0.3,0,cx,cy,r*0.95);
+    glow.addColorStop(0,`hsla(${hueOff},100%,75%,0.28)`);
+    glow.addColorStop(1,`hsla(${hueOff},100%,75%,0)`);
+    c.fillStyle=glow;
+    c.fillRect(bx-CELL*.5,by-CELL*.5,bw+CELL,bh+CELL);
+
+    // ── 3. Main water body — clip to lake rectangle, fill with radial depth gradient ──
     c.save();
     tracePoly(); c.clip();
 
-    if(animated){
-      // Even rainbow gradient sweeping along the lake's long axis
-      const lg=(bw>=bh)
-        ? c.createLinearGradient(bx,by,bx+bw,by)
-        : c.createLinearGradient(bx,by,bx,by+bh);
-      for(let s=0;s<=6;s++){
-        const h=(hueShift+s*51)%360;
-        lg.addColorStop(s/6,`hsl(${h},95%,60%)`);
+    // Radial depth: bright rainbow highlight centre → deep dark-tinted edge
+    // Animate the highlight centre drifting slightly (like sunlight on water)
+    const hx=cx+bw*(animated?0.08*Math.sin(t*0.7):-0.16);
+    const hy=by+bh*(0.25+(animated?0.05*Math.sin(t*0.5):0));
+    const water=c.createRadialGradient(hx,hy,0,cx,cy,r*0.88);
+    const h0=hueOff, h1=(hueOff+60)%360, h2=(hueOff+140)%360, h3=(hueOff+210)%360;
+    water.addColorStop(0,  `hsl(${h0},100%,78%)`);   // bright centre
+    water.addColorStop(0.25,`hsl(${h1},95%,62%)`);
+    water.addColorStop(0.55,`hsl(${h2},90%,48%)`);
+    water.addColorStop(0.82,`hsl(${h3},80%,32%)`);
+    water.addColorStop(1,  `hsl(${h3},70%,18%)`);    // dark deep edge
+    c.fillStyle=water;
+    c.fillRect(bx,by,bw,bh);
+
+    // ── 4. Animated ripple lines scrolling top-to-bottom ──
+    const numRipples=20;
+    for(let ri=0;ri<numRipples;ri++){
+      const baseY=by+((ri/numRipples)*bh + (animated?t*18:0))%bh;
+      const rh=(hueOff+ri*(360/numRipples))%360;
+      const alpha=animated?(0.10+0.06*Math.sin(t*1.5+ri*0.6)):0.07;
+      c.strokeStyle=`hsla(${rh},100%,88%,${Math.max(0,alpha)})`;
+      c.lineWidth=animated?(0.9+0.4*Math.sin(t*2+ri)):0.7;
+      c.beginPath();
+      const segs=10;
+      for(let s=0;s<=segs;s++){
+        const sx=bx+(s/segs)*bw;
+        const sy=baseY+(animated?Math.sin(t*2.5+s*0.65+ri)*CELL*0.06:Math.sin(s*0.5+ri)*CELL*0.025);
+        s===0?c.moveTo(sx,sy):c.lineTo(sx,sy);
       }
-      c.fillStyle=lg;
-      c.fillRect(bx,by,bw,bh);
+      c.stroke();
+    }
 
-      // Gentle highlight near each pool centre (keeps the long shape lit evenly)
-      anchors.forEach(([ax,ay])=>{
-        const d=c.createRadialGradient(ax,ay,0,ax,ay,poolR);
-        d.addColorStop(0,'rgba(255,255,255,0.16)');
-        d.addColorStop(1,'rgba(255,255,255,0)');
-        c.fillStyle=d;
-        c.fillRect(ax-poolR,ay-poolR,poolR*2,poolR*2);
-      });
-
-      // Animated ripple rings at each pool
-      anchors.forEach(([ax,ay],ai)=>{
-        for(let wave=0;wave<2;wave++){
-          const wt=t*0.9+wave*1.1+li*0.7+ai*0.5;
-          const ph=(hueShift+wave*60+ai*30)%360;
-          c.strokeStyle=`hsla(${ph},100%,85%,${0.26+Math.sin(wt)*0.1})`;
-          c.lineWidth=2+Math.sin(wt*1.3)*0.8;
-          const rx=poolR*(0.4+wave*0.35);
-          const ry=rx*0.6;
-          c.beginPath();
-          c.ellipse(ax,ay,rx,ry,wt*0.2,0,Math.PI*2);
-          c.stroke();
-        }
-      });
-
-      // Sparkles scattered evenly across the whole shape
-      for(let s=0;s<14;s++){
-        const st=t*1.8+s*0.9+li*0.5;
-        const sa=0.3+Math.sin(st)*0.35;
-        const sh=(hueShift+s*31)%360;
-        const sx=bx+((s*53+li*17)%100)/100*bw + Math.cos(st+s)*CELL*0.4;
-        const sy=by+((s*37+li*29)%100)/100*bh + Math.sin(st*0.7+s)*CELL*0.3;
-        c.globalAlpha=Math.max(0,sa);
-        c.fillStyle=`hsl(${sh},100%,82%)`;
-        const sr=1.6+Math.sin(st*2)*0.9;
+    // ── 5. Sparkle glints (like log forest, but rainbow-tinted) ──
+    if(animated){
+      for(let s=0;s<16;s++){
+        const st=t*1.5+s*0.9+li*0.4;
+        const sa=Math.max(0,0.22+Math.sin(st)*0.38);
+        const sh=(hueOff+s*25)%360;
+        const sx=bx+(((s*53+li*17)%97)/97)*bw+Math.cos(st+s)*CELL*0.18;
+        const sy=by+(((s*41+li*31)%97)/97)*bh+Math.sin(st*0.7+s)*CELL*0.13;
+        c.globalAlpha=sa;
+        c.fillStyle=`hsl(${sh},100%,92%)`;
+        const sr=1.1+Math.sin(st*2.3)*0.65;
         c.beginPath(); c.arc(sx,sy,sr,0,Math.PI*2); c.fill();
-        c.strokeStyle=`hsl(${sh},100%,96%)`; c.lineWidth=0.8; c.globalAlpha=sa*0.6;
+        c.strokeStyle=`hsl(${sh},100%,98%)`; c.lineWidth=0.65; c.globalAlpha=sa*0.5;
         c.beginPath();
-        c.moveTo(sx-sr*2.5,sy); c.lineTo(sx+sr*2.5,sy);
-        c.moveTo(sx,sy-sr*2.5); c.lineTo(sx,sy+sr*2.5);
+        c.moveTo(sx-sr*2,sy); c.lineTo(sx+sr*2,sy);
+        c.moveTo(sx,sy-sr*2); c.lineTo(sx,sy+sr*2);
         c.stroke();
         c.globalAlpha=1;
       }
-    } else {
-      // Static preview rainbow gradient along the long axis
-      const lg=(bw>=bh)
-        ? c.createLinearGradient(bx,by,bx+bw,by)
-        : c.createLinearGradient(bx,by,bx,by+bh);
-      const cols6=['#FF0050','#FF9600','#FFE600','#00AA00','#0050FF','#8C00D2'];
-      cols6.forEach((col,i)=>lg.addColorStop(i/5,col));
-      c.fillStyle=lg;
-      c.fillRect(bx,by,bw,bh);
     }
-
-    // ── Even edge-darkening vignette (inset shadow along the shoreline) ──
-    c.save();
-    c.shadowColor='rgba(10,10,30,0.55)';
-    c.shadowBlur=CELL*0.55;
-    c.strokeStyle='rgba(10,10,30,0.001)'; // near-invisible, just casts the shadow
-    c.lineWidth=CELL*0.7;
-    tracePoly(); c.stroke();
-    c.restore();
 
     c.restore(); // end clip
 
-    // ── Shoreline stroke ──
+    // ── 6. Inner highlight rings clipped to the actual lake polygon ──
     c.save();
-    c.strokeStyle='rgba(255,255,255,0.45)';
+    tracePoly(); c.clip();
+    for(let i=0;i<3;i++){
+      const rh2=(hueOff+i*45)%360;
+      c.strokeStyle=`hsla(${rh2},100%,90%,${animated?0.20:0.14})`;
+      c.lineWidth=CELL*(0.35-i*0.08);
+      tracePoly(); c.stroke();
+    }
+    c.restore();
+
+    // ── 7. Shoreline stroke — bright edge like log forest ──
+    c.strokeStyle=animated
+      ?`hsla(${(hueOff+180)%360},100%,85%,0.60)`
+      :'rgba(210,255,255,0.50)';
     c.lineWidth=2.5;
     tracePoly(); c.stroke();
-    c.restore();
+    // soft inner glow ring
+    c.strokeStyle=`hsla(${hueOff},80%,90%,0.20)`;
+    c.lineWidth=6;
+    tracePoly(); c.stroke();
   });
 }
 
