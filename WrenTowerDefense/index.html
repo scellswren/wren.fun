@@ -1810,6 +1810,27 @@ function saveCareer(c){
 }
 let CAREER = loadCareer();
 
+// ── MAIN MENU THEME UNLOCKS ──
+function checkWTDThemeUnlocks(){
+  // War: unlock just for visiting WTD
+  if(localStorage.getItem('wtd_war_theme_unlocked')!=='1'){
+    localStorage.setItem('wtd_war_theme_unlocked','1');
+  }
+  // Yellow Fizzy: reach round 100
+  if(localStorage.getItem('wtd_yellowfizzy_theme_unlocked')!=='1' && (CAREER.bestRound||0)>=100){
+    localStorage.setItem('wtd_yellowfizzy_theme_unlocked','1');
+  }
+  // Magenta: 10 total wins
+  if(localStorage.getItem('wtd_magenta_theme_unlocked')!=='1' && (CAREER.totalWins||0)>=10){
+    localStorage.setItem('wtd_magenta_theme_unlocked','1');
+  }
+  // Pineapple: 1 hard win
+  if(localStorage.getItem('wtd_pineapple_theme_unlocked')!=='1' && (CAREER.hardWins||0)>=1){
+    localStorage.setItem('wtd_pineapple_theme_unlocked','1');
+  }
+}
+checkWTDThemeUnlocks();
+
 // Ensure shopUnlocks exists
 if(!CAREER.shopUnlocks) { CAREER.shopUnlocks={}; saveCareer(CAREER); }
 // Ensure selectedTeam exists (array of up to 10 tower IDs in order)
@@ -2453,6 +2474,7 @@ function recordGameEnd(S){
   // totalMoney and totalKills are already being saved live via recordKill/recordMoney,
   // so we don't double-add them here — just ensure bestRound is persisted
   saveCareer(CAREER);
+  checkWTDThemeUnlocks();
 }
 function recordKill(){
   if(!S||S.mode==='sandbox') return;
@@ -7279,6 +7301,7 @@ function triggerOver(won){
       else if(diff==='hard')   { CAREER.hardWins=(CAREER.hardWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+3*shardMult; }
       CAREER.totalWins=(CAREER.totalWins||0)+1;
       saveCareer(CAREER);
+      checkWTDThemeUnlocks();
       if(typeof updateShardHud==='function') updateShardHud();
     }
   }
@@ -7319,6 +7342,7 @@ function checkWinMilestone(){
       else if(diff==='hard')   { CAREER.hardWins=(CAREER.hardWins||0)+1; CAREER.rareShards=(CAREER.rareShards||0)+3*shardMult; }
       CAREER.totalWins=(CAREER.totalWins||0)+1;
       saveCareer(CAREER);
+      checkWTDThemeUnlocks();
       if(typeof updateShardHud==='function') updateShardHud();
     }
     S.winClaimed=true;
