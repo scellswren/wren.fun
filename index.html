@@ -7752,6 +7752,7 @@ background:radial-gradient(circle at 20% 25%,rgba(255,190,100,0.38) 0%,transpare
 
   <div class="button-container" id="btnContainer">
     <input type="text" id="pageSearch" placeholder="🔍 Search pages…" oninput="filterPageButtons(this.value)" autocomplete="off">
+    <a href="WrenTowerDefense/"      class="btn game-btn" onclick="return markVisit('wrentowerdefense', this.href)">🏰 Wren Tower Defense <span class="new-tag">NEW</span></a>
     <a href="LuckyGenerator/"        class="btn game-btn" onclick="return markVisit('lucky', this.href)">🍀 Lucky Generator</a>
     <a href="WrenPacks/"             class="btn game-btn" onclick="return markVisit('wrenpacks', this.href)">📦 Wren Packs</a>
     <a href="SmallCreators/"         class="btn game-btn" onclick="return markVisit('smallcreators', this.href)">👥 Small Creators</a>
@@ -10090,6 +10091,25 @@ document.addEventListener('keydown', function(e) {
 
 
 <style>
+/* ── NEW TAG on buttons ── */
+.new-tag {
+  display: inline-block;
+  background: #e11d48;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 999px;
+  margin-left: 6px;
+  vertical-align: middle;
+  line-height: 1.4;
+  box-shadow: 0 2px 8px rgba(225,29,72,0.45);
+  position: relative;
+  top: -1px;
+}
+
 /* ── VERSION BADGE ── */
 #versionBadge {
   position: fixed;
@@ -10104,18 +10124,18 @@ document.addEventListener('keydown', function(e) {
   border-radius: 999px;
   cursor: pointer;
   user-select: none;
-  background: rgba(124,58,237,0.15);
-  color: #c4b5fd;
-  border: 1px solid rgba(124,58,237,0.30);
+  background: rgba(22,163,74,0.18);
+  color: #4ade80;
+  border: 1px solid rgba(22,163,74,0.38);
   backdrop-filter: blur(8px);
   transition: background 0.18s, transform 0.14s, box-shadow 0.18s, color 0.18s;
-  box-shadow: 0 2px 12px rgba(124,58,237,0.12);
+  box-shadow: 0 2px 12px rgba(22,163,74,0.18);
 }
 #versionBadge:hover {
-  background: rgba(124,58,237,0.28);
+  background: rgba(22,163,74,0.32);
   color: #fff;
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(124,58,237,0.28);
+  box-shadow: 0 6px 20px rgba(22,163,74,0.32);
 }
 #versionBadge:active { transform: scale(0.96); }
 
@@ -10348,7 +10368,7 @@ document.addEventListener('keydown', function(e) {
 </style>
 
 <!-- VERSION BADGE -->
-<div id="versionBadge" onclick="document.getElementById('versionOverlay').classList.add('open')" title="What's new in V 1.0">V 1.0</div>
+<div id="versionBadge" onclick="document.getElementById('versionOverlay').classList.add('open')" title="What's new in V 1.1">V 1.1</div>
 
 <!-- VERSION MODAL -->
 <div id="versionOverlay" onclick="if(event.target===this)this.classList.remove('open')">
@@ -10357,72 +10377,163 @@ document.addEventListener('keydown', function(e) {
     <!-- HEADER -->
     <div class="v-header">
       <div class="v-header-left">
-        <div class="v-pill">✦ Release Notes</div>
-        <h2>Welcome to Wren.fun!</h2>
-        <p class="v-subtitle">We're now doing a version format — here's everything we've made so far!</p>
+        <div class="v-pill" id="vPill">✦ Release Notes</div>
+        <h2 id="vTitle">Welcome to Wren.fun!</h2>
+        <p class="v-subtitle" id="vSubtitle">Here's what's new in V 1.1!</p>
       </div>
       <div class="v-nav">
-        <div class="v-arrow" title="Previous version (nothing before V 1.0)">&#8592;</div>
-        <div class="v-arrow" title="Next version (coming soon!)">&#8594;</div>
+        <div class="v-arrow" id="vArrowLeft" title="Previous version">&#8592;</div>
+        <div class="v-arrow" id="vArrowRight" title="Next version">&#8594;</div>
         <button class="v-close-btn" onclick="document.getElementById('versionOverlay').classList.remove('open')" aria-label="Close">✕</button>
       </div>
     </div>
 
     <!-- BODY -->
-    <div class="v-body">
-      <div class="v-grid">
-
-        <!-- Pages — full width, 2-col list -->
-        <div class="v-card v-full">
-          <div class="v-card-title"><span>📄</span> 15 Pages</div>
-          <ul class="v-list">
-            <li>🍀 Lucky Generator</li>
-            <li>📦 Wren Packs</li>
-            <li>👥 Small Creators</li>
-            <li>🎡 Wren Wheel of Doom</li>
-            <li>🧀 Cheese's Art</li>
-            <li>🎣 Catch Anything</li>
-            <li>🏆 Hall of Fame</li>
-            <li>⚔️ Object Attack</li>
-            <li>🏓 Pong World Cup</li>
-            <li>✨ UnOh Infinity</li>
-            <li>🎮 Flappy Wren</li>
-            <li>⏳ Life Countdown</li>
-            <li>🖼️ Easy Image Download</li>
-            <li>🐈 Tiki Clicker</li>
-            <li>📝 Credits</li>
-          </ul>
-        </div>
-
-        <!-- Themes -->
-        <div class="v-card">
-          <div class="v-card-title"><span>🎨</span> Themes</div>
-          <ul class="v-list">
-            <li>94 Main Menu Themes to unlock &amp; collect</li>
-          </ul>
-        </div>
-
-        <!-- Other -->
-        <div class="v-card">
-          <div class="v-card-title"><span>🔧</span> Other</div>
-          <ul class="v-list">
-            <li>Bug Fixes</li>
-          </ul>
-        </div>
-
-      </div>
+    <div class="v-body" id="vBody">
+      <!-- Populated by JS -->
     </div>
 
     <!-- FOOTER -->
     <div class="v-footer">
       <button class="v-history-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'▾ Hide Version History':'▸ Version History'">▸ Version History</button>
       <div class="v-history-list">
+        <div class="v-history-entry"><strong>V 1.1</strong> — New page: Wren Tower Defense. Updates to Tiki Clicker &amp; Wren Packs. Bug fixes across Main Menu, Tiki Clicker, Wren Tower Defense &amp; Wren Packs.</div>
         <div class="v-history-entry"><strong>V 1.0</strong> — Initial release. 15 pages, 94 themes, bug fixes.</div>
       </div>
     </div>
 
   </div>
 </div>
+
+<script>
+/* ── VERSION DATA ── */
+const VERSIONS = [
+  {
+    id: '1.0',
+    color: '#7c3aed',      // bluish-purple
+    accentRgb: '124,58,237',
+    title: 'Welcome to Wren.fun!',
+    subtitle: "We're now doing a version format — here's everything we've made so far!",
+    cards: [
+      {
+        title: '📄 15 Pages', full: true,
+        items: ['🍀 Lucky Generator','📦 Wren Packs','👥 Small Creators','🎡 Wren Wheel of Doom','🧀 Cheese\'s Art','🎣 Catch Anything','🏆 Hall of Fame','⚔️ Object Attack','🏓 Pong World Cup','✨ UnOh Infinity','🎮 Flappy Wren','⏳ Life Countdown','🖼️ Easy Image Download','🐈 Tiki Clicker','📝 Credits']
+      },
+      {
+        title: '🎨 Themes', full: false,
+        items: ['94 Main Menu Themes to unlock &amp; collect']
+      },
+      {
+        title: '🔧 Other', full: false,
+        items: ['Bug Fixes']
+      }
+    ]
+  },
+  {
+    id: '1.1',
+    color: '#16a34a',      // green
+    accentRgb: '22,163,74',
+    title: "What's New in V 1.1",
+    subtitle: 'A new page, updates, and a bunch of bug fixes!',
+    cards: [
+      {
+        title: '📄 New Page', full: true,
+        items: ['🏰 Wren Tower Defense']
+      },
+      {
+        title: '🔄 Updates', full: false,
+        items: ['🐈 Tiki Clicker', '📦 Wren Packs']
+      },
+      {
+        title: '🔧 Bug Fixes', full: false,
+        items: ['Main Menu', 'Tiki Clicker', 'Wren Tower Defense', 'Wren Packs']
+      },
+      {
+        title: '🎨 Themes', full: true,
+        items: ['More themes coming soon…']
+      }
+    ]
+  }
+];
+
+let vCurrentIndex = VERSIONS.length - 1; // default to latest (1.1)
+
+function vRender() {
+  const v = VERSIONS[vCurrentIndex];
+  const accentR = v.accentRgb;
+
+  // Update header text
+  document.getElementById('vTitle').textContent = v.title;
+  document.getElementById('vSubtitle').textContent = v.subtitle;
+  document.getElementById('vPill').textContent = '✦ V ' + v.id;
+
+  // Update modal accent colors dynamically
+  const modal = document.getElementById('versionModal');
+  modal.style.setProperty('--v-accent', v.color);
+  modal.style.setProperty('--v-accent-rgb', accentR);
+
+  // Build body
+  const body = document.getElementById('vBody');
+  let gridHtml = '<div class="v-grid">';
+  v.cards.forEach(card => {
+    const fullClass = card.full ? ' v-full' : '';
+    const listItems = card.items.map(i => `<li>${i}</li>`).join('');
+    gridHtml += `<div class="v-card${fullClass}">
+      <div class="v-card-title" style="color:${v.color}"><span>${card.title.match(/^[^\s]+/)?.[0]||''}</span> ${card.title.replace(/^[^\s]+\s*/,'')}</div>
+      <ul class="v-list">${listItems}</ul>
+    </div>`;
+  });
+  gridHtml += '</div>';
+  body.innerHTML = gridHtml;
+
+  // Arrows
+  const left = document.getElementById('vArrowLeft');
+  const right = document.getElementById('vArrowRight');
+  if (vCurrentIndex > 0) { left.classList.add('active'); left.title = 'V ' + VERSIONS[vCurrentIndex-1].id; }
+  else { left.classList.remove('active'); left.title = 'No earlier versions'; }
+  if (vCurrentIndex < VERSIONS.length - 1) { right.classList.add('active'); right.title = 'V ' + VERSIONS[vCurrentIndex+1].id; }
+  else { right.classList.remove('active'); right.title = 'No newer versions'; }
+
+  // Apply accent to list bullets via inline style injection
+  let styleEl = document.getElementById('vDynamicStyle');
+  if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'vDynamicStyle'; document.head.appendChild(styleEl); }
+  styleEl.textContent = [
+    `#versionModal { border-color: rgba(${accentR},0.30) !important; }`,
+    `#versionModal .v-header { background: rgba(${accentR},0.10) !important; border-bottom-color: rgba(${accentR},0.18) !important; }`,
+    `#versionModal .v-pill { background: rgba(${accentR},0.22) !important; color: ${v.color} !important; border-color: rgba(${accentR},0.32) !important; }`,
+    `#versionModal .v-card-title { color: ${v.color} !important; }`,
+    `#versionModal ul.v-list li::before { color: ${v.color} !important; }`,
+    `#versionModal .v-card { background: rgba(${accentR},0.09) !important; border-color: rgba(${accentR},0.18) !important; }`,
+    `#versionModal .v-arrow { background: rgba(${accentR},0.10) !important; border-color: rgba(${accentR},0.22) !important; color: rgba(${accentR},0.45) !important; }`,
+    `#versionModal .v-arrow.active { color: ${v.color} !important; border-color: rgba(${accentR},0.45) !important; background: rgba(${accentR},0.13) !important; }`,
+    `#versionModal .v-arrow.active:hover { background: rgba(${accentR},0.28) !important; color: #fff !important; border-color: rgba(${accentR},0.65) !important; }`,
+    `#versionModal .v-body::-webkit-scrollbar-thumb { background: rgba(${accentR},0.28) !important; }`,
+    `#versionModal .v-footer { border-top-color: rgba(${accentR},0.12) !important; }`,
+    `#versionModal .v-history-entry { border-left-color: rgba(${accentR},0.30) !important; }`,
+    `#versionModal .v-history-toggle { color: ${v.color} !important; opacity: 0.65; }`,
+    `#versionModal .v-history-toggle:hover { opacity: 1; }`
+  ].join('\n');
+}
+
+document.getElementById('vArrowLeft').addEventListener('click', function() {
+  if (vCurrentIndex > 0) { vCurrentIndex--; vRender(); }
+});
+document.getElementById('vArrowRight').addEventListener('click', function() {
+  if (vCurrentIndex < VERSIONS.length - 1) { vCurrentIndex++; vRender(); }
+});
+
+// Arrow key navigation when modal is open
+document.addEventListener('keydown', function(e) {
+  const overlay = document.getElementById('versionOverlay');
+  if (!overlay || !overlay.classList.contains('open')) return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowLeft' && vCurrentIndex > 0) { vCurrentIndex--; vRender(); }
+  if (e.key === 'ArrowRight' && vCurrentIndex < VERSIONS.length - 1) { vCurrentIndex++; vRender(); }
+});
+
+// Initial render
+vRender();
+</script>
 
 </body>
 </html>
