@@ -220,6 +220,12 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .mapcard{border:2px solid var(--border);background:#141009dd;border-radius:4px;
   cursor:pointer;transition:all .22s;overflow:hidden;display:flex;flex-direction:column}
 .mapcard:hover{border-color:var(--gold);box-shadow:0 0 28px #f0c04055;transform:translateY(-3px)}
+.map-preview-wrap{position:relative;display:block}
+.map-preview-badge{position:absolute;left:.5rem;bottom:.5rem;max-width:calc(100% - 1rem);
+  font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;color:var(--gold);
+  background:rgba(10,8,4,0.74);border:1px solid rgba(200,150,50,0.45);border-radius:3px;
+  padding:.28em .65em;letter-spacing:.03em;text-shadow:0 1px 2px #000;pointer-events:none;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .map-preview{width:100%;display:block;background:#0a0a0a}
 .map-name{font-family:'Cinzel',serif;color:var(--gold);font-size:1.05rem;padding:.55rem .8rem .2rem}
 .map-desc{color:var(--muted);font-size:.82rem;padding:0 .8rem .8rem;line-height:1.5}
@@ -243,7 +249,13 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .mshop-mapcard.unlocked{cursor:pointer;}
 .mshop-mapcard.unlocked:hover{border-color:#7ec8e388;box-shadow:0 0 22px #4a8fc033;transform:translateY(-2px);}
 .mshop-mapcard.locked{opacity:.7;}
+.mshop-map-preview-wrap{position:relative;display:block}
 .mshop-map-preview{width:100%;height:130px;display:block;background:#07111a;}
+.mshop-map-preview-badge{position:absolute;left:.5rem;bottom:.5rem;max-width:calc(100% - 1rem);
+  font-family:'Cinzel',serif;font-size:.78rem;font-weight:700;color:#7ec8e3;
+  background:rgba(7,12,18,0.78);border:1px solid rgba(126,200,227,0.4);border-radius:3px;
+  padding:.26em .6em;letter-spacing:.03em;text-shadow:0 1px 2px #000;pointer-events:none;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mshop-map-info{padding:.65rem .85rem .75rem;}
 .mshop-map-name{font-family:'Cinzel',serif;font-size:.95rem;color:#7ec8e3;margin-bottom:.25rem;letter-spacing:.04em;}
 .mshop-map-desc{font-size:.76rem;color:var(--muted);line-height:1.5;margin-bottom:.55rem;}
@@ -266,6 +278,8 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 .mshop-map-tag.gravel{background:#2a1e1022;border:1px solid #9a826255;color:#c0a882;}
 .mshop-map-tag.pride{background:linear-gradient(90deg,#ff000022,#ff880022,#ffff0022,#00aa0022,#0055ff22,#8800ff22);border:1px solid #ff88bb77;color:#ffaadd;font-weight:700;}
 .mshop-map-tag.limited{background:#aa000022;border:1px solid #ff330055;color:#ff6644;}
+.mshop-map-tag.island{background:#0a2a1a22;border:1px solid #4caf5055;color:#80d4a0;}
+.mshop-map-tag.tropical{background:#1a2a0022;border:1px solid #a5c85055;color:#d4e880;}
 /* ── BOX SHOP SECTION ── */
 .mshop-box-section-title{font-family:'Cinzel',serif;font-size:.8rem;letter-spacing:.12em;color:#f5a623;
   padding:.5rem 0 .6rem;border-bottom:1px solid #f5a62322;margin-bottom:.8rem;text-transform:uppercase;}
@@ -1043,43 +1057,72 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 
 <!-- MAP SELECT SCREEN -->
 <div id="mapSelectScreen" class="screen">
-  <div class="menu-inner" style="z-index:1;animation:fadeup .5s ease both">
+  <div class="menu-inner" style="z-index:1;animation:fadeup .5s ease both;max-height:100vh;overflow:hidden;display:flex;flex-direction:column;align-items:center">
     <div class="menu-emblem">🗺️</div>
     <div class="mtitle" style="font-size:2.2rem;margin-bottom:.3rem">Choose Your Map</div>
     <div class="msub" style="margin-bottom:1.8rem">Select a battlefield</div>
-    <div id="mapGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;max-width:920px;width:100%">
+    <div id="mapGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;max-width:920px;width:100%;max-height:calc(100vh - 220px);overflow-y:auto;padding-right:6px;scrollbar-width:thin;scrollbar-color:#c8964066 transparent">
       <div class="mapcard" onclick="G.showDiffSelect('grassy')" id="mc-grassy">
-        <canvas class="map-preview" id="prev-grassy" width="280" height="160"></canvas>
+        <div class="map-preview-wrap">
+          <canvas class="map-preview" id="prev-grassy" width="280" height="160"></canvas>
+          <div class="map-preview-badge">🌿 Grassy</div>
+        </div>
         <div class="map-name">🌿 Grassy</div>
         <div class="map-desc">A winding cobblestone path through lush meadows. The classic battlefield.</div>
       </div>
       <div class="mapcard" onclick="G.showDiffSelect('autumn')" id="mc-autumn">
-        <canvas class="map-preview" id="prev-autumn" width="280" height="160"></canvas>
+        <div class="map-preview-wrap">
+          <canvas class="map-preview" id="prev-autumn" width="280" height="160"></canvas>
+          <div class="map-preview-badge">🍂 Autumn Sac</div>
+        </div>
         <div class="map-name">🍂 Autumn Sac</div>
         <div class="map-desc">A path rising from the south to a dead-end loop — enemies retreat the way they came.</div>
       </div>
       <div class="mapcard" onclick="G.showDiffSelect('logforest')" id="mc-logforest">
-        <canvas class="map-preview" id="prev-logforest" width="280" height="160"></canvas>
+        <div class="map-preview-wrap">
+          <canvas class="map-preview" id="prev-logforest" width="280" height="160"></canvas>
+          <div class="map-preview-badge">🪵 Log Forest</div>
+        </div>
         <div class="map-name">🪵 Log Forest</div>
         <div class="map-desc">A golden forest maze of hollow logs, muddy trails, and a glowing central pond.</div>
       </div>
       <div class="mapcard frozen" onclick="G.trySelectFrozenLake()" id="mc-frozenlake" style="display:none">
-        <canvas class="map-preview" id="prev-frozenlake" width="280" height="160"></canvas>
+        <div class="map-preview-wrap">
+          <canvas class="map-preview" id="prev-frozenlake" width="280" height="160"></canvas>
+          <div class="map-preview-badge">❄️ Frozen Lake</div>
+        </div>
         <div class="map-name">❄️ Frozen Lake</div>
         <div class="map-desc">A glittering skate-trail battlefield with carved snowbanks, deep blue lake pockets, cabins, pines, and a dry winding ice road.</div>
       </div>
       <div class="mapcard" onclick="G.trySelectDesertRoad()" id="mc-desertroad" style="display:none">
-        <canvas class="map-preview" id="prev-desertroad" width="280" height="160"></canvas>
+        <div class="map-preview-wrap">
+          <canvas class="map-preview" id="prev-desertroad" width="280" height="160"></canvas>
+          <div class="map-preview-badge">🏜️ Desert Road</div>
+        </div>
         <div class="map-name">🏜️ Desert Road</div>
         <div class="map-desc">A scorching S-bend highway through the sand. Enemies reach the end and turn back — towers must stop them both ways.</div>
       </div>
       <div class="mapcard" onclick="G.trySelectXMarks()" id="mc-xmarks" style="display:none">
-        <canvas class="map-preview" id="prev-xmarks" width="280" height="160"></canvas>
+        <div class="map-preview-wrap">
+          <canvas class="map-preview" id="prev-xmarks" width="280" height="160"></canvas>
+          <div class="map-preview-badge">✖️ X Marks the Spot</div>
+        </div>
         <div class="map-name">✖️ X Marks the Spot</div>
         <div class="map-desc">Two gravel roads cut diagonal lines across a concrete wasteland. Half the enemies take each path — all heading straight for the opposite corner.</div>
       </div>
+      <div class="mapcard" onclick="G.trySelectLuckyIsland()" id="mc-luckyisland" style="display:none;border-color:#d4a85577">
+        <div class="map-preview-wrap">
+          <canvas class="map-preview" id="prev-luckyisland" width="280" height="160"></canvas>
+          <div class="map-preview-badge">🏝️ Lucky's Island</div>
+        </div>
+        <div class="map-name">🏝️ Lucky's Island</div>
+        <div class="map-desc">A tropical island wrapped in shimmering ocean water. The sandy coast trail winds around the island's edge — and Lucky roams the palms within.</div>
+      </div>
       <div class="mapcard" onclick="G.trySelectPrideMap()" id="mc-pridemap" style="display:none;border-color:#ff66aa55">
-        <canvas class="map-preview" id="prev-pridemap" width="280" height="160"></canvas>
+        <div class="map-preview-wrap">
+          <canvas class="map-preview" id="prev-pridemap" width="280" height="160"></canvas>
+          <div class="map-preview-badge">🏳‍🌈 The Very Gay Track</div>
+        </div>
         <div class="map-name" style="background:linear-gradient(90deg,#ff4444,#ff8800,#ffdd00,#22bb22,#2266ff,#9933ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">🏳‍🌈 The Very Gay Track</div>
         <div class="map-desc">A long colourful battlefield wrapped in a giant animated rainbow lake. The winding track cuts through a pride-flag landscape — only available until July 1st!</div>
         <div style="font-family:'Cinzel',serif;font-size:.64rem;color:#ff6644;padding:.15rem .8rem .65rem;letter-spacing:.04em">⏳ Limited Time</div>
@@ -1950,6 +1993,15 @@ const MENU_SHOP_MAPS = [
     preview:'pridemap',
     limited:true,
     limitedUntil:new Date('2026-07-01T00:00:00')
+  },
+  {
+    id:'map_luckyisland',
+    mapId:'luckyisland',
+    name:"Lucky's Island",
+    shardCost:10,
+    desc:"A sun-drenched tropical island surrounded by ocean. The sandy coastal track hugs the shoreline while Lucky herself roams the lush island interior.",
+    tags:['island','new'],
+    preview:'luckyisland'
   }
 ];
 
@@ -2222,7 +2274,7 @@ function renderMenuShopMaps(){
         const label=t==='winter'?'❄ Winter':t==='water'?'💧 Water':t==='new'?'✨ New':t==='desert'?'🏜 Desert':t==='hot'?'🔥 Hot':t==='gravel'?'🪨 Gravel':t==='pride'?'🏳‍🌈 Pride':t==='limited'?'⏳ Limited':t;
         return `<span class="mshop-map-tag ${t}">${label}</span>`;
       }).join('');
-      const mapIcon=item.id==='map_desertroad'?'🏜️':item.id==='map_frozenlake'?'❄️':item.id==='map_xmarks'?'✖️':item.id==='map_pridemap'?'🏳‍🌈':'🗺️';
+      const mapIcon=item.id==='map_desertroad'?'🏜️':item.id==='map_frozenlake'?'❄️':item.id==='map_xmarks'?'✖️':item.id==='map_pridemap'?'🏳‍🌈':item.id==='map_luckyisland'?'🏝️':'🗺️';
       let buyHtml;
       if(owned){
         buyHtml=`<button class="mshop-map-buy owned" disabled>✓ Unlocked</button>`;
@@ -2232,7 +2284,10 @@ function renderMenuShopMaps(){
         buyHtml=`<button class="mshop-map-buy" id="mshop-mapbuy-${item.id}" ${canAfford?'':'disabled'}>${canAfford?'Purchase':'Need '+item.shardCost+' Rare Shards'}</button>`;
       }
       card.innerHTML=`
-        <canvas class="mshop-map-preview" id="${previewId}" width="280" height="130"></canvas>
+        <div class="mshop-map-preview-wrap">
+          <canvas class="mshop-map-preview" id="${previewId}" width="280" height="130"></canvas>
+          <div class="mshop-map-preview-badge">${mapIcon} ${item.name}</div>
+        </div>
         <div class="mshop-map-info">
           <div style="margin-bottom:.3rem">${tagsHtml}</div>
           <div class="mshop-map-name">${mapIcon} ${item.name}</div>
@@ -2394,6 +2449,8 @@ function purchaseMapItem(item){
     showToast('X Marks the Spot unlocked! Find it in Map Select.','#c0a882');
   } else if(item.id==='map_pridemap'){
     showToast('The Very Gay Track unlocked! Find it in Map Select. 🏳‍🌈','#ff88cc');
+  } else if(item.id==='map_luckyisland'){
+    showToast("Lucky's Island unlocked! Find it in Map Select. 🏝️",'#80d4a0');
   } else {
     showToast('Frozen Lake unlocked! Find it in Map Select.','#7ec8e3');
   }
@@ -2906,6 +2963,39 @@ const MAPS = {
   };
 })();
 
+// ─── LUCKY'S ISLAND MAP DATA ───
+(()=>{
+  // The island interior is an ellipse with these radii (in grid cells).
+  // The sandy coastal track hugs the island edge (path radii ≈ island radii + small margin).
+  const cx=15, cy=9.5;
+  const islandRX=9.3, islandRY=5.2;       // visual island ellipse radii
+  const trackRX=islandRX+0.55, trackRY=islandRY+0.32; // path sits at the shoreline
+
+  // Generate 120-point elliptical loop, starting at the left side (angle = PI)
+  const steps=120;
+  const pts=[];
+  for(let i=0;i<=steps;i++){
+    const a = Math.PI - (i/steps)*Math.PI*2;
+    pts.push([cx + trackRX*Math.cos(a), cy + trackRY*Math.sin(a)]);
+  }
+  // Close the loop precisely back to start
+  pts.push([cx - trackRX, cy]);
+
+  MAPS.luckyisland={
+    name:"Lucky's Island",
+    shopUnlockOnly:true,
+    path:pts,
+    isIsland:true,
+    islandCX:cx,
+    islandCY:cy,
+    islandRX:islandRX,
+    islandRY:islandRY,
+    trackRX:trackRX,
+    trackRY:trackRY,
+    noBuildRects:[]
+  };
+})();
+
 // ─── ACTIVE MAP STATE (set per game) ───
 let PATH=MAPS.grassy.path;
 let BLOCKED=new Set();
@@ -2949,6 +3039,11 @@ function buildDecorBlockers(mapId){
     PRIDE_ROCK_SPOTS.forEach(([gx,gy,scale])=>{
       add(gx/COLS, gy/ROWS, 0.3*scale);
     });
+  } else if(mapId==='luckyisland'){
+    // Palm trees act as decor blockers on Lucky's Island
+    LUCKY_PALMS.forEach(([px,py,scale])=>{
+      add(px/COLS, py/ROWS, 0.28*scale);
+    });
   }
   return out;
 }
@@ -2961,7 +3056,7 @@ function setMap(mapId){
   DECOR_BLOCKERS=buildDecorBlockers(mapId);
   // For grassy: block path + 1-tile padding for BLOCKED grid set
   // For autumn: path uses float coords so skip grid BLOCKED entirely — canPlaceAt uses PPTS distance
-  if(mapId!=='autumn'&&mapId!=='frozenlake'&&mapId!=='xmarks'&&mapId!=='pridemap'){
+  if(mapId!=='autumn'&&mapId!=='frozenlake'&&mapId!=='xmarks'&&mapId!=='pridemap'&&mapId!=='luckyisland'){
     PATH.forEach(([c,r])=>{
       for(let dc=-1;dc<=1;dc++) for(let dr=-1;dr<=1;dr++) BLOCKED.add(`${c+dc},${r+dr}`);
     });
@@ -2974,7 +3069,12 @@ function setMap(mapId){
     for(let c=c0;c<=c1;c++) for(let r=r0;r<=r1;r++) BLOCKED.add(`${c},${r}`);
   });
   // PPTS: pixel centres — float grid coords supported
-  PPTS=PATH.map(([c,r])=>({x:c*CELL+CELL/2,y:r*CELL+CELL/2}));
+  // Lucky's Island path uses continuous float coords; skip the CELL/2 integer-cell offset
+  if(mapId==='luckyisland'){
+    PPTS=PATH.map(([c,r])=>({x:c*CELL,y:r*CELL}));
+  } else {
+    PPTS=PATH.map(([c,r])=>({x:c*CELL+CELL/2,y:r*CELL+CELL/2}));
+  }
   // For xmarks: also build second path pixel points
   if(mapId==='xmarks'&&map.pathB){
     PPTS_B=map.pathB.map(([c,r])=>({x:c*CELL+CELL/2,y:r*CELL+CELL/2}));
@@ -4867,6 +4967,12 @@ function showMapSelect(mode, backFromDiff){
     const unlocked=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_pridemap']);
     prideCard.style.display=unlocked?'flex':'none';
   }
+  // Show/hide Lucky's Island card based on unlock
+  const luckyCard=document.getElementById('mc-luckyisland');
+  if(luckyCard){
+    const unlocked=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_luckyisland']);
+    luckyCard.style.display=unlocked?'flex':'none';
+  }
   // Render map previews then show screen
   showScreen('mapSelectScreen');
   requestAnimationFrame(()=>{
@@ -4884,6 +4990,9 @@ function showMapSelect(mode, backFromDiff){
     }
     if(prideCard&&prideCard.style.display!=='none'){
       renderMapPreview('pridemap','prev-pridemap');
+    }
+    if(luckyCard&&luckyCard.style.display!=='none'){
+      renderMapPreview('luckyisland','prev-luckyisland');
     }
   });
 }
@@ -4917,6 +5026,14 @@ function trySelectPrideMap(){
     showDiffSelect('pridemap');
   } else {
     showToast('Unlock The Very Gay Track in the Shop first! 🏳‍🌈','#ff88cc');
+  }
+}
+
+function trySelectLuckyIsland(){
+  if(CAREER.shopUnlocks&&CAREER.shopUnlocks['map_luckyisland']){
+    showDiffSelect('luckyisland');
+  } else {
+    showToast("Unlock Lucky's Island in the Shop first! 🏝️",'#80d4a0');
   }
 }
 
@@ -5255,6 +5372,11 @@ function renderMapPreview(mapId,canvasId){
     const psh=H/pstripes.length;
     pstripes.forEach((c,i)=>{ ptx.fillStyle=c; ptx.globalAlpha=1; ptx.fillRect(0,Math.floor(i*psh),W,Math.ceil(psh)+1); });
     ptx.globalAlpha=1;
+  } else if(mapId==='luckyisland'){
+    // Ocean background
+    const og=ptx.createLinearGradient(0,0,W,H);
+    og.addColorStop(0,'#0a5fa8'); og.addColorStop(0.5,'#0e7ac8'); og.addColorStop(1,'#0a6abf');
+    ptx.fillStyle=og; ptx.fillRect(0,0,W,H);
   } else {
     const bg=ptx.createLinearGradient(0,0,W,H);
     bg.addColorStop(0,'#3e7a34'); bg.addColorStop(1,'#375f2e');
@@ -5275,6 +5397,7 @@ function renderMapPreview(mapId,canvasId){
   else if(mapId==='desertroad') drawDesertRoadPreviewRoad(ptx);
   else if(mapId==='xmarks') drawXMarksPreviewRoad(ptx);
   else if(mapId==='pridemap') drawPridePreviewRoad(ptx);
+  else if(mapId==='luckyisland') drawLuckyIslandPreviewInCtx(ptx,W,H,sc);
   else drawGrassyPreviewRoad(ptx,MAPS[mapId].path);
   ptx.restore();
 }
@@ -6173,6 +6296,8 @@ function startGame(mapId, difficulty){
     if(raf) cancelAnimationFrame(raf);
     lastT=performance.now();
     raf=requestAnimationFrame(loop);
+    // Init map-specific entities
+    initLuckyPeople();
     // Start radio after brief delay (allow fade-out of menu music)
     setTimeout(()=>{
       shufflePlaylist();
@@ -6819,6 +6944,23 @@ function canPlaceAt(wx,wy){
         if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
       }
     }
+  } else if(S&&S.mapId==='luckyisland'){
+    // Lucky's Island: curved path, no building ON the track
+    if(!isWallTower){
+      const clearance=CELL*0.52;
+      for(const pt of PPTS){
+        if(circleHitsTowerSquare(pt.x,pt.y,wx,wy,half,clearance)) return false;
+      }
+    }
+    // Island boundary check — PPTS uses c*CELL (no +CELL/2 offset), island drawn at islandCX*CELL
+    const map=MAPS.luckyisland;
+    const icx=map.islandCX*CELL, icy=map.islandCY*CELL;
+    const irx=map.islandRX*CELL+CELL*0.9, iry=map.islandRY*CELL+CELL*0.9;
+    const ex=(wx-icx)/irx, ey=(wy-icy)/iry;
+    const inOcean=ex*ex+ey*ey>1.0;
+    const isWaterTower=activeTowerId&&TD[activeTowerId]&&TD[activeTowerId].requiresWater;
+    if(inOcean&&!isWaterTower) return false;   // land towers can't go in ocean
+    if(!inOcean&&isWaterTower) return false;   // water towers can't go on island
   } else {
     if(!isWallTower){
       const clearance=PATH_RADIUS;
@@ -6835,10 +6977,15 @@ function canPlaceAt(wx,wy){
   }
 
   // Towers that require water (e.g. Turtle Kid 2012) must be placed fully within a water rect
+  // Exception: on Lucky's Island the whole ocean counts as water
   if(activeTowerId&&TD[activeTowerId]&&TD[activeTowerId].requiresWater){
-    const onWater=NO_BUILD_RECTS.some(rect=>rect.kind==='water'
-      &&wx-half>=rect.x&&wx+half<=rect.x+rect.w&&wy-half>=rect.y&&wy+half<=rect.y+rect.h);
-    if(!onWater) return false;
+    if(S&&S.mapId==='luckyisland'){
+      // Already handled above — if we reach here the tower is in the ocean, so pass
+    } else {
+      const onWater=NO_BUILD_RECTS.some(rect=>rect.kind==='water'
+        &&wx-half>=rect.x&&wx+half<=rect.x+rect.w&&wy-half>=rect.y&&wy+half<=rect.y+rect.h);
+      if(!onWater) return false;
+    }
   }
 
   for(const decor of (DECOR_BLOCKERS||[])){
@@ -7991,6 +8138,8 @@ function update(dt){
 
   // Gay pig (pride map only): appears every 2 minutes, gives +$3 when clicked
   updatePridePig(dt);
+  // Lucky people (Lucky's Island only): roam the interior
+  updateLuckyPeople(dt);
 
   // Farmer Orin combat attacks + golden eye
   for(const ft of S.towers){
@@ -8606,6 +8755,7 @@ function drawMap(){
   else if(S&&S.mapId==='desertroad') drawMapDesertRoad();
   else if(S&&S.mapId==='xmarks') drawMapXMarks();
   else if(S&&S.mapId==='pridemap') drawMapPride();
+  else if(S&&S.mapId==='luckyisland') drawMapLuckyIsland();
   else drawMapGrassy();
 }
 
@@ -9901,6 +10051,53 @@ function drawPridePath(){
   _drawPrideRoad(ctx, map.path);
 }
 
+// Lucky Island preview renderer (called inside scaled ctx)
+function drawLuckyIslandPreviewInCtx(ptx,W,H,sc){
+  if(!MAPS.luckyisland) return;
+  const map=MAPS.luckyisland;
+  const cx=map.islandCX*CELL,cy=map.islandCY*CELL;
+  const rx=map.islandRX*CELL,ry=map.islandRY*CELL;
+
+  // Sandy beach
+  ptx.save();
+  const beach=ptx.createRadialGradient(cx,cy,rx*0.6,cx,cy,rx*1.15);
+  beach.addColorStop(0,'rgba(210,170,80,0)');beach.addColorStop(1,'rgba(210,170,80,0.3)');
+  ptx.fillStyle=beach;ptx.beginPath();ptx.ellipse(cx,cy,rx*1.2,ry*1.2,0,0,Math.PI*2);ptx.fill();
+
+  // Island grass
+  const ig=ptx.createRadialGradient(cx-rx*0.2,cy-ry*0.2,0,cx,cy,Math.max(rx,ry));
+  ig.addColorStop(0,'#7abe4a');ig.addColorStop(0.5,'#5da838');ig.addColorStop(1,'#3a7a1e');
+  ptx.fillStyle=ig;ptx.beginPath();ptx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ptx.fill();
+  ptx.restore();
+
+  // Sandy coast
+  const tp=map.path;
+  ptx.save();
+  ptx.strokeStyle='rgba(150,105,28,0.45)';ptx.lineWidth=CELL*1.0;ptx.lineCap='round';
+  ptx.shadowColor='rgba(0,0,0,0.3)';ptx.shadowBlur=6;ptx.shadowOffsetY=2;
+  ptx.beginPath();tp.forEach(([c,r],i)=>{const px=c*CELL,py=r*CELL;i===0?ptx.moveTo(px,py):ptx.lineTo(px,py);});ptx.stroke();
+  ptx.shadowColor='transparent';ptx.shadowBlur=0;
+  ptx.strokeStyle='#d4b84a';ptx.lineWidth=CELL*0.88;
+  ptx.beginPath();tp.forEach(([c,r],i)=>{const px=c*CELL,py=r*CELL;i===0?ptx.moveTo(px,py):ptx.lineTo(px,py);});ptx.stroke();
+  ptx.strokeStyle='#f0e090';ptx.lineWidth=CELL*0.5;ptx.globalAlpha=0.4;
+  ptx.beginPath();tp.forEach(([c,r],i)=>{const px=c*CELL,py=r*CELL;i===0?ptx.moveTo(px,py):ptx.lineTo(px,py);});ptx.stroke();
+  ptx.globalAlpha=1;ptx.restore();
+
+  // Mini palm icons
+  LUCKY_PALMS.slice(0,8).forEach(([px,py,s])=>{
+    ptx.save();
+    ptx.strokeStyle='#8b6914';ptx.lineWidth=CELL*0.07*s;ptx.lineCap='round';
+    ptx.beginPath();ptx.moveTo(px*CELL,py*CELL);ptx.lineTo((px+0.1)*CELL,(py-0.55)*CELL);ptx.stroke();
+    ptx.fillStyle='#3a8020';
+    ptx.beginPath();ptx.arc((px+0.1)*CELL,(py-0.55)*CELL,CELL*0.22*s,0,Math.PI*2);ptx.fill();
+    ptx.restore();
+  });
+
+  // Ocean shimmer ring
+  ptx.strokeStyle='rgba(120,210,255,0.38)';ptx.lineWidth=3;
+  ptx.beginPath();ptx.ellipse(cx,cy,rx+CELL*0.9,ry+CELL*0.9,0,0,Math.PI*2);ptx.stroke();
+}
+
 function drawMapPride(){
   const W=COLS*CELL, H=ROWS*CELL;
   const map=MAPS.pridemap;
@@ -9942,6 +10139,258 @@ function drawMapPride(){
   ctx.strokeStyle=`hsl(${(borderH+180)%360},100%,75%)`; ctx.lineWidth=1.5;
   ctx.strokeRect(6,6,W-12,H-12);
 }
+
+// ─── LUCKY'S ISLAND MAP ───
+let _luckyAnimT = 0;
+
+const LUCKY_SPOTS = [
+  [13.5,7.0],[16.0,6.5],[12.0,9.5],[14.5,11.0],[17.5,10.5],
+  [15.0,8.5],[13.0,11.5],[16.5,8.0],[11.5,8.0],[17.0,12.0]
+];
+const LUCKY_PALMS = [
+  [11.0,6.5,1.0],[14.0,5.5,0.9],[17.0,6.0,1.1],[19.5,7.5,0.85],
+  [19.8,11.5,0.95],[17.5,13.0,0.9],[14.0,13.5,1.0],[11.5,12.5,0.85],
+  [10.5,10.0,0.95],[10.2,7.5,1.0],[15.5,7.5,0.8],[13.0,10.5,0.9]
+];
+
+function _drawPalmTree(g,x,y,scale){
+  const px=x*CELL,py=y*CELL,h=CELL*1.4*scale;
+  g.save();g.translate(px,py);
+  g.fillStyle='rgba(0,0,0,0.18)';
+  g.beginPath();g.ellipse(h*0.18,h*0.08,h*0.22,h*0.07,0.3,0,Math.PI*2);g.fill();
+  g.strokeStyle='#8b6914';g.lineWidth=CELL*0.08*scale;g.lineCap='round';
+  g.beginPath();g.moveTo(0,0);g.bezierCurveTo(-h*0.05,-h*0.35,h*0.08,-h*0.65,h*0.1,-h);g.stroke();
+  g.strokeStyle='#a07820';g.lineWidth=CELL*0.04*scale;g.stroke();
+  const tipX=h*0.1,tipY=-h;
+  const fronds=[[-h*0.5,-h*0.3,-0.6],[-h*0.3,-h*0.55,-0.3],[h*0.0,-h*0.65,0.05],[h*0.4,-h*0.4,0.4],[h*0.55,-h*0.2,0.7],[h*0.2,h*0.08,1.1],[-h*0.35,-h*0.05,1.5]];
+  const greenCols=['#3a8a20','#4aa030','#2a7010','#508a28','#357a18','#4a9428','#2a6014'];
+  fronds.forEach(([ex,ey,bend],fi)=>{
+    const mx=(tipX+ex)/2+bend*h*0.18,my=(tipY+ey)/2-h*0.08;
+    g.strokeStyle=greenCols[fi%greenCols.length];g.lineWidth=CELL*0.045*scale;g.lineCap='round';
+    g.beginPath();g.moveTo(tipX,tipY);g.quadraticCurveTo(mx,my,ex,ey);g.stroke();
+    g.strokeStyle='rgba(20,80,10,0.4)';g.lineWidth=CELL*0.02*scale;
+    g.beginPath();g.moveTo(tipX,tipY);g.quadraticCurveTo(mx,my,ex,ey);g.stroke();
+  });
+  g.restore();
+}
+
+function _drawLuckyPerson(g,x,y,sz,wobble,t){
+  g.save();g.translate(x,y);g.rotate(wobble*0.08);
+  // Drop shadow
+  g.fillStyle='rgba(0,0,0,0.22)';
+  g.beginPath();g.ellipse(0,sz*0.5,sz*0.34,sz*0.1,0,0,Math.PI*2);g.fill();
+
+  const im=gimg('LuckyTheCat.jpg');
+  const imgReady=im&&!im._bad&&im.complete&&im.naturalWidth>0;
+  const half=sz*0.44;
+
+  if(imgReady){
+    // Small square sprite clipped with slightly rounded corners
+    const r=sz*0.08;  // corner radius
+    g.save();
+    g.beginPath();
+    g.moveTo(-half+r,-half);g.lineTo(half-r,-half);g.arcTo(half,-half,half,-half+r,r);
+    g.lineTo(half,half-r);g.arcTo(half,half,half-r,half,r);
+    g.lineTo(-half+r,half);g.arcTo(-half,half,-half,half-r,r);
+    g.lineTo(-half,-half+r);g.arcTo(-half,-half,-half+r,-half,r);
+    g.closePath();g.clip();
+    g.drawImage(im,-half,-half,sz*0.88,sz*0.88);
+    g.restore();
+    // Thin gold border
+    g.strokeStyle='rgba(255,215,80,0.85)';g.lineWidth=2;
+    g.beginPath();
+    g.moveTo(-half+r,-half);g.lineTo(half-r,-half);g.arcTo(half,-half,half,-half+r,r);
+    g.lineTo(half,half-r);g.arcTo(half,half,half-r,half,r);
+    g.lineTo(-half+r,half);g.arcTo(-half,half,-half,half-r,r);
+    g.lineTo(-half,-half+r);g.arcTo(-half,-half,-half+r,-half,r);
+    g.closePath();g.stroke();
+  } else {
+    // Fallback: plain gold square
+    g.fillStyle='#d4a820';
+    g.fillRect(-half,-half,sz*0.88,sz*0.88);
+    g.strokeStyle='rgba(255,215,80,0.85)';g.lineWidth=2;
+    g.strokeRect(-half,-half,sz*0.88,sz*0.88);
+    g.fillStyle='#fff9d0';g.font=`bold ${Math.round(sz*0.32)}px sans-serif`;
+    g.textAlign='center';g.textBaseline='middle';g.fillText('🐱',0,0);
+  }
+  // Sparkle
+  g.globalAlpha=0.7+Math.sin(t*3)*0.3;
+  g.fillStyle='#ffe066';
+  const sa=t*2.5;
+  g.beginPath();g.arc(Math.cos(sa)*sz*0.6,-sz*0.72+Math.sin(sa*1.3)*sz*0.1,sz*0.055,0,Math.PI*2);g.fill();
+  g.globalAlpha=1;
+  g.restore();
+}
+
+function drawMapLuckyIsland(){
+  const W=COLS*CELL,H=ROWS*CELL;
+  const map=MAPS.luckyisland;
+  const t=_luckyAnimT;
+  _luckyAnimT+=0.016;
+  const cx=map.islandCX*CELL,cy=map.islandCY*CELL;
+  const rx=map.islandRX*CELL,ry=map.islandRY*CELL;
+
+  // Ocean
+  const og=ctx.createLinearGradient(0,0,W,H);
+  og.addColorStop(0,'#0a5fa8');og.addColorStop(0.5,'#0e7ac8');og.addColorStop(1,'#0a6abf');
+  ctx.fillStyle=og;ctx.fillRect(0,0,W,H);
+
+  // Shimmer
+  ctx.save();ctx.globalAlpha=0.1;
+  for(let i=0;i<18;i++){
+    const wx=((i*W/7+t*25)%(W+60))-30,wy=(i*97+i*H/12)%H;
+    const wa=(i*0.42+t*0.8)%(Math.PI*2);
+    ctx.strokeStyle='rgba(160,230,255,0.9)';ctx.lineWidth=1.2+Math.sin(wa)*0.5;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(wx,wy);ctx.bezierCurveTo(wx+15,wy-4+Math.sin(wa)*3,wx+30,wy+4,wx+50,wy+Math.sin(wa)*2);ctx.stroke();
+  }
+  ctx.restore();
+
+  // Sandy beach halo
+  ctx.save();
+  const beach=ctx.createRadialGradient(cx,cy,rx*0.6,cx,cy,rx*1.12);
+  beach.addColorStop(0,'rgba(210,170,80,0)');beach.addColorStop(0.7,'rgba(210,170,80,0.06)');beach.addColorStop(1,'rgba(210,170,80,0.28)');
+  ctx.fillStyle=beach;ctx.beginPath();ctx.ellipse(cx,cy,rx*1.18,ry*1.18,0,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+
+  // Island interior
+  ctx.save();
+  const ig=ctx.createRadialGradient(cx-rx*0.2,cy-ry*0.2,0,cx,cy,Math.max(rx,ry));
+  ig.addColorStop(0,'#7abe4a');ig.addColorStop(0.45,'#5da838');ig.addColorStop(0.78,'#4a9428');ig.addColorStop(1,'#3a7a1e');
+  ctx.fillStyle=ig;ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=0.14;
+  for(let i=0;i<28;i++){
+    const a=(i*137.5%360)*Math.PI/180,d=((i*71)%80)/100*rx*0.85;
+    ctx.fillStyle=i%2===0?'#a0e060':'#3a7010';
+    ctx.save();ctx.translate(cx+Math.cos(a)*d,cy+Math.sin(a*(ry/rx))*d);ctx.rotate(a+i*0.5);
+    ctx.beginPath();ctx.ellipse(0,0,CELL*(0.18+(i%3)*0.06),CELL*(0.07+(i%2)*0.03),0,0,Math.PI*2);ctx.fill();ctx.restore();
+  }
+  ctx.globalAlpha=1;ctx.restore();
+
+  // Sandy coast band — uses c*CELL to match PPTS enemy coordinates exactly
+  ctx.save();
+  ctx.strokeStyle='rgba(160,110,30,0.45)';ctx.lineWidth=CELL*1.0;ctx.lineCap='round';
+  ctx.shadowColor='rgba(0,0,0,0.35)';ctx.shadowBlur=8;ctx.shadowOffsetY=3;
+  const tp=map.path;
+  ctx.beginPath();tp.forEach(([c,r],i)=>{const px=c*CELL,py=r*CELL;i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);});ctx.stroke();
+  ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+  const sg=ctx.createLinearGradient(0,0,W*0.3,H);
+  sg.addColorStop(0,'#e8d070');sg.addColorStop(0.5,'#d4b84a');sg.addColorStop(1,'#c8a83a');
+  ctx.strokeStyle=sg;ctx.lineWidth=CELL*0.88;
+  ctx.beginPath();tp.forEach(([c,r],i)=>{const px=c*CELL,py=r*CELL;i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);});ctx.stroke();
+  ctx.strokeStyle='#f0e090';ctx.lineWidth=CELL*0.5;ctx.globalAlpha=0.45;
+  ctx.beginPath();tp.forEach(([c,r],i)=>{const px=c*CELL,py=r*CELL;i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);});ctx.stroke();
+  ctx.globalAlpha=1;
+  ctx.strokeStyle='rgba(180,140,40,0.32)';ctx.lineWidth=1.4;ctx.setLineDash([CELL*0.35,CELL*0.28]);
+  ctx.beginPath();tp.forEach(([c,r],i)=>{const px=c*CELL,py=r*CELL;i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);});ctx.stroke();
+  ctx.setLineDash([]);ctx.restore();
+
+  // ── Spawn / loop marker ──
+  // Enemies spawn and complete their circuit at the left side of the track.
+  {
+    const [spawnC, spawnR] = tp[0];  // leftmost point of ellipse
+    const spawnX=spawnC*CELL, spawnY=spawnR*CELL;
+    const mr=CELL*0.42;   // marker radius
+    const pulse=0.72+Math.sin(t*2.8)*0.28;
+
+    // Glowing halo
+    ctx.save();
+    const halo=ctx.createRadialGradient(spawnX,spawnY,0,spawnX,spawnY,mr*1.9);
+    halo.addColorStop(0,`rgba(255,220,50,${0.18*pulse})`);
+    halo.addColorStop(1,'rgba(255,200,30,0)');
+    ctx.fillStyle=halo;ctx.beginPath();ctx.arc(spawnX,spawnY,mr*1.9,0,Math.PI*2);ctx.fill();
+
+    // Pulsing outer ring
+    ctx.globalAlpha=0.55*pulse;
+    ctx.strokeStyle='#ffe050';ctx.lineWidth=2.2;
+    ctx.beginPath();ctx.arc(spawnX,spawnY,mr*(1.1+Math.sin(t*2.8)*0.08),0,Math.PI*2);ctx.stroke();
+    ctx.globalAlpha=1;
+
+    // Arrow pointing clockwise (rightward at left side of ellipse)
+    ctx.save();ctx.translate(spawnX,spawnY);
+    ctx.fillStyle='#fff9d0';ctx.strokeStyle='#c89020';ctx.lineWidth=1.8;
+    // Filled circle background
+    ctx.beginPath();ctx.arc(0,0,mr*0.62,0,Math.PI*2);
+    ctx.fillStyle='rgba(30,20,4,0.72)';ctx.fill();
+    ctx.strokeStyle='#ffd040';ctx.lineWidth=2.0;ctx.stroke();
+    // Arrow chevron pointing right (clockwise direction)
+    ctx.strokeStyle='#ffe070';ctx.lineWidth=3.2;ctx.lineCap='round';ctx.lineJoin='round';
+    const aw=mr*0.26;
+    ctx.beginPath();ctx.moveTo(-aw,aw);ctx.lineTo(aw*0.7,0);ctx.lineTo(-aw,-aw);ctx.stroke();
+    // "Loop" dot at the tip
+    ctx.fillStyle='#ffe070';ctx.beginPath();ctx.arc(aw*0.7,0,mr*0.095,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+
+    // "START" label above marker
+    ctx.save();
+    ctx.font=`bold ${Math.round(CELL*0.24)}px Cinzel,serif`;
+    ctx.textAlign='center';ctx.textBaseline='bottom';
+    ctx.shadowColor='rgba(0,0,0,0.9)';ctx.shadowBlur=5;
+    ctx.fillStyle='#ffe87a';
+    ctx.fillText('START',spawnX,spawnY-mr*0.85);
+    ctx.restore();
+    ctx.restore();
+  }
+
+  // Palm trees
+  LUCKY_PALMS.forEach(([px,py,sc])=>{
+    const wobble=Math.sin(t*0.7+(px+py)*0.8)*0.038;
+    ctx.save();ctx.translate(px*CELL,py*CELL);ctx.rotate(wobble);ctx.translate(-px*CELL,-py*CELL);
+    _drawPalmTree(ctx,px,py,sc);ctx.restore();
+  });
+
+  // Lucky roamers
+  if(S&&S.luckyPeople){
+    S.luckyPeople.forEach(lucky=>{
+      _drawLuckyPerson(ctx,lucky.x,lucky.y,CELL*0.45,Math.sin(t*2.2+lucky.phase),t+lucky.phase);
+    });
+  }
+
+  // Ocean shimmer ring
+  ctx.save();
+  ctx.globalAlpha=0.22+Math.sin(t*1.4)*0.07;
+  ctx.strokeStyle='rgba(120,210,255,0.7)';ctx.lineWidth=3;
+  ctx.beginPath();ctx.ellipse(cx,cy,rx+CELL*0.95+Math.sin(t*2)*3,ry+CELL*0.95+Math.sin(t*2)*2,0,0,Math.PI*2);ctx.stroke();
+  ctx.globalAlpha=0.1+Math.sin(t*1.8+1)*0.04;
+  ctx.strokeStyle='rgba(180,240,255,0.8)';ctx.lineWidth=6;
+  ctx.beginPath();ctx.ellipse(cx,cy,rx+CELL*1.3+Math.sin(t*2.2)*4,ry+CELL*1.3+Math.sin(t*2.2)*3,0,0,Math.PI*2);ctx.stroke();
+  ctx.globalAlpha=1;ctx.restore();
+
+  // Vignette
+  const vg=ctx.createRadialGradient(W*.5,H*.5,Math.min(W,H)*.2,W*.5,H*.5,Math.max(W,H)*.75);
+  vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(0.75,'rgba(0,0,0,0.04)');vg.addColorStop(1,'rgba(0,0,0,0.28)');
+  ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+}
+
+function initLuckyPeople(){
+  if(!S||S.mapId!=='luckyisland') return;
+  S.luckyPeople=LUCKY_SPOTS.map((spot,i)=>({
+    baseX:spot[0]*CELL,baseY:spot[1]*CELL,
+    x:spot[0]*CELL,y:spot[1]*CELL,
+    phase:i*(Math.PI*2/LUCKY_SPOTS.length),
+    speed:0.45+Math.random()*0.3,
+    roamR:CELL*(0.8+Math.random()*0.7),
+    angle:Math.random()*Math.PI*2,
+    turnSpeed:(Math.random()-0.5)*0.04
+  }));
+}
+
+function updateLuckyPeople(dt){
+  if(!S||S.mapId!=='luckyisland'||!S.luckyPeople) return;
+  S.luckyPeople.forEach(lucky=>{
+    lucky.angle+=lucky.turnSpeed+Math.sin(lucky.x*0.01+lucky.y*0.01)*0.012;
+    const nx=lucky.x+Math.cos(lucky.angle)*lucky.speed*dt*CELL;
+    const ny=lucky.y+Math.sin(lucky.angle)*lucky.speed*dt*CELL;
+    const dx=nx-lucky.baseX,dy=ny-lucky.baseY;
+    if(dx*dx+dy*dy<lucky.roamR*lucky.roamR){
+      lucky.x=nx;lucky.y=ny;
+    } else {
+      lucky.angle=Math.atan2(lucky.baseY-lucky.y,lucky.baseX-lucky.x)+(Math.random()-0.5)*0.6;
+      lucky.x+=Math.cos(lucky.angle)*lucky.speed*dt*CELL*0.4;
+      lucky.y+=Math.sin(lucky.angle)*lucky.speed*dt*CELL*0.4;
+    }
+  });
+}
+
 
 // ─── GAY PIG BONUS (pride map only) ───
 // A friendly pig wanders onto the track every 2 minutes. Click it for +$3!
@@ -11875,7 +12324,7 @@ return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen
         toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
         winContinue,winLeave,
         toggleMenuMusic,toggleMusicPopup,toggleRadio,toggleSFX,setSFXVolume,setRadioVolume,setMenuVolume,
-        showMenuShop,closeMenuShop,closeBoxOpen,switchShopTab,trySelectFrozenLake,trySelectDesertRoad,trySelectXMarks,trySelectPrideMap,
+        showMenuShop,closeMenuShop,closeBoxOpen,switchShopTab,trySelectFrozenLake,trySelectDesertRoad,trySelectXMarks,trySelectPrideMap,trySelectLuckyIsland,
         purchaseExtraItem,renderMenuShopExtras};
 })();
 
