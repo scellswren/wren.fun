@@ -2910,26 +2910,6 @@ const MAPS = {
       pts.push([x0+(x1-x0)*t, y0+(y1-y0)*t]);
     }
   };
-  // Helper: Catmull-Rom spline through a list of waypoints — passes exactly through
-  // every point with a continuously matching tangent at each join, so chained bends
-  // flow into each other smoothly instead of kinking. `skip` lets earlier waypoints be
-  // used purely as tangent context without re-emitting segments already drawn.
-  const addSpline=(pts,waypoints,steps,skip)=>{
-    skip=skip||0;
-    const n=waypoints.length;
-    for(let i=skip;i<n-1;i++){
-      const p0=waypoints[Math.max(i-1,0)];
-      const p1=waypoints[i];
-      const p2=waypoints[i+1];
-      const p3=waypoints[Math.min(i+2,n-1)];
-      for(let s=1;s<=steps;s++){
-        const t=s/steps,t2=t*t,t3=t2*t;
-        const x=0.5*((2*p1[0])+(-p0[0]+p2[0])*t+(2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2+(-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3);
-        const y=0.5*((2*p1[1])+(-p0[1]+p2[1])*t+(2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2+(-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3);
-        pts.push([x,y]);
-      }
-    }
-  };
 
   const pts=[];
   pts.push([0,2]);
@@ -2943,10 +2923,9 @@ const MAPS = {
   addCurve(pts,3,14, 3,15, 5,15, 8);
   addLine(pts,5,15, 23,15, 28);
   addCurve(pts,23,15, 26,15, 26,13, 8);
-  // Final stretch: a winding run of S-bends climbing straight up to the top-right exit.
-  // Built as one continuous spline (instead of separate curves) so each bend flows
-  // smoothly into the next with no kink at the joins.
-  addSpline(pts,[[26,15],[26,13],[25.3,10.4],[27.3,7.8],[23.8,5.3],[27.2,2.7],[24.3,1.0],[29,0.6]],16,1);
+  addLine(pts,26,13, 26,3, 18);
+  addCurve(pts,26,3, 26,1, 29,1, 8);
+  pts.push([29,1]);
 
   // Lake: top touches the hairpin road (y≈8.8), bottom touches bottom road (y≈15)
   // Left edge follows the road at x≈3, right side has a nice organic bulge
