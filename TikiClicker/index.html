@@ -2111,7 +2111,7 @@ function slotKey(i){ return SAVE_PREFIX+i; }
 
 function emptyState(){
   return {
-    clicks:0, totalEarned:0, handClicks:0,
+    clicks:0, totalEarned:0, lifetimeEarned:0, handClicks:0,
     autoLevel:0, afkAutoLevel:0, lastSeen:0,
     multLevel:1, multPurchased:0,
     frenzyOwned:false,
@@ -2306,6 +2306,28 @@ const NUM_SUFFIXES = [
   [1e297, 'cg'],
   [1e300, 'ch'],
 ];
+
+// ═══════════════════════════════════════════
+//  MAIN MENU THEME UNLOCKS (v1.1)
+//  These themes are NOT backgrounds inside Tiki Clicker — they live on the
+//  main menu's theme switcher. Reaching the milestone here just flips a
+//  localStorage flag that the main menu reads to unlock + equip the theme.
+// ═══════════════════════════════════════════
+const MENU_THEME_UNLOCKS = [
+  { key:'wren_theme_navy_unlocked',       test:()=> Math.max(state.rebirthCount||0, state.totalRebirthsEver||0) >= 1,    label:'🌊 Navy' },
+  { key:'wren_theme_bubblewrap_unlocked', test:()=> Math.max(state.rebirthCount||0, state.totalRebirthsEver||0) >= 10,   label:'🫧 Bubblewrap' },
+  { key:'wren_theme_venom_unlocked',      test:()=> Math.max(state.rebirthCount||0, state.totalRebirthsEver||0) >= 50,  label:'🟢 Venom' },
+  { key:'wren_theme_autumn_unlocked',     test:()=> (state.lifetimeEarned||0) >= 1000000,             label:'🍁 Autumn' },
+  { key:'wren_theme_tikifur_unlocked',    test:()=> (state.lifetimeEarned||0) >= 1000000000000,       label:'🐈 Tiki' },
+];
+function syncMenuThemeUnlocks(){
+  for(const t of MENU_THEME_UNLOCKS){
+    if(localStorage.getItem(t.key)!=='1' && t.test()){
+      localStorage.setItem(t.key,'1');
+      showToast(t.label+' theme unlocked for the Main Menu! 🎉');
+    }
+  }
+}
 
 function formatNum(n){
   const neg = n < 0;
@@ -2608,6 +2630,8 @@ function updateDisplay(){
 }
 function _doUpdateDisplay(){
   _displayPending = false;
+  if((state.totalEarned||0) > (state.lifetimeEarned||0)) state.lifetimeEarned = state.totalEarned;
+  syncMenuThemeUnlocks();
   const isInfinite = !isFinite(state.clicks) || state.clicks >= Number.MAX_VALUE * 0.999;
   document.getElementById('clickCount').textContent = isInfinite ? '∞' : formatNum(state.clicks);
   // Show/hide primordial tab
@@ -3178,10 +3202,12 @@ function executePrimordialRebirth(){
   const sfo   = state.superFrenzyOwned;
   const ofo   = state.omegaFrenzyOwned;
   const ctl   = state.criticalTikiLevel;
+  const lifeE = state.lifetimeEarned||0;
 
   state = emptyState();
   state.primordialCount    = pc;
   state.totalRebirthsEver  = totalR;
+  state.lifetimeEarned     = lifeE;
   state.activeBackground   = bg;
   state.frenzyOwned        = fo;
   state.afkAutoLevel       = afk;
@@ -3216,8 +3242,10 @@ function doRebirth(){
   const ofo =state.omegaFrenzyOwned;
   const ctl =state.criticalTikiLevel;
   const bg  =state.activeBackground;
+  const lifeE=state.lifetimeEarned||0;
   state=emptyState();
   state.rebirthCount     =rc;
+  state.lifetimeEarned   =lifeE;
   state.frenzyOwned      =fo;
   state.afkAutoLevel     =afk;
   state.afkAutoOwned     =afk>=1;
@@ -3837,6 +3865,11 @@ function renderSlotScreen(){
   container.innerHTML='';
   SLOT_NAMES.forEach((name,idx)=>{
     const saved=loadSlot(idx);
+    if(saved){
+      const prevState=state; state=saved;
+      syncMenuThemeUnlocks();
+      state=prevState;
+    }
     const card =document.createElement('div');
     card.className='slot-card'+(saved?'':' empty-slot');
     if(saved){
