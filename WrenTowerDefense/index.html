@@ -694,6 +694,14 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
 #cheeseStormBtn:hover{background:linear-gradient(135deg,#f5c51840,#c89a1022);
   box-shadow:0 0 22px #f5c51855;transform:translateY(-2px)}
 #cheeseStormBtn:disabled{cursor:not-allowed;transform:none}
+#ronaldoSiuuBtn{position:absolute;bottom:1rem;left:1rem;right:auto;
+  background:linear-gradient(135deg,#4caf5018,#1b5e2010);
+  color:#4caf50;border:2px solid #4caf5088;cursor:pointer;display:none;z-index:150;
+  padding:.3em .5em;border-radius:6px;transition:border-color .2s,box-shadow .2s,transform .2s;
+  box-shadow:0 0 14px #4caf5030;line-height:1;overflow:hidden}
+#ronaldoSiuuBtn:hover{background:linear-gradient(135deg,#4caf5044,#1b5e2022);
+  box-shadow:0 0 22px #4caf5055;transform:translateY(-2px)}
+#ronaldoSiuuBtn:disabled{cursor:not-allowed;transform:none}
 #nathanRelocateBtn{position:absolute;bottom:1rem;left:1rem;right:auto;
   font-size:1.6rem;background:linear-gradient(135deg,#4fc3f722,#0288d111);
   border:2px solid #4fc3f788;color:inherit;cursor:pointer;display:none;z-index:150;
@@ -1186,6 +1194,7 @@ body{font-family:'Crimson Pro',Georgia,serif;background:#080604;color:var(--text
     <div id="bigBoomTip"></div>
     <button id="cheeseStormBtn" onclick="G.triggerCheeseStormGlobal()">🧀<div class="ability-cd-sweep" id="cheeseStormSweep"></div></button>
     <button id="nathanRelocateBtn" onclick="G.triggerNathanRelocateGlobal()">🧱<div class="ability-cd-sweep" id="nathanRelocateSweep"></div></button>
+    <button id="ronaldoSiuuBtn" onclick="G.triggerRonaldoSiuuGlobal()">⚽<div class="ability-cd-sweep" id="ronaldoSiuuSweep"></div></button>
     <!-- Sandbox panel -->
     <div id="sandboxPanel">
       <div class="sbhdr">
@@ -1935,6 +1944,17 @@ const MENU_SHOP_ITEMS = [
     desc:'Support collector. Picks up DVDs Orin drops and banks the cash for you automatically.',
     limited:true,
     limitedUntil:new Date('2127-12-07T00:00:00')
+  },
+  {
+    id:'ronaldo',
+    towerId:'ronaldo',
+    name:'Ronaldo',
+    img:'Ronaldo.jpg',
+    goldCost:0,
+    shardCost:25,
+    desc:'The GOAT himself. Kicks footballs at enemies — not perfectly accurate, but powerful. SIUUUUU!',
+    limited:true,
+    limitedUntil:new Date('2026-08-02T00:00:00')
   }
 ];
 
@@ -2122,10 +2142,8 @@ function openBox(box){
   // Deduct shards
   CAREER.rareShards=(CAREER.rareShards||0)-box.shardCost;
 
-  // Pick a random unowned tower from the box (or random if all owned)
-  const unowned=box.contains.filter(c=>!(CAREER.shopUnlocks&&CAREER.shopUnlocks[c.towerId]));
-  const prize=unowned.length>0 ? unowned[Math.floor(Math.random()*unowned.length)]
-                               : box.contains[Math.floor(Math.random()*box.contains.length)];
+  // Pick any random tower from the box (all are eligible, including already-owned)
+  const prize=box.contains[Math.floor(Math.random()*box.contains.length)];
 
   // If this is a duplicate (already owned), refund 50% of the shard cost (lose the other 50%)
   const isDuplicate=!!(CAREER.shopUnlocks&&CAREER.shopUnlocks[prize.towerId]);
@@ -2567,6 +2585,7 @@ function formatNum(n){
 }
 const CELL = 52;
 const COLS = 30, ROWS = 18;
+const FOOTBALL_BALL_R = 14; // Ronaldo's ball: shared visual radius + hitbox radius
 
 function expandGridPath(waypoints){
   const out=[];
@@ -3093,9 +3112,10 @@ const TD = {
   farmerorin:{id:'farmerorin',name:'Farmer Orin',          img:'FarmerOrin.jpg',    cost:500, dmg:0,  rate:0,   range:160, income:0,   irate:0,  init:'FO', col:'#8bc34a', support:true, farmerCollector:true, shopUnlockOnly:true},
   cheeseblock:{id:'cheeseblock',name:'Block of Cheese',     img:'Cyatr9.jpg',        cost:650, dmg:5,  rate:0,   range:110, income:0,   irate:0,  init:'🧀', col:'#f5c518', cheeseFactory:true, shopUnlockOnly:true},
   nathan8028: {id:'nathan8028', name:'Nathan8028',           img:'Nathan8028.jpg',    cost:125, dmg:0,  rate:0,   range:0,   income:0,   irate:0,  init:'N',  col:'#4fc3f7', support:true, canPlaceOnPath:true, shopUnlockOnly:true},
-  turtlekid: {id:'turtlekid', name:'Turtle Kid 2012',        img:'TurtleKid2012.jpg', cost:700, dmg:1,  rate:1,   range:115, income:0,   irate:0,  init:'TK', col:'#26a69a', requiresWater:true, canPlaceOnWater:true, shopUnlockOnly:true}
+  turtlekid: {id:'turtlekid', name:'Turtle Kid 2012',        img:'TurtleKid2012.jpg', cost:700, dmg:1,  rate:1,   range:115, income:0,   irate:0,  init:'TK', col:'#26a69a', requiresWater:true, canPlaceOnWater:true, shopUnlockOnly:true},
+  ronaldo:   {id:'ronaldo',   name:'Ronaldo',                img:'Ronaldo.jpg',        cost:1000,dmg:5,  rate:2.5, range:140, income:0,   irate:0,  init:'CR', col:'#4CAF50', shopUnlockOnly:true, footballKick:true}
 };
-const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg', edunzie:'EdunzieLicksPoo.jpg', thomasmini:'ThomasIsADino.jpg', farmerorin:'OrinTheFarmer.jpg', cheeseblock:'CheeseBlock.jpg', nathan8028:'Nathan888.jpg', turtlekid:'Turtle911.jpg'};
+const TOWER_TIER5_IMGS = {wren:'Wren5.jpg', tiki:'Tiki5.jpg', orin:'Orin5.jpg', wrenfun:'WrenHell.jpg', edunzie:'EdunzieLicksPoo.jpg', thomasmini:'ThomasIsADino.jpg', farmerorin:'OrinTheFarmer.jpg', cheeseblock:'CheeseBlock.jpg', nathan8028:'Nathan888.jpg', turtlekid:'Turtle911.jpg', ronaldo:'Ron.jpg'};
 
 const TIKI_POWER_PRICE = 38000;
 const TOWER_UPGRADES = {
@@ -3168,6 +3188,13 @@ const TOWER_UPGRADES = {
     {name:'Down The Tortoise\'s', cost:1000, desc:'Now throws red Tortoise bodies that deal 10 damage, and range increases by 30 pixels.', apply:s=>{s.dmg=10;s.range+=30;s.projectile='tortoiseBody';}},
     {name:'Wave', cost:2850, desc:'Every 20 seconds, Turtle Kid summons a big wave from the water that deals 100 damage to enemies in front of it. Range increases by 40 pixels and base shots now deal 15 damage.', apply:s=>{s.dmg=15;s.range+=40;s.waveAbility=true;s.waveCooldown=20;s.waveDamage=100;s.waveCd=0;}},
     {name:'First Steps', cost:77800, desc:'Turtle Kid can now move and follow enemies even out of the water, dealing 100 damage per hit and able to attack every type of enemy. The wave attack now triggers every 4 seconds, can push enemies back (does not affect bosses stronger than Giga Lizzy), and the projectiles become blue and shiny. Range becomes global.', apply:s=>{s.dmg=100;s.range=9999;s.mobile=true;s.canHitAll=true;s.waveCooldown=4;s.wavePush=true;s.projectile='turtleShellBlueShiny';}}
+  ],
+  ronaldo: [
+    {name:'Powerful Kick', cost:450, desc:'The ball moves faster and Ronaldo\'s range increases.', apply:s=>{s.ballSpeed=1.5;s.range*=1.18;}},
+    {name:'SIUUUUUUUUU', cost:765, desc:'Ball now deals 10 damage and Ronaldo attacks every 2.25 seconds.', apply:s=>{s.dmg=10;s.rate=2.25;}},
+    {name:'Master of Football', cost:2200, desc:'Ball deals 50 damage, attacks every 2 seconds, range increases, and the ball turns blue.', apply:s=>{s.dmg=50;s.rate=2;s.range*=1.12;s.ballColor='blue';}},
+    {name:'Portuguese Champion', cost:4500, desc:'Ball turns green and red, deals 215 damage, and attacks every 1.5 seconds.', apply:s=>{s.dmg=215;s.rate=1.5;s.ballColor='greenred';}},
+    {name:'World Champion', cost:82000, desc:'Ball glows green and blue wildly. 1000 damage per hit, attacks every 1.35 seconds, range increases, faster ball. Ability: SIUUUUU — deals 1000 damage to every enemy in range (5-minute cooldown).', apply:s=>{s.dmg=1000;s.rate=1.35;s.range*=1.2;s.ballSpeed=2.2;s.ballColor='worldchamp';s.siuuAbility=true;s.siuuCd=0;}}
   ]
 };
 
@@ -3462,7 +3489,13 @@ function getTowerStats(t){
     waveCd:0,
     mobile:false,
     canHitAll:false,
-    wavePush:false
+    wavePush:false,
+    // Ronaldo football
+    footballKick:!!(TD[t.defId]&&TD[t.defId].footballKick),
+    ballSpeed:1.0,
+    ballColor:'white',
+    siuuAbility:false,
+    siuuCd:0
   };
   getTowerUpgradeList(t).slice(0,getTowerUpgradeLevel(t)).forEach(upg=>upg.apply(stats,t));
   // Thomas Mini always hits leads (base property)
@@ -3477,26 +3510,14 @@ function formatRangePx(n){
 }
 function describeTowerSpecials(stats){
   const bits=[];
-  if(stats.shots>1) bits.push(stats.shots+' shots');
-  if(stats.explosive||stats.canHitLead) bits.push('pops lead');
-  if(stats.explosive) bits.push('splash damage');
-  if(stats.clusterBombs) bits.push('cluster bombs');
-  if(stats.megaStun||stats.stunDuration>0) bits.push('stuns '+stats.stunDuration+'s');
-  if(stats.bigBoomAbility) bits.push('💥 Big Boom');
-  if(stats.sword) bits.push(stats.katana?'katana':'sword');
-  if(stats.stickyMine) bits.push('sticky mines');
-  if(stats.canSeeCamo) bits.push('camo sight');
-  if(stats.shrapnelChance) bits.push(Math.round(stats.shrapnelChance*100)+'% shrapnel');
-  if(stats.helpingHand) bits.push('25% +$7 chain');
-  if(stats.techMaster) bits.push('+25% Orin aura');
-  if(stats.rangeBoostPct) bits.push('+'+Math.round(stats.rangeBoostPct*100)+'% range aura');
-  if(stats.grantCamoVision) bits.push('camo vision aura');
-  if(stats.grantAllEnemies) bits.push('all-enemies aura');
-  if(stats.grantSpeedBoost) bits.push('+20% speed aura');
-  if(stats.farmerBonusChance) bits.push(Math.round(stats.farmerBonusChance*100)+'% double money');
-  if(stats.farmerKillMult>1) bits.push(stats.farmerKillMult+'x kill gold');
-  if(stats.farmerGoldenEye) bits.push('Golden Eye');
-  if(stats.farmerGlobal) bits.push('global collect');
+  if(stats.canSeeCamo) bits.push('👁 camo sight');
+  if(stats.explosive||stats.canHitLead) bits.push('⚙ pops lead');
+  if(stats.canHitAll) bits.push('⚙ pops all types');
+  if(stats.stunDuration>0) bits.push('⏸ stuns '+stats.stunDuration+'s');
+  if(stats.stickyMine) bits.push('💣 mines: '+stats.mineDamage+' dmg');
+  if(stats.grantCamoVision) bits.push('👁 camo vision aura');
+  if(stats.grantAllEnemies) bits.push('⚙ all-enemies aura');
+  if(stats.siuuAbility) bits.push('⚽ SIUUUUU ability');
   return bits.length ? bits.join(', ') : '—';
 }
 function getTowerBorderStyle(level){
@@ -3686,7 +3707,7 @@ function updateOrinFrenzyUI(){
   const unlocked=hasOrinFrenzyUnlock()&&!S.over;
   btn.style.display=unlocked?'flex':'none';
   if(tip) tip.style.display='none'; // never show tip text — hover only
-  if(!unlocked){ updateBigBoomUI(); updateCheeseStormUI(); updateNathanRelocateUI(); return; }
+  if(!unlocked){ updateBigBoomUI(); updateCheeseStormUI(); updateNathanRelocateUI(); updateRonaldoSiuuUI(); return; }
   const spec=getOrinFrenzySpec();
   const onCd=S.orinFrenzyCd>0||S.orinFrenzyT>0;
   btn.disabled=onCd;
@@ -3734,7 +3755,7 @@ function triggerOrinFrenzy(){
   const spec=getOrinFrenzySpec();
   S.orinFrenzyT=spec.duration;
   S.orinFrenzyCd=spec.cooldown;
-  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI(); updateRonaldoSiuuUI();
   showToast('DVD Frenzy active: x'+spec.mult+' income for '+spec.duration+'s.','#d7a6ff');
 }
 function hasBigBoomUnlock(){
@@ -3967,6 +3988,94 @@ function triggerNathanRelocateGlobal(){
   if(!t){showToast('No Tier 5 Nathan8028 on field!','#4fc3f7');return;}
   triggerNathanRelocate(t.id);
   updateNathanRelocateUI();
+}
+
+function hasRonaldoSiuuUnlock(){
+  return !!(S&&S.towers.some(t=>t.defId==='ronaldo'&&getTowerUpgradeLevel(t)>=5));
+}
+function getRonaldoSiuuTower(){
+  if(!S) return null;
+  return S.towers.find(t=>t.defId==='ronaldo'&&getTowerUpgradeLevel(t)>=5)||null;
+}
+function updateRonaldoSiuuUI(){
+  const btn=document.getElementById('ronaldoSiuuBtn');
+  const sweep=document.getElementById('ronaldoSiuuSweep');
+  if(!btn) return;
+  const unlocked=hasRonaldoSiuuUnlock()&&!!(S&&!S.over);
+  btn.style.display=unlocked?'flex':'none';
+  if(!unlocked) return;
+  const t=getRonaldoSiuuTower();
+  const cdLeft=t?(t.siuuCd||0):0;
+  const cdMax=300;
+  btn.disabled=cdLeft>0;
+  if(sweep){
+    if(cdLeft>0){
+      const pct=Math.round((cdLeft/cdMax)*100);
+      sweep.style.background=`linear-gradient(to right,rgba(0,0,0,0.55) ${pct}%,transparent ${pct}%)`;
+    } else {
+      sweep.style.background='transparent';
+    }
+  }
+  const bigBtn=document.getElementById('bigBoomBtn');
+  const orinBtn=document.getElementById('orinFrenzyBtn');
+  const cheeseBtn=document.getElementById('cheeseStormBtn');
+  const nathanBtn=document.getElementById('nathanRelocateBtn');
+  const orinVis=orinBtn&&orinBtn.style.display!=='none'&&orinBtn.style.display!=='';
+  const bigVis=bigBtn&&bigBtn.style.display!=='none'&&bigBtn.style.display!=='';
+  const cheeseVis=cheeseBtn&&cheeseBtn.style.display!=='none'&&cheeseBtn.style.display!=='';
+  const nathanVis=nathanBtn&&nathanBtn.style.display!=='none'&&nathanBtn.style.display!=='';
+  let bottom=1;
+  if(orinVis) bottom+=3.2;
+  if(bigVis) bottom+=3.2;
+  if(cheeseVis) bottom+=3.2;
+  if(nathanVis) bottom+=3.2;
+  btn.style.bottom=bottom+'rem';
+  if(!btn._tipSetup){
+    btn._tipSetup=true;
+    let _hT=null,_hEl=null;
+    btn.addEventListener('mouseenter',()=>{
+      _hT=setTimeout(()=>{
+        _hEl=document.createElement('div');
+        const t2=getRonaldoSiuuTower();
+        const cdSec=t2?(t2.siuuCd||0):0;
+        _hEl.style.cssText='position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:#131009ee;border:1px solid #4caf5066;border-radius:4px;padding:.4em .7em;font-family:Cinzel,serif;font-size:.68rem;color:#f5e8c0;white-space:nowrap;z-index:9999;pointer-events:none;min-width:220px;text-align:center;line-height:1.5';
+        _hEl.textContent='⚽ SIUUUUU — 1000 dmg to all enemies in range'+(cdSec>0?' · CD: '+Math.ceil(cdSec)+'s':' · Ready');
+        btn.appendChild(_hEl);
+      },500);
+    });
+    btn.addEventListener('mouseleave',()=>{clearTimeout(_hT);if(_hEl){_hEl.remove();_hEl=null;}});
+  }
+}
+function triggerRonaldoSiuuGlobal(){
+  const t=getRonaldoSiuuTower();
+  if(!t){showToast('No Tier 5 Ronaldo on field!','#4caf50');return;}
+  triggerRonaldoSiuu(t.id);
+  updateRonaldoSiuuUI();
+}
+function triggerRonaldoSiuu(towerId){
+  if(!S||S.over) return;
+  const t=S.towers.find(t=>t.id===towerId); if(!t) return;
+  const stats=getTowerStats(t);
+  if(!stats.siuuAbility) return;
+  if((t.siuuCd||0)>0){ showToast('SIUUUUU recharging: '+Math.ceil(t.siuuCd)+'s','#4caf50'); return; }
+  const effectiveRange=getEffectiveRangeForTower(t);
+  let hits=0;
+  for(const e of S.enemies){
+    if(e.dead||e.reached) continue;
+    const dx=e.x-t.x,dy=e.y-t.y;
+    if(dx*dx+dy*dy<=effectiveRange*effectiveRange){
+      e.hp-=1000;
+      e.flashT=0.3;
+      if(e.hp<=0) handleEnemyDefeat(e,t);
+      hits++;
+    }
+  }
+  // SIUUUUU text from tower sprite
+  S.particles.push({x:t.x,y:t.y-20,text:'SIUUUUU!',alpha:1,vy:-55,life:2.2,col:'#4caf50'});
+  S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:effectiveRange,alpha:0.7,life:0.5,col:'#4caf50'});
+  t.siuuCd=300; // 5 minutes
+  refreshSelPanel();
+  showToast('⚽ SIUUUUU! Hit '+hits+' enem'+(hits===1?'y':'ies')+' for 1000 damage!','#4caf50');
 }
 
 function triggerCheeseStormGlobal(){
@@ -4330,7 +4439,8 @@ function showSub(type){
         farmerorin:'Support collector. Picks up DVDs Orin drops and banks the cash for you.',
         cheeseblock:'Spike factory. Drops cheese onto the track to damage passing enemies.',
         nathan8028:'Wall tower. Blocks and absorbs enemies, then screams them back when upgraded.',
-        turtlekid:'Water tower. Must be placed on water and lobs turtle shells at nearby enemies.'
+        turtlekid:'Water tower. Must be placed on water and lobs turtle shells at nearby enemies.',
+        ronaldo:'Football striker. Kicks a ball down the path that damages anything it rolls through.'
       }[t.id]||'';
       const imgSrc=getTowerImageSrc(t.id);
 
@@ -6949,6 +7059,15 @@ function circleHitsTowerSquare(px,py,cx,cy,half,radius){
   const dy=Math.max(Math.abs(py-cy)-half,0);
   return dx*dx+dy*dy<radius*radius;
 }
+function pointSegDistSq(px,py,ax,ay,bx,by){
+  const dx=bx-ax,dy=by-ay;
+  const lenSq=dx*dx+dy*dy;
+  let t=lenSq>0 ? ((px-ax)*dx+(py-ay)*dy)/lenSq : 0;
+  t=Math.max(0,Math.min(1,t));
+  const cx=ax+dx*t,cy=ay+dy*t;
+  const ex=px-cx,ey=py-cy;
+  return ex*ex+ey*ey;
+}
 function towerBoxContainsPoint(t,px,py,pad=0){
   const half=getTowerBaseHalf(t);
   return Math.abs(px-t.x)<=half+pad&&Math.abs(py-t.y)<=half+pad;
@@ -7070,7 +7189,7 @@ function placeTower(wx,wy){
   S.shopInfoSel=null;
   updateHUD();
   buildShop();
-  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI(); updateRonaldoSiuuUI();
   selectTower(newId); // open this tower's selection panel
 }
 
@@ -7091,7 +7210,7 @@ function removeTower(id, refundPct){
   document.getElementById('selPanel').style.display='none';
   updateHUD();
   buildShop();
-  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI(); updateRonaldoSiuuUI();
 }
 
 function sellTower(id){
@@ -7122,7 +7241,7 @@ function buyTowerUpgrade(id){
   sfx('upgrade');
   updateHUD();
   buildShop();
-  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI(); updateRonaldoSiuuUI();
   selectTower(id);
 }
 
@@ -7301,7 +7420,7 @@ function selectTower(id){
     ${upgradeHtml}
     ${showPri?`<div class="pri-label">TARGET PRIORITY</div><div class="pri-btns" id="pribtns"></div>`:''}
     ${isCheeseBlock?`<div class="pri-label">CHEESE PLACEMENT</div><div class="pri-btns" id="cheesemodbtns"></div>`:''}
-    ${(stats.bigBoomAbility||showOrinAbility||stats.cheeseStormAbility||stats.wallRelocateAbility)?`<div class="pri-label">ABILITIES</div><div id="abilitiesRow" style="display:flex;gap:.28rem;flex-wrap:wrap;margin-bottom:.35rem"></div>`:''}
+    ${(stats.bigBoomAbility||showOrinAbility||stats.cheeseStormAbility||stats.wallRelocateAbility||stats.siuuAbility)?`<div class="pri-label">ABILITIES</div><div id="abilitiesRow" style="display:flex;gap:.28rem;flex-wrap:wrap;margin-bottom:.35rem"></div>`:''}
     <div style="margin-top:.55rem">
       <button class="sellbtn" id="selbtn-sell" style="width:100%">💰 Sell — $${Math.floor(getTowerSpent(t)*.65)}</button>
     </div>
@@ -7389,6 +7508,10 @@ function selectTower(id){
       const cdLeft=t.cheeseStormCd||0;
       makeAbilityBtn('🧀','Cheese Storm','Covers entire track with 100 cheeses'+(cdLeft>0?' · CD: '+Math.ceil(cdLeft)+'s':' · Ready'),cdLeft,150,()=>triggerCheeseStorm(id));
     }
+    if(stats.siuuAbility){
+      const cdLeft=t.siuuCd||0;
+      makeAbilityBtn('⚽','SIUUUUU','1000 dmg to all enemies in range'+(cdLeft>0?' · CD: '+Math.ceil(cdLeft)+'s':' · Ready'),cdLeft,300,()=>triggerRonaldoSiuu(id));
+    }
   }
 
   if(!im._bad&&(!im.complete||im.naturalWidth===0)){
@@ -7451,7 +7574,7 @@ function updateHUD(){
     diffBadge.style.color=diff==='easy'?'#4caf50':diff==='medium'?'#ff9800':'#e57368';
     diffBadge.style.borderColor=diffCol;
   }
-  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI(); updateRonaldoSiuuUI();
   refreshSelPanel();
 }
 
@@ -7799,6 +7922,38 @@ function explodeAt(x,y,radius,damage,tower,stats,color){
   }
 }
 function fireTowerAttack(t, stats){
+  // Ronaldo football kick
+  if(stats.footballKick){
+    const targets=getTargetsInRange(t,stats);
+    if(!targets.length) return;
+    const tgt=targets[0];
+    // Inaccuracy: target the enemy's current position with slight random offset
+    const scatter=30;
+    const aimX=tgt.x+(Math.random()-0.5)*scatter*2;
+    const aimY=tgt.y+(Math.random()-0.5)*scatter*2;
+    const spd=stats.ballSpeed||1.0;
+    const travelTime=0.65/spd;
+    // The ball travels to the aimed position and keeps going if it hits nothing
+    const dx=aimX-t.x,dy=aimY-t.y;
+    const dist=Math.sqrt(dx*dx+dy*dy)||1;
+    // Travel distance: extend to edge of map (map is about COLS*CELL wide)
+    const maxDist=Math.max(COLS,ROWS)*CELL*1.5;
+    const ex=t.x+(dx/dist)*maxDist;
+    const ey=t.y+(dy/dist)*maxDist;
+    S.projs.push({
+      type:'football',
+      sx:t.x,sy:t.y,
+      ex,ey,
+      aimX,aimY,
+      life:travelTime*(maxDist/dist),
+      maxLife:travelTime*(maxDist/dist),
+      ballColor:stats.ballColor||'white',
+      dmg:stats.dmg,
+      towerId:t.id,
+      hitEnemies:new Set()
+    });
+    return;
+  }
   // Sword melee: hit all enemies in range at once (arc swing)
   if(stats.sword){
     const targets=getTargetsInRange(t,stats);
@@ -7910,7 +8065,7 @@ function update(dt){
     if(S.orinFrenzyCd>0) S.orinFrenzyCd=Math.max(0,S.orinFrenzyCd-dt);
     if(S.orinFrenzyT>0) S.orinFrenzyT=Math.max(0,S.orinFrenzyT-dt);
   }
-  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI();
+  updateOrinFrenzyUI(); updateCheeseStormUI(); updateNathanRelocateUI(); updateRonaldoSiuuUI();
 
   // Spawn
   if(S.waveActive){
@@ -8107,6 +8262,7 @@ function update(dt){
     if(t.sparkleT>0) t.sparkleT=Math.max(0,t.sparkleT-dt);
     if(t.swingT!=null&&t.swingDur>0) t.swingT=Math.min(1,t.swingT+dt/t.swingDur);
     if(t.bigBoomCd>0){ t.bigBoomCd=Math.max(0,t.bigBoomCd-dt); if(S.towerSel===t.id) refreshSelPanel(); updateBigBoomUI(); }
+    if(t.siuuCd>0){ t.siuuCd=Math.max(0,t.siuuCd-dt); if(S.towerSel===t.id) refreshSelPanel(); updateRonaldoSiuuUI(); }
   }
 
   // Projectiles
@@ -8142,496 +8298,40 @@ function update(dt){
         sfx('big_boom');
         showToast('💥 Big Boom! 7000 damage dealt!','#ff7043');
       }
+    } else if(p.type==='football'){
+      // Sweep the ball's travel this tick and damage every enemy whose
+      // hit-circle the segment crosses — this is what actually makes the
+      // ball "roll through" enemies instead of just looking like it does.
+      const prevX=(p.x!=null)?p.x:p.sx;
+      const prevY=(p.y!=null)?p.y:p.sy;
+      p.life-=dt;
+      const prog=Math.min(1,Math.max(0,1-(p.life/p.maxLife)));
+      const nx=p.sx+(p.ex-p.sx)*prog;
+      const ny=p.sy+(p.ey-p.sy)*prog;
+      p.x=nx;p.y=ny;
+      if(p.life>0){
+        const srcTower=S.towers.find(tw=>tw.id===p.towerId);
+        if(srcTower){
+          const stats=getTowerStats(srcTower);
+          for(const e of S.enemies){
+            if(e.dead||e.reached) continue;
+            if(p.hitEnemies.has(e.id)) continue;
+            const enemyR=(CELL*.7*(e.scale||1))*0.42;
+            const hitR=FOOTBALL_BALL_R+enemyR;
+            if(pointSegDistSq(e.x,e.y,prevX,prevY,nx,ny)<=hitR*hitR){
+              p.hitEnemies.add(e.id);
+              damageEnemy(e,p.dmg,srcTower,stats);
+              S.particles.push({x:e.x,y:e.y,type:'ring',r:0,maxR:22,alpha:1,life:0.16,col:'#ffffff'});
+            }
+          }
+        }
+      }
     } else {
       p.life-=dt;
     }
   }
   S.projs=S.projs.filter(p=>p.life>0);
 
-  // Income drops
-  for(let i=S.incomeDrops.length-1;i>=0;i--){
-    const drop=S.incomeDrops[i];
-    drop.life-=dt;
-    const owner=S.towers.find(t=>t.id===drop.ownerId);
-    if(owner&&getTowerUpgradeLevel(owner)>=3){
-      collectIncomeDrop(drop,true);
-      continue;
-    }
-
-    // Farmer Orin auto-pickup: collect any drop after farmerCollectTime seconds on the ground
-    let collectedByFarmer=false;
-    const dropAge=(drop.maxLife||15)-drop.life;
-    for(const ft of S.towers){
-      if(ft.defId!=='farmerorin') continue;
-      const fstats=getTowerStats(ft);
-      if(!fstats) continue;
-      const ageNeeded=fstats.farmerCollectTime||4;
-      // Global pickup at T5
-      const inRange=fstats.farmerGlobal||((()=>{const dx=drop.x-ft.x,dy=drop.y-ft.y;return Math.sqrt(dx*dx+dy*dy)<=fstats.range;})());
-      if(!inRange) continue;
-      if(dropAge>=ageNeeded){
-        // Apply bonus chance
-        let amount=drop.amount;
-        const roll=Math.random();
-        if(roll<(fstats.farmerBonusChance||0)) amount*=2;
-        // Override drop amount for collection
-        drop.amount=amount;
-        triggerFarmerPickupAnim(ft,drop);
-        collectIncomeDrop(drop,true);
-        collectedByFarmer=true;
-        break;
-      }
-    }
-    if(collectedByFarmer) continue;
-
-    if(drop.life<=0) S.incomeDrops.splice(i,1);
-  }
-
-  // Gay pig (pride map only): appears every 2 minutes, gives +$3 when clicked
-  updatePridePig(dt);
-  // Lucky people (Lucky's Island only): roam the interior
-  updateLuckyPeople(dt);
-
-  // Farmer Orin combat attacks + golden eye
-  for(const ft of S.towers){
-    if(ft.defId!=='farmerorin') continue;
-    const fstats=getTowerStats(ft);
-    if(ft.farmerPickupT>0) ft.farmerPickupT=Math.max(0,ft.farmerPickupT-dt);
-    if(ft.farmerAttackT>0) ft.farmerAttackT=Math.max(0,ft.farmerAttackT-dt);
-    if(!fstats||!fstats.rate||!fstats.dmg) continue;
-    ft.at=(ft.at||0)+dt;
-    if(ft.at>=fstats.rate){
-      ft.at=0;
-      // Rake swing visual is short, but Farmer Orin still damages across his full tower range
-      const targets=getTargetsInRange(ft,fstats);
-      if(targets.length){
-        const tgt=targets[0];
-        triggerFarmerAttackAnim(ft,tgt,fstats);
-        // Golden Eye: enemies under 1000 HP turn to gold
-        if(fstats.farmerGoldenEye&&tgt.hp<1000&&!tgt.goldenEye){
-          tgt.goldenEye=true;
-          tgt.goldenEyeT=1.0; // 1 second before explode
-          tgt.goldenEyeReward=tgt.hp*10;
-          tgt.farmerTower=ft;
-        } else if(!tgt.goldenEye){
-          const wasAlive=!tgt.dead;
-          if(damageEnemy(tgt,fstats.dmg,ft,fstats)&&wasAlive&&tgt.dead){
-            const killReward=Math.round((tgt.maxHp||tgt.hp)*(fstats.farmerKillMult||1));
-            S.gold+=killReward;S.totalMoneyEarned=(S.totalMoneyEarned||0)+killReward;
-            recordMoneyEarned(killReward);
-            updateHUD();
-            refreshShopAffordability();
-            S.particles.push({x:tgt.x,y:tgt.y-20,text:'$'+killReward,alpha:1,vy:-38,life:0.9,col:'#8bc34a'});
-          }
-        }
-      }
-    }
-  }
-
-  // Golden Eye countdown
-  for(let i=S.enemies.length-1;i>=0;i--){
-    const e=S.enemies[i];
-    if(!e.goldenEye) continue;
-    e.goldenEyeT=(e.goldenEyeT||0)-dt;
-    if(e.goldenEyeT<=0){
-      // Explode for 10x reward
-      const reward=e.goldenEyeReward||e.hp*10;
-      S.gold+=reward;S.totalMoneyEarned=(S.totalMoneyEarned||0)+reward;
-      recordMoneyEarned(reward);
-      updateHUD();
-      refreshShopAffordability();
-      S.particles.push({x:e.x,y:e.y-20,text:'💰 x10!',alpha:1,vy:-46,life:1.1,col:'#ffd700'});
-      S.particles.push({x:e.x,y:e.y,type:'ring',r:0,maxR:55,alpha:1,life:0.3,col:'#ffd700'});
-      handleEnemyDefeat(e,e.farmerTower||S.towers[0]);
-    }
-  }
-
-  // ─── NATHAN8028 WALL UPDATE ───
-  for(let ti=S.towers.length-1;ti>=0;ti--){
-    const t=S.towers[ti];
-    if(t.defId!=='nathan8028') continue;
-    const stats=getTowerStats(t);
-
-    // Init wall hp if not set
-    if(t.wallHp===undefined) t.wallHp=stats.wallMaxHp;
-    if(t.wallHp===null) t.wallHp=stats.wallMaxHp;
-
-    // Tick relocate cooldown (only during wave, speed-affected via dt)
-    if(stats.wallRelocateAbility && (t.wallRelocateCd||0)>0 && S.waveActive){
-      t.wallRelocateCd=Math.max(0,t.wallRelocateCd-dt);
-      if(S.towerSel===t.id) refreshSelPanel();
-      updateNathanRelocateUI();
-    }
-
-    // Tick scream cooldown
-    if(stats.wallScream && S.waveActive){
-      t.wallScreamT=(t.wallScreamT||0)-dt;
-      if(t.wallScreamT<=0){
-        t.wallScreamT=stats.wallScreamCooldown;
-        // Scream! Push nearby enemies back along the path
-        const screamRadius=CELL*3.5; // scream reaches ~3.5 cells around Nathan
-        let didScream=false;
-        for(const e of S.enemies){
-          if(e.dead||e.reached) continue;
-          const dx=e.x-t.x, dy=e.y-t.y;
-          if(dx*dx+dy*dy>screamRadius*screamRadius) continue;
-          // Check exclusions
-          if(!stats.wallScreamAffectBoss && e.boss) continue;
-          if(!stats.wallScreamAffectReinforced && e.reinforced) continue;
-          if(!stats.wallScreamAffectReinforced && e.lead) continue;
-          // Extra: never affects Winston Churchill even at T5
-          if(e.id==='winstonChurchill'||e.id==='reinforcedWinston') continue;
-          // Push enemy back along path by wallScreamPush pixels
-          didScream=true;
-          let pushRem=stats.wallScreamPush;
-          const ePath=e._ppts||PPTS;
-          // Walk backwards along path
-          while(pushRem>0 && e.pi>0){
-            const prev=ePath[e.pi];
-            const prevPrev=ePath[Math.max(0,e.pi-1)];
-            const dx2=e.x-prevPrev.x, dy2=e.y-prevPrev.y;
-            const segDist=Math.sqrt(dx2*dx2+dy2*dy2);
-            if(segDist<=pushRem){
-              pushRem-=segDist;
-              e.pi=Math.max(0,e.pi-1);
-              e.x=ePath[e.pi].x; e.y=ePath[e.pi].y;
-            } else {
-              // Push partway back along segment
-              const segDir=segDist>0?{x:-dx2/segDist,y:-dy2/segDist}:{x:0,y:0};
-              e.x+=segDir.x*pushRem; e.y+=segDir.y*pushRem;
-              pushRem=0;
-            }
-          }
-          e.pushFlash=0.3; // visual push flash
-        }
-        if(didScream){
-          // Spawn sound wave particles
-          t.screamWave={t:0,dur:0.55};
-          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:screamRadius,alpha:0.85,life:0.45,col:'#4fc3f7'});
-          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:screamRadius*0.6,alpha:0.7,life:0.35,col:'#81d4fa'});
-          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:screamRadius*1.3,alpha:0.55,life:0.6,col:'#b3e5fc'});
-        }
-      }
-    }
-
-    // Tick scream wave visual
-    if(t.screamWave){
-      t.screamWave.t+=dt;
-      if(t.screamWave.t>=t.screamWave.dur) t.screamWave=null;
-    }
-
-    // Wall blocks enemies: stop enemies that try to walk through Nathan
-    // An enemy is "blocked" if it's within Nathan's blocking rect on the path
-    if(S.waveActive && t.wallHp>0){
-      const blockW=CELL*1.6; // Nathan's blocking width across path
-      const blockH=CELL*0.8; // and depth along path
-      for(const e of S.enemies){
-        if(e.dead||e.reached) continue;
-        const dx=Math.abs(e.x-t.x), dy=Math.abs(e.y-t.y);
-        if(dx<blockW/2 && dy<blockH/2){
-          // Damage wall by enemy's total HP when enemy first contacts
-          if(!e._nathanBlocked){
-            e._nathanBlocked=t.id;
-            // Wall takes damage equal to enemy's remaining HP 
-            t.wallHp=Math.max(0, t.wallHp - e.hp);
-            e.stunned=true; e.stunnedT=0.5; // brief stun on contact (not Winstons)
-            if(e.defId==='winstonChurchill'||e.defId==='reinforcedWinston'){ e.stunned=false; e.stunnedT=0; }
-            if(S.towerSel===t.id) refreshSelPanel();
-          }
-          // Keep enemy pushed back slightly so they don't pass through while wall lives
-          if(t.wallHp>0){
-            const ePath=e._ppts||PPTS;
-            if(e.pi>0){
-              const segDir={x:e.dx||0,y:e.dy||0};
-              e.x-=segDir.x*2; e.y-=segDir.y*2;
-            }
-          }
-        } else {
-          if(e._nathanBlocked===t.id) e._nathanBlocked=null;
-        }
-      }
-    }
-
-    // Wall destroyed
-    if(t.wallHp<=0 && !t._destroying){
-      t._destroying=true;
-      t.wallHp=0;
-      // Destruction particles
-      for(let i=0;i<12;i++){
-        S.particles.push({
-          x:t.x+(Math.random()-.5)*CELL*1.5,
-          y:t.y+(Math.random()-.5)*CELL,
-          text:['💥','🪨','💢'][Math.floor(Math.random()*3)],
-          alpha:1,vx:(Math.random()-.5)*80,vy:-60-Math.random()*60,
-          life:0.7+Math.random()*0.4,col:'#4fc3f7'
-        });
-      }
-      showToast('Nathan8028 has fallen!','#4fc3f7');
-
-      if(stats.wallRespawn){
-        // Schedule respawn — stores position for later re-insertion
-        t._respawnX=t.x; t._respawnY=t.y;
-        t._respawnIn=stats.wallRespawnTime;
-        t._dead=true; // mark as dead so it hides but stays in array
-        // Don't remove — we keep it in towers array to track respawn
-        if(S.towerSel===t.id){ S.towerSel=null; document.getElementById('selPanel').style.display='none'; }
-      } else {
-        // Permanent death — remove from towers
-        S.towers.splice(ti,1);
-        if(S.towerSel===t.id){ S.towerSel=null; document.getElementById('selPanel').style.display='none'; }
-      }
-    }
-
-    // Respawn countdown
-    if(t._dead && stats.wallRespawn){
-      t._respawnIn=Math.max(0,(t._respawnIn||0)-dt);
-      if(t._respawnIn<=0){
-        // Respawn!
-        t._dead=false;
-        t._destroying=false;
-        t.wallHp=stats.wallMaxHp;
-        showToast('Nathan8028 has respawned!','#4fc3f7');
-        if(S.towerSel===t.id) refreshSelPanel();
-        // Clear any enemy blocked flags that were targeting this tower
-        for(const e of S.enemies) if(e._nathanBlocked===t.id) e._nathanBlocked=null;
-      }
-    }
-  }
-
-  // ─── TURTLE KID 2012 UPDATE ───
-  for(const t of S.towers){
-    if(t.defId!=='turtlekid') continue;
-    const stats=getTowerStats(t);
-
-    // First Steps: move toward the nearest targetable enemy (stays at least 20px away)
-    if(stats.mobile && S.waveActive){
-      const targets=S.enemies.filter(e=>!e.dead&&!e.reached&&canTowerTargetEnemy(stats,e,t));
-      if(targets.length){
-        // Stick to the current lock-on target while it's still valid, to avoid jittery retargeting
-        let lockedTarget=targets.find(e=>e.id===t._moveTargetId);
-        if(!lockedTarget){
-          let nearest=null,nd=Infinity;
-          for(const e of targets){
-            const dx=e.x-t.x,dy=e.y-t.y,d2=dx*dx+dy*dy;
-            if(d2<nd){nd=d2;nearest=e;}
-          }
-          lockedTarget=nearest;
-          t._moveTargetId=lockedTarget?lockedTarget.id:null;
-        }
-        if(lockedTarget){
-          const dx=lockedTarget.x-t.x,dy=lockedTarget.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
-          const minDist=20; // never get closer than 20px to the enemy
-          const stopBuffer=4; // small buffer so it settles smoothly instead of jittering at the edge
-          if(dist>minDist+stopBuffer){
-            const moveSpeed=70; // px/sec
-            const step=Math.min(moveSpeed*dt,dist-(minDist+stopBuffer));
-            const W=COLS*CELL,H=ROWS*CELL,half=getTowerBaseHalf(t);
-            const nx=dx/dist,ny=dy/dist;
-            t.x=Math.max(half,Math.min(W-half,t.x+nx*step));
-            t.y=Math.max(half,Math.min(H-half,t.y+ny*step));
-          } else if(dist<minDist){
-            // Too close — back off slightly to maintain the 20px gap
-            const W=COLS*CELL,H=ROWS*CELL,half=getTowerBaseHalf(t);
-            const moveSpeed=70;
-            const step=Math.min(moveSpeed*dt,minDist-dist);
-            const nx=dx/(dist||1),ny=dy/(dist||1);
-            t.x=Math.max(half,Math.min(W-half,t.x-nx*step));
-            t.y=Math.max(half,Math.min(H-half,t.y-ny*step));
-          }
-        }
-      } else {
-        t._moveTargetId=null;
-      }
-    }
-
-    // Wave ability
-    if(stats.waveAbility){
-      t.waveCd=(t.waveCd||0)-dt;
-      if(t.waveCd<=0 && S.waveActive){
-        t.waveCd=stats.waveCooldown;
-        const effRange=getEffectiveRangeForTower(t);
-        const isGlobal=effRange>=9999;
-        const mapDiagonal=Math.sqrt((COLS*CELL)**2+(ROWS*CELL)**2);
-        const waveRange=isGlobal?effRange+40:effRange+40; // big wave reaches a bit further than normal range
-        const waveVisualR=isGlobal?mapDiagonal:waveRange; // clamp visuals to map size when global
-        let didWave=false;
-        for(const e of S.enemies){
-          if(e.dead||e.reached) continue;
-          if(!canTowerTargetEnemy(stats,e,t)) continue;
-          const dx=e.x-t.x,dy=e.y-t.y,dist=Math.sqrt(dx*dx+dy*dy);
-          if(dist<=waveRange||isGlobal){
-            didWave=true;
-            const wasAlive=!e.dead;
-            damageEnemy(e,stats.waveDamage,t,stats);
-            // Wave pushback (First Steps only) — does not affect bosses stronger than Giga Lizzy
-            if(stats.wavePush&&!e.dead){
-              const exemptBosses=['gigaLizzy','reinforcedGigaLizzy','winstonChurchill','reinforcedWinston'];
-              const baseId=getEnemyBaseId(e.defId);
-              const tooStrong=e.boss&&!exemptBosses.includes(baseId)&&!exemptBosses.includes(e.defId)
-                ?  (ED[baseId]&&ED['gigaLizzy']&&ED[baseId].hp>ED['gigaLizzy'].hp) : false;
-              if(!tooStrong){
-                let pushRem=40;
-                const ePath=e._ppts||PPTS;
-                while(pushRem>0 && e.pi>0){
-                  const prevPrev=ePath[Math.max(0,e.pi-1)];
-                  const dx2=e.x-prevPrev.x, dy2=e.y-prevPrev.y;
-                  const segDist=Math.sqrt(dx2*dx2+dy2*dy2);
-                  if(segDist<=pushRem){
-                    pushRem-=segDist;
-                    e.pi=Math.max(0,e.pi-1);
-                    e.x=ePath[e.pi].x; e.y=ePath[e.pi].y;
-                  } else {
-                    const segDir=segDist>0?{x:-dx2/segDist,y:-dy2/segDist}:{x:0,y:0};
-                    e.x+=segDir.x*pushRem; e.y+=segDir.y*pushRem;
-                    pushRem=0;
-                  }
-                }
-                e.pushFlash=0.3;
-              }
-            }
-          }
-        }
-        if(didWave){
-          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:waveVisualR,alpha:0.85,life:0.5,col:'#29b6f6'});
-          S.particles.push({x:t.x,y:t.y,type:'ring',r:0,maxR:waveVisualR*0.6,alpha:0.7,life:0.4,col:'#81d4fa'});
-          S.particles.push({x:t.x,y:t.y-CELL*.5,text:'🌊 Wave!',alpha:1,vy:-30,life:0.9,col:'#29b6f6'});
-        }
-      }
-    }
-  }
-
-  // ─── CHEESE BLOCK FACTORY UPDATE ───
-  for(const t of S.towers){
-    if(t.defId!=='cheeseblock') continue;
-    const stats=getTowerStats(t);
-    if(!t.cheesePieces) t.cheesePieces=[];
-    if(!t.cheeseFlying) t.cheeseFlying=[];
-
-    // Tick cooldown timer (dt already accounts for 2x/3x speed)
-    if(t.cheeseCooldownT>0) t.cheeseCooldownT=Math.max(0,t.cheeseCooldownT-dt);
-    // Tick cheese storm cooldown
-    if(t.cheeseStormCd>0){ t.cheeseStormCd=Math.max(0,t.cheeseStormCd-dt); if(S.towerSel===t.id) refreshSelPanel(); updateCheeseStormUI(); }
-
-    // Tick flying cheese animations
-    for(let fi=t.cheeseFlying.length-1;fi>=0;fi--){
-      const fly=t.cheeseFlying[fi];
-      fly.t+=dt/fly.dur;
-      if(fly.t>=1){
-        fly.t=1;
-        // Land: add as a real cheese piece
-        t.cheesePieces.push({
-          x:fly.tx, y:fly.ty,
-          hp:stats.cheeseDmg, maxHp:stats.cheeseDmg,
-          id:fly.id,
-          landT:0.18 // brief land-bounce timer
-        });
-        t.cheeseFlying.splice(fi,1);
-        if(S.towerSel===t.id) refreshSelPanel();
-      }
-    }
-
-    // Tick land-bounce timers on placed cheese
-    for(const piece of t.cheesePieces){
-      if(piece.landT>0) piece.landT=Math.max(0,piece.landT-dt);
-    }
-
-    // Helper: pick target point according to placement mode
-    function pickCheesePt(){
-      const effectiveRange=getEffectiveRangeForTower(t);
-      const allPts=(S&&S.mapId==='xmarks'&&PPTS_B.length)?[...PPTS,...PPTS_B]:PPTS;
-      const inRange=allPts.filter(pt=>{
-        const dx=pt.x-t.x, dy=pt.y-t.y;
-        return dx*dx+dy*dy<=effectiveRange*effectiveRange;
-      });
-      if(!inRange.length) return null;
-      const mode=t.cheeseMode||'random';
-      if(mode==='far'){
-        return inRange.reduce((best,pt)=>{
-          const bi=PPTS.indexOf(best), pi=PPTS.indexOf(pt);
-          return pi>bi?pt:best;
-        }, inRange[0]);
-      } else if(mode==='near'){
-        return inRange.reduce((best,pt)=>{
-          const bi=PPTS.indexOf(best), pi=PPTS.indexOf(pt);
-          return pi<bi?pt:best;
-        }, inRange[0]);
-      } else if(mode==='front'){
-        return inRange.reduce((best,pt)=>{
-          const da=(pt.x-t.x)**2+(pt.y-t.y)**2;
-          const db=(best.x-t.x)**2+(best.y-t.y)**2;
-          return da<db?pt:best;
-        }, inRange[0]);
-      } else {
-        return inRange[Math.floor(Math.random()*inRange.length)];
-      }
-    }
-
-    // Helper: launch one cheese as a flying projectile from tower to target
-    function launchOneCheese(){
-      const chosenPt=pickCheesePt();
-      if(!chosenPt) return;
-      const dx=chosenPt.x-t.x, dy=chosenPt.y-t.y;
-      const dist=Math.sqrt(dx*dx+dy*dy)||1;
-      // Travel time: 0.22s base, scaled by distance — feels snappy but visible
-      const travelDur=Math.max(0.18, Math.min(0.55, dist/320));
-      t.cheeseFlying.push({
-        sx:t.x, sy:t.y,          // start (tower centre)
-        tx:chosenPt.x, ty:chosenPt.y, // target
-        t:0, dur:travelDur,
-        id:Math.random(),
-        arc:0.38+Math.random()*0.22, // arc height factor
-        spin:Math.random()*Math.PI*2  // initial rotation for spin anim
-      });
-    }
-
-    // Only place ONE new cheese per cooldown cycle (one-at-a-time, never instant-fill)
-    // Active + in-flight count together toward the cap
-    // Only place during active waves, not between rounds
-    const activeCount = t.cheesePieces.length + t.cheeseFlying.length;
-    if(S.waveActive && activeCount < stats.cheeseMax && (t.cheeseCooldownT||0)<=0){
-      // At max cap with oldest-removal: if placing would exceed due to rounding, evict oldest placed piece
-      if(t.cheesePieces.length >= stats.cheeseMax){
-        t.cheesePieces.shift(); // remove oldest placed cheese
-      }
-      launchOneCheese();
-      // Always set a cooldown after launching so they space out properly
-      t.cheeseCooldownT = stats.cheeseCooldown;
-      if(S.towerSel===t.id) refreshSelPanel();
-    }
-
-    // Damage enemies walking over placed cheese pieces
-    for(let ci=t.cheesePieces.length-1;ci>=0;ci--){
-      const piece=t.cheesePieces[ci];
-      if(piece.hp<=0){
-        t.cheesePieces.splice(ci,1);
-        t.cheeseCooldownT=stats.cheeseCooldown;
-        if(S.towerSel===t.id) refreshSelPanel();
-        continue;
-      }
-      for(const e of S.enemies){
-        if(e.dead||e.reached||piece.hp<=0) continue;
-        const wfBuff=getWrenFunStatsForTower(t);
-        const canHitAll=wfBuff&&wfBuff.grantAllEnemies;
-        if((e.lead||e.rishiLead)&&!stats.cheesePopLead&&!canHitAll) continue;
-        if(isBlackAndWhiteEnemy(e)&&!canHitAll) continue;
-        const dx=e.x-piece.x, dy=e.y-piece.y;
-        if(dx*dx+dy*dy>((CELL*0.55)**2)) continue;
-        const dmgToApply=Math.min(piece.hp, e.hp);
-        piece.hp-=dmgToApply;
-        e.hp-=dmgToApply;
-        e.flashT=0.12;
-        if(e.hp<=0){ handleEnemyDefeat(e,t); }
-      }
-      // Remove depleted cheese
-      if(piece.hp<=0){
-        t.cheesePieces.splice(ci,1);
-        t.cheeseCooldownT=stats.cheeseCooldown;
-        if(S.towerSel===t.id) refreshSelPanel();
-      }
-    }
-  }
-
-  // ─── CHEESE STORM RAIN ANIMATION UPDATE ───
   if(S.cheeseStormAnim&&S.cheeseStormAnim.length){
     for(let si=S.cheeseStormAnim.length-1;si>=0;si--){
       const sa=S.cheeseStormAnim[si];
@@ -11980,6 +11680,85 @@ function drawProjs(){
       ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();ctx.stroke();
       ctx.strokeStyle='#f6d27a';
       ctx.beginPath();ctx.moveTo(cx,cy-4);ctx.lineTo(cx+3,cy-8);ctx.stroke();
+    } else if(p.type==='football'){
+      const prog2=1-(p.life/(p.maxLife||1));
+      const fpx=p.sx+(p.ex-p.sx)*prog2;
+      const fpy=p.sy+(p.ey-p.sy)*prog2;
+      const bc=p.ballColor||'white';
+      const spin=prog2*Math.PI*8;
+      const br=FOOTBALL_BALL_R;
+      // Soft ground shadow so the ball reads as airborne, not flat (drawn un-rotated)
+      ctx.save();ctx.globalAlpha=0.85;
+      ctx.fillStyle='rgba(0,0,0,0.25)';
+      ctx.beginPath();ctx.ellipse(fpx,fpy+br*0.7,br*0.85,br*0.32,0,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+      ctx.save();ctx.globalAlpha=1;ctx.translate(fpx,fpy);ctx.rotate(spin);
+      // Helper: classic football pattern — a black centre pentagon with 5
+      // curved seam lines sweeping out to the rim (each capped with a small
+      // dot). This reads clearly as a football even at the ball's small
+      // on-screen size, unlike a cluster of overlapping pentagon patches.
+      function drawFootballPattern(patchCol,seamCol){
+        ctx.lineCap='round';
+        ctx.lineWidth=Math.max(1,br*0.13);
+        for(let i=0;i<5;i++){
+          const a=i*(Math.PI*2/5)-Math.PI/2;
+          const sc=typeof seamCol==='function'?seamCol(i):seamCol;
+          const vx=Math.cos(a)*br*0.38,vy=Math.sin(a)*br*0.38;
+          const tx=Math.cos(a)*br*0.94,ty=Math.sin(a)*br*0.94;
+          const ccx=Math.cos(a+0.16)*br*0.66,ccy=Math.sin(a+0.16)*br*0.66;
+          ctx.strokeStyle=sc;
+          ctx.beginPath();ctx.moveTo(vx,vy);ctx.quadraticCurveTo(ccx,ccy,tx,ty);ctx.stroke();
+          ctx.fillStyle=sc;
+          ctx.beginPath();ctx.arc(tx,ty,br*0.11,0,Math.PI*2);ctx.fill();
+        }
+        // Centre pentagon
+        ctx.fillStyle=patchCol;
+        ctx.beginPath();
+        for(let i=0;i<5;i++){const a=i*(Math.PI*2/5)-Math.PI/2;const r=br*0.38;i===0?ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r):ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}
+        ctx.closePath();ctx.fill();
+        // Highlight
+        ctx.fillStyle='rgba(255,255,255,0.5)';
+        ctx.beginPath();ctx.ellipse(-br*.3,-br*.34,br*.22,br*.13,-Math.PI/4,0,Math.PI*2);ctx.fill();
+      }
+      if(bc==='worldchamp'){
+        const g=ctx.createRadialGradient(-br*.3,-br*.3,0,0,0,br*1.4);
+        g.addColorStop(0,'#aaffaa');g.addColorStop(0.5,'#00e5ff');g.addColorStop(1,'#003080');
+        ctx.fillStyle=g;ctx.strokeStyle='#004060';ctx.lineWidth=1.2;
+        ctx.shadowColor='#00ff88';ctx.shadowBlur=16+Math.sin(Date.now()*0.018)*8;
+        ctx.beginPath();ctx.arc(0,0,br,0,Math.PI*2);ctx.fill();ctx.stroke();
+        ctx.shadowBlur=0;
+        drawFootballPattern('#03203a','#00ffcc');
+        ctx.strokeStyle='rgba(0,255,180,0.55)';ctx.lineWidth=2.2;ctx.shadowColor='#00ff88';ctx.shadowBlur=14;
+        ctx.beginPath();ctx.arc(0,0,br+2.5,0,Math.PI*2);ctx.stroke();
+        ctx.shadowBlur=0;
+      } else if(bc==='greenred'){
+        // Portugal-flag colours: green ball, red centre + alternating seams
+        const g3=ctx.createRadialGradient(-br*.3,-br*.3,0,0,0,br*1.1);
+        g3.addColorStop(0,'#6fbf6a');g3.addColorStop(1,'#1b5e20');
+        ctx.fillStyle=g3;ctx.strokeStyle='#0d3d10';ctx.lineWidth=1.2;
+        ctx.shadowColor='#1b5e2055';ctx.shadowBlur=5;
+        ctx.beginPath();ctx.arc(0,0,br,0,Math.PI*2);ctx.fill();ctx.stroke();
+        ctx.shadowBlur=0;
+        drawFootballPattern('#c62828',i=>i%2===0?'#c62828':'#ffd54f');
+      } else if(bc==='blue'){
+        const g2=ctx.createRadialGradient(-br*.3,-br*.3,0,0,0,br*1.2);
+        g2.addColorStop(0,'#cfe9ff');g2.addColorStop(1,'#0d47a1');
+        ctx.fillStyle=g2;ctx.strokeStyle='#003080';ctx.lineWidth=1.2;
+        ctx.shadowColor='#2196f3';ctx.shadowBlur=10;
+        ctx.beginPath();ctx.arc(0,0,br,0,Math.PI*2);ctx.fill();ctx.stroke();
+        ctx.shadowBlur=0;
+        drawFootballPattern('#06306b','#5c9fff');
+      } else {
+        // Classic white football with a black pentagon + seams
+        const g4=ctx.createRadialGradient(-br*.32,-br*.35,br*0.1,0,0,br*1.05);
+        g4.addColorStop(0,'#ffffff');g4.addColorStop(0.6,'#f1f1ec');g4.addColorStop(1,'#cfcfc6');
+        ctx.fillStyle=g4;ctx.strokeStyle='#111';ctx.lineWidth=1.2;
+        ctx.shadowColor='rgba(0,0,0,0.3)';ctx.shadowBlur=4;
+        ctx.beginPath();ctx.arc(0,0,br,0,Math.PI*2);ctx.fill();ctx.stroke();
+        ctx.shadowBlur=0;
+        drawFootballPattern('#161616','#161616');
+      }
+      ctx.restore();
     } else if(p.type==='turtleShell'||p.type==='turtleShellPink'||p.type==='turtleShellBlueShiny'){
       const isPink=p.type==='turtleShellPink';
       const isBlue=p.type==='turtleShellBlueShiny';
@@ -12073,6 +11852,7 @@ function drawProjs(){
     ctx.restore();
   }
 }
+
 
 function drawParticles(){
   for(const p of S.particles){
@@ -12407,7 +12187,7 @@ function _resetStats(){
 
 return {startGame,showModeSelect,showMapSelect,showDiffSelect,showSub,showScreen,togglePause,toggleShop,exitToMenu,
         startWave,sellTower,removeTower,desel,toggleSpeed,toggleAuto,setTowerPriority,setCheeseMode,
-        toggleFullscreen,goHome,triggerOrinFrenzy,triggerBigBoomGlobal,triggerCheeseStormGlobal,triggerNathanRelocate,triggerNathanRelocateGlobal,
+        toggleFullscreen,goHome,triggerOrinFrenzy,triggerBigBoomGlobal,triggerCheeseStormGlobal,triggerNathanRelocate,triggerNathanRelocateGlobal,triggerRonaldoSiuuGlobal,
         toggleSandboxPanel,sandboxSkipToRound,sandboxSpawnEnemy,sandboxSellAll,_resetStats,
         winContinue,winLeave,
         toggleMenuMusic,toggleMusicPopup,toggleRadio,toggleSFX,setSFXVolume,setRadioVolume,setMenuVolume,
